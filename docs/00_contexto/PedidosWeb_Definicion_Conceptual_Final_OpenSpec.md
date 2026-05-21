@@ -96,25 +96,35 @@ Debe usar:
 
 El sistema actual tiene una estética oscura y operativa tipo ERP. La nueva versión puede modernizar UX, pero debe conservar la lógica de trabajo intensivo con grillas, filtros, búsqueda, exportación y layouts configurables.
 
-## 5. Multiempresa
+## 5. Clientes por URL e infraestructura SQL (MONO)
 
-### 5.1 Web
+PedidosWeb se despliega como producto **MONO** según la convención genérica PaqSuite:
 
-La URL tendrá formato:
+**Documento base:** `docs/_base/resolucion-host-cliente-sql-mono.md`
 
-```text
-{empresa}.crm.paqsystems.com
-```
+### 5.1 Producción
 
-La empresa determina la base de datos:
+| Concepto | Valor para PedidosWeb |
+|----------|------------------------|
+| `{proyecto}` | `pedidosweb` |
+| URL deploy canónico | `https://demo.pedidosweb.paqsystems.com` |
+| URL de entrada del cliente | `https://{cliente}.pedidosweb.paqsystems.com` → redirige a `demo.pedidosweb...` con contexto `{cliente}` |
+| Base de datos (convención recomendada) | `paqsystems_pedidosweb_{cliente}` (debe coincidir con el registro de asociación SQL del cliente) |
 
-```text
-pq_pedidosweb_{empresa}
-```
+El `{cliente}` del host (ej. `acme`, `capacitacion`) determina servidor SQL, instancia, credenciales y branding (logo), no un selector de empresa dentro de la aplicación.
 
-Durante desarrollo puede forzarse empresa = `desarrollo`.
+### 5.2 Desarrollo
 
-Si el subdominio no es válido o no existe la base correspondiente, se debe mostrar una pantalla de error clara.
+- Se fuerza **`cliente = demo`** (mismas variables que el cliente DEMO de producción).
+- No se interpreta subdominio local como cliente distinto.
+
+### 5.3 Errores
+
+Si `{cliente}` no tiene asociación SQL habilitada o el redirect pierde el contexto de cliente, pantalla de error clara sin exponer detalles de infraestructura.
+
+### 5.4 Nota histórica
+
+Versiones anteriores de este documento citaban `{empresa}.crm.paqsystems.com` y `pq_pedidosweb_{empresa}` sin redirect a `demo.{proyecto}`; quedan sustituidas por el modelo de deploy único descrito en `_base`.
 
 ### 5.2 Mobile futuro
 
