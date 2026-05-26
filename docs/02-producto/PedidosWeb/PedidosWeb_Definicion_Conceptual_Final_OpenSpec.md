@@ -96,35 +96,25 @@ Debe usar:
 
 El sistema actual tiene una estética oscura y operativa tipo ERP. La nueva versión puede modernizar UX, pero debe conservar la lógica de trabajo intensivo con grillas, filtros, búsqueda, exportación y layouts configurables.
 
-## 5. Clientes por URL e infraestructura SQL (MONO)
+## 5. Multiempresa
 
-PedidosWeb se despliega como producto **MONO** según la convención genérica PaqSuite:
+### 5.1 Web
 
-**Documento base:** `docs/_base/resolucion-host-cliente-sql-mono.md`
+La URL tendrá formato:
 
-### 5.1 Producción
+```text
+{empresa}.crm.paqsystems.com
+```
 
-| Concepto | Valor para PedidosWeb |
-|----------|------------------------|
-| `{proyecto}` | `pedidosweb` |
-| URL deploy canónico | `https://demo.pedidosweb.paqsystems.com` |
-| URL de entrada del cliente | `https://{cliente}.pedidosweb.paqsystems.com` → redirige a `demo.pedidosweb...` con contexto `{cliente}` |
-| Base de datos (convención recomendada) | `paqsystems_pedidosweb_{cliente}` (debe coincidir con el registro de asociación SQL del cliente) |
+La empresa determina la base de datos:
 
-El `{cliente}` del host (ej. `acme`, `capacitacion`) determina servidor SQL, instancia, credenciales y branding (logo), no un selector de empresa dentro de la aplicación.
+```text
+pq_pedidosweb_{empresa}
+```
 
-### 5.2 Desarrollo
+Durante desarrollo puede forzarse empresa = `desarrollo`.
 
-- Se fuerza **`cliente = demo`** (mismas variables que el cliente DEMO de producción).
-- No se interpreta subdominio local como cliente distinto.
-
-### 5.3 Errores
-
-Si `{cliente}` no tiene asociación SQL habilitada o el redirect pierde el contexto de cliente, pantalla de error clara sin exponer detalles de infraestructura.
-
-### 5.4 Nota histórica
-
-Versiones anteriores de este documento citaban `{empresa}.crm.paqsystems.com` y `pq_pedidosweb_{empresa}` sin redirect a `demo.{proyecto}`; quedan sustituidas por el modelo de deploy único descrito en `_base`.
+Si el subdominio no es válido o no existe la base correspondiente, se debe mostrar una pantalla de error clara.
 
 ### 5.2 Mobile futuro
 
@@ -321,6 +311,64 @@ Ejemplos:
 
 Los clientes no modifican precio, lista ni descuentos de artículo.
 
+# 10.6 Listado de Parámetros definidos.
+
+
+ArticulosPrecioCero : si admite cargar artículos con precios en cero
+ArticulosSinPrecio : si admite cargar artículos sin precio en la lista
+
+CargaRecurrente : si tras una carga de un pedido/presupuesto, vuelve a cargar un pedido o al listado
+ClienteLeyenda1 : si inicializa la leyenda 1 con la leyenda 1 del cliente
+ClienteLeyenda2 : si inicializa la leyenda 1 con la leyenda 1 del cliente
+ClienteLeyenda3 : si inicializa la leyenda 1 con la leyenda 1 del cliente
+ClienteLeyenda4 : si inicializa la leyenda 1 con la leyenda 1 del cliente
+ClienteLeyenda5 : si inicializa la leyenda 1 con la leyenda 1 del cliente
+ClientesInhabilitados : si procesa clientes inhabilitados o no
+CodClasifArticulos : si limita la carga de artículos a sólo los de esa clasificación
+CodPerfilPedidos : cuál es el perfil de pedidos por defecto
+CodTransporte : código de transporte por defecto si el cliente no tiene transporte
+DetallePorMail : Si en la impresión del mail muestra el detalle o no
+
+DiasVentasDetalladas : Cuántos días anteriores de venta trae desde el ERP
+FechaControl : Fecha-hora que se usa para controlar la edición de pedidos durante la bajada al ERP
+ListaPrecios : Lista de precios por defecto cuando el cliente no tiene ninguna
+Mail_DireccionRemitente : la dirección del remitente con que deben salir los mails.
+mailCCO : mails que deben salir como copia oculta (puede ser más de uno)
+MinutosAviso : (para uso ERP)
+MinutosBloqueo : (para uso ERP)
+MinutosWeb : (para uso ERP)
+ModificaBonArtS : si el vendedor supervisor puede modificar el descuento del artículo
+ModificaBonArtV : si el vendedor común puede modificar el descuento del artículo
+ModificaBonCliS : : si el vendedor supervisor puede modificar el descuento del cliente
+ModificaBonCliV  : si el vendedor común puede modificar el descuento del cliente.
+ModificaCondVtaC : si el cliente puede modificar el la condición de venta
+ModificaCondVtaS : si el vendedor supervisor puede modificar el la condición de venta
+ModificaCondVtaV : si el vendedor puede modificar el la condición de venta
+ModificaDirEntrC  : si el cliente puede modificar la dirección de entrega
+ModificaDirEntrS : si el vendedor supervisor puede modificar la dirección de entrega
+ModificaDirEntrV : si el vendedor puede modificar la dirección de entrega
+ModificaExpresoC : si el cliente puede modificar el expreso y su dirección
+ModificaExpresoS : si el vendedor supervisor puede modificar el expreso y su dirección
+ModificaExpresoV : si el vendedor puede modificar el expreso y su dirección
+ModificaListaPrecS : : si el vendedor supervisor puede modificar la lista de precios
+ModificaListaPrecV : si el vendedor puede modificar la lista de precios
+ModificaNivelC : : si el cliente puede modificar el nivel
+ModificaNivelDesktop : (para uso en ERP)
+ModificaNivelS : si el vendedor supervisor puede modificar el nivel
+ModificaNivelV : si el vendedor puede modificar el nivel
+ModificaPrecioS  : si el vendedor supervisor puede modificar precios
+ModificaPrecioV : si el vendedor puede modificar precios
+ModificaTranspC : si el cliente puede modificar el Transporte
+ModificaTranspS : si el vendedor supervisor puede modificar el Transporte
+ModificaTranspV : si el vendedor puede modificar el Transporte
+NivelExtremo : sólo admite en ese campo los valores 0 y 100.
+NOeliminaPedido : si se puede eliminar el pedido.
+NOmodificaPedido : si se puede modificar el pedido.
+RedistribucionManual : (para uso en ERP).
+TalonarioFacturaA : (para uso en ERP)
+TalonarioFacturaB : (para uso en ERP)
+TalonarioFacturaE : (para uso en ERP)
+
 ## 11. Reglas de bonificaciones y precios
 
 ### 11.1 Bonificación de cabecera
@@ -514,19 +562,29 @@ Por cliente o todos según perfil.
 
 Debe mostrar comprobantes con saldo, vencimiento, saldo y saldo acumulado.
 
+Debe mostrar la fecha de ultima actualización (campo fecha_proceso del archivo), que es el mismo para todos los registros, por ende, fuera ir en la carátula del proceso.
+
 ### 17.5 Cheques
 
 Por cliente o todos según perfil.
 
 Debe mostrar cheques en cartera o aplicados con fecha posterior al día.
 
+Debe mostrar la fecha de ultima actualización (campo fecha_proceso del archivo), que es el mismo para todos los registros, por ende, fuera ir en la carátula del proceso.
+
 ### 17.6 Historial de ventas
 
 Debe mostrar ventas de un período determinado por parámetro DiasVentasDetalladas. El detalle debe abrir en modal.
 
+Debe mostrar la fecha de ultima actualización (campo fecha_proceso del archivo), que es el mismo para todos los registros, por ende, fuera ir en la carátula del proceso.
+
+
 ### 17.7 Stock
 
 Consulta no restringida por cliente. Busca por código o descripción, con opción “todos”.
+
+Debe mostrar la fecha de ultima actualización (campo fecha_proceso del archivo), que es el mismo para todos los registros, por ende, fuera ir en la carátula del proceso.
+
 
 ### 17.8 UX de grillas
 
@@ -638,8 +696,9 @@ Orden recomendado:
 
 ## 24. Preguntas pendientes mínimas antes de codificar
 
-1. Confirmar si el número visible secuencial será por empresa y por tipo de comprobante o único para pedidos/presupuestos.
-2. Confirmar nombre definitivo de tablas nuevas para tratativas, resultados y motivos de cierre.
-3. Confirmar si `estado = -1` se usará para modificación, descarga o ambos; conviene separar con campo adicional si se desea mayor precisión.
-4. Confirmar si el cálculo de IVA debe guardarse por renglón, cabecera o ambos.
-5. Confirmar si el mail saldrá por SMTP propio, AWS SES u otro proveedor.
+1. Confirmar si el número visible secuencial será por empresa y por tipo de comprobante o único para pedidos/presupuestos. : Unico para pedidos/presupuestos. por Empresa
+2. Confirmar nombre definitivo de tablas nuevas para tratativas, resultados y motivos de cierre.  : A definir
+3. Confirmar si `estado = -1` se usará para modificación, descarga o ambos; conviene separar con campo adicional si se desea mayor precisión. : se usa para indicar que se está modificando el pedido, que no sea descargado al ERP en ese momento.
+4. Confirmar si el cálculo de IVA debe guardarse por renglón, cabecera o ambos. : Ambos
+5. Confirmar si el mail saldrá por SMTP propio, AWS SES u otro proveedor. : del mismo modo que sale el mail de "olvidé la contraseña" en el Login
+
