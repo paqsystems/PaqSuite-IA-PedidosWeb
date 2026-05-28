@@ -30,7 +30,7 @@ Incluye:
 - Jobs.
 - Events.
 - SQL Server.
-- Middleware multiempresa por subdominio.
+- Middleware tenant MONO: ver `docs/_base/resolucion-host-cliente-sql-mono.md`.
 
 No incluye lógica de pedidos.
 
@@ -221,7 +221,7 @@ Reglas obligatorias:
 - Repositories solo acceso a datos.
 - DTOs para entrada/salida.
 - Policies para visibilidad por usuario.
-- Pensar multiempresa por subdominio.
+- Tenant MONO: `docs/_base/resolucion-host-cliente-sql-mono.md`; constantes en OpenSpec §5.
 - Mantener compatibilidad con Tango Gestión.
 - Generar tests cuando el alcance lo requiera.
 
@@ -277,7 +277,7 @@ Cada HU debe contener:
 
 - HU-001 Login de usuario.
 - HU-002 Recuperación de contraseña.
-- HU-003 Resolución de empresa por subdominio.
+- HU-003 Resolución de tenant (`{cliente}.pedidosweb` → `frontend.pedidosweb`, `X-Paq-Cliente`, SQL). Fuente: `docs/_base/resolucion-host-cliente-sql-mono.md`.
 - HU-004 Selección de cliente según tipo de usuario.
 - HU-005 Inicialización de cabecera desde cliente.
 - HU-006 Carga de renglones con artículos.

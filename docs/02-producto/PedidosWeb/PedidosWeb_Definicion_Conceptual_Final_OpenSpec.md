@@ -96,29 +96,34 @@ Debe usar:
 
 El sistema actual tiene una estética oscura y operativa tipo ERP. La nueva versión puede modernizar UX, pero debe conservar la lógica de trabajo intensivo con grillas, filtros, búsqueda, exportación y layouts configurables.
 
-## 5. Multiempresa
+## 5. Multiempresa (MONO)
 
-### 5.1 Web
+Patrón estándar PaqSuite (mismo que el resto de productos MONO):
 
-La URL tendrá formato:
+- **`docs/_base/resolucion-host-cliente-sql-mono.md`**
+- **`docs/_mono/README-host-y-tenant.md`**
+- Regla **`15-host-subdominio-base-datos-y-branding.md`**
 
-```text
-{empresa}.crm.paqsystems.com
-```
+**No** es MULTI ERP (`X-Company-Id`). Cada cliente final tiene su base; el slug **`{cliente}`** (en documentación funcional a veces «empresa») se resuelve antes del login.
 
-La empresa determina la base de datos:
+### 5.1 Constantes PedidosWeb
 
-```text
-pq_pedidosweb_{empresa}
-```
+| Concepto | Valor |
+|---|---|
+| `{proyecto}` | `pedidosweb` |
+| Entrada | `https://{cliente}.pedidosweb.paqsystems.com` |
+| Frontend | `https://frontend.pedidosweb.paqsystems.com` |
+| Backend | `https://backend.pedidosweb.paqsystems.com` |
+| Header API | `X-Paq-Cliente: {cliente}` |
+| Base SQL por tenant | `pq_pedidosweb_{cliente}` |
+| Desarrollo sin subdominio | `cliente = demo` (o `desarrollo` si se acuerda en infra) |
+| `EMPRESAS_CONEXION` | `CODIGO_TENANT` = `{cliente}`, `proyecto` = `pedidosweb` |
 
-Durante desarrollo puede forzarse empresa = `desarrollo`.
-
-Si el subdominio no es válido o no existe la base correspondiente, se debe mostrar una pantalla de error clara.
+No se modela `empresa_id` en tablas operativas dentro de cada base del tenant.
 
 ### 5.2 Mobile futuro
 
-Para acceso móvil futuro, la aplicación deberá solicitar empresa, recordando las empresas usadas para selección posterior.
+La app solicitará el slug del cliente, recordará tenants usados y enviará `X-Paq-Cliente` a `backend.pedidosweb.paqsystems.com`.
 
 ## 6. Integración con ERP
 
@@ -212,7 +217,7 @@ Estados principales:
 
 | Estado | Significado |
 |---:|---|
-| -1 | Pedido en proceso de modificación o descarga/control transitorio |
+| -1 | Pedido en proceso de modificación para evitar su descarga durante el proceso |
 | 0 | Pedido ingresado en web, aún no descargado al ERP |
 | 1 | Pedido pendiente en ERP, ya descargado |
 | 2 | Pedido cerrado/cumplido en ERP |
@@ -611,7 +616,7 @@ MVP:
 - Sin PDF adjunto.
 - Plantilla por empresa.
 - Plantilla editable por empresa en etapa posterior; si no hay pantalla web, puede quedar en base/configuración.
-- Con o sin detalle según DetallePorMail.
+- Con o sin detalle según parámetro 'DetallePorMail'.
 
 Destinatarios:
 
@@ -697,7 +702,7 @@ Orden recomendado:
 ## 24. Preguntas pendientes mínimas antes de codificar
 
 1. Confirmar si el número visible secuencial será por empresa y por tipo de comprobante o único para pedidos/presupuestos. : Unico para pedidos/presupuestos. por Empresa
-2. Confirmar nombre definitivo de tablas nuevas para tratativas, resultados y motivos de cierre.  : A definir
+2. Confirmar nombre definitivo de tablas nuevas para tratativas, resultados y motivos de cierre. : `pq_pedidosweb_tratativas`, `pq_pedidosweb_tratativas_resultados`, `pq_pedidosweb_motivos_cierre`, `pq_pedidosweb_presupuestos_cierres`
 3. Confirmar si `estado = -1` se usará para modificación, descarga o ambos; conviene separar con campo adicional si se desea mayor precisión. : se usa para indicar que se está modificando el pedido, que no sea descargado al ERP en ese momento.
 4. Confirmar si el cálculo de IVA debe guardarse por renglón, cabecera o ambos. : Ambos
 5. Confirmar si el mail saldrá por SMTP propio, AWS SES u otro proveedor. : del mismo modo que sale el mail de "olvidé la contraseña" en el Login
