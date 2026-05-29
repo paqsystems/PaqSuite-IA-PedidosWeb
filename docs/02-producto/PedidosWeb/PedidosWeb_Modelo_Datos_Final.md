@@ -71,7 +71,8 @@ Estados:
 | 0 | Pedido ingresado web |
 | 1 | Pedido pendiente ERP |
 | 2 | Pedido cerrado/cumplido ERP |
-| 99 | Presupuesto ingresado |
+| 98 | Presupuesto cerrado (conversión, cierre comercial o rechazo) |
+| 99 | Presupuesto ingresado / activo |
 
 Campos recomendados a agregar si no existen:
 
@@ -510,6 +511,8 @@ Para seguimiento simple de presupuestos.
 | cod_usuario_web | varchar(50) | Usuario |
 | observacion | nvarchar(max) null | Observación |
 
+Al registrar un cierre, la cabecera del presupuesto en `pq_pedidosweb_pedidoscabecera` pasa de **estado 99** a **estado 98**.
+
 ### 7.5 pq_pedidosweb_logs_integracion
 
 | Campo | Tipo sugerido | Descripción |
@@ -547,8 +550,9 @@ condventa 1:N clientes
 condventa 1:N pedidoscabecera
 transportes 1:N clientes
 transportes 1:N pedidoscabecera
-presupuestos/pedidos 1:N tratativas (solo estado 99 funcionalmente)
-presupuestos 1:0/1 cierres
+presupuestos/pedidos 1:N tratativas (solo presupuestos estado 99)
+presupuestos estado 99 1:0/1 cierres → al cerrar pasa a estado 98
+presupuestos estado 98 1:1 cierres (histórico)
 motivos_cierre 1:N cierres
 ```
 

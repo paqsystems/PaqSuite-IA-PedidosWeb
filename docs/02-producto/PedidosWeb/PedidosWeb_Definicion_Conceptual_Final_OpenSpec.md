@@ -116,7 +116,7 @@ Patrón estándar PaqSuite (mismo que el resto de productos MONO):
 | Backend | `https://backend.pedidosweb.paqsystems.com` |
 | Header API | `X-Paq-Cliente: {cliente}` |
 | Base SQL por tenant | `pq_pedidosweb_{cliente}` |
-| Desarrollo sin subdominio | `cliente = demo` (o `desarrollo` si se acuerda en infra) |
+| Desarrollo sin subdominio | `cliente = desarrollo` (middleware local + fila `EMPRESAS_CONEXION`) |
 | `EMPRESAS_CONEXION` | `CODIGO_TENANT` = `{cliente}`, `proyecto` = `pedidosweb` |
 
 No se modela `empresa_id` en tablas operativas dentro de cada base del tenant.
@@ -211,6 +211,17 @@ Opciones mínimas:
 10. Dashboard.
 11. Logs de integración.
 
+La visibilidad de ítems por perfil (cliente / vendedor / supervisor) se rige por permisos y roles (§7); el seed de `pq_menus` define qué procesos existen.
+
+### 8.1 Valores por defecto de experiencia (MVP)
+
+Fuente de verdad de producto para SPEC-001-01 y implementación:
+
+| Parámetro | Valor MVP | Referencia técnica |
+|-----------|-----------|-------------------|
+| Idioma por defecto del producto | `es` | Si `users.locale` vacío: `navigator.language`; si no soportado → `es`. Detalle: `docs/00-contexto/_mono/01-experiencia-base/idioma-multilingual.md` |
+| Tema por defecto (usuario sin preferencia) | `generic.light` | Preferencia por usuario en MONO (`apariencia-temas.md`); catálogo DevExtreme cerrado en contexto |
+
 ## 9. Estados de comprobantes
 
 Estados principales:
@@ -221,9 +232,12 @@ Estados principales:
 | 0 | Pedido ingresado en web, aún no descargado al ERP |
 | 1 | Pedido pendiente en ERP, ya descargado |
 | 2 | Pedido cerrado/cumplido en ERP |
-| 99 | Presupuesto ingresado |
+| 98 | Presupuesto **cerrado** (conversión a pedido, cierre comercial o rechazo; ver §15) |
+| 99 | Presupuesto ingresado / **activo** |
 
-Al eliminar un pedido o presupuesto ingresado, se borra de cabecera y detalle, respetando permisos y controles de simultaneidad.
+Al **eliminar** un **pedido** ingresado (estado 0), se borra de cabecera y detalle, respetando permisos y controles de simultaneidad.
+
+Al **cerrar o rechazar** un **presupuesto** (estado 99), el comprobante pasa a **estado 98** y se registra el cierre en `pq_pedidosweb_presupuestos_cierres` (motivo, tipo de cierre, pedido generado si aplica). **No** se elimina físicamente de cabecera/detalle.
 
 ## 10. Carga de pedidos y presupuestos
 
@@ -498,19 +512,20 @@ Al convertir un presupuesto a pedido:
 
 - Si se mantienen todos los renglones y cantidades, el cierre es positivo total.
 - Si se quitan renglones o se reducen cantidades, el cierre es parcialmente positivo y requiere clasificación.
+- El **presupuesto original** pasa a **estado 98** (cerrado) con registro en `pq_pedidosweb_presupuestos_cierres`.
 - El nuevo comprobante queda como pedido estado 0.
 
 ### 15.2 Pedido a presupuesto
 
 Debe permitirse mientras el pedido no haya sido descargado al ERP.
 
-### 15.3 Eliminación de presupuesto
+### 15.3 Rechazo / cierre negativo de presupuesto
 
-Al eliminar un presupuesto, debe solicitar motivo negativo de cierre/rechazo.
+Al rechazar un presupuesto ingresado (estado 99), debe solicitar **motivo negativo** de cierre. El comprobante pasa a **estado 98** y se registra en `pq_pedidosweb_presupuestos_cierres`. No se elimina físicamente de cabecera y detalle.
 
 ## 16. Tratativas de presupuestos
 
-Solo aplican a presupuestos.
+Solo aplican a presupuestos en **estado 99** (activos).
 
 Campos mínimos sugeridos:
 
@@ -543,17 +558,23 @@ Debe mostrar:
 - Estado.
 - Acciones: ver, editar, eliminar según permisos.
 
-### 17.2 Presupuestos ingresados
+### 17.2 Presupuestos ingresados (activos)
 
-Estado 99.
+Estado **99** únicamente.
 
 Debe permitir:
 
 - Ver detalle.
 - Editar.
-- Eliminar con motivo de rechazo.
-- Convertir a pedido.
+- Cerrar/rechazar con motivo negativo (pasa a **estado 98**).
+- Convertir a pedido (presupuesto pasa a **estado 98**).
 - Registrar tratativas.
+
+### 17.2.1 Presupuestos cerrados
+
+Estado **98**.
+
+Solo consulta (sin edición ni conversión). Debe permitir ver detalle y datos del cierre registrado en `pq_pedidosweb_presupuestos_cierres`.
 
 ### 17.3 Pedidos pendientes
 
@@ -706,4 +727,5 @@ Orden recomendado:
 3. Confirmar si `estado = -1` se usará para modificación, descarga o ambos; conviene separar con campo adicional si se desea mayor precisión. : se usa para indicar que se está modificando el pedido, que no sea descargado al ERP en ese momento.
 4. Confirmar si el cálculo de IVA debe guardarse por renglón, cabecera o ambos. : Ambos
 5. Confirmar si el mail saldrá por SMTP propio, AWS SES u otro proveedor. : del mismo modo que sale el mail de "olvidé la contraseña" en el Login
+6. Confirmar transición de presupuestos cerrados a **estado 98** (sin borrado físico) y registro en `pq_pedidosweb_presupuestos_cierres`. : **Confirmado** — ver §9 y §15.
 
