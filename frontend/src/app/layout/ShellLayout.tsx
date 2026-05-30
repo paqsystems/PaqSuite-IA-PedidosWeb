@@ -3,7 +3,6 @@ import { Outlet } from 'react-router-dom';
 import { useAuth, useRequiredSessionContext } from '../../features/auth/AuthProvider';
 import { useUserMenu } from '../../features/menu/useUserMenu';
 import { useMenuPresentation } from '../../features/menu/hooks/useMenuPresentation';
-import { useUserPreferences } from '../../features/preferences/useUserPreferences';
 import { ShellFooter } from './ShellFooter';
 import { ShellHeader } from './ShellHeader';
 import { ShellSidebar } from './ShellSidebar';
@@ -14,7 +13,6 @@ export function ShellLayout() {
   const sessionContext = useRequiredSessionContext();
   const { logout } = useAuth();
   const { menuItems, isLoading, errorKey } = useUserMenu(true);
-  const preferences = useUserPreferences(sessionContext);
   const menuPresentation = useMenuPresentation(sessionContext.user.id);
   const [isOverlayMode, setIsOverlayMode] = useState(() =>
     typeof window !== 'undefined' ? shouldUseOverlaySidebar(window.innerWidth) : false,
@@ -47,7 +45,6 @@ export function ShellLayout() {
     <div className={layoutClassNames}>
       <ShellHeader
         sessionContext={sessionContext}
-        preferences={preferences}
         menuPresentation={menuPresentation}
         onLogout={logout}
       />

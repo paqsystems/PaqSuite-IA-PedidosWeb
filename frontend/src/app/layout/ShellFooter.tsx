@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { appVersion } from '../../shared/config/appVersion';
 
 type ShellFooterProps = {
@@ -5,13 +6,15 @@ type ShellFooterProps = {
 };
 
 export function ShellFooter({ userLabel }: ShellFooterProps) {
+  const { t } = useTranslation();
+
   return (
     <footer className="shellFooter" data-testid="shellFooter">
-      <span>PaqSuite PedidosWeb v{appVersion}</span>
+      <span>{t('shell.footer.version', { version: appVersion })}</span>
       <span className="shellFooterSession" data-testid="shell-footer-session">
-        Sesion: {userLabel}
+        {t('shell.footer.session', { user: userLabel })}
       </span>
-      <span>PaqSuite IA</span>
+      <span>{t('shell.footer.brand')}</span>
     </footer>
   );
 }

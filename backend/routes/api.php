@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\HealthController;
 use App\Http\Controllers\UserMenuController;
+use App\Http\Controllers\UserPreferencesController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -23,6 +24,10 @@ Route::prefix('v1')->group(function (): void {
                 ->name('api.v1.auth.password.change');
             Route::get('/auth/me', [AuthController::class, 'me'])->name('api.v1.auth.me');
             Route::get('/user/menu', UserMenuController::class)->name('api.v1.user.menu');
+            Route::get('/users/me/preferences', [UserPreferencesController::class, 'show'])
+                ->name('api.v1.users.me.preferences.show');
+            Route::patch('/users/me/preferences/locale', [UserPreferencesController::class, 'updateLocale'])
+                ->name('api.v1.users.me.preferences.locale');
         });
     });
 });

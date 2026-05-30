@@ -15,6 +15,17 @@ final class UserMenuController extends Controller
         private readonly AuthorizedMenuBuilder $authorizedMenuBuilder,
     ) {}
 
+    /**
+     * @OA\Get(
+     *     path="/api/v1/user/menu",
+     *     summary="Menu autorizado del usuario",
+     *     tags={"Menu"},
+     *     security={{"sanctum":{}},{"tenant":{}}},
+     *     @OA\Response(response=200, description="Arbol de menu", @OA\JsonContent(ref="#/components/schemas/ApiEnvelopeMenuList")),
+     *     @OA\Response(response=401, description="No autenticado"),
+     *     @OA\Response(response=403, description="Sin permiso de menu")
+     * )
+     */
     public function __invoke(Request $request): JsonResponse
     {
         $user = $request->user();

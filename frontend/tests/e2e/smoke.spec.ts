@@ -58,12 +58,15 @@ async function mockAuthenticatedApi(page: import('@playwright/test').Page) {
 
   await page.route('**/api/v1/users/me/preferences', async (route) => {
     await route.fulfill({
-      status: 404,
+      status: 200,
       contentType: 'application/json',
       body: JSON.stringify({
-        error: 404,
-        respuesta: 'not.found',
-        resultado: {},
+        error: 0,
+        respuesta: 'ok',
+        resultado: {
+          locale: 'es',
+          theme: 'generic.light',
+        },
       }),
     });
   });
@@ -92,7 +95,8 @@ test('login valido navega al shell con cuatro zonas', async ({ page }) => {
   await expect(page.getByTestId('menuToggleSidebar')).toBeVisible();
   await expect(page.getByTestId('menuToggleExpandAll')).toBeVisible();
   await expect(page.getByTestId('menuToggleDisplayMode')).toBeVisible();
-  await expect(page.getByTestId('shell-language-slot')).toContainText('Idioma: es');
+  await expect(page.getByTestId('localeSelectorHeader')).toBeVisible();
+  await expect(page.getByTestId('localeSelectorHeader').locator('select')).toHaveValue('es');
 });
 
 test('navegacion interna mantiene el shell montado', async ({ page }) => {

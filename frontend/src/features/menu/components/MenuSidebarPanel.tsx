@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { MenuSidebarTree } from '../components/MenuSidebarTree';
 import type { MenuNode } from '../menuApi';
 import type { MenuDisplayMode } from '../utils/menuPresentationStorage';
@@ -17,14 +18,16 @@ export function MenuSidebarPanel({
   menuTreeExpanded,
   menuDisplayMode,
 }: MenuSidebarPanelProps) {
+  const { t } = useTranslation();
+
   if (isLoading) {
-    return <p data-testid="menuSidebarLoading">Cargando menu...</p>;
+    return <p data-testid="menuSidebarLoading">{t('shell.menu.loading')}</p>;
   }
 
   if (errorKey !== null) {
     return (
       <p data-testid="menuSidebarErrorState">
-        No se pudo cargar el menu. El portal sigue disponible.
+        {t('shell.menu.error')}
       </p>
     );
   }
@@ -32,7 +35,7 @@ export function MenuSidebarPanel({
   if (menuItems.length === 0) {
     return (
       <p data-testid="menuSidebarEmptyState">
-        Sin opciones de menu disponibles para su perfil.
+        {t('shell.menu.empty')}
       </p>
     );
   }

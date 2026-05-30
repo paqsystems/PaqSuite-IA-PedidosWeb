@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next';
+
 type MenuToolbarControlsProps = {
   menuTreeExpanded: boolean;
   menuDisplayMode: 'allBranches' | 'operationalOnly';
@@ -13,13 +15,15 @@ export function MenuToolbarControls({
   onToggleExpandAll,
   onToggleDisplayMode,
 }: MenuToolbarControlsProps) {
+  const { t } = useTranslation();
+
   return (
-    <div className="shellMenuControls" aria-label="Controles de menu">
+    <div className="shellMenuControls" aria-label={t('shell.menu.controls')}>
       <button
         type="button"
         className="shellIconButton"
         data-testid="menuToggleSidebar"
-        aria-label="Mostrar u ocultar menu lateral"
+        aria-label={t('shell.menu.toggleSidebar')}
         onClick={onToggleSidebar}
       >
         ☰
@@ -28,9 +32,9 @@ export function MenuToolbarControls({
         type="button"
         className="shellIconButton"
         data-testid="menuToggleExpandAll"
-        aria-label="Expandir o contraer arbol de menu"
+        aria-label={t('shell.menu.toggleExpand')}
         aria-pressed={menuTreeExpanded}
-        title={menuTreeExpanded ? 'Contraer todo' : 'Expandir todo'}
+        title={menuTreeExpanded ? t('shell.menu.collapseAll') : t('shell.menu.expandAll')}
         onClick={onToggleExpandAll}
       >
         ⇅
@@ -39,12 +43,12 @@ export function MenuToolbarControls({
         type="button"
         className="shellIconButton"
         data-testid="menuToggleDisplayMode"
-        aria-label="Cambiar vista operativa del menu"
+        aria-label={t('shell.menu.toggleDisplayMode')}
         aria-pressed={menuDisplayMode === 'operationalOnly'}
         title={
           menuDisplayMode === 'operationalOnly'
-            ? 'Vista: solo operativos'
-            : 'Vista: todas las ramas'
+            ? t('shell.menu.viewOperational')
+            : t('shell.menu.viewAllBranches')
         }
         onClick={onToggleDisplayMode}
       >

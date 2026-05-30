@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { ApiClientError } from '../../shared/http/client';
 import { useAuth } from './AuthProvider';
 import { changePasswordRequest } from './changePasswordApi';
@@ -14,23 +15,9 @@ type ChangePasswordPageProps = {
   forceFirstLogin?: boolean;
 };
 
-const errorMessages: Record<string, string> = {
-  'auth.invalidCurrentPassword': 'La contraseña actual no es correcta.',
-  'auth.newPasswordSameAsCurrent': 'La nueva contraseña debe ser distinta a la actual.',
-  'auth.passwordConfirmationMismatch': 'La confirmación no coincide con la nueva contraseña.',
-  'auth.passwordPolicy': 'La nueva contraseña debe tener al menos 8 caracteres, una letra y un número.',
-  'auth.passwordRequired': 'Complete todos los campos.',
-  'auth.unauthenticated': 'Su sesión expiró. Inicie sesión nuevamente.',
-  'auth.accountDisabled': 'Su cuenta no está habilitada para operar.',
-  'validation.failed': 'Revise los datos ingresados.',
-};
-
-function resolveErrorMessage(errorKey: string): string {
-  return errorMessages[errorKey] ?? 'No se pudo cambiar la contraseña.';
-}
-
 export function ChangePasswordPage({ forceFirstLogin = false }: ChangePasswordPageProps) {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { sessionContext, setSessionContext } = useAuth();
   const [values, setValues] = useState<ChangePasswordFormValues>({
     currentPassword: '',
@@ -44,6 +31,16 @@ export function ChangePasswordPage({ forceFirstLogin = false }: ChangePasswordPa
   const isFirstLoginGate = forceFirstLogin || sessionContext?.firstLogin === true;
 
   const canSubmit = !isSubmitting;
+
+  function resolveErrorMessage(errorKey: string): string {
+    const translated = t(errorKey);
+
+    if (translated !== errorKey) {
+      return translated;
+    }
+
+    return t('changePassword.error.generic');
+  }
 
   function updateField(fieldName: keyof ChangePasswordFormValues, fieldValue: string) {
     setValues((previousValues) => ({
@@ -81,7 +78,7 @@ export function ChangePasswordPage({ forceFirstLogin = false }: ChangePasswordPa
 
         setFormError(resolveErrorMessage(error.respuestaKey));
       } else {
-        setFormError('No se pudo cambiar la contraseña.');
+        setFormError(t('changePassword.error.generic'));
       }
     } finally {
       setIsSubmitting(false);
@@ -91,12 +88,12 @@ export function ChangePasswordPage({ forceFirstLogin = false }: ChangePasswordPa
   return (
     <main>
       {isFirstLoginGate && (
-        <p data-testid="first-login-gate">Debe cambiar su contraseña antes de continuar.</p>
+        <p data-testid="first-login-gate">{t('changePassword.firstLoginGate')}</p>
       )}
-      <h1>Cambiar contraseña</h1>
+      <h1>{t('changePassword.title')}</h1>
       <form data-testid="change-password-form" onSubmit={handleSubmit}>
         <label>
-          Contraseña actual
+          {t('changePassword.current')}
           <input
             data-testid="changePasswordCurrent"
             name="currentPassword"
@@ -111,7 +108,7 @@ export function ChangePasswordPage({ forceFirstLogin = false }: ChangePasswordPa
         )}
 
         <label>
-          Nueva contraseña
+          {t('changePassword.new')}
           <input
             data-testid="changePasswordNew"
             name="newPassword"
@@ -126,7 +123,7 @@ export function ChangePasswordPage({ forceFirstLogin = false }: ChangePasswordPa
         )}
 
         <label>
-          Confirmar nueva contraseña
+          {t('changePassword.confirm')}
           <input
             data-testid="changePasswordConfirm"
             name="newPasswordConfirmation"
@@ -137,11 +134,13 @@ export function ChangePasswordPage({ forceFirstLogin = false }: ChangePasswordPa
           />
         </label>
         {fieldErrors.newPasswordConfirmation && (
-          <p data-testid="changePasswordError">{resolveErrorMessage(fieldErrors.newPasswordConfirmation)}</p>
+          <p data-testid="changePasswordError">
+            {resolveErrorMessage(fieldErrors.newPasswordConfirmation)}
+          </p>
         )}
 
         <button type="submit" data-testid="changePasswordSubmit" disabled={!canSubmit}>
-          Guardar contraseña
+          {t('changePassword.submit')}
         </button>
       </form>
       {formError && <p data-testid="changePasswordError">{formError}</p>}

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import TreeView from 'devextreme-react/tree-view';
 import type dxTreeView from 'devextreme/ui/tree_view';
 import type { MenuNode } from '../menuApi';
@@ -25,15 +26,33 @@ type MenuSidebarTreeProps = {
   menuDisplayMode: MenuDisplayMode;
 };
 
-function mapMenuNodeToTreeItem(node: MenuNode): TreeMenuItem {
+function resolveMenuLabel(
+  node: Pick<MenuNode, 'labelKey' | 'text'>,
+  translate: (labelKey: string) => string,
+): string {
+  if (node.labelKey.trim() !== '') {
+    const translated = translate(node.labelKey);
+
+    if (translated !== node.labelKey) {
+      return translated;
+    }
+  }
+
+  return node.text;
+}
+
+function mapMenuNodeToTreeItem(
+  node: MenuNode,
+  translate: (labelKey: string) => string,
+): TreeMenuItem {
   return {
     menuKey: node.menuKey,
-    text: node.text,
+    text: resolveMenuLabel(node, translate),
     routePath: node.routePath,
     nodeType: node.nodeType,
     items:
       node.children.length > 0
-        ? node.children.map(mapMenuNodeToTreeItem)
+        ? node.children.map((childNode) => mapMenuNodeToTreeItem(childNode, translate))
         : undefined,
   };
 }
@@ -45,20 +64,23 @@ export function MenuSidebarTree({
 }: MenuSidebarTreeProps) {
   const navigate = useNavigate();
   const location = useLocation();
+  const { t, i18n } = useTranslation();
   const treeViewRef = useRef<dxTreeView | null>(null);
 
   const treeItems = useMemo(() => {
+    const translate = (labelKey: string) => t(labelKey);
+
     if (menuDisplayMode === 'operationalOnly') {
       return flattenOperationalMenu(menuItems).map((node: MenuNode) => ({
         menuKey: node.menuKey,
-        text: node.text,
+        text: resolveMenuLabel(node, translate),
         routePath: node.routePath,
         nodeType: node.nodeType,
       }));
     }
 
-    return menuItems.map(mapMenuNodeToTreeItem);
-  }, [menuDisplayMode, menuItems]);
+    return menuItems.map((node) => mapMenuNodeToTreeItem(node, translate));
+  }, [i18n.language, menuDisplayMode, menuItems, t]);
 
   const activeMenuKey = useMemo(
     () => findActiveMenuKey(menuItems, location.pathname),

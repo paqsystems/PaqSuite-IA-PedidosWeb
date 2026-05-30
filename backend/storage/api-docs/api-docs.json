@@ -1,0 +1,788 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "PedidosWeb API",
+        "description": "API REST PedidosWeb (MONO). Todas las respuestas usan envelope JSON: error / respuesta / resultado.",
+        "version": "1.1.0"
+    },
+    "servers": [
+        {
+            "url": "/",
+            "description": "Backend Laravel (paths incluyen /api/v1)"
+        }
+    ],
+    "paths": {
+        "/api/v1/auth/login": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Inicio de sesion",
+                "operationId": "5db09a35f965c6ca7529ed3c3cae8e21",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "codigo",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "codigo": {
+                                        "type": "string",
+                                        "example": "cliente.mvp"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Login exitoso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelopeLogin"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Credenciales invalidas"
+                    },
+                    "403": {
+                        "description": "Sin permiso o perfil comercial"
+                    },
+                    "400": {
+                        "description": "Tenant invalido"
+                    }
+                },
+                "security": [
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/auth/logout": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Cierre de sesion",
+                "operationId": "8f1a443d39c3bf383f851fbb51253c64",
+                "responses": {
+                    "200": {
+                        "description": "Sesion cerrada",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelopeEmpty"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/auth/me": {
+            "get": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Contexto de sesion del usuario autenticado",
+                "operationId": "1e5f382ba4fa0960d233875cab75a361",
+                "responses": {
+                    "200": {
+                        "description": "SessionContext",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelopeSessionContext"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "403": {
+                        "description": "Sin permiso o perfil comercial"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/auth/password/change": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Cambio de contraseña autenticado",
+                "operationId": "292442f8693afd29832154d8bb4717a6",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "currentPassword",
+                                    "newPassword",
+                                    "newPasswordConfirmation"
+                                ],
+                                "properties": {
+                                    "currentPassword": {
+                                        "type": "string"
+                                    },
+                                    "newPassword": {
+                                        "type": "string"
+                                    },
+                                    "newPasswordConfirmation": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Contraseña actualizada",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelopeSessionContext"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "403": {
+                        "description": "Cuenta inhabilitada"
+                    },
+                    "422": {
+                        "description": "Validación o contraseña actual incorrecta"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/health": {
+            "get": {
+                "tags": [
+                    "System"
+                ],
+                "summary": "Health check del servicio",
+                "operationId": "5c314677ccfefc5e8fdee147503287e7",
+                "responses": {
+                    "200": {
+                        "description": "Servicio operativo",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelopeHealth"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/user/menu": {
+            "get": {
+                "tags": [
+                    "Menu"
+                ],
+                "summary": "Menu autorizado del usuario",
+                "operationId": "b11bba08db3119a45f3a7ab3bf1cee02",
+                "responses": {
+                    "200": {
+                        "description": "Arbol de menu",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelopeMenuList"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "403": {
+                        "description": "Sin permiso de menu"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/users/me/preferences": {
+            "get": {
+                "tags": [
+                    "Preferences"
+                ],
+                "summary": "Preferencias del usuario autenticado",
+                "operationId": "537ec05c934595e230b9623acc48f3b3",
+                "responses": {
+                    "200": {
+                        "description": "Preferencias actuales",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelopeUserPreferences"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/users/me/preferences/locale": {
+            "patch": {
+                "tags": [
+                    "Preferences"
+                ],
+                "summary": "Actualizar idioma del usuario",
+                "operationId": "dcd0907cd48fe4cbcd7f2f3b838ed5e2",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "locale"
+                                ],
+                                "properties": {
+                                    "locale": {
+                                        "type": "string",
+                                        "example": "it"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Locale actualizado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelopeLocaleUpdated"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "422": {
+                        "description": "Locale invalido"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "ApiEnvelope": {
+                "required": [
+                    "error",
+                    "respuesta",
+                    "resultado"
+                ],
+                "properties": {
+                    "error": {
+                        "description": "0 = OK",
+                        "type": "integer",
+                        "example": 0
+                    },
+                    "respuesta": {
+                        "description": "Clave i18n o mensaje",
+                        "type": "string",
+                        "example": "ok"
+                    },
+                    "resultado": {
+                        "description": "Payload; nunca null (vacío = {})",
+                        "type": "object"
+                    }
+                },
+                "type": "object"
+            },
+            "HealthResultado": {
+                "properties": {
+                    "serviceName": {
+                        "description": "Payloads tipados del campo `resultado` (envelope MONO).",
+                        "type": "string",
+                        "example": "PaqSuite-IA-PedidosWeb"
+                    },
+                    "status": {
+                        "type": "string",
+                        "example": "up"
+                    }
+                },
+                "type": "object"
+            },
+            "SessionContextUser": {
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "displayName": {
+                        "type": "string",
+                        "example": "Cliente MVP"
+                    },
+                    "login": {
+                        "type": "string",
+                        "example": "cliente.mvp"
+                    }
+                },
+                "type": "object"
+            },
+            "SessionContextSecurity": {
+                "properties": {
+                    "roles": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "example": [
+                            "Cliente"
+                        ]
+                    },
+                    "accesoTotal": {
+                        "type": "boolean",
+                        "example": false
+                    }
+                },
+                "type": "object"
+            },
+            "SessionContextResultado": {
+                "properties": {
+                    "user": {
+                        "$ref": "#/components/schemas/SessionContextUser"
+                    },
+                    "functionalProfile": {
+                        "type": "string",
+                        "example": "cliente"
+                    },
+                    "codCliente": {
+                        "type": "string",
+                        "example": "CLIMVP001",
+                        "nullable": true
+                    },
+                    "codVendedor": {
+                        "type": "string",
+                        "example": null,
+                        "nullable": true
+                    },
+                    "locale": {
+                        "type": "string",
+                        "example": "es"
+                    },
+                    "theme": {
+                        "type": "string",
+                        "example": "generic.light"
+                    },
+                    "firstLogin": {
+                        "type": "boolean",
+                        "example": false
+                    },
+                    "security": {
+                        "$ref": "#/components/schemas/SessionContextSecurity"
+                    }
+                },
+                "type": "object"
+            },
+            "LoginResultado": {
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/SessionContextResultado"
+                    },
+                    {
+                        "properties": {
+                            "token": {
+                                "type": "string",
+                                "example": "1|sanctum-token-ejemplo"
+                            }
+                        },
+                        "type": "object"
+                    }
+                ]
+            },
+            "MenuNode": {
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 10
+                    },
+                    "menuKey": {
+                        "type": "string",
+                        "example": "pedidosIngresados"
+                    },
+                    "labelKey": {
+                        "type": "string",
+                        "example": "menu.pedidosIngresados"
+                    },
+                    "text": {
+                        "type": "string",
+                        "example": "Pedidos Ingresados"
+                    },
+                    "routePath": {
+                        "type": "string",
+                        "example": "/pedidos/ingresados",
+                        "nullable": true
+                    },
+                    "procedimiento": {
+                        "type": "string",
+                        "example": "pw_pedidos_ingresados"
+                    },
+                    "tipoProceso": {
+                        "type": "string",
+                        "example": "P",
+                        "nullable": true
+                    },
+                    "order": {
+                        "type": "integer",
+                        "example": 2
+                    },
+                    "nodeType": {
+                        "type": "string",
+                        "enum": [
+                            "group",
+                            "process"
+                        ],
+                        "example": "process"
+                    },
+                    "children": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/MenuNode"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "UserPreferencesResultado": {
+                "properties": {
+                    "locale": {
+                        "type": "string",
+                        "example": "es"
+                    },
+                    "theme": {
+                        "type": "string",
+                        "example": "generic.light"
+                    }
+                },
+                "type": "object"
+            },
+            "LocaleUpdatedResultado": {
+                "properties": {
+                    "locale": {
+                        "type": "string",
+                        "example": "it"
+                    }
+                },
+                "type": "object"
+            },
+            "ApiEnvelopeHealth": {
+                "example": {
+                    "error": 0,
+                    "respuesta": "ok",
+                    "resultado": {
+                        "serviceName": "PaqSuite-IA-PedidosWeb",
+                        "status": "up"
+                    }
+                },
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/ApiEnvelope"
+                    },
+                    {
+                        "properties": {
+                            "resultado": {
+                                "$ref": "#/components/schemas/HealthResultado"
+                            }
+                        },
+                        "type": "object"
+                    }
+                ]
+            },
+            "ApiEnvelopeLogin": {
+                "example": {
+                    "error": 0,
+                    "respuesta": "ok",
+                    "resultado": {
+                        "token": "1|sanctum-token-ejemplo",
+                        "user": {
+                            "id": 1,
+                            "displayName": "Cliente MVP",
+                            "login": "cliente.mvp"
+                        },
+                        "functionalProfile": "cliente",
+                        "codCliente": "CLIMVP001",
+                        "codVendedor": null,
+                        "locale": "es",
+                        "theme": "generic.light",
+                        "firstLogin": false,
+                        "security": {
+                            "roles": [
+                                "Cliente"
+                            ],
+                            "accesoTotal": false
+                        }
+                    }
+                },
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/ApiEnvelope"
+                    },
+                    {
+                        "properties": {
+                            "resultado": {
+                                "$ref": "#/components/schemas/LoginResultado"
+                            }
+                        },
+                        "type": "object"
+                    }
+                ]
+            },
+            "ApiEnvelopeSessionContext": {
+                "example": {
+                    "error": 0,
+                    "respuesta": "ok",
+                    "resultado": {
+                        "user": {
+                            "id": 1,
+                            "displayName": "Cliente MVP",
+                            "login": "cliente.mvp"
+                        },
+                        "functionalProfile": "cliente",
+                        "codCliente": "CLIMVP001",
+                        "codVendedor": null,
+                        "locale": "es",
+                        "theme": "generic.light",
+                        "firstLogin": false,
+                        "security": {
+                            "roles": [
+                                "Cliente"
+                            ],
+                            "accesoTotal": false
+                        }
+                    }
+                },
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/ApiEnvelope"
+                    },
+                    {
+                        "properties": {
+                            "resultado": {
+                                "$ref": "#/components/schemas/SessionContextResultado"
+                            }
+                        },
+                        "type": "object"
+                    }
+                ]
+            },
+            "ApiEnvelopeMenuList": {
+                "example": {
+                    "error": 0,
+                    "respuesta": "ok",
+                    "resultado": [
+                        {
+                            "id": 10,
+                            "menuKey": "cargaPedidosPresupuestos",
+                            "labelKey": "menu.cargaPedidosPresupuestos",
+                            "text": "Carga Pedidos",
+                            "routePath": null,
+                            "procedimiento": "pw_carga_pedidos",
+                            "tipoProceso": null,
+                            "order": 1,
+                            "nodeType": "group",
+                            "children": [
+                                {
+                                    "id": 11,
+                                    "menuKey": "pedidosIngresados",
+                                    "labelKey": "menu.pedidosIngresados",
+                                    "text": "Pedidos Ingresados",
+                                    "routePath": "/pedidos/ingresados",
+                                    "procedimiento": "pw_pedidos_ingresados",
+                                    "tipoProceso": "P",
+                                    "order": 2,
+                                    "nodeType": "process",
+                                    "children": []
+                                }
+                            ]
+                        }
+                    ]
+                },
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/ApiEnvelope"
+                    },
+                    {
+                        "properties": {
+                            "resultado": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/MenuNode"
+                                }
+                            }
+                        },
+                        "type": "object"
+                    }
+                ]
+            },
+            "ApiEnvelopeUserPreferences": {
+                "example": {
+                    "error": 0,
+                    "respuesta": "ok",
+                    "resultado": {
+                        "locale": "es",
+                        "theme": "generic.light"
+                    }
+                },
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/ApiEnvelope"
+                    },
+                    {
+                        "properties": {
+                            "resultado": {
+                                "$ref": "#/components/schemas/UserPreferencesResultado"
+                            }
+                        },
+                        "type": "object"
+                    }
+                ]
+            },
+            "ApiEnvelopeLocaleUpdated": {
+                "example": {
+                    "error": 0,
+                    "respuesta": "preferences.localeUpdated",
+                    "resultado": {
+                        "locale": "it"
+                    }
+                },
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/ApiEnvelope"
+                    },
+                    {
+                        "properties": {
+                            "resultado": {
+                                "$ref": "#/components/schemas/LocaleUpdatedResultado"
+                            }
+                        },
+                        "type": "object"
+                    }
+                ]
+            },
+            "ApiEnvelopeEmpty": {
+                "example": {
+                    "error": 0,
+                    "respuesta": "auth.logoutOk",
+                    "resultado": []
+                },
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/ApiEnvelope"
+                    }
+                ]
+            }
+        },
+        "securitySchemes": {
+            "sanctum": {
+                "type": "http",
+                "description": "Token Bearer obtenido en POST /api/v1/auth/login",
+                "bearerFormat": "Sanctum",
+                "scheme": "bearer"
+            },
+            "tenant": {
+                "type": "apiKey",
+                "description": "Cliente MONO resuelto (ej. desarrollo, demo)",
+                "name": "X-Paq-Cliente",
+                "in": "header"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Auth",
+            "description": "Auth"
+        },
+        {
+            "name": "System",
+            "description": "System"
+        },
+        {
+            "name": "Menu",
+            "description": "Menu"
+        },
+        {
+            "name": "Preferences",
+            "description": "Preferences"
+        }
+    ]
+}

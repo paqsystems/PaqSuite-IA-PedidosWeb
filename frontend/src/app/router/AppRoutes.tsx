@@ -1,15 +1,17 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../features/auth/AuthProvider';
 import { LoginPage } from '../../features/auth/LoginPage';
 import { authenticatedHomePath, protectedRouteElements } from './protectedRoutes';
 
 function LoginRoute() {
+  const { t } = useTranslation();
   const { isAuthenticated, isBootstrapping, sessionContext, setSessionContext } = useAuth();
 
   if (isBootstrapping) {
     return (
       <main>
-        <p data-testid="auth-bootstrapping">Cargando sesion...</p>
+        <p data-testid="auth-bootstrapping">{t('auth.bootstrapping')}</p>
       </main>
     );
   }
@@ -32,12 +34,13 @@ function LoginRoute() {
 }
 
 function RootRedirect() {
+  const { t } = useTranslation();
   const { isAuthenticated, isBootstrapping, sessionContext } = useAuth();
 
   if (isBootstrapping) {
     return (
       <main>
-        <p data-testid="auth-bootstrapping">Cargando sesion...</p>
+        <p data-testid="auth-bootstrapping">{t('auth.bootstrapping')}</p>
       </main>
     );
   }

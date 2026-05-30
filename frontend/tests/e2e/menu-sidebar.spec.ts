@@ -142,12 +142,15 @@ async function mockShellApi(
 
   await page.route('**/api/v1/users/me/preferences', async (route) => {
     await route.fulfill({
-      status: 404,
+      status: 200,
       contentType: 'application/json',
       body: JSON.stringify({
-        error: 404,
-        respuesta: 'not.found',
-        resultado: {},
+        error: 0,
+        respuesta: 'ok',
+        resultado: {
+          locale: 'es',
+          theme: 'generic.light',
+        },
       }),
     });
   });

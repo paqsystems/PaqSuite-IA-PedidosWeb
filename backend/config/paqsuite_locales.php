@@ -1,0 +1,9 @@
+<?php
+
+return [
+
+    'default' => 'es',
+
+    'supported' => ['es', 'en', 'pt', 'fr', 'it'],
+
+];

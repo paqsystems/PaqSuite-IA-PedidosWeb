@@ -7,8 +7,8 @@
 | **Épica** | 001-Generaliddes |
 | **Prioridad** | Must |
 | **Dependencias** | TR-GEN-01-shell-layout (header/login); TR-GEN-02-login-sesion (estado autenticado); coordina con TR-GEN-01-menu-avatar |
-| **Estado** | Pendiente |
-| **Última actualización** | 2026-05-28 (resincronizada con HU) |
+| **Estado** | D1 implementado — pendiente commit |
+| **Última actualización** | 2026-05-30 (D1 + verificación §3.4) |
 
 **Origen:** [HU-GEN-01-idioma](../../03-historias-usuario/001-Generaliddes/HU-GEN-01-idioma.md)  
 **Referencia SPEC:** [SPEC-001-01-experiencia-base](../../05-open-spec/001-Generaliddes/SPEC-001-01-experiencia-base.md)  
@@ -77,6 +77,192 @@ Feature: Selector de idioma
 3. **RN-03**: Selector de idioma post-login vive en header (no en menú avatar).
 4. **RN-04**: Preferencia de idioma es por usuario, no por tenant.
 5. **RN-05**: Catálogo MVP cerrado: `es`, `en`, `pt`, `fr`, `it` (archivos de recursos completos por idioma antes de habilitar en selector).
+
+---
+
+## 3.1) Informe C1 — Revisión de ambigüedad (2026-05-30)
+
+**Fuentes revisadas:** HU-GEN-01-idioma, SPEC-001-01, `idioma-multilingual.md` (MONO), TR-GEN-01-shell-layout (stub idioma), TR-GEN-01-menu-general-sidebar (R-C1-09 i18n menú), TR-GEN-01-menu-avatar (GET/PATCH preferences), TR-GEN-02-login-sesion (locale en sessionContext), TR-GEN-02-cambio-contrasena (textos auth), `matriz-permisos-mvp.md`, `paqsuite_mvp.php`, código frontend (`ShellHeader`, `LoginPage`, `ChangePasswordPage`, `userPreferences`, `useUserPreferences`, `preferencesApi`), `backend/routes/api.php`, `SessionContextBuilder`, `frontend/package.json`.
+
+### Resultado general
+
+- **Estado:** Apto con observaciones
+- **Puede pasar a D1:** **Sí** (resoluciones §3.2; **alcance D1 acotado** al shell base — ver AMB-C01)
+
+### Ambigüedades críticas
+
+| ID | Tema | Riesgo | Resolución propuesta (→ D1) |
+|----|------|--------|-------------------------------|
+| AMB-C01 | **Checklist §4 demasiado amplio** | 20 ámbitos incluyen mail, pivot, parámetros globales sin UI | **D1-1:** MVP idioma = **shell + login + auth + change-password + toolbar menú + footer + selector** + **1 grilla DevExtreme demo** para E2E italiano. Ítems §4.13–15 y datos de negocio → TRs hermanas / oleadas posteriores. |
+| AMB-C02 | **Sin stack i18n instalado** | `package.json` no incluye `i18next` / `react-i18next` (solo documentado en README) | **D1-2:** instalar y configurar `i18next` + `react-i18next`; provider en `App.tsx`. |
+| AMB-C03 | **API preferencias inexistente** | Matriz documenta `GET/PATCH preferences` y `PATCH locale`; **no hay rutas** en `backend/routes/api.php`. Frontend `preferencesRequest()` → 404 en E2E. | **D1-3:** esta TR implementa **`GET /api/v1/users/me/preferences`** (lectura `users.locale` + `users.theme`) y **`PATCH /api/v1/users/me/preferences/locale`**. `PATCH` general (`openInNewTab`) queda en TR-GEN-01-menu-avatar. |
+| AMB-C04 | **`users.locale` seed `es-AR` vs catálogo `es`** | `SessionContextBuilder` devuelve valor crudo; `userPreferences` ya hace `split('-')[0]` en cliente | **D1-4:** normalizar **siempre a código catálogo** (`es`, `en`, …) en backend al persistir y al armar `sessionContext`; aceptar BCP47 en lectura (`es-AR` → `es`). |
+| AMB-C05 | **Menú: `labelKey` vs `text` API** | TR menú-sidebar difirió AC-12: hoy se muestra `text` del API | **D1-5:** sidebar usa `t(labelKey)` con **fallback a `text`** si falta clave; no traducir datos ERP. |
+| AMB-C06 | **Textos hardcoded en login/auth** | `LoginPage`, `ChangePasswordPage`, errores auth en español fijo | **D1-6:** migrar labels y mensajes a claves i18n; errores envelope vía `t(respuestaKey)` (tabla §4 claves auth). |
+| AMB-C07 | **E2E grilla italiano sin UI** | Gherkin exige caption/filtro DevExtreme en italiano; no hay DataGrid en pantallas actuales | **D1-7:** componente **`LocaleDemoGrid`** (mínimo) en dashboard o ruta demo; solo para validar `dx.messages` + captions i18n. |
+
+### Ambigüedades menores
+
+| ID | Tema | Resolución propuesta (→ D1) |
+|----|------|------------------------------|
+| AMB-M01 | Ruta §6 `app/auth/LoginPage` | Corregir a `frontend/src/features/auth/LoginPage.tsx`. |
+| AMB-M02 | Stub header `shell-language-slot` | Reemplazar por **`LocaleSelector`** (`localeSelectorHeader`); eliminar texto fijo «Idioma: es». |
+| AMB-M03 | Visitante no autenticado | Persistir en **`localStorage`** `pedidosweb.locale.guest`; no llamar API. |
+| AMB-M04 | Post-login cambio idioma | `PATCH locale` → actualizar `users.locale`, respuesta envelope, **`sessionContext` local** y `updateStoredSessionContext`. |
+| AMB-M05 | Fallo PATCH (AC-05) | Mantener locale cliente; toast/error no bloqueante (`localeSaveFailed`). |
+| AMB-M06 | **403** en PATCH locale | **No aplica MVP** salvo cuenta inhabilitada (misma regla que auth); usuario autenticado operativo siempre puede cambiar su locale. |
+| AMB-M07 | Seeds usuarios locale | Añadir en `paqsuite_mvp.php`: `locale.en.mvp`, `locale.it.mvp`, `locale.null.mvp`, `locale.invalid.mvp` (§4 seed). |
+| AMB-M08 | Paridad archivos JSON | Test unitario: mismas claves en `es.json`, `en.json`, `it.json`; `pt`/`fr` completos pero smoke opcional en CI. |
+| AMB-M09 | DevExtreme locale | Al cambiar idioma app: `locale(code)` + `loadMessages` del paquete DevExtreme para los 5 códigos. |
+| AMB-M10 | `useUserPreferences` vs i18n | **`useCurrentLocale`** (i18n) es fuente de verdad UI; preferences API complementa theme (apariencia TR futura). |
+| AMB-M11 | Login hereda locale guest | Tras login OK: **`users.locale` normalizado** prevalece sobre guest; si vacío/null → regla RN-02. |
+| AMB-M12 | OpenAPI / matriz | Matriz ya tiene fila `PATCH locale`; implementar anotaciones en D1 (T6). |
+
+### Contradicciones TR ↔ código ↔ HU
+
+| Contradicción | Resolución |
+|---------------|------------|
+| TR §5.1 lista `GET preferences` y TR menu-avatar comparte endpoint | **GET único** en esta TR (locale+theme); menu-avatar extiende PATCH general sin duplicar GET. |
+| HU pregunta abierta catálogo vs TR RN-05 | **Cerrado:** `es`, `en`, `pt`, `fr`, `it` (MONO + TR). |
+| Seed MVP `es-AR` en todos los usuarios vs AC fallback | Normalización D1-4; tests usan códigos cortos en usuarios nuevos seed. |
+| AC-02 «sin recarga completa» vs cambio DevExtreme | Cambio vía `i18n.changeLanguage` + `config({ locale })` DevExtreme en mismo tick React. |
+
+### Supuestos detectados
+
+- Claves i18n en **inglés técnico** (`auth.invalidCredentials`, `shell.menu.toggleSidebar`, …).
+- Idiomas en selector: **autodenominación** traducida (`locale.name.es` = «Español», etc.).
+- `Intl` / `date-fns` no requerido en D1; formato fechas = oleada posterior si aplica.
+- Recuperación contraseña (mail `it`) → **fuera D1** ([TR-GEN-02-recuperacion-contrasena](TR-GEN-02-recuperacion-contrasena.md)).
+
+### Preguntas para decisión humana
+
+- ~~Alcance checklist §4 en D1~~ → **Cerrado (2026-05-30):** shell base + demo grid (R-C1-01).
+- ~~Endpoint PATCH vs PATCH general~~ → **Cerrado:** sub-ruta `/locale` (R-C1-03).
+- ~~Formato almacenamiento `users.locale`~~ → **Cerrado:** código catálogo 2 letras (R-C1-04).
+
+### Veredicto C1
+
+**Apto para D1** con alcance acotado al shell/login/auth/menú fijo + grilla demo. Sin replan de HU/SPEC; checklist §4 completo es **meta de producto**, no bloqueante único de este slice.
+
+---
+
+## 3.2) Resoluciones C1 — pre-D1 (2026-05-30)
+
+| # | Tema | Decisión |
+|---|------|----------|
+| R-C1-01 | Alcance D1 checklist | Ítems §4 **1–12, 17–19** para `es`/`en`/`it`; omitir 13–16 hasta TR/UI correspondiente. |
+| R-C1-02 | Stack | `i18next` + `react-i18next`; archivos `frontend/src/locales/{locale}.json`. |
+| R-C1-03 | API | `GET /api/v1/users/me/preferences` + `PATCH /api/v1/users/me/preferences/locale` en este slice. |
+| R-C1-04 | Normalización locale | Persistir y exponer **código catálogo** (`es`…`it`); BCP47 solo en entrada/cliente. |
+| R-C1-05 | Menú sidebar | `t(item.labelKey) \|\| item.text`. |
+| R-C1-06 | Auth UI | Claves §4 (auth.*, tenant.invalid) en todos los locales MVP activos. |
+| R-C1-07 | Grilla demo E2E | `LocaleDemoGrid` mínimo con caption i18n + filtro DevExtreme. |
+| R-C1-08 | Guest | `localStorage` `pedidosweb.locale.guest`; selector en login (`localeSelectorLogin`). |
+| R-C1-09 | Seeds | Usuarios QA locale según §4 (nuevas filas en `paqsuite_mvp.php`). |
+| R-C1-10 | DevExtreme | Sincronizar locale/messages al cambiar idioma (T7). |
+| R-C1-11 | Errores PATCH | 422 locale inválido; 401 sin token; envelope MONO. |
+| R-C1-12 | Coordinación avatar | No implementar `openInNewTab` ni menú desplegable avatar en este slice. |
+
+---
+
+## 3.3) Plan D1 — Implementación (2026-05-30)
+
+### Alcance entendido
+
+Infra i18n, selector login/header, persistencia `users.locale`, normalización, traducción del shell base y mensajes auth, integración DevExtreme, grilla demo para E2E italiano, tests unit/integration/E2E.
+
+### Decisiones D1 (cerradas en C1)
+
+| ID | Tema | Decisión |
+|----|------|----------|
+| D1-1 | Alcance UI | R-C1-01 |
+| D1-2 | i18next | R-C1-02 |
+| D1-3 | Backend | R-C1-03 + `UserPreferencesController` |
+| D1-4 | Normalización | R-C1-04 (`LocaleNormalizer` backend + frontend) |
+| D1-5 | Menú | R-C1-05 |
+| D1-6 | Login/auth | R-C1-06 |
+| D1-7 | Demo grid | R-C1-07 |
+| D1-8 | Guest storage | R-C1-08 |
+
+### Tareas D1 ↔ plan §7
+
+| Ticket | Entregable |
+|--------|------------|
+| T1 | Backend `GET preferences` + `PATCH locale`, validación catálogo, tests Feature |
+| T2 | `supportedLocales.ts`, `useCurrentLocale`, resolución RN-02 |
+| T3 | `LocaleSelector` en login y header |
+| T4 | Persistencia guest + autenticado; sync sessionContext |
+| T5 | Tests: paridad claves, API, E2E es/en/it + demo grid |
+| T6 | OpenAPI + matriz §5.3 |
+| T7 | DevExtreme `loadMessages` / `locale()` |
+| T8 | JSON `es`/`en`/`it` completos para alcance D1-1 |
+
+### Archivos previstos
+
+| Capa | Archivos |
+|------|----------|
+| Backend | `app/Support/LocaleNormalizer.php`, `app/Http/Controllers/UserPreferencesController.php`, `config/paqsuite_locales.php`, `routes/api.php`, tests Feature |
+| Frontend | `src/locales/*.json`, `src/features/i18n/**`, ajustes `LoginPage`, `ShellHeader`, `ChangePasswordPage`, `MenuSidebarTree`, `LocaleDemoGrid`, `App.tsx` |
+| Seed | `paqsuite_mvp.php` usuarios locale QA |
+
+### Contrato API cerrado (D1)
+
+**GET** `/api/v1/users/me/preferences` → `{ "locale": "es", "theme": "generic.light" }`
+
+**PATCH** `/api/v1/users/me/preferences/locale`
+
+```json
+{ "locale": "it" }
+```
+
+**200:** `{ "error": 0, "respuesta": "preferences.localeUpdated", "resultado": { "locale": "it" } }`
+
+**401/422:** envelope estándar; catálogo inválido → `preferences.invalidLocale`
+
+---
+
+## 3.4) Verificación D (2026-05-30)
+
+| Verificación | Resultado |
+|--------------|-----------|
+| `GET /api/v1/users/me/preferences` | OK — `UserPreferencesTest` |
+| `PATCH /api/v1/users/me/preferences/locale` (200/401/422) | OK — 6 casos Feature |
+| `LocaleNormalizer` backend + seeds QA locale | OK |
+| Infra `i18next` + JSON `es`/`en`/`pt`/`fr`/`it` | OK |
+| `LocaleSelector` login (`localeSelectorLogin`) + header (`localeSelectorHeader`) | OK |
+| Persistencia guest (`pedidosweb.locale.guest`) + autenticado (PATCH) | OK — E2E |
+| Menú sidebar `t(labelKey) \|\| text` | OK — `MenuSidebarTree` |
+| DevExtreme `loadMessages` + `locale()` sync | OK — `syncDevExtremeLocale.ts` |
+| `LocaleDemoGrid` en dashboard | OK — caption + FilterRow |
+| Unit paridad claves `es`/`en`/`it` | OK — 3 tests |
+| Unit resolución locale (BCP47, fallback) | OK — 5 tests |
+| E2E italiano + persistencia header | OK — `locale.spec.ts` 3 casos |
+| E2E suite completa | **22 passed** |
+| Frontend unit | **24 passed** |
+| OpenAPI L5-Swagger + UI `/api/documentation` | OK — `OpenApiDocumentationTest` 3 casos |
+
+### Trazabilidad AC
+
+| AC | Evidencia |
+|----|-----------|
+| AC-01 | `LocaleSelector` en `LoginPage` y `ShellHeader` |
+| AC-02 | Cambio en vivo sin recarga; `i18n.changeLanguage` |
+| AC-03 | PATCH locale + E2E persistencia tras reload |
+| AC-04 | `resolveInitialLocale` + `LocaleNormalizer` + seeds `locale.null.mvp` |
+| AC-05 | `saveErrorKey` en header; idioma actual se mantiene |
+| AC-06 | `locale.spec.ts` cambio/persistencia + smoke actualizado |
+
+### Criterio italiano (§4)
+
+- [x] Paridad de claves respecto a `es.json`
+- [x] E2E: login con selector en `it` → label «Accedi»
+- [x] E2E: grilla demo caption «Nome»
+- [x] DevExtreme locale `it` cargado al cambiar idioma
+- [ ] Mail recuperación con locale `it` — fuera D1 (TR-GEN-02-recuperacion-contrasena)
+
+### Confirmación de alcance
+
+Shell base + login + auth + change-password + toolbar menú + footer + selector + grilla demo. Sin mail recuperación, pivot, parámetros globales ni menú avatar desplegable.
 
 ---
 
@@ -155,10 +341,10 @@ Lista de **ámbitos** que deben usar claves i18n (no texto fijo en código) en e
 
 **Criterio de cierre por idioma (ej. italiano):**
 
-- [ ] Paridad de claves respecto a `es.json`
-- [ ] E2E: login con selector en `it` → al menos un label de login en italiano
-- [ ] E2E o smoke: grilla con caption y mensaje de carga en italiano
-- [ ] DevExtreme: locale cargado (`it`) para textos de filtro/paginación del grid
+- [x] Paridad de claves respecto a `es.json`
+- [x] E2E: login con selector en `it` → al menos un label de login en italiano
+- [x] E2E o smoke: grilla con caption y mensaje de carga en italiano
+- [x] DevExtreme: locale cargado (`it`) para textos de filtro/paginación del grid
 - [ ] Mail de recuperación probado con locale `it` (mock o entorno test) — ver [TR-GEN-02-recuperacion-contrasena](TR-GEN-02-recuperacion-contrasena.md)
 
 **Implementación DevExtreme (recordatorio técnico):**
@@ -203,16 +389,18 @@ Lista de **ámbitos** que deben usar claves i18n (no texto fijo en código) en e
 
 **OpenAPI (L5-Swagger):**
 
-- [ ] Anotaciones en controller/DTO de preferencias.
-- [ ] `security` declarado.
-- [ ] Header `X-Paq-Cliente` documentado.
-- [ ] Respuestas 401/403/422 documentadas.
-- [ ] Permisos/restricciones de locale en descripción.
-- [ ] Verificado en `/api/documentation`.
+- [x] Anotaciones en controller/DTO de preferencias.
+- [x] `security` declarado.
+- [x] Header `X-Paq-Cliente` documentado.
+- [x] Respuestas 401/403/422 documentadas.
+- [x] Permisos/restricciones de locale en descripción.
+- [x] Verificado en `/api/documentation`.
 
 ### 5.3 Actualización matriz permisos
 
-- [ ] Agregar/confirmar fila para `PATCH /api/v1/users/me/preferences/locale`.
+- [x] Fila `PATCH /api/v1/users/me/preferences/locale` en matriz (TR-GEN-01-idioma).
+- [x] `GET /api/v1/users/me/preferences` compartido con TR-GEN-01-menu-avatar (implementación en este slice).
+- [x] OpenAPI verificado en `/api/documentation`.
 
 ---
 
@@ -224,7 +412,8 @@ Lista de **ámbitos** que deben usar claves i18n (no texto fijo en código) en e
 - `frontend/src/features/i18n/hooks/useCurrentLocale.ts` (nuevo): resolución de idioma inicial.
 - `frontend/src/features/i18n/components/LocaleSelector.tsx` (nuevo): selector reutilizable.
 - `frontend/src/app/layout/ShellHeader.tsx`: ubicar selector post-login.
-- `frontend/src/app/auth/LoginPage.tsx` (nuevo o ajuste): selector visible pre-login.
+- `frontend/src/features/auth/LoginPage.tsx`: selector visible pre-login.
+- `frontend/src/features/i18n/components/LocaleDemoGrid.tsx` (nuevo): grilla demo E2E italiano.
 
 ### data-testid sugeridos
 - `localeSelectorLogin`
@@ -272,18 +461,18 @@ Lista de **ámbitos** que deben usar claves i18n (no texto fijo en código) en e
 ## 10) Checklist final
 
 ### Checklist del slice
-- [ ] AC cumplidos
-- [ ] Backend + frontend + tests según plan
-- [ ] Resolución de fallback sin ambigüedad validada
-- [ ] Selector en login y header operativo
-- [ ] Catálogo `it` con paridad de claves y smoke/E2E en italiano
+- [x] AC cumplidos
+- [x] Backend + frontend + tests según plan
+- [x] Resolución de fallback sin ambigüedad validada
+- [x] Selector en login y header operativo
+- [x] Catálogo `it` con paridad de claves y smoke/E2E en italiano
 - [ ] Checklist de cobertura §4 revisado en PRs de UI (muestreo por ámbito)
 
 ### Checklist normas transversales
 
 - [ ] Endpoints nuevos/modificados con policy en código
 - [ ] Matriz endpoint ↔ permiso actualizada
-- [ ] OpenAPI en /api/documentation coherente con código y matriz
+- [x] OpenAPI en /api/documentation coherente con código y matriz
 - [ ] 401/403 documentados por operación protegida
 - [ ] Envelope JSON respetado
 - [ ] X-Paq-Cliente documentado donde aplique

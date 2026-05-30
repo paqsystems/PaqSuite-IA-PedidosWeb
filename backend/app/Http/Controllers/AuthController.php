@@ -22,6 +22,26 @@ final class AuthController extends Controller
         private readonly SessionContextBuilder $sessionContextBuilder,
     ) {}
 
+    /**
+     * @OA\Post(
+     *     path="/api/v1/auth/login",
+     *     summary="Inicio de sesion",
+     *     tags={"Auth"},
+     *     security={{"tenant":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"codigo","password"},
+     *             @OA\Property(property="codigo", type="string", example="cliente.mvp"),
+     *             @OA\Property(property="password", type="string", format="password")
+     *         )
+     *     ),
+     *     @OA\Response(response=200, description="Login exitoso", @OA\JsonContent(ref="#/components/schemas/ApiEnvelopeLogin")),
+     *     @OA\Response(response=401, description="Credenciales invalidas"),
+     *     @OA\Response(response=403, description="Sin permiso o perfil comercial"),
+     *     @OA\Response(response=400, description="Tenant invalido")
+     * )
+     */
     public function login(Request $request): JsonResponse
     {
         $validated = $request->validate([
@@ -45,6 +65,15 @@ final class AuthController extends Controller
         return ApiResponse::success($resultado);
     }
 
+    /**
+     * @OA\Post(
+     *     path="/api/v1/auth/logout",
+     *     summary="Cierre de sesion",
+     *     tags={"Auth"},
+     *     security={{"sanctum":{}},{"tenant":{}}},
+     *     @OA\Response(response=200, description="Sesion cerrada", @OA\JsonContent(ref="#/components/schemas/ApiEnvelopeEmpty")),
+     * )
+     */
     public function logout(Request $request): JsonResponse
     {
         $user = $request->user();
@@ -65,6 +94,17 @@ final class AuthController extends Controller
         return ApiResponse::success([], 'auth.logoutOk');
     }
 
+    /**
+     * @OA\Get(
+     *     path="/api/v1/auth/me",
+     *     summary="Contexto de sesion del usuario autenticado",
+     *     tags={"Auth"},
+     *     security={{"sanctum":{}},{"tenant":{}}},
+     *     @OA\Response(response=200, description="SessionContext", @OA\JsonContent(ref="#/components/schemas/ApiEnvelopeSessionContext")),
+     *     @OA\Response(response=401, description="No autenticado"),
+     *     @OA\Response(response=403, description="Sin permiso o perfil comercial")
+     * )
+     */
     public function me(Request $request): JsonResponse
     {
         $user = Auth::user();
@@ -105,7 +145,7 @@ final class AuthController extends Controller
      *             @OA\Property(property="newPasswordConfirmation", type="string")
      *         )
      *     ),
-     *     @OA\Response(response=200, description="Contraseña actualizada"),
+     *     @OA\Response(response=200, description="Contraseña actualizada", @OA\JsonContent(ref="#/components/schemas/ApiEnvelopeSessionContext")),
      *     @OA\Response(response=401, description="No autenticado"),
      *     @OA\Response(response=403, description="Cuenta inhabilitada"),
      *     @OA\Response(response=422, description="Validación o contraseña actual incorrecta")

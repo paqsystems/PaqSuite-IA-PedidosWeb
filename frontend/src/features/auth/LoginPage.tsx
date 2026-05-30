@@ -1,6 +1,9 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { ApiClientError } from '../../shared/http/client';
+import { LocaleSelector } from '../i18n/components/LocaleSelector';
+import { useCurrentLocale } from '../i18n/hooks/useCurrentLocale';
 import { loginRequest } from './authApi';
 import { persistAuthSession } from './authStorage';
 import type { SessionContext } from './types';
@@ -11,6 +14,8 @@ type LoginPageProps = {
 
 export function LoginPage({ onLoginSuccess }: LoginPageProps) {
   const navigate = useNavigate();
+  const { t } = useTranslation();
+  const { currentLocale, changeLocale } = useCurrentLocale();
   const [codigo, setCodigo] = useState('');
   const [password, setPassword] = useState('');
   const [errorKey, setErrorKey] = useState<string | null>(null);
@@ -48,10 +53,17 @@ export function LoginPage({ onLoginSuccess }: LoginPageProps) {
 
   return (
     <main>
-      <h1>PedidosWeb</h1>
+      <LocaleSelector
+        testId="localeSelectorLogin"
+        value={currentLocale}
+        onChange={(locale) => {
+          void changeLocale(locale);
+        }}
+      />
+      <h1>{t('login.title')}</h1>
       <form data-testid="login-form" onSubmit={handleSubmit}>
         <label>
-          Usuario
+          {t('login.username')}
           <input
             name="codigo"
             value={codigo}
@@ -60,7 +72,7 @@ export function LoginPage({ onLoginSuccess }: LoginPageProps) {
           />
         </label>
         <label>
-          Contraseña
+          {t('login.password')}
           <input
             name="password"
             type="password"
@@ -70,22 +82,22 @@ export function LoginPage({ onLoginSuccess }: LoginPageProps) {
           />
         </label>
         <button type="submit" data-testid="login-submit" disabled={isSubmitting}>
-          Ingresar
+          {t('login.submit')}
         </button>
       </form>
       {errorKey === 'auth.invalidCredentials' && (
-        <p data-testid="auth-error-generic">Credenciales invalidas.</p>
+        <p data-testid="auth-error-generic">{t('auth.invalidCredentials')}</p>
       )}
       {errorKey === 'auth.noCommercialProfile' && (
         <p data-testid="auth-error-no-commercial-profile">
-          Usuario sin perfil comercial configurado.
+          {t('auth.noCommercialProfile')}
         </p>
       )}
       {errorKey === 'auth.noPermission' && (
-        <p data-testid="auth-error-no-permission">No tiene acceso al portal.</p>
+        <p data-testid="auth-error-no-permission">{t('auth.noPermission')}</p>
       )}
       {errorKey === 'tenant.invalid' && (
-        <p data-testid="auth-error-tenant">Tenant invalido.</p>
+        <p data-testid="auth-error-tenant">{t('tenant.invalid')}</p>
       )}
     </main>
   );

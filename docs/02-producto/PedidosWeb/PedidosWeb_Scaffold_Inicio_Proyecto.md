@@ -29,7 +29,7 @@ Verificados:
 | Laravel 10 completo en `backend/` | Instalado |
 | `App\Http\Responses\ApiResponse` | Envelope MONO |
 | `GET /api/v1/health` | Operativo |
-| `OpenApi.php` | Raíz (L5-Swagger pendiente) |
+| `OpenApi.php` + L5-Swagger | Operativo — `/api/documentation` |
 | Tests Feature + Unit envelope | `php artisan test` verde |
 | Sanctum | Incluido en skeleton |
 

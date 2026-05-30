@@ -6,6 +6,7 @@ use App\Exceptions\AuthFlowException;
 use App\Models\PqPermiso;
 use App\Models\User;
 use App\Support\AuthErrorCodes;
+use App\Support\LocaleNormalizer;
 
 final class SessionContextBuilder
 {
@@ -70,7 +71,7 @@ final class SessionContextBuilder
             'functionalProfile' => $functionalProfile,
             'codCliente' => $codCliente,
             'codVendedor' => $codVendedor,
-            'locale' => (string) ($user->locale ?? 'es'),
+            'locale' => LocaleNormalizer::normalize($user->locale),
             'theme' => (string) ($user->theme ?? 'generic.light'),
             'firstLogin' => (bool) $user->first_login,
             'security' => [

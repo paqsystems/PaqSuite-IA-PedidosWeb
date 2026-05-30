@@ -1,6 +1,6 @@
 # Backend — PaqSuite-IA-PedidosWeb (Laravel 10)
 
-API REST MONO con prefijo **`/api/v1`**, envelope JSON estándar y Sanctum.
+API REST MONO con prefijo **`/api/v1`**, envelope JSON estándar, Sanctum y **OpenAPI (L5-Swagger)**.
 
 ## Requisitos
 
@@ -15,11 +15,25 @@ cd backend
 copy .env.example .env
 composer install
 php artisan key:generate
+composer openapi
 php artisan test
 php artisan serve --port=8000
 ```
 
 Guía completa (nuevos productos MONO): [`docs/00-contexto/_mono/00-instalacion-scaffold-fullstack.md`](../docs/00-contexto/_mono/00-instalacion-scaffold-fullstack.md).
+
+OpenAPI scaffold: [`docs/_base/00-openapi-l5-swagger-scaffold.md`](../docs/_base/00-openapi-l5-swagger-scaffold.md).
+
+## OpenAPI / Swagger UI
+
+| Recurso | Ubicación |
+|---------|-----------|
+| UI | `http://localhost:8000/api/documentation` |
+| Spec JSON | `storage/api-docs/api-docs.json` |
+| Raíz anotaciones | `OpenApi.php` |
+| Regenerar | `composer openapi` |
+
+Tras modificar anotaciones `@OA\...` en controllers, ejecutar `composer openapi` antes de revisar la UI.
 
 ## Envelope JSON
 
@@ -38,6 +52,12 @@ Spec: [`docs/00-contexto/_mono/00-arquitectura-api/envelope-respuestas.md`](../d
 | Método | Path | Auth |
 |--------|------|------|
 | GET | `/api/v1/health` | No |
+| POST | `/api/v1/auth/login` | Tenant header |
+| GET | `/api/v1/auth/me` | Bearer + tenant |
+| GET | `/api/v1/user/menu` | Bearer + tenant |
+| GET/PATCH | `/api/v1/users/me/preferences` | Bearer + tenant |
+
+Ver spec completo en `/api/documentation`.
 
 ## Seed MVP (seguridad y menú)
 
@@ -63,22 +83,20 @@ Catálogo: `config/paqsuite_mvp.php`. Usuarios seed: §4.6 TR-GEN-02-modelo-role
 ## Estructura relevante
 
 ```text
+OpenApi.php
+config/l5-swagger.php
+storage/api-docs/api-docs.json
 app/Http/Responses/ApiResponse.php
 app/Console/Commands/SeedMenusMvpCommand.php
 app/Console/Commands/SeedSeguridadMvpCommand.php
 app/Services/Seed/SeedUpsertService.php
 config/paqsuite_mvp.php
 database/seeders/Mvp/
+tests/Feature/OpenApiDocumentationTest.php
 tests/Feature/SeedMenusMvpTest.php
 tests/Feature/SeedSeguridadMvpTest.php
 ```
 
 ## Variables de entorno
 
-Ver `.env.example`: `TENANT_*`, `SEED_MVP_PASSWORD`, `PAQSUITE_MONO_EMPRESA_ID`, `FRONTEND_URL`.
-
-## Próximos slices
-
-- Middleware tenant (400 `tenant.invalid`)
-- Auth login/logout/me (`TR-GEN-02-login-sesion`)
-- L5-Swagger en `/api/documentation`
+Ver `.env.example`: `TENANT_*`, `SEED_MVP_PASSWORD`, `PAQSUITE_MONO_EMPRESA_ID`, `FRONTEND_URL`, `L5_SWAGGER_*`.

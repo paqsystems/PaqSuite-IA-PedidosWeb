@@ -1,14 +1,16 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../features/auth/AuthProvider';
 
 export function RequireAuth() {
+  const { t } = useTranslation();
   const { isAuthenticated, isBootstrapping } = useAuth();
   const location = useLocation();
 
   if (isBootstrapping) {
     return (
       <main>
-        <p data-testid="auth-bootstrapping">Cargando sesion...</p>
+        <p data-testid="auth-bootstrapping">{t('auth.bootstrapping')}</p>
       </main>
     );
   }
