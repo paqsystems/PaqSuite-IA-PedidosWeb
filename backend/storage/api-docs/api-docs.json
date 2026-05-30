@@ -392,6 +392,60 @@
                     }
                 ]
             }
+        },
+        "/api/v1/users/me/preferences/theme": {
+            "patch": {
+                "tags": [
+                    "Preferences"
+                ],
+                "summary": "Actualizar tema del usuario",
+                "operationId": "141f2e0599fd9964b1db68b9e5f22132",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "theme"
+                                ],
+                                "properties": {
+                                    "theme": {
+                                        "type": "string",
+                                        "example": "generic.dark"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Tema actualizado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelopeThemeUpdated"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "422": {
+                        "description": "Tema invalido"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
         }
     },
     "components": {
@@ -583,6 +637,10 @@
                     },
                     "theme": {
                         "type": "string",
+                        "enum": [
+                            "generic.light",
+                            "generic.dark"
+                        ],
                         "example": "generic.light"
                     },
                     "openInNewTab": {
@@ -597,6 +655,19 @@
                     "openInNewTab": {
                         "type": "boolean",
                         "example": true
+                    }
+                },
+                "type": "object"
+            },
+            "ThemeUpdatedResultado": {
+                "properties": {
+                    "theme": {
+                        "type": "string",
+                        "enum": [
+                            "generic.light",
+                            "generic.dark"
+                        ],
+                        "example": "generic.dark"
                     }
                 },
                 "type": "object"
@@ -821,6 +892,28 @@
                         "properties": {
                             "resultado": {
                                 "$ref": "#/components/schemas/LocaleUpdatedResultado"
+                            }
+                        },
+                        "type": "object"
+                    }
+                ]
+            },
+            "ApiEnvelopeThemeUpdated": {
+                "example": {
+                    "error": 0,
+                    "respuesta": "preferences.themeUpdated",
+                    "resultado": {
+                        "theme": "generic.dark"
+                    }
+                },
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/ApiEnvelope"
+                    },
+                    {
+                        "properties": {
+                            "resultado": {
+                                "$ref": "#/components/schemas/ThemeUpdatedResultado"
                             }
                         },
                         "type": "object"

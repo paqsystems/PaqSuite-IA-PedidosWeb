@@ -160,3 +160,20 @@
     grid-area: unset;
   }
 }
+
+:root[data-theme='generic.dark'] {
+  --shell-border-color: #334155;
+  --shell-surface-color: #0f172a;
+  --shell-panel-color: #1e293b;
+  --shell-text-color: #f8fafc;
+}
+
+:root[data-theme='generic.dark'] .shellIconButton {
+  background: #1e293b;
+  color: #f8fafc;
+}
+
+:root[data-theme='generic.dark'] .shellHeaderSlot,
+:root[data-theme='generic.dark'] .shellFooter {
+  color: #94a3b8;
+}

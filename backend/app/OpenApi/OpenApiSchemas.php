@@ -79,7 +79,7 @@ namespace App\OpenApi;
  *     schema="UserPreferencesResultado",
  *     type="object",
  *     @OA\Property(property="locale", type="string", example="es"),
- *     @OA\Property(property="theme", type="string", example="generic.light"),
+ *     @OA\Property(property="theme", type="string", example="generic.light", enum={"generic.light", "generic.dark"}),
  *     @OA\Property(property="openInNewTab", type="boolean", example=false)
  * )
  *
@@ -87,6 +87,12 @@ namespace App\OpenApi;
  *     schema="OpenInNewTabUpdatedResultado",
  *     type="object",
  *     @OA\Property(property="openInNewTab", type="boolean", example=true)
+ * )
+ *
+ * @OA\Schema(
+ *     schema="ThemeUpdatedResultado",
+ *     type="object",
+ *     @OA\Property(property="theme", type="string", example="generic.dark", enum={"generic.light", "generic.dark"})
  * )
  *
  * @OA\Schema(
@@ -256,6 +262,22 @@ namespace App\OpenApi;
  *         "error": 0,
  *         "respuesta": "preferences.localeUpdated",
  *         "resultado": {"locale": "it"}
+ *     }
+ * )
+ *
+ * @OA\Schema(
+ *     schema="ApiEnvelopeThemeUpdated",
+ *     allOf={
+ *         @OA\Schema(ref="#/components/schemas/ApiEnvelope"),
+ *         @OA\Schema(
+ *             type="object",
+ *             @OA\Property(property="resultado", ref="#/components/schemas/ThemeUpdatedResultado")
+ *         )
+ *     },
+ *     example={
+ *         "error": 0,
+ *         "respuesta": "preferences.themeUpdated",
+ *         "resultado": {"theme": "generic.dark"}
  *     }
  * )
  *

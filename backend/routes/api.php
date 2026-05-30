@@ -30,6 +30,8 @@ Route::prefix('v1')->group(function (): void {
                 ->name('api.v1.users.me.preferences.update');
             Route::patch('/users/me/preferences/locale', [UserPreferencesController::class, 'updateLocale'])
                 ->name('api.v1.users.me.preferences.locale');
+            Route::patch('/users/me/preferences/theme', [UserPreferencesController::class, 'updateTheme'])
+                ->name('api.v1.users.me.preferences.theme');
         });
     });
 });

@@ -32,13 +32,17 @@ describe('userPreferences', () => {
       resolvePreferencesFromSession({
         ...baseSession,
         locale: '',
-        theme: '',
+        theme: 'xx',
       }),
     ).toEqual({
       locale: defaultLocale,
       theme: defaultTheme,
       openInNewTab: false,
     });
+  });
+
+  it('normaliza alias legacy light', () => {
+    expect(normalizeTheme('light')).toBe(defaultTheme);
   });
 
   it('conserva themes distintos de light', () => {

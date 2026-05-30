@@ -26,8 +26,77 @@ final class UserPreferencesTest extends TestCase
         $this->getJson('/api/v1/users/me/preferences', $this->authHeaders($token))
             ->assertOk()
             ->assertJsonPath('resultado.locale', 'en')
-            ->assertJsonPath('resultado.theme', 'light')
+            ->assertJsonPath('resultado.theme', 'generic.light')
             ->assertJsonPath('resultado.openInNewTab', false);
+    }
+
+    public function testShowPreferencesNormalizesLegacyLightTheme(): void
+    {
+        $token = $this->loginTokenFor('theme.light.mvp');
+
+        $this->getJson('/api/v1/users/me/preferences', $this->authHeaders($token))
+            ->assertOk()
+            ->assertJsonPath('resultado.theme', 'generic.light');
+    }
+
+    public function testShowPreferencesDefaultsInvalidTheme(): void
+    {
+        $token = $this->loginTokenFor('theme.invalid.mvp');
+
+        $this->getJson('/api/v1/users/me/preferences', $this->authHeaders($token))
+            ->assertOk()
+            ->assertJsonPath('resultado.theme', 'generic.light');
+    }
+
+    public function testUpdateThemePersistsInDatabase(): void
+    {
+        $token = $this->loginTokenFor('theme.light.mvp');
+
+        $this->patchJson('/api/v1/users/me/preferences/theme', [
+            'theme' => 'generic.dark',
+        ], $this->authHeaders($token))
+            ->assertOk()
+            ->assertJsonPath('respuesta', 'preferences.themeUpdated')
+            ->assertJsonPath('resultado.theme', 'generic.dark');
+
+        $this->assertSame(
+            'generic.dark',
+            User::query()->where('codigo', 'theme.light.mvp')->value('theme')
+        );
+    }
+
+    public function testUpdateThemeAcceptsLegacyLightAlias(): void
+    {
+        $token = $this->loginTokenFor('cliente.mvp');
+
+        $this->patchJson('/api/v1/users/me/preferences/theme', [
+            'theme' => 'light',
+        ], $this->authHeaders($token))
+            ->assertOk()
+            ->assertJsonPath('resultado.theme', 'generic.light');
+    }
+
+    public function testUpdateThemeRejectsInvalidTheme(): void
+    {
+        $token = $this->loginTokenFor('cliente.mvp');
+
+        $this->patchJson('/api/v1/users/me/preferences/theme', [
+            'theme' => 'xx',
+        ], $this->authHeaders($token))
+            ->assertStatus(422)
+            ->assertJsonPath('respuesta', 'preferences.invalidTheme');
+    }
+
+    public function testUpdateThemeRejectsLocaleField(): void
+    {
+        $token = $this->loginTokenFor('cliente.mvp');
+
+        $this->patchJson('/api/v1/users/me/preferences/theme', [
+            'theme' => 'generic.dark',
+            'locale' => 'en',
+        ], $this->authHeaders($token))
+            ->assertStatus(422)
+            ->assertJsonPath('respuesta', 'validation.failed');
     }
 
     public function testShowPreferencesReturnsOpenInNewTabTrue(): void
@@ -128,6 +197,11 @@ final class UserPreferencesTest extends TestCase
 
         $this->patchJson('/api/v1/users/me/preferences', [
             'openInNewTab' => true,
+        ], $this->tenantHeaders())
+            ->assertUnauthorized();
+
+        $this->patchJson('/api/v1/users/me/preferences/theme', [
+            'theme' => 'generic.dark',
         ], $this->tenantHeaders())
             ->assertUnauthorized();
     }

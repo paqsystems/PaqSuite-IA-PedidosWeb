@@ -154,13 +154,12 @@ test('cierra sesion desde el menu avatar', async ({ page }) => {
   await expect(page).toHaveURL(/\/login$/);
 });
 
-test('navega a apariencia desde el menu avatar', async ({ page }) => {
+test('abre selector de apariencia desde el menu avatar', async ({ page }) => {
   await mockAvatarApi(page);
   await loginAs(page);
 
   await clickAvatarMenuItem(page, 'avatarMenuItemAppearance');
-  await expect(page).toHaveURL(/\/appearance$/);
-  await expect(page.getByTestId('appearanceStubPage')).toBeVisible();
+  await expect(page.getByTestId('themeSelectorModal')).toBeVisible();
 });
 
 test('navega a cambiar contraseña desde el menu avatar', async ({ page }) => {

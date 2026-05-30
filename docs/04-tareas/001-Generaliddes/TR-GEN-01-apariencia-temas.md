@@ -7,8 +7,8 @@
 | **Épica** | 001-Generaliddes |
 | **Prioridad** | Must |
 | **Dependencias** | TR-GEN-01-shell-layout; TR-GEN-01-menu-avatar; TR-GEN-02-login-sesion |
-| **Estado** | Pendiente |
-| **Última actualización** | 2026-05-28 (resincronizada con HU) |
+| **Estado** | D cerrado — pendiente commit |
+| **Última actualización** | 2026-05-30 (D1 + verificación §3.4) |
 
 **Origen:** [HU-GEN-01-apariencia-temas](../../03-historias-usuario/001-Generaliddes/HU-GEN-01-apariencia-temas.md)  
 **Referencia SPEC:** [SPEC-001-01-experiencia-base](../../05-open-spec/001-Generaliddes/SPEC-001-01-experiencia-base.md)  
@@ -74,15 +74,272 @@ Feature: Apariencia y temas
 
 ---
 
+## 3.1) Informe C1 — Revisión de ambigüedad (2026-05-28)
+
+**Fuentes revisadas:** HU-GEN-01-apariencia-temas, SPEC-001-01 §8.1, TR-GEN-01-menu-avatar (D cerrado, stub `/appearance`), TR-GEN-01-idioma (patrón `LocaleProvider` / `PATCH locale`), TR-GEN-01-shell-layout, TR-GEN-02-login-sesion, `matriz-permisos-mvp.md`, `paqsuite_mvp.php`, regla local tablas SQL compartidas, código backend (`UserPreferencesController`, `SessionContextBuilder`, `User`, `routes/api.php`, `OpenApiSchemas.php`, `UserPreferencesTest`), frontend (`main.tsx`, `App.tsx`, `AvatarMenu`, `AppearanceStubPage`, `userPreferences`, `useUserPreferences`, `preferencesApi`, `LocaleProvider`, `shellLayout.css`), E2E (`avatar-menu.spec.ts`).
+
+### Resultado general
+
+- **Estado:** Apto con observaciones
+- **Puede pasar a D1:** **Sí** (resoluciones §3.2; catálogo MVP cerrado en R-C1-01)
+
+### Ambigüedades críticas
+
+| ID | Tema | Riesgo | Resolución propuesta (→ D1) |
+|----|------|--------|-------------------------------|
+| AMB-C01 | **PATCH `/preferences/theme` inexistente** | Matriz documenta ruta; solo existe `PATCH locale` y `PATCH /preferences` (`openInNewTab`) | **D1-1:** implementar **`PATCH /api/v1/users/me/preferences/theme`** con catálogo cerrado y tests Feature. |
+| AMB-C02 | **Tema DevExtreme estático** | `main.tsx` importa fijo `dx.light.css`; no hay `themes.current()` ni cambio runtime | **D1-2:** `syncDevExtremeTheme(themeKey)` + carga CSS dinámica / swap stylesheet para temas MVP; invocar al iniciar y al cambiar. |
+| AMB-C03 | **Stub `/appearance` vs selector** | Menu-avatar D1 dejó `AppearanceStubPage`; TR §6 pide `ThemeSelectorModal` | **D1-3:** sustituir stub por **`ThemeSelectorModal`** abierto desde `AvatarMenu`; retirar ruta `/appearance` (o redirigir a dashboard). |
+| AMB-C04 | **Valor legacy `light` en seeds/BD** | Seeds MVP usan `theme: 'light'`; API GET devuelve crudo; frontend `normalizeTheme` mapea `light` → `generic.light` solo en cliente | **D1-4:** **`ThemeNormalizer`** backend (lectura/escritura/persistencia **código catálogo**); GET/`sessionContext` siempre normalizado; aceptar `light`/`dark` legacy en entrada. |
+| AMB-C05 | **Tema no aplicado en runtime** | `useUserPreferences` carga `theme` pero ningún provider lo aplica; shell CSS propio independiente de DevExtreme | **D1-5:** **`ThemeProvider`** (análogo `LocaleProvider`) + atributo **`data-theme`** en `#root` para shell; sync DevExtreme en mismo tick. |
+| AMB-C06 | **Catálogo MVP no cerrado** | HU pregunta abierta: ¿solo generic.light/dark u otras familias (material, fluent)? | **D1-6:** catálogo MVP **cerrado:** `generic.light`, `generic.dark` (R-C1-01). Material/fluent → oleada posterior. |
+| AMB-C07 | **AC-05 sin implementar** | Idioma tiene `saveErrorKey` + revert; tema no tiene flujo de error | **D1-7:** al fallar PATCH theme: mantener tema activo, `themeSaveFailed` i18n (no bloqueante), revert optimista. |
+
+### Ambigüedades menores
+
+| ID | Tema | Resolución propuesta (→ D1) |
+|----|------|------------------------------|
+| AMB-M01 | Selector en login | **No** en login (HU: post-login vía avatar); login usa `generic.light` hasta sesión. |
+| AMB-M02 | GET preferences compartido | Esta TR **no duplica GET**; extiende normalización de `theme` en `show()` + OpenAPI enum. |
+| AMB-M03 | Rutas §6 `updateThemePreference.ts` | Extender **`preferencesApi.ts`** con `patchThemePreference` (convención idioma/avatar). |
+| AMB-M04 | `ThemeSelectorModal` vs página | Modal sobre shell (no navegación full-page); `data-testid="themeSelectorModal"`. |
+| AMB-M05 | testids §6 | Canónicos: `themeSelectorModal`, `themeOption-{themeKey}`, `themeApplyButton`, `themeCurrentValue`. |
+| AMB-M06 | Seeds QA tema | `theme.null.mvp`, `theme.light.mvp`, `theme.dark.mvp`, `theme.invalid.mvp` en `paqsuite_mvp.php`. |
+| AMB-M07 | E2E stub avatar | Actualizar `avatar-menu.spec.ts` (apariencia abre modal) + nuevo **`theme.spec.ts`**. |
+| AMB-M08 | 403 PATCH theme | **No aplica MVP** (misma regla locale/avatar — usuario autenticado operativo). |
+| AMB-M09 | Shell + tema oscuro | CSS mínimo en `shellLayout.css` bajo `[data-theme="generic.dark"]` (contraste legible header/sidebar). |
+| AMB-M10 | Coordinación SPEC-001-03 | D1 limitado a shell + login + controles DevExtreme existentes (demo grid); pantallas futuras heredan provider. |
+| AMB-M11 | Persistencia login siguiente | PATCH + actualizar `sessionContext` local (`updateStoredSessionContext`) como locale. |
+| AMB-M12 | OpenAPI enum | Schema `supportedThemes` en `OpenApiSchemas.php` + `config/paqsuite_themes.php`. |
+
+### Contradicciones TR ↔ código ↔ HU
+
+| Contradicción | Resolución |
+|---------------|------------|
+| TR §6 `App.tsx` aplica tema; hoy solo `LocaleProvider` | **`ThemeProvider`** envuelve rutas en `App.tsx` (R-C1-02). |
+| Menu-avatar navega a `/appearance`; TR apariencia pide modal | Modal desde avatar; **retirar stub** (R-C1-03). |
+| GET test espera `theme: light` para `locale.en.mvp` | Tras normalización D1-4, test esperará `generic.light`; seed legacy sigue válido en BD. |
+| `normalizeTheme` solo frontend vs RN-03 catálogo cerrado | Backend es fuente de verdad; frontend delega en normalizer compartido / respuesta API. |
+| Gherkin «sin recarga completa» | Cambio vía provider + `themes.current()` sin `location.reload()`. |
+
+### Supuestos detectados
+
+- Catálogo DevExtreme MVP = variante **generic** claro/oscuro (CSS `dx.light.css` / `dx.dark.css` o equivalente v25).
+- Modal lista 2 opciones con etiqueta i18n (`theme.name.generic.light`, …).
+- Aplicar tema no requiere remount de React tree completo.
+- Claves i18n bajo prefijo `theme.*`.
+
+### Preguntas para decisión humana
+
+- ~~Catálogo temas MVP~~ → **Cerrado:** `generic.light`, `generic.dark` (R-C1-01).
+- ~~Modal vs ruta `/appearance`~~ → **Cerrado:** modal desde avatar (R-C1-03).
+- ~~Normalización `light` legacy~~ → **Cerrado:** ThemeNormalizer (R-C1-04).
+- ~~Claves i18n tema~~ → **Cerrado (2026-05-28):** tabla §3.3.1.
+
+### Aceptación stakeholder (2026-05-28)
+
+Se aceptan resoluciones §3.2 (AMB-C/M) y catálogo i18n §3.3.1.
+
+### Veredicto C1
+
+**Apto para D1** con catálogo generic claro/oscuro, PATCH theme, provider runtime y sustitución del stub menu-avatar.
+
+---
+
+## 3.2) Resoluciones C1 — pre-D1 (2026-05-28)
+
+| # | Tema | Decisión |
+|---|------|----------|
+| R-C1-01 | Catálogo MVP | **`generic.light`**, **`generic.dark`**; default **`generic.light`**. Config `backend/config/paqsuite_themes.php` + mirror frontend `supportedThemes.ts`. |
+| R-C1-02 | Provider | **`ThemeProvider`** + hook **`useCurrentTheme`** en `frontend/src/features/theme/`; integrar en `App.tsx` (junto a `LocaleProvider`). |
+| R-C1-03 | UI selector | **`ThemeSelectorModal`** invocado desde `AvatarMenu` (reemplaza `navigate('/appearance')`); eliminar **`AppearanceStubPage`** y ruta `/appearance`. |
+| R-C1-04 | Normalización | **`ThemeNormalizer`** backend; alias legacy `light`→`generic.light`, `dark`→`generic.dark`; inválido→default; persistir solo códigos catálogo. |
+| R-C1-05 | API PATCH | **`PATCH /api/v1/users/me/preferences/theme`** body `{ "theme": "generic.dark" }`; prohibir otros campos; 422 fuera de catálogo. |
+| R-C1-06 | API GET | Normalizar `theme` en `UserPreferencesController::show` y `SessionContextBuilder`. |
+| R-C1-07 | DevExtreme runtime | **`syncDevExtremeTheme(themeKey)`** — `themes.current()` + swap CSS bundle del tema. |
+| R-C1-08 | Contenedor raíz | Atributo **`data-theme="{themeKey}"`** en `#root` para E2E y estilos shell. |
+| R-C1-09 | Errores AC-05 | Clave `preferences.themeSaveFailed`; revert optimista; sin bloquear UI. |
+| R-C1-10 | Seeds QA | `theme.null.mvp`, `theme.light.mvp` (legacy `light`), `theme.dark.mvp`, `theme.invalid.mvp` (`xx`). |
+| R-C1-11 | Login pre-auth | Tema **`generic.light`** fijo en pantallas login/change-password (sin selector). |
+| R-C1-12 | OpenAPI | Schema enum temas + operación PATCH; checklist §5.2 en D1. |
+| R-C1-13 | Coordinación avatar | Entrada «Apariencia» abre modal; E2E avatar actualizado. |
+| R-C1-14 | 403 | **No aplica** usuario operativo autenticado. |
+
+---
+
+## 3.3) Plan D1 — Implementación (2026-05-28)
+
+### Alcance entendido
+
+PATCH theme backend con catálogo cerrado, normalización legacy, ThemeProvider + sync DevExtreme, modal selector desde avatar, fallback `generic.light`, tests unit/integration/E2E. **Fuera:** material/fluent, tema por empresa, theme builder, rediseño pixel-perfect shell.
+
+### Decisiones D1 (cerradas en C1)
+
+| ID | Tema | Decisión |
+|----|------|----------|
+| D1-1 | Backend PATCH | R-C1-05 + `UpdateThemePreferenceRequest` |
+| D1-2 | Normalización | R-C1-04 + R-C1-06 |
+| D1-3 | DevExtreme | R-C1-07 |
+| D1-4 | Provider UI | R-C1-02 + R-C1-08 |
+| D1-5 | Modal avatar | R-C1-03 + R-C1-13 |
+| D1-6 | Errores | R-C1-09 |
+| D1-7 | Tests/E2E | R-C1-10 + `theme.spec.ts` |
+
+### Tareas D1 ↔ plan §7
+
+| Ticket | Entregable |
+|--------|------------|
+| T1 | Backend: `ThemeNormalizer`, `PATCH /preferences/theme`, config catálogo, tests Feature |
+| T2 | Frontend: `ThemeProvider`, `useCurrentTheme`, `syncDevExtremeTheme`, `data-theme` en root |
+| T3 | Frontend: `ThemeSelectorModal`, integración `AvatarMenu`, i18n `theme.*` |
+| T4 | Frontend: `patchThemePreference`, sync `sessionContext` post-cambio |
+| T5 | CSS shell mínimo dark + retirar stub `/appearance` |
+| T6 | Tests: unit normalizer + E2E cambio/persistencia + ajuste `avatar-menu.spec.ts` |
+| T7 | Docs: OpenAPI + matriz §5.3 + seeds R-C1-10 |
+
+### Archivos previstos
+
+| Capa | Archivos |
+|------|----------|
+| Backend | `app/Support/ThemeNormalizer.php`, `config/paqsuite_themes.php`, `UpdateThemePreferenceRequest.php`, `UserPreferencesController.php` (método `updateTheme`), `SessionContextBuilder.php`, `PreferencesErrorCodes.php`, `OpenApiSchemas.php`, `routes/api.php`, `tests/Feature/UserPreferencesTest.php`, `config/paqsuite_mvp.php` |
+| Frontend | `features/theme/**`, `features/preferences/preferencesApi.ts`, `features/avatar/components/AvatarMenu.tsx`, `app/App.tsx`, `main.tsx`, `app/layout/shellLayout.css`, `locales/*.json`, `tests/e2e/theme.spec.ts` |
+| Retirar | `features/avatar/pages/AppearanceStubPage.tsx`, ruta `/appearance` en `protectedRoutes.tsx` |
+
+### Contrato API cerrado (D1)
+
+**PATCH** `/api/v1/users/me/preferences/theme`
+
+```json
+{ "theme": "generic.dark" }
+```
+
+**200:**
+
+```json
+{
+  "error": 0,
+  "respuesta": "preferences.themeUpdated",
+  "resultado": { "theme": "generic.dark" }
+}
+```
+
+**401:** `auth.unauthenticated` · **422:** `preferences.invalidTheme` o `validation.failed`
+
+**GET** `/api/v1/users/me/preferences` — campo `theme` siempre normalizado (`generic.light` | `generic.dark`).
+
+### 3.3.1) Catálogo i18n cerrado (D1)
+
+Separación de capas (análoga a `locale.name.{code}` / `supportedLocales.ts`):
+
+| Capa | Contenido | Ejemplo |
+|------|-----------|---------|
+| Catálogo técnico | Códigos persistidos BD/API | `generic.light`, `generic.dark` |
+| i18n | Etiquetas visibles | `theme.name.generic.light` → «Claro» |
+
+#### Nombres de temas (selector)
+
+| Clave i18n | `themeKey` | es | en | it | pt | fr |
+|------------|------------|----|----|----|----|-----|
+| `theme.name.generic.light` | `generic.light` | Claro | Light | Chiaro | Claro | Clair |
+| `theme.name.generic.dark` | `generic.dark` | Oscuro | Dark | Scuro | Escuro | Sombre |
+
+Uso en UI: `t(\`theme.name.${themeKey}\`)` (p. ej. `theme.name.generic.light`).
+
+#### Textos del modal
+
+| Clave i18n | Uso | es |
+|------------|-----|-----|
+| `theme.selector.title` | Título modal | Apariencia |
+| `theme.selector.current` | Tema activo | Tema actual |
+| `theme.selector.apply` | Botón aplicar | Aplicar |
+| `theme.selector.cancel` | Cerrar | Cancelar |
+
+#### Errores
+
+| Clave i18n | Uso | es |
+|------------|-----|-----|
+| `preferences.themeSaveFailed` | AC-05 fallo PATCH | No se pudo guardar el tema. Se mantiene el tema actual. |
+
+#### Claves existentes (coordinación)
+
+| Clave | Rol D1 |
+|-------|--------|
+| `avatar.appearance` | Ítem menú avatar (se mantiene) |
+| `avatar.appearance.title` | **No usar** en modal (usar `theme.selector.title`) |
+| `avatar.appearance.stubMessage` | **Retirar** al eliminar stub `/appearance` |
+
+Paridad obligatoria en `es.json`, `en.json`, `it.json`, `pt.json`, `fr.json` (`localeCatalogParity.test.ts`).
+
+### Fuera de alcance D1
+
+| Ítem | Destino |
+|------|---------|
+| Temas material / fluent / contrast | Oleada posterior |
+| Tema por empresa MULTI | SPEC-001-05 |
+| Selector tema en login | Fuera HU |
+| Rediseño completo shell dark | CSS mínimo MVP |
+
+### Criterio de cierre D1
+
+- AC-01…AC-06 verificados (AC-01 vía modal desde avatar).
+- Stub menu-avatar retirado.
+- Checklist §10 en verde tras T7.
+
+---
+
+## 3.4) Verificación D (2026-05-30)
+
+| Verificación | Resultado |
+|--------------|-----------|
+| `ThemeNormalizer` + alias legacy `light`/`dark` | OK — `ThemeNormalizerTest` (5 casos) |
+| GET `/preferences` normaliza `theme` | OK — `UserPreferencesTest` (legacy + inválido) |
+| `PATCH /preferences/theme` (200/401/422) | OK — 4 casos Feature; rechaza `locale` |
+| `SessionContextBuilder` normaliza tema en login | OK — vía `ThemeNormalizer` |
+| Seeds QA `theme.*.mvp` | OK — `paqsuite_mvp.php`; `theme.null.mvp` usa `''` (columna NOT NULL) |
+| `ThemeProvider` + `data-theme` en `<html>` | OK — `ThemeProvider.tsx` + `syncDevExtremeTheme` |
+| `syncDevExtremeTheme` bootstrap `link[rel=dx-theme]` | OK — corrige E0021 DevExtreme en arranque |
+| `ThemeSelectorModal` desde avatar | OK — `AvatarMenu.tsx`; stub `/appearance` retirado |
+| i18n `theme.*` + `preferences.themeSaveFailed` | OK — 5 locales + `localeCatalogParity.test.ts` |
+| Unit frontend normalizer + preferences | OK — 7 tests |
+| E2E `theme.spec.ts` | OK — 3 casos (modal, cambio/persistencia, inválido) |
+| E2E `avatar-menu.spec.ts` apariencia | OK — abre modal (no navega a `/appearance`) |
+| E2E suite completa | **30 passed** |
+| Frontend unit | **31 passed** |
+| Backend suite completa | **70 passed** |
+| OpenAPI PATCH `/preferences/theme` + enum | OK — `composer openapi` + `OpenApiDocumentationTest` |
+| Matriz permisos PATCH `/preferences/theme` | OK — `matriz-permisos-mvp.md` |
+
+### Trazabilidad AC
+
+| AC | Evidencia | Estado D |
+|----|-----------|----------|
+| AC-01 | E2E abre `themeSelectorModal` desde `avatarMenuItemAppearance` | ✅ |
+| AC-02 | E2E cambia tema sin reload; `data-theme` actualizado al instante | ✅ |
+| AC-03 | E2E persistencia tras reload; PATCH persiste en BD | ✅ |
+| AC-04 | GET normaliza null/legacy/inválido → `generic.light` | ✅ |
+| AC-05 | `preferences.themeSaveFailed` + revert optimista en `ThemeProvider` | ✅ |
+| AC-06 | E2E `theme.spec.ts` cambio y persistencia | ✅ |
+
+### Ajustes D observados
+
+- **`theme.null.mvp`:** columna `users.theme` NOT NULL en BD compartida; seed usa cadena vacía (normalizada como ausencia de preferencia).
+- **DevExtreme runtime:** requiere registrar `link[rel=dx-theme]` antes de `themes.current()`; enlace `stylesheet` manual provocaba E0021 y bloqueaba el render de login.
+- **403 PATCH theme:** no aplica MVP (R-C1-14); OpenAPI documenta 401/422.
+
+### Confirmación de alcance
+
+Selector modal desde avatar, catálogo `generic.light`/`generic.dark`, PATCH theme, normalización legacy, provider runtime, fallback seguro. **Fuera:** material/fluent, tema por empresa, selector en login, rediseño shell dark completo.
+
+---
+
 ## 4) Impacto en Datos
 
 ### Tablas afectadas
 - `users.theme` (lectura/escritura de preferencia de apariencia).
 
 ### Seed mínimo para tests
-- Usuario con `theme = null`.
-- Usuario con `theme = generic.light`.
-- Usuario con `theme = generic.dark` (si está en catálogo MVP).
+- Usuario estándar MVP (`cliente.mvp`, normalización desde `light` legacy).
+- Usuarios QA C1: `theme.null.mvp` (cadena vacía en BD), `theme.light.mvp`, `theme.dark.mvp`, `theme.invalid.mvp`.
 
 ---
 
@@ -121,31 +378,33 @@ Feature: Apariencia y temas
 
 **OpenAPI (L5-Swagger):**
 
-- [ ] Anotaciones en controller/DTO del endpoint de tema.
-- [ ] `security` declarado.
-- [ ] Header `X-Paq-Cliente` documentado.
-- [ ] Respuestas 401/403/422 documentadas.
-- [ ] Enumeración de temas permitidos en schema.
-- [ ] Verificado en `/api/documentation`.
+- [x] Anotaciones en controller/DTO del endpoint de tema.
+- [x] `security` declarado.
+- [x] Header `X-Paq-Cliente` documentado.
+- [x] Respuestas 401/403/422 documentadas.
+- [x] Enumeración de temas permitidos en schema.
+- [x] Verificado en `/api/documentation`.
 
 ### 5.3 Actualización matriz permisos
 
-- [ ] Agregar/confirmar fila para `PATCH /api/v1/users/me/preferences/theme`.
+- [x] Agregar/confirmar fila para `PATCH /api/v1/users/me/preferences/theme`.
 
 ---
 
 ## 6) Cambios Frontend
 
 ### Pantallas / componentes
-- `frontend/src/features/theme/model/supportedThemes.ts` (nuevo): catálogo de temas permitidos.
-- `frontend/src/features/theme/api/updateThemePreference.ts` (nuevo): persistencia de tema.
-- `frontend/src/features/theme/hooks/useThemePreference.ts` (nuevo): carga/aplicación/fallback.
+- `frontend/src/features/theme/model/supportedThemes.ts` (nuevo): catálogo MVP (`generic.light`, `generic.dark`).
+- `frontend/src/features/theme/syncDevExtremeTheme.ts` (nuevo): aplicación runtime DevExtreme.
+- `frontend/src/features/theme/ThemeProvider.tsx` + `hooks/useCurrentTheme.ts` (nuevo).
 - `frontend/src/features/theme/components/ThemeSelectorModal.tsx` (nuevo): selector invocado desde avatar.
-- `frontend/src/features/avatar/components/AvatarMenu.tsx`: entrada "Apariencia".
-- `frontend/src/app/App.tsx`: aplicación de clase/atributo de tema en contenedor raíz.
+- `frontend/src/features/preferences/preferencesApi.ts` (extender): `patchThemePreference`.
+- `frontend/src/features/avatar/components/AvatarMenu.tsx`: abrir modal apariencia (sin ruta `/appearance`).
+- `frontend/src/app/App.tsx`: `ThemeProvider` + contenedor con `data-theme`.
+- `frontend/src/app/layout/shellLayout.css`: overrides mínimos `[data-theme="generic.dark"]`.
 
 ### data-testid sugeridos
-- `themeSelectorOpen`
+- `themeSelectorModal`
 - `themeOption-{themeKey}`
 - `themeApplyButton`
 - `themeCurrentValue`
@@ -156,12 +415,12 @@ Feature: Apariencia y temas
 
 | ID | Tipo | Descripción | DoD |
 |----|------|-------------|-----|
-| T1 | Backend | Exponer endpoint `PATCH /api/v1/users/me/preferences/theme` con catálogo cerrado | OpenAPI + validaciones |
-| T2 | Frontend | Implementar selector de tema desde avatar y aplicación en runtime | Cambio inmediato de UI |
-| T3 | Frontend | Implementar fallback `generic.light` para tema nulo/inválido | Arranque robusto |
-| T4 | Frontend | Sincronizar tema persistido al iniciar sesión | Persistencia validada |
-| T5 | Tests | Integration API + E2E de cambio y persistencia | Casos verdes |
-| T6 | Docs | Actualizar matriz endpoint ↔ permiso | Trazabilidad completa |
+| T1 | Backend | Exponer endpoint `PATCH /api/v1/users/me/preferences/theme` con catálogo cerrado | ✅ OpenAPI + validaciones |
+| T2 | Frontend | Implementar selector de tema desde avatar y aplicación en runtime | ✅ Cambio inmediato de UI |
+| T3 | Frontend | Implementar fallback `generic.light` para tema nulo/inválido | ✅ Arranque robusto |
+| T4 | Frontend | Sincronizar tema persistido al iniciar sesión | ✅ Persistencia validada |
+| T5 | Tests | Integration API + E2E de cambio y persistencia | ✅ Casos verdes |
+| T6 | Docs | Actualizar matriz endpoint ↔ permiso | ✅ Trazabilidad completa |
 
 ---
 
@@ -187,19 +446,19 @@ Feature: Apariencia y temas
 ## 10) Checklist final
 
 ### Checklist del slice
-- [ ] AC cumplidos
-- [ ] Backend + frontend + tests según plan
-- [ ] Fallback `generic.light` validado
-- [ ] Integración operativa con menú avatar
+- [x] AC cumplidos
+- [x] Backend + frontend + tests según plan
+- [x] Fallback `generic.light` validado
+- [x] Integración operativa con menú avatar
 
 ### Checklist normas transversales
 
-- [ ] Endpoints nuevos/modificados con policy en código
-- [ ] Matriz endpoint ↔ permiso actualizada
-- [ ] OpenAPI en /api/documentation coherente con código y matriz
-- [ ] 401/403 documentados por operación protegida
-- [ ] Envelope JSON respetado
-- [ ] X-Paq-Cliente documentado donde aplique
-- [ ] Tests API incluyen 401 (y 403 si aplica)
-- [ ] Sin ampliación de alcance fuera de SPEC/HU/TR
+- [x] Endpoints nuevos/modificados con policy en código
+- [x] Matriz endpoint ↔ permiso actualizada
+- [x] OpenAPI en /api/documentation coherente con código y matriz
+- [x] 401/403 documentados por operación protegida
+- [x] Envelope JSON respetado
+- [x] X-Paq-Cliente documentado donde aplique
+- [x] Tests API incluyen 401 (y 403 si aplica)
+- [x] Sin ampliación de alcance fuera de SPEC/HU/TR
 

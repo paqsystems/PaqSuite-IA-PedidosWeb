@@ -4,10 +4,10 @@ import { patchOpenInNewTabPreference, preferencesRequest } from './preferencesAp
 import {
   defaultLocale,
   defaultOpenInNewTab,
-  defaultTheme,
   resolvePreferencesFromSession,
   type ResolvedUserPreferences,
 } from './userPreferences';
+import { normalizeThemeKey } from '../theme/model/normalizeThemeKey';
 
 export function useUserPreferences(sessionContext: SessionContext) {
   const [preferences, setPreferences] = useState<ResolvedUserPreferences>(() =>
@@ -28,7 +28,7 @@ export function useUserPreferences(sessionContext: SessionContext) {
 
         setPreferences({
           locale: envelope.resultado.locale?.trim() || defaultLocale,
-          theme: envelope.resultado.theme?.trim() || defaultTheme,
+          theme: normalizeThemeKey(envelope.resultado.theme),
           openInNewTab: envelope.resultado.openInNewTab ?? defaultOpenInNewTab,
         });
       } catch {

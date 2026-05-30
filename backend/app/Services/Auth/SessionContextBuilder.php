@@ -7,6 +7,7 @@ use App\Models\PqPermiso;
 use App\Models\User;
 use App\Support\AuthErrorCodes;
 use App\Support\LocaleNormalizer;
+use App\Support\ThemeNormalizer;
 
 final class SessionContextBuilder
 {
@@ -72,7 +73,7 @@ final class SessionContextBuilder
             'codCliente' => $codCliente,
             'codVendedor' => $codVendedor,
             'locale' => LocaleNormalizer::normalize($user->locale),
-            'theme' => (string) ($user->theme ?? 'generic.light'),
+            'theme' => ThemeNormalizer::normalize($user->theme),
             'firstLogin' => (bool) $user->first_login,
             'security' => [
                 'roles' => [(string) $rol->nombre_rol],

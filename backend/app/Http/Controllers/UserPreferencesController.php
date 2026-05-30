@@ -4,10 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\UpdateLocalePreferenceRequest;
 use App\Http\Requests\UpdateOpenInNewTabPreferenceRequest;
+use App\Http\Requests\UpdateThemePreferenceRequest;
 use App\Http\Responses\ApiResponse;
 use App\Support\AuthErrorCodes;
 use App\Support\LocaleNormalizer;
 use App\Support\PreferencesErrorCodes;
+use App\Support\ThemeNormalizer;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -37,7 +39,7 @@ final class UserPreferencesController extends Controller
 
         return ApiResponse::success([
             'locale' => LocaleNormalizer::normalize($user->locale),
-            'theme' => (string) ($user->theme ?? 'generic.light'),
+            'theme' => ThemeNormalizer::normalize($user->theme),
             'openInNewTab' => $user->resolveOpenInNewTab(),
         ]);
     }
@@ -128,6 +130,55 @@ final class UserPreferencesController extends Controller
         return ApiResponse::success(
             ['locale' => $locale],
             'preferences.localeUpdated'
+        );
+    }
+
+    /**
+     * @OA\Patch(
+     *     path="/api/v1/users/me/preferences/theme",
+     *     summary="Actualizar tema del usuario",
+     *     tags={"Preferences"},
+     *     security={{"sanctum":{}},{"tenant":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"theme"},
+     *             @OA\Property(property="theme", type="string", example="generic.dark")
+     *         )
+     *     ),
+     *     @OA\Response(response=200, description="Tema actualizado", @OA\JsonContent(ref="#/components/schemas/ApiEnvelopeThemeUpdated")),
+     *     @OA\Response(response=401, description="No autenticado"),
+     *     @OA\Response(response=422, description="Tema invalido")
+     * )
+     */
+    public function updateTheme(UpdateThemePreferenceRequest $request): JsonResponse
+    {
+        $user = $request->user();
+
+        if ($user === null) {
+            return ApiResponse::error(
+                AuthErrorCodes::unauthenticated,
+                'auth.unauthenticated',
+                401
+            );
+        }
+
+        $theme = ThemeNormalizer::toCatalogCode((string) $request->validated('theme'));
+
+        if ($theme === null) {
+            return ApiResponse::error(
+                PreferencesErrorCodes::invalidTheme,
+                'preferences.invalidTheme',
+                422
+            );
+        }
+
+        $user->theme = $theme;
+        $user->save();
+
+        return ApiResponse::success(
+            ['theme' => $theme],
+            'preferences.themeUpdated'
         );
     }
 }
