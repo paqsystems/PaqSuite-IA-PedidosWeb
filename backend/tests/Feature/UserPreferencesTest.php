@@ -26,7 +26,65 @@ final class UserPreferencesTest extends TestCase
         $this->getJson('/api/v1/users/me/preferences', $this->authHeaders($token))
             ->assertOk()
             ->assertJsonPath('resultado.locale', 'en')
-            ->assertJsonPath('resultado.theme', 'light');
+            ->assertJsonPath('resultado.theme', 'light')
+            ->assertJsonPath('resultado.openInNewTab', false);
+    }
+
+    public function testShowPreferencesReturnsOpenInNewTabTrue(): void
+    {
+        $token = $this->loginTokenFor('openTab.true.mvp');
+
+        $this->getJson('/api/v1/users/me/preferences', $this->authHeaders($token))
+            ->assertOk()
+            ->assertJsonPath('resultado.openInNewTab', true);
+    }
+
+    public function testShowPreferencesDefaultsOpenInNewTabWhenNull(): void
+    {
+        $token = $this->loginTokenFor('openTab.null.mvp');
+
+        $this->getJson('/api/v1/users/me/preferences', $this->authHeaders($token))
+            ->assertOk()
+            ->assertJsonPath('resultado.openInNewTab', false);
+    }
+
+    public function testUpdateOpenInNewTabPersistsInDatabase(): void
+    {
+        $token = $this->loginTokenFor('openTab.false.mvp');
+
+        $this->patchJson('/api/v1/users/me/preferences', [
+            'openInNewTab' => true,
+        ], $this->authHeaders($token))
+            ->assertOk()
+            ->assertJsonPath('respuesta', 'preferences.updated')
+            ->assertJsonPath('resultado.openInNewTab', true);
+
+        $this->assertTrue(
+            (bool) User::query()->where('codigo', 'openTab.false.mvp')->value('menu_abrir_nueva_pestana')
+        );
+    }
+
+    public function testUpdateOpenInNewTabRejectsLocaleField(): void
+    {
+        $token = $this->loginTokenFor('cliente.mvp');
+
+        $this->patchJson('/api/v1/users/me/preferences', [
+            'openInNewTab' => true,
+            'locale' => 'en',
+        ], $this->authHeaders($token))
+            ->assertStatus(422)
+            ->assertJsonPath('respuesta', 'validation.failed');
+    }
+
+    public function testUpdateOpenInNewTabRequiresBoolean(): void
+    {
+        $token = $this->loginTokenFor('cliente.mvp');
+
+        $this->patchJson('/api/v1/users/me/preferences', [
+            'openInNewTab' => 'yes',
+        ], $this->authHeaders($token))
+            ->assertStatus(422)
+            ->assertJsonPath('respuesta', 'validation.failed');
     }
 
     public function testUpdateLocalePersistsInDatabase(): void
@@ -65,6 +123,11 @@ final class UserPreferencesTest extends TestCase
 
         $this->patchJson('/api/v1/users/me/preferences/locale', [
             'locale' => 'en',
+        ], $this->tenantHeaders())
+            ->assertUnauthorized();
+
+        $this->patchJson('/api/v1/users/me/preferences', [
+            'openInNewTab' => true,
         ], $this->tenantHeaders())
             ->assertUnauthorized();
     }

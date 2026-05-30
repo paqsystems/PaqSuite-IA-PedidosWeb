@@ -66,6 +66,7 @@ async function mockAuthenticatedApi(page: import('@playwright/test').Page) {
         resultado: {
           locale: 'es',
           theme: 'generic.light',
+          openInNewTab: false,
         },
       }),
     });

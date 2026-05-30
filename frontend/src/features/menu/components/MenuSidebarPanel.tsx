@@ -9,6 +9,7 @@ type MenuSidebarPanelProps = {
   errorKey: string | null;
   menuTreeExpanded: boolean;
   menuDisplayMode: MenuDisplayMode;
+  openInNewTab: boolean;
 };
 
 export function MenuSidebarPanel({
@@ -17,6 +18,7 @@ export function MenuSidebarPanel({
   errorKey,
   menuTreeExpanded,
   menuDisplayMode,
+  openInNewTab,
 }: MenuSidebarPanelProps) {
   const { t } = useTranslation();
 
@@ -46,6 +48,7 @@ export function MenuSidebarPanel({
         menuItems={menuItems}
         menuTreeExpanded={menuTreeExpanded}
         menuDisplayMode={menuDisplayMode}
+        openInNewTab={openInNewTab}
       />
     </nav>
   );

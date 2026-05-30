@@ -1,8 +1,8 @@
-import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { MenuToolbarControls } from './MenuToolbarControls';
 import { LocaleSelector } from '../../features/i18n/components/LocaleSelector';
 import { useCurrentLocale } from '../../features/i18n/hooks/useCurrentLocale';
+import { AvatarMenu } from '../../features/avatar/components/AvatarMenu';
 import type { SessionContext } from '../../features/auth/types';
 import type { useMenuPresentation } from '../../features/menu/hooks/useMenuPresentation';
 
@@ -11,12 +11,18 @@ type MenuPresentationControls = ReturnType<typeof useMenuPresentation>;
 type ShellHeaderProps = {
   sessionContext: SessionContext;
   menuPresentation: MenuPresentationControls;
+  openInNewTab: boolean;
+  isSavingOpenInNewTab: boolean;
+  onOpenInNewTabChange: (openInNewTab: boolean) => void;
   onLogout: () => void;
 };
 
 export function ShellHeader({
   sessionContext,
   menuPresentation,
+  openInNewTab,
+  isSavingOpenInNewTab,
+  onOpenInNewTabChange,
   onLogout,
 }: ShellHeaderProps) {
   const { t } = useTranslation();
@@ -47,12 +53,13 @@ export function ShellHeader({
         {saveErrorKey !== null && (
           <span data-testid="locale-save-error">{t(saveErrorKey)}</span>
         )}
-        <Link to="/change-password" data-testid="avatar-change-password">
-          {t('shell.header.changePassword')}
-        </Link>
-        <button type="button" data-testid="avatar-logout" onClick={onLogout}>
-          {sessionContext.user.displayName}
-        </button>
+        <AvatarMenu
+          displayName={sessionContext.user.displayName}
+          openInNewTab={openInNewTab}
+          isSavingOpenInNewTab={isSavingOpenInNewTab}
+          onOpenInNewTabChange={onOpenInNewTabChange}
+          onLogout={onLogout}
+        />
       </div>
     </header>
   );

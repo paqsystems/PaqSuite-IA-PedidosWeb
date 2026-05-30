@@ -38,5 +38,7 @@ final class OpenApiDocumentationTest extends TestCase
         $this->assertArrayHasKey('/api/v1/health', $spec['paths']);
         $this->assertArrayHasKey('/api/v1/auth/login', $spec['paths']);
         $this->assertArrayHasKey('/api/v1/users/me/preferences/locale', $spec['paths']);
+        $this->assertArrayHasKey('/api/v1/users/me/preferences', $spec['paths']);
+        $this->assertArrayHasKey('patch', $spec['paths']['/api/v1/users/me/preferences']);
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\UpdateLocalePreferenceRequest;
+use App\Http\Requests\UpdateOpenInNewTabPreferenceRequest;
 use App\Http\Responses\ApiResponse;
 use App\Support\AuthErrorCodes;
 use App\Support\LocaleNormalizer;
@@ -37,7 +38,48 @@ final class UserPreferencesController extends Controller
         return ApiResponse::success([
             'locale' => LocaleNormalizer::normalize($user->locale),
             'theme' => (string) ($user->theme ?? 'generic.light'),
+            'openInNewTab' => $user->resolveOpenInNewTab(),
         ]);
+    }
+
+    /**
+     * @OA\Patch(
+     *     path="/api/v1/users/me/preferences",
+     *     summary="Actualizar preferencia abrir en nueva pestaña",
+     *     tags={"Preferences"},
+     *     security={{"sanctum":{}},{"tenant":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"openInNewTab"},
+     *             @OA\Property(property="openInNewTab", type="boolean", example=true)
+     *         )
+     *     ),
+     *     @OA\Response(response=200, description="Preferencia actualizada", @OA\JsonContent(ref="#/components/schemas/ApiEnvelopeOpenInNewTabUpdated")),
+     *     @OA\Response(response=401, description="No autenticado"),
+     *     @OA\Response(response=422, description="Body invalido")
+     * )
+     */
+    public function update(UpdateOpenInNewTabPreferenceRequest $request): JsonResponse
+    {
+        $user = $request->user();
+
+        if ($user === null) {
+            return ApiResponse::error(
+                AuthErrorCodes::unauthenticated,
+                'auth.unauthenticated',
+                401
+            );
+        }
+
+        $openInNewTab = (bool) $request->validated('openInNewTab');
+        $user->menu_abrir_nueva_pestana = $openInNewTab;
+        $user->save();
+
+        return ApiResponse::success(
+            ['openInNewTab' => $openInNewTab],
+            'preferences.updated'
+        );
     }
 
     /**

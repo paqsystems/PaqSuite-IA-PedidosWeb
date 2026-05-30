@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { clickAvatarMenuItem } from './helpers/avatarMenu';
 
 const seedPassword = 'TestSeedPassword123';
 const newPassword = 'Password123!';
@@ -76,6 +77,22 @@ async function mockChangePasswordApi(
         resultado: {
           ...baseSession,
           firstLogin,
+        },
+      }),
+    });
+  });
+
+  await page.route('**/api/v1/users/me/preferences', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        error: 0,
+        respuesta: 'ok',
+        resultado: {
+          locale: 'es',
+          theme: 'generic.light',
+          openInNewTab: false,
         },
       }),
     });
@@ -172,7 +189,7 @@ test('formulario vacio no envia cambio', async ({ page }) => {
   await page.locator('input[name="codigo"]').fill('cambioClave.mvp');
   await page.locator('input[name="password"]').fill(seedPassword);
   await page.getByTestId('login-submit').click();
-  await page.getByTestId('avatar-change-password').click();
+  await clickAvatarMenuItem(page, 'avatarMenuItemChangePassword');
 
   await page.getByTestId('changePasswordSubmit').click();
   await expect(page.getByTestId('changePasswordError').first()).toContainText('Complete todos los campos');
@@ -186,7 +203,7 @@ test('contraseña actual incorrecta muestra error', async ({ page }) => {
   await page.locator('input[name="codigo"]').fill('cambioClave.mvp');
   await page.locator('input[name="password"]').fill(seedPassword);
   await page.getByTestId('login-submit').click();
-  await page.getByTestId('avatar-change-password').click();
+  await clickAvatarMenuItem(page, 'avatarMenuItemChangePassword');
 
   await page.getByTestId('changePasswordCurrent').fill('wrong-password');
   await page.getByTestId('changePasswordNew').fill(newPassword);
@@ -203,7 +220,7 @@ test('confirmacion distinta muestra error en cliente', async ({ page }) => {
   await page.locator('input[name="codigo"]').fill('cambioClave.mvp');
   await page.locator('input[name="password"]').fill(seedPassword);
   await page.getByTestId('login-submit').click();
-  await page.getByTestId('avatar-change-password').click();
+  await clickAvatarMenuItem(page, 'avatarMenuItemChangePassword');
 
   await page.getByTestId('changePasswordCurrent').fill(seedPassword);
   await page.getByTestId('changePasswordNew').fill(newPassword);
@@ -220,7 +237,7 @@ test('cambio exitoso desde avatar redirige al shell', async ({ page }) => {
   await page.locator('input[name="codigo"]').fill('cambioClave.mvp');
   await page.locator('input[name="password"]').fill(seedPassword);
   await page.getByTestId('login-submit').click();
-  await page.getByTestId('avatar-change-password').click();
+  await clickAvatarMenuItem(page, 'avatarMenuItemChangePassword');
 
   await page.getByTestId('changePasswordCurrent').fill(seedPassword);
   await page.getByTestId('changePasswordNew').fill(newPassword);
@@ -238,12 +255,12 @@ test('login post-cambio acepta nueva clave y rechaza anterior', async ({ page })
   await page.locator('input[name="codigo"]').fill('cambioClave.mvp');
   await page.locator('input[name="password"]').fill(seedPassword);
   await page.getByTestId('login-submit').click();
-  await page.getByTestId('avatar-change-password').click();
+  await clickAvatarMenuItem(page, 'avatarMenuItemChangePassword');
   await page.getByTestId('changePasswordCurrent').fill(seedPassword);
   await page.getByTestId('changePasswordNew').fill(newPassword);
   await page.getByTestId('changePasswordConfirm').fill(newPassword);
   await page.getByTestId('changePasswordSubmit').click();
-  await page.getByTestId('avatar-logout').click();
+  await clickAvatarMenuItem(page, 'avatarMenuItemLogout');
   await expect(page).toHaveURL(/\/login$/);
 
   await page.locator('input[name="codigo"]').fill('cambioClave.mvp');
@@ -251,7 +268,7 @@ test('login post-cambio acepta nueva clave y rechaza anterior', async ({ page })
   await page.getByTestId('login-submit').click();
   await expect(page).toHaveURL(/\/dashboard$/);
 
-  await page.getByTestId('avatar-logout').click();
+  await clickAvatarMenuItem(page, 'avatarMenuItemLogout');
   await expect(page).toHaveURL(/\/login$/);
 
   await page.locator('input[name="codigo"]').fill('cambioClave.mvp');

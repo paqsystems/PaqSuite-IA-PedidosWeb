@@ -77,6 +77,7 @@ async function mockAuthenticatedApi(
         resultado: {
           locale: persistedLocale,
           theme: 'generic.light',
+          openInNewTab: false,
         },
       }),
     });

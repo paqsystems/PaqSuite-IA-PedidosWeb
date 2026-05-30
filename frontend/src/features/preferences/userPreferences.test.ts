@@ -23,6 +23,7 @@ describe('userPreferences', () => {
     expect(resolvePreferencesFromSession(baseSession)).toEqual({
       locale: 'es',
       theme: defaultTheme,
+      openInNewTab: false,
     });
   });
 
@@ -36,6 +37,7 @@ describe('userPreferences', () => {
     ).toEqual({
       locale: defaultLocale,
       theme: defaultTheme,
+      openInNewTab: false,
     });
   });
 

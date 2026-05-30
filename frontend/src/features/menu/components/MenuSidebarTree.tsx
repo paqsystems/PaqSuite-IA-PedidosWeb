@@ -24,6 +24,7 @@ type MenuSidebarTreeProps = {
   menuItems: MenuNode[];
   menuTreeExpanded: boolean;
   menuDisplayMode: MenuDisplayMode;
+  openInNewTab: boolean;
 };
 
 function resolveMenuLabel(
@@ -61,6 +62,7 @@ export function MenuSidebarTree({
   menuItems,
   menuTreeExpanded,
   menuDisplayMode,
+  openInNewTab,
 }: MenuSidebarTreeProps) {
   const navigate = useNavigate();
   const location = useLocation();
@@ -128,6 +130,11 @@ export function MenuSidebarTree({
     const itemData = event.itemData;
 
     if (!itemData || itemData.nodeType !== 'process' || !itemData.routePath) {
+      return;
+    }
+
+    if (openInNewTab) {
+      window.open(itemData.routePath, '_blank', 'noopener,noreferrer');
       return;
     }
 

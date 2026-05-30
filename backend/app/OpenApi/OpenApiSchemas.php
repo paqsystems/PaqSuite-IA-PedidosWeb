@@ -79,7 +79,14 @@ namespace App\OpenApi;
  *     schema="UserPreferencesResultado",
  *     type="object",
  *     @OA\Property(property="locale", type="string", example="es"),
- *     @OA\Property(property="theme", type="string", example="generic.light")
+ *     @OA\Property(property="theme", type="string", example="generic.light"),
+ *     @OA\Property(property="openInNewTab", type="boolean", example=false)
+ * )
+ *
+ * @OA\Schema(
+ *     schema="OpenInNewTabUpdatedResultado",
+ *     type="object",
+ *     @OA\Property(property="openInNewTab", type="boolean", example=true)
  * )
  *
  * @OA\Schema(
@@ -216,7 +223,23 @@ namespace App\OpenApi;
  *     example={
  *         "error": 0,
  *         "respuesta": "ok",
- *         "resultado": {"locale": "es", "theme": "generic.light"}
+ *         "resultado": {"locale": "es", "theme": "generic.light", "openInNewTab": false}
+ *     }
+ * )
+ *
+ * @OA\Schema(
+ *     schema="ApiEnvelopeOpenInNewTabUpdated",
+ *     allOf={
+ *         @OA\Schema(ref="#/components/schemas/ApiEnvelope"),
+ *         @OA\Schema(
+ *             type="object",
+ *             @OA\Property(property="resultado", ref="#/components/schemas/OpenInNewTabUpdatedResultado")
+ *         )
+ *     },
+ *     example={
+ *         "error": 0,
+ *         "respuesta": "preferences.updated",
+ *         "resultado": {"openInNewTab": true}
  *     }
  * )
  *

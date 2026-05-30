@@ -9,6 +9,7 @@ type ShellSidebarProps = {
   isCollapsed: boolean;
   menuTreeExpanded: boolean;
   menuDisplayMode: MenuDisplayMode;
+  openInNewTab: boolean;
 };
 
 export function ShellSidebar({
@@ -18,6 +19,7 @@ export function ShellSidebar({
   isCollapsed,
   menuTreeExpanded,
   menuDisplayMode,
+  openInNewTab,
 }: ShellSidebarProps) {
   if (isCollapsed) {
     return (
@@ -38,6 +40,7 @@ export function ShellSidebar({
         errorKey={errorKey}
         menuTreeExpanded={menuTreeExpanded}
         menuDisplayMode={menuDisplayMode}
+        openInNewTab={openInNewTab}
       />
     </aside>
   );

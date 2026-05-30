@@ -285,6 +285,58 @@
                         "tenant": []
                     }
                 ]
+            },
+            "patch": {
+                "tags": [
+                    "Preferences"
+                ],
+                "summary": "Actualizar preferencia abrir en nueva pestaña",
+                "operationId": "49d36ac8e32ff60902746663f6dd9c7c",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "openInNewTab"
+                                ],
+                                "properties": {
+                                    "openInNewTab": {
+                                        "type": "boolean",
+                                        "example": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Preferencia actualizada",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelopeOpenInNewTabUpdated"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "422": {
+                        "description": "Body invalido"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
             }
         },
         "/api/v1/users/me/preferences/locale": {
@@ -532,6 +584,19 @@
                     "theme": {
                         "type": "string",
                         "example": "generic.light"
+                    },
+                    "openInNewTab": {
+                        "type": "boolean",
+                        "example": false
+                    }
+                },
+                "type": "object"
+            },
+            "OpenInNewTabUpdatedResultado": {
+                "properties": {
+                    "openInNewTab": {
+                        "type": "boolean",
+                        "example": true
                     }
                 },
                 "type": "object"
@@ -700,7 +765,8 @@
                     "respuesta": "ok",
                     "resultado": {
                         "locale": "es",
-                        "theme": "generic.light"
+                        "theme": "generic.light",
+                        "openInNewTab": false
                     }
                 },
                 "allOf": [
@@ -711,6 +777,28 @@
                         "properties": {
                             "resultado": {
                                 "$ref": "#/components/schemas/UserPreferencesResultado"
+                            }
+                        },
+                        "type": "object"
+                    }
+                ]
+            },
+            "ApiEnvelopeOpenInNewTabUpdated": {
+                "example": {
+                    "error": 0,
+                    "respuesta": "preferences.updated",
+                    "resultado": {
+                        "openInNewTab": true
+                    }
+                },
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/ApiEnvelope"
+                    },
+                    {
+                        "properties": {
+                            "resultado": {
+                                "$ref": "#/components/schemas/OpenInNewTabUpdatedResultado"
                             }
                         },
                         "type": "object"

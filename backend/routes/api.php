@@ -26,6 +26,8 @@ Route::prefix('v1')->group(function (): void {
             Route::get('/user/menu', UserMenuController::class)->name('api.v1.user.menu');
             Route::get('/users/me/preferences', [UserPreferencesController::class, 'show'])
                 ->name('api.v1.users.me.preferences.show');
+            Route::patch('/users/me/preferences', [UserPreferencesController::class, 'update'])
+                ->name('api.v1.users.me.preferences.update');
             Route::patch('/users/me/preferences/locale', [UserPreferencesController::class, 'updateLocale'])
                 ->name('api.v1.users.me.preferences.locale');
         });

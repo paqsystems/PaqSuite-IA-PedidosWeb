@@ -22,6 +22,7 @@ class User extends Authenticatable
         'first_login',
         'locale',
         'theme',
+        'menu_abrir_nueva_pestana',
     ];
 
     protected $hidden = [
@@ -36,7 +37,17 @@ class User extends Authenticatable
         'inhabilitado' => 'boolean',
         'first_login' => 'boolean',
         'supervisor' => 'boolean',
+        'menu_abrir_nueva_pestana' => 'boolean',
     ];
+
+    public function resolveOpenInNewTab(): bool
+    {
+        if ($this->menu_abrir_nueva_pestana === null) {
+            return false;
+        }
+
+        return (bool) $this->menu_abrir_nueva_pestana;
+    }
 
     public function getAuthPassword(): string
     {

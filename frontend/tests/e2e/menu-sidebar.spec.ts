@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { clickAvatarMenuItem } from './helpers/avatarMenu';
 
 const acotadoMenu = [
   {
@@ -150,6 +151,7 @@ async function mockShellApi(
         resultado: {
           locale: 'es',
           theme: 'generic.light',
+          openInNewTab: false,
         },
       }),
     });
@@ -271,7 +273,7 @@ test('controles de menu se cargan por usuario tras cambio de sesion', async ({ p
   await page.getByTestId('menuToggleDisplayMode').click();
   await expect(page.getByTestId('menuToggleDisplayMode')).toHaveAttribute('aria-pressed', 'true');
 
-  await page.getByTestId('avatar-logout').click();
+  await clickAvatarMenuItem(page, 'avatarMenuItemLogout');
   await expect(page).toHaveURL(/\/login$/);
 
   await loginAs(page, 'usuario.b', 'secret');

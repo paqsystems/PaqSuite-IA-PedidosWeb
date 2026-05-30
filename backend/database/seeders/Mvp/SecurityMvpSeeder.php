@@ -36,8 +36,9 @@ final class SecurityMvpSeeder extends Seeder
                     'first_login' => $userSeed['firstLogin'],
                     'locale' => $userSeed['locale'],
                     'theme' => $userSeed['theme'],
+                    'menu_abrir_nueva_pestana' => $userSeed['openInNewTab'] ?? null,
                 ],
-                ['name_user', 'email', 'activo', 'inhabilitado', 'first_login', 'locale', 'theme'],
+                ['name_user', 'email', 'activo', 'inhabilitado', 'first_login', 'locale', 'theme', 'menu_abrir_nueva_pestana'],
             );
 
             if ($userSeed['hasPermiso'] && $userSeed['rol'] !== null) {

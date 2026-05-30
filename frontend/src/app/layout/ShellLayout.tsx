@@ -3,6 +3,7 @@ import { Outlet } from 'react-router-dom';
 import { useAuth, useRequiredSessionContext } from '../../features/auth/AuthProvider';
 import { useUserMenu } from '../../features/menu/useUserMenu';
 import { useMenuPresentation } from '../../features/menu/hooks/useMenuPresentation';
+import { useUserPreferences } from '../../features/preferences/useUserPreferences';
 import { ShellFooter } from './ShellFooter';
 import { ShellHeader } from './ShellHeader';
 import { ShellSidebar } from './ShellSidebar';
@@ -14,6 +15,7 @@ export function ShellLayout() {
   const { logout } = useAuth();
   const { menuItems, isLoading, errorKey } = useUserMenu(true);
   const menuPresentation = useMenuPresentation(sessionContext.user.id);
+  const { preferences, isSavingOpenInNewTab, updateOpenInNewTab } = useUserPreferences(sessionContext);
   const [isOverlayMode, setIsOverlayMode] = useState(() =>
     typeof window !== 'undefined' ? shouldUseOverlaySidebar(window.innerWidth) : false,
   );
@@ -46,6 +48,11 @@ export function ShellLayout() {
       <ShellHeader
         sessionContext={sessionContext}
         menuPresentation={menuPresentation}
+        openInNewTab={preferences.openInNewTab}
+        isSavingOpenInNewTab={isSavingOpenInNewTab}
+        onOpenInNewTabChange={(openInNewTab) => {
+          void updateOpenInNewTab(openInNewTab);
+        }}
         onLogout={logout}
       />
       <ShellSidebar
@@ -55,6 +62,7 @@ export function ShellLayout() {
         isCollapsed={sidebarCollapsed}
         menuTreeExpanded={menuPresentation.menuTreeExpanded}
         menuDisplayMode={menuPresentation.menuDisplayMode}
+        openInNewTab={preferences.openInNewTab}
       />
       <main className="shellMain" data-testid="shellMain">
         <Outlet />
