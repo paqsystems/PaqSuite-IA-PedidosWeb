@@ -12,8 +12,13 @@ final class HealthCheckTest extends TestCase
 
         $response
             ->assertOk()
-            ->assertJsonPath('error', false)
+            ->assertJsonPath('error', 0)
             ->assertJsonPath('respuesta', 'ok')
-            ->assertJsonPath('resultado.status', 'up');
+            ->assertJsonPath('resultado.status', 'up')
+            ->assertJsonStructure([
+                'error',
+                'respuesta',
+                'resultado' => ['serviceName', 'status'],
+            ]);
     }
 }

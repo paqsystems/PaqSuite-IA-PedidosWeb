@@ -4,10 +4,10 @@
  * @OA\Info(
  *     title="PedidosWeb API",
  *     version="1.1.0",
- *     description="OpenAPI base para el scaffold inicial de PedidosWeb"
+ *     description="API REST PedidosWeb (MONO). Envelope: error / respuesta / resultado."
  * )
  */
 final class OpenApi
 {
-    // Punto raíz de anotaciones OpenAPI.
+    // Raíz de anotaciones OpenAPI (L5-Swagger en slices posteriores).
 }

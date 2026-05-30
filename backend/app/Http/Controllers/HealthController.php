@@ -2,19 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Responses\ApiResponse;
 use Illuminate\Http\JsonResponse;
 
 final class HealthController extends Controller
 {
     public function __invoke(): JsonResponse
     {
-        return response()->json([
-            'error' => false,
-            'respuesta' => 'ok',
-            'resultado' => [
-                'serviceName' => 'PaqSuite-IA-PedidosWeb',
-                'status' => 'up',
-            ],
+        return ApiResponse::success([
+            'serviceName' => config('app.name'),
+            'status' => 'up',
         ]);
     }
 }
