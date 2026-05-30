@@ -6,9 +6,9 @@
 | **SPEC origen** | [SPEC-001-01-experiencia-base.md](../../05-open-spec/001-Generaliddes/SPEC-001-01-experiencia-base.md) |
 | **Épica** | 001 — Generaliddes / Experiencia base |
 | **Prioridad** | Must |
-| **Estado** | Pendiente |
-| **B1** | Enriquecida (2026-05-28) |
-| **Última actualización** | 2026-05-28 |
+| **Estado** | D1 cerrado — pendiente D |
+| **Última actualización** | 2026-05-29 |
+| **TR** | [TR-GEN-01-menu-general-sidebar](../../04-tareas/001-Generaliddes/TR-GEN-01-menu-general-sidebar.md) — D1 §3.4 (2026-05-29) |
 | **Dependencias** | HU-GEN-01-shell-layout; HU-GEN-02-autorizacion-menu-api; HU-GEN-02-modelo-roles-permisos-seed |
 
 ## Trazabilidad SPEC
@@ -21,6 +21,7 @@
 | Flujo post-login: menú general desde API | Consumo API al montar shell |
 | Criterio menú login/post-login | Solo post-login en sidebar |
 | Trazabilidad HU-SPEC: Menú §8 producto | Objeto de esta HU |
+| Controles menú (`docs/00-contexto/_mono/01-experiencia-base/menu-general.md`) | Tres toggles de presentación en header (norma MONO) |
 
 ## Narrativa
 
@@ -38,7 +39,9 @@ SPEC-001-01 define la navegación principal del portal. El menú MVP incluye 11 
 - Renderizado de árbol jerárquico devuelto por backend (filtrado por roles/permisos en HU-GEN-02-autorizacion-menu-api).
 - Navegación hacia rutas SPA de cada ítem autorizado.
 - Resaltado del ítem activo y expansión de padres del nodo activo.
-- Seed versionado e idempotente de `pq_menus` con los **11 ítems** del SPEC.
+- **Tres controles en header** (norma MONO en `docs/00-contexto/_mono/01-experiencia-base/menu-general.md`): (1) mostrar/ocultar panel sidebar; (2) expandir/contraer todas las ramas del árbol; (3) vista `allBranches` vs `operationalOnly` (solo ítems con ruta de proceso).
+- Persistencia de los tres controles **por usuario o por terminal** (`sidebarVisible`, `menuTreeExpanded`, `menuDisplayMode`); **nunca** por empresa ni parámetro global del sistema (norma MONO en `menu-general.md` § Alcance de persistencia).
+- Seed versionado e idempotente de `pq_menus` con los **11 ítems** del SPEC (agrupadores opcionales con `nodeType` group/process).
 - Menú mínimo de fallback si la API falla o devuelve vacío (layout usable).
 - Textos visibles respetan idioma activo (SPEC-001-01 / HU-GEN-01-idioma).
 - Preferencia abrir en nueva pestaña (desde menú avatar, HU-GEN-01-menu-avatar).
@@ -56,6 +59,9 @@ SPEC-001-01 define la navegación principal del portal. El menú MVP incluye 11 
 2. Los 11 ítems del menú MVP deben existir en seed; visibilidad efectiva depende de permisos §7.
 3. En MONO no se recarga menú al cambiar empresa (no aplica selector empresa).
 4. Orden entre hermanos según campo `orden` del seed/API (supuesto técnico para TR).
+5. Los controles de presentación del menú **no** ocultan ítems no autorizados ni conceden acceso; la API sigue siendo la fuente de visibilidad.
+6. En modo `operationalOnly`, solo se listan nodos operativos (`routePath`); agrupadores sin ruta no se muestran como filas.
+7. El estado de los tres controles se persiste **por usuario** o **por terminal/navegador**; **no** por empresa, tenant ni configuración global compartida por todos los usuarios.
 
 ## Criterios de aceptación
 
@@ -65,6 +71,11 @@ SPEC-001-01 define la navegación principal del portal. El menú MVP incluye 11 
 - [ ] Fallo de API: mensaje o menú mínimo sin pantalla en blanco.
 - [ ] Usuario sin ítems autorizados: layout usable con mensaje informativo.
 - [ ] E2E: usuario con permisos ve ítem de pedidos; usuario sin permiso no lo ve.
+- [ ] Hamburguesa oculta y muestra el panel sidebar sin perder sesión.
+- [ ] Expandir/contraer afecta todas las ramas visibles; al elegir un ítem, sus padres quedan expandidos.
+- [ ] Vista `operationalOnly` oculta agrupadores y muestra solo procesos navegables (con seed jerárquico de prueba).
+- [ ] Tras logout y login con **otro** usuario, los tres controles reflejan el estado de **ese** usuario (o defaults), no el del anterior.
+- [ ] No existe lectura/escritura de estos estados en parámetros por empresa ni en defaults globales de instalación.
 
 ## Escenarios Gherkin
 
@@ -92,17 +103,36 @@ Feature: Menú general sidebar (SPEC-001-01)
   Scenario: Login no muestra menú de procesos
     Given un usuario en pantalla de login
     Then no ve sidebar con ítems de procesos del menú MVP
+
+  Scenario: Ocultar y mostrar panel del sidebar
+    Given un usuario autenticado con el shell visible
+    When activa el control de hamburguesa para ocultar el sidebar
+    Then el área principal ocupa el espacio del menú
+    When vuelve a activar el control
+    Then el sidebar vuelve a ser visible
+
+  Scenario: Expandir y contraer todo el árbol
+    Given un menú con agrupadores y el sidebar visible
+    When activa expandir/contraer todo
+    Then todas las ramas quedan expandidas o contraídas según el estado
+
+  Scenario: Vista solo operativas
+    Given un menú con agrupadores y procesos hijos autorizados
+    When selecciona vista solo operativas
+    Then no ve filas de agrupadores sin ruta
+    And ve los procesos hijos autorizados ordenados
 ```
 
 ## Supuestos explícitos
 
 - Endpoint `GET /api/v1/user/menu`, campos `routeName`, `procedimiento`: no definidos en SPEC-001-01; contrato en TR/HU-GEN-02-autorizacion-menu-api.
+- Campo opcional `nodeType` (`group` \| `process`) derivado en API desde **`tipo_proceso` + `routeName`** de `pq_menus` (TR §3.4 D1-1); no columna nueva en BD.
 - Nombre del archivo seed (`PQ_MENUS.seed.json`): convención de implementación.
-- Comportamiento expandir/colapsar agrupadores: detalle UX fuera del SPEC.
+- Ubicación física de los tres iconos en header: HU-GEN-01-shell-layout (contenedor); lógica en esta HU.
 
 ## Preguntas abiertas
 
-- ¿Mapeo exacto ítem §8 → `routeName` y `procedimiento` en seed? (TR)
+- ~~¿Mapeo exacto ítem §8 → `routeName` y `procedimiento` en seed?~~ → **Resuelto C1:** `backend/config/paqsuite_mvp.php` (TR §3.3 R-C1-10).
 
 ## Riesgos de ambigüedad
 

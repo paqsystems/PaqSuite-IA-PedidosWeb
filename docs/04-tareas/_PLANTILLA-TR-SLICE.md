@@ -66,7 +66,7 @@ Feature: [Nombre]
 
 ## 5) Contratos de API y OpenAPI
 
-> **Norma transversal:** cumplir [`_NORMAS-TRANSVERSALES-TR.md`](_NORMAS-TRANSVERSALES-TR.md) §1. Código, matriz y OpenAPI deben coincidir.
+> **Norma transversal:** cumplir [`_NORMAS-TRANSVERSALES-TR.md`](_NORMAS-TRANSVERSALES-TR.md) §1–§2. Código, matriz y OpenAPI deben coincidir. Envelope: [`docs/00-contexto/_mono/00-arquitectura-api/envelope-respuestas.md`](../00-contexto/_mono/00-arquitectura-api/envelope-respuestas.md).
 
 ### 5.1 Endpoints del slice
 
@@ -83,7 +83,7 @@ Feature: [Nombre]
 
 **Request:** (schema JSON o referencia DTO)
 
-**Response 200:** envelope `error` / `respuesta` / `resultado`
+**Response 200:** envelope `error` / `respuesta` / `resultado` (`error`: entero `0`; `resultado`: objeto, nunca `null`)
 
 **Response 401:** no autenticado
 

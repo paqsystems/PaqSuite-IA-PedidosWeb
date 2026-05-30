@@ -57,7 +57,7 @@ Para cada operación del MVP que exija autenticación/autorización, el contrato
 | **Respuesta `401`** | Sin token o token inválido |
 | **Respuesta `403`** | Token válido pero sin permiso para la operación |
 | **Descripción de la operación** | Permiso, rol o atributo requerido (`Permiso_Alta`, `Permiso_Modi`, etc.) en texto o extensión acordada en TR |
-| **Envelope JSON** | Errores coherentes con `error`, `respuesta`, `resultado` (SPEC MVP §6.1) |
+| **Envelope JSON** | Errores coherentes con `error`, `respuesta`, `resultado` — ver [`docs/00-contexto/_mono/00-arquitectura-api/envelope-respuestas.md`](../../00-contexto/_mono/00-arquitectura-api/envelope-respuestas.md) y `_NORMAS-TRANSVERSALES-TR.md` §2 |
 
 Rutas públicas (login, recuperación, health): declaradas **sin** bloque `security`. Endpoints de negocio: **nunca** publicarse en OpenAPI sin su política de acceso documentada.
 

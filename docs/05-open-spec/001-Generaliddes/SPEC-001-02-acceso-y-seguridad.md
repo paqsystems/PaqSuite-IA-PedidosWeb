@@ -3,6 +3,7 @@
 | Campo | Valor |
 |-------|--------|
 | **HU relacionadas** | `docs/03-historias-usuario/001-Generaliddes/HU-GEN-02-*.md` (8 HU; índice en README) |
+| **TR relacionadas** | `docs/04-tareas/001-Generaliddes/TR-GEN-02-*.md` (8 TR; índice en README) |
 | **Estado** | Pendiente |
 | **Revisión A1** | Apto con observaciones (2026-05-28) |
 
@@ -26,6 +27,10 @@ Implementable en MVP.
 
 - `docs/02-producto/PedidosWeb/PedidosWeb_Definicion_Conceptual_Final_OpenSpec.md` — §7 seguridad, §7.4 autenticación
 - `docs/05-open-spec/101-PedidosWeb/PedidosWeb_SPEC_MVP.md` — reglas tenancy y Must de consultas
+
+## Contrato API (envelope)
+
+Toda respuesta `/api/v1/*` usa el envelope MONO **`error` / `respuesta` / `resultado`**: [`docs/00-contexto/_mono/00-arquitectura-api/envelope-respuestas.md`](../../00-contexto/_mono/00-arquitectura-api/envelope-respuestas.md). Las TR aplican [`_NORMAS-TRANSVERSALES-TR.md`](../../04-tareas/_NORMAS-TRANSVERSALES-TR.md) §1–§2.
 
 ## Fuentes (contexto MONO)
 

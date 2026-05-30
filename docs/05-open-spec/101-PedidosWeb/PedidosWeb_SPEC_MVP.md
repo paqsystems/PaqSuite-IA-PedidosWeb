@@ -171,7 +171,7 @@ Al cerrar un presupuesto (conversión a pedido, cierre parcial/positivo o rechaz
 
 - Laravel API REST, prefijo `api/v1`.
 - Controllers delgados; services con reglas de negocio; repositories solo datos; DTOs; policies.
-- Envelope JSON: `error`, `respuesta`, `resultado`.
+- Envelope JSON: `error`, `respuesta`, `resultado` — contrato MONO: [`docs/00-contexto/_mono/00-arquitectura-api/envelope-respuestas.md`](../../00-contexto/_mono/00-arquitectura-api/envelope-respuestas.md); normas TR: `docs/04-tareas/_NORMAS-TRANSVERSALES-TR.md` §2.
 - **OpenAPI (L5-Swagger):** `/api/documentation`; raíz `backend/OpenApi.php`.
 - **Norma transversal TR:** toda TR de slice debe cumplir `docs/04-tareas/_NORMAS-TRANSVERSALES-TR.md` (políticas por endpoint documentadas en OpenAPI con `security`, 401/403, `X-Paq-Cliente`). Plantilla: `docs/04-tareas/_PLANTILLA-TR-SLICE.md`.
 

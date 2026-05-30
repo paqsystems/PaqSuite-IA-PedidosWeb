@@ -58,6 +58,8 @@ SPEC-001-02 incluye **cambio de contraseña** en el marco de autenticación MVP.
 - [ ] Usuario en primer ingreso obligatorio no accede a procesos hasta completar cambio.
 - [ ] Sesión expirada durante flujo: redirect a login.
 - [ ] E2E: usuario first_login → forzado a cambiar → shell accesible.
+- [ ] E2E: campos vacíos, actual incorrecta, confirmación distinta → rechazo sin cambiar credencial.
+- [ ] E2E: tras cambio exitoso, login con nueva contraseña OK y con la anterior falla.
 - [ ] Endpoint documentado en TR/OpenAPI.
 
 ## Escenarios Gherkin
@@ -76,6 +78,24 @@ Feature: Cambio de contraseña (SPEC-001-02)
     When ingresa contraseña actual incorrecta
     Then el cambio es rechazado
     And la credencial no cambia
+
+  Scenario: Campos obligatorios vacíos
+    Given un usuario autenticado en el formulario de cambio
+    When intenta enviar sin completar los campos
+    Then el cambio es rechazado
+    And la credencial no cambia
+
+  Scenario: Confirmación distinta a la nueva
+    Given un usuario autenticado
+    When la nueva contraseña y la confirmación no coinciden
+    Then el cambio es rechazado
+    And la credencial no cambia
+
+  Scenario: Login con nueva contraseña tras cambio
+    Given un usuario que cambió su contraseña exitosamente
+    When inicia sesión con la nueva contraseña
+    Then accede al sistema
+    And no puede iniciar sesión con la contraseña anterior
 
   Scenario: Primer ingreso obligatorio
     Given un usuario autenticado que debe cambiar contraseña

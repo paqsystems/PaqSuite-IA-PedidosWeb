@@ -19,6 +19,7 @@ Implementable en MVP para estándares de UI compartidos.
 | Tema | Decisión |
 |------|----------|
 | Checklist UI transversal | Vive en **contexto** `grillas.md` + `patrones-abm.md`; este SPEC referencia checklist mínimo abajo |
+| Acciones por fila en grillas | **Íconos DevExtreme + tooltip** (`hint` + i18n); no botones con texto visible — regla Cursor `.cursor/rules/base/20-frontend/28-ui-grilla-acciones-iconos-tooltip.md` |
 | Pivots en MVP PedidosWeb | **Solo referencia documental** en release MVP; implementación avanzada → SPEC-001-08 (sin HU MVP) |
 
 ## Fuente de verdad de producto
@@ -30,9 +31,16 @@ Implementable en MVP para estándares de UI compartidos.
 
 `docs/00-contexto/_mono/03-ui-transversal/` — `grillas.md`, `patrones-abm.md`, `exportaciones.md`, `plantillas.md`, `pivots.md`
 
+## Reglas Cursor (implementación)
+
+- **Acciones por fila en grillas:** `.cursor/rules/base/20-frontend/28-ui-grilla-acciones-iconos-tooltip.md` — editar, eliminar, ver detalle, etc. como íconos DevExtreme; nombre de la acción en tooltip (`hint` + claves i18n `grid.action.*`).
+- Estándar DataGrid MONO (complementario): `.cursor/rules/mono/08-devextreme-grid-standards.md`
+- Modal ABM sobre grilla: `.cursor/rules/base/20-frontend/24-ui-abm-grilla-alta-edicion-modal.md`
+
 ## Alcance
 
 - Estándares de grillas y listados (filtros, búsqueda, orden, paginación, exportación).
+- **Columna de acciones por fila:** íconos DevExtreme + tooltip (no botones con texto); ver regla Cursor § arriba.
 - Patrón ABM por defecto para mantenimientos.
 - Reglas de exportación inicial.
 - Criterios de plantillas reutilizables.
@@ -51,7 +59,8 @@ Implementable en MVP para estándares de UI compartidos.
 - [ ] Estados loading / empty / error en listados.
 - [ ] Exportación según `exportaciones.md` cuando el proceso lo permita.
 - [ ] Acciones ABM alineadas a permisos (`Permiso_Alta/Modi/Baja/Repo`).
-- [ ] `data-testid` en acciones principales de grilla.
+- [ ] Acciones por fila (editar, eliminar, ver detalle, etc.) como **íconos DevExtreme** con **tooltip** i18n — no botones con texto (`.cursor/rules/base/20-frontend/28-ui-grilla-acciones-iconos-tooltip.md`).
+- [ ] `data-testid` en acciones principales de grilla (incl. íconos de fila).
 - [ ] Textos vía i18n (SPEC-001-01).
 - [ ] Consistencia con tema activo (SPEC-001-01).
 
@@ -59,6 +68,7 @@ Implementable en MVP para estándares de UI compartidos.
 
 - Guía operativa: contexto `grillas.md` + este checklist.
 - Patrón ABM: `patrones-abm.md`.
+- Patrón acciones en grilla: `.cursor/rules/base/20-frontend/28-ui-grilla-acciones-iconos-tooltip.md`.
 - Consistencia: sin contradicción entre grilla y ABM en mismos procesos MVP.
 
 ## Criterios de aceptación medibles

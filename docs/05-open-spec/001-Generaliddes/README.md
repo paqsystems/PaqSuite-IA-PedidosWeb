@@ -13,6 +13,8 @@ Este bloque define las **especificaciones de configuración inicial** para Pedid
 
 **Fuente de producto compartida:** `docs/02-producto/PedidosWeb/PedidosWeb_Definicion_Conceptual_Final_OpenSpec.md`
 
+**Contrato API (transversal):** [`docs/00-contexto/_mono/00-arquitectura-api/envelope-respuestas.md`](../../00-contexto/_mono/00-arquitectura-api/envelope-respuestas.md) — envelope `error` / `respuesta` / `resultado` en todos los endpoints `/api/v1/*`.
+
 ## Orden Fase 0 (implementación)
 
 1. `SPEC-001-05` — tenancy MONO  

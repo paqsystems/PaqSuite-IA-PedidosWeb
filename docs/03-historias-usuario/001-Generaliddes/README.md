@@ -2,44 +2,44 @@
 
 Convención: **`HU-GEN-{SPEC}-{tema}.md`** derivadas de `docs/05-open-spec/001-Generaliddes/`.
 
-**A1 (2026-05-28):** SPEC-001-01…05 revisados; parches cortos aplicados (tablas embebidas, trazabilidad HU, flujo login). Producto: §8.1 defaults, §8 menú, §7 perfiles, §5 `desarrollo`.
+**A1 (2026-05-28):** SPEC-001-01…05 revisados; parches cortos aplicados.
 
-**B1 (2026-05-28):** Las **14 HU** de SPEC-001-01 y SPEC-001-02 enriquecidas con `/enrich-user-story` (trazabilidad SPEC, Gherkin, supuestos, veredicto). **Lista para TR:** Sí con observaciones en la mayoría; ver sección *Veredicto B1* en cada archivo.
+**B1 (2026-05-28):** 14 HU enriquecidas (`/enrich-user-story`).
 
-**Parte C (TR):** generar desde SPEC + HU enriquecida usando [`docs/04-tareas/_PLANTILLA-TR-SLICE.md`](../../04-tareas/_PLANTILLA-TR-SLICE.md) y normas [`_NORMAS-TRANSVERSALES-TR.md`](../../04-tareas/_NORMAS-TRANSVERSALES-TR.md). Resolver preguntas abiertas marcadas en cada HU.
+**C (2026-05-29):** 14 TR generadas en [`docs/04-tareas/001-Generaliddes/`](../../04-tareas/001-Generaliddes/README.md). **Resincronizadas con HU (2026-05-28).** Matriz permisos: [`matriz-permisos-mvp.md`](../../04-tareas/001-Generaliddes/matriz-permisos-mvp.md).
 
 ## SPEC-001-01 — Experiencia base
 
-| HU | Título | Prioridad |
-|----|--------|-----------|
-| [HU-GEN-01-shell-layout](HU-GEN-01-shell-layout.md) | Shell principal post-login | Must |
-| [HU-GEN-01-menu-general-sidebar](HU-GEN-01-menu-general-sidebar.md) | Menú general y sidebar dinámico | Must |
-| [HU-GEN-01-menu-avatar](HU-GEN-01-menu-avatar.md) | Menú avatar y preferencias | Must |
-| [HU-GEN-01-idioma](HU-GEN-01-idioma.md) | Selector de idioma e i18n base | Must |
-| [HU-GEN-01-apariencia-temas](HU-GEN-01-apariencia-temas.md) | Apariencia DevExtreme | Must |
-| [HU-GEN-01-ayuda-externa](HU-GEN-01-ayuda-externa.md) | Asistente IA / ayuda externa | Should |
+| HU | TR | Título | Prioridad |
+|----|-----|--------|-----------|
+| [HU-GEN-01-shell-layout](HU-GEN-01-shell-layout.md) | [TR-GEN-01-shell-layout](../../04-tareas/001-Generaliddes/TR-GEN-01-shell-layout.md) | Shell principal post-login | Must |
+| [HU-GEN-01-menu-general-sidebar](HU-GEN-01-menu-general-sidebar.md) | [TR-GEN-01-menu-general-sidebar](../../04-tareas/001-Generaliddes/TR-GEN-01-menu-general-sidebar.md) | Menú general y sidebar | Must |
+| [HU-GEN-01-menu-avatar](HU-GEN-01-menu-avatar.md) | [TR-GEN-01-menu-avatar](../../04-tareas/001-Generaliddes/TR-GEN-01-menu-avatar.md) | Menú avatar y preferencias | Must |
+| [HU-GEN-01-idioma](HU-GEN-01-idioma.md) | [TR-GEN-01-idioma](../../04-tareas/001-Generaliddes/TR-GEN-01-idioma.md) | Selector de idioma e i18n | Must |
+| [HU-GEN-01-apariencia-temas](HU-GEN-01-apariencia-temas.md) | [TR-GEN-01-apariencia-temas](../../04-tareas/001-Generaliddes/TR-GEN-01-apariencia-temas.md) | Apariencia DevExtreme | Must |
+| [HU-GEN-01-ayuda-externa](HU-GEN-01-ayuda-externa.md) | [TR-GEN-01-ayuda-externa](../../04-tareas/001-Generaliddes/TR-GEN-01-ayuda-externa.md) | Asistente IA / ayuda | Should |
 
-**SPEC origen:** [SPEC-001-01-experiencia-base.md](../../05-open-spec/001-Generaliddes/SPEC-001-01-experiencia-base.md)
+**SPEC:** [SPEC-001-01-experiencia-base.md](../../05-open-spec/001-Generaliddes/SPEC-001-01-experiencia-base.md)
 
 ## SPEC-001-02 — Acceso y seguridad
 
-| HU | Título | Prioridad |
-|----|--------|-----------|
-| [HU-GEN-02-login-sesion](HU-GEN-02-login-sesion.md) | Login, bootstrap de sesión y logout | Must |
-| [HU-GEN-02-recuperacion-contrasena](HU-GEN-02-recuperacion-contrasena.md) | Recuperación de contraseña | Must |
-| [HU-GEN-02-cambio-contrasena](HU-GEN-02-cambio-contrasena.md) | Cambio de contraseña y primer ingreso | Must |
-| [HU-GEN-02-expiracion-inactividad](HU-GEN-02-expiracion-inactividad.md) | Expiración por inactividad | Must |
-| [HU-GEN-02-modelo-roles-permisos-seed](HU-GEN-02-modelo-roles-permisos-seed.md) | Roles, permisos y seed MVP | Must |
-| [HU-GEN-02-autorizacion-menu-api](HU-GEN-02-autorizacion-menu-api.md) | Autorización de menú (backend) | Must |
-| [HU-GEN-02-politicas-endpoints](HU-GEN-02-politicas-endpoints.md) | Políticas por endpoint | Must |
-| [HU-GEN-02-visibilidad-datos-pedidosweb](HU-GEN-02-visibilidad-datos-pedidosweb.md) | Visibilidad cliente / vendedor / supervisor | Must |
+| HU | TR | Título | Prioridad |
+|----|-----|--------|-----------|
+| [HU-GEN-02-modelo-roles-permisos-seed](HU-GEN-02-modelo-roles-permisos-seed.md) | [TR-GEN-02-modelo-roles-permisos-seed](../../04-tareas/001-Generaliddes/TR-GEN-02-modelo-roles-permisos-seed.md) | Seed roles/permisos | Must |
+| [HU-GEN-02-login-sesion](HU-GEN-02-login-sesion.md) | [TR-GEN-02-login-sesion](../../04-tareas/001-Generaliddes/TR-GEN-02-login-sesion.md) | Login y sesión | Must |
+| [HU-GEN-02-recuperacion-contrasena](HU-GEN-02-recuperacion-contrasena.md) | [TR-GEN-02-recuperacion-contrasena](../../04-tareas/001-Generaliddes/TR-GEN-02-recuperacion-contrasena.md) | Recuperación contraseña | Must |
+| [HU-GEN-02-cambio-contrasena](HU-GEN-02-cambio-contrasena.md) | [TR-GEN-02-cambio-contrasena](../../04-tareas/001-Generaliddes/TR-GEN-02-cambio-contrasena.md) | Cambio contraseña | Must |
+| [HU-GEN-02-expiracion-inactividad](HU-GEN-02-expiracion-inactividad.md) | [TR-GEN-02-expiracion-inactividad](../../04-tareas/001-Generaliddes/TR-GEN-02-expiracion-inactividad.md) | Expiración inactividad | Must |
+| [HU-GEN-02-autorizacion-menu-api](HU-GEN-02-autorizacion-menu-api.md) | [TR-GEN-02-autorizacion-menu-api](../../04-tareas/001-Generaliddes/TR-GEN-02-autorizacion-menu-api.md) | Autorización menú API | Must |
+| [HU-GEN-02-politicas-endpoints](HU-GEN-02-politicas-endpoints.md) | [TR-GEN-02-politicas-endpoints](../../04-tareas/001-Generaliddes/TR-GEN-02-politicas-endpoints.md) | Políticas endpoints | Must |
+| [HU-GEN-02-visibilidad-datos-pedidosweb](HU-GEN-02-visibilidad-datos-pedidosweb.md) | [TR-GEN-02-visibilidad-datos-pedidosweb](../../04-tareas/001-Generaliddes/TR-GEN-02-visibilidad-datos-pedidosweb.md) | Visibilidad por perfil | Must |
 
-**SPEC origen:** [SPEC-001-02-acceso-y-seguridad.md](../../05-open-spec/001-Generaliddes/SPEC-001-02-acceso-y-seguridad.md)
+**SPEC:** [SPEC-001-02-acceso-y-seguridad.md](../../05-open-spec/001-Generaliddes/SPEC-001-02-acceso-y-seguridad.md)
 
-> ABM de usuarios/roles en UI: **fuera de alcance** del SPEC (solo seeds y reglas backend).
+> ABM usuarios/roles en UI: **fuera de alcance**.
 
 ## Pendientes (otros SPEC)
 
-- SPEC-001-05 → HU-GEN-05 (variantes / tenancy)
-- SPEC-001-03 → HU-GEN-03 (UI transversal)
-- SPEC-001-04 → HU-GEN-04 (configuración global)
+- SPEC-001-05 → HU-GEN-05 + TR (tenancy; prioridad Fase 0)
+- SPEC-001-03 → HU-GEN-03 + TR (UI transversal)
+- SPEC-001-04 → HU-GEN-04 + TR (configuración global)

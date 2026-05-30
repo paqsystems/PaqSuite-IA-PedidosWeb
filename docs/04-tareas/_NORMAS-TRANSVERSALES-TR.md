@@ -2,7 +2,7 @@
 
 **Alcance:** toda TR bajo `docs/04-tareas/` (Generalidades `001-*` y slices `101-PedidosWeb`).
 
-**Fuentes:** `SPEC-001-02`, `HU-GEN-02-politicas-endpoints`, `PedidosWeb_SPEC_MVP.md` §6.1, §3 (tenancy).
+**Fuentes:** `SPEC-001-02`, `HU-GEN-02-politicas-endpoints`, `PedidosWeb_SPEC_MVP.md` §6.1, §3 (tenancy), **`docs/00-contexto/_mono/00-arquitectura-api/envelope-respuestas.md`** (contrato envelope MONO).
 
 ---
 
@@ -29,7 +29,7 @@ Toda TR que **exponga o modifique** endpoints `api/v1/*` debe documentar en su s
 | **Respuesta `401`** | Sin token o token inválido |
 | **Respuesta `403`** | Token válido sin permiso para la operación |
 | **Descripción** | Permiso, rol o atributo requerido (`Permiso_Alta`, `Permiso_Modi`, `Permiso_Baja`, `Permiso_Repo`, `AccesoTotal`, etc.) |
-| **Envelope JSON** | Errores con `error`, `respuesta`, `resultado` (SPEC MVP §6.1) |
+| **Envelope JSON** | Cuerpo con `error`, `respuesta`, `resultado` según §2 y contexto MONO |
 
 ### 1.3 Rutas públicas (lista blanca)
 
@@ -60,17 +60,28 @@ Si la TR introduce `POST /api/v1/pedidos`, el checklist del slice debe incluir:
 
 ## 2. Envelope JSON (obligatorio)
 
-Todas las respuestas API documentadas en TR:
+**Fuente canónica:** [`docs/00-contexto/_mono/00-arquitectura-api/envelope-respuestas.md`](../00-contexto/_mono/00-arquitectura-api/envelope-respuestas.md)  
+**Regla Cursor:** `.cursor/rules/mono/03-api-contract.md`
+
+Todas las respuestas API (éxito y error) usan:
 
 ```json
 {
   "error": 0,
-  "respuesta": "mensaje legible",
-  "resultado": { }
+  "respuesta": "mensaje o clave i18n",
+  "resultado": {}
 }
 ```
 
-Códigos de error de negocio en `error`; mensaje humano en `respuesta`; payload en `resultado`.
+| Campo | Regla |
+|-------|--------|
+| **`error`** | Entero. `0` = OK; `≠ 0` = error controlado. Rangos: 1000 validación, 2000 negocio, 3000 autorización, 4000 not found/conflicto, 9000 infraestructura. **No booleano.** |
+| **`respuesta`** | String. Clave i18n (`auth.*`, `validation.*`, …) cuando la UI traduce; `"ok"` en éxito silencioso. |
+| **`resultado`** | **Siempre objeto JSON.** Nunca `null` ni ausente. `{}` si no hay payload. Listados paginados: `{ items, page, page_size, total, total_pages }` dentro de `resultado`. |
+
+El **status HTTP** (401, 403, 422, …) categoriza el fallo; el cuerpo **siempre** mantiene las tres propiedades.
+
+Al documentar ejemplos en TR y OpenAPI, validar coherencia con el contexto MONO (sin `resultado: null`, sin `error: false`).
 
 ---
 
@@ -101,7 +112,7 @@ Toda TR de slice funcional debe planificar:
 - [ ] Matriz endpoint ↔ permiso actualizada
 - [ ] OpenAPI en /api/documentation coherente con código y matriz
 - [ ] 401/403 documentados por operación protegida
-- [ ] Envelope JSON respetado
+- [ ] Envelope JSON respetado (`error` entero, `resultado` objeto, nunca null)
 - [ ] X-Paq-Cliente documentado donde aplique
 - [ ] Tests API incluyen 401 (y 403 si aplica)
 - [ ] Sin ampliación de alcance fuera de SPEC/HU/TR
@@ -113,6 +124,7 @@ Toda TR de slice funcional debe planificar:
 
 | Documento | Rol |
 |-----------|-----|
+| `docs/00-contexto/_mono/00-arquitectura-api/envelope-respuestas.md` | Contrato envelope MONO (contexto compartido) |
 | `HU-GEN-02-politicas-endpoints.md` | HU origen de la norma OpenAPI |
 | `SPEC-001-02-acceso-y-seguridad.md` | SPEC que exige política por endpoint |
 | `_PLANTILLA-TR-SLICE.md` | Plantilla con sección 5 preestructurada |

@@ -3,6 +3,7 @@
 | Campo | Valor |
 |-------|--------|
 | **HU relacionadas** | `docs/03-historias-usuario/001-Generaliddes/HU-GEN-01-*.md` (6 HU; índice en README de la carpeta) |
+| **TR relacionadas** | `docs/04-tareas/001-Generaliddes/TR-GEN-01-*.md` (6 TR; índice en README de la carpeta) |
 | **Estado** | Pendiente |
 | **Revisión A1** | Apto con observaciones (2026-05-28) |
 
@@ -44,6 +45,20 @@ Implementable en MVP (documentación + estructura frontend base).
 
 Visibilidad por perfil: permisos §7 + seed `pq_menus` (no duplicar reglas en este SPEC).
 
+## Controles del menú lateral (header)
+
+Tres acciones **independientes** en el header (detalle en contexto `menu-general.md`):
+
+| Control | Función |
+|---------|---------|
+| Hamburguesa | Mostrar u ocultar el **panel** del sidebar |
+| Expandir / contraer | Expandir o contraer **todas** las ramas del árbol (con sidebar visible) |
+| Vista del menú | `allBranches` (agrupadores + operativos) o `operationalOnly` (solo nodos con ruta/proceso) |
+
+Son preferencias de **presentación**; no reemplazan autorización ni filtran permisos en backend.
+
+**Persistencia:** por **usuario** o por **terminal/navegador** (detalle en `menu-general.md` § Alcance de persistencia). **Nunca** por empresa ni global para todos los usuarios.
+
 ## Flujo login vs post-login
 
 1. **Login:** selector de idioma (y branding); sin menú lateral de procesos.
@@ -59,14 +74,14 @@ Visibilidad por perfil: permisos §7 + seed `pq_menus` (no duplicar reglas en es
 
 - Definición de producto anterior.
 - `docs/_base/shell-layout-principal.md`
+- `docs/00-contexto/_mono/00-arquitectura-api/envelope-respuestas.md` (contrato API)
 - `docs/frontend/devextreme-norms.md` (si aplica en el repo)
 
 ## Fuentes (contexto MONO)
 
 Subcarpeta: `docs/00-contexto/_mono/01-experiencia-base/`
 
-- `apariencia-temas.md`, `ayuda-externa-asistente.md`, `estructura-sitio.md`, `idioma-multilingual.md`
-- `menu-avatar.md`, `menu-general.md`, `navegacion-pestanas.md`, `shell-layout.md`
+- `apariencia-temas.md`, `ayuda-externa-asistente.md`, `idioma-multilingual.md`, `menu-avatar.md`, **`menu-general.md`** (tres controles header), **`shell-layout.md`**
 
 ## Alcance
 
@@ -91,7 +106,7 @@ Subcarpeta: `docs/00-contexto/_mono/01-experiencia-base/`
 ## Criterios de aceptación medibles (SPEC + producto)
 
 - [ ] Shell/layout trazable a producto §5 MONO y contexto `shell-layout.md`.
-- [ ] Menú general y menú avatar: comportamiento login/post-login en contexto `menu-general.md` / `menu-avatar.md`.
+- [ ] Menú general y menú avatar: login/post-login + **tres controles** (sidebar, expandir árbol, vista operativa) en `menu-general.md` / `menu-avatar.md`.
 - [ ] Idioma inicial y fallback sin ambigüedad: producto **§8.1** + `idioma-multilingual.md`.
 - [ ] Tema por defecto sin ambigüedad: producto **§8.1** + `apariencia-temas.md`.
 

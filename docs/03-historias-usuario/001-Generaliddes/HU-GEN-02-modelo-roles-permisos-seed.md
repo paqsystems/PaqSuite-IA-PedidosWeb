@@ -92,12 +92,12 @@ Feature: Seed roles y permisos (SPEC-001-02)
 ## Supuestos explícitos
 
 - Nombres de tablas `Pq_Rol`, `Pq_Permiso`, `PQ_RolAtributo`: referenciados en SPEC; esquema exacto en TR.
-- `AccesoTotal` en rol supervisor para smoke tests: no en SPEC; convención TR.
-- Columna `IDEmpresa` legacy MONO: SPEC-001-05 matriz; valor fijo en TR.
+- `AccesoTotal` en **`Pq_Rol`** (Supervisor=true): convención TR; no en SPEC.
+- En MONO, `Pq_Permiso` **sin** `IDEmpresa`; sin tabla pivote rol-permiso.
 
 ## Preguntas abiertas
 
-- ¿Mapeo exacto Pq_Rol ↔ perfil funcional PedidosWeb (códigos de rol)?
+- Ninguna bloqueante para TR (mapeo `Pq_Rol.NombreRol` ↔ `functionalProfile` cerrado en TR §4.2).
 
 ## Riesgos de ambigüedad
 

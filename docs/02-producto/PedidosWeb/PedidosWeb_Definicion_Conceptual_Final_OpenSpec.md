@@ -76,7 +76,7 @@ Capas obligatorias:
 - Events
 - Middleware
 
-Regla central: **el controller no contiene lógica de negocio**. El controller valida entrada básica, construye DTOs, llama services y devuelve respuestas JSON estándar.
+Regla central: **el controller no contiene lógica de negocio**. El controller valida entrada básica, construye DTOs, llama services y devuelve respuestas JSON estándar según el envelope MONO (`error`, `respuesta`, `resultado`) — ver `docs/00-contexto/_mono/00-arquitectura-api/envelope-respuestas.md`.
 
 Los repositories solo acceden a datos. No calculan descuentos, estados, permisos funcionales ni totales.
 
@@ -212,6 +212,8 @@ Opciones mínimas:
 11. Logs de integración.
 
 La visibilidad de ítems por perfil (cliente / vendedor / supervisor) se rige por permisos y roles (§7); el seed de `pq_menus` define qué procesos existen.
+
+**Controles de presentación del menú (header, post-login):** además del icono hamburguesa (mostrar/ocultar panel lateral), el shell incluye expandir/contraer todas las ramas del árbol y alternar vista «todas las ramas» vs «solo opciones operativas» (procesos con ruta). Son preferencias de UI; no sustituyen permisos. Se persisten **por usuario o por terminal**, nunca por empresa ni como default global. Detalle: `docs/00-contexto/_mono/01-experiencia-base/menu-general.md`.
 
 ### 8.1 Valores por defecto de experiencia (MVP)
 

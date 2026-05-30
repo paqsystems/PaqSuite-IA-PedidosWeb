@@ -6,10 +6,10 @@
 | **SPEC origen** | [SPEC-001-01-experiencia-base.md](../../05-open-spec/001-Generaliddes/SPEC-001-01-experiencia-base.md) |
 | **Épica** | 001 — Generaliddes / Experiencia base |
 | **Prioridad** | Must |
-| **Estado** | Pendiente |
-| **B1** | Enriquecida (2026-05-28) |
-| **Última actualización** | 2026-05-28 |
+| **Estado** | Pendiente de Revisión |
+| **Última actualización** | 2026-05-29 |
 | **Dependencias** | HU-GEN-02 (login y sesión); SPEC-001-05 (tenancy MONO) |
+| **TR** | [TR-GEN-01-shell-layout](../../04-tareas/001-Generaliddes/TR-GEN-01-shell-layout.md) — C1/D1/D cerrados 2026-05-29 |
 
 ## Trazabilidad SPEC
 
@@ -36,7 +36,7 @@ SPEC-001-01 establece lineamientos base de experiencia para el arranque del prod
 
 - Layout post-login con cuatro zonas: header, sidebar (contenedor), área principal, footer.
 - Entrada directa al shell tras login exitoso (paso 2 del flujo login vs post-login del SPEC).
-- Header: contenedor para marca, selector de idioma y avatar (contenido en HUs hermanas).
+- Header: contenedor para marca, **grupo de tres controles del menú** (hamburguesa, expandir/contraer árbol, vista operativa — lógica en HU-GEN-01-menu-general-sidebar), selector de idioma y avatar (contenido en HUs hermanas).
 - Sidebar: contenedor listo para menú dinámico (contenido en HU-GEN-01-menu-general-sidebar).
 - Área principal: outlet de rutas / procesos.
 - Footer: versión, identidad de sesión legible, leyenda institucional.
@@ -68,6 +68,7 @@ SPEC-001-01 establece lineamientos base de experiencia para el arranque del prod
 - [ ] No hay selector de empresa en el shell (MONO).
 - [ ] Error al cargar preferencias de usuario: shell visible con valores por defecto del SPEC (`es`, `generic.light` vía HUs de idioma/tema).
 - [ ] E2E: login → shell visible con `data-testid` en zonas clave.
+- [ ] El header expone los tres `data-testid` de controles de menú documentados en TR-GEN-01-menu-general-sidebar.
 
 ## Escenarios Gherkin
 
@@ -106,7 +107,7 @@ Feature: Shell principal post-login (SPEC-001-01)
 
 ## Preguntas abiertas
 
-- ¿Cuál es la ruta de landing inmediata tras login (ítem 10 Dashboard del menú MVP §8)?
+- ~~¿Cuál es la ruta de landing inmediata tras login?~~ → **Resuelto en TR §3.2 D1-1:** `/dashboard`.
 
 ## Riesgos de ambigüedad
 
