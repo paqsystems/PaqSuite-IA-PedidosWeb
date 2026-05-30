@@ -1,11 +1,13 @@
-import { getApiBaseUrl } from '../shared/http/client';
+import { BrowserRouter } from 'react-router-dom';
+import { AuthProvider } from '../features/auth/AuthProvider';
+import { AppRoutes } from './router/AppRoutes';
 
 export function App() {
   return (
-    <main>
-      <h1>PedidosWeb</h1>
-      <p>Scaffold inicial MONO listo.</p>
-      <p>API base URL: {getApiBaseUrl()}</p>
-    </main>
+    <BrowserRouter>
+      <AuthProvider>
+        <AppRoutes />
+      </AuthProvider>
+    </BrowserRouter>
   );
 }

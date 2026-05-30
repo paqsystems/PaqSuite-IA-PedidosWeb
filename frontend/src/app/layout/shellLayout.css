@@ -1,0 +1,162 @@
+.shellLayout {
+  --shell-header-height: 3.5rem;
+  --shell-footer-height: 2.5rem;
+  --shell-sidebar-width: 16rem;
+  --shell-sidebar-collapsed-width: 0rem;
+  --shell-border-color: #d9dee7;
+  --shell-surface-color: #f5f7fb;
+  --shell-panel-color: #ffffff;
+  --shell-text-color: #1f2937;
+  min-height: 100vh;
+  display: grid;
+  grid-template-rows: var(--shell-header-height) 1fr var(--shell-footer-height);
+  grid-template-columns: var(--shell-sidebar-width) 1fr;
+  grid-template-areas:
+    'header header'
+    'sidebar main'
+    'footer footer';
+  background: var(--shell-surface-color);
+  color: var(--shell-text-color);
+}
+
+.shellLayoutSidebarCollapsed {
+  --shell-sidebar-width: var(--shell-sidebar-collapsed-width);
+}
+
+.shellLayoutSidebarOverlay .shellSidebar {
+  position: fixed;
+  top: var(--shell-header-height);
+  left: 0;
+  bottom: var(--shell-footer-height);
+  width: min(85vw, 18rem);
+  z-index: 20;
+  transform: translateX(-110%);
+  transition: transform 0.2s ease;
+  box-shadow: 0 0.5rem 1.5rem rgba(15, 23, 42, 0.18);
+}
+
+.shellLayoutSidebarOverlay.shellLayoutSidebarOpen .shellSidebar {
+  transform: translateX(0);
+}
+
+.shellLayoutSidebarOverlay.shellLayoutSidebarOpen::before {
+  content: '';
+  position: fixed;
+  inset: var(--shell-header-height) 0 var(--shell-footer-height) 0;
+  background: rgba(15, 23, 42, 0.35);
+  z-index: 10;
+}
+
+.shellHeader {
+  grid-area: header;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0 1rem;
+  background: var(--shell-panel-color);
+  border-bottom: 1px solid var(--shell-border-color);
+}
+
+.shellHeaderStart,
+.shellHeaderEnd {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.shellHeaderBrand {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.shellMenuControls {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.shellIconButton {
+  border: 1px solid var(--shell-border-color);
+  background: var(--shell-panel-color);
+  border-radius: 0.375rem;
+  width: 2.25rem;
+  height: 2.25rem;
+  cursor: pointer;
+}
+
+.shellIconButton:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.shellHeaderSlot {
+  min-width: 5rem;
+  font-size: 0.875rem;
+  color: #64748b;
+}
+
+.shellSidebar {
+  grid-area: sidebar;
+  overflow: auto;
+  background: var(--shell-panel-color);
+  border-right: 1px solid var(--shell-border-color);
+  padding: 0.75rem;
+}
+
+.shellMain {
+  grid-area: main;
+  overflow: auto;
+  padding: 1rem;
+}
+
+.shellFooter {
+  grid-area: footer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0 1rem;
+  background: var(--shell-panel-color);
+  border-top: 1px solid var(--shell-border-color);
+  font-size: 0.8125rem;
+  color: #64748b;
+}
+
+.shellFooterSession {
+  font-weight: 500;
+  color: var(--shell-text-color);
+}
+
+.menuSidebarTree {
+  background: transparent;
+}
+
+.menuSidebarTree .dx-treeview-item {
+  border-radius: 0.375rem;
+}
+
+.menuSidebarTree .dx-state-selected > .dx-treeview-item {
+  background: #e8eef9;
+  color: var(--shell-text-color);
+  font-weight: 600;
+}
+
+.menuSidebarTree .dx-treeview-node-container {
+  margin: 0;
+}
+
+@media (max-width: 767px) {
+  .shellLayout {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      'header'
+      'main'
+      'footer';
+  }
+
+  .shellLayout .shellSidebar {
+    grid-area: unset;
+  }
+}

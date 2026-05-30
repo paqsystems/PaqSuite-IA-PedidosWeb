@@ -1,25 +1,65 @@
-# Frontend scaffold (React + Vite + DevExtreme)
+# Frontend — PaqSuite-IA-PedidosWeb (React + Vite)
 
-Base inicial para `PaqSuite-IA-PedidosWeb` en modo MONO.
+SPA en **React 18**, **TypeScript** y **Vite 5**. Stack transversal documentado en [`docs/00-contexto/_mono/00-instalacion-scaffold-fullstack.md`](../docs/00-contexto/_mono/00-instalacion-scaffold-fullstack.md) §4.
 
-## Objetivo del scaffold
+## Instalación
 
-- Estructura por `app`, `features`, `shared`, `layouts`, `pages`.
-- Cliente HTTP centralizado.
-- Base para rutas protegidas y shell post-login.
-- Placeholder de test unitario y E2E.
+```powershell
+cd frontend
+npm install
+```
 
-## Estructura mínima creada
+### Dependencias transversales MVP (si faltan en `package.json`)
 
-- `src/main.tsx`
-- `src/app/App.tsx`
-- `src/shared/http/client.ts`
-- `tests/e2e/smoke.spec.ts`
+```powershell
+npm install react-router-dom i18next react-i18next devextreme devextreme-react
+npm install -D @playwright/test vitest
+```
 
-## Próximos pasos
+## Desarrollo
 
-1. Inicializar React + TS con Vite.
-2. Instalar `devextreme` y `devextreme-react`.
-3. Implementar shell post-login con layout principal.
-4. Implementar login + token + interceptores.
-5. Completar tests Vitest y Playwright del flujo E2E principal.
+```powershell
+npm run dev
+```
+
+URL: `http://localhost:3010` — proxy `/api` → backend `:8000`.
+
+## Tests
+
+```powershell
+npm run test
+npm run test:e2e
+npm run test:all
+```
+
+## Variables de entorno
+
+En raíz del repo o `frontend/.env` (ver `frontend/.env.example`):
+
+- `VITE_API_BASE_URL=/api/v1` (dev con proxy Vite; producción: URL absoluta del backend)
+- `VITE_TENANT_DEFAULT_CLIENT=desarrollo`
+- `VITE_APP_VERSION` (desde `VERSION`)
+- `VITE_DEVEXTREME_LICENSE`
+
+## Build
+
+```powershell
+npm run build
+```
+
+Requisito obligatorio antes de merge/deploy (ver regla `22-frontend-build-typescript.md`).
+
+## Estructura objetivo
+
+```text
+src/app/          # App, router
+src/features/     # dominios (auth, i18n, …)
+src/shared/http/  # client + X-Paq-Cliente + Bearer
+src/shared/ui/    # wrappers DevExtreme
+src/layouts/     # shell post-login
+tests/e2e/        # Playwright
+```
+
+## Cliente HTTP
+
+`src/shared/http/client.ts` — header `X-Paq-Cliente` (MONO). Ampliar con interceptor Bearer en slice auth.
