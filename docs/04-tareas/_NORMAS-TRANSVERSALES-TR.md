@@ -24,21 +24,23 @@ Toda TR que **exponga o modifique** endpoints `api/v1/*` debe documentar en su s
 
 | Elemento | Requisito |
 |----------|-----------|
-| **`security`** | En rutas protegidas: esquema Bearer (Sanctum u equivalente acordado) |
+| **`security`** | En rutas protegidas: esquema Bearer (Sanctum u equivalente acordado); el tenancy MONO puede documentarse además mediante `tenant` |
 | **Header `X-Paq-Cliente`** | Documentado donde aplique tenancy MONO |
 | **Respuesta `401`** | Sin token o token inválido |
-| **Respuesta `403`** | Token válido sin permiso para la operación |
+| **Respuesta `403`** | Token válido sin permiso para la operación, **cuando exista** una regla de autorización funcional adicional a la autenticación |
 | **Descripción** | Permiso, rol o atributo requerido (`Permiso_Alta`, `Permiso_Modi`, `Permiso_Baja`, `Permiso_Repo`, `AccesoTotal`, etc.) |
 | **Envelope JSON** | Cuerpo con `error`, `respuesta`, `resultado` según §2 y contexto MONO |
 
 ### 1.3 Rutas públicas (lista blanca)
 
-Sin bloque `security` en OpenAPI:
+Sin bloque `security` de Bearer/Sanctum en OpenAPI:
 
-- Login / logout (auth)
+- Login (auth)
 - Recuperación de contraseña
 - Health check
 - Otras explícitamente públicas en la TR del slice
+
+El header `X-Paq-Cliente` puede seguir documentándose en rutas públicas MONO cuando corresponda (por ejemplo login).
 
 ### 1.4 Implementación técnica
 
@@ -53,7 +55,7 @@ Si la TR introduce `POST /api/v1/pedidos`, el checklist del slice debe incluir:
 
 - [ ] Policy/middleware implementado
 - [ ] Fila en matriz endpoint ↔ permiso
-- [ ] Operación en OpenAPI con `security`, 401, 403 y permiso en descripción
+- [ ] Operación en OpenAPI con `security`, 401, 403 cuando aplique y permiso en descripción
 - [ ] Test integración 401 y al menos un 403 cuando aplique
 
 ---
@@ -98,7 +100,7 @@ Al documentar ejemplos en TR y OpenAPI, validar coherencia con el contexto MONO 
 Toda TR de slice funcional debe planificar:
 
 - Unit tests en services (umbral §12.2 del SPEC MVP)
-- Integration tests API (incl. 401/403 en endpoints protegidos)
+- Integration tests API (incl. 401 y 403 cuando aplique en endpoints protegidos)
 - **≥ 2 E2E** Playwright por slice cuando haya flujo UI
 
 ---
@@ -111,7 +113,7 @@ Toda TR de slice funcional debe planificar:
 - [ ] Endpoints nuevos/modificados con policy en código
 - [ ] Matriz endpoint ↔ permiso actualizada
 - [ ] OpenAPI en /api/documentation coherente con código y matriz
-- [ ] 401/403 documentados por operación protegida
+- [ ] 401 y 403 cuando aplique documentados por operación protegida
 - [ ] Envelope JSON respetado (`error` entero, `resultado` objeto, nunca null)
 - [ ] X-Paq-Cliente documentado donde aplique
 - [ ] Tests API incluyen 401 (y 403 si aplica)

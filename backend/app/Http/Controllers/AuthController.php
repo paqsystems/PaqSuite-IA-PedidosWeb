@@ -72,6 +72,8 @@ final class AuthController extends Controller
      *     tags={"Auth"},
      *     security={{"sanctum":{}},{"tenant":{}}},
      *     @OA\Response(response=200, description="Sesion cerrada", @OA\JsonContent(ref="#/components/schemas/ApiEnvelopeEmpty")),
+     *     @OA\Response(response=400, description="Tenant invalido"),
+     *     @OA\Response(response=401, description="No autenticado")
      * )
      */
     public function logout(Request $request): JsonResponse
@@ -101,6 +103,7 @@ final class AuthController extends Controller
      *     tags={"Auth"},
      *     security={{"sanctum":{}},{"tenant":{}}},
      *     @OA\Response(response=200, description="SessionContext", @OA\JsonContent(ref="#/components/schemas/ApiEnvelopeSessionContext")),
+     *     @OA\Response(response=400, description="Tenant invalido"),
      *     @OA\Response(response=401, description="No autenticado"),
      *     @OA\Response(response=403, description="Sin permiso o perfil comercial")
      * )
@@ -146,6 +149,7 @@ final class AuthController extends Controller
      *         )
      *     ),
      *     @OA\Response(response=200, description="Contraseña actualizada", @OA\JsonContent(ref="#/components/schemas/ApiEnvelopeSessionContext")),
+     *     @OA\Response(response=400, description="Tenant invalido"),
      *     @OA\Response(response=401, description="No autenticado"),
      *     @OA\Response(response=403, description="Cuenta inhabilitada"),
      *     @OA\Response(response=422, description="Validación o contraseña actual incorrecta")

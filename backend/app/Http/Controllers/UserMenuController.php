@@ -22,6 +22,7 @@ final class UserMenuController extends Controller
      *     tags={"Menu"},
      *     security={{"sanctum":{}},{"tenant":{}}},
      *     @OA\Response(response=200, description="Arbol de menu", @OA\JsonContent(ref="#/components/schemas/ApiEnvelopeMenuList")),
+     *     @OA\Response(response=400, description="Tenant invalido"),
      *     @OA\Response(response=401, description="No autenticado"),
      *     @OA\Response(response=403, description="Sin permiso de menu")
      * )
