@@ -536,6 +536,76 @@ Opcional para dashboard de artículos CORE si no se trae desde ERP.
 | activo | bit | Activo |
 | observacion | varchar(255) null | Nota |
 
+### 7.7 pq_pedidosweb_asistente_ia_proveedores
+
+Tabla recomendada para mantener el catálogo funcional de proveedores LLM habilitables por el producto.
+
+Objetivo:
+
+- centralizar nombre visible, URLs de ayuda y capacidades declaradas;
+- desacoplar la configuración del proveedor respecto de la credencial concreta del usuario;
+- facilitar seeds iniciales con proveedores conocidos;
+- permitir activar o desactivar proveedores sin tocar código.
+
+| Campo | Tipo sugerido | Descripción |
+|---|---|---|
+| id_proveedor | int identity PK | Identificador técnico |
+| provider_id | varchar(50) unique | `providerId` lógico estable para frontend y backend |
+| nombre_visible | varchar(80) | Nombre a mostrar en UI |
+| tipo_integracion | varchar(50) | API pública, agregador, runtime local, nube administrada |
+| soporta_byok | bit | Si admite credenciales aportadas por cliente o usuario |
+| soporta_imagenes | bit | Capacidad declarada por defecto |
+| requiere_base_url_editable | bit | Si el usuario debe informar endpoint propio |
+| url_documentacion | varchar(255) null | Documentación principal |
+| url_onboarding | varchar(255) null | `supportUrl` para onboarding y ayuda de configuración |
+| activo | bit | Habilitación lógica |
+| observacion | varchar(255) null | Nota funcional |
+
+Seed inicial recomendado:
+
+- `ollama`
+- `openai`
+- `anthropic`
+- `googleGemini`
+- `azureOpenAi`
+- `openRouter`
+- `groq`
+- `mistral`
+
+### 7.8 pq_pedidosweb_asistente_ia_credenciales
+
+Tabla recomendada para persistir, de forma separada de `users`, la configuración sensible del asistente IA por usuario.
+
+Objetivo:
+
+- aislar secretos y configuración sensible del perfil general del usuario;
+- permitir rotación y revocación sin contaminar la tabla de usuarios;
+- reducir exposición accidental en consultas, listados o exportaciones de usuarios;
+- dejar base para integración `BYOK` con proveedores externos.
+
+| Campo | Tipo sugerido | Descripción |
+|---|---|---|
+| id_credencial | bigint identity PK | Identificador técnico |
+| user_id | bigint | Usuario del portal al que pertenece la configuración |
+| provider_id | varchar(50) | `providerId` seleccionado por el usuario |
+| base_url | varchar(255) | Endpoint base configurado |
+| api_key_encrypted | nvarchar(max) | Credencial cifrada |
+| model_id | varchar(120) | Modelo configurado |
+| supports_vision | bit | Si la configuración admite imágenes |
+| is_enabled | bit | Habilitación lógica |
+| created_at | datetime | Alta |
+| updated_at | datetime | Última modificación |
+
+Reglas iniciales recomendadas:
+
+- una configuración activa por usuario en la primera versión;
+- referencia a un `providerId` existente en `pq_pedidosweb_asistente_ia_proveedores`;
+- la credencial no se guarda nunca en texto plano;
+- el backend cifra antes de persistir;
+- el backend descifra solo al momento de invocar al proveedor;
+- la clave o mecanismo de descifrado debe quedar fuera de la base de datos;
+- la credencial completa no debe exponerse en UI, logs, respuestas API ni mensajes de error.
+
 ## 8. Relaciones principales
 
 ```text
@@ -554,6 +624,8 @@ presupuestos/pedidos 1:N tratativas (solo presupuestos estado 99)
 presupuestos estado 99 1:0/1 cierres → al cerrar pasa a estado 98
 presupuestos estado 98 1:1 cierres (histórico)
 motivos_cierre 1:N cierres
+asistente_ia_proveedores 1:N asistente_ia_credenciales
+users 1:0/1 asistente_ia_credenciales
 ```
 
 ## 9. Modelos Eloquent prioritarios
@@ -580,6 +652,8 @@ Crear modelos iniciales:
 - MotivoCierre.
 - PresupuestoCierre.
 - LogIntegracion.
+- AsistenteIaProveedor.
+- AsistenteIaCredencial.
 
 Para claves compuestas, Laravel requiere tratamiento especial: definir repositories con queries explícitas o trait de clave compuesta.
 
@@ -591,3 +665,5 @@ Para claves compuestas, Laravel requiere tratamiento especial: definir repositor
 4. Crear tablas de tratativas, resultados, motivos de cierre y logs integración.
 5. Evaluar separar `estado = -1` de descarga/modificación usando campo específico de bloqueo.
 6. Confirmar tabla definitiva de parámetros generales dentro del esquema PaqSuite.
+7. Crear catálogo inicial de proveedores del asistente IA.
+8. Crear tabla dedicada para credenciales `BYOK` del asistente IA, separada de `users`.

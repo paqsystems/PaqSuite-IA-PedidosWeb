@@ -10,6 +10,7 @@ Este bloque define las **especificaciones de configuración inicial** para Pedid
 |------|-----------|--------|--------|
 | 001-01 … 001-05 | Apto con observaciones | Sí (01–02 generadas; 03–05 pendientes) | Parches A1 + decisiones en producto §8.1, §7, §5 |
 | 001-06 … 001-09 | Documental | **No** en MVP portal | Preparación; sin HU en primer release |
+| 001-10 | Pendiente | No todavía | Chat Asistente IA en nueva pestaña con `BYOK`, proveedores y mensajes editables |
 
 **Fuente de producto compartida:** `docs/02-producto/PedidosWeb/PedidosWeb_Definicion_Conceptual_Final_OpenSpec.md`
 
@@ -34,6 +35,7 @@ Este bloque define las **especificaciones de configuración inicial** para Pedid
 7. `SPEC-001-07-importar-excel.md` — documental (fuera MVP)
 8. `SPEC-001-08-pivots.md` — documental
 9. `SPEC-001-09-tareas-programadas.md` — documental
+10. `SPEC-001-10-chat-asistente-ia.md`
 
 ## Regla de alcance
 

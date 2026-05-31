@@ -38,6 +38,18 @@ Convención: **`HU-GEN-{SPEC}-{tema}.md`** derivadas de `docs/05-open-spec/001-G
 
 > ABM usuarios/roles en UI: **fuera de alcance**.
 
+## SPEC-001-10 — Chat Asistente IA
+
+| HU | TR | Título | Prioridad |
+|----|-----|--------|-----------|
+| [HU-GEN-10-configuracion-asistente-ia](HU-GEN-10-configuracion-asistente-ia.md) | — | Configuración personal del Chat Asistente IA | Should |
+| [HU-GEN-10-catalogo-proveedores-ia](HU-GEN-10-catalogo-proveedores-ia.md) | — | Catálogo inicial de proveedores IA | Should |
+| [HU-GEN-10-chat-documental](HU-GEN-10-chat-documental.md) | — | Chat documental del asistente IA | Should |
+| [HU-GEN-10-imagenes-asistente-ia](HU-GEN-10-imagenes-asistente-ia.md) | — | Adjuntos de imágenes en el chat | Should |
+| [HU-GEN-10-mensajes-asistente-ia](HU-GEN-10-mensajes-asistente-ia.md) | — | Mensajes editables del Chat Asistente IA | Should |
+
+**SPEC:** [SPEC-001-10-chat-asistente-ia.md](../../05-open-spec/001-Generaliddes/SPEC-001-10-chat-asistente-ia.md)
+
 ## Pendientes (otros SPEC)
 
 - SPEC-001-05 → HU-GEN-05 + TR (tenancy; prioridad Fase 0)

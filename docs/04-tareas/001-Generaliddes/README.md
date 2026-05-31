@@ -60,3 +60,13 @@ Tareas técnicas (parte C) derivadas de **SPEC-001-01** y **SPEC-001-02**.
 | [TR-GEN-02-autorizacion-menu-api](TR-GEN-02-autorizacion-menu-api.md) | [HU-GEN-02-autorizacion-menu-api](../../03-historias-usuario/001-Generaliddes/HU-GEN-02-autorizacion-menu-api.md) | Must |
 | [TR-GEN-02-politicas-endpoints](TR-GEN-02-politicas-endpoints.md) | [HU-GEN-02-politicas-endpoints](../../03-historias-usuario/001-Generaliddes/HU-GEN-02-politicas-endpoints.md) | Must |
 | [TR-GEN-02-visibilidad-datos-pedidosweb](TR-GEN-02-visibilidad-datos-pedidosweb.md) | [HU-GEN-02-visibilidad-datos-pedidosweb](../../03-historias-usuario/001-Generaliddes/HU-GEN-02-visibilidad-datos-pedidosweb.md) | Must |
+
+## SPEC-001-10 — Chat Asistente IA
+
+| TR | HU | Prioridad |
+|----|----|-----------|
+| [TR-GEN-10-configuracion-asistente-ia](TR-GEN-10-configuracion-asistente-ia.md) | [HU-GEN-10-configuracion-asistente-ia](../../03-historias-usuario/001-Generaliddes/HU-GEN-10-configuracion-asistente-ia.md) | Should |
+| [TR-GEN-10-catalogo-proveedores-ia](TR-GEN-10-catalogo-proveedores-ia.md) | [HU-GEN-10-catalogo-proveedores-ia](../../03-historias-usuario/001-Generaliddes/HU-GEN-10-catalogo-proveedores-ia.md) | Should |
+| [TR-GEN-10-chat-documental](TR-GEN-10-chat-documental.md) | [HU-GEN-10-chat-documental](../../03-historias-usuario/001-Generaliddes/HU-GEN-10-chat-documental.md) | Should |
+| [TR-GEN-10-mensajes-asistente-ia](TR-GEN-10-mensajes-asistente-ia.md) | [HU-GEN-10-mensajes-asistente-ia](../../03-historias-usuario/001-Generaliddes/HU-GEN-10-mensajes-asistente-ia.md) | Should |
+| [TR-GEN-10-imagenes-asistente-ia](TR-GEN-10-imagenes-asistente-ia.md) | [HU-GEN-10-imagenes-asistente-ia](../../03-historias-usuario/001-Generaliddes/HU-GEN-10-imagenes-asistente-ia.md) | Should |
