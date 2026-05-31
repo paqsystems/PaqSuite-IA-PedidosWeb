@@ -13,6 +13,7 @@ final class SessionContextBuilder
 {
     public function __construct(
         private readonly CommercialProfileResolver $commercialProfileResolver,
+        private readonly InactivityTimeoutResolver $inactivityTimeoutResolver,
     ) {}
 
     public function build(User $user, ?string $token = null): array
@@ -75,6 +76,7 @@ final class SessionContextBuilder
             'locale' => LocaleNormalizer::normalize($user->locale),
             'theme' => ThemeNormalizer::normalize($user->theme),
             'firstLogin' => (bool) $user->first_login,
+            'inactivityTimeoutMinutes' => $this->inactivityTimeoutResolver->resolveMinutes(),
             'security' => [
                 'roles' => [(string) $rol->nombre_rol],
                 'accesoTotal' => (bool) $rol->acceso_total,

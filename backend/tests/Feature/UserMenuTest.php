@@ -51,20 +51,28 @@ final class UserMenuTest extends TestCase
         );
     }
 
-    public function testVendedorSinMenuReceivesEmptyTree(): void
+    public function testVendedorSinMenuReceivesDashboardOnlyFromVisibilityPermissions(): void
     {
         $response = $this->getJson('/api/v1/user/menu', $this->authHeadersFor('vendedor.sinMenu.mvp'));
 
-        $response->assertOk()
-            ->assertJsonPath('resultado', []);
+        $response->assertOk();
+
+        $this->assertSame(
+            ['pw_dashboard'],
+            $this->flattenProcedimientos((array) $response->json('resultado'))
+        );
     }
 
-    public function testClienteWithoutRolAtributosReceivesEmptyTree(): void
+    public function testClienteReceivesDashboardOnlyFromVisibilityPermissions(): void
     {
         $response = $this->getJson('/api/v1/user/menu', $this->authHeadersFor('cliente.mvp'));
 
-        $response->assertOk()
-            ->assertJsonPath('resultado', []);
+        $response->assertOk();
+
+        $this->assertSame(
+            ['pw_dashboard'],
+            $this->flattenProcedimientos((array) $response->json('resultado'))
+        );
     }
 
     public function testMenuRequiresAuthentication(): void

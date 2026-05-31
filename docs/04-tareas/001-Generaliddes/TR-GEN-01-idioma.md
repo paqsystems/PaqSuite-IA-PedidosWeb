@@ -7,8 +7,8 @@
 | **Épica** | 001-Generaliddes |
 | **Prioridad** | Must |
 | **Dependencias** | TR-GEN-01-shell-layout (header/login); TR-GEN-02-login-sesion (estado autenticado); coordina con TR-GEN-01-menu-avatar |
-| **Estado** | D1 implementado — pendiente commit |
-| **Última actualización** | 2026-05-30 (D1 + verificación §3.4) |
+| **Estado** | Implementado |
+| **Última actualización** | 2026-05-30 (D implementado) |
 
 **Origen:** [HU-GEN-01-idioma](../../03-historias-usuario/001-Generaliddes/HU-GEN-01-idioma.md)  
 **Referencia SPEC:** [SPEC-001-01-experiencia-base](../../05-open-spec/001-Generaliddes/SPEC-001-01-experiencia-base.md)  

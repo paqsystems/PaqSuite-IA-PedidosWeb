@@ -7,8 +7,8 @@
 | **Épica** | 001-Generaliddes |
 | **Prioridad** | Must |
 | **Dependencias** | TR-GEN-01-shell-layout; TR-GEN-02-login-sesion; [TR-GEN-02-autorizacion-menu-api](TR-GEN-02-autorizacion-menu-api.md); [TR-GEN-02-modelo-roles-permisos-seed](TR-GEN-02-modelo-roles-permisos-seed.md) (usuarios/roles de prueba) |
-| **Estado** | Pendiente de Revisión |
-| **Última actualización** | 2026-05-30 (D implementada) |
+| **Estado** | Implementado |
+| **Última actualización** | 2026-05-30 (D implementado) |
 
 **Origen:** [HU-GEN-01-menu-general-sidebar](../../03-historias-usuario/001-Generaliddes/HU-GEN-01-menu-general-sidebar.md)  
 **Referencia SPEC:** [SPEC-001-01-experiencia-base](../../05-open-spec/001-Generaliddes/SPEC-001-01-experiencia-base.md)  

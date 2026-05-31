@@ -46,6 +46,24 @@ return [
         'pw_dashboard',
     ],
 
+    'visibilityProcedimientosByRole' => [
+        'Cliente' => [
+            'pw_clientes_visibles',
+            'pw_comprobantes_visibles',
+            'pw_dashboard',
+        ],
+        'Vendedor' => [
+            'pw_clientes_visibles',
+            'pw_comprobantes_visibles',
+            'pw_dashboard',
+        ],
+        'VendedorAcotado' => [
+            'pw_clientes_visibles',
+            'pw_comprobantes_visibles',
+            'pw_dashboard',
+        ],
+    ],
+
     'users' => [
         [
             'codigo' => 'cliente.mvp',

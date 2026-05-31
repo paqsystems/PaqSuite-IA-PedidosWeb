@@ -7,8 +7,8 @@
 | **Epica** | 001-Generaliddes |
 | **Prioridad** | Must |
 | **Dependencias** | TR-GEN-02-modelo-roles-permisos-seed, TR-GEN-02-login-sesion |
-| **Estado** | Pendiente de Revisión |
-| **Ultima actualizacion** | 2026-05-30 (C1 + D1 + D; smoke pendiente si SQL Server offline) |
+| **Estado** | Implementado |
+| **Ultima actualizacion** | 2026-05-30 (D implementado) |
 
 **Origen:** [HU-GEN-02-autorizacion-menu-api](../../03-historias-usuario/001-Generaliddes/HU-GEN-02-autorizacion-menu-api.md)  
 **Referencia SPEC:** [SPEC-001-02-acceso-y-seguridad](../../05-open-spec/001-Generaliddes/SPEC-001-02-acceso-y-seguridad.md)  

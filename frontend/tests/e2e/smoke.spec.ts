@@ -13,13 +13,21 @@ const sessionPayload = {
   locale: 'es-AR',
   theme: 'light',
   firstLogin: false,
+  inactivityTimeoutMinutes: 10,
   security: {
     roles: ['Cliente'],
     accesoTotal: false,
   },
 };
 
-async function mockAuthenticatedApi(page: import('@playwright/test').Page) {
+async function mockAuthenticatedApi(
+  page: import('@playwright/test').Page,
+  options: {
+    sessionPayload?: typeof sessionPayload;
+  } = {},
+) {
+  const effectiveSessionPayload = options.sessionPayload ?? sessionPayload;
+
   await page.route('**/api/v1/auth/login', async (route) => {
     await route.fulfill({
       status: 200,
@@ -27,7 +35,7 @@ async function mockAuthenticatedApi(page: import('@playwright/test').Page) {
       body: JSON.stringify({
         error: 0,
         respuesta: 'ok',
-        resultado: sessionPayload,
+        resultado: effectiveSessionPayload,
       }),
     });
   });
@@ -39,7 +47,19 @@ async function mockAuthenticatedApi(page: import('@playwright/test').Page) {
       body: JSON.stringify({
         error: 0,
         respuesta: 'ok',
-        resultado: sessionPayload,
+        resultado: effectiveSessionPayload,
+      }),
+    });
+  });
+
+  await page.route('**/api/v1/auth/logout', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        error: 0,
+        respuesta: 'auth.logoutOk',
+        resultado: {},
       }),
     });
   });
@@ -130,6 +150,7 @@ test('sesion invalida redirige a login sin renderizar shell', async ({ page }) =
         locale: 'es-AR',
         theme: 'light',
         firstLogin: false,
+        inactivityTimeoutMinutes: 10,
         security: { roles: ['Cliente'], accesoTotal: false },
       }),
     );
@@ -152,6 +173,27 @@ test('sesion invalida redirige a login sin renderizar shell', async ({ page }) =
   await expect(page).toHaveURL(/\/login$/);
   await expect(page.getByTestId('login-form')).toBeVisible();
   await expect(page.getByTestId('shellHeader')).toHaveCount(0);
+});
+
+test('inactividad expira la sesion y vuelve al login con mensaje', async ({ page }) => {
+  await mockAuthenticatedApi(page, {
+    sessionPayload: {
+      ...sessionPayload,
+      inactivityTimeoutMinutes: 0.01,
+    },
+  });
+
+  await page.goto('/login');
+  await page.locator('input[name="codigo"]').fill('cliente.mvp');
+  await page.locator('input[name="password"]').fill('secret');
+  await page.getByTestId('login-submit').click();
+
+  await expect(page).toHaveURL(/\/dashboard$/);
+  await expect(page.getByTestId('shellHeader')).toBeVisible();
+
+  await expect(page).toHaveURL(/\/login$/, { timeout: 5000 });
+  await expect(page.getByTestId('login-form')).toBeVisible();
+  await expect(page.getByTestId('auth-error-session-expired')).toBeVisible();
 });
 
 test('shell usable en viewport movil con toggle sidebar', async ({ page }) => {

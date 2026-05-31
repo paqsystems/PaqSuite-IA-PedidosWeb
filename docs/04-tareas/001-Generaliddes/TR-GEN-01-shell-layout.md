@@ -7,8 +7,8 @@
 | **Épica** | 001-Generaliddes |
 | **Prioridad** | Must |
 | **Dependencias** | TR-GEN-02-login-sesion (post-login); base para TR-GEN-01-menu-general-sidebar, TR-GEN-01-menu-avatar, TR-GEN-01-idioma y TR-GEN-01-apariencia-temas |
-| **Estado** | Pendiente de Revisión |
-| **Última actualización** | 2026-05-29 (C1 → D1 → D cerrados formalmente; smoke API + E2E 5 casos) |
+| **Estado** | Implementado |
+| **Última actualización** | 2026-05-29 (D implementado) |
 
 **Origen:** [HU-GEN-01-shell-layout](../../03-historias-usuario/001-Generaliddes/HU-GEN-01-shell-layout.md)  
 **Referencia SPEC:** [SPEC-001-01-experiencia-base](../../05-open-spec/001-Generaliddes/SPEC-001-01-experiencia-base.md)  

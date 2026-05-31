@@ -4,11 +4,15 @@ namespace App\Http\Controllers;
 
 use App\Exceptions\AuthFlowException;
 use App\Http\Requests\ChangePasswordRequest;
+use App\Http\Requests\ForgotPasswordRequest;
+use App\Http\Requests\ResetPasswordRequest;
 use App\Http\Responses\ApiResponse;
 use App\Services\Auth\ChangePasswordService;
 use App\Services\Auth\LoginService;
+use App\Services\Auth\PasswordRecoveryService;
 use App\Services\Auth\SessionContextBuilder;
 use App\Support\AuthErrorCodes;
+use App\Support\PasswordRecoveryMailLocaleResolver;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -19,6 +23,8 @@ final class AuthController extends Controller
     public function __construct(
         private readonly LoginService $loginService,
         private readonly ChangePasswordService $changePasswordService,
+        private readonly PasswordRecoveryService $passwordRecoveryService,
+        private readonly PasswordRecoveryMailLocaleResolver $passwordRecoveryMailLocaleResolver,
         private readonly SessionContextBuilder $sessionContextBuilder,
     ) {}
 
@@ -182,5 +188,77 @@ final class AuthController extends Controller
         }
 
         return ApiResponse::success($resultado, 'auth.passwordChanged');
+    }
+
+    /**
+     * @OA\Post(
+     *     path="/api/v1/auth/password/forgot",
+     *     summary="Solicitud de recuperacion de contraseña",
+     *     tags={"Auth"},
+     *     security={{"tenant":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"email"},
+     *             @OA\Property(property="email", type="string", format="email", example="cliente@empresa.com"),
+     *             @OA\Property(property="locale", type="string", example="es")
+     *         )
+     *     ),
+     *     @OA\Response(response=200, description="Solicitud recibida", @OA\JsonContent(ref="#/components/schemas/ApiEnvelopeEmpty")),
+     *     @OA\Response(response=400, description="Tenant invalido"),
+     *     @OA\Response(response=422, description="Validación inválida")
+     * )
+     */
+    public function forgotPassword(ForgotPasswordRequest $request): JsonResponse
+    {
+        $mailLocale = $this->passwordRecoveryMailLocaleResolver->resolve(
+            $request->validated('locale'),
+            $request->header('Accept-Language')
+        );
+
+        $this->passwordRecoveryService->requestReset(
+            (string) $request->validated('email'),
+            $mailLocale
+        );
+
+        return ApiResponse::success([], 'auth.passwordRecoveryEmailSent');
+    }
+
+    /**
+     * @OA\Post(
+     *     path="/api/v1/auth/password/reset",
+     *     summary="Confirmacion de recuperacion de contraseña",
+     *     tags={"Auth"},
+     *     security={{"tenant":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"token","newPassword","newPasswordConfirmation"},
+     *             @OA\Property(property="token", type="string"),
+     *             @OA\Property(property="newPassword", type="string"),
+     *             @OA\Property(property="newPasswordConfirmation", type="string")
+     *         )
+     *     ),
+     *     @OA\Response(response=200, description="Contraseña restablecida", @OA\JsonContent(ref="#/components/schemas/ApiEnvelopeEmpty")),
+     *     @OA\Response(response=400, description="Tenant invalido"),
+     *     @OA\Response(response=422, description="Token inválido/expirado o validación inválida")
+     * )
+     */
+    public function resetPassword(ResetPasswordRequest $request): JsonResponse
+    {
+        try {
+            $this->passwordRecoveryService->resetPassword(
+                (string) $request->validated('token'),
+                (string) $request->validated('newPassword'),
+            );
+        } catch (AuthFlowException $exception) {
+            return ApiResponse::error(
+                $exception->errorCode(),
+                $exception->respuestaKey(),
+                $exception->httpStatus()
+            );
+        }
+
+        return ApiResponse::success([], 'auth.passwordResetOk');
     }
 }

@@ -31,6 +31,7 @@ final class AuthLoginTest extends TestCase
             ->assertJsonPath('error', 0)
             ->assertJsonPath('resultado.functionalProfile', 'cliente')
             ->assertJsonPath('resultado.codCliente', 'CLIMVP001')
+            ->assertJsonPath('resultado.inactivityTimeoutMinutes', 10)
             ->assertJsonPath('resultado.security.roles.0', 'Cliente')
             ->assertJsonStructure(['resultado' => ['token']]);
     }
@@ -45,7 +46,34 @@ final class AuthLoginTest extends TestCase
         $response->assertOk()
             ->assertJsonPath('resultado.functionalProfile', 'vendedor')
             ->assertJsonPath('resultado.codVendedor', 'VENACOT01')
+            ->assertJsonPath('resultado.inactivityTimeoutMinutes', 10)
             ->assertJsonPath('resultado.security.roles.0', 'VendedorAcotado');
+    }
+
+    public function testLoginUsesConfiguredInactivityTimeoutWhenAvailable(): void
+    {
+        config()->set('paqsuite_auth.inactivityTimeoutMinutes', 15);
+
+        $response = $this->postJson('/api/v1/auth/login', [
+            'codigo' => 'cliente.mvp',
+            'password' => $this->seedPassword,
+        ], $this->tenantHeaders());
+
+        $response->assertOk()
+            ->assertJsonPath('resultado.inactivityTimeoutMinutes', 15);
+    }
+
+    public function testLoginFallsBackToDefaultInactivityTimeoutWhenConfigIsInvalid(): void
+    {
+        config()->set('paqsuite_auth.inactivityTimeoutMinutes', 0);
+
+        $response = $this->postJson('/api/v1/auth/login', [
+            'codigo' => 'cliente.mvp',
+            'password' => $this->seedPassword,
+        ], $this->tenantHeaders());
+
+        $response->assertOk()
+            ->assertJsonPath('resultado.inactivityTimeoutMinutes', 10);
     }
 
     public function testLoginInvalidCredentialsReturns401(): void

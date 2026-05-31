@@ -7,8 +7,8 @@
 | **Epica** | 001-Generaliddes |
 | **Prioridad** | Must |
 | **Dependencias** | **TR-GEN-02-modelo-roles-permisos-seed** (implementada; ver §3.2 D1-1) |
-| **Estado** | Pendiente de Revisión |
-| **Ultima actualizacion** | 2026-05-29 (D implementada; smoke SQL Server OK; cierre sin Parte F) |
+| **Estado** | Implementado |
+| **Ultima actualizacion** | 2026-05-29 (D implementado) |
 
 **Origen:** [HU-GEN-02-login-sesion](../../03-historias-usuario/001-Generaliddes/HU-GEN-02-login-sesion.md)  
 **Referencia SPEC:** [SPEC-001-02-acceso-y-seguridad](../../05-open-spec/001-Generaliddes/SPEC-001-02-acceso-y-seguridad.md)  

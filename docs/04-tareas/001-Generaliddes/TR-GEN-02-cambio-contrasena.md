@@ -7,8 +7,8 @@
 | **Epica** | 001-Generaliddes |
 | **Prioridad** | Must |
 | **Dependencias** | TR-GEN-02-modelo-roles-permisos-seed, TR-GEN-02-login-sesion |
-| **Estado** | D cerrado (2026-05-30) |
-| **Ultima actualizacion** | 2026-05-30 (verificación D + D1) |
+| **Estado** | Implementado |
+| **Ultima actualizacion** | 2026-05-30 (D implementado) |
 
 **Origen:** [HU-GEN-02-cambio-contrasena](../../03-historias-usuario/001-Generaliddes/HU-GEN-02-cambio-contrasena.md)  
 **Referencia SPEC:** [SPEC-001-02-acceso-y-seguridad](../../05-open-spec/001-Generaliddes/SPEC-001-02-acceso-y-seguridad.md)  

@@ -21,4 +21,6 @@ final class AuthErrorCodes
     public const newPasswordSameAsCurrent = 2004;
 
     public const accountDisabled = 2005;
+
+    public const passwordResetTokenInvalidOrExpired = 2006;
 }

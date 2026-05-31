@@ -1,3 +1,8 @@
+import {
+  dispatchAuthenticatedRequestSucceeded,
+  dispatchAuthExpired,
+} from '../../features/auth/authEvents';
+
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL ?? '/api/v1';
 const tenantHeaderName = 'X-Paq-Cliente';
 const tenantFallbackValue = import.meta.env.VITE_TENANT_DEFAULT_CLIENT ?? 'desarrollo';
@@ -48,7 +53,15 @@ export async function apiRequest<T>(path: string, options: ApiRequestOptions = {
   const payload = await response.json();
 
   if (!response.ok) {
+    if (response.status === 401 && !options.skipAuth) {
+      dispatchAuthExpired(payload.respuesta ?? 'auth.unauthenticated');
+    }
+
     throw new ApiClientError(response.status, payload.respuesta ?? 'request.failed', payload.error ?? response.status);
+  }
+
+  if (!options.skipAuth) {
+    dispatchAuthenticatedRequestSucceeded();
   }
 
   return payload;

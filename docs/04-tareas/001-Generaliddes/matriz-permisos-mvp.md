@@ -75,9 +75,9 @@ Procedimientos ERP: `pw_cargapedidos`, `pw_presupuestosingresados`, `pw_pedidosi
 
 | Método | Path | Permiso / regla | TR origen |
 |--------|------|-----------------|-----------|
-| GET | `/api/v1/clientes` | `Permiso_Repo` + perfil §7.3 | TR-GEN-02-visibilidad-datos-pedidosweb |
-| GET | `/api/v1/comprobantes/{id}` | `Permiso_Repo` + perfil §7.3 | TR-GEN-02-visibilidad-datos-pedidosweb |
-| GET | `/api/v1/dashboard/resumen` | `Permiso_Repo` + perfil §7.3 | TR-GEN-02-visibilidad-datos-pedidosweb |
+| GET | `/api/v1/clientes` | `Permiso_Repo` + `visibleClientsForUser` + perfil §7.3 | TR-GEN-02-visibilidad-datos-pedidosweb |
+| GET | `/api/v1/comprobantes/{id}` | `Permiso_Repo` + `visibleClientsForUser` + perfil §7.3 | TR-GEN-02-visibilidad-datos-pedidosweb |
+| GET | `/api/v1/dashboard/resumen` | `Permiso_Repo` + `visibleClientsForUser` + perfil §7.3 | TR-GEN-02-visibilidad-datos-pedidosweb |
 
 ## Negocio (placeholder — completar en TR SPEC-101)
 

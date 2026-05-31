@@ -126,11 +126,22 @@ final class SecurityMvpSeeder extends Seeder
      */
     private function syncRolAtributos(PqRol $rol, array $userSeed): void
     {
-        if (($userSeed['rolAtributos'] ?? null) !== 'acotado') {
+        $procedimientos = config('paqsuite_mvp.visibilityProcedimientosByRole.'.(string) $rol->nombre_rol, []);
+
+        if (($userSeed['rolAtributos'] ?? null) === 'acotado') {
+            $procedimientos = array_merge(
+                $procedimientos,
+                config('paqsuite_mvp.vendedorAcotadoProcedimientos', [])
+            );
+        }
+
+        $procedimientos = array_values(array_unique(array_filter($procedimientos, 'is_string')));
+
+        if ($procedimientos === []) {
             return;
         }
 
-        foreach (config('paqsuite_mvp.vendedorAcotadoProcedimientos', []) as $procedimiento) {
+        foreach ($procedimientos as $procedimiento) {
             $this->seedUpsertService->upsertByNaturalKey(
                 new PqRolAtributo(),
                 [

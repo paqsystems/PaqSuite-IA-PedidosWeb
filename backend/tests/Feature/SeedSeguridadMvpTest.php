@@ -78,17 +78,32 @@ final class SeedSeguridadMvpTest extends TestCase
 
         $rolAcotado = PqRol::query()->where('nombre_rol', 'VendedorAcotado')->firstOrFail();
 
-        $this->assertSame(
-            4,
-            PqRolAtributo::query()->where('id_rol', $rolAcotado->id)->count()
-        );
+        $procedimientosRolAcotado = PqRolAtributo::query()
+            ->where('id_rol', $rolAcotado->id)
+            ->orderBy('procedimiento')
+            ->pluck('procedimiento')
+            ->all();
+
+        $procedimientosEsperadosRolAcotado = array_values(array_unique(array_merge(
+            config('paqsuite_mvp.visibilityProcedimientosByRole.VendedorAcotado', []),
+            config('paqsuite_mvp.vendedorAcotadoProcedimientos', [])
+        )));
+        sort($procedimientosEsperadosRolAcotado);
+
+        $this->assertSame($procedimientosEsperadosRolAcotado, $procedimientosRolAcotado);
 
         $rolVendedor = PqRol::query()->where('nombre_rol', 'Vendedor')->firstOrFail();
 
-        $this->assertSame(
-            0,
-            PqRolAtributo::query()->where('id_rol', $rolVendedor->id)->count()
-        );
+        $procedimientosRolVendedor = PqRolAtributo::query()
+            ->where('id_rol', $rolVendedor->id)
+            ->orderBy('procedimiento')
+            ->pluck('procedimiento')
+            ->all();
+
+        $procedimientosEsperadosRolVendedor = config('paqsuite_mvp.visibilityProcedimientosByRole.Vendedor', []);
+        sort($procedimientosEsperadosRolVendedor);
+
+        $this->assertSame($procedimientosEsperadosRolVendedor, $procedimientosRolVendedor);
     }
 
     public function testSeedSeguridadFailsWithoutMenuPrerequisite(): void

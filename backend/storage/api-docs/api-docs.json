@@ -88,6 +88,12 @@
                                 }
                             }
                         }
+                    },
+                    "400": {
+                        "description": "Tenant invalido"
+                    },
+                    "401": {
+                        "description": "No autenticado"
                     }
                 },
                 "security": [
@@ -117,6 +123,9 @@
                                 }
                             }
                         }
+                    },
+                    "400": {
+                        "description": "Tenant invalido"
                     },
                     "401": {
                         "description": "No autenticado"
@@ -179,6 +188,9 @@
                             }
                         }
                     },
+                    "400": {
+                        "description": "Tenant invalido"
+                    },
                     "401": {
                         "description": "No autenticado"
                     },
@@ -193,6 +205,120 @@
                     {
                         "sanctum": []
                     },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/auth/password/forgot": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Solicitud de recuperacion de contraseña",
+                "operationId": "fa843f22a54dff3457ea1fdf4ad9e09c",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "cliente@empresa.com"
+                                    },
+                                    "locale": {
+                                        "type": "string",
+                                        "example": "es"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Solicitud recibida",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelopeEmpty"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Tenant invalido"
+                    },
+                    "422": {
+                        "description": "Validación inválida"
+                    }
+                },
+                "security": [
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/auth/password/reset": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Confirmacion de recuperacion de contraseña",
+                "operationId": "18e43f1eef83e7bd6ffbb3d7b0d9a034",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "token",
+                                    "newPassword",
+                                    "newPasswordConfirmation"
+                                ],
+                                "properties": {
+                                    "token": {
+                                        "type": "string"
+                                    },
+                                    "newPassword": {
+                                        "type": "string"
+                                    },
+                                    "newPasswordConfirmation": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Contraseña restablecida",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelopeEmpty"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Tenant invalido"
+                    },
+                    "422": {
+                        "description": "Token inválido/expirado o validación inválida"
+                    }
+                },
+                "security": [
                     {
                         "tenant": []
                     }
@@ -237,6 +363,9 @@
                                 }
                             }
                         }
+                    },
+                    "400": {
+                        "description": "Tenant invalido"
                     },
                     "401": {
                         "description": "No autenticado"
@@ -446,6 +575,133 @@
                     }
                 ]
             }
+        },
+        "/api/v1/clientes": {
+            "get": {
+                "tags": [
+                    "Visibilidad"
+                ],
+                "summary": "Clientes visibles según perfil funcional",
+                "operationId": "5296dda6ba802386feba7f4d7ec17a11",
+                "responses": {
+                    "200": {
+                        "description": "Listado de clientes visibles",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelopeVisibleClients"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Tenant invalido"
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "403": {
+                        "description": "Sin permiso base de consulta"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/comprobantes/{id}": {
+            "get": {
+                "tags": [
+                    "Visibilidad"
+                ],
+                "summary": "Comprobante visible según perfil funcional",
+                "operationId": "113cdd92915a964568a03e97267ff363",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Comprobante visible",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelopeVisibleComprobante"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Tenant invalido"
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "403": {
+                        "description": "Sin permiso base de consulta"
+                    },
+                    "404": {
+                        "description": "Comprobante inexistente o fuera de alcance"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/dashboard/resumen": {
+            "get": {
+                "tags": [
+                    "Visibilidad"
+                ],
+                "summary": "Resumen visible del dashboard",
+                "operationId": "2bfe0286750c924af6913cefa3dd4e39",
+                "responses": {
+                    "200": {
+                        "description": "Resumen dashboard visible",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelopeDashboardResumen"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Tenant invalido"
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "403": {
+                        "description": "Sin permiso base de consulta"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
         }
     },
     "components": {
@@ -553,6 +809,10 @@
                     "firstLogin": {
                         "type": "boolean",
                         "example": false
+                    },
+                    "inactivityTimeoutMinutes": {
+                        "type": "integer",
+                        "example": 10
                     },
                     "security": {
                         "$ref": "#/components/schemas/SessionContextSecurity"
@@ -681,6 +941,113 @@
                 },
                 "type": "object"
             },
+            "VisibleClientItem": {
+                "properties": {
+                    "codCliente": {
+                        "type": "string",
+                        "example": "CLIMVP001"
+                    },
+                    "nombre": {
+                        "type": "string",
+                        "example": "Cliente MVP"
+                    },
+                    "fantasia": {
+                        "type": "string",
+                        "example": "Cliente MVP",
+                        "nullable": true
+                    },
+                    "codVendedor": {
+                        "type": "string",
+                        "example": "VENACOT01",
+                        "nullable": true
+                    },
+                    "email": {
+                        "type": "string",
+                        "example": "cliente.mvp@paqsuite.local",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "VisibleComprobanteResultado": {
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "example": "PED-001"
+                    },
+                    "codCliente": {
+                        "type": "string",
+                        "example": "CLIMVP001"
+                    },
+                    "codVendedor": {
+                        "type": "string",
+                        "example": "VENACOT01",
+                        "nullable": true
+                    },
+                    "estado": {
+                        "type": "integer",
+                        "example": 0
+                    },
+                    "fecha": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2026-05-31T01:00:00Z",
+                        "nullable": true
+                    },
+                    "total": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 1500.25
+                    },
+                    "totalIva": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 315.05
+                    },
+                    "observaciones": {
+                        "type": "string",
+                        "example": "Observacion MVP",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "DashboardResumenResultado": {
+                "properties": {
+                    "visibleClientsCount": {
+                        "type": "integer",
+                        "example": 3
+                    },
+                    "activeQuotesCount": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "enteredOrdersCount": {
+                        "type": "integer",
+                        "example": 2
+                    },
+                    "pendingOrdersCount": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "activeQuotesTotal": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 1000
+                    },
+                    "enteredOrdersTotal": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 2400
+                    },
+                    "pendingOrdersTotal": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 650
+                    }
+                },
+                "type": "object"
+            },
             "ApiEnvelopeHealth": {
                 "example": {
                     "error": 0,
@@ -721,6 +1088,7 @@
                         "locale": "es",
                         "theme": "generic.light",
                         "firstLogin": false,
+                        "inactivityTimeoutMinutes": 10,
                         "security": {
                             "roles": [
                                 "Cliente"
@@ -759,6 +1127,7 @@
                         "locale": "es",
                         "theme": "generic.light",
                         "firstLogin": false,
+                        "inactivityTimeoutMinutes": 10,
                         "security": {
                             "roles": [
                                 "Cliente"
@@ -920,6 +1289,94 @@
                     }
                 ]
             },
+            "ApiEnvelopeVisibleClients": {
+                "example": {
+                    "error": 0,
+                    "respuesta": "ok",
+                    "resultado": [
+                        {
+                            "codCliente": "CLIMVP001",
+                            "nombre": "Cliente MVP",
+                            "fantasia": "Cliente MVP",
+                            "codVendedor": "VENACOT01",
+                            "email": "cliente.mvp@paqsuite.local"
+                        }
+                    ]
+                },
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/ApiEnvelope"
+                    },
+                    {
+                        "properties": {
+                            "resultado": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/VisibleClientItem"
+                                }
+                            }
+                        },
+                        "type": "object"
+                    }
+                ]
+            },
+            "ApiEnvelopeVisibleComprobante": {
+                "example": {
+                    "error": 0,
+                    "respuesta": "ok",
+                    "resultado": {
+                        "id": "PED-001",
+                        "codCliente": "CLIMVP001",
+                        "codVendedor": "VENACOT01",
+                        "estado": 0,
+                        "fecha": "2026-05-31T01:00:00Z",
+                        "total": 1500.25,
+                        "totalIva": 315.05,
+                        "observaciones": "Observacion MVP"
+                    }
+                },
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/ApiEnvelope"
+                    },
+                    {
+                        "properties": {
+                            "resultado": {
+                                "$ref": "#/components/schemas/VisibleComprobanteResultado"
+                            }
+                        },
+                        "type": "object"
+                    }
+                ]
+            },
+            "ApiEnvelopeDashboardResumen": {
+                "example": {
+                    "error": 0,
+                    "respuesta": "ok",
+                    "resultado": {
+                        "visibleClientsCount": 3,
+                        "activeQuotesCount": 1,
+                        "enteredOrdersCount": 2,
+                        "pendingOrdersCount": 1,
+                        "activeQuotesTotal": 1000,
+                        "enteredOrdersTotal": 2400,
+                        "pendingOrdersTotal": 650
+                    }
+                },
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/ApiEnvelope"
+                    },
+                    {
+                        "properties": {
+                            "resultado": {
+                                "$ref": "#/components/schemas/DashboardResumenResultado"
+                            }
+                        },
+                        "type": "object"
+                    }
+                ]
+            },
             "ApiEnvelopeEmpty": {
                 "example": {
                     "error": 0,
@@ -964,6 +1421,10 @@
         {
             "name": "Preferences",
             "description": "Preferences"
+        },
+        {
+            "name": "Visibilidad",
+            "description": "Visibilidad"
         }
     ]
 }

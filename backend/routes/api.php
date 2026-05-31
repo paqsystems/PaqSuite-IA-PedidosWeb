@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\HealthController;
 use App\Http\Controllers\UserMenuController;
 use App\Http\Controllers\UserPreferencesController;
+use App\Http\Controllers\VisibilityDataController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -17,6 +18,10 @@ Route::prefix('v1')->group(function (): void {
 
     Route::middleware('paq.tenant')->group(function (): void {
         Route::post('/auth/login', [AuthController::class, 'login'])->name('api.v1.auth.login');
+        Route::post('/auth/password/forgot', [AuthController::class, 'forgotPassword'])
+            ->name('api.v1.auth.password.forgot');
+        Route::post('/auth/password/reset', [AuthController::class, 'resetPassword'])
+            ->name('api.v1.auth.password.reset');
 
         Route::middleware('auth:sanctum')->group(function (): void {
             Route::post('/auth/logout', [AuthController::class, 'logout'])->name('api.v1.auth.logout');
@@ -32,6 +37,12 @@ Route::prefix('v1')->group(function (): void {
                 ->name('api.v1.users.me.preferences.locale');
             Route::patch('/users/me/preferences/theme', [UserPreferencesController::class, 'updateTheme'])
                 ->name('api.v1.users.me.preferences.theme');
+            Route::get('/clientes', [VisibilityDataController::class, 'clients'])
+                ->name('api.v1.clientes.index');
+            Route::get('/comprobantes/{id}', [VisibilityDataController::class, 'showComprobante'])
+                ->name('api.v1.comprobantes.show');
+            Route::get('/dashboard/resumen', [VisibilityDataController::class, 'dashboardResumen'])
+                ->name('api.v1.dashboard.resumen');
         });
     });
 });

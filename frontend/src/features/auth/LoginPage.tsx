@@ -1,11 +1,12 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { ApiClientError } from '../../shared/http/client';
 import { LocaleSelector } from '../i18n/components/LocaleSelector';
 import { useCurrentLocale } from '../i18n/hooks/useCurrentLocale';
 import { loginRequest } from './authApi';
 import { persistAuthSession } from './authStorage';
+import { useAuth } from './AuthProvider';
 import type { SessionContext } from './types';
 
 type LoginPageProps = {
@@ -14,16 +15,34 @@ type LoginPageProps = {
 
 export function LoginPage({ onLoginSuccess }: LoginPageProps) {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { t } = useTranslation();
+  const { expiredReasonKey, clearExpiredReason } = useAuth();
   const { currentLocale, changeLocale } = useCurrentLocale();
   const [codigo, setCodigo] = useState('');
   const [password, setPassword] = useState('');
   const [errorKey, setErrorKey] = useState<string | null>(null);
+  const [noticeKey, setNoticeKey] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (expiredReasonKey) {
+      setErrorKey(expiredReasonKey);
+      clearExpiredReason();
+    }
+  }, [clearExpiredReason, expiredReasonKey]);
+
+  useEffect(() => {
+    if (searchParams.get('notice') === 'passwordResetSuccess') {
+      setNoticeKey('auth.passwordResetSuccess');
+      setSearchParams({}, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setErrorKey(null);
+    setNoticeKey(null);
     setIsSubmitting(true);
 
     try {
@@ -85,8 +104,17 @@ export function LoginPage({ onLoginSuccess }: LoginPageProps) {
           {t('login.submit')}
         </button>
       </form>
+      <Link to="/forgot-password" data-testid="login-forgot-password">
+        {t('login.forgotPasswordLink')}
+      </Link>
+      {noticeKey === 'auth.passwordResetSuccess' && (
+        <p data-testid="auth-notice-password-reset-success">{t('auth.passwordResetSuccess')}</p>
+      )}
       {errorKey === 'auth.invalidCredentials' && (
         <p data-testid="auth-error-generic">{t('auth.invalidCredentials')}</p>
+      )}
+      {errorKey === 'auth.unauthenticated' && (
+        <p data-testid="auth-error-session-expired">{t('auth.unauthenticated')}</p>
       )}
       {errorKey === 'auth.noCommercialProfile' && (
         <p data-testid="auth-error-no-commercial-profile">

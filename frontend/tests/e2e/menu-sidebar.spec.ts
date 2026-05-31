@@ -82,6 +82,7 @@ function buildSession(userId: number, login: string, displayName: string) {
     locale: 'es-AR',
     theme: 'light',
     firstLogin: false,
+    inactivityTimeoutMinutes: 10,
     security: { roles: ['VendedorAcotado'], accesoTotal: false },
   };
 }

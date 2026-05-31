@@ -37,6 +37,7 @@ namespace App\OpenApi;
  *     @OA\Property(property="locale", type="string", example="es"),
  *     @OA\Property(property="theme", type="string", example="generic.light"),
  *     @OA\Property(property="firstLogin", type="boolean", example=false),
+ *     @OA\Property(property="inactivityTimeoutMinutes", type="integer", example=10),
  *     @OA\Property(property="security", ref="#/components/schemas/SessionContextSecurity")
  * )
  *
@@ -102,6 +103,41 @@ namespace App\OpenApi;
  * )
  *
  * @OA\Schema(
+ *     schema="VisibleClientItem",
+ *     type="object",
+ *     @OA\Property(property="codCliente", type="string", example="CLIMVP001"),
+ *     @OA\Property(property="nombre", type="string", example="Cliente MVP"),
+ *     @OA\Property(property="fantasia", type="string", nullable=true, example="Cliente MVP"),
+ *     @OA\Property(property="codVendedor", type="string", nullable=true, example="VENACOT01"),
+ *     @OA\Property(property="email", type="string", nullable=true, example="cliente.mvp@paqsuite.local")
+ * )
+ *
+ * @OA\Schema(
+ *     schema="VisibleComprobanteResultado",
+ *     type="object",
+ *     @OA\Property(property="id", type="string", example="PED-001"),
+ *     @OA\Property(property="codCliente", type="string", example="CLIMVP001"),
+ *     @OA\Property(property="codVendedor", type="string", nullable=true, example="VENACOT01"),
+ *     @OA\Property(property="estado", type="integer", example=0),
+ *     @OA\Property(property="fecha", type="string", format="date-time", nullable=true, example="2026-05-31T01:00:00Z"),
+ *     @OA\Property(property="total", type="number", format="float", example=1500.25),
+ *     @OA\Property(property="totalIva", type="number", format="float", example=315.05),
+ *     @OA\Property(property="observaciones", type="string", nullable=true, example="Observacion MVP")
+ * )
+ *
+ * @OA\Schema(
+ *     schema="DashboardResumenResultado",
+ *     type="object",
+ *     @OA\Property(property="visibleClientsCount", type="integer", example=3),
+ *     @OA\Property(property="activeQuotesCount", type="integer", example=1),
+ *     @OA\Property(property="enteredOrdersCount", type="integer", example=2),
+ *     @OA\Property(property="pendingOrdersCount", type="integer", example=1),
+ *     @OA\Property(property="activeQuotesTotal", type="number", format="float", example=1000),
+ *     @OA\Property(property="enteredOrdersTotal", type="number", format="float", example=2400),
+ *     @OA\Property(property="pendingOrdersTotal", type="number", format="float", example=650)
+ * )
+ *
+ * @OA\Schema(
  *     schema="ApiEnvelopeHealth",
  *     allOf={
  *         @OA\Schema(ref="#/components/schemas/ApiEnvelope"),
@@ -141,6 +177,7 @@ namespace App\OpenApi;
  *             "locale": "es",
  *             "theme": "generic.light",
  *             "firstLogin": false,
+ *             "inactivityTimeoutMinutes": 10,
  *             "security": {"roles": {"Cliente"}, "accesoTotal": false}
  *         }
  *     }
@@ -166,6 +203,7 @@ namespace App\OpenApi;
  *             "locale": "es",
  *             "theme": "generic.light",
  *             "firstLogin": false,
+ *             "inactivityTimeoutMinutes": 10,
  *             "security": {"roles": {"Cliente"}, "accesoTotal": false}
  *         }
  *     }
@@ -278,6 +316,83 @@ namespace App\OpenApi;
  *         "error": 0,
  *         "respuesta": "preferences.themeUpdated",
  *         "resultado": {"theme": "generic.dark"}
+ *     }
+ * )
+ *
+ * @OA\Schema(
+ *     schema="ApiEnvelopeVisibleClients",
+ *     allOf={
+ *         @OA\Schema(ref="#/components/schemas/ApiEnvelope"),
+ *         @OA\Schema(
+ *             type="object",
+ *             @OA\Property(
+ *                 property="resultado",
+ *                 type="array",
+ *                 @OA\Items(ref="#/components/schemas/VisibleClientItem")
+ *             )
+ *         )
+ *     },
+ *     example={
+ *         "error": 0,
+ *         "respuesta": "ok",
+ *         "resultado": {
+ *             {
+ *                 "codCliente": "CLIMVP001",
+ *                 "nombre": "Cliente MVP",
+ *                 "fantasia": "Cliente MVP",
+ *                 "codVendedor": "VENACOT01",
+ *                 "email": "cliente.mvp@paqsuite.local"
+ *             }
+ *         }
+ *     }
+ * )
+ *
+ * @OA\Schema(
+ *     schema="ApiEnvelopeVisibleComprobante",
+ *     allOf={
+ *         @OA\Schema(ref="#/components/schemas/ApiEnvelope"),
+ *         @OA\Schema(
+ *             type="object",
+ *             @OA\Property(property="resultado", ref="#/components/schemas/VisibleComprobanteResultado")
+ *         )
+ *     },
+ *     example={
+ *         "error": 0,
+ *         "respuesta": "ok",
+ *         "resultado": {
+ *             "id": "PED-001",
+ *             "codCliente": "CLIMVP001",
+ *             "codVendedor": "VENACOT01",
+ *             "estado": 0,
+ *             "fecha": "2026-05-31T01:00:00Z",
+ *             "total": 1500.25,
+ *             "totalIva": 315.05,
+ *             "observaciones": "Observacion MVP"
+ *         }
+ *     }
+ * )
+ *
+ * @OA\Schema(
+ *     schema="ApiEnvelopeDashboardResumen",
+ *     allOf={
+ *         @OA\Schema(ref="#/components/schemas/ApiEnvelope"),
+ *         @OA\Schema(
+ *             type="object",
+ *             @OA\Property(property="resultado", ref="#/components/schemas/DashboardResumenResultado")
+ *         )
+ *     },
+ *     example={
+ *         "error": 0,
+ *         "respuesta": "ok",
+ *         "resultado": {
+ *             "visibleClientsCount": 3,
+ *             "activeQuotesCount": 1,
+ *             "enteredOrdersCount": 2,
+ *             "pendingOrdersCount": 1,
+ *             "activeQuotesTotal": 1000,
+ *             "enteredOrdersTotal": 2400,
+ *             "pendingOrdersTotal": 650
+ *         }
  *     }
  * )
  *

@@ -15,6 +15,7 @@ const sessionPayload = {
   locale: 'es',
   theme: 'light',
   firstLogin: false,
+  inactivityTimeoutMinutes: 10,
   security: {
     roles: ['Cliente'],
     accesoTotal: false,

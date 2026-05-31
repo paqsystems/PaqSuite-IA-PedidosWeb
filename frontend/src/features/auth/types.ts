@@ -11,6 +11,7 @@ export type SessionContext = {
   locale: string;
   theme: string;
   firstLogin: boolean;
+  inactivityTimeoutMinutes: number;
   security: {
     roles: string[];
     accesoTotal: boolean;
@@ -26,4 +27,15 @@ export type ApiEnvelope<T> = {
 export type LoginPayload = {
   codigo: string;
   password: string;
+};
+
+export type ForgotPasswordPayload = {
+  email: string;
+  locale?: string;
+};
+
+export type ResetPasswordPayload = {
+  token: string;
+  newPassword: string;
+  newPasswordConfirmation: string;
 };
