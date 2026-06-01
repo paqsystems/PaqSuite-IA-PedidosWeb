@@ -2,9 +2,7 @@
   min-height: 100vh;
   display: grid;
   grid-template-columns: minmax(280px, 1.1fr) minmax(320px, 460px);
-  background:
-    radial-gradient(circle at top left, rgba(255, 255, 255, 0.18), transparent 32%),
-    linear-gradient(135deg, #5b6ee1 0%, #6d46a6 52%, #18243f 100%);
+  background: var(--paq-auth-bg-radial), var(--paq-auth-bg-gradient);
 }
 
 .loginPage__hero {
@@ -16,7 +14,7 @@
 
 .loginPage__heroContent {
   max-width: 560px;
-  color: #ffffff;
+  color: var(--paq-auth-hero-text);
 }
 
 .loginPage__badge {
@@ -24,8 +22,8 @@
   align-items: center;
   padding: 0.4rem 0.8rem;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.16);
-  border: 1px solid rgba(255, 255, 255, 0.26);
+  background: var(--paq-auth-badge-bg);
+  border: 1px solid var(--paq-auth-badge-border);
   font-size: 0.85rem;
   font-weight: 600;
   letter-spacing: 0.02em;
@@ -44,7 +42,7 @@
   max-width: 32rem;
   font-size: 1.05rem;
   line-height: 1.7;
-  color: rgba(255, 255, 255, 0.84);
+  color: var(--paq-auth-hero-text-muted);
 }
 
 .loginPage__panel {
@@ -52,16 +50,16 @@
   align-items: center;
   justify-content: center;
   padding: 2rem;
-  background: rgba(10, 18, 35, 0.16);
+  background: var(--paq-auth-panel-overlay);
   backdrop-filter: blur(8px);
 }
 
 .loginCard {
   width: min(100%, 420px);
   padding: 1.5rem;
-  border-radius: 24px;
-  background: rgba(255, 255, 255, 0.96);
-  box-shadow: 0 24px 60px rgba(8, 15, 30, 0.22);
+  border-radius: var(--paq-auth-card-radius);
+  background: var(--paq-auth-card-bg);
+  box-shadow: var(--paq-auth-card-shadow);
 }
 
 .loginCard__locale {
@@ -93,14 +91,14 @@
   margin: 0;
   font-size: 1.9rem;
   line-height: 1.15;
-  color: #0f172a;
+  color: var(--paq-auth-heading);
 }
 
 .loginCard__description {
   margin: 0.65rem 0 0;
   font-size: 0.98rem;
   line-height: 1.6;
-  color: #475569;
+  color: var(--paq-auth-body);
 }
 
 .loginMessage {
@@ -112,15 +110,15 @@
 }
 
 .loginMessage--error {
-  background: #fef2f2;
-  border: 1px solid #fecaca;
-  color: #b91c1c;
+  background: var(--paq-auth-error-bg);
+  border: 1px solid var(--paq-auth-error-border);
+  color: var(--paq-auth-error-text);
 }
 
 .loginMessage--success {
-  background: #ecfdf5;
-  border: 1px solid #a7f3d0;
-  color: #047857;
+  background: var(--paq-auth-success-bg);
+  border: 1px solid var(--paq-auth-success-border);
+  color: var(--paq-auth-success-text);
 }
 
 .loginForm {
@@ -137,7 +135,7 @@
 .loginField__label {
   font-size: 0.92rem;
   font-weight: 600;
-  color: #334155;
+  color: var(--paq-auth-label);
 }
 
 .loginField__input {
@@ -154,26 +152,26 @@
 
 .loginField__input.dx-texteditor.dx-state-focused,
 .loginField__input.dx-texteditor.dx-state-active {
-  border-color: #5b6ee1;
-  box-shadow: 0 0 0 4px rgba(91, 110, 225, 0.14);
+  border-color: var(--paq-auth-focus-border);
+  box-shadow: var(--paq-auth-focus-ring);
 }
 
 .loginField__input .dx-texteditor-input {
   min-height: 48px;
   padding: 0.75rem 1rem;
-  color: #0f172a;
+  color: var(--paq-auth-input-text);
   font-size: 1rem;
 }
 
 .loginField__input .dx-placeholder {
-  color: #94a3b8;
+  color: var(--paq-auth-placeholder);
 }
 
 .loginForm__submit.dx-button {
   min-height: 50px;
   border: none;
   border-radius: 14px;
-  background: linear-gradient(135deg, #5b6ee1 0%, #6d46a6 100%);
+  background: var(--paq-auth-cta-gradient);
   box-shadow: none;
 }
 
@@ -189,17 +187,17 @@
 
 .loginForm__submit.dx-button.dx-state-hover:not(.dx-state-disabled) {
   transform: translateY(-1px);
-  box-shadow: 0 16px 28px rgba(91, 110, 225, 0.28);
+  box-shadow: var(--paq-auth-cta-hover-shadow);
 }
 
 .loginForm__submit.dx-button.dx-state-disabled {
-  opacity: 0.72;
+  opacity: var(--paq-auth-cta-disabled-opacity);
 }
 
 .loginCard__link {
   display: inline-flex;
   margin-top: 1rem;
-  color: #4f46e5;
+  color: var(--paq-auth-link);
   text-decoration: none;
   font-size: 0.94rem;
   font-weight: 600;
@@ -245,7 +243,7 @@
 
   .loginCard {
     padding: 1.25rem;
-    border-radius: 20px;
+    border-radius: var(--paq-auth-card-radius-mobile);
   }
 
   .loginCard__locale {
