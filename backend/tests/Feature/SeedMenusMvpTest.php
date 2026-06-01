@@ -7,7 +7,7 @@ use Tests\TestCase;
 
 final class SeedMenusMvpTest extends TestCase
 {
-    public function testSeedMenusCreatesElevenEnabledItems(): void
+    public function testSeedMenusCreatesConfiguredEnabledItems(): void
     {
         $this->artisan('paqsuite:seed-menus-mvp')
             ->assertExitCode(0);

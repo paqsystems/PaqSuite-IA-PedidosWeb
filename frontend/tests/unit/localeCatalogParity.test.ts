@@ -16,7 +16,7 @@ describe('localeCatalogParity', () => {
   it('es.json define claves base del slice', () => {
     expect(esKeys.length).toBeGreaterThan(20);
     expect(es).toHaveProperty('login.submit');
-    expect(es).toHaveProperty('demoGrid.columnName');
+    expect(es).toHaveProperty('grid.column.name');
   });
 
   it('paridad de claves entre es y en', () => {

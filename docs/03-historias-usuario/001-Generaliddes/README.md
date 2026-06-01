@@ -50,8 +50,18 @@ Convención: **`HU-GEN-{SPEC}-{tema}.md`** derivadas de `docs/05-open-spec/001-G
 
 **SPEC:** [SPEC-001-10-chat-asistente-ia.md](../../05-open-spec/001-Generaliddes/SPEC-001-10-chat-asistente-ia.md)
 
+## SPEC-001-03 — UI transversal
+
+| HU | TR | Título | Prioridad |
+|----|-----|--------|-----------|
+| [HU-GEN-03-grillas-listados](HU-GEN-03-grillas-listados.md) | [TR-GEN-03-grillas-listados](../../04-tareas/001-Generaliddes/TR-GEN-03-grillas-listados.md) | Estándar grillas y listados | Must |
+| [HU-GEN-03-layouts-grilla](HU-GEN-03-layouts-grilla.md) | [TR-GEN-03-layouts-grilla](../../04-tareas/001-Generaliddes/TR-GEN-03-layouts-grilla.md) | Layouts persistentes (`pq_grid_layouts`) | Must |
+| [HU-GEN-03-patron-abm](HU-GEN-03-patron-abm.md) | [TR-GEN-03-patron-abm](../../04-tareas/001-Generaliddes/TR-GEN-03-patron-abm.md) | Patrón ABM sobre grilla | Must |
+| [HU-GEN-03-exportaciones](HU-GEN-03-exportaciones.md) | [TR-GEN-03-exportaciones](../../04-tareas/001-Generaliddes/TR-GEN-03-exportaciones.md) | Exportación Excel desde grillas | Must |
+
+**SPEC:** [SPEC-001-03-ui-transversal.md](../../05-open-spec/001-Generaliddes/SPEC-001-03-ui-transversal.md) — **C (2026-06-01):** TR generadas; orden implementación: grillas → layouts → ABM → exportación.
+
 ## Pendientes (otros SPEC)
 
 - SPEC-001-05 → HU-GEN-05 + TR (tenancy; prioridad Fase 0)
-- SPEC-001-03 → HU-GEN-03 + TR (UI transversal)
 - SPEC-001-04 → HU-GEN-04 + TR (configuración global)

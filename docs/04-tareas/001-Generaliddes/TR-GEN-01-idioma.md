@@ -339,6 +339,18 @@ Lista de **ámbitos** que deben usar claves i18n (no texto fijo en código) en e
 | 18 | **Fechas y números** | Formato vía `Intl` / locale activo (no traducción literal, pero coherencia regional) | Sí |
 | 19 | **Mensajes HTTP / envelope** | Claves i18n en `respuesta` del envelope; UI traduce (`t(respuesta)`). Ver contexto MONO `envelope-respuestas.md` §4 | Sí |
 | 20 | **Datos de negocio** | Nombres de clientes, artículos, descripciones ERP | **No** (fuera de alcance HU) |
+| 21 | **Panel de agrupación (DataGrid)** | Texto vacío «arrastre columna…» (`grid.dx.groupPanelEmpty` + `dxDataGrid-groupPanelEmptyText`) | Sí |
+| 22 | **Selector de columnas (Column Chooser)** | Título y panel vacío (`grid.dx.columnChooserTitle`, `grid.dx.columnChooserEmpty`) | Sí |
+| 23 | **Operadores de fila de filtro** | Menú de operaciones (contiene, empieza con, etc.) vía `FilterRow.operationDescriptions` + overrides `grid.dx.filter.*` | Sí |
+| 24 | **Totalizadores de pie de grilla** | Menú contextual (clic derecho en celda de footer): opciones según tipo de dato; textos `grid.summary.*` | Sí |
+| 25 | **Columna de acciones sin caption** | Cabecera i18n `grid.column.actions` (evita ítem vacío en Column Chooser) | Sí |
+| 26 | **Menú contextual de encabezado de columna** | Ordenar, agrupar, mover columna: overrides `grid.dx.sort.*`, `grid.dx.group.*`, `grid.dx.column.move*` → `dxDataGrid-*`; requiere `loadMessages` sin doble anidación | Sí |
+| 27 | **Pie de grilla — totalizadores por columna** | Clic derecho en celda de pie; `grid.summary.*`; fila visible con placeholder; separadores CSS | Sí |
+| 28 | **Remount grilla al cambiar idioma** | `key={gridId-locale}` en `DataGridDx` + `syncDevExtremeLocale` en `LocaleProvider` | Sí |
+
+**QA manual ítems 21–28 (GEN-03, 2026-06-01):** validados en dashboard y `/demo/abm` (locale `es`). Evidencia: [F-GEN-03-cierre-formal](F-GEN-03-cierre-formal.md) § QA manual.
+
+**Patrón técnico completo (obligatorio en proyectos MONO):** [`patron-i18n-grilla-devextreme.md`](../../00-contexto/_mono/03-ui-transversal/patron-i18n-grilla-devextreme.md).
 
 **Criterio de cierre por idioma (ej. italiano):**
 
@@ -350,8 +362,13 @@ Lista de **ámbitos** que deben usar claves i18n (no texto fijo en código) en e
 
 **Implementación DevExtreme (recordatorio técnico):**
 
-- Cargar mensajes localizados del paquete DevExtreme para cada código del catálogo (`es`, `en`, `pt`, `fr`, `it`) además de los JSON propios de la app.
+- Cargar mensajes del paquete DevExtreme con `loadMessages(esMessages)` (el JSON ya es `{ es: { … } }`); **no** `loadMessages({ es: esMessages })`.
 - Al cambiar `locale` de la app, sincronizar `locale()` de DevExtreme en el mismo ciclo (sin recarga completa de página).
+- En `DataGridDx`: props explícitas (`GroupPanel`, `ColumnChooser`, `FilterRow.operationDescriptions`) + `getGridDevExtremeMessageOverrides()` (claves `grid.dx.*` → `dxDataGrid-*`).
+- **No asumir** que el paquete DX traduce todo en runtime: ítems **21–28** validados en QA GEN-03 (2026-06-01); repetir al añadir idioma o superficie DX nueva.
+- Detalle normativo, inventario de superficies y anti-patrones: **[`patron-i18n-grilla-devextreme.md`](../../00-contexto/_mono/03-ui-transversal/patron-i18n-grilla-devextreme.md)**.
+
+**Corrección post-GEN-03 (2026-06-01):** ver [TR-GEN-03-grillas-listados](TR-GEN-03-grillas-listados.md) §10 y el patrón MONO anterior.
 
 ---
 

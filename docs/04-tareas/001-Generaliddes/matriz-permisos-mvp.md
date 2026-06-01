@@ -63,13 +63,24 @@ Procedimientos ERP: `pw_cargapedidos`, `pw_presupuestosingresados`, `pw_pedidosi
 | PATCH | `/api/v1/users/me/preferences` | Usuario autenticado | TR-GEN-01-menu-avatar |
 | PATCH | `/api/v1/users/me/preferences/locale` | Usuario autenticado | TR-GEN-01-idioma |
 | PATCH | `/api/v1/users/me/preferences/theme` | Usuario autenticado | TR-GEN-01-apariencia-temas |
-| GET | `/api/v1/config/public` | Usuario autenticado | TR-GEN-01-ayuda-externa |
+| GET | `/api/v1/config/public` | Usuario autenticado | TR-GEN-01-ayuda-externa, TR-GEN-03-layouts-grilla (`gridLayoutsEnabled`) |
 
 ## Menú
 
 | Método | Path | Permiso / regla | TR origen |
 |--------|------|-----------------|-----------|
 | GET | `/api/v1/user/menu` | `Pq_Permiso` + filtro atributos menú | TR-GEN-02-autorizacion-menu-api |
+
+## Layouts de grilla (UI transversal)
+
+| Método | Path | Permiso / regla | TR origen |
+|--------|------|-----------------|-----------|
+| GET | `/api/v1/grid-layouts` | Usuario autenticado | TR-GEN-03-layouts-grilla |
+| GET | `/api/v1/grid-layouts/active` | Usuario autenticado | TR-GEN-03-layouts-grilla |
+| POST | `/api/v1/grid-layouts` | Usuario autenticado | TR-GEN-03-layouts-grilla |
+| PUT | `/api/v1/grid-layouts/{id}` | Usuario autenticado; solo creador del layout | TR-GEN-03-layouts-grilla |
+| DELETE | `/api/v1/grid-layouts/{id}` | Usuario autenticado; solo creador del layout | TR-GEN-03-layouts-grilla |
+| PUT | `/api/v1/grid-layouts/active` | Usuario autenticado | TR-GEN-03-layouts-grilla |
 
 ## Visibilidad de datos (base; extiende SPEC-101)
 

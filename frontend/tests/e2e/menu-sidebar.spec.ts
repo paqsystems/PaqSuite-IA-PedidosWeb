@@ -4,25 +4,62 @@ import { clickAvatarMenuItem } from './helpers/avatarMenu';
 const acotadoMenu = [
   {
     id: 1,
-    menuKey: 'cargaPedidosPresupuestos',
-    labelKey: 'menu.cargaPedidosPresupuestos',
-    text: 'Carga Pedidos',
-    routePath: '/pedidos/carga',
-    procedimiento: 'pw_cargapedidos',
-    tipoProceso: 'P',
+    menuKey: 'grupoPedidos',
+    labelKey: 'menu.grupoPedidos',
+    text: 'Pedidos',
+    routePath: null,
+    procedimiento: 'grp_pedidos',
+    tipoProceso: 'G',
     order: 10,
-    nodeType: 'process',
-    children: [],
+    nodeType: 'group',
+    children: [
+      {
+        id: 2,
+        menuKey: 'cargaPedidosPresupuestos',
+        labelKey: 'menu.cargaPedidosPresupuestos',
+        text: 'Carga de Pedidos',
+        routePath: '/pedidos/carga',
+        procedimiento: 'pw_cargapedidos',
+        tipoProceso: 'P',
+        order: 11,
+        nodeType: 'process',
+        children: [],
+      },
+      {
+        id: 3,
+        menuKey: 'presupuestosIngresados',
+        labelKey: 'menu.presupuestosIngresados',
+        text: 'Presupuestos Ingresados',
+        routePath: '/presupuestos/ingresados',
+        procedimiento: 'pw_presupuestosingresados',
+        tipoProceso: 'P',
+        order: 12,
+        nodeType: 'process',
+        children: [],
+      },
+      {
+        id: 4,
+        menuKey: 'pedidosIngresados',
+        labelKey: 'menu.pedidosIngresados',
+        text: 'Pedidos Ingresados',
+        routePath: '/pedidos/ingresados',
+        procedimiento: 'pw_pedidosingresados',
+        tipoProceso: 'P',
+        order: 13,
+        nodeType: 'process',
+        children: [],
+      },
+    ],
   },
   {
-    id: 2,
-    menuKey: 'pedidosIngresados',
-    labelKey: 'menu.pedidosIngresados',
-    text: 'Pedidos Ingresados',
-    routePath: '/pedidos/ingresados',
-    procedimiento: 'pw_pedidosingresados',
+    id: 5,
+    menuKey: 'dashboard',
+    labelKey: 'menu.dashboard',
+    text: 'Dashboard',
+    routePath: '/dashboard',
+    procedimiento: 'pw_dashboard',
     tipoProceso: 'P',
-    order: 30,
+    order: 40,
     nodeType: 'process',
     children: [],
   },
@@ -31,16 +68,29 @@ const acotadoMenu = [
 const supervisorMenu = [
   ...acotadoMenu,
   {
-    id: 3,
-    menuKey: 'stock',
-    labelKey: 'menu.stock',
-    text: 'Consulta Stock',
-    routePath: '/consultas/stock',
-    procedimiento: 'pw_consultastock',
-    tipoProceso: 'P',
-    order: 80,
-    nodeType: 'process',
-    children: [],
+    id: 6,
+    menuKey: 'grupoInformes',
+    labelKey: 'menu.grupoInformes',
+    text: 'Informes',
+    routePath: null,
+    procedimiento: 'grp_informes',
+    tipoProceso: 'G',
+    order: 20,
+    nodeType: 'group',
+    children: [
+      {
+        id: 7,
+        menuKey: 'stock',
+        labelKey: 'menu.stock',
+        text: 'Stock',
+        routePath: '/consultas/stock',
+        procedimiento: 'pw_consultastock',
+        tipoProceso: 'P',
+        order: 24,
+        nodeType: 'process',
+        children: [],
+      },
+    ],
   },
 ];
 
@@ -179,6 +229,7 @@ test('vendedor acotado ve subconjunto y no ve stock', async ({ page }) => {
 
   await loginAs(page, 'vendedor.acotado.mvp', 'secret');
 
+  await expect(page.getByTestId('menuSidebarItem-grupoPedidos')).toBeVisible();
   await expect(page.getByTestId('menuSidebarItem-pedidosIngresados')).toBeVisible();
   await expect(page.getByTestId('menuSidebarItem-stock')).toHaveCount(0);
 });
@@ -191,6 +242,7 @@ test('supervisor ve item excluido del acotado', async ({ page }) => {
 
   await loginAs(page, 'supervisor.mvp', 'secret');
 
+  await expect(page.getByTestId('menuSidebarItem-grupoInformes')).toBeVisible();
   await expect(page.getByTestId('menuSidebarItem-pedidosIngresados')).toBeVisible();
   await expect(page.getByTestId('menuSidebarItem-stock')).toBeVisible();
 });

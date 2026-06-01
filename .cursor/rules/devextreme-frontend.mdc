@@ -11,4 +11,5 @@ alwaysApply: true
 - Mantener `data-testid` estables usando `inputAttr` o `elementAttr`, sin acoplar tests al DOM interno que genera DevExtreme.
 - La licencia de DevExtreme se configura vía `VITE_DEVEXTREME_LICENSE` y se inicializa en `frontend/src/init-devextreme-license.ts`.
 - Si el cambio toca login, recuperación, cambio de contraseña, idioma o apariencia, consultar además `docs/00-contexto/_mono/01-experiencia-base/patron-ui-auth-devextreme.md`.
+- Si el cambio toca **`DataGridDx`**, textos de grilla, filtros, agrupación, selector de columnas, menú de encabezado, pie/totalizadores o `syncDevExtremeLocale`, consultar **`docs/00-contexto/_mono/03-ui-transversal/patron-i18n-grilla-devextreme.md`** (i18n obligatorio: props + overrides `grid.dx.*`; `loadMessages` sin doble anidación; QA ítems 21–28 TR-GEN-01-idioma).
 - Si un flujo ya existe con HTML nativo y se toca de forma sustancial, migrarlo a DevExtreme como parte del cambio.

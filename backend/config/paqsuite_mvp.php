@@ -2,18 +2,23 @@
 
 return [
 
+    'gridLayoutsEnabled' => true,
+
     'menuItems' => [
-        ['menuKey' => 'cargaPedidosPresupuestos', 'procedimiento' => 'pw_cargapedidos', 'text' => 'Carga Pedidos', 'orden' => 10, 'routeName' => '/pedidos/carga'],
-        ['menuKey' => 'presupuestosIngresados', 'procedimiento' => 'pw_presupuestosingresados', 'text' => 'Presupuestos Ingresados', 'orden' => 20, 'routeName' => '/presupuestos/ingresados'],
-        ['menuKey' => 'pedidosIngresados', 'procedimiento' => 'pw_pedidosingresados', 'text' => 'Pedidos Ingresados', 'orden' => 30, 'routeName' => '/pedidos/ingresados'],
-        ['menuKey' => 'pedidosPendientes', 'procedimiento' => 'pw_pedidospendientes', 'text' => 'Pedidos Pendientes', 'orden' => 40, 'routeName' => '/pedidos/pendientes'],
-        ['menuKey' => 'deudaClientes', 'procedimiento' => 'pw_deudaclientes', 'text' => 'Deuda de Clientes', 'orden' => 50, 'routeName' => '/consultas/deuda'],
-        ['menuKey' => 'chequesCartera', 'procedimiento' => 'pw_consultacheques', 'text' => 'Consulta Cheques', 'orden' => 60, 'routeName' => '/consultas/cheques'],
-        ['menuKey' => 'historialVentas', 'procedimiento' => 'pw_historialventas', 'text' => 'Historial de Ventas', 'orden' => 70, 'routeName' => '/consultas/historial'],
-        ['menuKey' => 'stock', 'procedimiento' => 'pw_consultastock', 'text' => 'Consulta Stock', 'orden' => 80, 'routeName' => '/consultas/stock'],
-        ['menuKey' => 'tratativasPresupuestos', 'procedimiento' => 'pw_tratativaspresup', 'text' => 'Tratativas Presupuestos', 'orden' => 90, 'routeName' => '/presupuestos/tratativas'],
-        ['menuKey' => 'dashboard', 'procedimiento' => 'pw_dashboard', 'text' => 'Dashboard', 'orden' => 100, 'routeName' => '/dashboard'],
-        ['menuKey' => 'logsIntegracion', 'procedimiento' => 'pw_logsintegracion', 'text' => 'Logs Integracion', 'orden' => 110, 'routeName' => '/integracion/logs'],
+        ['menuKey' => 'grupoPedidos', 'procedimiento' => 'grp_pedidos', 'text' => 'Pedidos', 'orden' => 10, 'tipoProceso' => 'G'],
+        ['menuKey' => 'cargaPedidosPresupuestos', 'procedimiento' => 'pw_cargapedidos', 'text' => 'Carga de Pedidos', 'orden' => 11, 'routeName' => '/pedidos/carga', 'parentProcedimiento' => 'grp_pedidos'],
+        ['menuKey' => 'presupuestosIngresados', 'procedimiento' => 'pw_presupuestosingresados', 'text' => 'Presupuestos Ingresados', 'orden' => 12, 'routeName' => '/presupuestos/ingresados', 'parentProcedimiento' => 'grp_pedidos'],
+        ['menuKey' => 'pedidosIngresados', 'procedimiento' => 'pw_pedidosingresados', 'text' => 'Pedidos Ingresados', 'orden' => 13, 'routeName' => '/pedidos/ingresados', 'parentProcedimiento' => 'grp_pedidos'],
+        ['menuKey' => 'pedidosPendientes', 'procedimiento' => 'pw_pedidospendientes', 'text' => 'Pedidos Pendientes', 'orden' => 14, 'routeName' => '/pedidos/pendientes', 'parentProcedimiento' => 'grp_pedidos'],
+        ['menuKey' => 'grupoInformes', 'procedimiento' => 'grp_informes', 'text' => 'Informes', 'orden' => 20, 'tipoProceso' => 'G'],
+        ['menuKey' => 'deudaClientes', 'procedimiento' => 'pw_deudaclientes', 'text' => 'Deudas', 'orden' => 21, 'routeName' => '/consultas/deuda', 'parentProcedimiento' => 'grp_informes'],
+        ['menuKey' => 'chequesCartera', 'procedimiento' => 'pw_consultacheques', 'text' => 'Cheques', 'orden' => 22, 'routeName' => '/consultas/cheques', 'parentProcedimiento' => 'grp_informes'],
+        ['menuKey' => 'historialVentas', 'procedimiento' => 'pw_historialventas', 'text' => 'Historial Ventas', 'orden' => 23, 'routeName' => '/consultas/historial', 'parentProcedimiento' => 'grp_informes'],
+        ['menuKey' => 'stock', 'procedimiento' => 'pw_consultastock', 'text' => 'Stock', 'orden' => 24, 'routeName' => '/consultas/stock', 'parentProcedimiento' => 'grp_informes'],
+        ['menuKey' => 'grupoGestionPresupuestos', 'procedimiento' => 'grp_gestion_presupuestos', 'text' => 'Gestion Presupuestos', 'orden' => 30, 'tipoProceso' => 'G'],
+        ['menuKey' => 'tratativasPresupuestos', 'procedimiento' => 'pw_tratativaspresup', 'text' => 'Tratativas Presupuestos', 'orden' => 31, 'routeName' => '/presupuestos/tratativas', 'parentProcedimiento' => 'grp_gestion_presupuestos'],
+        ['menuKey' => 'dashboard', 'procedimiento' => 'pw_dashboard', 'text' => 'Dashboard', 'orden' => 40, 'routeName' => '/dashboard'],
+        ['menuKey' => 'logsIntegracion', 'procedimiento' => 'pw_logsintegracion', 'text' => 'Logs Integracion', 'orden' => 50, 'routeName' => '/integracion/logs'],
     ],
 
     'roles' => [

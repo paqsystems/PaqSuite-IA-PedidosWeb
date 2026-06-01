@@ -61,6 +61,32 @@ Tareas técnicas (parte C) derivadas de **SPEC-001-01** y **SPEC-001-02**.
 | [TR-GEN-02-politicas-endpoints](TR-GEN-02-politicas-endpoints.md) | [HU-GEN-02-politicas-endpoints](../../03-historias-usuario/001-Generaliddes/HU-GEN-02-politicas-endpoints.md) | Must |
 | [TR-GEN-02-visibilidad-datos-pedidosweb](TR-GEN-02-visibilidad-datos-pedidosweb.md) | [HU-GEN-02-visibilidad-datos-pedidosweb](../../03-historias-usuario/001-Generaliddes/HU-GEN-02-visibilidad-datos-pedidosweb.md) | Must |
 
+## SPEC-001-03 — UI transversal
+
+**C1 (2026-06-01):** revisión de ambigüedad en las 4 TR — todas **aptas con observaciones** (§3.1–3.2).  
+**D1 (2026-06-01):** plan de implementación en §3.3 de cada TR — ejecutar **D** en orden 1→4 (empezar por grillas-listados).  
+**F formal (2026-06-01):** bloque implementado y verificado — [F-GEN-03-cierre-formal](F-GEN-03-cierre-formal.md) (**Aprobado con observaciones**).
+
+**Orden de implementación:**
+
+```text
+1. TR-GEN-03-grillas-listados   (DataGridDx)
+2. TR-GEN-03-layouts-grilla     (pq_grid_layouts + API)
+3. TR-GEN-03-patron-abm          (modal ABM)
+4. TR-GEN-03-exportaciones     (Excel)
+```
+
+| TR | HU | Prioridad |
+|----|-----|-----------|
+| [TR-GEN-03-grillas-listados](TR-GEN-03-grillas-listados.md) | [HU-GEN-03-grillas-listados](../../03-historias-usuario/001-Generaliddes/HU-GEN-03-grillas-listados.md) | Must |
+| [TR-GEN-03-layouts-grilla](TR-GEN-03-layouts-grilla.md) | [HU-GEN-03-layouts-grilla](../../03-historias-usuario/001-Generaliddes/HU-GEN-03-layouts-grilla.md) | Must |
+| [TR-GEN-03-patron-abm](TR-GEN-03-patron-abm.md) | [HU-GEN-03-patron-abm](../../03-historias-usuario/001-Generaliddes/HU-GEN-03-patron-abm.md) | Must |
+| [TR-GEN-03-exportaciones](TR-GEN-03-exportaciones.md) | [HU-GEN-03-exportaciones](../../03-historias-usuario/001-Generaliddes/HU-GEN-03-exportaciones.md) | Must |
+
+**SPEC:** [SPEC-001-03-ui-transversal.md](../../05-open-spec/001-Generaliddes/SPEC-001-03-ui-transversal.md)
+
+**Patrón MONO (reutilizable):** [patron-i18n-grilla-devextreme.md](../../00-contexto/_mono/03-ui-transversal/patron-i18n-grilla-devextreme.md) — i18n `DataGridDx`, `loadMessages`, menús DX, totalizadores por columna.
+
 ## SPEC-001-10 — Chat Asistente IA
 
 | TR | HU | Prioridad |

@@ -37,6 +37,8 @@ export function LocaleProvider({ children }: LocaleProviderProps) {
     });
 
     void applyLocale(nextLocale).then(() => {
+      // Mantiene login/guest alineado con el último locale activo.
+      writeGuestLocale(nextLocale);
       setCurrentLocale((previousLocale) =>
         previousLocale === nextLocale ? previousLocale : nextLocale,
       );
@@ -63,6 +65,7 @@ export function LocaleProvider({ children }: LocaleProviderProps) {
 
           setSessionContext(nextSessionContext);
           updateStoredSessionContext(nextSessionContext);
+          writeGuestLocale(persistedLocale);
           await applyLocale(persistedLocale);
           setCurrentLocale(persistedLocale);
           return;

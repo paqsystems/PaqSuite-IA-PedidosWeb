@@ -43,11 +43,36 @@ final class UserMenuTest extends TestCase
 
         $response->assertOk();
 
-        $procedimientos = collect($response->json('resultado'))->pluck('procedimiento')->all();
+        $procedimientos = $this->flattenProcedimientos((array) $response->json('resultado'));
 
         $this->assertSame(
             config('paqsuite_mvp.vendedorAcotadoProcedimientos'),
             $procedimientos
+        );
+    }
+
+    public function testSupervisorReceivesConfiguredGroupedMenuStructure(): void
+    {
+        $response = $this->getJson('/api/v1/user/menu', $this->authHeadersFor('supervisor.mvp'));
+
+        $response->assertOk();
+
+        $menu = (array) $response->json('resultado');
+
+        $this->assertSame(
+            ['grp_pedidos', 'grp_informes', 'grp_gestion_presupuestos', 'pw_dashboard', 'pw_logsintegracion'],
+            array_map(
+                static fn (array $item): string => (string) ($item['procedimiento'] ?? ''),
+                $menu
+            )
+        );
+
+        $this->assertSame(
+            ['pw_cargapedidos', 'pw_presupuestosingresados', 'pw_pedidosingresados', 'pw_pedidospendientes'],
+            array_map(
+                static fn (array $item): string => (string) ($item['procedimiento'] ?? ''),
+                (array) ($menu[0]['children'] ?? [])
+            )
         );
     }
 

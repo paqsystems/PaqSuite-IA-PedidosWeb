@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { clickAvatarMenuItem } from './helpers/avatarMenu';
 
 const sessionPayload = {
   token: 'test-token',
@@ -140,6 +141,24 @@ test('cambio de idioma en header persiste tras recargar', async ({ page }) => {
   await expect(page.getByTestId('nav-pedidos-ingresados')).toHaveText('Vai agli ordini ricevuti');
 });
 
+test('idioma elegido en shell se refleja al volver a login', async ({ page }) => {
+  await mockAuthenticatedApi(page);
+
+  await page.goto('/login');
+  await page.locator('input[name="codigo"]').fill('cliente.mvp');
+  await page.locator('input[name="password"]').fill('secret');
+  await page.getByTestId('login-submit').click();
+
+  await expect(page).toHaveURL(/\/dashboard$/);
+  await selectLocale(page, 'localeSelectorHeader', 'it');
+  await expect(page.getByTestId('localeSelectorHeader').getByRole('combobox')).toHaveValue('Italiano');
+
+  await clickAvatarMenuItem(page, 'avatarMenuItemLogout');
+  await expect(page).toHaveURL(/\/login$/);
+  await expect(page.getByTestId('localeSelectorLogin').getByRole('combobox')).toHaveValue('Italiano');
+  await expect(page.getByTestId('login-submit')).toHaveText('Accedi');
+});
+
 test('grilla demo muestra caption en italiano', async ({ page }) => {
   await mockAuthenticatedApi(page, { locale: 'it' });
 
@@ -149,6 +168,6 @@ test('grilla demo muestra caption en italiano', async ({ page }) => {
   await page.locator('input[name="password"]').fill('secret');
   await page.getByTestId('login-submit').click();
 
-  await expect(page.getByTestId('localeDemoGrid')).toBeVisible();
+  await expect(page.getByTestId('dataGridDx-main')).toBeVisible();
   await expect(page.locator('.dx-datagrid-headers').getByText('Nome')).toBeVisible();
 });
