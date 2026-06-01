@@ -2,7 +2,10 @@ import { createContext, useContext } from 'react';
 
 export type CurrentThemeContextValue = {
   currentTheme: string;
-  changeTheme: (themeKey: string) => Promise<void>;
+  persistedTheme: string;
+  previewTheme: (themeKey: string) => void;
+  revertThemePreview: () => void;
+  confirmTheme: (themeKey: string) => Promise<boolean>;
   isSaving: boolean;
   saveErrorKey: string | null;
 };

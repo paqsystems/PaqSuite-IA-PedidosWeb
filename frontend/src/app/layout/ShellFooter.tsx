@@ -10,11 +10,11 @@ export function ShellFooter({ userLabel }: ShellFooterProps) {
 
   return (
     <footer className="shellFooter" data-testid="shellFooter">
-      <span>{t('shell.footer.version', { version: appVersion })}</span>
+      <span className="shellFooterBrand">{t('shell.footer.brand')}</span>
       <span className="shellFooterSession" data-testid="shell-footer-session">
         {t('shell.footer.session', { user: userLabel })}
       </span>
-      <span>{t('shell.footer.brand')}</span>
+      <span className="shellFooterVersion">{t('shell.footer.version', { version: appVersion })}</span>
     </footer>
   );
 }

@@ -8,11 +8,12 @@
 | **Prioridad** | Must |
 | **Dependencias** | **TR-GEN-02-modelo-roles-permisos-seed** (implementada; ver §3.2 D1-1) |
 | **Estado** | Implementado |
-| **Ultima actualizacion** | 2026-05-29 (D implementado) |
+| **Ultima actualizacion** | 2026-05-31 (F formal) |
 
 **Origen:** [HU-GEN-02-login-sesion](../../03-historias-usuario/001-Generaliddes/HU-GEN-02-login-sesion.md)  
 **Referencia SPEC:** [SPEC-001-02-acceso-y-seguridad](../../05-open-spec/001-Generaliddes/SPEC-001-02-acceso-y-seguridad.md)  
-**Normas transversales:** [`../_NORMAS-TRANSVERSALES-TR.md`](../_NORMAS-TRANSVERSALES-TR.md)
+**Normas transversales:** [`../_NORMAS-TRANSVERSALES-TR.md`](../_NORMAS-TRANSVERSALES-TR.md)  
+**Cierre F formal:** [F-GEN-01-02-cierre-formal](F-GEN-01-02-cierre-formal.md)
 
 ---
 
@@ -90,6 +91,7 @@ Feature: Login y ciclo de sesion
 4. **RN-04**: En MONO se omite completamente selector de empresa.
 5. **RN-05**: Tras login, el menú lateral se carga vía `GET /api/v1/user/menu` (endpoint aparte); no va embebido en login.
 6. **RN-06**: Backend reutiliza un mismo servicio `buildSessionContext(user)` en login y `/me` para evitar divergencia.
+7. **RN-07**: La pantalla pública de login debe poder reutilizarse entre proyectos MONO con el mismo patrón visual base (hero + card de autenticación), dejando proyecto/textos en i18n y el look & feel encapsulado en CSS del slice.
 
 ### 3.1) Resolucion de perfil y bootstrap (decision D-01 — producto)
 
@@ -287,11 +289,29 @@ Coordinacion: seed en [TR-GEN-02-modelo-roles-permisos-seed](TR-GEN-02-modelo-ro
 
 ### Pantallas / componentes
 - `LoginPage`: formulario `codigo` + `password`; submit → persistir **token** (`localStorage`) + **sessionContext**; redirect al shell solo si `firstLogin === false`.
+- `LoginPage` debe usar controles **DevExtreme** para la UI final (`TextBox`, `Button`, `SelectBox` para idioma), manteniendo los `data-testid` públicos del slice.
 - `AuthBootstrap`: en **recarga F5** con token → `GET /auth/me`; en flujo post-login **no** llamar `/me` si ya hay contexto de login.
 - `sessionContext` store: fuente en login; refresh opcional via `/me`; token leido de `localStorage`.
 - `firstLogin`: **sin** pantalla de cambio de clave ni redirect — ver [TR-GEN-02-cambio-contrasena](TR-GEN-02-cambio-contrasena.md).
 - `AvatarMenu` / logout minimo: invalidar token y limpiar `localStorage`.
 - Claves i18n login: `auth.invalidCredentials`, `auth.noPermission`, `auth.noCommercialProfile`, `tenant.invalid` (coord. TR-GEN-01-idioma).
+
+### Refinamiento UI login MONO (2026-05-31)
+- Se adopta un patrón visual **reusable** alineado con `PaqSuite-IA-TANGO`: layout a 2 columnas con **hero de marca** + **card de autenticación**.
+- La estructura visual queda encapsulada en `src/features/auth/LoginPage.css`; la lógica de autenticación permanece en `LoginPage.tsx`.
+- Norma base reusable MONO: `docs/00-contexto/_mono/01-experiencia-base/patron-ui-auth-devextreme.md`
+- El contenido adaptable por proyecto MONO queda en i18n para evitar hardcodes visuales de negocio:
+  - `login.title`
+  - `login.subtitle`
+  - `login.welcome`
+  - `login.hint`
+  - `login.loading`
+- Para reutilización cross-project, conservar este contrato del componente:
+  - mismos `data-testid` públicos (`login-form`, `login-submit`, `login-forgot-password`, `auth-error-*`, `auth-notice-password-reset-success`);
+  - mismo flujo (`codigo` + `password` → persist token/contexto → redirect/gate `firstLogin`);
+  - branding/textos solo vía locales, no dentro del JSX.
+- Criterio de portabilidad MONO: cambiar **textos**, **paleta**, **branding** y eventualmente assets del hero, sin reescribir el flujo auth ni los selectores usados por tests E2E.
+- Bootstrap DX obligatorio para proyectos reutilizadores: configurar `VITE_DEVEXTREME_LICENSE` en `frontend/.env` o `frontend/.env.local`; `src/init-devextreme-license.ts` registra la licencia antes de montar la app y falla en build productivo si falta la clave.
 
 ### data-testid sugeridos
 - `login-form`
@@ -342,6 +362,7 @@ Coordinacion: seed en [TR-GEN-02-modelo-roles-permisos-seed](TR-GEN-02-modelo-ro
 - `php artisan test` — 23 passed (9 auth).
 - Smoke manual `:8088`: login cliente/vendedor acotado 200; 403 sin permiso/vinculo; 400 tenant; `/me` + logout OK.
 - Frontend: `npm run build` verde; scaffold Vite completado.
+- Refinamiento UI login MONO (2026-05-31): `npm test` frontend **41 passed** tras aplicar nuevo layout del login.
 
 ### Checklist del slice
 - [x] AC cumplidos (AC-08 `/me` paridad verificada)
@@ -374,8 +395,9 @@ Coordinacion: seed en [TR-GEN-02-modelo-roles-permisos-seed](TR-GEN-02-modelo-ro
 - `tests/Feature/AuthLoginTest.php`
 
 ### Frontend
-- `src/features/auth/` — `AuthApp`, `LoginPage`, `ShellPage`, storage, API
+- `src/features/auth/` — `AuthApp`, `LoginPage`, `LoginPage.css`, `ShellPage`, storage, API
 - `src/app/App.tsx`, `src/shared/http/client.ts`
+- `src/locales/*.json` — claves reutilizables `login.subtitle`, `login.welcome`, `login.hint`, `login.loading`
 - Scaffold: `index.html`, `tsconfig*.json`, `vite-env.d.ts`, `playwright.config.ts`, `.env.example`
 
 ### OpenAPI

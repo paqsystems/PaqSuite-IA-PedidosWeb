@@ -80,7 +80,7 @@ namespace App\OpenApi;
  *     schema="UserPreferencesResultado",
  *     type="object",
  *     @OA\Property(property="locale", type="string", example="es"),
- *     @OA\Property(property="theme", type="string", example="generic.light", enum={"generic.light", "generic.dark"}),
+ *     @OA\Property(property="theme", type="string", example="material.blue.light"),
  *     @OA\Property(property="openInNewTab", type="boolean", example=false)
  * )
  *
@@ -93,7 +93,7 @@ namespace App\OpenApi;
  * @OA\Schema(
  *     schema="ThemeUpdatedResultado",
  *     type="object",
- *     @OA\Property(property="theme", type="string", example="generic.dark", enum={"generic.light", "generic.dark"})
+ *     @OA\Property(property="theme", type="string", example="material.blue.dark")
  * )
  *
  * @OA\Schema(

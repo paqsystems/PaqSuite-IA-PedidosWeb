@@ -6,9 +6,9 @@
 | **SPEC origen** | [SPEC-001-01-experiencia-base.md](../../05-open-spec/001-Generaliddes/SPEC-001-01-experiencia-base.md) |
 | **Épica** | 001 — Generaliddes / Experiencia base |
 | **Prioridad** | Must |
-| **Estado** | Pendiente |
+| **Estado** | Verificada F — Aprobada con observaciones |
 | **B1** | Enriquecida (2026-05-28) |
-| **Última actualización** | 2026-05-28 |
+| **Última actualización** | 2026-05-31 |
 | **Dependencias** | HU-GEN-01-menu-avatar; HU-GEN-01-shell-layout |
 
 ## Trazabilidad SPEC
@@ -107,3 +107,9 @@ Feature: Apariencia y temas (SPEC-001-01 §8.1)
 ## Veredicto B1
 
 **Lista para TR:** Sí con observaciones (catálogo exacto de temas)
+
+## Cierre F
+
+- **Resultado:** Aprobada con observaciones.
+- **Soporte de verificación:** [TR-GEN-01-apariencia-temas](../../04-tareas/001-Generaliddes/TR-GEN-01-apariencia-temas.md) y [F-GEN-01-02-cierre-formal](../../04-tareas/001-Generaliddes/F-GEN-01-02-cierre-formal.md).
+- **Observaciones:** el cierre F confirma catálogo ampliado, flujo `Aplicar/Confirmar/Cancelar`, i18n del modal y herencia de paleta del shell; la evidencia backend se apoya en validaciones previas documentadas y en tests frontend recientes.

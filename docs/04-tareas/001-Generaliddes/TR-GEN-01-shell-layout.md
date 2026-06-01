@@ -8,11 +8,12 @@
 | **Prioridad** | Must |
 | **Dependencias** | TR-GEN-02-login-sesion (post-login); base para TR-GEN-01-menu-general-sidebar, TR-GEN-01-menu-avatar, TR-GEN-01-idioma y TR-GEN-01-apariencia-temas |
 | **Estado** | Implementado |
-| **Última actualización** | 2026-05-29 (D implementado) |
+| **Última actualización** | 2026-05-31 (F formal) |
 
 **Origen:** [HU-GEN-01-shell-layout](../../03-historias-usuario/001-Generaliddes/HU-GEN-01-shell-layout.md)  
 **Referencia SPEC:** [SPEC-001-01-experiencia-base](../../05-open-spec/001-Generaliddes/SPEC-001-01-experiencia-base.md)  
-**Normas transversales:** [`../_NORMAS-TRANSVERSALES-TR.md`](../_NORMAS-TRANSVERSALES-TR.md) (**obligatorio**)
+**Normas transversales:** [`../_NORMAS-TRANSVERSALES-TR.md`](../_NORMAS-TRANSVERSALES-TR.md) (**obligatorio**)  
+**Cierre F formal:** [F-GEN-01-02-cierre-formal](F-GEN-01-02-cierre-formal.md)
 
 ---
 
@@ -80,6 +81,7 @@ Feature: Shell principal post-login
 3. **RN-03**: Header y footer son persistentes durante navegación SPA.
 4. **RN-04**: Error de carga de preferencias de usuario no bloquea shell; usar fallback definido (`es`, `generic.light`).
 5. **RN-05**: La identidad visual del shell no define estilos finales de pantallas de negocio.
+6. **RN-06**: Cuando exista selector de apariencia/tema, el shell debe consumir la paleta derivada del tema activo (no solo `light/dark`) y preservar contraste legible en header, sidebar, footer y menú avatar.
 
 ---
 
@@ -299,6 +301,8 @@ Este slice es **principalmente frontend**. No introduce endpoints nuevos; consum
 - `frontend/src/app/layout/ShellHeader.tsx`: marca, slots idioma/avatar, controles menú (stub expandir/vista).
 - `frontend/src/app/layout/ShellSidebar.tsx`: contenedor de `SidebarMenu`.
 - `frontend/src/app/layout/ShellFooter.tsx`: versión e identidad de sesión.
+- `ShellFooter` debe permanecer visible en el shell y mostrar, como mínimo, **marca**, **usuario/sesión** y **versión** del proyecto con jerarquía visual suficiente; referencia de estilo: `PaqSuite-IA-TANGO`.
+- La presencia del footer no sustituye la regla transversal de DevExtreme para controles interactivos, pero sí forma parte del contrato reusable de shell MONO.
 - `frontend/src/app/router/protectedRoutes.tsx` + `AppRoutes.tsx` + `RequireAuth.tsx`.
 - `frontend/src/features/auth/AuthProvider.tsx`: contexto de sesión + bootstrap `/auth/me`.
 - `frontend/src/features/preferences/useUserPreferences.ts`: fallback preferencias.

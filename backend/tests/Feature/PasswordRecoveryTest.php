@@ -37,9 +37,12 @@ final class PasswordRecoveryTest extends TestCase
             ->assertJsonPath('respuesta', 'auth.passwordRecoveryEmailSent');
 
         Mail::assertSent(ResetPasswordMail::class, function (ResetPasswordMail $mail): bool {
+            parse_str((string) parse_url($mail->resetUrl, PHP_URL_QUERY), $query);
+
             return $mail->locale === 'it'
                 && str_contains($mail->render(), 'Reimposta password')
-                && str_contains($mail->resetUrl, '/reset-password?token=');
+                && ($query['locale'] ?? null) === 'it'
+                && filled($query['token'] ?? null);
         });
     }
 

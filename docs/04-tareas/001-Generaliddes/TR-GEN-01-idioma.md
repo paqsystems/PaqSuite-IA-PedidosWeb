@@ -8,11 +8,12 @@
 | **Prioridad** | Must |
 | **Dependencias** | TR-GEN-01-shell-layout (header/login); TR-GEN-02-login-sesion (estado autenticado); coordina con TR-GEN-01-menu-avatar |
 | **Estado** | Implementado |
-| **Última actualización** | 2026-05-30 (D implementado) |
+| **Última actualización** | 2026-05-31 (F formal) |
 
 **Origen:** [HU-GEN-01-idioma](../../03-historias-usuario/001-Generaliddes/HU-GEN-01-idioma.md)  
 **Referencia SPEC:** [SPEC-001-01-experiencia-base](../../05-open-spec/001-Generaliddes/SPEC-001-01-experiencia-base.md)  
-**Normas transversales:** [`_NORMAS-TRANSVERSALES-TR.md`](../_NORMAS-TRANSVERSALES-TR.md) (**obligatorio**)
+**Normas transversales:** [`_NORMAS-TRANSVERSALES-TR.md`](../_NORMAS-TRANSVERSALES-TR.md) (**obligatorio**)  
+**Cierre F formal:** [F-GEN-01-02-cierre-formal](F-GEN-01-02-cierre-formal.md)
 
 ---
 
@@ -411,6 +412,9 @@ Lista de **ámbitos** que deben usar claves i18n (no texto fijo en código) en e
 - `frontend/src/features/i18n/api/updateLocalePreference.ts` (nuevo): persistencia server-side.
 - `frontend/src/features/i18n/hooks/useCurrentLocale.ts` (nuevo): resolución de idioma inicial.
 - `frontend/src/features/i18n/components/LocaleSelector.tsx` (nuevo): selector reutilizable.
+- `LocaleSelector` debe implementarse con **DevExtreme `SelectBox`** tanto en login como en header; no usar `<select>` nativo en superficies de usuario finales.
+- Contrato reusable MONO: wrapper con `data-testid` estable (`localeSelectorLogin`, `localeSelectorHeader`) + items renderizados con `localeOption-{code}` para no acoplar E2E al DOM interno de DevExtreme.
+- Estilo visual alineado con `PaqSuite-IA-TANGO`: mismo patrón de selector DX en login público y shell autenticado, incluyendo **bandera representativa por idioma** en el valor seleccionado y en el desplegable.
 - `frontend/src/app/layout/ShellHeader.tsx`: ubicar selector post-login.
 - `frontend/src/features/auth/LoginPage.tsx`: selector visible pre-login.
 - `frontend/src/features/i18n/components/LocaleDemoGrid.tsx` (nuevo): grilla demo E2E italiano.

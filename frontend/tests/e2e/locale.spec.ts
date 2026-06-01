@@ -102,9 +102,18 @@ async function mockAuthenticatedApi(
   });
 }
 
+async function selectLocale(
+  page: import('@playwright/test').Page,
+  selectorTestId: string,
+  localeCode: string,
+) {
+  await page.getByTestId(selectorTestId).locator('.dx-dropdowneditor-button').click();
+  await page.getByTestId(`localeOption-${localeCode}`).click();
+}
+
 test('selector en login muestra textos en italiano', async ({ page }) => {
   await page.goto('/login');
-  await page.getByTestId('localeSelectorLogin').locator('select').selectOption('it');
+  await selectLocale(page, 'localeSelectorLogin', 'it');
 
   await expect(page.getByRole('heading', { name: 'PedidosWeb' })).toBeVisible();
   await expect(page.getByTestId('login-submit')).toHaveText('Accedi');
@@ -120,14 +129,14 @@ test('cambio de idioma en header persiste tras recargar', async ({ page }) => {
   await page.getByTestId('login-submit').click();
 
   await expect(page).toHaveURL(/\/dashboard$/);
-  await page.getByTestId('localeSelectorHeader').locator('select').selectOption('it');
+  await selectLocale(page, 'localeSelectorHeader', 'it');
 
   await expect(page.getByRole('heading', { name: 'Dashboard' })).toBeVisible();
   await expect(page.getByTestId('nav-pedidos-ingresados')).toHaveText('Vai agli ordini ricevuti');
 
   await page.reload();
 
-  await expect(page.getByTestId('localeSelectorHeader').locator('select')).toHaveValue('it');
+  await expect(page.getByTestId('localeSelectorHeader').getByRole('combobox')).toHaveValue('Italiano');
   await expect(page.getByTestId('nav-pedidos-ingresados')).toHaveText('Vai agli ordini ricevuti');
 });
 
@@ -135,7 +144,7 @@ test('grilla demo muestra caption en italiano', async ({ page }) => {
   await mockAuthenticatedApi(page, { locale: 'it' });
 
   await page.goto('/login');
-  await page.getByTestId('localeSelectorLogin').locator('select').selectOption('it');
+  await selectLocale(page, 'localeSelectorLogin', 'it');
   await page.locator('input[name="codigo"]').fill('cliente.mvp');
   await page.locator('input[name="password"]').fill('secret');
   await page.getByTestId('login-submit').click();

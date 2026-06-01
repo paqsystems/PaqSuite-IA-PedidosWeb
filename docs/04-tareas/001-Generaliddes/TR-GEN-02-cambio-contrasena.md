@@ -8,11 +8,12 @@
 | **Prioridad** | Must |
 | **Dependencias** | TR-GEN-02-modelo-roles-permisos-seed, TR-GEN-02-login-sesion |
 | **Estado** | Implementado |
-| **Ultima actualizacion** | 2026-05-30 (D implementado) |
+| **Ultima actualizacion** | 2026-05-31 (F formal) |
 
 **Origen:** [HU-GEN-02-cambio-contrasena](../../03-historias-usuario/001-Generaliddes/HU-GEN-02-cambio-contrasena.md)  
 **Referencia SPEC:** [SPEC-001-02-acceso-y-seguridad](../../05-open-spec/001-Generaliddes/SPEC-001-02-acceso-y-seguridad.md)  
-**Normas transversales:** [`../_NORMAS-TRANSVERSALES-TR.md`](../_NORMAS-TRANSVERSALES-TR.md)
+**Normas transversales:** [`../_NORMAS-TRANSVERSALES-TR.md`](../_NORMAS-TRANSVERSALES-TR.md)  
+**Cierre F formal:** [F-GEN-01-02-cierre-formal](F-GEN-01-02-cierre-formal.md)
 
 > **Coordinacion login (D1-5):** [TR-GEN-02-login-sesion](TR-GEN-02-login-sesion.md) expone `firstLogin` en `sessionContext` pero **no** implementa gate ni redirect; esta TR es la unica responsable del flujo bloqueante y desbloqueo del shell.
 
@@ -260,6 +261,7 @@ Endpoint autenticado de cambio de contraseña, desbloqueo de `first_login`, gate
 | Gate `firstLogin` sin bypass al shell | OK — `RequirePasswordChange` + E2E |
 | Login redirect `/change-password` | OK — `LoginPage` + `LoginRoute` |
 | Entrada voluntaria header → `/change-password` | OK — `ShellHeader` |
+| i18n `ChangePasswordPage` con locale activo | OK — claves `changePassword.*` / `auth.*` + verificación E2E dedicada |
 | Seeds `primerIngreso.mvp`, `cambioClave.mvp` | OK — `paqsuite_mvp.php` |
 | Unit frontend validación formulario | OK — 3 tests |
 | E2E cambio contraseña (§8 Must) | OK — 7 casos |
@@ -329,6 +331,13 @@ Sin forgot/reset, sin ABM seguridad, sin revocación multi-sesión, sin menú av
 ---
 
 ## 6) Cambios Frontend
+
+- Norma base reusable MONO: `docs/00-contexto/_mono/01-experiencia-base/patron-ui-auth-devextreme.md`
+- `ChangePasswordPage` queda alineada visualmente con `PaqSuite-IA-TANGO`: ventana/card centrada con jerarquía visual de modal, pero manteniendo el flujo del slice (`/change-password` y gate `firstLogin`).
+- Los campos interactivos del formulario deben usar **DevExtreme** (`TextBox`, `Button` y equivalentes), no `<input>` / `<button>` nativos en la UI final.
+- Regla reusable MONO: preservar `data-testid` públicos (`changePasswordCurrent`, `changePasswordNew`, `changePasswordConfirm`, `changePasswordSubmit`, `changePasswordError`) aunque el DOM interno de DevExtreme cambie.
+- Regla reusable MONO de i18n: todos los textos visibles de `ChangePasswordPage` deben salir del locale activo (`changePassword.*`, `auth.*`), incluyendo título, labels, placeholders, CTA, gate `firstLogin` y errores; no dejar literales hardcodeados en JSX/CSS.
+- Criterio de cierre reusable: incorporar al menos un E2E que valide la pantalla en un locale distinto de `es` para detectar regresiones de i18n del formulario.
 
 ### Pantallas / componentes
 - Entrada desde menu avatar a pantalla de cambio.

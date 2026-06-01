@@ -4,7 +4,7 @@
 |-------|--------|
 | **HU relacionadas** | `docs/03-historias-usuario/001-Generaliddes/HU-GEN-02-*.md` (8 HU; índice en README) |
 | **TR relacionadas** | `docs/04-tareas/001-Generaliddes/TR-GEN-02-*.md` (8 TR; índice en README) |
-| **Estado** | Pendiente |
+| **Estado** | En ejecución — cierre F parcial |
 | **Revisión A1** | Apto con observaciones (2026-05-28) |
 
 ## Objetivo
@@ -93,3 +93,25 @@ Al generar TR desde este SPEC (y desde cualquier `SPEC-101-xx`), aplicar:
 | HU-GEN-02-autorizacion-menu-api | Menú ↔ autorización |
 | HU-GEN-02-politicas-endpoints | Políticas por endpoint |
 | HU-GEN-02-visibilidad-datos-pedidosweb | Perfiles §7.3 |
+
+## Estado F de la oleada
+
+### HUs/TR con cierre F formal en esta etapa
+
+- `HU-GEN-02-login-sesion` / `TR-GEN-02-login-sesion` -> **Aprobada con observaciones**
+- `HU-GEN-02-cambio-contrasena` / `TR-GEN-02-cambio-contrasena` -> **Aprobada**
+- `HU-GEN-02-recuperacion-contrasena` / `TR-GEN-02-recuperacion-contrasena` -> **Aprobada con observaciones**
+
+Soporte consolidado: `docs/04-tareas/001-Generaliddes/F-GEN-01-02-cierre-formal.md`.
+
+### Pendiente para cierre total de la SPEC
+
+- `HU-GEN-02-expiracion-inactividad` / `TR-GEN-02-expiracion-inactividad`
+- `HU-GEN-02-modelo-roles-permisos-seed` / `TR-GEN-02-modelo-roles-permisos-seed`
+- `HU-GEN-02-autorizacion-menu-api` / `TR-GEN-02-autorizacion-menu-api`
+- `HU-GEN-02-politicas-endpoints` / `TR-GEN-02-politicas-endpoints`
+- `HU-GEN-02-visibilidad-datos-pedidosweb` / `TR-GEN-02-visibilidad-datos-pedidosweb`
+
+### Criterio de lectura de estado
+
+Esta SPEC ya tiene slices implementados y verificados en F, pero **no** se considera cerrada en forma total mientras existan HU/TR asociadas sin cierre formal o con observaciones de entorno pendientes.

@@ -28,11 +28,13 @@ async function mockChangePasswordApi(
   options: {
     firstLogin?: boolean;
     passwordHashValid?: boolean;
+    locale?: string;
   } = {},
 ) {
   let currentPassword = seedPassword;
   let firstLogin = options.firstLogin ?? false;
   const passwordHashValid = options.passwordHashValid ?? true;
+  let persistedLocale = options.locale ?? 'es';
 
   await page.route('**/api/v1/auth/login', async (route) => {
     const payload = route.request().postDataJSON() as { codigo?: string; password?: string };
@@ -62,6 +64,7 @@ async function mockChangePasswordApi(
         resultado: {
           token: 'token-cambio-clave',
           ...baseSession,
+          locale: persistedLocale === 'pt' ? 'pt-BR' : `${persistedLocale}-AR`,
           firstLogin,
         },
       }),
@@ -77,6 +80,7 @@ async function mockChangePasswordApi(
         respuesta: 'ok',
         resultado: {
           ...baseSession,
+          locale: persistedLocale === 'pt' ? 'pt-BR' : `${persistedLocale}-AR`,
           firstLogin,
         },
       }),
@@ -91,7 +95,7 @@ async function mockChangePasswordApi(
         error: 0,
         respuesta: 'ok',
         resultado: {
-          locale: 'es',
+          locale: persistedLocale,
           theme: 'generic.light',
           openInNewTab: false,
         },
@@ -182,6 +186,22 @@ async function mockChangePasswordApi(
     });
   });
 }
+
+test('pantalla cambio contraseña respeta i18n del locale activo', async ({ page }) => {
+  await mockChangePasswordApi(page, { locale: 'pt' });
+
+  await page.goto('/login');
+  await page.locator('input[name="codigo"]').fill('cambioClave.mvp');
+  await page.locator('input[name="password"]').fill(seedPassword);
+  await page.getByTestId('login-submit').click();
+  await clickAvatarMenuItem(page, 'avatarMenuItemChangePassword');
+
+  await expect(page.getByRole('heading', { name: 'Alterar senha' })).toBeVisible();
+  await expect(page.getByText('Senha atual', { exact: true })).toBeVisible();
+  await expect(page.getByText('Nova senha', { exact: true })).toBeVisible();
+  await expect(page.getByText('Confirmar nova senha', { exact: true })).toBeVisible();
+  await expect(page.getByTestId('changePasswordSubmit')).toContainText('Salvar senha');
+});
 
 test('formulario vacio no envia cambio', async ({ page }) => {
   await mockChangePasswordApi(page);

@@ -10,14 +10,14 @@
   height: 2.25rem;
   border: 1px solid var(--shell-border-color, #d9dee7);
   border-radius: 999px;
-  background: #e8eef9;
-  color: #1f2937;
+  background: var(--app-shell-accent-soft-color, rgba(79, 70, 229, 0.14));
+  color: var(--app-shell-text-color, #1f2937);
   cursor: pointer;
   padding: 0;
 }
 
 .avatarMenuTrigger:focus-visible {
-  outline: 2px solid #3b82f6;
+  outline: 2px solid var(--app-shell-accent-color, #3b82f6);
   outline-offset: 2px;
 }
 
@@ -36,7 +36,8 @@
   padding: 0.5rem;
   border: 1px solid var(--shell-border-color, #d9dee7);
   border-radius: 0.5rem;
-  background: #ffffff;
+  background: var(--app-shell-panel-elevated-color, #ffffff);
+  color: var(--app-shell-text-color, #1f2937);
   box-shadow: 0 0.5rem 1.25rem rgba(15, 23, 42, 0.12);
 }
 
@@ -64,9 +65,9 @@
 
 .avatarMenuAction:hover,
 .avatarMenuAction:focus-visible {
-  background: #f1f5f9;
+  background: var(--app-shell-accent-soft-color, rgba(79, 70, 229, 0.14));
 }
 
 .avatarMenuActionDanger {
-  color: #b91c1c;
+  color: var(--app-shell-danger-color, #b91c1c);
 }

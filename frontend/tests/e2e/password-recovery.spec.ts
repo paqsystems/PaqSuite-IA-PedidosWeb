@@ -1,9 +1,17 @@
 import { expect, test } from '@playwright/test';
 
+async function seedGuestLocale(page: import('@playwright/test').Page, locale: string) {
+  await page.addInitScript(([storageKey, storageValue]) => {
+    window.localStorage.setItem(storageKey, storageValue);
+  }, ['pedidosweb.locale.guest', locale]);
+}
+
 test('forgot password envia locale y muestra respuesta generica', async ({ page }) => {
   let forgotPayload: { email?: string; locale?: string } | null = null;
 
-  await page.route('**/api/v1/auth/password/forgot', async (route) => {
+  await seedGuestLocale(page, 'es');
+
+  await page.route(/.*\/api(\/v1)?\/auth\/password\/forgot$/, async (route) => {
     forgotPayload = route.request().postDataJSON() as { email?: string; locale?: string };
 
     await route.fulfill({
@@ -18,7 +26,6 @@ test('forgot password envia locale y muestra respuesta generica', async ({ page 
   });
 
   await page.goto('/forgot-password');
-  await page.getByTestId('localeSelectorForgotPassword').locator('select').selectOption('es');
   await page.getByTestId('forgotPasswordEmail').fill('cliente.mvp@paqsuite.local');
   await page.getByTestId('forgotPasswordSubmit').click();
 
@@ -29,7 +36,9 @@ test('forgot password envia locale y muestra respuesta generica', async ({ page 
 });
 
 test('reset password exitoso vuelve al login con aviso', async ({ page }) => {
-  await page.route('**/api/v1/auth/password/reset', async (route) => {
+  await seedGuestLocale(page, 'es');
+
+  await page.route(/.*\/api(\/v1)?\/auth\/password\/reset$/, async (route) => {
     const payload = route.request().postDataJSON() as {
       token?: string;
       newPassword?: string;
@@ -55,14 +64,14 @@ test('reset password exitoso vuelve al login con aviso', async ({ page }) => {
     });
   });
 
-  await page.goto('/reset-password?token=token-recuperacion');
-  await page.getByTestId('localeSelectorResetPassword').locator('select').selectOption('es');
+  await page.goto('/reset-password?token=token-recuperacion&locale=it');
+  await expect(page.getByRole('heading', { name: 'Reimposta password' })).toBeVisible();
   await page.getByTestId('resetPasswordNew').fill('Password123!');
   await page.getByTestId('resetPasswordConfirm').fill('Password123!');
   await page.getByTestId('resetPasswordSubmit').click();
 
   await expect(page).toHaveURL(/\/login$/);
   await expect(page.getByTestId('auth-notice-password-reset-success')).toContainText(
-    'contraseña fue restablecida',
+    'password è stata reimpostata',
   );
 });

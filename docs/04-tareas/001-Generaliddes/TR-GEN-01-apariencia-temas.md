@@ -8,11 +8,12 @@
 | **Prioridad** | Must |
 | **Dependencias** | TR-GEN-01-shell-layout; TR-GEN-01-menu-avatar; TR-GEN-02-login-sesion |
 | **Estado** | Implementado |
-| **Última actualización** | 2026-05-30 (D implementado) |
+| **Última actualización** | 2026-05-31 (F formal) |
 
 **Origen:** [HU-GEN-01-apariencia-temas](../../03-historias-usuario/001-Generaliddes/HU-GEN-01-apariencia-temas.md)  
 **Referencia SPEC:** [SPEC-001-01-experiencia-base](../../05-open-spec/001-Generaliddes/SPEC-001-01-experiencia-base.md)  
-**Normas transversales:** [`_NORMAS-TRANSVERSALES-TR.md`](../_NORMAS-TRANSVERSALES-TR.md) (**obligatorio**)
+**Normas transversales:** [`_NORMAS-TRANSVERSALES-TR.md`](../_NORMAS-TRANSVERSALES-TR.md) (**obligatorio**)  
+**Cierre F formal:** [F-GEN-01-02-cierre-formal](F-GEN-01-02-cierre-formal.md)
 
 ---
 
@@ -394,19 +395,43 @@ Selector modal desde avatar, catálogo `generic.light`/`generic.dark`, PATCH the
 ## 6) Cambios Frontend
 
 ### Pantallas / componentes
+- Norma base reusable MONO: `docs/00-contexto/_mono/01-experiencia-base/patron-ui-auth-devextreme.md`
 - `frontend/src/features/theme/model/supportedThemes.ts` (nuevo): catálogo MVP (`generic.light`, `generic.dark`).
 - `frontend/src/features/theme/syncDevExtremeTheme.ts` (nuevo): aplicación runtime DevExtreme.
 - `frontend/src/features/theme/ThemeProvider.tsx` + `hooks/useCurrentTheme.ts` (nuevo).
 - `frontend/src/features/theme/components/ThemeSelectorModal.tsx` (nuevo): selector invocado desde avatar.
+- `ThemeSelectorModal` debe construirse con controles **DevExtreme** (`Popup`/contenedor DX-compatible + `List`/botones DX), no con radios o botones HTML nativos.
+- El catálogo visible del selector debe seguir el patrón de `PaqSuite-IA-TANGO`: lista DX de temas, desacoplada del transporte/persistencia. Se adopta el **catálogo completo** soportado por `PQ_Empresa.Themes` en TANGO (generic, compact, carmine, darkmoon, darkviolet, greenmist, softblue, contrast, material y fluent), manteniendo compatibilidad legacy con `light` / `dark` / `default`.
+- Regla reusable MONO de i18n: tanto la chrome del modal (`title`, `current`, `cancel`, `apply`, `confirm`) como los nombres del catálogo deben resolverse según el locale activo del portal; no dejar labels hardcodeados en un único idioma.
+- Regla reusable MONO de UX para cambio de apariencia:
+  - `Aplicar`: previsualiza el tema seleccionado **sin cerrar** el modal;
+  - `Confirmar`: persiste el mismo tema y **cierra** el modal;
+  - `Cancelar` o cerrar por `X`: revierte cualquier preview no confirmada y restaura el tema persistido;
+  - el área de acciones del modal (`Cancelar`, `Aplicar`, `Confirmar`) debe permanecer visible y operativa después de cada preview, sin requerir una nueva selección para repintarse.
+- Regla reusable MONO de paleta aplicada al shell:
+  - el tema DevExtreme activo debe impactar no solo el catálogo/modal de apariencia, sino también superficies propias del shell (`header`, `sidebar`, `footer`, avatar-menu, selected/hover y overlays);
+  - en temas oscuros no alcanza con un único oscuro genérico: la UI debe conservar la familia cromática del tema elegido (`blue`, `orange`, `teal`, `lime`, etc.) y mantener contraste legible;
+  - textos e íconos del menú lateral no pueden quedar con contraste bajo respecto del fondo del tema seleccionado.
+- Regla reusable MONO de responsive/i18n del modal:
+  - el título del `Popup` no debe truncarse cuando el idioma activo use labels más largas;
+  - la lista debe conservar la selección y la posición útil de scroll aunque el usuario elija opciones fuera del primer bloque visible;
+  - el contenedor de acciones debe permanecer completamente dentro de la ventana y admitir wrap/responsive si el idioma ensancha los textos.
+- El bootstrap de licencia y runtime DX queda soportado por `VITE_DEVEXTREME_LICENSE` + `src/init-devextreme-license.ts`; cualquier proyecto MONO que reutilice este slice debe configurar esa variable antes del build productivo.
+- Contrato operativo MONO para licencia DevExtreme:
+  - la clave debe existir en un archivo **real cargado por Vite** (`frontend/.env` o `frontend/.env.local`); `frontend/.env.example` sirve solo como plantilla y no elimina el watermark por sí solo;
+  - cada cambio de `VITE_DEVEXTREME_LICENSE` requiere **reiniciar** el servidor Vite para que `import.meta.env` relea la configuración;
+  - criterio de verificación mínimo: abrir una pantalla pública (`/login`, `/forgot-password`) y confirmar ausencia del banner `For evaluation purposes only`.
+- Para shells MONO con overrides propios, además de `data-theme` debe exponerse un atributo derivado (`data-color-scheme=light|dark`) para aplicar estilos coherentes cuando se seleccionan temas DX oscuros distintos de `generic.dark`.
 - `frontend/src/features/preferences/preferencesApi.ts` (extender): `patchThemePreference`.
 - `frontend/src/features/avatar/components/AvatarMenu.tsx`: abrir modal apariencia (sin ruta `/appearance`).
 - `frontend/src/app/App.tsx`: `ThemeProvider` + contenedor con `data-theme`.
-- `frontend/src/app/layout/shellLayout.css`: overrides mínimos `[data-theme="generic.dark"]`.
+- `frontend/src/app/layout/shellLayout.css`: shell y overrides propios deben consumir variables derivadas del tema activo; evitar hardcodes limitados a un único `generic.dark`.
 
 ### data-testid sugeridos
 - `themeSelectorModal`
 - `themeOption-{themeKey}`
 - `themeApplyButton`
+- `themeConfirmButton`
 - `themeCurrentValue`
 
 ---
@@ -429,8 +454,10 @@ Selector modal desde avatar, catálogo `generic.light`/`generic.dark`, PATCH the
 - **Unit:** validación de catálogo y lógica fallback de tema.
 - **Integration:** endpoint de tema con 200/401/403/422.
 - **E2E:**  
-  - cambiar tema desde avatar y verificar clase de tema en raíz;  
-  - cerrar/abrir sesión y confirmar persistencia.
+  - abrir selector desde avatar y validar labels en locale activo;
+  - usar `Aplicar` y verificar cambio visual sin cierre del modal;
+  - usar `Confirmar` y validar persistencia tras reload / nueva sesión;
+  - cancelar preview y verificar rollback al tema persistido.
 
 ---
 

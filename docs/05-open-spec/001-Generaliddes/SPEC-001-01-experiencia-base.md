@@ -4,7 +4,7 @@
 |-------|--------|
 | **HU relacionadas** | `docs/03-historias-usuario/001-Generaliddes/HU-GEN-01-*.md` (6 HU; índice en README de la carpeta) |
 | **TR relacionadas** | `docs/04-tareas/001-Generaliddes/TR-GEN-01-*.md` (6 TR; índice en README de la carpeta) |
-| **Estado** | Pendiente |
+| **Estado** | En ejecución — cierre F parcial |
 | **Revisión A1** | Apto con observaciones (2026-05-28) |
 
 ## Objetivo
@@ -120,3 +120,23 @@ Subcarpeta: `docs/00-contexto/_mono/01-experiencia-base/`
 | HU-GEN-01-idioma | §8.1 idioma |
 | HU-GEN-01-apariencia-temas | §8.1 tema |
 | HU-GEN-01-ayuda-externa | Ayuda (Should) |
+
+## Estado F de la oleada
+
+### HUs/TR con cierre F formal en esta etapa
+
+- `HU-GEN-01-shell-layout` / `TR-GEN-01-shell-layout` -> **Aprobada**
+- `HU-GEN-01-idioma` / `TR-GEN-01-idioma` -> **Aprobada**
+- `HU-GEN-01-apariencia-temas` / `TR-GEN-01-apariencia-temas` -> **Aprobada con observaciones**
+
+Soporte consolidado: `docs/04-tareas/001-Generaliddes/F-GEN-01-02-cierre-formal.md`.
+
+### Pendiente para cierre total de la SPEC
+
+- `HU-GEN-01-menu-general-sidebar` / `TR-GEN-01-menu-general-sidebar`
+- `HU-GEN-01-menu-avatar` / `TR-GEN-01-menu-avatar`
+- `HU-GEN-01-ayuda-externa` / `TR-GEN-01-ayuda-externa`
+
+### Criterio de lectura de estado
+
+Esta SPEC ya tiene slices implementados y verificados en F, pero **no** se considera cerrada en forma total mientras existan HU/TR asociadas sin cierre formal.

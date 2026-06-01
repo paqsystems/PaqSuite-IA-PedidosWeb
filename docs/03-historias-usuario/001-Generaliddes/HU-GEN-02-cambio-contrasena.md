@@ -6,9 +6,9 @@
 | **SPEC origen** | [SPEC-001-02-acceso-y-seguridad.md](../../05-open-spec/001-Generaliddes/SPEC-001-02-acceso-y-seguridad.md) |
 | **Épica** | 001 — Generaliddes / Acceso y seguridad |
 | **Prioridad** | Must |
-| **Estado** | Pendiente |
+| **Estado** | Verificada F — Aprobada |
 | **B1** | Enriquecida (2026-05-28) |
-| **Última actualización** | 2026-05-28 |
+| **Última actualización** | 2026-05-31 |
 | **Dependencias** | HU-GEN-02-login-sesion; HU-GEN-01-menu-avatar |
 
 ## Trazabilidad SPEC
@@ -126,3 +126,9 @@ Feature: Cambio de contraseña (SPEC-001-02)
 ## Veredicto B1
 
 **Lista para TR:** Sí con observaciones (first_login y política de clave)
+
+## Cierre F
+
+- **Resultado:** Aprobada.
+- **Soporte de verificación:** [TR-GEN-02-cambio-contrasena](../../04-tareas/001-Generaliddes/TR-GEN-02-cambio-contrasena.md) y [F-GEN-01-02-cierre-formal](../../04-tareas/001-Generaliddes/F-GEN-01-02-cierre-formal.md).
+- **Observaciones:** el cierre F confirma flujo autenticado, gate `firstLogin`, i18n de la pantalla y cobertura funcional/e2e sin hallazgos críticos abiertos.

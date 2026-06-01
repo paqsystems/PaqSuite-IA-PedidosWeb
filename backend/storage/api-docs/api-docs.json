@@ -897,11 +897,7 @@
                     },
                     "theme": {
                         "type": "string",
-                        "enum": [
-                            "generic.light",
-                            "generic.dark"
-                        ],
-                        "example": "generic.light"
+                        "example": "material.blue.light"
                     },
                     "openInNewTab": {
                         "type": "boolean",
@@ -923,11 +919,7 @@
                 "properties": {
                     "theme": {
                         "type": "string",
-                        "enum": [
-                            "generic.light",
-                            "generic.dark"
-                        ],
-                        "example": "generic.dark"
+                        "example": "material.blue.dark"
                     }
                 },
                 "type": "object"

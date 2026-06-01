@@ -49,4 +49,8 @@ describe('userPreferences', () => {
   it('conserva themes distintos de light', () => {
     expect(normalizeTheme('generic.dark')).toBe('generic.dark');
   });
+
+  it('mantiene un tema extendido valido', () => {
+    expect(normalizeTheme('material.blue.light')).toBe('material.blue.light');
+  });
 });

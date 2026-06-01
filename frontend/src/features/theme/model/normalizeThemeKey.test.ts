@@ -10,6 +10,10 @@ describe('normalizeThemeKey', () => {
     expect(normalizeThemeKey('generic.dark')).toBe('generic.dark');
   });
 
+  it('acepta temas extendidos del catalogo DX', () => {
+    expect(normalizeThemeKey('material.blue.light')).toBe('material.blue.light');
+  });
+
   it('aplica fallback para tema invalido', () => {
     expect(normalizeThemeKey('xx')).toBe('generic.light');
   });

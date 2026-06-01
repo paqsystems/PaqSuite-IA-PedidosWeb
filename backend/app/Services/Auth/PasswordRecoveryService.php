@@ -7,6 +7,7 @@ use App\Mail\ResetPasswordMail;
 use App\Models\PqPedidoswebLogin;
 use App\Models\User;
 use App\Support\AuthErrorCodes;
+use App\Support\LocaleNormalizer;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -47,7 +48,7 @@ final class PasswordRecoveryService
             Mail::to($normalizedEmail)
                 ->locale($locale)
                 ->send(new ResetPasswordMail(
-                    $this->buildResetUrl($plainTextToken),
+                    $this->buildResetUrl($plainTextToken, $locale),
                     $this->expirationMinutes()
                 ));
         } catch (\Throwable $throwable) {
@@ -112,11 +113,15 @@ final class PasswordRecoveryService
         });
     }
 
-    private function buildResetUrl(string $token): string
+    private function buildResetUrl(string $token, string $locale): string
     {
         $frontendUrl = rtrim((string) config('app.frontend_url', 'http://localhost:5173'), '/');
+        $normalizedLocale = LocaleNormalizer::normalize($locale);
 
-        return $frontendUrl.'/reset-password?token='.urlencode($token);
+        return $frontendUrl.'/reset-password?'.http_build_query([
+            'token' => $token,
+            'locale' => $normalizedLocale,
+        ]);
     }
 
     private function expirationMinutes(): int

@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './features/i18n/i18n';
+import './init-devextreme-license';
 import { defaultThemeKey } from './features/theme/model/supportedThemes';
 import { syncDevExtremeTheme } from './features/theme/syncDevExtremeTheme';
 import { App } from './app/App';

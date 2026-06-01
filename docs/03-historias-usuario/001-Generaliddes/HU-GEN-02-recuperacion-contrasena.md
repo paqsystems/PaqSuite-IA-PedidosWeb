@@ -6,9 +6,9 @@
 | **SPEC origen** | [SPEC-001-02-acceso-y-seguridad.md](../../05-open-spec/001-Generaliddes/SPEC-001-02-acceso-y-seguridad.md) |
 | **Épica** | 001 — Generaliddes / Acceso y seguridad |
 | **Prioridad** | Must |
-| **Estado** | Pendiente |
+| **Estado** | Verificada F — Aprobada con observaciones |
 | **B1** | Enriquecida (2026-05-28) |
-| **Última actualización** | 2026-05-28 |
+| **Última actualización** | 2026-05-31 |
 | **Dependencias** | HU-GEN-02-login-sesion; HU-GEN-01-idioma |
 
 ## Trazabilidad SPEC
@@ -116,3 +116,9 @@ Feature: Recuperación de contraseña (SPEC-001-02)
 ## Veredicto B1
 
 **Lista para TR:** Sí con observaciones (token TTL, mail, política de clave)
+
+## Cierre F
+
+- **Resultado:** Aprobada con observaciones.
+- **Soporte de verificación:** [TR-GEN-02-recuperacion-contrasena](../../04-tareas/001-Generaliddes/TR-GEN-02-recuperacion-contrasena.md) y [F-GEN-01-02-cierre-formal](../../04-tareas/001-Generaliddes/F-GEN-01-02-cierre-formal.md).
+- **Observaciones:** el flujo funcional e i18n quedaron alineados con la TR; la evidencia backend automática sigue condicionada por un problema previo del entorno/seed SQL Server.

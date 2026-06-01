@@ -24,9 +24,10 @@ const sessionPayload = {
 
 async function mockThemeApi(
   page: import('@playwright/test').Page,
-  options: { theme?: string } = {},
+  options: { theme?: string; locale?: string } = {},
 ) {
   let persistedTheme = options.theme ?? 'generic.light';
+  const persistedLocale = options.locale ?? 'es';
 
   await page.route('**/api/v1/auth/login', async (route) => {
     await route.fulfill({
@@ -38,6 +39,7 @@ async function mockThemeApi(
         resultado: {
           token: 'token-theme',
           ...sessionPayload,
+          locale: persistedLocale === 'pt' ? 'pt-BR' : `${persistedLocale}-AR`,
           theme: persistedTheme,
         },
       }),
@@ -53,6 +55,7 @@ async function mockThemeApi(
         respuesta: 'ok',
         resultado: {
           ...sessionPayload,
+          locale: persistedLocale === 'pt' ? 'pt-BR' : `${persistedLocale}-AR`,
           theme: persistedTheme,
         },
       }),
@@ -88,7 +91,7 @@ async function mockThemeApi(
         error: 0,
         respuesta: 'ok',
         resultado: {
-          locale: 'es',
+          locale: persistedLocale,
           theme: persistedTheme,
           openInNewTab: false,
         },
@@ -118,7 +121,7 @@ async function mockThemeApi(
       body: JSON.stringify({
         error: 0,
         respuesta: 'preferences.localeUpdated',
-        resultado: { locale: 'es' },
+        resultado: { locale: persistedLocale },
       }),
     });
   });
@@ -142,20 +145,33 @@ test('abre selector de tema desde menu avatar', async ({ page }) => {
   await expect(page.getByTestId('themeOption-generic.dark')).toBeVisible();
 });
 
-test('cambia tema y persiste en contenedor raiz', async ({ page }) => {
-  await mockThemeApi(page, { theme: 'generic.light' });
+test('aplicar previsualiza sin cerrar y confirmar persiste cerrando', async ({ page }) => {
+  await mockThemeApi(page, { theme: 'generic.light', locale: 'pt' });
   await loginAs(page);
 
   await clickAvatarMenuItem(page, 'avatarMenuItemAppearance');
-  await page.getByTestId('themeOption-generic.dark').locator('input[type="radio"]').check();
+  await expect(page.getByTestId('themeCurrentValue')).toBeVisible();
+  await expect(page.getByTestId('themeCurrentValue')).toContainText('Tema atual');
+  await expect(page.getByTestId('themeCancelButton')).toBeVisible();
+  await expect(page.getByTestId('themeApplyButton')).toContainText('Aplicar');
+  await expect(page.getByTestId('themeConfirmButton')).toContainText('Confirmar');
+  const deepOption = page.getByTestId('themeOption-material.blue.light');
+  await expect(deepOption).toBeVisible();
+  await deepOption.click();
   await page.getByTestId('themeApplyButton').click();
 
-  await expect(page.getByTestId('themeSelectorModal')).toBeHidden();
-  await expect(page.locator('html')).toHaveAttribute('data-theme', 'generic.dark');
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'material.blue.light');
+  await expect(page.getByTestId('themeCurrentValue')).toBeVisible();
+  await expect(page.getByTestId('themeCancelButton')).toBeVisible();
+  await expect(page.getByTestId('themeApplyButton')).toBeVisible();
+  await expect(page.getByTestId('themeConfirmButton')).toBeVisible();
+
+  await page.getByTestId('themeConfirmButton').click();
+  await expect(page.getByTestId('themeCurrentValue')).toHaveCount(0);
 
   await page.reload();
   await expect(page).toHaveURL(/\/dashboard$/);
-  await expect(page.locator('html')).toHaveAttribute('data-theme', 'generic.dark');
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'material.blue.light');
 });
 
 test('usuario con tema invalido arranca en generic.light', async ({ page }) => {

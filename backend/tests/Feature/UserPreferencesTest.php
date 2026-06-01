@@ -76,6 +76,17 @@ final class UserPreferencesTest extends TestCase
             ->assertJsonPath('resultado.theme', 'generic.light');
     }
 
+    public function testUpdateThemeAcceptsExtendedDxThemeCatalog(): void
+    {
+        $token = $this->loginTokenFor('cliente.mvp');
+
+        $this->patchJson('/api/v1/users/me/preferences/theme', [
+            'theme' => 'material.blue.light',
+        ], $this->authHeaders($token))
+            ->assertOk()
+            ->assertJsonPath('resultado.theme', 'material.blue.light');
+    }
+
     public function testUpdateThemeRejectsInvalidTheme(): void
     {
         $token = $this->loginTokenFor('cliente.mvp');

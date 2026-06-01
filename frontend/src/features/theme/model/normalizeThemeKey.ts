@@ -1,6 +1,7 @@
 import { defaultThemeKey, isSupportedThemeKey } from './supportedThemes';
 
 const legacyThemeAliases: Record<string, string> = {
+  default: 'generic.light',
   light: 'generic.light',
   dark: 'generic.dark',
 };

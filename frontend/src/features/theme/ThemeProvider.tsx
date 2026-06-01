@@ -23,6 +23,11 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
       ? resolveInitialTheme(sessionContext?.theme)
       : defaultThemeKey,
   );
+  const [persistedTheme, setPersistedTheme] = useState(() =>
+    isAuthenticated
+      ? resolveInitialTheme(sessionContext?.theme)
+      : defaultThemeKey,
+  );
   const [isSaving, setIsSaving] = useState(false);
   const [saveErrorKey, setSaveErrorKey] = useState<string | null>(null);
 
@@ -32,24 +37,42 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
       : defaultThemeKey;
 
     applyTheme(nextTheme);
+    setPersistedTheme((previousTheme) => (previousTheme === nextTheme ? previousTheme : nextTheme));
     setCurrentTheme((previousTheme) => (previousTheme === nextTheme ? previousTheme : nextTheme));
   }, [isAuthenticated, sessionContext?.theme]);
 
-  const changeTheme = useCallback(
+  const previewTheme = useCallback((requestedTheme: string) => {
+    const normalizedTheme = normalizeThemeKey(requestedTheme);
+
+    setSaveErrorKey(null);
+    applyTheme(normalizedTheme);
+    setCurrentTheme((previousTheme) => (previousTheme === normalizedTheme ? previousTheme : normalizedTheme));
+  }, []);
+
+  const revertThemePreview = useCallback(() => {
+    setSaveErrorKey(null);
+    applyTheme(persistedTheme);
+    setCurrentTheme((previousTheme) => (previousTheme === persistedTheme ? previousTheme : persistedTheme));
+  }, [persistedTheme]);
+
+  const confirmTheme = useCallback(
     async (requestedTheme: string) => {
       const normalizedTheme = normalizeThemeKey(requestedTheme);
-
-      if (normalizedTheme === currentTheme) {
-        return;
-      }
 
       if (!isAuthenticated || sessionContext === null) {
         applyTheme(normalizedTheme);
         setCurrentTheme(normalizedTheme);
-        return;
+        setPersistedTheme(normalizedTheme);
+        return true;
       }
 
-      const previousTheme = currentTheme;
+      if (normalizedTheme === persistedTheme) {
+        applyTheme(normalizedTheme);
+        setCurrentTheme(normalizedTheme);
+        return true;
+      }
+
+      const previousTheme = persistedTheme;
       setSaveErrorKey(null);
       setIsSaving(true);
       setCurrentTheme(normalizedTheme);
@@ -67,30 +90,37 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
         updateStoredSessionContext(nextSessionContext);
         applyTheme(persistedTheme);
         setCurrentTheme(persistedTheme);
+        setPersistedTheme(persistedTheme);
+        return true;
       } catch (error) {
         applyTheme(previousTheme);
         setCurrentTheme(previousTheme);
+        setPersistedTheme(previousTheme);
 
         if (error instanceof ApiClientError && error.respuestaKey) {
           setSaveErrorKey(error.respuestaKey);
         } else {
           setSaveErrorKey('preferences.themeSaveFailed');
         }
+        return false;
       } finally {
         setIsSaving(false);
       }
     },
-    [currentTheme, isAuthenticated, sessionContext, setSessionContext],
+    [isAuthenticated, persistedTheme, sessionContext, setSessionContext],
   );
 
   const value = useMemo(
     () => ({
       currentTheme,
-      changeTheme,
+      persistedTheme,
+      previewTheme,
+      revertThemePreview,
+      confirmTheme,
       isSaving,
       saveErrorKey,
     }),
-    [changeTheme, currentTheme, isSaving, saveErrorKey],
+    [confirmTheme, currentTheme, persistedTheme, previewTheme, revertThemePreview, isSaving, saveErrorKey],
   );
 
   return <CurrentThemeContext.Provider value={value}>{children}</CurrentThemeContext.Provider>;

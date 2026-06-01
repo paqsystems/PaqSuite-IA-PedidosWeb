@@ -29,6 +29,11 @@ final class ThemeNormalizerTest extends TestCase
 
     public function testToCatalogCodeReturnsNullForUnsupportedTheme(): void
     {
-        $this->assertNull(ThemeNormalizer::toCatalogCode('material.blue.light'));
+        $this->assertNull(ThemeNormalizer::toCatalogCode('tema.inexistente'));
+    }
+
+    public function testToCatalogCodeAcceptsExtendedThemeCatalog(): void
+    {
+        $this->assertSame('material.blue.light', ThemeNormalizer::toCatalogCode('material.blue.light'));
     }
 }

@@ -6,8 +6,8 @@
 | **SPEC origen** | [SPEC-001-01-experiencia-base.md](../../05-open-spec/001-Generaliddes/SPEC-001-01-experiencia-base.md) |
 | **Épica** | 001 — Generaliddes / Experiencia base |
 | **Prioridad** | Must |
-| **Estado** | Pendiente de Revisión |
-| **Última actualización** | 2026-05-29 |
+| **Estado** | Verificada F — Aprobada |
+| **Última actualización** | 2026-05-31 |
 | **Dependencias** | HU-GEN-02 (login y sesión); SPEC-001-05 (tenancy MONO) |
 | **TR** | [TR-GEN-01-shell-layout](../../04-tareas/001-Generaliddes/TR-GEN-01-shell-layout.md) — C1/D1/D cerrados 2026-05-29 |
 
@@ -117,3 +117,9 @@ Feature: Shell principal post-login (SPEC-001-01)
 ## Veredicto B1
 
 **Lista para TR:** Sí con observaciones (ruta de inicio post-login pendiente).
+
+## Cierre F
+
+- **Resultado:** Aprobada.
+- **Soporte de verificación:** [TR-GEN-01-shell-layout](../../04-tareas/001-Generaliddes/TR-GEN-01-shell-layout.md) y [F-GEN-01-02-cierre-formal](../../04-tareas/001-Generaliddes/F-GEN-01-02-cierre-formal.md).
+- **Observaciones:** sin hallazgos críticos abiertos para las cuatro zonas, guard de sesión y comportamiento responsive base.

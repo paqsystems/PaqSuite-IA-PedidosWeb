@@ -6,9 +6,9 @@
 | **SPEC origen** | [SPEC-001-01-experiencia-base.md](../../05-open-spec/001-Generaliddes/SPEC-001-01-experiencia-base.md) |
 | **Épica** | 001 — Generaliddes / Experiencia base |
 | **Prioridad** | Must |
-| **Estado** | Pendiente |
+| **Estado** | Verificada F — Aprobada |
 | **B1** | Enriquecida (2026-05-28) |
-| **Última actualización** | 2026-05-28 |
+| **Última actualización** | 2026-05-31 |
 | **Dependencias** | HU-GEN-01-shell-layout; HU-GEN-02-login-sesion |
 
 ## Trazabilidad SPEC
@@ -111,3 +111,9 @@ Feature: Selector de idioma (SPEC-001-01 §8.1)
 ## Veredicto B1
 
 **Lista para TR:** Sí con observaciones (catálogo de idiomas MVP)
+
+## Cierre F
+
+- **Resultado:** Aprobada.
+- **Soporte de verificación:** [TR-GEN-01-idioma](../../04-tareas/001-Generaliddes/TR-GEN-01-idioma.md) y [F-GEN-01-02-cierre-formal](../../04-tareas/001-Generaliddes/F-GEN-01-02-cierre-formal.md).
+- **Observaciones:** el comportamiento de locale quedó además consolidado en recuperación de contraseña mediante propagación del `locale` al enlace de reset.

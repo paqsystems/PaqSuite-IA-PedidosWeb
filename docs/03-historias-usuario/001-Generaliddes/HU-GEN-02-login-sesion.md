@@ -6,9 +6,9 @@
 | **SPEC origen** | [SPEC-001-02-acceso-y-seguridad.md](../../05-open-spec/001-Generaliddes/SPEC-001-02-acceso-y-seguridad.md) |
 | **Épica** | 001 — Generaliddes / Acceso y seguridad |
 | **Prioridad** | Must |
-| **Estado** | Pendiente |
+| **Estado** | Verificada F — Aprobada con observaciones |
 | **B1** | Enriquecida (2026-05-28) |
-| **Última actualización** | 2026-05-28 (D-01 confirmada) |
+| **Última actualización** | 2026-05-31 |
 | **Dependencias** | SPEC-001-05 (tenancy MONO, `X-Paq-Cliente`); HU-GEN-01-idioma |
 
 ## Trazabilidad SPEC
@@ -123,3 +123,9 @@ Feature: Login y sesión (SPEC-001-02)
 ## Veredicto B1
 
 **Lista para TR:** Sí — D-01 cerrada en TR.
+
+## Cierre F
+
+- **Resultado:** Aprobada con observaciones.
+- **Soporte de verificación:** [TR-GEN-02-login-sesion](../../04-tareas/001-Generaliddes/TR-GEN-02-login-sesion.md) y [F-GEN-01-02-cierre-formal](../../04-tareas/001-Generaliddes/F-GEN-01-02-cierre-formal.md).
+- **Observaciones:** el cierre F valida el contrato y el comportamiento base del login/logout con la evidencia D ya registrada; la revalidación integral de backend no se repitió completa en esta oleada.

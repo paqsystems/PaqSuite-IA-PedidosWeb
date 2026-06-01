@@ -1,0 +1,14 @@
+---
+description: DevExtreme obligatorio en la UI frontend
+alwaysApply: true
+---
+
+# DevExtreme obligatorio
+
+- En este proyecto, toda UI interactiva de frontend debe usar controles DevExtreme cuando exista equivalente razonable.
+- No introducir controles HTML nativos finales como `<select>`, `<button>`, `<input type="checkbox">`, radios o modales custom si DevExtreme cubre ese caso.
+- Priorizar `SelectBox`, `TextBox`, `Button`, `Popup`, `List`, `TreeView`, `CheckBox`, `Switch`, `DataGrid` y demás componentes DX.
+- Mantener `data-testid` estables usando `inputAttr` o `elementAttr`, sin acoplar tests al DOM interno que genera DevExtreme.
+- La licencia de DevExtreme se configura vía `VITE_DEVEXTREME_LICENSE` y se inicializa en `frontend/src/init-devextreme-license.ts`.
+- Si el cambio toca login, recuperación, cambio de contraseña, idioma o apariencia, consultar además `docs/00-contexto/_mono/01-experiencia-base/patron-ui-auth-devextreme.md`.
+- Si un flujo ya existe con HTML nativo y se toca de forma sustancial, migrarlo a DevExtreme como parte del cambio.

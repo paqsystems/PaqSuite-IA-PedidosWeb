@@ -1,10 +1,13 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import Button from 'devextreme-react/button';
+import List from 'devextreme-react/list';
+import Popup from 'devextreme-react/popup';
 import { useCurrentTheme } from '../hooks/useCurrentTheme';
 import {
   isSupportedThemeKey,
   supportedThemeKeys,
-  themeNameKey,
+  themeDisplayLabel,
   type SupportedThemeKey,
 } from '../model/supportedThemes';
 import './themeSelectorModal.css';
@@ -15,64 +18,96 @@ type ThemeSelectorModalProps = {
 };
 
 export function ThemeSelectorModal({ isOpen, onClose }: ThemeSelectorModalProps) {
-  const { t } = useTranslation();
-  const { currentTheme, changeTheme, isSaving, saveErrorKey } = useCurrentTheme();
+  const { t, i18n } = useTranslation();
+  const { currentTheme, persistedTheme, previewTheme, revertThemePreview, confirmTheme, isSaving, saveErrorKey } = useCurrentTheme();
   const [selectedTheme, setSelectedTheme] = useState<SupportedThemeKey>(
-    isSupportedThemeKey(currentTheme) ? currentTheme : 'generic.light',
+    isSupportedThemeKey(persistedTheme) ? persistedTheme : 'generic.light',
   );
 
   useEffect(() => {
     if (isOpen) {
-      setSelectedTheme(isSupportedThemeKey(currentTheme) ? currentTheme : 'generic.light');
+      setSelectedTheme(isSupportedThemeKey(persistedTheme) ? persistedTheme : 'generic.light');
     }
-  }, [currentTheme, isOpen]);
+  }, [persistedTheme, isOpen]);
+
+  const resolvedLanguage = i18n.resolvedLanguage ?? i18n.language;
+  const themeItems = useMemo(
+    () => supportedThemeKeys.map((themeKey) => ({
+      value: themeKey,
+      label: themeDisplayLabel(themeKey, resolvedLanguage),
+    })),
+    [resolvedLanguage],
+  );
 
   if (!isOpen) {
     return null;
   }
 
-  async function handleApply() {
-    await changeTheme(selectedTheme);
+  function handleCancel() {
+    revertThemePreview();
     onClose();
   }
 
+  function handleApply() {
+    previewTheme(selectedTheme);
+  }
+
+  async function handleConfirm() {
+    const didPersist = await confirmTheme(selectedTheme);
+
+    if (didPersist) {
+      onClose();
+    }
+  }
+
   return (
-    <div className="themeSelectorOverlay" role="presentation" onClick={onClose}>
-      <div
-        className="themeSelectorModal"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="themeSelectorTitle"
-        data-testid="themeSelectorModal"
-        onClick={(event) => {
-          event.stopPropagation();
-        }}
-      >
-        <h2 id="themeSelectorTitle">{t('theme.selector.title')}</h2>
-        <p data-testid="themeCurrentValue">
-          {t('theme.selector.current')}: {t(themeNameKey(
+    <Popup
+      visible={isOpen}
+      onHiding={() => {
+        if (!isSaving) {
+          handleCancel();
+        }
+      }}
+      showTitle
+      showCloseButton
+      dragEnabled={false}
+      width={560}
+      height={640}
+      shading
+      title={t('theme.selector.title')}
+      wrapperAttr={{ 'data-testid': 'themeSelectorModal', class: 'themeSelectorPopup' }}
+    >
+      <div className="themeSelectorModal">
+        <p className="themeSelectorCurrent" data-testid="themeCurrentValue">
+          {t('theme.selector.current')}: {themeDisplayLabel(
             isSupportedThemeKey(currentTheme) ? currentTheme : 'generic.light',
-          ))}
+            i18n.resolvedLanguage ?? i18n.language,
+          )}
         </p>
 
-        <fieldset className="themeSelectorOptions">
-          <legend className="themeSelectorLegend">{t('theme.selector.title')}</legend>
-          {supportedThemeKeys.map((themeKey) => (
-            <label key={themeKey} className="themeSelectorOption" data-testid={`themeOption-${themeKey}`}>
-              <input
-                type="radio"
-                name="themeSelection"
-                value={themeKey}
-                checked={selectedTheme === themeKey}
-                disabled={isSaving}
-                onChange={() => {
-                  setSelectedTheme(themeKey);
-                }}
-              />
-              <span>{t(themeNameKey(themeKey))}</span>
-            </label>
-          ))}
-        </fieldset>
+        <List
+          className="themeSelectorList"
+          dataSource={themeItems}
+          keyExpr="value"
+          selectionMode="single"
+          focusStateEnabled={false}
+          activeStateEnabled={!isSaving}
+          pageLoadMode="scrollBottom"
+          height={420}
+          selectedItemKeys={[selectedTheme]}
+          onSelectionChanged={(event) => {
+            const nextItem = event.addedItems[0] as { value: SupportedThemeKey } | undefined;
+
+            if (nextItem !== undefined) {
+              setSelectedTheme(nextItem.value);
+            }
+          }}
+          itemRender={(item: { value: SupportedThemeKey; label: string }) => (
+            <div className="themeSelectorItem" data-testid={`themeOption-${item.value}`}>
+              <span>{item.label}</span>
+            </div>
+          )}
+        />
 
         {saveErrorKey !== null && (
           <p className="themeSelectorError" data-testid="theme-save-error">
@@ -81,27 +116,31 @@ export function ThemeSelectorModal({ isOpen, onClose }: ThemeSelectorModalProps)
         )}
 
         <div className="themeSelectorActions">
-          <button
-            type="button"
-            className="themeSelectorButton"
-            data-testid="themeApplyButton"
+          <Button
+            stylingMode="outlined"
+            text={t('theme.selector.cancel')}
+            disabled={isSaving}
+            onClick={handleCancel}
+            elementAttr={{ 'data-testid': 'themeCancelButton' }}
+          />
+          <Button
+            stylingMode="outlined"
+            text={t('theme.selector.apply')}
+            disabled={isSaving}
+            onClick={handleApply}
+            elementAttr={{ 'data-testid': 'themeApplyButton' }}
+          />
+          <Button
+            type="default"
+            text={t('theme.selector.confirm')}
             disabled={isSaving}
             onClick={() => {
-              void handleApply();
+              void handleConfirm();
             }}
-          >
-            {t('theme.selector.apply')}
-          </button>
-          <button
-            type="button"
-            className="themeSelectorButton themeSelectorButtonSecondary"
-            disabled={isSaving}
-            onClick={onClose}
-          >
-            {t('theme.selector.cancel')}
-          </button>
+            elementAttr={{ 'data-testid': 'themeConfirmButton' }}
+          />
         </div>
       </div>
-    </div>
+    </Popup>
   );
 }

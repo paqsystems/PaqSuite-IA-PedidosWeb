@@ -8,12 +8,13 @@
 | **Prioridad** | Must |
 | **Dependencias** | TR-GEN-02-modelo-roles-permisos-seed, TR-GEN-02-login-sesion, [TR-GEN-01-idioma](TR-GEN-01-idioma.md) (locale activo y checklist §4 ítem 13) |
 | **Estado** | Implementado |
-| **Ultima actualizacion** | 2026-05-31 (D implementado) |
+| **Ultima actualizacion** | 2026-05-31 (F formal) |
 
 **Origen:** [HU-GEN-02-recuperacion-contrasena](../../03-historias-usuario/001-Generaliddes/HU-GEN-02-recuperacion-contrasena.md)  
 **Referencia SPEC:** [SPEC-001-02-acceso-y-seguridad](../../05-open-spec/001-Generaliddes/SPEC-001-02-acceso-y-seguridad.md)  
 **Normas transversales:** [`../_NORMAS-TRANSVERSALES-TR.md`](../_NORMAS-TRANSVERSALES-TR.md)  
-**Checklist i18n (correo):** [TR-GEN-01-idioma §4 — ítem 13](TR-GEN-01-idioma.md#cobertura-mínima-de-textos-traducibles-checklist)
+**Checklist i18n (correo):** [TR-GEN-01-idioma §4 — ítem 13](TR-GEN-01-idioma.md#cobertura-mínima-de-textos-traducibles-checklist)  
+**Cierre F formal:** [F-GEN-01-02-cierre-formal](F-GEN-01-02-cierre-formal.md)
 
 ---
 
@@ -180,11 +181,11 @@ Feature: Recuperacion de contrasena
 | R-C1-01 | TTL / throttle del token | El MVP adopta el broker/base estándar del stack Laravel para recuperación: **TTL 60 minutos** y **throttle 60 segundos**, documentado desde `config/auth.php`. |
 | R-C1-02 | Semántica HTTP del reset | `POST /api/v1/auth/password/reset` devuelve **422** para token inválido, usado o expirado; `401/403` no aplican como caso principal de esta ruta pública. |
 | R-C1-03 | Tenancy pública MONO | A diferencia de `PaqSuite-IA-TANGO`, en PedidosWeb estas rutas públicas quedan bajo `paq.tenant`; por lo tanto `forgot/reset` documentan **`X-Paq-Cliente`** y pueden responder **400 `tenant.invalid`**. |
-| R-C1-04 | URL del enlace de reset | El correo apunta a una ruta SPA del portal con base configurable: **`FRONTEND_URL/reset-password?token=...`**. |
+| R-C1-04 | URL del enlace de reset | El correo apunta a una ruta SPA del portal con base configurable: **`FRONTEND_URL/reset-password?token=...&locale=...`** para preservar el idioma del flujo entre el mail y la pantalla de nueva contraseña. |
 | R-C1-05 | Política de nueva contraseña | Forgot/reset reutiliza exactamente la misma política de contraseña ya cerrada en `TR-GEN-02-cambio-contrasena`, apoyándose en `backend/config/paqsuite_password.php`. |
 | R-C1-06 | Canal de mail y falla de envío | Se usa el mailer/configuración mail del proyecto. Si el envío falla, el backend **registra el error**, mantiene respuesta genérica al usuario y no revela existencia de cuenta; la implementación D decidirá si persiste token antes del send, pero sin alterar esta semántica externa. |
 | R-C1-07 | Fuente de locale del correo | El locale del mail se toma del cliente en `POST forgot`: prioridad **body `locale`** → `Accept-Language` → fallback `es`. No se infiere desde `users.locale` por email. |
-| R-C1-08 | Path frontend | El portal expone dos superficies dedicadas del flujo: `/forgot-password` y `/reset-password?token=...`. |
+| R-C1-08 | Path frontend | El portal expone dos superficies dedicadas del flujo: `/forgot-password` y `/reset-password?token=...&locale=...`. |
 | R-C1-09 | Claves i18n del mail | La implementación debe cerrar claves backend estables para asunto/cuerpo/enlace/pie, con paridad mínima `es`, `en`, `it` y fallback `es`. |
 
 ### Cierre de ambigüedades
@@ -261,7 +262,7 @@ Implementar el flujo completo de recuperación de contraseña del MVP con dos ru
   - `/forgot-password`
   - `/reset-password?token=...`
 - `ForgotPasswordPage` envía `email` y el locale actual del portal.
-- `ResetPasswordPage` consume `token` desde querystring, valida nueva contraseña + confirmación y redirige a `/login` con mensaje de éxito al completar.
+- `ResetPasswordPage` consume `token` y `locale` desde querystring, aplica el mismo idioma del enlace al abrirse, valida nueva contraseña + confirmación y redirige a `/login` con mensaje de éxito al completar.
 - Las pantallas deben apoyarse en i18n del portal y no introducir literales fuera del catálogo.
 - Mantener el campo de forgot como **`email`** y no ampliar a `codeOrEmail`, porque la HU/TR de PedidosWeb acota el alcance a recuperación por email.
 
@@ -304,7 +305,7 @@ Implementar el flujo completo de recuperación de contraseña del MVP con dos ru
 | D1-2 | TTL / throttle | Se adopta `config('auth.passwords.users.expire') = 60` y `throttle = 60` como base del slice. |
 | D1-3 | HTTP reset | Token inválido/usado/expirado ⇒ **422** con clave funcional dedicada; `401/403` no se usan como semántica principal del reset. |
 | D1-4 | Tenancy pública | `forgot/reset` viven bajo `paq.tenant`, por lo que documentan `X-Paq-Cliente` y `400 tenant.invalid`. |
-| D1-5 | URL del mail | El backend construye `FRONTEND_URL/reset-password?token=...` desde config/env específica del proyecto. |
+| D1-5 | URL del mail | El backend construye `FRONTEND_URL/reset-password?token=...&locale=...` desde config/env específica del proyecto. |
 | D1-6 | Política de contraseña | Forgot/reset reutiliza `backend/config/paqsuite_password.php` y la misma semántica de validación de `change-password`. |
 | D1-7 | Locale del mail | Fuente: `body locale` → `Accept-Language` → `es`; no usar `users.locale` como fuente principal en forgot. |
 | D1-8 | Falla de mail | El usuario siempre recibe respuesta genérica; la falla de envío se registra en logs y no revela existencia de cuenta. |
@@ -364,6 +365,7 @@ Implementar el flujo completo de recuperación de contraseña del MVP con dos ru
 - **Backend:** se implementaron `POST /api/v1/auth/password/forgot` y `POST /api/v1/auth/password/reset` en `AuthController`, con requests dedicados, servicio `PasswordRecoveryService`, resolución de locale `body locale` → `Accept-Language` → `es`, mailable `ResetPasswordMail`, plantillas/traducciones backend `es/en/it`, config `FRONTEND_URL` y documentación OpenAPI ajustada.
 - **Seguridad / datos:** el reset actualiza `users.password_hash`, fuerza `first_login = false`, sincroniza `pq_pedidosweb_login.password_bcrypt` cuando existe vínculo legacy y consume el token en un único uso mediante `password_reset_tokens`.
 - **Frontend:** se agregaron `ForgotPasswordPage`, `ResetPasswordPage`, rutas públicas `/forgot-password` y `/reset-password`, enlace desde login, validaciones cliente y mensajes i18n para `es/en/pt/fr/it`.
+- **Refinamiento UI MONO (2026-05-31):** `ForgotPasswordPage` y `ResetPasswordPage` se alinearon visualmente con `PaqSuite-IA-TANGO` y con el login público del portal: fondo gradiente, card centrada, selector de idioma integrado, `TextBox` + `Button` DevExtreme, feedback visual homogéneo y link de retorno al login dentro del mismo lenguaje visual reusable.
 - **Tests incorporados:** backend `PasswordRecoveryTest`, `PasswordRecoveryMailLocaleResolverTest` y ajustes en `OpenApiDocumentationTest`; frontend `passwordRecoveryForm.test.ts` y `tests/e2e/password-recovery.spec.ts`.
 
 ### Evidencia ejecutada
@@ -447,15 +449,31 @@ Implementar el flujo completo de recuperación de contraseña del MVP con dos ru
 ## 6) Cambios Frontend
 
 ### Pantallas / componentes
+- Norma base reusable MONO: `docs/00-contexto/_mono/01-experiencia-base/patron-ui-auth-devextreme.md`
 - Enlace `Olvidaste tu contrasena` en login.
 - Pantalla de solicitud y pantalla de nueva contrasena.
 - Mensajes i18n coherentes con locale actual.
+- Contrato reusable MONO para `ForgotPasswordPage`:
+  - reutilizar el mismo sistema visual del login público (`surface` centrada sobre gradiente, tipografía y espaciado compatibles);
+  - montar `LocaleSelector` dentro de la card para mantener consistencia entre pantallas públicas;
+  - usar exclusivamente controles **DevExtreme** equivalentes (`TextBox`, `Button`), evitando `<input>` / `<button>` nativos en la superficie final;
+  - conservar `data-testid` públicos (`localeSelectorForgotPassword`, `forgot-password-form`, `forgotPasswordEmail`, `forgotPasswordSubmit`, `forgotPasswordBackToLogin`) para no acoplar tests E2E al DOM interno de DX;
+  - dejar textos de título, descripción, CTA, errores y éxito resueltos vía i18n, no hardcodeados en JSX.
+- Contrato reusable MONO para `ResetPasswordPage`:
+  - reutilizar exactamente la misma familia visual pública de login/forgot (`surface` centrada sobre gradiente, card clara, selector de idioma integrado y CTA primario dentro de la card);
+  - resolver los campos de nueva contraseña y confirmación con `TextBox` DX en modo password, incluyendo `placeholder` y `aria-label` i18n;
+  - priorizar el `locale` recibido en la querystring del enlace del mail para abrir la pantalla en el mismo idioma desde el cual se solicitó la recuperación;
+  - preservar `data-testid` estables (`localeSelectorResetPassword`, `reset-password-form`, `resetPasswordNew`, `resetPasswordConfirm`, `resetPasswordSubmit`, `resetPasswordBackToLogin`) para mantener automatización reusable;
+  - mostrar errores funcionales/validaciones dentro de la misma card con el mismo patrón visual reusable de `ForgotPasswordPage`;
+  - no introducir HTML nativo final para inputs o CTA si DevExtreme cubre el caso.
 
 ### data-testid sugeridos
 - `login-forgot-password`
 - `forgot-password-form`
 - `forgotPasswordSubmit`
 - `reset-password-form`
+- `resetPasswordNew`
+- `resetPasswordConfirm`
 - `resetPasswordSubmit`
 
 ---
