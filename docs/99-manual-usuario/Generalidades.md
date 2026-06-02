@@ -9,7 +9,7 @@ Está pensado para dos públicos:
 - usuarios finales que necesitan saber cómo ingresar, navegar y resolver acciones habituales;
 - soporte funcional que necesita identificar el comportamiento esperado, interpretar bloqueos y orientar al usuario.
 
-El contenido cubre el uso general del portal en su modalidad monoempresa: ingreso al sistema, sesión de trabajo, navegación principal, idioma, apariencia, ayuda global, cambio de contraseña y recuperación de acceso.
+El contenido cubre el uso general del portal en su modalidad monoempresa: ingreso al sistema, sesión de trabajo, navegación principal, idioma, apariencia, ayuda global, cambio de contraseña, recuperación de acceso y **grillas de listados** (consultas y procesos tabulares).
 
 ## 2. Alcance
 
@@ -23,7 +23,8 @@ Este documento incluye:
 - el inicio y cierre de sesión;
 - el cambio de contraseña;
 - la recuperación de contraseña;
-- los comportamientos esperados ante bloqueos de acceso.
+- los comportamientos esperados ante bloqueos de acceso;
+- el uso estándar de **grillas y listados** (orden, filtros, columnas, agrupación, totalizadores, layouts, exportación y acciones por fila).
 
 Este documento no incluye:
 
@@ -62,6 +63,14 @@ Es el mecanismo que permite restablecer el acceso cuando el usuario no recuerda 
 
 Es la situación en la que el sistema puede exigir al usuario cambiar su contraseña antes de continuar operando.
 
+### Grilla o listado
+
+Es la presentación tabular de datos dentro del área principal de un proceso. En PedidosWeb las grillas comparten la misma experiencia en todo el portal: mismos controles para ordenar, filtrar, personalizar columnas, agrupar, totalizar, exportar y —cuando el proceso lo permite— operar sobre cada fila.
+
+### Layout de grilla
+
+Es un formato guardado de una grilla (columnas visibles, orden, filtros, agrupaciones, totalizadores y demás preferencias de vista). Los layouts se identifican por proceso y por grilla; pueden compartirse entre usuarios, pero solo quien creó un layout puede modificarlo o eliminarlo.
+
 ## 4. Objetivo operativo
 
 El objetivo de estas generalidades es asegurar que el usuario pueda:
@@ -72,7 +81,8 @@ El objetivo de estas generalidades es asegurar que el usuario pueda:
 - personalizar idioma y apariencia;
 - mantener su cuenta segura;
 - recuperar el acceso cuando olvida su contraseña;
-- cerrar sesión correctamente al finalizar su trabajo.
+- cerrar sesión correctamente al finalizar su trabajo;
+- consultar y trabajar con listados tabulares usando una grilla homogénea en todos los procesos.
 
 El resultado esperado es una experiencia ordenada, segura y estable, con criterios de uso consistentes para todas las pantallas del portal.
 
@@ -85,7 +95,8 @@ Este manual se utiliza:
 - cuando soporte debe asistir problemas de acceso;
 - cuando se requiere cambiar idioma o apariencia;
 - cuando el usuario necesita cambiar su contraseña;
-- cuando se perdió el acceso y debe iniciarse la recuperación.
+- cuando se perdió el acceso y debe iniciarse la recuperación;
+- cuando un proceso muestra datos en forma de **grilla o listado** y el usuario necesita ordenar, filtrar, personalizar la vista o exportar.
 
 Como condición previa, el usuario debe contar con una cuenta habilitada para operar en el portal.
 
@@ -116,6 +127,8 @@ Una vez iniciada la sesión, el sistema muestra un entorno de trabajo estable co
 El usuario accede directamente al entorno principal. No debe atravesar una selección adicional de empresa.
 
 El contenido visible del menú puede variar según el perfil y la habilitación del usuario. Por ese motivo, no todos los usuarios ven las mismas opciones.
+
+Dentro del área principal, muchos procesos muestran una **grilla**: una tabla con filas de datos y herramientas comunes para consultar, ordenar, filtrar y —según permisos— ejecutar acciones sobre cada registro. El detalle de uso de la grilla se describe en la sección 16.
 
 ## 7. Paso a paso de uso
 
@@ -457,6 +470,7 @@ Control sugerido para soporte:
 - El cambio de contraseña actualiza la cuenta cuando los datos son correctos.
 - La recuperación de contraseña permite volver a acceder sin intervención manual cuando el usuario dispone del correo correspondiente.
 - El cierre de sesión devuelve al usuario a la pantalla de acceso y finaliza el uso actual del portal.
+- Las grillas de listados ofrecen la misma experiencia transversal: filtros, orden, columnas, agrupación, totalizadores, layouts, exportación y acciones por fila según permisos.
 
 ## 12. Casos habituales
 
@@ -486,16 +500,22 @@ El usuario no recuerda su clave, solicita la recuperación, recibe el correo, de
 - El usuario cambia el idioma y espera que se traduzcan datos propios del negocio.
 - El usuario interpreta que ocultar el menú lateral cambia sus permisos.
 - El usuario intenta recuperar la contraseña con un correo distinto del asociado a su cuenta.
-- El usuario utiliza un enlace de recuperación viejo.
+- El usuario utiliza un enlace viejo.
 - El usuario intenta cambiar la contraseña, pero no completa correctamente la confirmación.
 - El usuario cierra la pantalla sin cerrar sesión y luego tiene dudas sobre el estado de acceso.
+- El usuario espera ver el botón **Agregar (+)** en una grilla de solo consulta.
+- El usuario no encuentra una columna porque la ocultó o aplicó un layout distinto.
+- El usuario agrupa o filtra y interpreta que «desaparecieron» registros.
+- El usuario espera exportar una grilla vacía o sin datos visibles.
 
 Qué debería revisar soporte en consultas repetidas:
 
 - si el problema es de acceso, perfil o expectativa funcional;
 - si el usuario comprendió correctamente la diferencia entre menú visible y autorización real;
 - si la cuenta requiere cambio obligatorio de contraseña;
-- si el correo usado para la recuperación es el correcto.
+- si el correo usado para la recuperación es el correcto;
+- si la grilla está filtrada, agrupada o usando un layout que oculta columnas;
+- si el proceso es de consulta o de ABM (alta/modificación/baja).
 
 ## 14. Recomendaciones de uso
 
@@ -506,6 +526,9 @@ Qué debería revisar soporte en consultas repetidas:
 - Confirmar visualmente los cambios de apariencia antes de continuar trabajando.
 - Utilizar la recuperación de contraseña solo sobre la cuenta correcta.
 - Cerrar sesión al finalizar la tarea, especialmente en equipos compartidos.
+- Antes de consultar por «registros faltantes» en una grilla, revisar filtros, agrupación y layout activo.
+- Guardar layouts propios con **Guardar como** cuando se personaliza una vista que se usará a menudo.
+- Pasar el mouse sobre los íconos de **Acciones** para confirmar qué operación ejecuta cada uno.
 
 Para soporte:
 
@@ -543,11 +566,212 @@ Porque puede haber vencido o ya haber sido usado. En ese caso debe generarse una
 
 Es recomendable, especialmente si se trabaja en un equipo compartido o de uso común.
 
-## 16. Resumen operativo
+## 16. Grillas y listados
+
+Esta sección describe el comportamiento **estándar** de las grillas en PedidosWeb. Aplica a consultas, dashboards con listados y procesos operativos que muestran datos tabulares. Algunos procesos pueden ocultar una función concreta por reglas de negocio; en ese caso, el control simplemente no aparece o permanece deshabilitado.
+
+### 16.1 Qué es y dónde aparece
+
+Una grilla muestra registros en filas y columnas dentro del área principal del proceso. Suele incluir:
+
+- una **barra de herramientas** superior (layouts, exportación y acciones propias del listado, cuando corresponda);
+- un **panel de agrupación** en la parte superior de la tabla;
+- **cabeceras de columna** con título traducido según el idioma activo;
+- una **fila de filtros** debajo de las cabeceras;
+- el **cuerpo** con los datos;
+- una **fila de pie** para totalizadores por columna;
+- un **paginador** cuando hay muchos registros;
+- una columna de **acciones** al extremo derecho (íconos con ayuda al pasar el mouse), si el proceso lo habilita.
+
+Las grillas **no reemplazan** la navegación del portal: el menú lateral y el encabezado siguen disponibles mientras se trabaja en el listado.
+
+### 16.2 Elementos de la barra superior de la grilla
+
+Según el proceso, la barra superior puede incluir:
+
+| Elemento | Para qué sirve |
+|----------|----------------|
+| **Layout de grilla** | Elegir un formato guardado o volver a la plantilla del sistema |
+| **Guardar** | Actualiza el layout seleccionado (si el usuario es el creador y la vista lo permite) |
+| **Guardar como** | Crea un layout nuevo con el formato actual |
+| **Eliminar** | Quita un layout propio |
+| **Exportar** | Descarga la vista actual a Excel |
+| Acciones del proceso | Botones adicionales definidos por cada pantalla |
+
+**Layouts**
+
+- Cada layout guarda, entre otras cosas: columnas visibles y su orden, filtros, agrupaciones, ordenamiento y totalizadores configurados.
+- Todos los usuarios pueden **ver y aplicar** layouts existentes de la misma grilla.
+- Solo el **creador** puede **modificar o eliminar** un layout que guardó.
+- Si partís de un layout de otro usuario, podés crear uno propio con **Guardar como**.
+- Si estás en la **plantilla del sistema**, **Guardar** se interpreta como **Guardar como** (crea un layout nuevo).
+- Al volver a abrir la pantalla, el sistema intenta restaurar el **último layout usado** por el usuario.
+
+**Exportación a Excel**
+
+- Disponible cuando hay datos exportables en la grilla.
+- Si no hay filas, el botón queda deshabilitado y se informa que no hay datos para exportar.
+- La exportación respeta la **vista vigente**: columnas visibles, filtros, orden y agrupaciones activas al momento de exportar.
+- Modalidades habituales:
+  - **Básica:** datos tal como se ven, sin formato avanzado de Excel (útil para procesamiento externo).
+  - **Formateada:** encabezados, formatos por tipo de dato y totales visibles (útil para uso de negocio).
+
+### 16.3 Ordenar registros
+
+1. Hacer clic en el **título de una columna** para ordenar ascendente o descendente.
+2. Repetir el clic invierte el sentido del orden.
+3. Clic derecho sobre la cabecera de columna → elegir **Orden ascendente**, **Orden descendente** o **Limpiar orden**.
+
+Por defecto, el orden principal es por **una sola columna** a la vez (salvo que un proceso específico habilite orden múltiple).
+
+### 16.4 Filtrar registros
+
+1. Ubicar la **fila de filtros** debajo de los títulos de columna.
+2. Escribir o elegir el criterio en la columna deseada.
+3. Usar el operador disponible (igual, contiene, mayor que, entre, etc.) según el tipo de dato.
+4. Combinar filtros en varias columnas para acotar el resultado.
+
+Los filtros **no modifican** los datos en el sistema: solo reducen lo que se muestra en pantalla. Si parece que «faltan» registros, conviene revisar filtros activos y el layout aplicado.
+
+### 16.5 Mostrar, ocultar y reordenar columnas
+
+**Selector de columnas**
+
+1. Abrir el **selector de columnas** desde el icono correspondiente en la grilla.
+2. Arrastrar columnas hacia el panel para **ocultarlas**, o desde el panel hacia la grilla para **mostrarlas**.
+
+**Reordenar columnas**
+
+- Arrastrar el encabezado de una columna hacia la izquierda o derecha, o
+- Clic derecho en la cabecera → **Mover a la izquierda** / **Mover a la derecha**.
+
+### 16.6 Agrupar registros
+
+1. Arrastrar el **título de una columna** al **panel de agrupación** superior (texto orientativo: arrastrar un encabezado para agrupar).
+2. La grilla reorganiza las filas en grupos.
+3. Para quitar una agrupación: clic derecho en la cabecera → **Desagrupar**, o usar **Desagrupar todo** desde el menú contextual.
+
+La agrupación es una vista; no altera los datos almacenados.
+
+### 16.7 Totalizadores en el pie de la grilla
+
+Cada columna puede tener su **propio totalizador** en la fila inferior del pie.
+
+1. Clic derecho sobre la **celda del pie** de la columna deseada.
+2. Elegir el tipo según el dato:
+   - **Numéricos:** contar, sumar, promedio, mínimo, máximo.
+   - **Texto o fecha:** contar, mínimo, máximo (según corresponda).
+3. Para quitar un totalizador: clic derecho en el pie de esa columna → **Quitar totalizador**.
+
+Dos columnas pueden mostrar totalizadores distintos al mismo tiempo (por ejemplo, suma en importes y conteo en códigos).
+
+### 16.8 Paginación
+
+Cuando el listado supera la cantidad de filas por página:
+
+- usar el **paginador** inferior para avanzar, retroceder o ir a una página concreta;
+- cambiar el tamaño de página si el control lo permite.
+
+Orden y filtros se mantienen al cambiar de página.
+
+### 16.9 Acciones por fila
+
+En procesos que lo permiten, la columna **Acciones** (extremo derecho) muestra **íconos sin texto visible**.
+
+- Pasar el mouse sobre un ícono muestra el **nombre de la acción** (editar, eliminar, ver detalle, etc.).
+- Las acciones visibles dependen del **permiso** y de las reglas del proceso.
+- En grillas de **solo consulta**, no aparece el alta ABM ni acciones de modificación no autorizadas.
+
+**Procesos ABM (alta, modificación, eliminación)**
+
+- El **alta** de un registro se realiza con el botón **+** integrado en la grilla (toolbar nativa del listado), no con un botón suelto fuera de la tabla.
+- **Editar** y **eliminar** suelen estar en la columna de acciones de cada fila, según permisos.
+
+### 16.10 Estados de la grilla
+
+| Estado | Qué ve el usuario | Interpretación |
+|--------|-------------------|----------------|
+| **Cargando** | Mensaje de carga del listado | El sistema está obteniendo datos |
+| **Vacío** | Mensaje de sin registros | No hay filas para mostrar con los criterios actuales |
+| **Error** | Mensaje de error de carga | No se pudo completar la consulta; reintentar o contactar soporte |
+| **Listo** | Datos visibles | Operación normal |
+
+### 16.11 Idioma y textos de la grilla
+
+- Títulos de columnas, filtros, menús contextuales, paginador, totalizadores y mensajes de la grilla siguen el **idioma activo** del portal (español, inglés, francés, portugués o italiano).
+- Los **datos de negocio** (nombres de clientes, descripciones de artículos, observaciones cargadas por usuarios, etc.) **no se traducen** al cambiar idioma: se muestran tal como fueron registrados.
+
+### 16.12 Validaciones y permisos en grillas
+
+Qué debe tener en cuenta el usuario:
+
+- Si no ve una acción (editar, eliminar, agregar), probablemente su perfil **no tiene permiso** para esa operación en ese proceso.
+- Ocultar columnas o aplicar filtros **no cambia** permisos ni datos reales.
+- Exportar requiere datos visibles/exportables; una grilla vacía no permite exportación.
+- Solo el creador puede modificar o eliminar un layout propio.
+
+Qué debe revisar soporte:
+
+- si el usuario confunde una grilla de **consulta** con un ABM;
+- si hay filtros, agrupaciones o un layout que oculta información;
+- si el permiso del rol cubre la acción esperada;
+- si el error es de carga (conectividad, backend) o de criterios de búsqueda sin resultados.
+
+### 16.13 Casos habituales con grillas
+
+**Caso A. Consulta simple**
+
+El usuario abre un listado, ordena por fecha descendente, filtra por cliente y exporta la vista formateada a Excel.
+
+**Caso B. Personalización recurrente**
+
+El usuario oculta columnas que no usa, define un totalizador de suma en importes, guarda el formato con **Guardar como** y lo reutiliza en visitas posteriores.
+
+**Caso C. Agrupación para revisión**
+
+El usuario arrastra la columna «Vendedor» al panel de agrupación para revisar totales por grupo y luego desagrupa para volver a la vista plana.
+
+**Caso D. Solo lectura**
+
+El usuario abre una consulta, ve íconos de acción limitados o ausentes, y no encuentra el botón **+**: el proceso es de consulta, no de ABM.
+
+### 16.14 Preguntas frecuentes sobre grillas
+
+**¿Por qué no veo el botón Agregar (+)?**
+
+Porque el proceso es de consulta o su usuario no tiene permiso de alta en ese listado.
+
+**¿Por qué desaparecieron registros?**
+
+Lo más habitual es que haya **filtros activos**, **agrupación** aplicada o un **layout** que cambia la vista. Revisar la fila de filtros, el panel de agrupación y el layout seleccionado; volver a la **plantilla del sistema** ayuda a restablecer la vista base.
+
+**¿Puedo guardar mi forma de ver la grilla?**
+
+Sí, con **Guardar** o **Guardar como** en la barra de layouts. El formato queda asociado a esa grilla del proceso.
+
+**¿Puedo modificar un layout que creó otro usuario?**
+
+No directamente. Podés **aplicarlo** y, si te sirve como base, crear uno propio con **Guardar como**.
+
+**¿La exportación incluye columnas ocultas?**
+
+No. Exporta la **vista vigente**: columnas visibles, filtros, orden y agrupaciones activas al exportar.
+
+**¿Cambiar el idioma traduce los datos de la grilla?**
+
+No. Traduce los textos del sistema (cabeceras, menús, mensajes). Los valores de negocio se muestran en su idioma original.
+
+**¿Qué significa el ícono en Acciones si no tiene texto?**
+
+Pasá el mouse sobre el ícono: aparece el nombre de la acción (tooltip).
+
+## 17. Resumen operativo
 
 PedidosWeb ofrece una experiencia base organizada y segura: el usuario ingresa desde una pantalla simple, accede a un entorno principal estable y opera solo dentro de las opciones habilitadas para su perfil.
 
 Las preferencias personales, como idioma y apariencia, ayudan a adaptar la experiencia sin alterar la seguridad. Al mismo tiempo, las funciones de cambio y recuperación de contraseña permiten mantener el acceso bajo control y resolver incidentes habituales sin salir del circuito previsto.
+
+Las **grillas** unifican la consulta de listados: orden, filtros, columnas, agrupación, totalizadores por columna, layouts reutilizables, exportación a Excel y acciones por fila según permisos. Esa homogeneidad reduce la curva de aprendizaje entre procesos distintos.
 
 Los puntos que usuario y soporte deben recordar son:
 
@@ -556,4 +780,7 @@ Los puntos que usuario y soporte deben recordar son:
 - idioma y apariencia son preferencias personales;
 - el cambio de contraseña puede ser obligatorio;
 - la recuperación de contraseña debe hacerse sobre la cuenta y el correo correctos;
-- cerrar sesión sigue siendo la forma recomendada de finalizar el uso del portal.
+- cerrar sesión sigue siendo la forma recomendada de finalizar el uso del portal;
+- en grillas, filtros y layouts modifican la **vista**, no los permisos ni los datos;
+- exportar y totalizar respetan lo visible en pantalla al momento de la acción;
+- el botón **+** de alta aparece solo en procesos ABM autorizados.

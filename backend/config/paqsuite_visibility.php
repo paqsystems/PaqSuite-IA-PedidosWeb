@@ -6,6 +6,16 @@ return [
         'clientes' => 'pw_clientes_visibles',
         'comprobantes' => 'pw_comprobantes_visibles',
         'dashboard' => 'pw_dashboard',
+        'cargaComprobantes' => 'pw_cargapedidos',
+        'consultasPedidosIngresados' => 'pw_pedidosingresados',
+        'consultasPedidosPendientes' => 'pw_pedidospendientes',
+        'consultasPresupuestos' => 'pw_presupuestosingresados',
+        'consultasStock' => 'pw_consultastock',
+        'consultasDeuda' => 'pw_deudaclientes',
+        'consultasCheques' => 'pw_consultacheques',
+        'consultasHistorialVentas' => 'pw_historialventas',
+        'tratativasPresupuestos' => 'pw_tratativaspresup',
+        'logsIntegracion' => 'pw_logsintegracion',
     ],
 
     'dashboardStates' => [

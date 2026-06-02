@@ -3,6 +3,15 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\GridLayoutController;
 use App\Http\Controllers\HealthController;
+use App\Http\Controllers\Api\V1\PedidosWeb\ComprobanteController;
+use App\Http\Controllers\Api\V1\PedidosWeb\ConsultaController;
+use App\Http\Controllers\Api\V1\PedidosWeb\DashboardController;
+use App\Http\Controllers\Api\V1\PedidosWeb\IntegracionLogController;
+use App\Http\Controllers\Api\V1\PedidosWeb\MotivoCierreController;
+use App\Http\Controllers\Api\V1\PedidosWeb\PedidoController;
+use App\Http\Controllers\Api\V1\PedidosWeb\PresupuestoCierreController;
+use App\Http\Controllers\Api\V1\PedidosWeb\PresupuestoController;
+use App\Http\Controllers\Api\V1\PedidosWeb\TratativaController;
 use App\Http\Controllers\PublicConfigController;
 use App\Http\Controllers\UserMenuController;
 use App\Http\Controllers\UserPreferencesController;
@@ -52,6 +61,54 @@ Route::prefix('v1')->group(function (): void {
                 ->name('api.v1.comprobantes.show');
             Route::get('/dashboard/resumen', [VisibilityDataController::class, 'dashboardResumen'])
                 ->name('api.v1.dashboard.resumen');
+
+            Route::post('/comprobantes/grabar', [ComprobanteController::class, 'grabar'])
+                ->name('api.v1.comprobantes.grabar');
+            Route::post('/comprobantes/copiar', [ComprobanteController::class, 'copiar'])
+                ->name('api.v1.comprobantes.copiar');
+
+            Route::post('/pedidos', [PedidoController::class, 'store'])->name('api.v1.pedidos.store');
+            Route::put('/pedidos/{cod_pedido}', [PedidoController::class, 'update'])->name('api.v1.pedidos.update');
+            Route::get('/pedidos/{cod_pedido}', [PedidoController::class, 'show'])->name('api.v1.pedidos.show');
+            Route::delete('/pedidos/{cod_pedido}', [PedidoController::class, 'destroy'])->name('api.v1.pedidos.destroy');
+            Route::post('/pedidos/{cod_pedido}/edicion/iniciar', [PedidoController::class, 'iniciarEdicion'])
+                ->name('api.v1.pedidos.edicion.iniciar');
+            Route::post('/pedidos/{cod_pedido}/edicion/actividad', [PedidoController::class, 'touchActividad'])
+                ->name('api.v1.pedidos.edicion.actividad');
+            Route::post('/pedidos/{cod_pedido}/edicion/cancelar', [PedidoController::class, 'cancelarEdicion'])
+                ->name('api.v1.pedidos.edicion.cancelar');
+
+            Route::post('/presupuestos', [PresupuestoController::class, 'store'])->name('api.v1.presupuestos.store');
+            Route::put('/presupuestos/{cod_pedido}', [PresupuestoController::class, 'update'])
+                ->name('api.v1.presupuestos.update');
+            Route::get('/presupuestos/{cod_pedido}', [PresupuestoController::class, 'show'])->name('api.v1.presupuestos.show');
+            Route::post('/presupuestos/{cod}/cerrar', [PresupuestoCierreController::class, 'cerrar'])
+                ->name('api.v1.presupuestos.cerrar');
+
+            Route::get('/motivos-cierre', [MotivoCierreController::class, 'index'])->name('api.v1.motivos-cierre.index');
+            Route::get('/presupuestos/{cod}/tratativas', [TratativaController::class, 'index'])
+                ->name('api.v1.tratativas.index');
+            Route::post('/presupuestos/{cod}/tratativas', [TratativaController::class, 'store'])
+                ->name('api.v1.tratativas.store');
+
+            Route::prefix('consultas')->group(function (): void {
+                Route::get('/pedidos-ingresados', [ConsultaController::class, 'pedidosIngresados'])
+                    ->name('api.v1.consultas.pedidos-ingresados');
+                Route::get('/pedidos-pendientes', [ConsultaController::class, 'pedidosPendientes'])
+                    ->name('api.v1.consultas.pedidos-pendientes');
+                Route::get('/presupuestos', [ConsultaController::class, 'presupuestos'])
+                    ->name('api.v1.consultas.presupuestos');
+                Route::get('/stock', [ConsultaController::class, 'stock'])->name('api.v1.consultas.stock');
+                Route::get('/deuda', [ConsultaController::class, 'deuda'])->name('api.v1.consultas.deuda');
+                Route::get('/cheques', [ConsultaController::class, 'cheques'])->name('api.v1.consultas.cheques');
+                Route::get('/historial-ventas', [ConsultaController::class, 'historialVentas'])
+                    ->name('api.v1.consultas.historial-ventas');
+            });
+
+            Route::get('/integracion/logs', [IntegracionLogController::class, 'index'])
+                ->name('api.v1.integracion.logs');
+            Route::get('/dashboard/operativo', [DashboardController::class, 'operativo'])
+                ->name('api.v1.dashboard.operativo');
         });
     });
 });

@@ -12,6 +12,11 @@ final class VisibilityPermissionGuard
 {
     public function ensureRepoPermission(User $user, string $procedimiento): void
     {
+        $this->ensurePermission($user, $procedimiento, 'repo');
+    }
+
+    public function ensurePermission(User $user, string $procedimiento, string $tipoPermiso): void
+    {
         $permiso = PqPermiso::query()
             ->with('rol')
             ->where('id_usuario', $user->id)
@@ -30,13 +35,30 @@ final class VisibilityPermissionGuard
             return;
         }
 
-        $hasRepoPermission = PqRolAtributo::query()
+        $columnByTipoPermiso = [
+            'alta' => 'permiso_alta',
+            'modi' => 'permiso_modi',
+            'baja' => 'permiso_baja',
+            'repo' => 'permiso_repo',
+        ];
+
+        $permisoColumn = $columnByTipoPermiso[$tipoPermiso] ?? null;
+
+        if ($permisoColumn === null) {
+            throw new AuthFlowException(
+                AuthErrorCodes::noPermission,
+                'auth.noPermission',
+                403
+            );
+        }
+
+        $hasPermission = PqRolAtributo::query()
             ->where('id_rol', $permiso->rol->id)
             ->where('procedimiento', $procedimiento)
-            ->where('permiso_repo', true)
+            ->where($permisoColumn, true)
             ->exists();
 
-        if ($hasRepoPermission) {
+        if ($hasPermission) {
             return;
         }
 

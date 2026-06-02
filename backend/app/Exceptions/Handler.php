@@ -84,6 +84,18 @@ class Handler extends ExceptionHandler
             return null;
         });
 
+        $this->renderable(function (PedidosWebBusinessException $exception, $request) {
+            if ($request->is('api/*')) {
+                return ApiResponse::error(
+                    $exception->errorCode(),
+                    $exception->respuestaKey(),
+                    $exception->httpStatus()
+                );
+            }
+
+            return null;
+        });
+
         $this->reportable(function (Throwable $e) {
             //
         });

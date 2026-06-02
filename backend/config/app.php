@@ -195,6 +195,8 @@ return [
         App\Providers\AuthServiceProvider::class,
         // App\Providers\BroadcastServiceProvider::class,
         App\Providers\EventServiceProvider::class,
+        App\Providers\PedidosWebRepositoryServiceProvider::class,
+        App\Providers\PedidosWebServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
 
     ],
