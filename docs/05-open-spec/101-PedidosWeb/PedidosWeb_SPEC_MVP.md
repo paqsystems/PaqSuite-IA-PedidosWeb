@@ -388,15 +388,33 @@ El flujo E2E §9 es obligatorio además de los E2E por slice.
 
 ### 14.4 Parte B — cierre (2026-06-01)
 
+| Entregable | Estado |
+|------------|--------|
+| 27 HU en `docs/03-historias-usuario/101-PedidosWeb/` | Hecho |
+| Índice HU README | Hecho |
+
+### 14.5 Parte C — cierre (2026-06-01)
+
+| Entregable | Estado |
+|------------|--------|
+| 15 TR en `docs/04-tareas/101-PedidosWeb/` | Hecho |
+| Índice TR + trazabilidad HU → TR | [README.md](../../04-tareas/101-PedidosWeb/README.md) |
+| Contratos API en TR-05, TR-07, TR-14 | Documentados (implementar en D) |
+| Matriz permisos | Placeholder §Negocio — completar por slice en D |
+
+**Veredicto parte C:** **Lista para parte D** (implementación por slice §10).
+
+### 14.6 Parte B — detalle histórico (2026-06-01)
+
 - **27 HU** enriquecidas: [README HU 101](../../03-historias-usuario/101-PedidosWeb/README.md).
 - **HU-101-026** copiar comprobante; **HU-101-027** cierre/rechazo; **HU-101-014** solo tratativas (Should).
 - **HU-101-001/002:** heredadas GEN-02 — TR de verificación en 101-06.
 
-### 14.5 Siguiente paso — parte C
+### 14.7 Siguiente paso — parte D
 
-1. Generar TR en `docs/04-tareas/101-PedidosWeb/` por slice (`TR-SPEC-101-xx-*.md`).
-2. Preparar **contexto SPEC-001-04** (parámetros) en paralelo a TR de carga/consultas/dashboard.
-3. Orden sugerido: 02 → 03 → 06 (verificación) → 04 → 05 → 09 → 10 → …
+1. Implementar por TR según [índice TR](../../04-tareas/101-PedidosWeb/README.md): **02 → 03 → 06 → 04 → 05 → …**
+2. Completar servicio de parámetros SPEC-001-04 en paralelo a TR-04/07/10/14.
+3. Actualizar matriz permisos y OpenAPI en el mismo PR de cada slice.
 
 ---
 

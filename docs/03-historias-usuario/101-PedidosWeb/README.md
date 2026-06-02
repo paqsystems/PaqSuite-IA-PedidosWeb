@@ -45,4 +45,5 @@ Convención: **`HU-101-NNN-tema.md`** derivadas de [PedidosWeb_SPEC_MVP.md](../.
 
 ## Siguiente paso
 
-Parte **C:** `docs/04-tareas/101-PedidosWeb/` — TR por slice.
+Parte **C:** cerrada (2026-06-01) — [TR por slice](../../04-tareas/101-PedidosWeb/README.md).  
+Parte **D:** implementación según orden Fase 1 del índice TR.

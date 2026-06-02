@@ -91,12 +91,18 @@ Procedimientos ERP: `pw_cargapedidos`, `pw_presupuestosingresados`, `pw_pedidosi
 | GET | `/api/v1/comprobantes/{id}` | `Permiso_Repo` + `visibleClientsForUser` + perfil §7.3 | TR-GEN-02-visibilidad-datos-pedidosweb |
 | GET | `/api/v1/dashboard/resumen` | `Permiso_Repo` + `visibleClientsForUser` + perfil §7.3 | TR-GEN-02-visibilidad-datos-pedidosweb |
 
-## Negocio (placeholder — completar en TR SPEC-101)
+## Negocio PedidosWeb (SPEC-101 — detalle en cada TR)
 
 | Método | Path | Permiso / regla | TR origen |
 |--------|------|-----------------|-----------|
-| * | `/api/v1/pedidos/*` | Según operación: Repo/Alta/Modi/Baja | TR-GEN-02-politicas-endpoints |
-| * | `/api/v1/presupuestos/*` | Según operación | TR-GEN-02-politicas-endpoints |
+| POST/PUT/GET/DELETE | `/api/v1/pedidos/*` | Menú **`pw_cargapedidos`** + visibilidad | TR-SPEC-101-05-controllers-rest |
+| POST/PUT/GET | `/api/v1/presupuestos/*` | **`pw_cargapedidos`** — **sin** DELETE | TR-SPEC-101-05-controllers-rest |
+| POST | `/api/v1/presupuestos/{id}/cerrar`, `/convertir` | **`pw_cargapedidos`** | TR-SPEC-101-05-controllers-rest |
+| POST | `/api/v1/comprobantes/grabar`, `/copiar` | **`pw_cargapedidos`** | TR-SPEC-101-05-controllers-rest |
+| POST | `/api/v1/pedidos/{id}/edicion/*` | **`pw_cargapedidos`** | TR-SPEC-101-05-controllers-rest |
+| GET | `/api/v1/consultas/*` | `Permiso_Repo` + visibilidad | TR-SPEC-101-07-consultas-api |
+| GET | `/api/v1/dashboard/operativo` | `Permiso_Repo` + visibilidad | TR-SPEC-101-14-dashboard |
+| GET | `/api/v1/integracion/logs` | `Permiso_Repo` (supervisor/soporte) | TR-SPEC-101-08-logs-integracion |
 
 ## Checklist de mantenimiento
 

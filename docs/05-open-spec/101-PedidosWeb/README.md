@@ -3,7 +3,7 @@
 **SPEC madre:** [PedidosWeb_SPEC_MVP.md](PedidosWeb_SPEC_MVP.md)  
 **Producto:** `docs/02-producto/PedidosWeb/`  
 **HU (parte B):** `docs/03-historias-usuario/101-PedidosWeb/` (a generar)  
-**TR (parte C):** `docs/04-tareas/101-PedidosWeb/` (a generar)
+**TR (parte C):** [docs/04-tareas/101-PedidosWeb/](../../04-tareas/101-PedidosWeb/README.md) — **15 TR** (2026-06-01)
 
 ## Revisión A1
 
