@@ -8,7 +8,7 @@
 | **Prioridad** | Must |
 | **Dependencias** | TR-SPEC-101-06-seguridad-visibilidad; TR-SPEC-101-07-consultas-api (queries coherentes); parámetro `MinutosWeb` (SPEC-001-04); reemplaza demo `GET /api/v1/dashboard/resumen` (GEN-02) |
 | **Estado** | Pendiente |
-| **Última actualización** | 2026-06-01 |
+| **Última actualización** | 2026-06-02 |
 
 **Origen:** [HU-101-025-dashboard](../../03-historias-usuario/101-PedidosWeb/HU-101-025-dashboard.md)  
 **Referencia SPEC:** [SPEC-101-14-dashboard](../../05-open-spec/101-PedidosWeb/SPEC-101-14-dashboard.md), [PedidosWeb_SPEC_MVP.md §4.1](../../05-open-spec/101-PedidosWeb/PedidosWeb_SPEC_MVP.md)  
@@ -51,7 +51,7 @@ Como **usuario comercial**, quiero **ver KPIs al entrar al dashboard**, para **m
   `fechahora_ultima_actividad + MinutosWeb >= fechahora_actual`  
   (modificación -1 activa; alineado HU-101-011). Estado **0** siempre cuenta.
 - **AC-05:** Presupuestos activos = solo **99** (excluye **98**).
-- **AC-06:** Top clientes: si empate, desempate por `cod_client` ascendente (cerrar en D1 si producto define otro criterio).
+- **AC-06:** Top clientes (indicadores 7 y 8): si empate en el métrico principal, desempate por **`razonSocial` ascendente (A–Z)**; si persiste empate, por `cod_client` ascendente.
 - **AC-07:** E2E flujo §9 paso 8 — dashboard verde con datos del flujo.
 - **AC-08:** Feature test `GET` dashboard + 401/403.
 

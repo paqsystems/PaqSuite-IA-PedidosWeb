@@ -372,7 +372,7 @@ DiasVentasDetalladas : Cuántos días anteriores de venta trae desde el ERP
 FechaControl : Fecha-hora que se usa para controlar la edición de pedidos durante la bajada al ERP
 ListaPrecios : Lista de precios por defecto cuando el cliente no tiene ninguna
 Mail_DireccionRemitente : la dirección del remitente con que deben salir los mails.
-MailDestinatariosAdicionales : lista de mails adicionales al notificar grabación/modificación de comprobante (puede ser más de uno; separador `;` o `,`)
+MailDestinatariosAdicionales : lista de mails adicionales al notificar grabación/modificación de comprobante (puede ser más de uno; separador canónico `;`; parser tolerante `,` en runtime)
 mailCCO : mails que deben salir como copia oculta en envíos del sistema (puede ser más de uno)
 MinutosAviso : (para uso ERP)
 MinutosBloqueo : (para uso ERP)

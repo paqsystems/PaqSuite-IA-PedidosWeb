@@ -97,7 +97,7 @@ Procedimientos ERP: `pw_cargapedidos`, `pw_presupuestosingresados`, `pw_pedidosi
 |--------|------|-----------------|-----------|
 | POST/PUT/GET/DELETE | `/api/v1/pedidos/*` | Menú **`pw_cargapedidos`** + visibilidad | TR-SPEC-101-05-controllers-rest |
 | POST/PUT/GET | `/api/v1/presupuestos/*` | **`pw_cargapedidos`** — **sin** DELETE | TR-SPEC-101-05-controllers-rest |
-| POST | `/api/v1/presupuestos/{id}/cerrar`, `/convertir` | **`pw_cargapedidos`** | TR-SPEC-101-05-controllers-rest |
+| POST | `/api/v1/presupuestos/{id}/cerrar` | **`pw_cargapedidos`** | TR-SPEC-101-05-controllers-rest |
 | POST | `/api/v1/comprobantes/grabar`, `/copiar` | **`pw_cargapedidos`** | TR-SPEC-101-05-controllers-rest |
 | POST | `/api/v1/pedidos/{id}/edicion/*` | **`pw_cargapedidos`** | TR-SPEC-101-05-controllers-rest |
 | GET | `/api/v1/consultas/*` | `Permiso_Repo` + visibilidad | TR-SPEC-101-07-consultas-api |

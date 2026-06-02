@@ -13,14 +13,18 @@ Envío de mail al crear/modificar pedido o presupuesto usando el **mismo canal**
 ## In scope
 
 - Disparo post-grabación y post-modificación (producto §18)
-- Texto simple; detalle según parámetro `DetallePorMail` (contexto SPEC-001-04)
+- Plantillas **i18n** según locale de sesión; asunto `{nombreEmpresa} - {tipo} {accion}`
+- Cabecera completa en todo mail (13 campos §3.2 TR); tabla de renglones (7 columnas) solo si `DetallePorMail` activo; pie **solo texto fijo i18n** (`footerConsulta`)
+- Redacción mail en **es, en, fr, pt, it** (locales del portal)
 - **Destinatarios TO** (HU-101-019, cerrado):
-  1. `clientes.e_mail` del comprobante.
-  2. `vendedores.e_mail` del `clientes.cod_vended`.
-  3. `vendedores.mail_supervisor` del mismo vendedor, si informado y ≠ `e_mail` del vendedor.
-  4. Lista `MailDestinatariosAdicionales` (parámetro ERP).
+  1. `pq_pedidosweb_clientes.e_mail` del `pq_pedidosweb_pedidoscabecera.cod_cliente` del comprobante.
+  2. `pq_pedidosweb_vendedores.e_mail` del `pq_pedidosweb_clientes.cod_vended`.
+  3. `pq_pedidosweb_vendedores.mail_supervisor` del mismo vendedor, si informado y ≠ `e_mail` del vendedor.
+  4. Lista `MailDestinatariosAdicionales` — separador canónico **`;`** (parser tolerante `,`).
   - Deduplicar direcciones (normalizar mayúsculas/minúsculas).
-- Log de error de envío (no bloquear grabación salvo que HU diga lo contrario)
+- `nombreEmpresa`: tenant slug (MVP) o `EMPRESAS_CONEXION` (etapa posterior)
+- Log de error de envío (no bloquear grabación)
+- Toast informativo en UI si grabación OK y mail no enviado (TR-101-13 §6)
 
 ## Fuera de scope
 
@@ -36,7 +40,12 @@ Envío de mail al crear/modificar pedido o presupuesto usando el **mismo canal**
 
 HU-101-019
 
+## TR de implementación
+
+Detalle normativo: [TR-SPEC-101-13-mails](../../04-tareas/101-PedidosWeb/TR-SPEC-101-13-mails.md) (mapeo campos §3.2, formatos §3.4).
+
 ## Definición de listo
 
 - [ ] Test integración o feature con mail fake/log
 - [ ] Sin secretos en repo
+- [ ] Plantillas alineadas a legacy (asunto, intro con `guidSufijo`, cabecera, detalle condicional)

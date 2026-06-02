@@ -45,6 +45,7 @@ para **operar según la matriz de transiciones del producto §10.1 sin pantallas
 - **AC-09:** Identificación visual pedido vs presupuesto (tonalidad/label i18n).
 - **AC-10:** E2E camino feliz §9 SPEC madre: carga + grabar pedido 0.
 - **AC-11:** `data-testid` en botones y controles críticos (tabla §6).
+- **AC-12:** Si `resultado.mailEnviado === false` tras grabación OK, toast informativo i18n (TR-101-13 §6); `data-testid` `toast-mail-envio-fallido`.
 
 ### Escenarios Gherkin
 
@@ -154,11 +155,10 @@ Leídos en runtime (SPEC-001-04) según `functionalProfile`:
 | PUT | `/api/v1/pedidos/{cod}` | `Permiso_Modi` | T3 |
 | POST | `/api/v1/presupuestos` | `Permiso_Alta` | T2, T4, T5 |
 | PUT | `/api/v1/presupuestos/{cod}` | `Permiso_Modi` | T4 |
-| POST | `/api/v1/comprobantes/{cod}/copiar` | `Permiso_Alta` | HU-101-026 |
-| POST | `/api/v1/presupuestos/{cod}/convertir-a-pedido` | `Permiso_Modi` | Alternativa explícita T6 si no solo botón |
-| POST | `/api/v1/pedidos/{cod}/convertir-a-presupuesto` | `Permiso_Modi` | Alternativa T5 |
+| POST | `/api/v1/comprobantes/copiar` | `Permiso_Alta` | HU-101-026 — borrador sin persistir (TR-101-05) |
+| POST | `/api/v1/comprobantes/grabar` | `Permiso_Alta` / `Modi` | T1–T6 — **canónico** grabación y conversiones (TR-101-05) |
 
-*Nota:* T5/T6 pueden resolverse con `POST/PUT` + campo `accionGrabado: pedido|presupuesto` en body unificado — **cerrar en implementación** una sola convención y documentar en OpenAPI.
+*Nota:* Los botones «Grabar pedido» / «Grabar presupuesto» y las conversiones T5/T6 invocan **`POST /api/v1/comprobantes/grabar`** con `accionGrabacion` y `cod_*_origen`. **No** usar rutas `.../convertir-a-*` en MVP.
 
 ### 5.2 Detalle por operación
 
@@ -257,28 +257,27 @@ Mapeo interno desde `ModificaPrecioV/S`, `ModificaBonArtV/S`, `ModificaBonCliV/S
 
 ---
 
-#### POST `/api/v1/comprobantes/{cod}/copiar`
+#### POST `/api/v1/comprobantes/copiar`
 
-**Autorización:** `Permiso_Alta` + comprobante visible
+**Autorización:** `Permiso_Alta` + comprobante origen visible
 
 **Request:**
 
 ```json
 {
+  "codComprobanteOrigen": "guid-origen",
   "tipoDestino": "pedido",
   "codCliente": "CLI001"
 }
 ```
 
-**Response 200:** payload listo para pantalla (cabecera/renglones sin persistir) o `codComprobante` borrador según diseño — **preferencia MVP:** devolver DTO precargado en `resultado.borrador` sin persistir hasta grabar.
+**Response 200:** `resultado.borrador` (cabecera, renglones, `tipoComprobante`, `codComprobanteOrigen`) **sin persistir** hasta `POST /api/v1/comprobantes/grabar` (cerrado D1 2026-06-02; HU-101-026).
 
 ---
 
-#### POST `/api/v1/presupuestos/{cod}/convertir-a-pedido` (opcional si no unificado)
+#### POST `/api/v1/comprobantes/grabar` (grabación / conversión desde pantalla)
 
-**Autorización:** `Permiso_Modi`; presupuesto **99**
-
-Equivalente a T6 con motivo `CodMotivoCierreExitoso`.
+Ver contrato canónico en [TR-SPEC-101-05-controllers-rest](TR-SPEC-101-05-controllers-rest.md) §5.2. La pantalla envía cabecera + renglones + `accionGrabacion` + orígenes T5/T6.
 
 ### 5.3 OpenAPI y matriz
 
@@ -294,6 +293,7 @@ Equivalente a T6 con motivo `CodMotivoCierreExitoso`.
 - `PedidosCargaPage.tsx` — layout único: toolbar botones, form cabecera DevExtreme, grid renglones (`DataGrid` o editor acordado), panel totales.
 - Hooks: `useParametrosCarga`, `useComprobante`, `useGrabarComprobante`.
 - Integración i18n: `pedidos.carga.*`, botones, validaciones.
+- Post-grabación: si `mailEnviado === false`, toast informativo (ver TR-101-13 §6).
 
 ### data-testid sugeridos
 
@@ -309,6 +309,7 @@ Equivalente a T6 con motivo `CodMotivoCierreExitoso`.
 | Campo bonificación renglón | `renglon-bonificacion` |
 | Lista precios cabecera | `cabecera-lista-precios` |
 | Confirmación post-grabación | `dialog-confirmacion-grabar` |
+| Toast fallo envío mail | `toast-mail-envio-fallido` |
 | Contenedor página | `page-pedidos-carga` |
 
 Usar `elementAttr` / `inputAttr` DevExtreme; no acoplar tests al DOM interno DX.
@@ -338,7 +339,7 @@ Usar `elementAttr` / `inputAttr` DevExtreme; no acoplar tests al DOM interno DX.
 
 ## 9) Riesgos y Edge Cases
 
-- **R1:** Doble convención API (acción en body vs endpoints `/convertir-*`) — cerrar en T1 backend.
+- **R1:** Convención API única: `comprobantes/grabar` + `comprobantes/copiar` (TR-101-05; cerrado D1 2026-06-02).
 - **R2:** SPEC-001-04 pendiente — stub parametros con defaults documentados.
 - **R3:** Estado `-1` bloqueado por ERP — UI debe mostrar mensaje y deshabilitar grabación.
 - **R4:** T5 tratamiento pedido origen — alinear con HU-101-024 en service (no dejar pedido 0 editable).

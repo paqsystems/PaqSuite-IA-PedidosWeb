@@ -23,9 +23,9 @@ para **agilizar cargas repetitivas**.
 
 ## Criterios de aceptación
 
-- [ ] **CA-01:** Acción “Copiar” desde consulta o carga abre pantalla con datos precargados.
+- [ ] **CA-01:** Acción «Copiar» llama `POST /api/v1/comprobantes/copiar` y abre pantalla con `resultado.borrador` **sin persistir** en BD.
 - [ ] **CA-02:** Usuario puede cambiar tipo pedido/presupuesto antes de grabar si el flujo lo permite.
-- [ ] **CA-03:** Grabar copia persiste como comprobante nuevo independiente.
+- [ ] **CA-03:** Grabar copia invoca `POST /api/v1/comprobantes/grabar` y persiste como comprobante nuevo independiente (nuevo GUID / número visible).
 
 ## Veredicto B1
 

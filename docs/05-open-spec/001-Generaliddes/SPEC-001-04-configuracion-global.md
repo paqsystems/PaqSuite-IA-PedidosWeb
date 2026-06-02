@@ -44,7 +44,7 @@ Implementable en MVP (lectura y uso de parámetros; **sin** ABM web de parámetr
 | `MinutosWeb` | Expiración sesión (GEN-02) y ventana de pedido en **-1** desde `fechahora_ultima_actividad` (HU-101-011) |
 | `MinutosBloqueo`, `MinutosAviso` | Concurrencia edición vs descarga ERP |
 | `DetallePorMail` | Mail al grabar comprobante |
-| `MailDestinatariosAdicionales` | Destinatarios extra (lista) en mail al grabar/modificar — HU-101-019 |
+| `MailDestinatariosAdicionales` | Destinatarios extra en mail — lista separada por **`;`** (parser tolerante `,`) — HU-101-019 / TR-101-13 |
 | `Mail_DireccionRemitente` | Remitente mails comerciales |
 | `mailCCO` | CCO global opcional en envíos |
 | `CargaRecurrente` | Flujo post-grabación pedido/presupuesto |

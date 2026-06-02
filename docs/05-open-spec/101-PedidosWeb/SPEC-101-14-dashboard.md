@@ -14,7 +14,7 @@ Ocho indicadores §4.1 del SPEC madre; reemplazar/extender `GET /dashboard/resum
 
 - Q/$ presupuestos activos (99)
 - Q/$ pedidos ingresados y pendientes (0/1) con regla **-1** abajo
-- Top cliente por $ presupuestos activos y por $ pedidos ingresados
+- Top cliente por $ presupuestos activos y por $ pedidos ingresados; desempate por **razón social** A–Z (luego `cod_client` si persiste empate)
 - Visibilidad por perfil
 - Una moneda por tenant
 

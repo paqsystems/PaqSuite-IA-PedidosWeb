@@ -30,7 +30,8 @@ Incluir estados **0** y **-1**, **excluyendo** comprobantes donde
 - [ ] **CA-02:** Coherentes con consultas para mismo usuario.
 - [ ] **CA-03:** Un solo símbolo moneda por tenant.
 - [ ] **CA-04:** E2E §9 paso dashboard verde.
+- [ ] **CA-05:** Top clientes (indicadores 7 y 8): empate en métrico → desempate por **razón social** A–Z (TR-101-14 AC-06).
 
 ## Veredicto B1
 
-**Lista para TR** (SPEC-101-14).
+**Lista para TR** (SPEC-101-14). Desempate top clientes cerrado en TR (2026-06-02).
