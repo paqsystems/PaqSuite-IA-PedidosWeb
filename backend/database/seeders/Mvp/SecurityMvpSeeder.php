@@ -69,13 +69,23 @@ final class SecurityMvpSeeder extends Seeder
             return;
         }
 
-        if ($userSeed['codLogin'] === null || $userSeed['commercialTable'] === null) {
+        if ($userSeed['codLogin'] === null) {
             return;
         }
 
         $this->pedidoswebReferenceBootstrap->ensureMvpReferences();
 
         $codLogin = (string) $userSeed['codLogin'];
+
+        if (! empty($userSeed['commercialDualLink'])) {
+            $this->syncDualCommercialLink($user, $userSeed, $codLogin);
+
+            return;
+        }
+
+        if ($userSeed['commercialTable'] === null) {
+            return;
+        }
 
         $this->seedUpsertService->upsertByNaturalKey(
             new \App\Models\PqPedidoswebLogin(),
@@ -116,6 +126,53 @@ final class SecurityMvpSeeder extends Seeder
                 'nombre' => $userSeed['name'],
                 'cod_login' => $codLogin,
                 'supervisor' => (bool) $userSeed['supervisor'],
+            ],
+            ['nombre', 'cod_login', 'supervisor'],
+        );
+    }
+
+    /**
+     * Cliente y vendedor con el mismo cod_login (caso negativo login).
+     *
+     * @param  array<string, mixed>  $userSeed
+     */
+    private function syncDualCommercialLink(User $user, array $userSeed, string $codLogin): void
+    {
+        $this->seedUpsertService->upsertByNaturalKey(
+            new \App\Models\PqPedidoswebLogin(),
+            ['usuario' => $user->codigo],
+            [
+                'cod_usuario_web' => $codLogin,
+                'password_bcrypt' => $user->password_hash,
+                'primer_login' => (bool) $userSeed['firstLogin'],
+                'tipo_cuenta' => 'V',
+                'cod_asociado' => $codLogin,
+                'e_mail' => $userSeed['email'],
+            ],
+            ['cod_usuario_web', 'tipo_cuenta', 'cod_asociado', 'e_mail', 'primer_login'],
+        );
+
+        $this->seedUpsertService->upsertByNaturalKey(
+            new \App\Models\PqPedidoswebCliente(),
+            ['cod_client' => $codLogin],
+            [
+                'nombre' => $userSeed['name'],
+                'cod_login' => $codLogin,
+                'lista_precios' => 1,
+                'cod_condvta' => 1,
+                'bonificacion' => 0,
+                'nivel' => 0,
+            ],
+            ['nombre', 'cod_login'],
+        );
+
+        $this->seedUpsertService->upsertByNaturalKey(
+            new \App\Models\PqPedidoswebVendedor(),
+            ['cod_vended' => $codLogin],
+            [
+                'nombre' => $userSeed['name'],
+                'cod_login' => $codLogin,
+                'supervisor' => false,
             ],
             ['nombre', 'cod_login', 'supervisor'],
         );

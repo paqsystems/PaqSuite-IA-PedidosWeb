@@ -230,7 +230,7 @@ Estados principales:
 
 | Estado | Significado |
 |---:|---|
-| -1 | Pedido en proceso de modificación para evitar su descarga durante el proceso |
+| -1 | Pedido **en modificación en el portal** (evita descarga al ERP mientras dure). Si hay interrupción (cierre de sesión, corte de red), la ventana de recuperación se calcula con **`fechahora_ultima_actividad` + `MinutosWeb`** (§21), no con la hora de inicio del proceso. |
 | 0 | Pedido ingresado en web, aún no descargado al ERP |
 | 1 | Pedido pendiente en ERP, ya descargado |
 | 2 | Pedido cerrado/cumplido en ERP |
@@ -243,21 +243,38 @@ Al **cerrar o rechazar** un **presupuesto** (estado 99), el comprobante pasa a *
 
 ## 10. Carga de pedidos y presupuestos
 
-La pantalla de carga debe ser única para pedido y presupuesto. Cambia el estado final y puede variar tonalidad/identificación visual.
+La pantalla de carga debe ser **única** para pedido y presupuesto: **mismo proceso transaccional**, misma cabecera/renglones; cambia el **estado final** según el botón elegido y puede variar tonalidad/identificación visual.
 
-### 10.1 Inicio del proceso
+### 10.1 Pantalla única y botones de grabación
 
-Casos:
+Botones visibles en la misma pantalla (además de **Cancelar**):
 
-- Nuevo pedido.
-- Nuevo presupuesto.
-- Edición de pedido ingresado.
-- Edición de presupuesto ingresado.
-- Conversión presupuesto a pedido.
-- Conversión pedido a presupuesto.
-- Copia de comprobante anterior.
+- **Grabar pedido** → persiste o genera comprobante en **estado 0**.
+- **Grabar presupuesto** → persiste o genera comprobante en **estado 99**.
 
-### 10.2 Selección de cliente
+Combinaciones operativas soportadas en **una sola pantalla**:
+
+| Situación de partida | Acción del usuario | Resultado |
+|----------------------|-------------------|-----------|
+| Alta nueva | Grabar pedido | Pedido **0** (nuevo código). |
+| Alta nueva | Grabar presupuesto | Presupuesto **99** (nuevo código). |
+| Pedido **0** en edición | Grabar pedido | Pedido **0** actualizado (mismo código). |
+| Presupuesto **99** en edición | Grabar presupuesto | Presupuesto **99** actualizado (mismo código). |
+| Pedido **0** en edición | Grabar presupuesto | Presupuesto **99** nuevo; pedido origen deja de ser operable como ingresado (§15.2). |
+| Presupuesto **99** en edición | Grabar pedido | Pedido **0** nuevo; presupuesto origen pasa a **98** + cierre (§15.1). |
+
+Las conversiones **no** requieren pantalla aparte: se disparan con el botón correspondiente desde la carga/edición.
+
+### 10.2 Casos de entrada
+
+Casos de entrada a la pantalla (todos comparten UI):
+
+- Nuevo pedido / nuevo presupuesto.
+- Edición de pedido ingresado (**0** / **-1** según §21).
+- Edición de presupuesto ingresado (**99**).
+- Apertura desde consulta, conversión implícita vía botones §10.1 o **copia** de comprobante anterior.
+
+### 10.3 Selección de cliente
 
 - Cliente: no elige; se usa su propio cliente.
 - Vendedor no supervisor: elige solo entre clientes asignados.
@@ -265,7 +282,7 @@ Casos:
 
 Al elegir cliente se inicializan datos de cabecera.
 
-### 10.3 Cabecera
+### 10.4 Cabecera
 
 Campos principales:
 
@@ -291,7 +308,7 @@ Campos principales:
 - Observaciones.
 - Fecha de entrega opcional.
 
-### 10.4 Inicialización de cabecera desde cliente
+### 10.5 Inicialización de cabecera desde cliente
 
 Al seleccionar cliente:
 
@@ -310,7 +327,7 @@ Al seleccionar cliente:
 - Observaciones = vacío.
 - Perfil = parámetro CodPerfilPedidos.
 
-### 10.5 Permisos de edición por atributo
+### 10.7 Permisos de edición por atributo
 
 La edición de cabecera y renglones depende de parámetros generales por tipo de usuario:
 
@@ -346,6 +363,7 @@ ClienteLeyenda4 : si inicializa la leyenda 1 con la leyenda 1 del cliente
 ClienteLeyenda5 : si inicializa la leyenda 1 con la leyenda 1 del cliente
 ClientesInhabilitados : si procesa clientes inhabilitados o no
 CodClasifArticulos : si limita la carga de artículos a sólo los de esa clasificación
+CodMotivoCierreExitoso : id_motivo (catálogo pq_pedidosweb_motivos_cierre, tipo positivo) aplicado al convertir presupuesto a pedido sin pedir motivo en pantalla
 CodPerfilPedidos : cuál es el perfil de pedidos por defecto
 CodTransporte : código de transporte por defecto si el cliente no tiene transporte
 DetallePorMail : Si en la impresión del mail muestra el detalle o no
@@ -354,10 +372,11 @@ DiasVentasDetalladas : Cuántos días anteriores de venta trae desde el ERP
 FechaControl : Fecha-hora que se usa para controlar la edición de pedidos durante la bajada al ERP
 ListaPrecios : Lista de precios por defecto cuando el cliente no tiene ninguna
 Mail_DireccionRemitente : la dirección del remitente con que deben salir los mails.
-mailCCO : mails que deben salir como copia oculta (puede ser más de uno)
+MailDestinatariosAdicionales : lista de mails adicionales al notificar grabación/modificación de comprobante (puede ser más de uno; separador `;` o `,`)
+mailCCO : mails que deben salir como copia oculta en envíos del sistema (puede ser más de uno)
 MinutosAviso : (para uso ERP)
 MinutosBloqueo : (para uso ERP)
-MinutosWeb : (para uso ERP)
+MinutosWeb : minutos de **inactividad admitidos** durante una modificación de pedido en estado **-1** (ventana desde `fechahora_ultima_actividad`; §21). El mismo parámetro alimenta la **expiración de sesión web** por inactividad (MONO / GEN-02).
 ModificaBonArtS : si el vendedor supervisor puede modificar el descuento del artículo
 ModificaBonArtV : si el vendedor común puede modificar el descuento del artículo
 ModificaBonCliS : : si el vendedor supervisor puede modificar el descuento del cliente
@@ -512,10 +531,10 @@ Al grabar:
 
 Al convertir un presupuesto a pedido:
 
-- Si se mantienen todos los renglones y cantidades, el cierre es positivo total.
-- Si se quitan renglones o se reducen cantidades, el cierre es parcialmente positivo y requiere clasificación.
 - El **presupuesto original** pasa a **estado 98** (cerrado) con registro en `pq_pedidosweb_presupuestos_cierres`.
-- El nuevo comprobante queda como pedido estado 0.
+- El **`id_motivo`** del cierre exitoso se toma del parámetro **`CodMotivoCierreExitoso`** (catálogo `pq_pedidosweb_motivos_cierre`, tipo positivo); el portal no solicita motivo en este flujo (MVP: sin cierre parcial).
+- El nuevo comprobante queda como pedido estado **0** con **`cod_presupuesto_origen`** en cabecera.
+- En **`pq_pedidosweb_presupuestos_cierres`**: `cod_presupuesto` del origen y **`cod_pedido_generado`** del pedido nuevo (trazabilidad bidireccional; §15.4).
 
 ### 15.2 Pedido a presupuesto
 
@@ -524,6 +543,15 @@ Debe permitirse mientras el pedido no haya sido descargado al ERP.
 ### 15.3 Rechazo / cierre negativo de presupuesto
 
 Al rechazar un presupuesto ingresado (estado 99), debe solicitar **motivo negativo** de cierre. El comprobante pasa a **estado 98** y se registra en `pq_pedidosweb_presupuestos_cierres`. No se elimina físicamente de cabecera y detalle.
+
+### 15.4 Trazabilidad presupuesto ↔ pedido (MVP)
+
+Al convertir presupuesto **99 → pedido 0** con presupuesto cerrado en **98**:
+
+1. **`pq_pedidosweb_presupuestos_cierres`**: `cod_presupuesto`, `cod_pedido_generado`, motivo y tipo de cierre.
+2. **Cabecera del pedido nuevo**: campo **`cod_presupuesto_origen`** (código del presupuesto cerrado).
+
+**No** se requiere tabla de relación adicional en MVP: `presupuestos_cierres` es el registro formal del vínculo; la cabecera del pedido permite consulta directa.
 
 ## 16. Tratativas de presupuestos
 
@@ -641,12 +669,15 @@ MVP:
 - Plantilla editable por empresa en etapa posterior; si no hay pantalla web, puede quedar en base/configuración.
 - Con o sin detalle según parámetro 'DetallePorMail'.
 
-Destinatarios:
+Destinatarios (TO al grabar o modificar):
 
-- Cliente.
-- Vendedor asignado.
-- Vendedor que cargó el comprobante si es distinto.
-- Copias definidas en parámetros generales.
+- **Cliente** (`clientes.e_mail`).
+- **Vendedor del cliente** (`vendedores.e_mail` según `clientes.cod_vended`).
+- **Supervisor** (`vendedores.mail_supervisor` del mismo vendedor), solo si es distinto del mail del vendedor del cliente.
+- **Todos** los declarados en **`MailDestinatariosAdicionales`**.
+- Sin duplicar la misma dirección entre fuentes.
+
+`mailCCO` aplica como copia oculta global del canal, no sustituye la lista anterior.
 
 ## 19. Dashboard básico
 
@@ -682,11 +713,13 @@ Para evitar edición/eliminación mientras se descarga al ERP:
 1. El proceso ERP informa fecha/hora de inicio en parámetro de control.
 2. Solo descarga registros estado 0.
 3. Antes de editar/eliminar, el portal verifica que no haya descarga activa dentro del margen definido por MinutosBloqueo + MinutosAviso.
-4. Si permite editar, puede marcar temporalmente el pedido en estado -1.
-5. Al finalizar o cancelar la edición, vuelve al estado correcto.
-6. Si la descarga ERP termina, limpia el parámetro de control.
+4. Si permite editar, marca el pedido en estado **-1** y registra **`fechahora_inicio_proceso`** (auditoría de cuándo comenzó la sesión de edición).
+5. En cada interacción relevante durante la edición (guardado parcial, cambio de renglón, heartbeat acordado en TR), actualizar **`fechahora_ultima_actividad`**.
+6. **Ventana de bloqueo / recuperación:** mientras `fechahora_ultima_actividad + MinutosWeb >= fechahora_actual`, el pedido en **-1** se considera **en modificación activa** (otro usuario no debe tomarlo; puede excluirse de KPI — §19). Si la suma es **menor** que ahora, la modificación se considera **interrumpida/vencida** y otro usuario **puede** retomar la edición (HU-101-011).
+7. Al confirmar grabación o **Cancelar**, volver a **0** (si sigue ingresado) y limpiar marcas de modificación según TR.
+8. Si la descarga ERP termina, limpia el parámetro de control.
 
-Se recomienda agregar fecha/hora de inicio de modificación por pedido para robustez futura.
+**No** usar `fechahora_inicio_proceso` para decidir si el bloqueo sigue vigente; solo **`fechahora_ultima_actividad`**.
 
 ## 22. Auditoría liviana
 

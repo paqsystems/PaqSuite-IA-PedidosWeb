@@ -109,6 +109,35 @@ final class AuthLoginTest extends TestCase
             ->assertJsonPath('respuesta', 'auth.noCommercialProfile');
     }
 
+    public function testLoginWithAmbiguousCommercialProfileReturns403(): void
+    {
+        $response = $this->postJson('/api/v1/auth/login', [
+            'codigo' => 'usuario.perfilAmbiguo.mvp',
+            'password' => $this->seedPassword,
+        ], $this->tenantHeaders());
+
+        $response->assertForbidden()
+            ->assertJsonPath('respuesta', 'auth.noCommercialProfile');
+    }
+
+    public function testLoginSuccessLoadsMenuForCliente(): void
+    {
+        $loginResponse = $this->postJson('/api/v1/auth/login', [
+            'codigo' => 'cliente.mvp',
+            'password' => $this->seedPassword,
+        ], $this->tenantHeaders());
+
+        $loginResponse->assertOk();
+        $token = $loginResponse->json('resultado.token');
+
+        $this->getJson('/api/v1/user/menu', array_merge($this->tenantHeaders(), [
+            'Authorization' => 'Bearer '.$token,
+        ]))
+            ->assertOk()
+            ->assertJsonPath('error', 0)
+            ->assertJsonStructure(['resultado' => [['id', 'menuKey', 'text']]]);
+    }
+
     public function testInvalidTenantReturns400(): void
     {
         $response = $this->postJson('/api/v1/auth/login', [

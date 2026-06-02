@@ -26,6 +26,7 @@ Procedimientos ERP: `pw_cargapedidos`, `pw_presupuestosingresados`, `pw_pedidosi
 | `supervisor.mvp` | Acceso total |
 | `usuario.sinPermiso.mvp` | 403 `auth.noPermission` |
 | `usuario.sinVinculo.mvp` | 403 `auth.noCommercialProfile` |
+| `usuario.perfilAmbiguo.mvp` | 403 `auth.noCommercialProfile` (cliente + vendedor mismo `cod_login`) |
 | `vendedor.sinMenu.mvp` | Login OK, menú vacío |
 | `primerIngreso.mvp` | Gate `firstLogin` + cambio obligatorio |
 | `cambioClave.mvp` | Cambio voluntario + login post-cambio |

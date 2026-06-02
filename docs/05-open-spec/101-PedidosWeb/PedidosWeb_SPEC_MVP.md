@@ -5,10 +5,13 @@
 | **ID** | SPEC-101-PedidosWeb-MVP |
 | **Título** | SPEC MVP PedidosWeb |
 | **Épica / carpeta** | `101-PedidosWeb` |
-| **Estado** | Pendiente |
-| **Última actualización** | 2026-05-28 |
-| **HU relacionadas** | Ver §8 y §8.1 |
-| **TR relacionadas** | A definir por cada `SPEC-101-xx` |
+| **Estado** | B1 cerrado — **listo parte C** (TR) |
+| **HU** | [docs/03-historias-usuario/101-PedidosWeb/](../../03-historias-usuario/101-PedidosWeb/README.md) — 27 HU |
+| **Revisión A1** | **Apto** (2026-06-01; decisiones §14.3) |
+| **Última actualización** | 2026-06-01 |
+| **Índice slices** | [README.md](README.md) — `SPEC-101-01` … `SPEC-101-15` |
+| **HU relacionadas** | Ver §8 y §8.1 (a generar en `docs/03-historias-usuario/101-PedidosWeb/`) |
+| **TR relacionadas** | A definir por cada slice en `docs/04-tareas/101-PedidosWeb/` |
 | **Fuentes** | `docs/02-producto/PedidosWeb/PedidosWeb_Definicion_Conceptual_Final_OpenSpec.md`, `PedidosWeb_Modelo_Datos_Final.md`, `PedidosWeb_Plan_Cursor_OpenSpec_Final.md`, `docs/_base/00-inicio-arquitectura.md` |
 
 ## 1. Objetivo del SPEC
@@ -34,8 +37,8 @@ PedidosWeb es un portal comercial conectado al ERP (Tango), orientado a vendedor
 
 - cargar pedidos y presupuestos,
 - consultar información comercial,
-- registrar tratativas mínimas de presupuestos,
-- cerrar presupuestos con motivo.
+- registrar tratativas mínimas de presupuestos (**Should**, slice 101-12),
+- cerrar presupuestos con motivo (estado 98, sin eliminación física).
 
 No es un CRM completo.
 
@@ -74,22 +77,23 @@ Reglas de referencia:
 |------|--------|
 | Idioma/tema por defecto | Producto §8.1 (`es`, `generic.light`) + `SPEC-001-01` |
 | Menú MVP (11 ítems) | Producto §8 + permisos §7 + `SPEC-001-01` |
-| Tenancy / MONO | `SPEC-001-05` + este §3 |
+| Tenancy / MONO | `SPEC-001-05` + [SPEC-101-01](SPEC-101-01-backend-base.md) (**etapa posterior**, AMB-C07) |
 
 ## 4. Alcance funcional MVP
 
 Incluye:
 
-1. Login, recuperación de contraseña y expiración por inactividad.
-2. Carga/edición/eliminación de pedidos y presupuestos ingresados.
-3. Conversión presupuesto a pedido y pedido a presupuesto.
-4. Tratativas y cierre de presupuestos con motivo.
-5. Consultas: pedidos ingresados, presupuestos, pendientes, stock, deuda, cheques, historial.
-6. Envío de mail al grabar/modificar.
-7. Logs de integración.
-8. Dashboard con indicadores operativos (§4.1).
-9. Auditoría liviana.
-10. Tests unitarios, integración y E2E.
+1. Login, recuperación de contraseña y expiración por inactividad (heredado `SPEC-001-02`; verificar en 101-06).
+2. Carga/edición de pedidos y presupuestos; **eliminación física solo pedidos estado 0**; presupuestos **sin DELETE** (solo cierre 98).
+3. **Copiar comprobante** como base de uno nuevo (producto §10.1).
+4. Conversión presupuesto a pedido y pedido a presupuesto.
+5. Tratativas de presupuestos (**Should**, §8) y cierre con motivo / conversión → estado 98 (sin cierre parcial/positivo).
+6. Consultas: pedidos ingresados, presupuestos, pendientes, stock, deuda, cheques, historial; export **Excel** en MVP (PDF → `SPEC-001-06`).
+7. Envío de mail al grabar/modificar.
+8. Logs de integración (**Should**).
+9. Dashboard con indicadores operativos (§4.1).
+10. Auditoría liviana.
+11. Tests unitarios, integración y E2E.
 
 ### 4.1 Dashboard — primer release (Must)
 
@@ -99,8 +103,8 @@ Incluye:
 |-----------|------------|
 | Q presupuestos activos | Cantidad de comprobantes **estado 99** visibles al usuario. |
 | $ presupuestos activos | Suma de **totales** de esos presupuestos. |
-| Q pedidos ingresados | Cantidad de comprobantes **estado 0** (y **-1** si aplica control operativo visible). |
-| $ pedidos ingresados | Suma de totales de esos pedidos. |
+| Q pedidos ingresados | Cantidad de comprobantes **estado 0** y **-1** con regla de exclusión §4.1. |
+| $ pedidos ingresados | Suma de totales de esos mismos comprobantes. |
 | Q pedidos pendientes | Cantidad de comprobantes **estado 1**. |
 | $ pedidos pendientes | Suma de totales de esos pedidos. |
 | Cliente mayor monto presupuesto | Cliente con **mayor suma de totales** en presupuestos activos (estado 99) del universo visible. |
@@ -111,6 +115,7 @@ Reglas:
 - Respetar visibilidad por perfil (cliente / vendedor / supervisor) igual que consultas.
 - **Presupuesto activo** = solo **estado 99** (excluye **98** cerrados).
 - **Moneda:** una sola moneda por tenant en MVP; totales `$` suman importe de cabecera sin conversión.
+- **Pedidos ingresados (estado 0 y -1):** excluir del KPI si `fechahora_ultima_actividad + MinutosWeb >= fechahora_actual` (modificación **-1** activa; HU-101-011). Detalle: [SPEC-101-14-dashboard.md](SPEC-101-14-dashboard.md).
 
 **Excluye** en este release (conceptual §19, quedan para iteración posterior):
 
@@ -125,7 +130,9 @@ Reglas:
 |------|----------|
 | Número visible | Secuencial **único** para pedidos y presupuestos, **por tenant**. |
 | Tablas tratativas/cierre | `pq_pedidosweb_tratativas`, `pq_pedidosweb_tratativas_resultados`, `pq_pedidosweb_motivos_cierre`, `pq_pedidosweb_presupuestos_cierres`. |
-| Estado `-1` | Solo indica pedido **en modificación** para evitar descarga al ERP. |
+| Estado `-1` | Pedido **en modificación** (evita descarga ERP). Vigencia del bloqueo: **`fechahora_ultima_actividad` + `MinutosWeb`** (interrupciones §21 producto). |
+| Pantalla carga | **Única** pedido/presupuesto; botones **Grabar pedido** y **Grabar presupuesto** + Cancelar; 6 transiciones §10.1 producto. |
+| Trazabilidad presupuesto→pedido | **`presupuestos_cierres.cod_pedido_generado`** + **`cod_presupuesto_origen`** en cabecera pedido; **sin** tabla relación extra en MVP. |
 | IVA | Se **persiste en renglón y en cabecera**. |
 | Mail | Mismo canal que **"olvidé la contraseña"** del Login. |
 | Tenant desarrollo | `cliente = desarrollo` en middleware **y** fila `EMPRESAS_CONEXION`. |
@@ -135,6 +142,16 @@ Reglas:
 | Presupuesto cerrado | Pasa a **estado 98** + registro en `pq_pedidosweb_presupuestos_cierres`. |
 | Moneda por tenant | **Una sola moneda** por tenant en MVP (dashboard y totales). |
 | Codificación OpenSpec PedidosWeb | Slices, HU y TR: **`SPEC-101-xx`**, **`HU-101-xxx`**, **`TR-SPEC-101-xx`** (no `PW-SPEC-xx`). |
+| Eliminar presupuesto | **Prohibido** — solo cierre **98** + `presupuestos_cierres` (AMB-C03). |
+| Copiar comprobante | **In scope** MVP (AMB-C04). |
+| Cierre parcial/positivo | **No existe** en MVP; sin clasificación por renglones (AMB-C05). |
+| Tratativas | **Should** (AMB-C01). |
+| Logs integración | **Should** (AMB-C02). |
+| Export consultas PDF | **Fuera MVP** → futuro `SPEC-001-06-emision` (AMB-C08). |
+| Parámetros generales | Contexto **SPEC-001-04** dedicado — **pendiente** (AMB-C06). |
+| Precio y descuento (V/S) | **No** hardcodeados en portal: habilitación por **parámetros ERP** (`ModificaPrecioV/S`, `ModificaBonArtV/S`, `ModificaBonCliV/S`, etc. — producto §10.5–§10.6). Cliente (**C**) sin edición de precio/lista/descuento artículo. |
+| Motivo cierre exitoso | Parámetro ERP **`CodMotivoCierreExitoso`**: código/`id_motivo` en catálogo `pq_pedidosweb_motivos_cierre` al convertir presupuesto → pedido (HU-101-013). Rechazo sigue eligiendo motivo **negativo** en UI. |
+| `EMPRESAS_CONEXION` completo | **Etapa posterior** — [SPEC-101-01](SPEC-101-01-backend-base.md) (AMB-C07). |
 
 ### 5.1 Conversión pedido → presupuesto (Must)
 
@@ -158,12 +175,15 @@ Criterios (conceptual §17.4–17.6):
 
 ### 5.3 Cierre de presupuesto y estado 98 (Must)
 
-Al cerrar un presupuesto (conversión a pedido, cierre parcial/positivo o rechazo/cierre negativo con motivo):
+Al cerrar un presupuesto (**conversión a pedido** o **rechazo/cierre negativo con motivo** — sin cierre parcial/positivo):
 
 1. Actualizar cabecera del presupuesto a **estado 98** (presupuesto cerrado).
-2. Registrar el evento en **`pq_pedidosweb_presupuestos_cierres`** (tipo, motivo, pedido generado si aplica).
-3. Los indicadores de **presupuestos activos** (dashboard §4.1) cuentan solo **estado 99**.
-4. Consultas de presupuestos **activos** listan **estado 99**; consulta de **cerrados** (**estado 98**, conceptual §17.2.1) en grilla aparte (HU-101-016).
+2. Registrar el evento en **`pq_pedidosweb_presupuestos_cierres`** (tipo, motivo, pedido generado si aplica en conversión).
+3. **Conversión presupuesto → pedido (cierre exitoso):** el **`id_motivo`** se toma del parámetro ERP **`CodMotivoCierreExitoso`** (debe existir en `pq_pedidosweb_motivos_cierre` con `tipo_cierre = positivo` y `activo = 1`). El usuario **no** elige motivo en este flujo (AMB-C05).
+4. **Rechazo / cierre negativo:** el usuario elige motivo del catálogo con `tipo_cierre = negativo` (HU-101-027).
+5. Los indicadores de **presupuestos activos** (dashboard §4.1) cuentan solo **estado 99**.
+6. Consultas de presupuestos **activos** listan **estado 99**; consulta de **cerrados** (**estado 98**, conceptual §17.2.1) en grilla aparte (HU-101-016).
+7. **Trazabilidad** conversión: `cod_pedido_generado` en cierre + `cod_presupuesto_origen` en pedido nuevo (§15.4 producto).
 
 ## 6. Reglas de arquitectura
 
@@ -208,13 +228,15 @@ Observabilidad: `pq_pedidosweb_logs_integracion`.
 | Ítem | Prioridad | HU | Bloque |
 |------|-----------|-----|--------|
 | Login, recuperación, expiración | **Must** | HU-101-001, HU-101-002 | `SPEC-001-02`, `SPEC-101-06` |
-| Tenancy + `EMPRESAS_CONEXION` | **Must** | HU-101-003 | `SPEC-001-05`, `SPEC-101-01` |
+| Tenancy + `EMPRESAS_CONEXION` | **Etapa posterior** | HU-101-003 | `SPEC-001-05`, [SPEC-101-01](SPEC-101-01-backend-base.md) |
 | Configuración inicial Generaliddes | **Must** (antes) | HU-GEN-01…05 | `SPEC-001-01`…`05` |
 | Carga pedido/presupuesto | **Must** | HU-101-005–HU-101-010 | `SPEC-101-04`, `SPEC-101-10` |
 | Edición/eliminación ingresados | **Must** | HU-101-011, HU-101-012 | `SPEC-101-04`, `SPEC-101-05` |
 | Conversión presupuesto → pedido | **Must** | HU-101-013 | `SPEC-101-12` |
 | Conversión pedido → presupuesto | **Must** | HU-101-024 | `SPEC-101-04` |
-| Tratativas y cierre con motivo | **Should** | HU-101-014 + ampliar | `SPEC-101-12` |
+| Copiar comprobante | **Must** | HU-101-026 | `SPEC-101-04`, `SPEC-101-10` |
+| Tratativas presupuesto | **Should** | HU-101-014 | `SPEC-101-12` |
+| Cierre/rechazo → 98 (sin parcial) | **Must** | HU-101-027; conversión HU-101-013 | `SPEC-101-04`, `SPEC-101-12` |
 | Consultas pedidos/presupuestos/pendientes | **Must** | HU-101-015–HU-101-017 (HU-101-016: activos **99** y cerrados **98**) | `SPEC-101-07`, `SPEC-101-11` |
 | Consulta stock | **Must** | HU-101-018 | `SPEC-101-07`, `SPEC-101-11` |
 | Consulta deuda | **Must** | HU-101-021 | `SPEC-101-07`, `SPEC-101-11` |
@@ -263,32 +285,34 @@ Extensiones Must del mismo release: presupuesto (99), conversión bidireccional,
 | 2 | `SPEC-001-02` | HU-GEN-02 |
 | 3 | `SPEC-001-01` | HU-GEN-01 |
 | 4 | `SPEC-001-03` | HU-GEN-03 |
-| 5 | `SPEC-001-04` | HU-GEN-04 |
-| — | `SPEC-001-06`…`09` | Documental (sin HU de implementación MVP) |
+| 5 | `SPEC-001-04` | Contexto dedicado parámetros (**pendiente**, AMB-C06) |
+| — | `SPEC-001-06`…`09` | Documental; **PDF** consultas → `SPEC-001-06-emision` |
 
 ### Fase 1 — `SPEC-101-xx`
 
-| ID | Contenido |
-|----|-----------|
-| **SPEC-101-01** | Backend, `EMPRESAS_CONEXION`, middleware, healthcheck |
-| **SPEC-101-02** | Modelos |
-| **SPEC-101-03** | Repositories |
-| **SPEC-101-06** | Seguridad (antes de CRUD) |
-| **SPEC-101-04** | Services |
-| **SPEC-101-05** | Controllers REST |
-| **SPEC-101-09** | Frontend base |
-| **SPEC-101-10** | Pantalla carga |
-| **SPEC-101-07** | Consultas API |
-| **SPEC-101-11** | Consultas UI |
-| **SPEC-101-12** | Tratativas/cierre |
-| **SPEC-101-13** | Mails |
-| **SPEC-101-14** | Dashboard §4.1 |
-| **SPEC-101-08** | Logs |
-| **SPEC-101-15** | Tests y hardening |
+Índice completo: [README.md](README.md).
+
+| ID | Archivo | Notas |
+|----|---------|--------|
+| **SPEC-101-01** | [backend-base](SPEC-101-01-backend-base.md) | **Etapa posterior** (`EMPRESAS_CONEXION`) |
+| **SPEC-101-02** | [modelos](SPEC-101-02-modelos.md) | |
+| **SPEC-101-03** | [repositories](SPEC-101-03-repositories.md) | |
+| **SPEC-101-06** | [seguridad-visibilidad](SPEC-101-06-seguridad-visibilidad.md) | Verificar GEN-02 |
+| **SPEC-101-04** | [services-pedidos](SPEC-101-04-services-pedidos.md) | Copia; sin DELETE presupuesto |
+| **SPEC-101-05** | [controllers-rest](SPEC-101-05-controllers-rest.md) | |
+| **SPEC-101-09** | [frontend-base](SPEC-101-09-frontend-base.md) | Verificar GEN-01 |
+| **SPEC-101-10** | [pantalla-carga](SPEC-101-10-pantalla-carga.md) | |
+| **SPEC-101-07** | [consultas-api](SPEC-101-07-consultas-api.md) | Excel; no PDF MVP |
+| **SPEC-101-11** | [consultas-ui](SPEC-101-11-consultas-ui.md) | |
+| **SPEC-101-12** | [tratativas-cierre](SPEC-101-12-tratativas-cierre.md) | Tratativas **Should** |
+| **SPEC-101-13** | [mails](SPEC-101-13-mails.md) | |
+| **SPEC-101-14** | [dashboard](SPEC-101-14-dashboard.md) | Regla -1 / `MinutosWeb` |
+| **SPEC-101-08** | [logs-integracion](SPEC-101-08-logs-integracion.md) | **Should** |
+| **SPEC-101-15** | [tests-hardening](SPEC-101-15-tests-hardening.md) | |
 
 ## 11. Criterios de aceptación globales (medibles)
 
-- [ ] Tenancy MONO + fila `desarrollo` en `EMPRESAS_CONEXION` operativa.
+- [ ] Tenancy MONO operativo en MVP (stub); fila `desarrollo` en `EMPRESAS_CONEXION` en etapa [SPEC-101-01](SPEC-101-01-backend-base.md).
 - [ ] Flujo E2E §9 ejecutable.
 - [ ] Dashboard §4.1 con los 8 indicadores definidos.
 - [ ] Consultas Must (incl. deuda, cheques, historial) según §5.2.
@@ -322,43 +346,60 @@ El flujo E2E §9 es obligatorio además de los E2E por slice.
 
 ## 13. Dependencias y riesgos
 
-**Dependencias:** SQL Server; `EMPRESAS_CONEXION`; ERP; parámetros (`SPEC-001-04`); `DiasVentasDetalladas` para historial.
+**Dependencias:** SQL Server; ERP; parámetros (**contexto SPEC-001-04**, pendiente); `DiasVentasDetalladas` para historial; `EMPRESAS_CONEXION` (etapa posterior).
 
 **Riesgos:** permisos por atributo; datos ERP vs pruebas; concurrencia descarga ERP.
 
-## 14. Revisión A1 — estado post-decisiones
+## 14. Revisión A1 — cierre (2026-06-01)
 
-### Decisiones humanas cerradas (2026-05-28)
+### 14.1 Resultado
 
-1. HU formales en **`001-Generaliddes`** y **`101-PedidosWeb`**.
-2. Deuda, cheques e historial → **Must** (HU-101-021, HU-101-022, HU-101-023).
-3. Dashboard primer release: **indicadores §4.1**; excluidos indicadores conceptual §19.
-4. **`cliente = desarrollo`** en middleware y **`EMPRESAS_CONEXION`**.
-5. **Moneda:** una sola moneda por tenant en MVP.
-6. **Presupuesto cerrado:** cabecera pasa a **estado 98** (+ registro en `presupuestos_cierres`).
-7. **Cobertura tests:** **≥ 70 %** services/slice en MVP; **≥ 80 %** cuando el módulo esté estable (§12.2).
+| Campo | Valor |
+|-------|--------|
+| **Veredicto** | **Apto** |
+| **Parte B (HU)** | **Autorizada** |
+| **Slices** | [README.md](README.md) — 15 archivos `SPEC-101-xx-*.md` |
 
-### Ambigüedades menores residuales
+### 14.2 Decisiones humanas — ambigüedades críticas (cerradas)
 
-| # | Tema | Observación |
-|---|------|-------------|
-| 1 | **Tratativas / cierre** | Siguen **Should**; HU-101-014 cubre cierre (99→98); tratativas completas pueden ser HU aparte. |
-| 2 | **Logs integración** | **Should** (HU-101-020); no bloquean release E2E §9. |
-| 3 | **Generaliddes 06–09** | Documental; sin HU de implementación en MVP (acordado). |
+| ID | Decisión stakeholder |
+|----|----------------------|
+| **AMB-C01** | Tratativas → **Should** (`SPEC-101-12`) |
+| **AMB-C02** | Logs integración → **Should** (`SPEC-101-08`) |
+| **AMB-C03** | Presupuestos → **sin DELETE** físico; solo cierre **98** |
+| **AMB-C04** | **Incluir copiar comprobante** en MVP (§4, 101-04/10) |
+| **AMB-C05** | **No** cierre parcial/positivo; **no** clasificación por renglones |
+| **AMB-C06** | Parámetros → **contexto SPEC-001-04 dedicado** (pendiente de redacción) |
+| **AMB-C07** | `EMPRESAS_CONEXION` completo → **etapa posterior** ([SPEC-101-01](SPEC-101-01-backend-base.md)) |
+| **AMB-C08** | PDF consultas → **futuro** [SPEC-001-06-emision](../001-Generaliddes/SPEC-001-06-emision.md); MVP = Excel |
+| **AMB-C09** | KPI y edición **-1**: `fechahora_ultima_actividad + MinutosWeb` vs `fechahora_actual` (HU-101-011, HU-101-025) |
+| **AMB-C11** | Pantalla única + botones Grabar pedido / Grabar presupuesto (§10.1 producto) |
+| **AMB-C12** | Trazabilidad presupuesto→pedido: cierre + `cod_presupuesto_origen` (sin tabla relación MVP) |
+| **AMB-C10** | Un archivo **`SPEC-101-nn-*.md` por slice** (índice README) |
 
-### Supuestos confirmados
+### 14.3 Pendientes no bloqueantes para B
 
-1. Totales de dashboard usan el **importe total** de cabecera del comprobante. **Confirmado.**
-2. **Presupuesto activo** = **estado 99**; al cerrar pasa a **estado 98**. **Confirmado.**
-3. Sincronización ERP es externa al portal. **Confirmado.**
-4. Permisos finos vía parámetros (`SPEC-001-04`). **Confirmado.**
+| Tema | Acción |
+|------|--------|
+| AMB-M02 Mail | Detallar en HU-101-019 + contexto SPEC-001-04 |
+| AMB-M03 Cobertura 80 % | Declarar “módulo estable” al cierre release en TR |
+| AMB-M07 IVA/redondeo | Detallar en `SPEC-101-04` / HU carga |
+| Producto §2 ítems 8/15/18 | Alinear redacción conceptual con decisiones C03/C01/C02 (tarea documental opcional) |
 
-### Preguntas humanas
+### 14.4 Parte B — cierre (2026-06-01)
 
-Ninguna abierta para este SPEC (A1 **apto** para derivar HU cuando se decida pasar a parte B).
+- **27 HU** enriquecidas: [README HU 101](../../03-historias-usuario/101-PedidosWeb/README.md).
+- **HU-101-026** copiar comprobante; **HU-101-027** cierre/rechazo; **HU-101-014** solo tratativas (Should).
+- **HU-101-001/002:** heredadas GEN-02 — TR de verificación en 101-06.
+
+### 14.5 Siguiente paso — parte C
+
+1. Generar TR en `docs/04-tareas/101-PedidosWeb/` por slice (`TR-SPEC-101-xx-*.md`).
+2. Preparar **contexto SPEC-001-04** (parámetros) en paralelo a TR de carga/consultas/dashboard.
+3. Orden sugerido: 02 → 03 → 06 (verificación) → 04 → 05 → 09 → 10 → …
 
 ---
 
 ## Definición de listo por `SPEC-101-xx`
 
-Cada `SPEC-101-xx` está listo si: alcance cerrado; código del slice; tests según §12; **OpenAPI según `_NORMAS-TRANSVERSALES-TR.md`**; notas en `docs/05-open-spec/101-PedidosWeb/`.
+Cada `SPEC-101-xx` está listo si: alcance cerrado en su archivo slice; código del slice; tests según §12; **OpenAPI según `_NORMAS-TRANSVERSALES-TR.md`**; checklist DoD del slice en [README.md](README.md).

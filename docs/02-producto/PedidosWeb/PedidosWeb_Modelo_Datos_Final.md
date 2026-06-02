@@ -67,7 +67,7 @@ Estados:
 
 | Estado | Significado |
 |---:|---|
-| -1 | En modificación/descarga/control transitorio |
+| -1 | Pedido en modificación web (evita descarga ERP) |
 | 0 | Pedido ingresado web |
 | 1 | Pedido pendiente ERP |
 | 2 | Pedido cerrado/cumplido ERP |
@@ -82,9 +82,11 @@ Campos recomendados a agregar si no existen:
 | usuario_creacion | varchar(50) | Auditoría liviana |
 | fecha_creacion | datetime | Auditoría liviana |
 | usuario_modificacion | varchar(50) | Auditoría liviana |
-| fecha_inicio_modificacion | datetime null | Control de simultaneidad robusto |
+| fechahora_inicio_proceso | datetime null | Inicio de sesión de edición en **-1** (auditoría; no usar para vigencia del bloqueo) |
+| fechahora_ultima_actividad | datetime null | Última interacción en edición **-1**; vigencia del bloqueo con `MinutosWeb` |
 | origen_comprobante | varchar(50) null | Si proviene de copia/conversión |
-| cod_pedido_origen | varchar(50) null | Trazabilidad de copia/conversión |
+| cod_pedido_origen | varchar(50) null | Trazabilidad pedido → presupuesto (conversión §15.2) |
+| cod_presupuesto_origen | varchar(50) null | Trazabilidad presupuesto → pedido (conversión §15.1) |
 
 ### 2.2 pq_pedidosweb_pedidosdetalle
 
@@ -194,6 +196,8 @@ Campos detectados:
 | cod_vended | Código vendedor |
 | nombre | Nombre |
 | supervisor | Indica si ve todos los clientes |
+| mail_supervisor | Mail del supervisor del vendedor (destinatario mail comercial si ≠ e_mail del vendedor) |
+| e_mail | Mail del vendedor |
 | cod_login | Login asociado |
 | otros campos | Según script vigente |
 
@@ -441,10 +445,11 @@ Parámetros funcionales principales:
 | FechaControl | Control de descarga ERP |
 | ListaPrecios | Lista por defecto |
 | Mail_DireccionRemitente | Remitente |
-| mailCCO | Copias ocultas |
+| MailDestinatariosAdicionales | Mails extra al grabar/modificar comprobante |
+| mailCCO | Copias ocultas globales |
 | MinutosAviso | Margen aviso descarga |
 | MinutosBloqueo | Margen bloqueo descarga |
-| MinutosWeb | Inactividad web |
+| MinutosWeb | Inactividad sesión web (GEN-02) y ventana de modificación pedido **-1** (`fechahora_ultima_actividad`) |
 | NivelExtremo | Solo permite nivel 0/100 |
 | NOeliminaPedido | Bloquea eliminación |
 | NOmodificaPedido | Bloquea modificación |
@@ -663,7 +668,7 @@ Para claves compuestas, Laravel requiere tratamiento especial: definir repositor
 2. Agregar campos de auditoría liviana a cabecera si no existen.
 3. Definir número visible secuencial por empresa y tipo de comprobante.
 4. Crear tablas de tratativas, resultados, motivos de cierre y logs integración.
-5. Evaluar separar `estado = -1` de descarga/modificación usando campo específico de bloqueo.
+5. `estado = -1` solo modificación web; vigencia con `fechahora_ultima_actividad` + `MinutosWeb`.
 6. Confirmar tabla definitiva de parámetros generales dentro del esquema PaqSuite.
 7. Crear catálogo inicial de proveedores del asistente IA.
 8. Crear tabla dedicada para credenciales `BYOK` del asistente IA, separada de `users`.

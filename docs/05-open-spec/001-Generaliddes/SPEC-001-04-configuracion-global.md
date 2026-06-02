@@ -41,10 +41,14 @@ Implementable en MVP (lectura y uso de parámetros; **sin** ABM web de parámetr
 | Parámetro | Uso en PedidosWeb MVP |
 |-----------|------------------------|
 | `DiasVentasDetalladas` | Historial ventas (Must) |
-| `MinutosWeb` | Expiración sesión por inactividad |
+| `MinutosWeb` | Expiración sesión (GEN-02) y ventana de pedido en **-1** desde `fechahora_ultima_actividad` (HU-101-011) |
 | `MinutosBloqueo`, `MinutosAviso` | Concurrencia edición vs descarga ERP |
 | `DetallePorMail` | Mail al grabar comprobante |
+| `MailDestinatariosAdicionales` | Destinatarios extra (lista) en mail al grabar/modificar — HU-101-019 |
+| `Mail_DireccionRemitente` | Remitente mails comerciales |
+| `mailCCO` | CCO global opcional en envíos |
 | `CargaRecurrente` | Flujo post-grabación pedido/presupuesto |
+| `CodMotivoCierreExitoso` | Conversión presupuesto → pedido: `id_motivo` en `pq_pedidosweb_motivos_cierre` (tipo **positivo**, activo). Ver HU-101-013. |
 | Resto §10.6 | Módulos según HU de negocio |
 
 Inventario completo y defaults numéricos: completar en HU-GEN-04 y TR de parámetros.
