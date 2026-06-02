@@ -12,20 +12,20 @@ final class ComprobanteNotificationMail extends Mailable
     use SerializesModels;
 
     /**
-     * @param  array<string, mixed>  $viewData
+     * @param  array<string, mixed>  $comprobanteViewData
      */
     public function __construct(
-        public readonly array $viewData,
+        public readonly array $comprobanteViewData,
         public readonly ?string $fromAddress = null,
         public readonly ?string $fromName = null,
     ) {}
 
     public function build(): self
     {
-        $subject = view('emails.comprobante-notification-subject', $this->viewData)->render();
+        $subject = view('emails.comprobante-notification-subject', $this->comprobanteViewData)->render();
 
         $message = $this->subject(trim($subject))
-            ->view('emails.comprobante-notification-body', $this->viewData);
+            ->view('emails.comprobante-notification-body', $this->comprobanteViewData);
 
         if ($this->fromAddress !== null && $this->fromAddress !== '') {
             $message->from(
