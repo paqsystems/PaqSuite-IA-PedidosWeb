@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class PqPedidoswebCliente extends Model
 {
@@ -43,4 +45,19 @@ class PqPedidoswebCliente extends Model
         'bonificacion' => 'decimal:4',
         'nivel' => 'integer',
     ];
+
+    public function vendedor(): BelongsTo
+    {
+        return $this->belongsTo(PqPedidoswebVendedor::class, 'cod_vended', 'cod_vended');
+    }
+
+    public function pedidosCabecera(): HasMany
+    {
+        return $this->hasMany(PqPedidoswebPedidoCabecera::class, 'cod_cliente', 'cod_client');
+    }
+
+    public function direccionesEntrega(): HasMany
+    {
+        return $this->hasMany(PqPedidoswebClienteDireccionEntrega::class, 'cod_client', 'cod_client');
+    }
 }
