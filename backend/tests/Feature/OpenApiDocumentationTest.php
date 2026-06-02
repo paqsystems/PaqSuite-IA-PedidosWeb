@@ -48,6 +48,44 @@ final class OpenApiDocumentationTest extends TestCase
         $this->assertArrayHasKey('patch', $spec['paths']['/api/v1/users/me/preferences/theme']);
     }
 
+    public function testGeneratedSpecIncludesPedidosWebPaths(): void
+    {
+        $spec = $this->loadGeneratedSpec();
+
+        $pedidosWebPaths = [
+            '/api/v1/comprobantes/grabar',
+            '/api/v1/comprobantes/copiar',
+            '/api/v1/pedidos',
+            '/api/v1/pedidos/{cod_pedido}',
+            '/api/v1/pedidos/{cod_pedido}/edicion/iniciar',
+            '/api/v1/presupuestos',
+            '/api/v1/presupuestos/{cod_pedido}',
+            '/api/v1/presupuestos/{cod}/cerrar',
+            '/api/v1/motivos-cierre',
+            '/api/v1/presupuestos/{cod}/tratativas',
+            '/api/v1/consultas/pedidos-ingresados',
+            '/api/v1/consultas/pedidos-pendientes',
+            '/api/v1/consultas/presupuestos',
+            '/api/v1/consultas/stock',
+            '/api/v1/consultas/deuda',
+            '/api/v1/consultas/cheques',
+            '/api/v1/consultas/historial-ventas',
+            '/api/v1/integracion/logs',
+            '/api/v1/dashboard/operativo',
+            '/api/v1/config/parametros-carga',
+            '/api/v1/articulos',
+        ];
+
+        foreach ($pedidosWebPaths as $path) {
+            $this->assertArrayHasKey($path, $spec['paths'], "Falta path OpenAPI: {$path}");
+        }
+
+        $grabarOperation = $spec['paths']['/api/v1/comprobantes/grabar']['post'];
+        $this->assertSame([['sanctum' => []], ['tenant' => []]], $grabarOperation['security'] ?? null);
+        $this->assertArrayHasKey('401', $grabarOperation['responses']);
+        $this->assertArrayHasKey('403', $grabarOperation['responses']);
+    }
+
     public function testGeneratedSpecDocumentsTransversalSecurityRules(): void
     {
         $spec = $this->loadGeneratedSpec();

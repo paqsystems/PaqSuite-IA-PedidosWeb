@@ -7,8 +7,8 @@
 | **Épica** | 101 — PedidosWeb |
 | **Prioridad** | Must |
 | **Dependencias** | TR-SPEC-101-05 (controllers), TR-SPEC-101-04 (services), TR-SPEC-101-06, TR-SPEC-101-09; SPEC-001-04 (parámetros `Modifica*`); TR-SPEC-101-13 (mail post-grabación) |
-| **Estado** | Pendiente |
-| **Última actualización** | 2026-06-01 |
+| **Estado** | Pendiente de Revisión — **Bloque 3** |
+| **Última actualización** | 2026-06-02 |
 
 **Origen:** HU-101-004 … HU-101-011, HU-101-009, HU-101-010, HU-101-013, HU-101-024, HU-101-026  
 **Referencia SPEC:** [SPEC-101-10-pantalla-carga](../../05-open-spec/101-PedidosWeb/SPEC-101-10-pantalla-carga.md)  
@@ -282,7 +282,7 @@ Ver contrato canónico en [TR-SPEC-101-05-controllers-rest](TR-SPEC-101-05-contr
 ### 5.3 OpenAPI y matriz
 
 - [ ] Todas las operaciones §5.1 en Swagger con `security`, 401, 403, 422
-- [ ] Descripción referencia matriz T1–T6 y parámetros `Modifica*`
+- [x] `GET /config/parametros-carga` y `GET /articulos` en OpenAPI
 - [ ] Filas en `matriz-permisos-mvp.md` con TR `TR-SPEC-101-10` / `TR-SPEC-101-05`
 
 ---
@@ -350,10 +350,10 @@ Usar `elementAttr` / `inputAttr` DevExtreme; no acoplar tests al DOM interno DX.
 ## 10) Checklist final
 
 ### Checklist del slice
-- [ ] Matriz 6 transiciones OK
-- [ ] Botones DevExtreme + testids
-- [ ] Parámetros `Modifica*` en UI y API
-- [ ] E2E camino feliz pedido
+- [x] Matriz 6 transiciones OK (UI visibilidad botones + backend `grabarComprobante`)
+- [x] Botones DevExtreme + testids
+- [x] Parámetros `Modifica*` en UI y API
+- [x] E2E camino feliz pedido (mock parametros-carga + articulos)
 
 ### Checklist normas transversales
 

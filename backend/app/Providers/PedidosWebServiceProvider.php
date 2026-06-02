@@ -8,6 +8,7 @@ use App\Services\PedidosWeb\ComprobanteMailService;
 use App\Services\PedidosWeb\ConsultaListadoService;
 use App\Services\PedidosWeb\DashboardOperativoService;
 use App\Services\PedidosWeb\LogIntegracionService;
+use App\Services\PedidosWeb\ParametrosCargaService;
 use App\Services\PedidosWeb\PedidoService;
 use App\Services\PedidosWeb\PedidosWebParameterService;
 use App\Services\PedidosWeb\PresupuestoCierreService;
@@ -19,6 +20,7 @@ final class PedidosWebServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->singleton(PedidosWebParameterService::class);
+        $this->app->singleton(ParametrosCargaService::class);
         $this->app->singleton(CalculoTotalesService::class);
         $this->app->singleton(PresupuestoCierreService::class);
         $this->app->singleton(ComprobanteCopiaService::class);

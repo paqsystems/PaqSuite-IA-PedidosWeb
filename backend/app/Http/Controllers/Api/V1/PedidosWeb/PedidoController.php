@@ -43,7 +43,7 @@ class PedidoController extends Controller
                 (string) config('paqsuite_visibility.procedimientos.cargaComprobantes'),
                 'repo'
             );
-            $resultado = $this->pedidoService->getComprobante($codPedido);
+            $resultado = $this->pedidoService->getComprobante($codPedido, $user);
         } catch (AuthFlowException|PedidosWebBusinessException $exception) {
             return ApiResponse::error(
                 $exception->errorCode(),
@@ -69,7 +69,7 @@ class PedidoController extends Controller
                 (string) config('paqsuite_visibility.procedimientos.cargaComprobantes'),
                 'baja'
             );
-            $this->pedidoService->eliminarPedido($codPedido);
+            $this->pedidoService->eliminarPedido($codPedido, $user);
         } catch (AuthFlowException|PedidosWebBusinessException $exception) {
             return ApiResponse::error(
                 $exception->errorCode(),

@@ -57,7 +57,7 @@ class PedidosWebModelsTest extends TestCase
                     && ! str_starts_with($method->getName(), 'new')
                     && ! in_array($method->getName(), [
                         'cabecera', 'detalles', 'cliente', 'vendedor', 'condicionVenta', 'transporte',
-                        'listaPrecios', 'articulo',
+                        'listaPrecios', 'articulo', 'presupuestoCierre',
                     ], true)
             );
 

@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class PqPedidoswebPedidoCabecera extends Model
 {
@@ -114,5 +115,10 @@ class PqPedidoswebPedidoCabecera extends Model
     public function listaPrecios(): BelongsTo
     {
         return $this->belongsTo(PqPedidoswebListaPrecios::class, 'lista_precios', 'cod_lista');
+    }
+
+    public function presupuestoCierre(): HasOne
+    {
+        return $this->hasOne(PqPedidoswebPresupuestoCierre::class, 'cod_presupuesto', 'cod_pedido');
     }
 }

@@ -28,8 +28,27 @@ export type GrabarComprobantePayload = {
   codPedido?: string | null;
   codPedidoOrigen?: string | null;
   codPresupuestoOrigen?: string | null;
+  codComprobanteOrigenCopia?: string | null;
   codCliente: string | null;
   renglones: ComprobanteRenglon[];
+};
+
+export type ParametrosCarga = {
+  modificaPrecio: boolean;
+  modificaBonArt: boolean;
+  modificaBonCli: boolean;
+  modificaListaPrec: boolean;
+  functionalProfile: string;
+  codMotivoCierreExitoso: string;
+  noEliminaPedido: boolean;
+  noModificaPedido: boolean;
+};
+
+export type ArticuloOption = {
+  codArticulo: string;
+  descripcion: string;
+  porcIva: number;
+  bonificacion: number;
 };
 
 export type GrabarComprobanteResult = {
@@ -139,6 +158,7 @@ export async function grabarComprobante(
     cod_pedido: payload.codPedido ?? undefined,
     cod_pedido_origen: payload.codPedidoOrigen ?? undefined,
     cod_presupuesto_origen: payload.codPresupuestoOrigen ?? undefined,
+    cod_comprobante_origen_copia: payload.codComprobanteOrigenCopia ?? undefined,
     cabecera: {
       cod_cliente: payload.codCliente,
     },
@@ -148,5 +168,42 @@ export async function grabarComprobante(
   return apiRequest<GrabarComprobanteResult>('/comprobantes/grabar', {
     method: 'POST',
     body: JSON.stringify(body),
+  });
+}
+
+export async function eliminarPedido(codPedido: string): Promise<void> {
+  await apiRequest(`/pedidos/${encodeURIComponent(codPedido)}`, {
+    method: 'DELETE',
+  });
+}
+
+export async function fetchParametrosCarga(): Promise<ParametrosCarga> {
+  const response = await apiRequest<ParametrosCarga>('/config/parametros-carga');
+  return response.resultado;
+}
+
+export async function searchArticulos(query = ''): Promise<ArticuloOption[]> {
+  const params = new URLSearchParams();
+  if (query.trim() !== '') {
+    params.set('q', query.trim());
+  }
+  params.set('page_size', '20');
+
+  const path = `/articulos?${params.toString()}`;
+  const response = await apiRequest<{ items?: ArticuloOption[] }>(path);
+  return response.resultado.items ?? [];
+}
+
+export async function iniciarEdicionPedido(codPedido: string): Promise<void> {
+  await apiRequest(`/pedidos/${encodeURIComponent(codPedido)}/edicion/iniciar`, {
+    method: 'POST',
+    body: JSON.stringify({}),
+  });
+}
+
+export async function cancelarEdicionPedido(codPedido: string): Promise<void> {
+  await apiRequest(`/pedidos/${encodeURIComponent(codPedido)}/edicion/cancelar`, {
+    method: 'POST',
+    body: JSON.stringify({}),
   });
 }

@@ -6,19 +6,21 @@ use App\Contracts\PedidosWeb\PedidoRepositoryInterface;
 use App\Exceptions\PedidosWebBusinessException;
 use App\Models\PqPedidoswebTratativa;
 use App\Models\User;
+use App\Services\Visibility\PedidosWebVisibilityGuard;
 
 final class TratativaService
 {
     public function __construct(
         private readonly PedidoRepositoryInterface $pedidoRepository,
+        private readonly PedidosWebVisibilityGuard $pedidosWebVisibilityGuard,
     ) {}
 
     /**
      * @return array<string, mixed>
      */
-    public function listar(string $codPresupuesto): array
+    public function listar(string $codPresupuesto, User $user): array
     {
-        $this->ensurePresupuestoActivo($codPresupuesto);
+        $this->ensurePresupuestoActivo($codPresupuesto, $user);
 
         $tratativas = PqPedidoswebTratativa::query()
             ->with('resultado')
@@ -49,7 +51,7 @@ final class TratativaService
      */
     public function crear(string $codPresupuesto, array $payload, User $user): array
     {
-        $this->ensurePresupuestoActivo($codPresupuesto);
+        $this->ensurePresupuestoActivo($codPresupuesto, $user);
 
         $tratativa = PqPedidoswebTratativa::query()->create([
             'cod_pedido' => $codPresupuesto,
@@ -66,8 +68,9 @@ final class TratativaService
         ];
     }
 
-    private function ensurePresupuestoActivo(string $codPresupuesto): void
+    private function ensurePresupuestoActivo(string $codPresupuesto, User $user): void
     {
+        $this->pedidosWebVisibilityGuard->ensureComprobanteVisible($user, $codPresupuesto);
         $presupuesto = $this->pedidoRepository->findByCodPedido($codPresupuesto);
 
         if ($presupuesto === null) {

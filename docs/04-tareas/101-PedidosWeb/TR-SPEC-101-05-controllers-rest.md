@@ -7,7 +7,7 @@
 | **Épica** | 101-PedidosWeb |
 | **Prioridad** | Must |
 | **Dependencias** | [TR-SPEC-101-04-services-pedidos](TR-SPEC-101-04-services-pedidos.md); [TR-GEN-02-politicas-endpoints](../001-Generaliddes/TR-GEN-02-politicas-endpoints.md); [TR-GEN-02-visibilidad-datos-pedidosweb](../001-Generaliddes/TR-GEN-02-visibilidad-datos-pedidosweb.md); [matriz-permisos-mvp.md](../001-Generaliddes/matriz-permisos-mvp.md) |
-| **Estado** | Pendiente |
+| **Estado** | Pendiente de Revisión — **Bloque 3** (parametros-carga, articulos, OpenAPI) |
 | **Última actualización** | 2026-06-02 |
 
 **Origen:** [SPEC-101-05](../../05-open-spec/101-PedidosWeb/SPEC-101-05-controllers-rest.md)  

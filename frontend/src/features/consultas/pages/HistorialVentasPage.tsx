@@ -6,13 +6,15 @@ import { useGridLayouts } from '../../gridLayouts/hooks/useGridLayouts';
 import { DataGridDx, type DataGridDxHandle, type DataGridRowAction } from '../../../shared/ui/grids';
 import {
   fetchHistorialVentas,
-  fetchHistorialVentasDetalle,
-  type HistorialVentaDetalleRow,
+  toHistorialDetalleRows,
+  type ConsultaMeta,
   type HistorialVentasRow,
 } from '../api/consultaApi';
 
 const proceso = 'pw_historialventas';
 const gridId = 'pw_historialventas';
+
+type HistorialDetalleRow = ReturnType<typeof toHistorialDetalleRows>[number];
 
 export function HistorialVentasPage() {
   const { t } = useTranslation();
@@ -23,10 +25,11 @@ export function HistorialVentasPage() {
     gridRef,
   });
   const [rows, setRows] = useState<HistorialVentasRow[]>([]);
+  const [meta, setMeta] = useState<ConsultaMeta | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [detalleVisible, setDetalleVisible] = useState(false);
-  const [detalleRows, setDetalleRows] = useState<HistorialVentaDetalleRow[]>([]);
+  const [detalleRows, setDetalleRows] = useState<HistorialDetalleRow[]>([]);
 
   useEffect(() => {
     let mounted = true;
@@ -38,10 +41,12 @@ export function HistorialVentasPage() {
         const result = await fetchHistorialVentas();
         if (mounted) {
           setRows(result.items);
+          setMeta(result.meta);
         }
       } catch {
         if (mounted) {
           setRows([]);
+          setMeta(null);
           setLoadError(t('grid.error.load'));
         }
       } finally {
@@ -58,14 +63,9 @@ export function HistorialVentasPage() {
     };
   }, [t]);
 
-  const handleOpenDetalle = useCallback(async (row: HistorialVentasRow) => {
+  const handleOpenDetalle = useCallback((row: HistorialVentasRow) => {
+    setDetalleRows(toHistorialDetalleRows(row));
     setDetalleVisible(true);
-    try {
-      const detail = await fetchHistorialVentasDetalle(row.id);
-      setDetalleRows(detail);
-    } catch {
-      setDetalleRows([]);
-    }
   }, []);
 
   const rowActions: DataGridRowAction<HistorialVentasRow>[] = [
@@ -74,7 +74,7 @@ export function HistorialVentasPage() {
       icon: 'info',
       hintKey: 'grid.action.viewDetail',
       onClick: (row) => {
-        void handleOpenDetalle(row);
+        handleOpenDetalle(row);
       },
     },
   ];
@@ -82,6 +82,10 @@ export function HistorialVentasPage() {
   return (
     <section data-testid="page-consulta-historial">
       <h2>{t('pages.consultaHistorial')}</h2>
+      <p>{t('consultas.fechaProceso', { value: meta?.fecha_proceso ?? t('consultas.fechaProcesoSinDato') })}</p>
+      {meta?.dias_ventas_detalladas ? (
+        <p>{t('consultas.historialPeriodo', { dias: meta.dias_ventas_detalladas })}</p>
+      ) : null}
       <DataGridDx<HistorialVentasRow>
         ref={gridRef}
         proceso={proceso}
@@ -95,7 +99,8 @@ export function HistorialVentasPage() {
       >
         <Column dataField="fecha" caption={t('consultas.column.fecha')} />
         <Column dataField="cliente" caption={t('consultas.column.cliente')} />
-        <Column dataField="comprobante" caption={t('consultas.column.comprobante')} />
+        <Column dataField="articulo" caption={t('consultas.column.articulo')} />
+        <Column dataField="cantidad" caption={t('consultas.column.cantidad')} dataType="number" />
         <Column dataField="importe" caption={t('consultas.column.importe')} dataType="number" format="currency" />
       </DataGridDx>
       {saveAsDialog}
@@ -109,7 +114,7 @@ export function HistorialVentasPage() {
         title={t('consultas.historialDetalleTitle')}
         elementAttr={{ 'data-testid': 'consultaHistorialDetallePopup' }}
       >
-        <DataGridDx<HistorialVentaDetalleRow>
+        <DataGridDx<HistorialDetalleRow>
           proceso={proceso}
           gridId="pw_historialventas_detalle"
           dataSource={detalleRows}
@@ -118,6 +123,7 @@ export function HistorialVentasPage() {
           enableGrouping={false}
         >
           <Column dataField="articulo" caption={t('consultas.column.articulo')} />
+          <Column dataField="descripcion" caption={t('consultas.column.descripcion')} />
           <Column dataField="cantidad" caption={t('consultas.column.cantidad')} dataType="number" />
           <Column dataField="importe" caption={t('consultas.column.importe')} dataType="number" format="currency" />
         </DataGridDx>

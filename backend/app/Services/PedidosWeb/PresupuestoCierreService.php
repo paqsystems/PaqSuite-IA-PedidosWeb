@@ -6,12 +6,14 @@ use App\Contracts\PedidosWeb\PedidoRepositoryInterface;
 use App\Exceptions\PedidosWebBusinessException;
 use App\Models\PqPedidoswebMotivoCierre;
 use App\Models\User;
+use App\Services\Visibility\PedidosWebVisibilityGuard;
 
 final class PresupuestoCierreService
 {
     public function __construct(
         private readonly PedidoRepositoryInterface $pedidoRepository,
         private readonly PedidosWebParameterService $parameterService,
+        private readonly PedidosWebVisibilityGuard $pedidosWebVisibilityGuard,
     ) {}
 
     /**
@@ -23,6 +25,7 @@ final class PresupuestoCierreService
         ?string $observacion,
         User $user
     ): array {
+        $this->pedidosWebVisibilityGuard->ensureComprobanteVisible($user, $codPresupuesto);
         $presupuesto = $this->pedidoRepository->findByCodPedido($codPresupuesto, true);
 
         if ($presupuesto === null) {

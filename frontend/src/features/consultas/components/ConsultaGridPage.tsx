@@ -17,6 +17,7 @@ type ConsultaGridPageProps<TRecord extends BaseRow> = {
   loadData: () => Promise<{ items: TRecord[]; meta: ConsultaMeta | null }>;
   columns: React.ReactNode;
   rowActions: DataGridRowAction<TRecord>[];
+  refreshToken?: number;
 };
 
 export function ConsultaGridPage<TRecord extends BaseRow>({
@@ -27,6 +28,7 @@ export function ConsultaGridPage<TRecord extends BaseRow>({
   loadData,
   columns,
   rowActions,
+  refreshToken = 0,
 }: ConsultaGridPageProps<TRecord>) {
   const { t } = useTranslation();
   const gridRef = useRef<DataGridDxHandle>(null);
@@ -74,7 +76,7 @@ export function ConsultaGridPage<TRecord extends BaseRow>({
     return () => {
       mounted = false;
     };
-  }, [loadData, t]);
+  }, [loadData, refreshToken, t]);
 
   return (
     <section data-testid={pageTestId}>

@@ -66,6 +66,8 @@ final class PedidosWebEndpointsAuthTest extends TestCase
         yield 'consultas historial ventas' => ['GET', '/api/v1/consultas/historial-ventas'];
         yield 'integracion logs' => ['GET', '/api/v1/integracion/logs'];
         yield 'dashboard operativo' => ['GET', '/api/v1/dashboard/operativo'];
+        yield 'parametros carga' => ['GET', '/api/v1/config/parametros-carga'];
+        yield 'articulos index' => ['GET', '/api/v1/articulos'];
     }
 
     #[Test]

@@ -7,6 +7,8 @@ use App\Contracts\PedidosWeb\PedidoRepositoryInterface;
 use App\Exceptions\PedidosWebBusinessException;
 use App\Models\PqPedidoswebPedidoCabecera;
 use App\Models\User;
+use App\Services\Auth\CommercialProfileResolver;
+use App\Services\Visibility\PedidosWebVisibilityGuard;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -20,6 +22,8 @@ final class PedidoService
         private readonly ComprobanteCopiaService $comprobanteCopiaService,
         private readonly PresupuestoCierreService $presupuestoCierreService,
         private readonly ComprobanteMailService $comprobanteMailService,
+        private readonly PedidosWebVisibilityGuard $pedidosWebVisibilityGuard,
+        private readonly CommercialProfileResolver $commercialProfileResolver,
     ) {}
 
     /**
@@ -40,9 +44,13 @@ final class PedidoService
             throw new PedidosWebBusinessException(2000, 'business.invalidComprobanteData', 422);
         }
 
+        $this->assertVisibleWritePayload($user, $payload);
+        $this->assertModificaPermisos($user, $cabeceraPayload, $renglonesPayload);
+
         $calculo = $this->calculoTotalesService->calcular($renglonesPayload);
         $codPedidoOrigen = $this->nullableString($payload['cod_pedido_origen'] ?? null);
         $codPresupuestoOrigen = $this->nullableString($payload['cod_presupuesto_origen'] ?? null);
+        $codComprobanteOrigenCopia = $this->nullableString($payload['cod_comprobante_origen_copia'] ?? null);
         $codComprobante = $this->nullableString($payload['cod_pedido'] ?? null);
         $mailEnviado = false;
 
@@ -54,6 +62,7 @@ final class PedidoService
             $codComprobante,
             $codPedidoOrigen,
             $codPresupuestoOrigen,
+            $codComprobanteOrigenCopia,
             $user,
             &$mailEnviado
         ): array {
@@ -87,6 +96,12 @@ final class PedidoService
 
             $estadoObjetivo = $accionGrabacion === 'pedido' ? 0 : 99;
             $accionComprobante = $codComprobante === null ? 'ingresado' : 'modificado';
+            $extraAttributes = [];
+
+            if ($codComprobante === null && $codComprobanteOrigenCopia !== null) {
+                $extraAttributes['origen_comprobante'] = 'copia';
+                $extraAttributes['cod_pedido_origen'] = $codComprobanteOrigenCopia;
+            }
 
             $cabecera = $this->upsertComprobante(
                 $codComprobante,
@@ -96,7 +111,8 @@ final class PedidoService
                 (float) $calculo['totalIva'],
                 $estadoObjetivo,
                 $accionGrabacion,
-                $user
+                $user,
+                $extraAttributes
             );
 
             $mailEnviado = $this->comprobanteMailService->enviarComprobante(
@@ -121,17 +137,13 @@ final class PedidoService
         return $result;
     }
 
-    public function eliminarPedido(string $codPedido): void
+    public function eliminarPedido(string $codPedido, User $user): void
     {
         if ($this->parameterService->getNoEliminaPedido()) {
             throw new PedidosWebBusinessException(2000, 'business.eliminacionDeshabilitada', 422);
         }
 
-        $pedido = $this->pedidoRepository->findByCodPedido($codPedido, true);
-
-        if ($pedido === null) {
-            throw new PedidosWebBusinessException(4000, 'business.notFound', 404);
-        }
+        $pedido = $this->pedidosWebVisibilityGuard->ensureComprobanteVisible($user, $codPedido, true);
 
         if ((int) $pedido->estado !== 0) {
             throw new PedidosWebBusinessException(2000, 'business.onlyEstadoCeroDelete', 422);
@@ -148,6 +160,7 @@ final class PedidoService
      */
     public function iniciarEdicion(string $codPedido, User $user): array
     {
+        $this->pedidosWebVisibilityGuard->ensureComprobanteVisible($user, $codPedido);
         $pedido = $this->pedidoRepository->findByCodPedido($codPedido, true);
 
         if ($pedido === null) {
@@ -185,6 +198,7 @@ final class PedidoService
      */
     public function touchActividad(string $codPedido, User $user): array
     {
+        $this->pedidosWebVisibilityGuard->ensureComprobanteVisible($user, $codPedido);
         $pedido = $this->pedidoRepository->findByCodPedido($codPedido, true);
 
         if ($pedido === null) {
@@ -214,6 +228,7 @@ final class PedidoService
      */
     public function cancelarEdicion(string $codPedido, User $user): array
     {
+        $this->pedidosWebVisibilityGuard->ensureComprobanteVisible($user, $codPedido);
         $pedido = $this->pedidoRepository->findByCodPedido($codPedido, true);
 
         if ($pedido === null) {
@@ -241,8 +256,9 @@ final class PedidoService
     /**
      * @return array<string, mixed>
      */
-    public function getComprobante(string $codPedido): array
+    public function getComprobante(string $codPedido, User $user): array
     {
+        $this->pedidosWebVisibilityGuard->ensureComprobanteVisible($user, $codPedido);
         $pedido = $this->pedidoRepository->findWithDetalle($codPedido);
 
         if ($pedido === null) {
@@ -281,7 +297,7 @@ final class PedidoService
      * @param  array<string, mixed>  $payload
      * @return array<string, mixed>
      */
-    public function copiarComprobante(array $payload): array
+    public function copiarComprobante(array $payload, User $user): array
     {
         $codComprobanteOrigen = (string) ($payload['codComprobanteOrigen'] ?? $payload['cod_pedido_origen'] ?? '');
         $tipoDestino = (string) ($payload['tipoDestino'] ?? $payload['tipo_destino'] ?? 'pedido');
@@ -289,6 +305,8 @@ final class PedidoService
         if ($codComprobanteOrigen === '' || ! in_array($tipoDestino, ['pedido', 'presupuesto'], true)) {
             throw new PedidosWebBusinessException(2000, 'business.invalidCopyRequest', 422);
         }
+
+        $this->pedidosWebVisibilityGuard->ensureComprobanteVisible($user, $codComprobanteOrigen);
 
         return [
             'borrador' => $this->comprobanteCopiaService->copiarBorrador($codComprobanteOrigen, $tipoDestino),
@@ -546,5 +564,84 @@ final class PedidoService
         $normalized = trim((string) $value);
 
         return $normalized !== '' ? $normalized : null;
+    }
+
+    /**
+     * @param  array<string, mixed>  $payload
+     */
+    private function assertVisibleWritePayload(User $user, array $payload): void
+    {
+        $cabeceraPayload = (array) ($payload['cabecera'] ?? []);
+        $this->pedidosWebVisibilityGuard->ensureCodClienteVisible(
+            $user,
+            (string) ($cabeceraPayload['cod_cliente'] ?? '')
+        );
+
+        $codComprobante = $this->nullableString($payload['cod_pedido'] ?? null);
+        if ($codComprobante !== null) {
+            $this->pedidosWebVisibilityGuard->ensureComprobanteVisible($user, $codComprobante);
+        }
+
+        $codPresupuestoOrigen = $this->nullableString($payload['cod_presupuesto_origen'] ?? null);
+        if ($codPresupuestoOrigen !== null) {
+            $this->pedidosWebVisibilityGuard->ensureComprobanteVisible($user, $codPresupuestoOrigen);
+        }
+
+        $codPedidoOrigen = $this->nullableString($payload['cod_pedido_origen'] ?? null);
+        if ($codPedidoOrigen !== null) {
+            $this->pedidosWebVisibilityGuard->ensureComprobanteVisible($user, $codPedidoOrigen);
+        }
+
+        $codComprobanteOrigenCopia = $this->nullableString($payload['cod_comprobante_origen_copia'] ?? null);
+        if ($codComprobanteOrigenCopia !== null) {
+            $this->pedidosWebVisibilityGuard->ensureComprobanteVisible($user, $codComprobanteOrigenCopia);
+        }
+    }
+
+    /**
+     * @param  array<string, mixed>  $cabeceraPayload
+     * @param  list<array<string, mixed>>  $renglonesPayload
+     */
+    private function assertModificaPermisos(User $user, array $cabeceraPayload, array $renglonesPayload): void
+    {
+        $functionalProfile = $this->resolveFunctionalProfile($user);
+        $flags = $this->parameterService->resolveModificaFlags($functionalProfile);
+
+        if ($flags['modificaPrecio'] && $flags['modificaBonArt']) {
+            return;
+        }
+
+        foreach ($renglonesPayload as $renglon) {
+            if (! $flags['modificaPrecio'] && (float) ($renglon['precio_modificado'] ?? 0) === 1.0) {
+                throw new PedidosWebBusinessException(2000, 'business.precioNoModificable', 422);
+            }
+
+            if (! $flags['modificaBonArt'] && (float) ($renglon['porc_bonif_modificado'] ?? 0) === 1.0) {
+                throw new PedidosWebBusinessException(2000, 'business.bonificacionNoModificable', 422);
+            }
+        }
+
+        if (! $flags['modificaBonCli'] && (float) ($cabeceraPayload['descuento_modificado'] ?? 0) === 1.0) {
+            throw new PedidosWebBusinessException(2000, 'business.bonificacionClienteNoModificable', 422);
+        }
+
+        if (! $flags['modificaListaPrec'] && filled($cabeceraPayload['lista_precios_modificada'] ?? null)) {
+            throw new PedidosWebBusinessException(2000, 'business.listaPreciosNoModificable', 422);
+        }
+    }
+
+    private function resolveFunctionalProfile(User $user): string
+    {
+        $commercialProfile = $this->commercialProfileResolver->resolveForUser($user);
+
+        if ($commercialProfile['cliente'] !== null) {
+            return 'cliente';
+        }
+
+        if ($commercialProfile['vendedor'] !== null) {
+            return $commercialProfile['vendedor']->supervisor ? 'supervisor' : 'vendedor';
+        }
+
+        return 'vendedor';
     }
 }

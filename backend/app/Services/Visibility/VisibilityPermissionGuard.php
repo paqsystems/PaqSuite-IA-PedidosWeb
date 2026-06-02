@@ -15,6 +15,17 @@ final class VisibilityPermissionGuard
         $this->ensurePermission($user, $procedimiento, 'repo');
     }
 
+    public function hasPermission(User $user, string $procedimiento, string $tipoPermiso): bool
+    {
+        try {
+            $this->ensurePermission($user, $procedimiento, $tipoPermiso);
+
+            return true;
+        } catch (AuthFlowException) {
+            return false;
+        }
+    }
+
     public function ensurePermission(User $user, string $procedimiento, string $tipoPermiso): void
     {
         $permiso = PqPermiso::query()

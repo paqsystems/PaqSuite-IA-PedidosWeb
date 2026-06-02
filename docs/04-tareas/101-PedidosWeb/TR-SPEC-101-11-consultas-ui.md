@@ -7,8 +7,8 @@
 | **Épica** | 101-PedidosWeb |
 | **Prioridad** | Must |
 | **Dependencias** | TR-SPEC-101-07-consultas-api; TR-SPEC-101-09-frontend-base; [TR-GEN-03-grillas-listados](../001-Generaliddes/TR-GEN-03-grillas-listados.md); [TR-GEN-03-exportaciones](../001-Generaliddes/TR-GEN-03-exportaciones.md); [TR-GEN-03-layouts-grilla](../001-Generaliddes/TR-GEN-03-layouts-grilla.md) |
-| **Estado** | Pendiente |
-| **Última actualización** | 2026-06-01 |
+| **Estado** | Pendiente de Revisión — **Bloques 1–2 + Bloque 4 export mock** |
+| **Última actualización** | 2026-06-02 |
 
 **Origen:** HU-101-015, 016, 017, 018, 021, 022, 023  
 **Referencia SPEC:** [SPEC-101-11-consultas-ui](../../05-open-spec/101-PedidosWeb/SPEC-101-11-consultas-ui.md)  
@@ -181,7 +181,22 @@ Ver TR-SPEC-101-07 para request/response, 401, 403 y envelope.
 
 ## 10) Checklist final
 
-### Checklist del slice
+### Checklist del slice (Bloque 2 — pedidos/presupuestos)
+- [x] AC-03 — pedidos ingresados: ver/editar/eliminar(0)/copiar cableados → `/pedidos/carga`
+- [x] AC-04 — presupuestos activos: ver/editar/convertir/cerrar/copiar; cerrados solo lectura + detalle cierre
+- [x] AC-05 — pedidos pendientes: solo ver
+- [x] AC-08 — acciones visibles según flags API (`puede*`)
+- [ ] AC-02, AC-09 — E2E export consultas API real (tanda 2)
+
+### Checklist del slice (Bloque 1 — gestión)
+- [x] AC-01 — pantallas stock/deuda/cheques/historial con `DataGridDx`
+- [x] AC-06 — carátula `fecha_proceso`; historial modal detalle (línea seleccionada)
+- [x] AC-07 — layouts `proceso` + `grid_id` por consulta gestión
+- [x] AC-10 — i18n columnas + `data-testid` estables
+- [x] AC-02 — E2E export Excel mock (`gridExportExcel` en pedidos ingresados)
+- [ ] AC-03…05, AC-08, AC-09 — pedidos/presupuestos (Bloques 2–3)
+
+### Checklist del slice (completo épica)
 - [ ] AC cumplidos
 - [ ] 8 consultas Must con UI
 - [ ] Export Excel operativo
@@ -199,12 +214,27 @@ Ver TR-SPEC-101-07 para request/response, 401, 403 y envelope.
 
 ## Archivos creados/modificados
 
-(Post-implementación)
+### Bloque 2 (2026-06-02) — pedidos/presupuestos
+- `frontend/src/features/consultas/api/consultaApi.ts` — mapeo comprobantes + paths `?estado=99|98`
+- `frontend/src/features/consultas/hooks/useComprobanteConsultaActions.ts`
+- `frontend/src/features/pedidos/pages/PedidosIngresadosPage.tsx`, `PedidosPendientesPage.tsx`
+- `frontend/src/features/presupuestos/pages/PresupuestosPage.tsx`
+- `frontend/src/features/presupuestos/components/PresupuestoCierreDialog.tsx`, `PresupuestoCierreDetalleDialog.tsx`
+- `frontend/src/features/presupuestos/api/presupuestoApi.ts`
+- `frontend/src/features/pedidos/api/comprobanteApi.ts` — `eliminarPedido`
+- `frontend/src/features/pedidos/pages/PedidosCargaPage.tsx` — modo `convertir`
 
-### Frontend
-- Páginas consulta bajo `frontend/src/.../pedidosweb/consultas/`
+### Bloque 1 (2026-06-02) — gestión
+- `frontend/src/features/consultas/api/consultaApi.ts` — mapeo API↔UI + `metadata`
+- `frontend/src/features/consultas/pages/DeudaPage.tsx`, `StockPage.tsx`, `ChequesPage.tsx`
+- `frontend/src/features/consultas/pages/HistorialVentasPage.tsx` — carátula + modal detalle
+- `frontend/src/features/consultas/components/ConsultaGridPage.tsx` (consumido)
+- `frontend/src/locales/es.json`, `en.json` — `consultas.historialPeriodo`, `consultas.column.descripcion`
+
+### Frontend (implementación previa)
+- Páginas consulta bajo `frontend/src/features/consultas/`
 - Rutas menú producto §8
 - Hooks/queries por endpoint 101-07
 
 ### Docs
-- Mapa grid_id ↔ proceso
+- Mapa grid_id ↔ proceso: `pw_stock`, `pw_deuda`, `pw_cheques`, `pw_historialventas`

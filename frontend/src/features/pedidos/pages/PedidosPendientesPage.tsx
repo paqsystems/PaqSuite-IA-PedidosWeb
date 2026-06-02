@@ -1,7 +1,8 @@
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Column } from 'devextreme-react/data-grid';
 import { ConsultaGridPage } from '../../consultas/components/ConsultaGridPage';
+import { useComprobanteConsultaActions } from '../../consultas/hooks/useComprobanteConsultaActions';
 import { fetchPedidosPendientes, type PedidoConsultaRow } from '../../consultas/api/consultaApi';
 import type { DataGridRowAction } from '../../../shared/ui/grids';
 
@@ -10,17 +11,22 @@ const gridId = 'pw_pedidospendientes';
 
 export function PedidosPendientesPage() {
   const { t } = useTranslation();
-
+  const { openCarga } = useComprobanteConsultaActions();
   const loadData = useCallback(() => fetchPedidosPendientes(), []);
 
-  const rowActions: DataGridRowAction<PedidoConsultaRow>[] = [
-    {
-      actionKey: 'ver',
-      icon: 'find',
-      hintKey: 'grid.action.view',
-      onClick: () => undefined,
-    },
-  ];
+  const rowActions: DataGridRowAction<PedidoConsultaRow>[] = useMemo(
+    () => [
+      {
+        actionKey: 'ver',
+        icon: 'find',
+        hintKey: 'grid.action.view',
+        onClick: (row) => {
+          openCarga(row, 'ver');
+        },
+      },
+    ],
+    [openCarga],
+  );
 
   return (
     <ConsultaGridPage<PedidoConsultaRow>

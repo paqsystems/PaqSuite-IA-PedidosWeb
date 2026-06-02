@@ -7,7 +7,7 @@
 | **Épica** | 101-PedidosWeb |
 | **Prioridad** | Must |
 | **Dependencias** | TR-SPEC-101-06-seguridad-visibilidad; TR-SPEC-101-07-consultas-api (queries coherentes); parámetro `MinutosWeb` (SPEC-001-04); reemplaza demo `GET /api/v1/dashboard/resumen` (GEN-02) |
-| **Estado** | Pendiente |
+| **Estado** | Pendiente de Revisión — **Bloque 4** |
 | **Última actualización** | 2026-06-02 |
 
 **Origen:** [HU-101-025-dashboard](../../03-historias-usuario/101-PedidosWeb/HU-101-025-dashboard.md)  
@@ -198,9 +198,9 @@ Feature: Dashboard operativo
 ## 10) Checklist final
 
 ### Checklist del slice
-- [ ] 8 KPIs + regla -1
-- [ ] Coherencia consultas
-- [ ] E2E §9 paso dashboard
+- [x] 8 KPIs + regla -1
+- [ ] Coherencia consultas (integración tanda 2)
+- [x] E2E §9 paso dashboard (mock KPIs)
 
 ### Checklist normas transversales
 

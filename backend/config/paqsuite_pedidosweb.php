@@ -16,5 +16,13 @@ return [
         'DiasVentasDetalladas' => (int) env('PAQSWEB_DIAS_VENTAS_DETALLADAS', 90),
         'MonedaSimbolo' => (string) env('PAQSWEB_MONEDA_SIMBOLO', '$'),
         'MonedaCodigo' => (string) env('PAQSWEB_MONEDA_CODIGO', 'ARS'),
+        'ModificaPrecioV' => (int) env('PAQSWEB_MODIFICA_PRECIO_V', 1),
+        'ModificaPrecioS' => (int) env('PAQSWEB_MODIFICA_PRECIO_S', 1),
+        'ModificaBonArtV' => (int) env('PAQSWEB_MODIFICA_BON_ART_V', 1),
+        'ModificaBonArtS' => (int) env('PAQSWEB_MODIFICA_BON_ART_S', 1),
+        'ModificaBonCliV' => (int) env('PAQSWEB_MODIFICA_BON_CLI_V', 1),
+        'ModificaBonCliS' => (int) env('PAQSWEB_MODIFICA_BON_CLI_S', 1),
+        'ModificaListaPrecV' => (int) env('PAQSWEB_MODIFICA_LISTA_PREC_V', 1),
+        'ModificaListaPrecS' => (int) env('PAQSWEB_MODIFICA_LISTA_PREC_S', 1),
     ],
 ];

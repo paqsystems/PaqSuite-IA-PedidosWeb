@@ -9,7 +9,9 @@ use App\Models\PqPedidoswebPedidoCabecera;
 use App\Models\PqPedidoswebStock;
 use App\Models\PqPedidoswebVentaDetallada;
 use App\Models\User;
+use App\Services\Visibility\PedidosWebVisibilityGuard;
 use App\Services\Visibility\VisibleClientsResolver;
+use App\Services\Visibility\VisibilityPermissionGuard;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
@@ -20,6 +22,8 @@ final class ConsultaListadoService
         private readonly VisibleClientsResolver $visibleClientsResolver,
         private readonly ConsultaRepositoryInterface $consultaRepository,
         private readonly PedidosWebParameterService $parameterService,
+        private readonly PedidosWebVisibilityGuard $pedidosWebVisibilityGuard,
+        private readonly VisibilityPermissionGuard $visibilityPermissionGuard,
     ) {}
 
     /**
@@ -31,18 +35,22 @@ final class ConsultaListadoService
         $query = $this->baseComprobantesQuery($user)
             ->whereIn('estado', [0, -1])
             ->orderByDesc('fecha');
-        $this->applyCodClienteFilter($query, $filters);
+        $this->applyCodClienteFilter($user, $query, $filters);
 
-        return $this->paginate($query, $filters, static fn (PqPedidoswebPedidoCabecera $item): array => [
-            'codPedido' => (string) $item->cod_pedido,
-            'codCliente' => (string) $item->cod_cliente,
-            'razonSocial' => (string) ($item->cliente?->nombre ?? ''),
-            'estado' => (int) $item->estado,
-            'fecha' => optional($item->fecha)?->toIso8601String(),
-            'numeroVisible' => (int) ($item->nro_visible ?? 0),
-            'guidSufijo' => strtoupper(substr((string) $item->cod_pedido, -6)),
-            'total' => (float) $item->total,
-        ]);
+        $permisos = $this->resolveCargaPermisos($user);
+        $noModifica = $this->parameterService->getNoModificaPedido();
+        $noElimina = $this->parameterService->getNoEliminaPedido();
+
+        return $this->paginate($query, $filters, function (PqPedidoswebPedidoCabecera $item) use ($permisos, $noModifica, $noElimina): array {
+            $estado = (int) $item->estado;
+
+            return [
+                ...$this->mapComprobanteItem($item, 'codPedido'),
+                'puedeEditar' => $permisos['modi'] && ! $noModifica && in_array($estado, [0, -1], true),
+                'puedeEliminar' => $permisos['baja'] && ! $noElimina && $estado === 0,
+                'puedeCopiar' => $permisos['alta'],
+            ];
+        });
     }
 
     /**
@@ -54,16 +62,13 @@ final class ConsultaListadoService
         $query = $this->baseComprobantesQuery($user)
             ->where('estado', 1)
             ->orderByDesc('fecha');
-        $this->applyCodClienteFilter($query, $filters);
+        $this->applyCodClienteFilter($user, $query, $filters);
 
-        return $this->paginate($query, $filters, static fn (PqPedidoswebPedidoCabecera $item): array => [
-            'codPedido' => (string) $item->cod_pedido,
-            'codCliente' => (string) $item->cod_cliente,
-            'razonSocial' => (string) ($item->cliente?->nombre ?? ''),
-            'estado' => (int) $item->estado,
-            'fecha' => optional($item->fecha)?->toIso8601String(),
-            'numeroVisible' => (int) ($item->nro_visible ?? 0),
-            'total' => (float) $item->total,
+        return $this->paginate($query, $filters, fn (PqPedidoswebPedidoCabecera $item): array => [
+            ...$this->mapComprobanteItem($item, 'codPedido'),
+            'puedeEditar' => false,
+            'puedeEliminar' => false,
+            'puedeCopiar' => false,
         ]);
     }
 
@@ -77,19 +82,29 @@ final class ConsultaListadoService
 
         $query = $this->baseComprobantesQuery($user)
             ->where('estado', $estado)
-            ->with('cliente')
+            ->with(['cliente', 'presupuestoCierre.motivo'])
             ->orderByDesc('fecha');
-        $this->applyCodClienteFilter($query, $filters);
+        $this->applyCodClienteFilter($user, $query, $filters);
 
-        return $this->paginate($query, $filters, static fn (PqPedidoswebPedidoCabecera $item): array => [
-            'codPresupuesto' => (string) $item->cod_pedido,
-            'codCliente' => (string) $item->cod_cliente,
-            'razonSocial' => (string) ($item->cliente?->nombre ?? ''),
-            'estado' => (int) $item->estado,
-            'fecha' => optional($item->fecha)?->toIso8601String(),
-            'numeroVisible' => (int) ($item->nro_visible ?? 0),
-            'total' => (float) $item->total,
-        ]);
+        $permisos = $this->resolveCargaPermisos($user);
+        $noModifica = $this->parameterService->getNoModificaPedido();
+        $esActivo = $estado === 99;
+
+        return $this->paginate($query, $filters, function (PqPedidoswebPedidoCabecera $item) use ($permisos, $noModifica, $esActivo): array {
+            $row = [
+                ...$this->mapComprobanteItem($item, 'codPresupuesto'),
+                'puedeEditar' => $esActivo && $permisos['modi'] && ! $noModifica,
+                'puedeConvertir' => $esActivo && $permisos['alta'],
+                'puedeCerrar' => $esActivo && $permisos['modi'],
+                'puedeCopiar' => $esActivo && $permisos['alta'],
+            ];
+
+            if (! $esActivo) {
+                $row['cierre'] = $this->mapPresupuestoCierre($item);
+            }
+
+            return $row;
+        });
     }
 
     /**
@@ -264,11 +279,14 @@ final class ConsultaListadoService
      */
     private function resolveCodCliente(User $user, array $filters): ?string
     {
-        if (filled($filters['cod_cliente'] ?? null)) {
-            return (string) $filters['cod_cliente'];
+        if (! filled($filters['cod_cliente'] ?? null)) {
+            return null;
         }
 
-        return null;
+        $codCliente = (string) $filters['cod_cliente'];
+        $this->pedidosWebVisibilityGuard->ensureCodClienteVisible($user, $codCliente);
+
+        return $codCliente;
     }
 
     private function baseComprobantesQuery(User $user): Builder
@@ -281,12 +299,62 @@ final class ConsultaListadoService
     /**
      * @param  array<string, mixed>  $filters
      */
-    private function applyCodClienteFilter(Builder $query, array $filters): void
+    private function applyCodClienteFilter(User $user, Builder $query, array $filters): void
     {
         if (! filled($filters['cod_cliente'] ?? null)) {
             return;
         }
 
-        $query->where('cod_cliente', (string) $filters['cod_cliente']);
+        $codCliente = (string) $filters['cod_cliente'];
+        $this->pedidosWebVisibilityGuard->ensureCodClienteVisible($user, $codCliente);
+        $query->where('cod_cliente', $codCliente);
+    }
+
+    /**
+     * @return array{alta: bool, modi: bool, baja: bool}
+     */
+    private function resolveCargaPermisos(User $user): array
+    {
+        $procedimiento = (string) config('paqsuite_visibility.procedimientos.cargaComprobantes');
+
+        return [
+            'alta' => $this->visibilityPermissionGuard->hasPermission($user, $procedimiento, 'alta'),
+            'modi' => $this->visibilityPermissionGuard->hasPermission($user, $procedimiento, 'modi'),
+            'baja' => $this->visibilityPermissionGuard->hasPermission($user, $procedimiento, 'baja'),
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function mapComprobanteItem(PqPedidoswebPedidoCabecera $item, string $codigoKey): array
+    {
+        return [
+            $codigoKey => (string) $item->cod_pedido,
+            'codCliente' => (string) $item->cod_cliente,
+            'razonSocial' => (string) ($item->cliente?->nombre ?? ''),
+            'estado' => (int) $item->estado,
+            'fecha' => optional($item->fecha)?->toIso8601String(),
+            'numeroVisible' => (int) ($item->nro_visible ?? 0),
+            'guidSufijo' => strtoupper(substr((string) $item->cod_pedido, -6)),
+            'total' => (float) $item->total,
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function mapPresupuestoCierre(PqPedidoswebPedidoCabecera $item): array
+    {
+        $cierre = $item->presupuestoCierre;
+
+        return [
+            'tipoCierre' => (string) ($cierre?->tipo_cierre ?? ''),
+            'idMotivo' => $cierre?->id_motivo,
+            'motivoDescripcion' => (string) ($cierre?->motivo?->descripcion ?? ''),
+            'fechaCierre' => optional($cierre?->fecha_cierre)?->toIso8601String(),
+            'codPedidoGenerado' => $cierre?->cod_pedido_generado,
+            'observacion' => (string) ($cierre?->observacion ?? ''),
+        ];
     }
 }

@@ -3,11 +3,13 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\GridLayoutController;
 use App\Http\Controllers\HealthController;
+use App\Http\Controllers\Api\V1\PedidosWeb\ArticuloController;
 use App\Http\Controllers\Api\V1\PedidosWeb\ComprobanteController;
 use App\Http\Controllers\Api\V1\PedidosWeb\ConsultaController;
 use App\Http\Controllers\Api\V1\PedidosWeb\DashboardController;
 use App\Http\Controllers\Api\V1\PedidosWeb\IntegracionLogController;
 use App\Http\Controllers\Api\V1\PedidosWeb\MotivoCierreController;
+use App\Http\Controllers\Api\V1\PedidosWeb\ParametrosCargaController;
 use App\Http\Controllers\Api\V1\PedidosWeb\PedidoController;
 use App\Http\Controllers\Api\V1\PedidosWeb\PresupuestoCierreController;
 use App\Http\Controllers\Api\V1\PedidosWeb\PresupuestoController;
@@ -55,6 +57,10 @@ Route::prefix('v1')->group(function (): void {
                 ->name('api.v1.users.me.preferences.locale');
             Route::patch('/users/me/preferences/theme', [UserPreferencesController::class, 'updateTheme'])
                 ->name('api.v1.users.me.preferences.theme');
+            Route::get('/config/parametros-carga', [ParametrosCargaController::class, 'show'])
+                ->name('api.v1.config.parametros-carga');
+            Route::get('/articulos', [ArticuloController::class, 'index'])
+                ->name('api.v1.articulos.index');
             Route::get('/clientes', [VisibilityDataController::class, 'clients'])
                 ->name('api.v1.clientes.index');
             Route::get('/comprobantes/{id}', [VisibilityDataController::class, 'showComprobante'])

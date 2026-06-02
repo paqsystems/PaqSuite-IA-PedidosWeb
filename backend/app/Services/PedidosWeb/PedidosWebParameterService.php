@@ -66,6 +66,35 @@ final class PedidosWebParameterService
         return $this->getInt('DiasVentasDetalladas', 90, 1);
     }
 
+    /**
+     * @return array{
+     *     modificaPrecio: bool,
+     *     modificaBonArt: bool,
+     *     modificaBonCli: bool,
+     *     modificaListaPrec: bool
+     * }
+     */
+    public function resolveModificaFlags(string $functionalProfile): array
+    {
+        if ($functionalProfile === 'cliente') {
+            return [
+                'modificaPrecio' => false,
+                'modificaBonArt' => false,
+                'modificaBonCli' => false,
+                'modificaListaPrec' => false,
+            ];
+        }
+
+        $suffix = $functionalProfile === 'supervisor' ? 'S' : 'V';
+
+        return [
+            'modificaPrecio' => $this->getBool("ModificaPrecio{$suffix}", true),
+            'modificaBonArt' => $this->getBool("ModificaBonArt{$suffix}", true),
+            'modificaBonCli' => $this->getBool("ModificaBonCli{$suffix}", true),
+            'modificaListaPrec' => $this->getBool("ModificaListaPrec{$suffix}", true),
+        ];
+    }
+
     public function getMonedaSimbolo(): string
     {
         return trim((string) $this->resolveValue('MonedaSimbolo', '$')) ?: '$';

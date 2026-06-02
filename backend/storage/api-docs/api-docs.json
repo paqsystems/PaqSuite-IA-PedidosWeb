@@ -702,6 +702,1419 @@
                     }
                 ]
             }
+        },
+        "/api/v1/comprobantes/grabar": {
+            "post": {
+                "tags": [
+                    "PedidosWeb"
+                ],
+                "summary": "Grabar pedido o presupuesto (contrato unificado)",
+                "description": "Rutas REST PedidosWeb (SPEC-101-05 / SPEC-101-07).",
+                "operationId": "9264dd3b2bb4cabfb8e70352e778d767",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "accionGrabacion",
+                                    "cabecera",
+                                    "renglones"
+                                ],
+                                "properties": {
+                                    "accionGrabacion": {
+                                        "type": "string",
+                                        "enum": [
+                                            "pedido",
+                                            "presupuesto"
+                                        ]
+                                    },
+                                    "cod_pedido": {
+                                        "type": "string",
+                                        "nullable": true
+                                    },
+                                    "cod_pedido_origen": {
+                                        "type": "string",
+                                        "nullable": true
+                                    },
+                                    "cod_presupuesto_origen": {
+                                        "type": "string",
+                                        "nullable": true
+                                    },
+                                    "cabecera": {
+                                        "type": "object"
+                                    },
+                                    "renglones": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Comprobante grabado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelope"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Tenant invalido"
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "403": {
+                        "description": "Sin permiso"
+                    },
+                    "422": {
+                        "description": "Validacion o regla de negocio"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/comprobantes/copiar": {
+            "post": {
+                "tags": [
+                    "PedidosWeb"
+                ],
+                "summary": "Copiar comprobante existente a pedido o presupuesto",
+                "operationId": "972b288e375eeb1ef8598283879b8f1a",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "codComprobanteOrigen",
+                                    "tipoDestino"
+                                ],
+                                "properties": {
+                                    "codComprobanteOrigen": {
+                                        "type": "string"
+                                    },
+                                    "tipoDestino": {
+                                        "type": "string",
+                                        "enum": [
+                                            "pedido",
+                                            "presupuesto"
+                                        ]
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Comprobante copiado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelope"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Tenant invalido"
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "403": {
+                        "description": "Sin permiso"
+                    },
+                    "422": {
+                        "description": "Regla de negocio"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/pedidos": {
+            "post": {
+                "tags": [
+                    "PedidosWeb"
+                ],
+                "summary": "Alta de pedido",
+                "operationId": "abfe995a19dea3e991bd88def060ee04",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "cabecera",
+                                    "renglones"
+                                ],
+                                "properties": {
+                                    "cabecera": {
+                                        "type": "object"
+                                    },
+                                    "renglones": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "cod_presupuesto_origen": {
+                                        "type": "string",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Pedido creado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelope"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Tenant invalido"
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "403": {
+                        "description": "Sin permiso alta"
+                    },
+                    "422": {
+                        "description": "Validacion o regla de negocio"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/pedidos/{cod_pedido}": {
+            "get": {
+                "tags": [
+                    "PedidosWeb"
+                ],
+                "summary": "Obtener pedido con detalle",
+                "operationId": "07d378e3be34f17401ab852b8a5e3a88",
+                "parameters": [
+                    {
+                        "name": "cod_pedido",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Pedido",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelope"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Tenant invalido"
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "403": {
+                        "description": "Sin permiso repo"
+                    },
+                    "404": {
+                        "description": "Pedido inexistente"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "PedidosWeb"
+                ],
+                "summary": "Modificar pedido existente",
+                "operationId": "30df416bd4edb44dcadeaad5848e7acc",
+                "parameters": [
+                    {
+                        "name": "cod_pedido",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "cabecera",
+                                    "renglones"
+                                ],
+                                "properties": {
+                                    "cabecera": {
+                                        "type": "object"
+                                    },
+                                    "renglones": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Pedido modificado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelope"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Tenant invalido"
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "403": {
+                        "description": "Sin permiso modi"
+                    },
+                    "404": {
+                        "description": "Pedido inexistente"
+                    },
+                    "422": {
+                        "description": "Regla de negocio"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "PedidosWeb"
+                ],
+                "summary": "Eliminar pedido en estado 0",
+                "operationId": "2779b61f68f2f21d391ae5df9d00738c",
+                "parameters": [
+                    {
+                        "name": "cod_pedido",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Pedido eliminado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelopeEmpty"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Tenant invalido"
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "403": {
+                        "description": "Sin permiso baja"
+                    },
+                    "422": {
+                        "description": "Eliminacion deshabilitada o estado invalido"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/pedidos/{cod_pedido}/edicion/iniciar": {
+            "post": {
+                "tags": [
+                    "PedidosWeb"
+                ],
+                "summary": "Iniciar edicion concurrente del pedido",
+                "operationId": "a834fe755a0c84530bdec2518ff57f7e",
+                "parameters": [
+                    {
+                        "name": "cod_pedido",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Edicion iniciada (estado -1)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelope"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Tenant invalido"
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "403": {
+                        "description": "Sin permiso modi"
+                    },
+                    "404": {
+                        "description": "Pedido inexistente"
+                    },
+                    "409": {
+                        "description": "Otro usuario editando"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/pedidos/{cod_pedido}/edicion/actividad": {
+            "post": {
+                "tags": [
+                    "PedidosWeb"
+                ],
+                "summary": "Renovar timestamp de actividad en edicion",
+                "operationId": "3edeba0507ad9dff7620a25f4dc11e97",
+                "parameters": [
+                    {
+                        "name": "cod_pedido",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Actividad actualizada",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelope"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Tenant invalido"
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "403": {
+                        "description": "Sin permiso modi"
+                    },
+                    "404": {
+                        "description": "Pedido inexistente"
+                    },
+                    "422": {
+                        "description": "Pedido no en edicion"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/pedidos/{cod_pedido}/edicion/cancelar": {
+            "post": {
+                "tags": [
+                    "PedidosWeb"
+                ],
+                "summary": "Cancelar edicion y volver a estado 0",
+                "operationId": "d540dc6794864306350bf401b74cc311",
+                "parameters": [
+                    {
+                        "name": "cod_pedido",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Edicion cancelada",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelope"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Tenant invalido"
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "403": {
+                        "description": "Sin permiso modi"
+                    },
+                    "404": {
+                        "description": "Pedido inexistente"
+                    },
+                    "422": {
+                        "description": "Pedido no en edicion"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/presupuestos": {
+            "post": {
+                "tags": [
+                    "PedidosWeb"
+                ],
+                "summary": "Alta de presupuesto",
+                "operationId": "37977c2b4670a687c120213aa34b3c28",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "cabecera",
+                                    "renglones"
+                                ],
+                                "properties": {
+                                    "cabecera": {
+                                        "type": "object"
+                                    },
+                                    "renglones": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "cod_pedido_origen": {
+                                        "type": "string",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Presupuesto creado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelope"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Tenant invalido"
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "403": {
+                        "description": "Sin permiso alta"
+                    },
+                    "422": {
+                        "description": "Validacion o regla de negocio"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/presupuestos/{cod_pedido}": {
+            "put": {
+                "tags": [
+                    "PedidosWeb"
+                ],
+                "summary": "Modificar presupuesto existente",
+                "operationId": "36d8b7e393c3cbb5c839adc63040cb32",
+                "parameters": [
+                    {
+                        "name": "cod_pedido",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "cabecera",
+                                    "renglones"
+                                ],
+                                "properties": {
+                                    "cabecera": {
+                                        "type": "object"
+                                    },
+                                    "renglones": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Presupuesto modificado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelope"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Tenant invalido"
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "403": {
+                        "description": "Sin permiso modi"
+                    },
+                    "404": {
+                        "description": "Presupuesto inexistente"
+                    },
+                    "422": {
+                        "description": "Regla de negocio"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/presupuestos/{cod}/cerrar": {
+            "post": {
+                "tags": [
+                    "PedidosWeb"
+                ],
+                "summary": "Cerrar presupuesto por rechazo",
+                "operationId": "4d030d8ececb3dd4b446dba5e5c2579a",
+                "parameters": [
+                    {
+                        "name": "cod",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "id_motivo"
+                                ],
+                                "properties": {
+                                    "id_motivo": {
+                                        "type": "integer"
+                                    },
+                                    "observacion": {
+                                        "type": "string",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Presupuesto cerrado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelope"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Tenant invalido"
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "403": {
+                        "description": "Sin permiso modi"
+                    },
+                    "404": {
+                        "description": "Presupuesto inexistente"
+                    },
+                    "422": {
+                        "description": "Estado invalido para cierre"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/motivos-cierre": {
+            "get": {
+                "tags": [
+                    "PedidosWeb"
+                ],
+                "summary": "Catalogo de motivos de cierre de presupuesto",
+                "operationId": "efa7d9a14d80641d5181378553db7111",
+                "parameters": [
+                    {
+                        "name": "tipo_cierre",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "activo",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "1"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Motivos de cierre",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelope"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Tenant invalido"
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "403": {
+                        "description": "Sin permiso repo"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/presupuestos/{cod}/tratativas": {
+            "get": {
+                "tags": [
+                    "PedidosWeb"
+                ],
+                "summary": "Listar tratativas de un presupuesto",
+                "operationId": "1d2725fc66ccddf03497cf5a39cb5b16",
+                "parameters": [
+                    {
+                        "name": "cod",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Tratativas",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelope"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Tenant invalido"
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "403": {
+                        "description": "Sin permiso repo"
+                    },
+                    "404": {
+                        "description": "Presupuesto inexistente"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "PedidosWeb"
+                ],
+                "summary": "Registrar tratativa en presupuesto",
+                "operationId": "2acdea446259cbe86b2ee06149c6d2ac",
+                "parameters": [
+                    {
+                        "name": "cod",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "comentario"
+                                ],
+                                "properties": {
+                                    "comentario": {
+                                        "type": "string"
+                                    },
+                                    "id_resultado": {
+                                        "type": "integer",
+                                        "nullable": true
+                                    },
+                                    "proxima_fecha": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "nullable": true
+                                    },
+                                    "proxima_accion": {
+                                        "type": "string",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Tratativa creada",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelope"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Tenant invalido"
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "403": {
+                        "description": "Sin permiso modi"
+                    },
+                    "404": {
+                        "description": "Presupuesto inexistente"
+                    },
+                    "422": {
+                        "description": "Validacion"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/consultas/pedidos-ingresados": {
+            "get": {
+                "tags": [
+                    "PedidosWeb"
+                ],
+                "summary": "Consulta pedidos ingresados",
+                "operationId": "27a7c95af5315b598e5d7a98c3442dd4",
+                "responses": {
+                    "200": {
+                        "description": "Listado paginado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelope"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Tenant invalido"
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "403": {
+                        "description": "Sin permiso consulta"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/consultas/pedidos-pendientes": {
+            "get": {
+                "tags": [
+                    "PedidosWeb"
+                ],
+                "summary": "Consulta pedidos pendientes",
+                "operationId": "2afa29261019a42a23e9b4fd029de142",
+                "responses": {
+                    "200": {
+                        "description": "Listado paginado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelope"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Tenant invalido"
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "403": {
+                        "description": "Sin permiso consulta"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/consultas/presupuestos": {
+            "get": {
+                "tags": [
+                    "PedidosWeb"
+                ],
+                "summary": "Consulta presupuestos",
+                "operationId": "f5ce531876e8fac62109488272f43d58",
+                "responses": {
+                    "200": {
+                        "description": "Listado paginado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelope"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Tenant invalido"
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "403": {
+                        "description": "Sin permiso consulta"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/consultas/stock": {
+            "get": {
+                "tags": [
+                    "PedidosWeb"
+                ],
+                "summary": "Consulta stock de articulos",
+                "operationId": "6db9d9fe808c5d0d0b62de7f1bab8226",
+                "responses": {
+                    "200": {
+                        "description": "Listado paginado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelope"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Tenant invalido"
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "403": {
+                        "description": "Sin permiso consulta"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/consultas/deuda": {
+            "get": {
+                "tags": [
+                    "PedidosWeb"
+                ],
+                "summary": "Consulta deuda del cliente",
+                "operationId": "9f7830e294c980600fb8bd050d0230b0",
+                "responses": {
+                    "200": {
+                        "description": "Listado paginado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelope"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Tenant invalido"
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "403": {
+                        "description": "Sin permiso consulta"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/consultas/cheques": {
+            "get": {
+                "tags": [
+                    "PedidosWeb"
+                ],
+                "summary": "Consulta cheques del cliente",
+                "operationId": "116d4f617f85032289a01ac8bf8ffede",
+                "responses": {
+                    "200": {
+                        "description": "Listado paginado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelope"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Tenant invalido"
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "403": {
+                        "description": "Sin permiso consulta"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/consultas/historial-ventas": {
+            "get": {
+                "tags": [
+                    "PedidosWeb"
+                ],
+                "summary": "Historial de ventas del cliente",
+                "operationId": "f7c856e3721655ecb18ea7595d61dfda",
+                "responses": {
+                    "200": {
+                        "description": "Listado paginado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelope"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Tenant invalido"
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "403": {
+                        "description": "Sin permiso consulta"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/integracion/logs": {
+            "get": {
+                "tags": [
+                    "PedidosWeb"
+                ],
+                "summary": "Logs de integracion (mail, etc.)",
+                "operationId": "d7585d98f1c3a0b7979e34bc77a63896",
+                "responses": {
+                    "200": {
+                        "description": "Listado paginado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelope"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Tenant invalido"
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "403": {
+                        "description": "Sin permiso repo"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/dashboard/operativo": {
+            "get": {
+                "tags": [
+                    "PedidosWeb"
+                ],
+                "summary": "Dashboard operativo PedidosWeb",
+                "operationId": "47035e234318ac0a8456260b9b797017",
+                "responses": {
+                    "200": {
+                        "description": "Indicadores operativos",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelope"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Tenant invalido"
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "403": {
+                        "description": "Sin permiso dashboard"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/config/parametros-carga": {
+            "get": {
+                "tags": [
+                    "PedidosWeb"
+                ],
+                "summary": "Parametros Modifica* y flags UI para pantalla de carga",
+                "operationId": "5ecb4a7761dc8af95588ab4c50ad3c9a",
+                "responses": {
+                    "200": {
+                        "description": "Flags segun perfil comercial",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelope"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Tenant invalido"
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/articulos": {
+            "get": {
+                "tags": [
+                    "PedidosWeb"
+                ],
+                "summary": "Autocompletar articulos para carga de comprobantes",
+                "operationId": "e44e700861e6edaf63edd3a7779db7df",
+                "parameters": [
+                    {
+                        "name": "q",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "page_size",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "maximum": 50
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Listado de articulos",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelope"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Tenant invalido"
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "403": {
+                        "description": "Sin permiso repo"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
         }
     },
     "components": {
@@ -1398,6 +2811,10 @@
         }
     },
     "tags": [
+        {
+            "name": "PedidosWeb",
+            "description": "Carga, consultas, dashboard operativo e integración"
+        },
         {
             "name": "Auth",
             "description": "Auth"

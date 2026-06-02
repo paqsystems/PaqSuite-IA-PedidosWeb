@@ -32,6 +32,7 @@ final class ComprobanteController extends Controller
             'cod_pedido' => ['nullable', 'string'],
             'cod_pedido_origen' => ['nullable', 'string'],
             'cod_presupuesto_origen' => ['nullable', 'string'],
+            'cod_comprobante_origen_copia' => ['nullable', 'string'],
             'cabecera' => ['required', 'array'],
             'cabecera.cod_cliente' => ['required', 'string'],
             'renglones' => ['required', 'array', 'min:1'],
@@ -76,7 +77,7 @@ final class ComprobanteController extends Controller
                 (string) config('paqsuite_visibility.procedimientos.cargaComprobantes'),
                 'alta'
             );
-            $resultado = $this->pedidoService->copiarComprobante($validated);
+            $resultado = $this->pedidoService->copiarComprobante($validated, $user);
         } catch (AuthFlowException|PedidosWebBusinessException $exception) {
             return ApiResponse::error(
                 $exception->errorCode(),

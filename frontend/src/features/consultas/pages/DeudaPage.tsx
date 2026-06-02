@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next';
 import { Column } from 'devextreme-react/data-grid';
 import { ConsultaGridPage } from '../components/ConsultaGridPage';
 import { fetchDeuda, type DeudaConsultaRow } from '../api/consultaApi';
-import type { DataGridRowAction } from '../../../shared/ui/grids';
 
 const proceso = 'pw_deuda';
 const gridId = 'pw_deuda';
@@ -12,15 +11,6 @@ export function DeudaPage() {
   const { t } = useTranslation();
   const loadData = useCallback(() => fetchDeuda(), []);
 
-  const rowActions: DataGridRowAction<DeudaConsultaRow>[] = [
-    {
-      actionKey: 'ver',
-      icon: 'find',
-      hintKey: 'grid.action.view',
-      onClick: () => undefined,
-    },
-  ];
-
   return (
     <ConsultaGridPage<DeudaConsultaRow>
       pageTestId="page-consulta-deuda"
@@ -28,7 +18,7 @@ export function DeudaPage() {
       proceso={proceso}
       gridId={gridId}
       loadData={loadData}
-      rowActions={rowActions}
+      rowActions={[]}
       columns={
         <>
           <Column dataField="cliente" caption={t('consultas.column.cliente')} />

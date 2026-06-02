@@ -21,7 +21,7 @@ final class TratativaController extends Controller
 
     public function index(Request $request, string $cod): JsonResponse
     {
-        return $this->resolver($request, 'repo', fn () => $this->tratativaService->listar($cod));
+        return $this->resolver($request, 'repo', fn () => $this->tratativaService->listar($cod, $request->user()));
     }
 
     public function store(Request $request, string $cod): JsonResponse

@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next';
 import { Column } from 'devextreme-react/data-grid';
 import { ConsultaGridPage } from '../components/ConsultaGridPage';
 import { fetchCheques, type ChequeConsultaRow } from '../api/consultaApi';
-import type { DataGridRowAction } from '../../../shared/ui/grids';
 
 const proceso = 'pw_cheques';
 const gridId = 'pw_cheques';
@@ -12,15 +11,6 @@ export function ChequesPage() {
   const { t } = useTranslation();
   const loadData = useCallback(() => fetchCheques(), []);
 
-  const rowActions: DataGridRowAction<ChequeConsultaRow>[] = [
-    {
-      actionKey: 'ver',
-      icon: 'find',
-      hintKey: 'grid.action.view',
-      onClick: () => undefined,
-    },
-  ];
-
   return (
     <ConsultaGridPage<ChequeConsultaRow>
       pageTestId="page-consulta-cheques"
@@ -28,7 +18,7 @@ export function ChequesPage() {
       proceso={proceso}
       gridId={gridId}
       loadData={loadData}
-      rowActions={rowActions}
+      rowActions={[]}
       columns={
         <>
           <Column dataField="cliente" caption={t('consultas.column.cliente')} />

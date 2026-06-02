@@ -36,17 +36,17 @@ Skipped: integración repositories (6) + 403 feature (2) — PHPUnit sin BD `Ank
 | 101-02 | Modelos | Must | 38% (3/8) | Smoke integración modelos |
 | 101-03 | Repositories | Must | 38% (3/8) | Tests integración → **BLOQUEADO_ENV** |
 | 101-06 | Seguridad visibilidad | Must | 13% (1/8) | Visibilidad en escritura; E2E mock |
-| 101-04 | Services pedidos | Must | ~46% (6/13) | Cobertura ≥70%; tests matriz/conversión/edición |
-| 101-05 | Controllers REST | Must | ~55% (6/11) | OpenAPI PedidosWeb; feature 200/403 |
+| 101-04 | Services pedidos | Must | **Bloque 3 PARCIAL** (~54%) | Cobertura ≥70%; tests matriz/conversión integración |
+| 101-05 | Controllers REST | Must | **Bloque 3 PARCIAL** (~64%) | Feature 200 feliz; matriz §5.3 parametros-carga |
 | 101-09 | Frontend base | Must | ~80% (8/10) | E2E menú vs seed real |
-| 101-10 | Pantalla carga | Must | ~42% (5/12) | Matriz §10.1, Modifica*, autocompletar, E2E API real |
-| 101-07 | Consultas API | Must | ~60% (6/10) | Flags acción; join cierres 98; OpenAPI |
-| 101-11 | Consultas UI | Must | ~40% (4/10) | Acciones cableadas; E2E consultas |
+| 101-10 | Pantalla carga | Must | **Bloque 3 PARCIAL** (~75%) | E2E API real tanda 2; matriz T5/T6 integración |
+| 101-07 | Consultas API | Must | **Bloques 1–2 OK**; matriz pendiente | 403 consultas; matriz permisos |
+| 101-11 | Consultas UI | Must | **Bloque 4 PARCIAL** | E2E export mock OK; feature real tanda 2 |
 | 101-13 | Mails | Must | ~70% (7/10) | `Mail::fake()` feature tests |
-| 101-14 | Dashboard | Must | ~63% (5/8) | Test regla -1; E2E §9 paso 8 |
+| 101-14 | Dashboard | Must | **Bloque 4 PARCIAL** (~88%) | Feature 200 BLOQUEADO_ENV |
 | 101-12 | Tratativas/cierre | Should+Must | ~25% | Popup cierre UI; feature feliz cerrar |
-| 101-08 | Logs integración | Should | ~33% | UI grilla logs |
-| 101-15 | Tests hardening | Must | ~15% | E2E §9 completo; gate cobertura CI |
+| 101-08 | Logs integración | Should | **Bloque 4 PARCIAL** | UI grilla + filtros DX |
+| 101-15 | Tests hardening | Must | **Bloque 4 PARCIAL** (~35%) | E2E §9 pasos 7–8 mock; cobertura CI pendiente |
 
 **Cierre formal D:** pendiente hasta resolver ítems **PENDIENTE** Must y ejecutar tanda 2 con entorno.
 
@@ -98,14 +98,14 @@ Skipped: integración repositories (6) + 403 feature (2) — PHPUnit sin BD `Ank
 
 | AC | Estado | Evidencia / nota |
 |----|--------|------------------|
-| AC-01…06 | OK/PARCIAL | `PedidoService` — lógica presente; tests solo eliminar/grabar rechazo |
-| AC-07 | PARCIAL | Edición -1 implementada; código 409 vs TR 2000; sin test |
-| AC-08 | PARCIAL | `touchActividadEdicion` sin test |
-| AC-09…10 | PARCIAL | `PresupuestoCierreService` sin tests |
-| AC-11 | PARCIAL | Copia borrador OK; falta `origen_comprobante=copia` |
+| AC-01…06 | OK/PARCIAL | `PedidoService` — edición, eliminar, rechazos grabación |
+| AC-07 | PARCIAL | Edición -1 implementada + tests unitarios; código 409 vs TR 2000 |
+| AC-08 | PARCIAL | `touchActividadEdicion` sin test dedicado |
+| AC-09…10 | PARCIAL | `PresupuestoCierreService` tests rechazo; sin feliz |
+| AC-11 | OK | Copia borrador + `origen_comprobante=copia` en grabación |
 | AC-12 | OK | `CalculoTotalesServiceTest` |
 | AC-13 | PENDIENTE | Cobertura services < 70% |
-| AC-14 | PARCIAL | `PedidosWebParameterService` + ERP `PQ_parametros_gral` |
+| AC-14 | OK | `resolveModificaFlags` + `ParametrosCargaService` + validación payload |
 
 ---
 
@@ -115,9 +115,9 @@ Skipped: integración repositories (6) + 403 feature (2) — PHPUnit sin BD `Ank
 |----|--------|------------------|
 | AC-01…03, 09…11 | OK | Controllers delgados; rutas `api.php`; sin DELETE presupuesto |
 | AC-04 | PARCIAL | Policy `VisibilityPermissionGuard`; 403 solo 1 test |
-| AC-05 | PENDIENTE | Sin `@OA\` en controllers PedidosWeb |
+| AC-05 | PARCIAL | `@OA\` en `PedidosWebOpenApiPaths` incl. parametros-carga y articulos |
 | AC-06 | OK | `matriz-permisos-mvp.md` § PedidosWeb carga |
-| AC-07 | PARCIAL | 401×25; sin 200 feliz por endpoint |
+| AC-07 | PARCIAL | 401×27; sin 200 feliz por endpoint |
 | AC-08 | PARCIAL | Ruta cerrar OK; sin feature 200 |
 
 ---
@@ -137,9 +137,12 @@ Skipped: integración repositories (6) + 403 feature (2) — PHPUnit sin BD `Ank
 | AC | Estado | Evidencia / nota |
 |----|--------|------------------|
 | AC-01, 02, 11, 12 | OK | Ruta, botones DX, testids, toast mail |
-| AC-07 | PARCIAL | Confirmación + mail; E2E mock |
-| AC-08, 09 | PARCIAL | Deep link / copia parcial |
-| AC-03…06, 10 | PENDIENTE/PARCIAL | Matriz, perfiles, Modifica*, artículos, E2E API real |
+| AC-03 | PARCIAL | Matriz §10.1 en UI (visibilidad botones); validación backend |
+| AC-04, 05 | OK | Perfil cliente fijo; `Modifica*` deshabilita precio/bonif |
+| AC-06 | PARCIAL | Autocompletar artículos SelectBox + `GET /articulos` |
+| AC-07 | PARCIAL | Confirmación + mail; E2E mock con parametros-carga |
+| AC-08, 09 | PARCIAL | Edición -1 (`iniciar`/`cancelar`); copia con `cod_comprobante_origen_copia` |
+| AC-10 | PARCIAL | Modo `ver` solo lectura |
 
 ---
 
@@ -147,10 +150,11 @@ Skipped: integración repositories (6) + 403 feature (2) — PHPUnit sin BD `Ank
 
 | AC | Estado | Evidencia / nota |
 |----|--------|------------------|
-| AC-02, 04…08 | OK | `ConsultaListadoService` |
-| AC-01, 03 | PARCIAL | Sin flags acción; sin join cierres 98 |
-| AC-09 | PARCIAL | 401 OK; 403/422 consultas pendientes |
-| AC-10 | PARCIAL | Matriz wildcard; OpenAPI pendiente |
+| AC-01…03 (pedidos/presup) | OK | flags acción; estados 0/-1/1/99/98; join cierres 98 |
+| AC-04…08 (gestión) | OK | stock/deuda/cheques/historial; paginación; `DiasVentasDetalladas` |
+| AC-07 | OK | `PedidosWebVisibilityGuard` en comprobantes y gestión |
+| AC-09 | PARCIAL | 401 + 404 `cod_cliente`; 403 consultas pendiente |
+| AC-10 | PARCIAL | Paths OpenAPI; matriz consultas pendiente |
 
 ---
 
@@ -158,9 +162,9 @@ Skipped: integración repositories (6) + 403 feature (2) — PHPUnit sin BD `Ank
 
 | AC | Estado | Evidencia / nota |
 |----|--------|------------------|
-| AC-01, 05, 06, 07 | OK | Grillas, pendientes RO, carátula, layouts |
-| AC-03, 04, 08, 10 | PARCIAL | Acciones sin navegar; permisos UI |
-| AC-02, 09 | PENDIENTE | E2E export consultas; ≥2 E2E consultas |
+| AC-01, 06, 07, 10 | OK | Grillas gestión + comprobantes; i18n; layouts |
+| AC-03…05, 08 | OK | Acciones cableadas; flags `puede*`; cierre DX |
+| AC-02, 09 | PARCIAL | E2E export consultas mock (`gridExportExcel` habilitado) |
 
 ---
 
@@ -178,8 +182,9 @@ Skipped: integración repositories (6) + 403 feature (2) — PHPUnit sin BD `Ank
 | AC | Estado | Evidencia / nota |
 |----|--------|------------------|
 | AC-01, 03, 05, 06 | OK | 8 KPIs UI + service |
-| AC-04 | PARCIAL | Regla -1 en service; sin unit test |
-| AC-07, 08 | PARCIAL/PENDIENTE | E2E §9 paso 8; 403 BLOQUEADO_ENV |
+| AC-04 | OK | Regla -1 documentada + `DashboardOperativoServiceTest` |
+| AC-07 | PARCIAL | E2E §9 paso 8 mock (8 KPIs assert) |
+| AC-08 | PARCIAL | 401 OK; 403 BLOQUEADO_ENV |
 
 ---
 
@@ -192,8 +197,12 @@ Skipped: integración repositories (6) + 403 feature (2) — PHPUnit sin BD `Ank
 
 ## TR-SPEC-101-08 — Logs (Should)
 
-| AC | PARCIAL/PENDIENTE | API listo; UI placeholder |
-|----|-------------------|---------------------------|
+| AC | Estado | Evidencia / nota |
+|----|--------|------------------|
+| AC-01, 02 | OK | `LogIntegracionService` list + write |
+| AC-03 | PARCIAL | `IntegracionLogsPage` grilla DX + filtros DateBox/SelectBox |
+| AC-04, 05 | PARCIAL | 401 auth test; 403/feature BLOQUEADO_ENV |
+| AC-06 | OK | Should — no bloquea §9 |
 
 ---
 
@@ -201,8 +210,8 @@ Skipped: integración repositories (6) + 403 feature (2) — PHPUnit sin BD `Ank
 
 | AC | Estado |
 |----|--------|
-| E2E §9 completo | PARCIAL (mock) |
-| Feature 200 por operación | PENDIENTE |
+| E2E §9 completo | PARCIAL | Mock pasos 7–8 (consulta + dashboard KPIs) |
+| Feature 200 por operación | PENDIENTE | BLOQUEADO_ENV |
 | Cobertura ≥70% services | PENDIENTE |
 | Gate CI | PENDIENTE |
 
@@ -242,3 +251,7 @@ Skipped: integración repositories (6) + 403 feature (2) — PHPUnit sin BD `Ank
 |-------|--------------|-------|-------|
 | 2026-06-02 | 02…15 (auditoría) | 40 pass / 8 skip; build OK | Informe inicial; CAPTION/TOOLTIP ERP aplicados por usuario |
 | 2026-06-02 | 101-13, 101-04 (P1) | **44 pass / 9 skip** | `ComprobanteMailServiceTest` (Mail::fake); `PresupuestoCierreServiceTest`; fix `ComprobanteNotificationMail::$viewData` |
+| 2026-06-02 | **101-07, 101-11 Bloque 1** (gestión) | **55 pass / 44 skip** | Visibilidad `cod_cliente` consultas; mapeo API↔UI frontend; TR actualizadas |
+| 2026-06-02 | **101-07, 101-11 Bloque 2** (pedidos/presup) | **55 pass / 46 skip** | Flags acción API; join cierres 98; acciones grilla + cierre presupuesto DX |
+| 2026-06-02 | **101-04, 101-05, 101-10, 101-13 Bloque 3** | **61 pass / 46 skip** | Parametros-carga; articulos; Modifica*; PedidosCargaPage edición/copia/ver; OpenAPI |
+| 2026-06-02 | **101-08, 101-14, 101-11, 101-15 Bloque 4** | **66 pass / 47 skip**; build OK | Dashboard regla -1 test; logs UI; E2E §9 KPIs+export; i18n fr/pt/it |

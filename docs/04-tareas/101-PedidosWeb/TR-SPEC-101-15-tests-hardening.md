@@ -7,8 +7,8 @@
 | **Épica** | 101-PedidosWeb |
 | **Prioridad** | Must (transversal) |
 | **Dependencias** | Slices TR-SPEC-101-02 … TR-SPEC-101-14 según orden §10 SPEC madre; GEN-01/02/03 completados |
-| **Estado** | Pendiente |
-| **Última actualización** | 2026-06-01 |
+| **Estado** | Pendiente de Revisión — **Bloque 4** (parcial) |
+| **Última actualización** | 2026-06-02 |
 
 **Origen:** [SPEC-101-15-tests-hardening](../../05-open-spec/101-PedidosWeb/SPEC-101-15-tests-hardening.md), [PedidosWeb_SPEC_MVP.md §9 y §12](../../05-open-spec/101-PedidosWeb/PedidosWeb_SPEC_MVP.md)  
 **Normas transversales:** [`../_NORMAS-TRANSVERSALES-TR.md`](../_NORMAS-TRANSVERSALES-TR.md)
@@ -173,7 +173,9 @@ N/A — matriz de trazabilidad test ↔ endpoint en anexo post-implementación (
 ## 10) Checklist final
 
 ### Checklist del slice (cierre MVP)
-- [ ] E2E §9 verde QA
+- [x] E2E §9 pasos 7–8 mock (consulta ingresados + dashboard KPIs)
+- [x] E2E export consultas mock (`gridExportExcel`)
+- [ ] E2E §9 verde QA con API real
 - [ ] ≥ 2 E2E por slice UI Must
 - [ ] Feature tests endpoints 101
 - [ ] Cobertura services ≥ 70 %

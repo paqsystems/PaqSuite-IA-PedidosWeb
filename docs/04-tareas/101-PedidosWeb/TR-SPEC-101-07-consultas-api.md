@@ -7,8 +7,8 @@
 | **Épica** | 101 — PedidosWeb |
 | **Prioridad** | Must |
 | **Dependencias** | TR-SPEC-101-06 (visibilidad); SPEC-101-03 (repositories); contexto [SPEC-001-04](../../05-open-spec/001-Generaliddes/SPEC-001-04-configuracion-global.md) para `DiasVentasDetalladas` |
-| **Estado** | Pendiente |
-| **Última actualización** | 2026-06-01 |
+| **Estado** | Pendiente de Revisión — **Bloques 1–2** (gestión + pedidos/presupuestos) |
+| **Última actualización** | 2026-06-02 |
 
 **Origen:** HU-101-015, HU-101-016, HU-101-017, HU-101-018, HU-101-021, HU-101-022, HU-101-023  
 **Referencia SPEC:** [SPEC-101-07-consultas-api](../../05-open-spec/101-PedidosWeb/SPEC-101-07-consultas-api.md)  
@@ -291,7 +291,25 @@ Ninguno en este slice (API only). TR-SPEC-101-11 consumirá estos endpoints.
 
 ## 10) Checklist final
 
-### Checklist del slice
+### Checklist del slice (Bloque 2 — pedidos/presupuestos)
+- [x] AC-01 — pedidos ingresados estados 0/-1 + flags `puedeEditar`/`puedeEliminar`/`puedeCopiar`
+- [x] AC-02 — pedidos pendientes estado 1, solo lectura en flags
+- [x] AC-03 — presupuestos `estado=99|98`; join `presupuestos_cierres` en 98
+- [x] AC-07 — `cod_cliente` validado en comprobantes (404)
+- [ ] AC-09 — 403 consultas (parcial; 404 visibilidad OK)
+- [ ] AC-10 — matriz permisos consultas (parcial)
+
+### Checklist del slice (Bloque 1 — gestión)
+- [x] AC-04 — stock/deuda/cheques/historial (§17.4–17.7)
+- [x] AC-05 — `metadata.fecha_proceso` en respuestas ERP-sincronizadas
+- [x] AC-06 — paginación estándar
+- [x] AC-07 — filtro `cod_cliente` con validación visibilidad (`PedidosWebVisibilityGuard` → 404)
+- [x] AC-08 — historial respeta `DiasVentasDetalladas` + metadata
+- [x] AC-09 — 401 cubierto; 404 `cod_cliente` ajeno (feature + unit)
+- [ ] AC-01…03 — pedidos/presupuestos (Bloque 2)
+- [ ] AC-10 — OpenAPI/matriz completos (parcial: paths en `PedidosWebOpenApiPaths`)
+
+### Checklist del slice (completo épica)
 - [ ] AC-01…AC-10
 - [ ] 7 endpoints operativos
 - [ ] Metadata `fecha_proceso` en consultas ERP
@@ -311,15 +329,24 @@ Ninguno en este slice (API only). TR-SPEC-101-11 consumirá estos endpoints.
 
 ## Archivos creados/modificados
 
-(Post-implementación)
+### Bloque 2 (2026-06-02) — pedidos/presupuestos
+- `backend/app/Services/PedidosWeb/ConsultaListadoService.php` — flags acción, join cierres 98, visibilidad comprobantes
+- `backend/app/Services/Visibility/VisibilityPermissionGuard.php` — `hasPermission`
+- `backend/app/Models/PqPedidoswebPedidoCabecera.php` — relación `presupuestoCierre`
+- `backend/tests/Feature/Api/PedidosWeb/PedidosWebVisibilityFeatureTest.php` — 404 pedidos/presupuestos consultas
 
-### Backend
-- `app/Http/Controllers/Api/V1/Consultas/*`
-- `app/Services/Consultas/*`
-- Tests `tests/Feature/Api/Consultas/*`
+### Bloque 1 (2026-06-02) — gestión
+- `backend/app/Services/PedidosWeb/ConsultaListadoService.php` — `resolveCodCliente` + `PedidosWebVisibilityGuard`
+- `backend/tests/Unit/PedidosWeb/Services/ConsultaListadoServiceTest.php`
+- `backend/tests/Feature/Api/PedidosWeb/PedidosWebVisibilityFeatureTest.php` — 404 deuda/cheques/historial
+
+### Backend (implementación previa)
+- `app/Http/Controllers/Api/V1/PedidosWeb/ConsultaController.php`
+- `app/Services/PedidosWeb/ConsultaListadoService.php`
+- Tests `tests/Feature/Api/PedidosWeb/PedidosWebEndpointsAuthTest.php`, `PedidosWebEndpointsHappyPathTest.php`
 
 ### OpenAPI
-- Anotaciones en controllers del slice
+- `app/OpenApi/PedidosWebOpenApiPaths.php`
 
 ### Docs
-- `matriz-permisos-mvp.md`
+- `matriz-permisos-mvp.md` (pendiente filas consultas gestión)

@@ -26,6 +26,18 @@ const menuFixture = [
         nodeType: 'process',
         children: [],
       },
+      {
+        id: 4,
+        menuKey: 'pedidosIngresados',
+        labelKey: 'menu.pedidosIngresados',
+        text: 'Pedidos ingresados',
+        routePath: '/pedidos/ingresados',
+        procedimiento: 'pw_pedidosingresados',
+        tipoProceso: 'P',
+        order: 12,
+        nodeType: 'process',
+        children: [],
+      },
     ],
   },
   {
@@ -41,6 +53,15 @@ const menuFixture = [
     children: [],
   },
 ];
+
+const dashboardResultado = {
+  moneda: { simbolo: '$', codigo: 'ARS' },
+  presupuestosActivos: { cantidad: 1, importe: 10 },
+  pedidosIngresados: { cantidad: 2, importe: 20 },
+  pedidosPendientes: { cantidad: 3, importe: 30 },
+  topClientePresupuestos: { cod_client: 'CLI001', razon_social: 'Cliente Demo', importe: 10 },
+  topClientePedidosIngresados: { cod_client: 'CLI001', razon_social: 'Cliente Demo', importe: 20 },
+};
 
 async function mockPedidosWebApi(page: import('@playwright/test').Page) {
   const sessionPayload = {
@@ -104,6 +125,48 @@ async function mockPedidosWebApi(page: import('@playwright/test').Page) {
     });
   });
 
+  await page.route('**/api/v1/config/parametros-carga', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        error: 0,
+        respuesta: 'ok',
+        resultado: {
+          modificaPrecio: true,
+          modificaBonArt: true,
+          modificaBonCli: true,
+          modificaListaPrec: true,
+          functionalProfile: 'supervisor',
+          codMotivoCierreExitoso: 1,
+          noEliminaPedido: false,
+          noModificaPedido: false,
+        },
+      }),
+    });
+  });
+
+  await page.route('**/api/v1/articulos**', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        error: 0,
+        respuesta: 'ok',
+        resultado: {
+          items: [
+            {
+              codArticulo: 'ART-001',
+              descripcion: 'Artículo demo',
+              porcIva: 21,
+              bonificacion: 0,
+            },
+          ],
+        },
+      }),
+    });
+  });
+
   await page.route('**/api/v1/comprobantes/grabar', async (route) => {
     await route.fulfill({
       status: 200,
@@ -128,42 +191,76 @@ async function mockPedidosWebApi(page: import('@playwright/test').Page) {
       body: JSON.stringify({
         error: 0,
         respuesta: 'ok',
+        resultado: dashboardResultado,
+      }),
+    });
+  });
+
+  await page.route('**/api/v1/consultas/pedidos-ingresados**', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        error: 0,
+        respuesta: 'ok',
         resultado: {
-          moneda: { simbolo: '$', codigo: 'ARS' },
-          presupuestosActivos: { cantidad: 1, importe: 10 },
-          pedidosIngresados: { cantidad: 2, importe: 20 },
-          pedidosPendientes: { cantidad: 3, importe: 30 },
-          topClientePresupuestos: { cod_client: 'CLI001', razon_social: 'Cliente Demo', importe: 10 },
-          topClientePedidosIngresados: { cod_client: 'CLI001', razon_social: 'Cliente Demo', importe: 20 },
+          items: [
+            {
+              codPedido: 'PED-E2E-001',
+              codCliente: 'CLI001',
+              razonSocial: 'Cliente Demo',
+              estado: 0,
+              numeroVisible: 42,
+              total: 20,
+              fecha: '2026-06-02T10:00:00Z',
+              puedeEditar: true,
+              puedeEliminar: true,
+              puedeCopiar: true,
+            },
+          ],
+          metadata: { fecha_proceso: '2026-06-02T12:00:00Z' },
         },
       }),
     });
   });
 }
 
-test('smoke sección 9: login y navegación a carga', async ({ page }) => {
-  await mockPedidosWebApi(page);
-
+async function login(page: import('@playwright/test').Page) {
   await page.goto('/login');
   await page.locator('input[name="codigo"]').fill('supervisor.mvp');
   await page.locator('input[name="password"]').fill('secret');
   await page.getByTestId('login-submit').click();
-
   await expect(page).toHaveURL(/\/dashboard$/);
-  await page.getByTestId('menuSidebarItem-cargaPedidosPresupuestos').click();
+}
 
+test('smoke sección 9: login y navegación a carga', async ({ page }) => {
+  await mockPedidosWebApi(page);
+  await login(page);
+
+  await page.getByTestId('menuSidebarItem-cargaPedidosPresupuestos').click();
   await expect(page).toHaveURL(/\/pedidos\/carga$/);
   await expect(page.getByTestId('page-pedidos-carga')).toBeVisible();
+});
+
+test('dashboard §9 paso 8: muestra los 8 KPIs', async ({ page }) => {
+  await mockPedidosWebApi(page);
+  await login(page);
+
+  await expect(page.getByTestId('page-dashboard')).toBeVisible();
+  await expect(page.getByTestId('dashboardKpiPresupuestosCantidad')).toContainText('1');
+  await expect(page.getByTestId('dashboardKpiPresupuestosImporte')).toContainText('10.00');
+  await expect(page.getByTestId('dashboardKpiPedidosIngresadosCantidad')).toContainText('2');
+  await expect(page.getByTestId('dashboardKpiPedidosIngresadosImporte')).toContainText('20.00');
+  await expect(page.getByTestId('dashboardKpiPedidosPendientesCantidad')).toContainText('3');
+  await expect(page.getByTestId('dashboardKpiPedidosPendientesImporte')).toContainText('30.00');
+  await expect(page.getByTestId('dashboardTopClientePresupuestos')).toContainText('Cliente Demo');
+  await expect(page.getByTestId('dashboardTopClientePedidos')).toContainText('Cliente Demo');
 });
 
 test('carga: grabar pedido muestra confirmación y toast mail fallido', async ({ page }) => {
   test.setTimeout(60_000);
   await mockPedidosWebApi(page);
-
-  await page.goto('/login');
-  await page.locator('input[name="codigo"]').fill('supervisor.mvp');
-  await page.locator('input[name="password"]').fill('secret');
-  await page.getByTestId('login-submit').click();
+  await login(page);
 
   await page.getByTestId('menuSidebarItem-cargaPedidosPresupuestos').click();
   await expect(page.getByTestId('page-pedidos-carga')).toBeVisible();
@@ -174,4 +271,19 @@ test('carga: grabar pedido muestra confirmación y toast mail fallido', async ({
   await expect(page.getByTestId('confirmacion-grabacion')).toContainText('42', { timeout: 15_000 });
   await expect(page.getByTestId('confirmacion-grabacion')).toContainText('E2E001');
   await expect(page.getByTestId('aviso-mail-envio-fallido')).toBeVisible();
+});
+
+test('consulta pedidos ingresados: comprobante visible y export habilitado', async ({ page }) => {
+  test.setTimeout(60_000);
+  await mockPedidosWebApi(page);
+  await login(page);
+
+  await page.getByTestId('menuSidebarItem-pedidosIngresados').click();
+  await expect(page).toHaveURL(/\/pedidos\/ingresados$/);
+  await expect(page.getByTestId('page-pedidos-ingresados')).toBeVisible();
+  await expect(page.getByText('42')).toBeVisible({ timeout: 15_000 });
+
+  const exportButton = page.getByTestId('gridExportExcel');
+  await expect(exportButton).toBeVisible();
+  await expect(exportButton).toBeEnabled();
 });

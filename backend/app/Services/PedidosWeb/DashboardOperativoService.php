@@ -16,6 +16,30 @@ final class DashboardOperativoService
     ) {}
 
     /**
+     * Indica si un pedido en estado 0 o -1 cuenta para KPI pedidos ingresados (regla AMB-C09).
+     */
+    public static function pedidoIngresadoCuentaEnKpi(
+        int $estado,
+        ?Carbon $ultimaActividad,
+        Carbon $now,
+        int $minutosWeb
+    ): bool {
+        if ($estado === 0) {
+            return true;
+        }
+
+        if ($estado !== -1) {
+            return false;
+        }
+
+        if ($ultimaActividad === null) {
+            return true;
+        }
+
+        return $ultimaActividad->lt($now->copy()->subMinutes($minutosWeb));
+    }
+
+    /**
      * @return array<string, mixed>
      */
     public function obtener(User $user): array

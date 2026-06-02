@@ -7,8 +7,8 @@
 | **Épica** | 101-PedidosWeb |
 | **Prioridad** | **Should** (AMB-C02) |
 | **Dependencias** | TR-SPEC-101-02-modelos; TR-SPEC-101-09-frontend-base (menú ítem 11) |
-| **Estado** | Pendiente |
-| **Última actualización** | 2026-06-01 |
+| **Estado** | Pendiente de Revisión — **Bloque 4** |
+| **Última actualización** | 2026-06-02 |
 
 **Origen:** [HU-101-020-logs-integracion](../../03-historias-usuario/101-PedidosWeb/HU-101-020-logs-integracion.md)  
 **Referencia SPEC:** [SPEC-101-08-logs-integracion](../../05-open-spec/101-PedidosWeb/SPEC-101-08-logs-integracion.md)  
@@ -180,9 +180,9 @@ Feature: Consulta de logs de integración
 ## 10) Checklist final
 
 ### Checklist del slice
-- [ ] AC cumplidos
-- [ ] GET logs operativo
-- [ ] Grilla UI si slice incluido en release
+- [x] AC-01, AC-02 — GET logs + persistencia service
+- [x] AC-03 — Grilla UI `IntegracionLogsPage` + filtros DX
+- [ ] AC-05 feature 200/403 (BLOQUEADO_ENV)
 
 ### Checklist normas transversales
 

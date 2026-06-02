@@ -3,8 +3,15 @@ import { useTranslation } from 'react-i18next';
 import Tabs from 'devextreme-react/tabs';
 import { Column } from 'devextreme-react/data-grid';
 import { useGridLayouts } from '../../gridLayouts/hooks/useGridLayouts';
+import { useComprobanteConsultaActions } from '../../consultas/hooks/useComprobanteConsultaActions';
 import { DataGridDx, type DataGridDxHandle, type DataGridRowAction } from '../../../shared/ui/grids';
-import { fetchPresupuestosActivos, fetchPresupuestosCerrados, type PresupuestoConsultaRow } from '../../consultas/api/consultaApi';
+import {
+  fetchPresupuestosActivos,
+  fetchPresupuestosCerrados,
+  type PresupuestoConsultaRow,
+} from '../../consultas/api/consultaApi';
+import { PresupuestoCierreDialog } from '../components/PresupuestoCierreDialog';
+import { PresupuestoCierreDetalleDialog } from '../components/PresupuestoCierreDetalleDialog';
 
 const presupuestosTabItems = [
   { id: 'activos', labelKey: 'presupuestos.tabs.activos' },
@@ -24,6 +31,16 @@ export function PresupuestosPage() {
   const [rows, setRows] = useState<PresupuestoConsultaRow[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [refreshToken, setRefreshToken] = useState(0);
+  const [cierreTarget, setCierreTarget] = useState<PresupuestoConsultaRow | null>(null);
+  const [cierreDialogVisible, setCierreDialogVisible] = useState(false);
+  const [cierreDetalleTarget, setCierreDetalleTarget] = useState<PresupuestoConsultaRow | null>(null);
+  const [cierreDetalleVisible, setCierreDetalleVisible] = useState(false);
+
+  const reloadGrid = useCallback(() => {
+    setRefreshToken((value) => value + 1);
+  }, []);
+  const { openCarga, handleCopiar } = useComprobanteConsultaActions();
 
   const proceso = resolveProceso(activeTabId);
   const gridId = proceso;
@@ -65,7 +82,7 @@ export function PresupuestosPage() {
     return () => {
       mounted = false;
     };
-  }, [activeTabId, t]);
+  }, [activeTabId, refreshToken, t]);
 
   const tabLabels = useMemo(() => presupuestosTabItems.map((item) => t(item.labelKey)), [t]);
   const activeTabIndex = activeTabId === 'activos' ? 0 : 1;
@@ -76,38 +93,55 @@ export function PresupuestosPage() {
         actionKey: 'ver',
         icon: 'find',
         hintKey: 'grid.action.view',
-        onClick: () => undefined,
+        onClick: (row) => {
+          if (activeTabId === 'cerrados') {
+            setCierreDetalleTarget(row);
+            setCierreDetalleVisible(true);
+            return;
+          }
+
+          openCarga(row, 'ver', 'presupuesto');
+        },
       },
       {
         actionKey: 'editar',
         icon: 'edit',
         hintKey: 'grid.action.edit',
-        visible: () => activeTabId === 'activos',
-        onClick: () => undefined,
+        visible: (row) => activeTabId === 'activos' && row.puedeEditar,
+        onClick: (row) => {
+          openCarga(row, 'editar', 'presupuesto');
+        },
       },
       {
         actionKey: 'convertir',
         icon: 'redo',
         hintKey: 'grid.action.convert',
-        visible: () => activeTabId === 'activos',
-        onClick: () => undefined,
+        visible: (row) => activeTabId === 'activos' && row.puedeConvertir,
+        onClick: (row) => {
+          openCarga(row, 'convertir', 'presupuesto');
+        },
       },
       {
         actionKey: 'cerrar',
         icon: 'close',
         hintKey: 'grid.action.close',
-        visible: () => activeTabId === 'activos',
-        onClick: () => undefined,
+        visible: (row) => activeTabId === 'activos' && row.puedeCerrar,
+        onClick: (row) => {
+          setCierreTarget(row);
+          setCierreDialogVisible(true);
+        },
       },
       {
         actionKey: 'copiar',
         icon: 'copy',
         hintKey: 'grid.action.copy',
-        visible: () => activeTabId === 'activos',
-        onClick: () => undefined,
+        visible: (row) => activeTabId === 'activos' && row.puedeCopiar,
+        onClick: (row) => {
+          handleCopiar(row, 'presupuesto');
+        },
       },
     ],
-    [activeTabId],
+    [activeTabId, handleCopiar, openCarga],
   );
 
   const handleTabChange = useCallback((tabIndex: number) => {
@@ -137,9 +171,32 @@ export function PresupuestosPage() {
         <Column dataField="numero" caption={t('consultas.column.numero')} />
         <Column dataField="cliente" caption={t('consultas.column.cliente')} />
         <Column dataField="estado" caption={t('consultas.column.estado')} />
+        {activeTabId === 'cerrados' ? (
+          <>
+            <Column dataField="cierre.motivoDescripcion" caption={t('presupuestos.cierreDetalle.motivo')} />
+            <Column dataField="cierre.fechaCierre" caption={t('presupuestos.cierreDetalle.fecha')} />
+          </>
+        ) : null}
         <Column dataField="importe" caption={t('consultas.column.importe')} dataType="number" format="currency" />
       </DataGridDx>
       {saveAsDialog}
+      <PresupuestoCierreDialog
+        visible={cierreDialogVisible}
+        presupuesto={cierreTarget}
+        onClose={() => {
+          setCierreDialogVisible(false);
+          setCierreTarget(null);
+        }}
+        onClosed={reloadGrid}
+      />
+      <PresupuestoCierreDetalleDialog
+        visible={cierreDetalleVisible}
+        presupuesto={cierreDetalleTarget}
+        onClose={() => {
+          setCierreDetalleVisible(false);
+          setCierreDetalleTarget(null);
+        }}
+      />
     </section>
   );
 }
