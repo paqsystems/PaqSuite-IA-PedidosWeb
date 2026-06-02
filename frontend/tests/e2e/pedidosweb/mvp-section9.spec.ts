@@ -1,5 +1,7 @@
 import { expect, test } from '@playwright/test';
 
+test.describe.configure({ mode: 'serial' });
+
 const menuFixture = [
   {
     id: 1,
@@ -97,7 +99,24 @@ async function mockPedidosWebApi(page: import('@playwright/test').Page) {
       body: JSON.stringify({
         error: 0,
         respuesta: 'ok',
-        resultado: [{ codigo: 'CLI001', nombre: 'Cliente Demo' }],
+        resultado: [{ codCliente: 'CLI001', nombre: 'Cliente Demo' }],
+      }),
+    });
+  });
+
+  await page.route('**/api/v1/comprobantes/grabar', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        error: 0,
+        respuesta: 'ok',
+        resultado: {
+          cod_pedido: 'PED-E2E-001',
+          nro_visible: 42,
+          guidSufijo: 'E2E001',
+          mailEnviado: false,
+        },
       }),
     });
   });
@@ -135,4 +154,24 @@ test('smoke sección 9: login y navegación a carga', async ({ page }) => {
 
   await expect(page).toHaveURL(/\/pedidos\/carga$/);
   await expect(page.getByTestId('page-pedidos-carga')).toBeVisible();
+});
+
+test('carga: grabar pedido muestra confirmación y toast mail fallido', async ({ page }) => {
+  test.setTimeout(60_000);
+  await mockPedidosWebApi(page);
+
+  await page.goto('/login');
+  await page.locator('input[name="codigo"]').fill('supervisor.mvp');
+  await page.locator('input[name="password"]').fill('secret');
+  await page.getByTestId('login-submit').click();
+
+  await page.getByTestId('menuSidebarItem-cargaPedidosPresupuestos').click();
+  await expect(page.getByTestId('page-pedidos-carga')).toBeVisible();
+  await expect(page.getByTestId('cliente-cargado')).toBeAttached({ timeout: 15_000 });
+  await expect(page.getByTestId('btn-grabar-pedido')).toBeVisible({ timeout: 15_000 });
+
+  await page.getByTestId('btn-grabar-pedido').getByRole('button').click();
+  await expect(page.getByTestId('confirmacion-grabacion')).toContainText('42', { timeout: 15_000 });
+  await expect(page.getByTestId('confirmacion-grabacion')).toContainText('E2E001');
+  await expect(page.getByTestId('aviso-mail-envio-fallido')).toBeVisible();
 });

@@ -26,9 +26,13 @@ Implementable en MVP (lectura y uso de parámetros; **sin** ABM web de parámetr
 - `docs/02-producto/PedidosWeb/PedidosWeb_Definicion_Conceptual_Final_OpenSpec.md` — **§10.6 Listado de Parámetros**
 - `docs/05-open-spec/101-PedidosWeb/PedidosWeb_SPEC_MVP.md` — `DiasVentasDetalladas`, dashboard, mails
 
-## Fuentes (contexto MONO)
+## Fuentes (contexto)
 
-`docs/00-contexto/_mono/04-configuracion-global/` — `parametros-generales.md`, `configuracion-funcional-por-modulo.md`
+| Capa | Documento |
+|------|-----------|
+| **BASE** | [`docs/_base/pq-parametros-gral-tipo-valor.md`](../../_base/pq-parametros-gral-tipo-valor.md) — catálogo **`tipo_valor`** (S/T/I/D/B/N) y mapeo `Valor_*` |
+| **MONO** | [`docs/00-contexto/_mono/04-configuracion-global/parametros-generales.md`](../../00-contexto/_mono/04-configuracion-global/parametros-generales.md) — proceso transversal HU-007 |
+| **Producto** | Inventario claves PedidosWeb: §10.6 definición conceptual |
 
 ## Alcance
 
@@ -51,7 +55,7 @@ Implementable en MVP (lectura y uso de parámetros; **sin** ABM web de parámetr
 | `CodMotivoCierreExitoso` | Conversión presupuesto → pedido: `id_motivo` en `pq_pedidosweb_motivos_cierre` (tipo **positivo**, activo). Ver HU-101-013. |
 | Resto §10.6 | Módulos según HU de negocio |
 
-Inventario completo y defaults numéricos: completar en HU-GEN-04 y TR de parámetros.
+Inventario completo con **`CAPTION`**, **`TOOLTIP`** y `tipo_valor`: [`docs/backend/seed/PQ_PARAMETROS_GRAL/PQ_PARAMETROS_GRAL.PedidosWeb.seed.json`](../../backend/seed/PQ_PARAMETROS_GRAL/PQ_PARAMETROS_GRAL.PedidosWeb.seed.json) (57 claves, producto §10.6 + ampliaciones MVP).
 
 ## Fuera de alcance
 
@@ -60,7 +64,7 @@ Inventario completo y defaults numéricos: completar en HU-GEN-04 y TR de parám
 
 ## Entregables verificables
 
-- Inventario MVP enlazado a producto §10.6 (tabla ampliada en HU/TR si hace falta).
+- Inventario MVP con `CAPTION`/`TOOLTIP` en [`docs/backend/seed/PQ_PARAMETROS_GRAL/`](../../backend/seed/PQ_PARAMETROS_GRAL/README.md).
 - Contrato de lectura: servicio/repository parámetros (TR).
 - Reglas de fallback documentadas por parámetro crítico (mínimo los de la tabla anterior).
 

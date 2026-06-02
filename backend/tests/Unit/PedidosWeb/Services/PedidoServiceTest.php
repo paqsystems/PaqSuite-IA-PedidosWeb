@@ -72,11 +72,46 @@ final class PedidoServiceTest extends TestCase
         $service->eliminarPedido('PED-3');
     }
 
+    #[Test]
+    public function grabarComprobanteRechazaAccionInvalida(): void
+    {
+        $pedidoRepository = $this->createMock(PedidoRepositoryInterface::class);
+        $detalleRepository = $this->createMock(PedidoDetalleRepositoryInterface::class);
+        $service = $this->buildService($pedidoRepository, $detalleRepository, false);
+        $user = new \App\Models\User();
+        $user->codigo = 'supervisor.mvp';
+
+        $this->expectException(PedidosWebBusinessException::class);
+        $service->grabarComprobante([
+            'accionGrabacion' => 'invalida',
+            'cabecera' => ['cod_cliente' => 'CLI001'],
+            'renglones' => [['cod_articulo' => 'A', 'cantidad' => 1, 'precio' => 1]],
+        ], $user);
+    }
+
+    #[Test]
+    public function grabarComprobanteRechazaCabeceraSinRenglones(): void
+    {
+        $pedidoRepository = $this->createMock(PedidoRepositoryInterface::class);
+        $detalleRepository = $this->createMock(PedidoDetalleRepositoryInterface::class);
+        $service = $this->buildService($pedidoRepository, $detalleRepository, false);
+        $user = new \App\Models\User();
+        $user->codigo = 'supervisor.mvp';
+
+        $this->expectException(PedidosWebBusinessException::class);
+        $service->grabarComprobante([
+            'accionGrabacion' => 'pedido',
+            'cabecera' => ['cod_cliente' => 'CLI001'],
+            'renglones' => [],
+        ], $user);
+    }
+
     private function buildService(
         PedidoRepositoryInterface $pedidoRepository,
         PedidoDetalleRepositoryInterface $detalleRepository,
         bool $noEliminaPedido
     ): PedidoService {
+        config()->set('paqsuite_pedidosweb.readFromErp', false);
         config()->set('paqsuite_pedidosweb.defaults.NOeliminaPedido', $noEliminaPedido ? 1 : 0);
         config()->set('paqsuite_pedidosweb.defaults.NOmodificaPedido', 0);
         config()->set('paqsuite_pedidosweb.defaults.MinutosWeb', 30);

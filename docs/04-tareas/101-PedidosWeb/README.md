@@ -62,3 +62,21 @@ Actualizar [`matriz-permisos-mvp.md`](../001-Generaliddes/matriz-permisos-mvp.md
 ## Siguiente paso
 
 **Parte D:** implementación por TR, empezando por **TR-SPEC-101-02-modelos**.
+
+### Verificación D — comandos de test (2026-06-02)
+
+```powershell
+# Backend — unit PedidosWeb (sin SQL Server)
+cd backend
+php artisan test --filter=PedidosWeb
+
+# Backend — auth 401/403 endpoints 101 (requiere SQL Server + seed)
+php artisan test --filter=PedidosWebEndpointsAuthTest
+
+# Frontend
+cd frontend
+npm run build
+npx playwright test tests/e2e/pedidosweb/mvp-section9.spec.ts
+```
+
+**Pendiente de entorno:** tests integración repositories, VisibilityDataTest extendido y E2E §9 camino feliz **contra API real** requieren tenant SQL Server `desarrollo` + seeds MVP.

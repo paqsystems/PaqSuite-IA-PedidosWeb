@@ -2,8 +2,15 @@
 
 namespace App\Services\PedidosWeb;
 
+use App\Models\PqParametrosGral;
+use App\Support\ParametrosGralTipoValor;
+use Illuminate\Support\Facades\Schema;
+
 final class PedidosWebParameterService
 {
+    /** @var array<string, PqParametrosGral>|null */
+    private ?array $parametrosPorClave = null;
+
     public function getMinutosWeb(): int
     {
         return $this->getInt('MinutosWeb', 30, 1);
@@ -16,17 +23,17 @@ final class PedidosWebParameterService
 
     public function getNoEliminaPedido(): bool
     {
-        return $this->getInt('NOeliminaPedido', 0) === 1;
+        return $this->getBool('NOeliminaPedido', false);
     }
 
     public function getNoModificaPedido(): bool
     {
-        return $this->getInt('NOmodificaPedido', 0) === 1;
+        return $this->getBool('NOmodificaPedido', false);
     }
 
     public function getDetallePorMail(): bool
     {
-        return $this->getInt('DetallePorMail', 1) === 1;
+        return $this->getBool('DetallePorMail', true);
     }
 
     /**
@@ -34,7 +41,7 @@ final class PedidosWebParameterService
      */
     public function getMailDestinatariosAdicionales(): array
     {
-        $rawValue = (string) $this->value('MailDestinatariosAdicionales', '');
+        $rawValue = (string) $this->resolveValue('MailDestinatariosAdicionales', '');
         $parts = preg_split('/[;,]/', $rawValue) ?: [];
 
         return array_values(array_filter(array_map(static fn (string $mail): string => trim($mail), $parts)));
@@ -42,16 +49,16 @@ final class PedidosWebParameterService
 
     public function getMailCco(): ?string
     {
-        $mailCco = trim((string) $this->value('mailCCO', ''));
+        $mailCco = trim((string) $this->resolveValue('mailCCO', ''));
 
         return $mailCco !== '' ? $mailCco : null;
     }
 
     public function getMailDireccionRemitente(): ?string
     {
-        $mail = trim((string) $this->value('Mail_DireccionRemitente', ''));
+        $mail = trim((string) $this->resolveValue('Mail_DireccionRemitente', ''));
 
-        return $mail !== '' ? $mail : null;
+        return $mail !== '' && filter_var($mail, FILTER_VALIDATE_EMAIL) ? $mail : null;
     }
 
     public function getDiasVentasDetalladas(): int
@@ -61,17 +68,17 @@ final class PedidosWebParameterService
 
     public function getMonedaSimbolo(): string
     {
-        return trim((string) $this->value('MonedaSimbolo', '$')) ?: '$';
+        return trim((string) $this->resolveValue('MonedaSimbolo', '$')) ?: '$';
     }
 
     public function getMonedaCodigo(): string
     {
-        return trim((string) $this->value('MonedaCodigo', 'ARS')) ?: 'ARS';
+        return trim((string) $this->resolveValue('MonedaCodigo', 'ARS')) ?: 'ARS';
     }
 
     private function getInt(string $key, int $defaultValue, ?int $minValue = null): int
     {
-        $value = (int) $this->value($key, $defaultValue);
+        $value = (int) $this->resolveValue($key, $defaultValue);
 
         if ($minValue !== null && $value < $minValue) {
             return $defaultValue;
@@ -80,8 +87,104 @@ final class PedidosWebParameterService
         return $value;
     }
 
-    private function value(string $key, mixed $defaultValue): mixed
+    private function getBool(string $key, bool $defaultValue): bool
     {
-        return config('paqsuite_pedidosweb.defaults.'.$key, $defaultValue);
+        $row = $this->findParametro($key);
+
+        if ($row === null) {
+            return $this->boolFromConfigDefault($key, $defaultValue);
+        }
+
+        $tipoValor = ParametrosGralTipoValor::fromRow($row);
+
+        return match ($tipoValor) {
+            'B' => (bool) $row->Valor_Bool,
+            'I' => (int) $row->Valor_Int === 1,
+            'N' => (float) $row->Valor_Decimal !== 0.0,
+            'S' => in_array(strtolower(trim((string) $row->Valor_String)), ['1', 'true', 'si', 'sí', 'yes'], true),
+            default => $defaultValue,
+        };
+    }
+
+    private function boolFromConfigDefault(string $key, bool $defaultValue): bool
+    {
+        $configValue = config('paqsuite_pedidosweb.defaults.'.$key, $defaultValue);
+
+        if (is_bool($configValue)) {
+            return $configValue;
+        }
+
+        if (is_int($configValue)) {
+            return $configValue === 1;
+        }
+
+        return (bool) $configValue;
+    }
+
+    private function resolveValue(string $key, mixed $defaultValue): mixed
+    {
+        $row = $this->findParametro($key);
+
+        if ($row === null) {
+            return config('paqsuite_pedidosweb.defaults.'.$key, $defaultValue);
+        }
+
+        return $this->resolveValueFromRow($row, $key, $defaultValue);
+    }
+
+    private function resolveValueFromRow(PqParametrosGral $row, string $key, mixed $defaultValue): mixed
+    {
+        $tipoValor = ParametrosGralTipoValor::fromRow($row);
+
+        return match ($tipoValor) {
+            'B' => (bool) $row->Valor_Bool,
+            'I' => $row->Valor_Int,
+            'N' => $row->Valor_Decimal,
+            'D' => $row->Valor_DateTime,
+            'T' => $row->Valor_Text ?? '',
+            default => $row->Valor_String ?? '',
+        } ?? config('paqsuite_pedidosweb.defaults.'.$key, $defaultValue);
+    }
+
+    private function findParametro(string $clave): ?PqParametrosGral
+    {
+        if (! $this->canReadFromErp()) {
+            return null;
+        }
+
+        return $this->parametrosIndexados()[$clave] ?? null;
+    }
+
+    private function canReadFromErp(): bool
+    {
+        if (! config('paqsuite_pedidosweb.readFromErp', true)) {
+            return false;
+        }
+
+        try {
+            return Schema::hasTable('PQ_parametros_gral');
+        } catch (\Throwable) {
+            return false;
+        }
+    }
+
+    /**
+     * @return array<string, PqParametrosGral>
+     */
+    private function parametrosIndexados(): array
+    {
+        if ($this->parametrosPorClave !== null) {
+            return $this->parametrosPorClave;
+        }
+
+        $programa = (string) config('paqsuite_pedidosweb.programa', 'PedidosWeb');
+
+        $this->parametrosPorClave = PqParametrosGral::query()
+            ->where('Programa', $programa)
+            ->get()
+            ->keyBy(static fn (PqParametrosGral $parametro): string => (string) $parametro->Clave)
+            ->all();
+
+        return $this->parametrosPorClave;
     }
 }

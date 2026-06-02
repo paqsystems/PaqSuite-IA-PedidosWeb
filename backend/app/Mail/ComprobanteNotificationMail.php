@@ -16,13 +16,24 @@ final class ComprobanteNotificationMail extends Mailable
      */
     public function __construct(
         public readonly array $viewData,
+        public readonly ?string $fromAddress = null,
+        public readonly ?string $fromName = null,
     ) {}
 
     public function build(): self
     {
         $subject = view('emails.comprobante-notification-subject', $this->viewData)->render();
 
-        return $this->subject(trim($subject))
+        $message = $this->subject(trim($subject))
             ->view('emails.comprobante-notification-body', $this->viewData);
+
+        if ($this->fromAddress !== null && $this->fromAddress !== '') {
+            $message->from(
+                $this->fromAddress,
+                $this->fromName ?? (string) config('mail.from.name', config('app.name'))
+            );
+        }
+
+        return $message;
     }
 }

@@ -1,6 +1,9 @@
 <?php
 
 return [
+    'programa' => env('PAQSWEB_ERP_PROGRAMA', 'PedidosWeb'),
+    'readFromErp' => filter_var(env('PAQSWEB_READ_PARAMS_FROM_ERP', true), FILTER_VALIDATE_BOOL),
+
     'defaults' => [
         'MinutosWeb' => (int) env('PAQSWEB_MINUTOS_WEB', 30),
         'CodMotivoCierreExitoso' => (int) env('PAQSWEB_COD_MOTIVO_CIERRE_EXITOSO', 1),

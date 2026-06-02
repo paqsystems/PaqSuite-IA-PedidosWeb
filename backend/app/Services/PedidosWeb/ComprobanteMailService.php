@@ -55,7 +55,11 @@ final class ComprobanteMailService
 
             $mailer
                 ->locale($locale)
-                ->send(new ComprobanteNotificationMail($viewData));
+                ->send(new ComprobanteNotificationMail(
+                    $viewData,
+                    $this->parameterService->getMailDireccionRemitente(),
+                    (string) config('mail.from.name', config('app.name'))
+                ));
 
             return true;
         } catch (\Throwable $throwable) {
