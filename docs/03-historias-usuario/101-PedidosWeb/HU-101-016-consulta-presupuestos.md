@@ -20,6 +20,7 @@ para **operar sobre 99 y auditar 98**.
 2. **Cerrados:** solo estado **98** — solo lectura + detalle cierre.
 3. **Sin DELETE** presupuesto.
 4. Dos grillas o pestañas/procesos de menú distintos.
+5. Columnas cabecera: **[consulta-comprobantes-cabecera.md](../../02-producto/PedidosWeb/consulta-comprobantes-cabecera.md)**.
 
 ## Criterios de aceptación
 

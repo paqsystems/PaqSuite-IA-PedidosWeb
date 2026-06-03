@@ -19,7 +19,7 @@ para **ver, editar o eliminar según permisos**.
 
 1. Estados **0** y **-1** cuando aplique control operativo (producto §17.1).
 2. Visibilidad por perfil (cliente / vendedor / supervisor).
-3. Columnas mínimas: cliente, fecha, número visible, GUID parcial, total, estado.
+3. Columnas: todos los campos de cabecera según **[consulta-comprobantes-cabecera.md](../../02-producto/PedidosWeb/consulta-comprobantes-cabecera.md)**; visibilidad inicial documentada allí.
 4. Acciones: ver, editar, eliminar (pedido 0), copiar (HU-101-026) — íconos + tooltip.
 5. Export **Excel** (GEN-03); PDF fuera MVP.
 

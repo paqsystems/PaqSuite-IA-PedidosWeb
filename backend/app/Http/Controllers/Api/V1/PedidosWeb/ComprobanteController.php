@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1\PedidosWeb;
 
 use App\Exceptions\AuthFlowException;
 use App\Exceptions\PedidosWebBusinessException;
+use App\Http\Controllers\Api\V1\PedidosWeb\Support\ComprobanteGrabacionPayload;
 use App\Http\Controllers\Controller;
 use App\Http\Responses\ApiResponse;
 use App\Services\PedidosWeb\PedidoService;
@@ -29,24 +30,21 @@ final class ComprobanteController extends Controller
 
         $validated = $request->validate([
             'accionGrabacion' => ['required', 'string', 'in:pedido,presupuesto'],
-            'cod_pedido' => ['nullable', 'string'],
-            'cod_pedido_origen' => ['nullable', 'string'],
-            'cod_presupuesto_origen' => ['nullable', 'string'],
-            'cod_comprobante_origen_copia' => ['nullable', 'string'],
-            'cabecera' => ['required', 'array'],
-            'cabecera.cod_cliente' => ['required', 'string'],
-            'renglones' => ['required', 'array', 'min:1'],
         ]);
 
         try {
-            $permiso = ($validated['cod_pedido'] ?? null) === null ? 'alta' : 'modi';
+            $permiso = ($request->input('cod_pedido') ?? null) === null ? 'alta' : 'modi';
             $this->visibilityPermissionGuard->ensurePermission(
                 $user,
                 (string) config('paqsuite_visibility.procedimientos.cargaComprobantes'),
                 $permiso
             );
 
-            $resultado = $this->pedidoService->grabarComprobante($validated, $user);
+            $payload = ComprobanteGrabacionPayload::fromRequest(
+                $request,
+                (string) $validated['accionGrabacion'],
+            );
+            $resultado = $this->pedidoService->grabarComprobante($payload, $user);
         } catch (AuthFlowException|PedidosWebBusinessException $exception) {
             return ApiResponse::error(
                 $exception->errorCode(),

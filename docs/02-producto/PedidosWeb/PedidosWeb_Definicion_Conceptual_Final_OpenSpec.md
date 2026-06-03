@@ -433,11 +433,15 @@ Tango recibe una única bonificación equivalente.
 
 Cada renglón tiene una bonificación/descuento propio.
 
-Regla:
+Regla (orden de aplicación):
 
-1. Si existe descuento por cantidad para el artículo y cantidad cargada, usar ese valor.
-2. Si no existe, usar bonificación del maestro de artículos.
-3. Si el usuario tiene permiso, puede modificar manualmente el descuento del renglón.
+1. **Al iniciar un renglón nuevo:** inicializar el descuento con la **bonificación del artículo** (`pq_pedidosweb_articulos.bonificacion`).
+2. **Al modificar la cantidad:** buscar en `pq_pedidosweb_descuentocantidad` por `cod_articu`; tomar el registro con **mayor `cantidad` ≤ cantidad ingresada**; si existe, aplicar su `descuento`; si no, **mantener** el descuento ya asignado al renglón.
+3. Si el usuario tiene permiso (`ModificaBonArt*`), puede modificar manualmente el descuento del renglón.
+
+La regla de descuento por cantidad (punto 2) **se aplica siempre** al cambiar cantidad, **aunque** el usuario no tenga permiso para editar bonificaciones manualmente.
+
+Detalle UI y API: **[pantalla-carga-comprobante-ui.md](./pantalla-carga-comprobante-ui.md)** §12.
 
 La bonificación de cabecera es complementaria a la bonificación de renglón.
 
@@ -578,19 +582,17 @@ Todas las consultas deben respetar visibilidad por usuario.
 
 Estados 0 y eventualmente -1 cuando corresponda control operativo.
 
-Debe mostrar:
+Detalle normativo (columnas cabecera, visibilidad inicial, API): **[consulta-comprobantes-cabecera.md](consulta-comprobantes-cabecera.md)**.
 
-- Cliente.
-- Fecha.
-- Número visible.
-- Últimos caracteres del GUID.
-- Total.
-- Estado.
-- Acciones: ver, editar, eliminar según permisos.
+Debe mostrar todos los campos de cabecera disponibles en grilla; columnas visibles por defecto según criterio operativo documentado en ese archivo.
+
+Acciones: ver, editar, eliminar según permisos.
 
 ### 17.2 Presupuestos ingresados (activos)
 
 Estado **99** únicamente.
+
+Columnas cabecera: **[consulta-comprobantes-cabecera.md](consulta-comprobantes-cabecera.md)**.
 
 Debe permitir:
 
@@ -604,35 +606,57 @@ Debe permitir:
 
 Estado **98**.
 
+Columnas cabecera: **[consulta-comprobantes-cabecera.md](consulta-comprobantes-cabecera.md)** + datos de cierre.
+
 Solo consulta (sin edición ni conversión). Debe permitir ver detalle y datos del cierre registrado en `pq_pedidosweb_presupuestos_cierres`.
 
 ### 17.3 Pedidos pendientes
 
 Estado 1.
 
+Columnas cabecera: **[consulta-comprobantes-cabecera.md](consulta-comprobantes-cabecera.md)**.
+
 Solo consulta, sin edición ni eliminación.
+
+### 17.3.1 Detalle de pedidos (cabecera + renglones)
+
+Detalle normativo: **[consulta-detalle-pedidos.md](consulta-detalle-pedidos.md)**.
+
+Grilla plana cabecera + detalle; **todos los estados**; estado mostrado como descripción; solo lectura.
+
+### 17.3.2 Consulta de parámetros
+
+Menú **General** (último ítem). Detalle normativo: **[consulta-parametros.md](consulta-parametros.md)**.
+
+Solo lectura; valores desde ERP; definición alineada a MONO HU-007 / PaqSuite-IA-Tango; **sin** edición web en PedidosWeb.
 
 ### 17.4 Deuda
 
 Por cliente o todos según perfil.
 
-Debe mostrar comprobantes con saldo, vencimiento, saldo y saldo acumulado.
+Detalle normativo (columnas BD, API, UI, visibilidad): **[consulta-deuda.md](consulta-deuda.md)**.
 
-Debe mostrar la fecha de ultima actualización (campo fecha_proceso del archivo), que es el mismo para todos los registros, por ende, fuera ir en la carátula del proceso.
+Debe mostrar comprobantes con saldo, vencimiento y datos de cabecera del comprobante (cliente, razón social, tipo, número, fecha emisión). **Saldo acumulado:** pendiente de etapa posterior (ver `consulta-deuda.md` §8).
+
+Debe mostrar la fecha de ultima actualización (campo `fecha_proceso` del archivo), que es el mismo para todos los registros, por ende, fuera ir en la carátula del proceso.
 
 ### 17.5 Cheques
 
 Por cliente o todos según perfil.
 
-Debe mostrar cheques en cartera o aplicados con fecha posterior al día.
+Detalle normativo (columnas BD, API, UI, visibilidad): **[consulta-cheques.md](consulta-cheques.md)**.
 
-Debe mostrar la fecha de ultima actualización (campo fecha_proceso del archivo), que es el mismo para todos los registros, por ende, fuera ir en la carátula del proceso.
+Debe mostrar cheques en cartera o aplicados con fecha posterior al día (filtro `fecha >= hoy`). Columnas: interno, número, cliente, nombre (`clientes.nombre`), banco, fecha, importe, origen y estado.
+
+Debe mostrar la fecha de ultima actualización (campo `fecha_proceso` del archivo), que es el mismo para todos los registros, por ende, fuera ir en la carátula del proceso.
 
 ### 17.6 Historial de ventas
 
-Debe mostrar ventas de un período determinado por parámetro DiasVentasDetalladas. El detalle debe abrir en modal.
+Detalle normativo: **[consulta-historial-ventas.md](consulta-historial-ventas.md)**.
 
-Debe mostrar la fecha de ultima actualización (campo fecha_proceso del archivo), que es el mismo para todos los registros, por ende, fuera ir en la carátula del proceso.
+Debe mostrar ventas de un período determinado por parámetro `DiasVentasDetalladas`, con todas las columnas de `pq_pedidosweb_ventadetallada` excepto `fecha_proceso` e `id_gva53`. El detalle puede abrir en modal.
+
+Debe mostrar la fecha de ultima actualización (campo `fecha_proceso` del archivo), que es el mismo para todos los registros, por ende, fuera ir en la carátula del proceso.
 
 
 ### 17.7 Stock

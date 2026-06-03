@@ -27,6 +27,7 @@ export type DashboardOperativo = {
     razon_social?: string;
     importe?: number;
   };
+  fechaCalculo?: string;
 };
 
 export async function fetchDashboardOperativo(): Promise<DashboardOperativo> {

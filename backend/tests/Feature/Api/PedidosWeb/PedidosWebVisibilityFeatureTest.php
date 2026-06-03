@@ -62,7 +62,7 @@ final class PedidosWebVisibilityFeatureTest extends TestCase
         $this->insertComprobanteConDetalle('PRE-VEN-B-99', 99, 'CLI-VEN-B');
 
         $this->postJson('/api/v1/presupuestos/PRE-VEN-B-99/cerrar', [
-            'id_motivo' => 9001,
+            'id_motivo' => $this->motivoRechazoFeatureId(),
         ], $this->authHeadersFor(self::VENDEDOR_ACOTADO))
             ->assertNotFound()
             ->assertJsonPath('respuesta', 'resource.notFound');
@@ -114,6 +114,14 @@ final class PedidosWebVisibilityFeatureTest extends TestCase
     public function consultasPresupuestosWithCodClienteOutsideVisibleUniverseReturns404(): void
     {
         $this->getJson('/api/v1/consultas/presupuestos?estado=99&cod_cliente=CLI-VEN-B', $this->authHeadersFor(self::VENDEDOR_ACOTADO))
+            ->assertNotFound()
+            ->assertJsonPath('respuesta', 'resource.notFound');
+    }
+
+    #[Test]
+    public function consultasDetallePedidosWithCodClienteOutsideVisibleUniverseReturns404(): void
+    {
+        $this->getJson('/api/v1/consultas/detalle-pedidos?cod_cliente=CLI-VEN-B', $this->authHeadersFor(self::VENDEDOR_ACOTADO))
             ->assertNotFound()
             ->assertJsonPath('respuesta', 'resource.notFound');
     }

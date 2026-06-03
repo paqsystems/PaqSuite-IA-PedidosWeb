@@ -6,13 +6,16 @@ use App\Contracts\PedidosWeb\ArticuloRepositoryInterface;
 use App\Contracts\PedidosWeb\ClienteRepositoryInterface;
 use App\Contracts\PedidosWeb\PedidoDetalleRepositoryInterface;
 use App\Contracts\PedidosWeb\PedidoRepositoryInterface;
+use App\Services\PedidosWeb\PedidosWebSchemaBootstrap;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Tests\Support\SeedsPedidosWebFeatureData;
 use Tests\TestCase;
 
 final class PedidoRepositoryIntegrationTest extends TestCase
 {
+    use SeedsPedidosWebFeatureData;
     private PedidoRepositoryInterface $pedidoRepository;
 
     private PedidoDetalleRepositoryInterface $pedidoDetalleRepository;
@@ -39,16 +42,22 @@ final class PedidoRepositoryIntegrationTest extends TestCase
 
     private function bootstrapTenantData(): bool
     {
-        if ($this->artisan('paqsuite:seed-menus-mvp') !== 0) {
+        if ($this->artisan('paqsuite:seed-menus-mvp')->run() !== 0) {
             return false;
         }
 
-        return $this->artisan('paqsuite:seed-seguridad-mvp') === 0;
+        if ($this->artisan('paqsuite:seed-seguridad-mvp')->run() !== 0) {
+            return false;
+        }
+
+        app(PedidosWebSchemaBootstrap::class)->ensureMvpSchema();
+
+        return true;
     }
 
     public function testInsertCabeceraSyncDetalleAndFindWithDetalle(): void
     {
-        $codPedido = 'PED-REPO-'.uniqid();
+        $codPedido = $this->uniqueComprobanteCod('PED-REPO-');
 
         $this->pedidoRepository->insertCabecera($this->cabeceraPayload($codPedido, 0));
 
@@ -67,7 +76,7 @@ final class PedidoRepositoryIntegrationTest extends TestCase
 
     public function testSyncDetalleReemplazaRenglones(): void
     {
-        $codPedido = 'PED-SYNC-'.uniqid();
+        $codPedido = $this->uniqueComprobanteCod('PED-SYNC-');
 
         $this->pedidoRepository->insertCabecera($this->cabeceraPayload($codPedido, 0));
         $this->pedidoDetalleRepository->syncDetalle($codPedido, [
@@ -88,7 +97,7 @@ final class PedidoRepositoryIntegrationTest extends TestCase
 
     public function testUpdateEstadoSinValidarNegocio(): void
     {
-        $codPedido = 'PED-EST-'.uniqid();
+        $codPedido = $this->uniqueComprobanteCod('PED-EST-');
 
         $this->pedidoRepository->insertCabecera($this->cabeceraPayload($codPedido, 1));
 
@@ -100,7 +109,7 @@ final class PedidoRepositoryIntegrationTest extends TestCase
 
     public function testDeleteFisicoNoValidaEstado(): void
     {
-        $codPedido = 'PED-DEL-'.uniqid();
+        $codPedido = $this->uniqueComprobanteCod('PED-DEL-');
 
         $this->pedidoRepository->insertCabecera($this->cabeceraPayload($codPedido, 1));
         $this->pedidoDetalleRepository->syncDetalle($codPedido, [
@@ -220,7 +229,7 @@ final class PedidoRepositoryIntegrationTest extends TestCase
             'moneda' => 1,
             'estado' => $estado,
             'tal_pedido_tango' => 1,
-            'nro_pedido_tango' => $codPedido,
+            'nro_pedido_tango' => substr($codPedido, 0, 20),
             'cod_usuario_web' => 'CLIMVP001',
             'fecha_modif' => $sqlServerDateTime,
             'total' => 100,

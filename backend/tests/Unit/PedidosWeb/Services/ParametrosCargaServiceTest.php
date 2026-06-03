@@ -20,6 +20,7 @@ final class ParametrosCargaServiceTest extends TestCase
         config()->set('paqsuite_pedidosweb.defaults.NOeliminaPedido', 1);
         config()->set('paqsuite_pedidosweb.defaults.NOmodificaPedido', 0);
         config()->set('paqsuite_pedidosweb.defaults.CodMotivoCierreExitoso', 7);
+        config()->set('paqsuite_pedidosweb.defaults.CargaRecurrente', 1);
 
         $service = new ParametrosCargaService(
             new CommercialProfileResolver(),
@@ -34,6 +35,7 @@ final class ParametrosCargaServiceTest extends TestCase
         $this->assertTrue($resultado['noEliminaPedido']);
         $this->assertFalse($resultado['noModificaPedido']);
         $this->assertSame(7, $resultado['codMotivoCierreExitoso']);
+        $this->assertTrue($resultado['cargaRecurrente']);
     }
 
     private function buildUser(): User

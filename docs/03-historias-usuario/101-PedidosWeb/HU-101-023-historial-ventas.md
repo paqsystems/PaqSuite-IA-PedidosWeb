@@ -17,9 +17,12 @@ para **analizar comportamiento del cliente**.
 
 ## Reglas de negocio
 
-1. Período = parámetro **`DiasVentasDetalladas`**.
-2. Detalle en **modal** DevExtreme.
-3. `fecha_proceso` en carátula.
+Fuente de verdad: **[consulta-historial-ventas.md](../../02-producto/PedidosWeb/consulta-historial-ventas.md)**.
+
+1. Período = parámetro **`DiasVentasDetalladas`** (`fecha_emi >= hoy - N días).
+2. Columnas según tabla ERP `pq_pedidosweb_ventadetallada` (excepto `fecha_proceso`, `id_gva53`).
+3. Detalle en **modal** DevExtreme (misma fila, todas las columnas).
+4. `fecha_proceso` en carátula.
 
 ## Criterios de aceptación
 

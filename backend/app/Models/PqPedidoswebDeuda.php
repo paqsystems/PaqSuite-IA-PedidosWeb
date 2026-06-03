@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Concerns\HasCompositePrimaryKey;
+use App\Services\PedidosWeb\PedidosWebSchemaBootstrap;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -12,24 +13,15 @@ class PqPedidoswebDeuda extends Model
 
     protected $table = 'pq_pedidosweb_deuda';
 
-    protected $primaryKey = 'nro_comprobante';
+    protected $primaryKey = 'n_comp';
 
     protected $keyType = 'string';
 
     public $timestamps = false;
 
-    protected $fillable = [
-        'cod_cliente',
-        'tipo_comprobante',
-        'nro_comprobante',
-        'fecha_vto',
-        'fecha',
-        'fecha_proceso',
-        'saldo',
-    ];
+    protected $guarded = [];
 
     protected $casts = [
-        'fecha' => 'datetime',
         'fecha_vto' => 'datetime',
         'fecha_proceso' => 'datetime',
         'saldo' => 'decimal:2',
@@ -37,7 +29,9 @@ class PqPedidoswebDeuda extends Model
 
     protected function getCompositeKeyNames(): array
     {
-        return ['cod_cliente', 'tipo_comprobante', 'nro_comprobante', 'fecha_vto'];
+        $columns = app(PedidosWebSchemaBootstrap::class)->deudaColumnMap();
+
+        return ['cod_cliente', $columns['tipo'], $columns['numero'], 'fecha_vto'];
     }
 
     public function cliente(): BelongsTo

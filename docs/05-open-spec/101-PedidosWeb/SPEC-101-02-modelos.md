@@ -13,7 +13,7 @@ Modelos Eloquent para tablas operativas y maestras ERP en base tenant, sin lógi
 ## In scope
 
 - `pq_pedidosweb_pedidoscabecera`, `pq_pedidosweb_pedidosdetalle`
-- Maestras: clientes, clientesde, vendedores, artículos, stock, listas, precios, condiciones, transportes
+- Maestras: clientes, clientesde, vendedores, artículos, **escalas (cabecera/detalle)**, stock, listas, precios, condiciones, transportes
 - Tablas nuevas MVP: tratativas, resultados, motivos_cierre, presupuestos_cierres, logs_integracion (según modelo datos)
 - PK, relaciones y casts según `PedidosWeb_Modelo_Datos_Final.md`
 

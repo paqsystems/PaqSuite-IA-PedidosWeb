@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1\PedidosWeb;
 
 use App\Exceptions\AuthFlowException;
 use App\Exceptions\PedidosWebBusinessException;
+use App\Http\Controllers\Api\V1\PedidosWeb\Support\ComprobanteGrabacionPayload;
 use App\Http\Controllers\Controller;
 use App\Http\Responses\ApiResponse;
 use App\Services\PedidosWeb\PedidoService;
@@ -104,19 +105,7 @@ class PedidoController extends Controller
             return ApiResponse::error(AuthErrorCodes::unauthenticated, 'auth.unauthenticated', 401);
         }
 
-        $validated = $request->validate([
-            'cabecera' => ['required', 'array'],
-            'cabecera.cod_cliente' => ['required', 'string'],
-            'renglones' => ['required', 'array', 'min:1'],
-            'cod_pedido_origen' => ['nullable', 'string'],
-            'cod_presupuesto_origen' => ['nullable', 'string'],
-        ]);
-
-        $payload = [
-            ...$validated,
-            'accionGrabacion' => $accionGrabacion,
-            'cod_pedido' => $codPedido,
-        ];
+        $payload = ComprobanteGrabacionPayload::fromRequest($request, $accionGrabacion, $codPedido);
 
         try {
             $this->visibilityPermissionGuard->ensurePermission(

@@ -65,4 +65,17 @@ class PqPedidoswebPedidoDetalle extends Model
     {
         return $this->belongsTo(PqPedidoswebArticulo::class, 'cod_articulo', 'codigo');
     }
+
+    public function getPorcBonifAttribute(): ?float
+    {
+        if (array_key_exists('porc_bonif', $this->attributes)) {
+            return $this->attributes['porc_bonif'] !== null ? (float) $this->attributes['porc_bonif'] : null;
+        }
+
+        if (array_key_exists('bonificacion', $this->attributes)) {
+            return $this->attributes['bonificacion'] !== null ? (float) $this->attributes['bonificacion'] : null;
+        }
+
+        return null;
+    }
 }

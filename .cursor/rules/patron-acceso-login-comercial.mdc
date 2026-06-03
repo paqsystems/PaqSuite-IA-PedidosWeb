@@ -1,0 +1,17 @@
+---
+description: Login users + vínculo pq_pedidosweb_login → cliente/vendedor
+globs:
+  - backend/app/Services/Auth/**
+  - backend/app/Services/Seed/PedidoswebLoginFromUsersSyncService.php
+  - docs/**/patron-acceso-login-comercial.md
+  - docs/**/TR-GEN-02-login-sesion.md
+  - docs/**/HU-101-001-login.md
+---
+
+# Acceso login y perfil comercial
+
+- Fuente de verdad: `docs/02-producto/PedidosWeb/patron-acceso-login-comercial.md`.
+- Autenticación: solo `users` (`codigo`, `password_hash`, `activo`).
+- Post-login: `CommercialProfileResolver` — `pq_pedidosweb_login.usuario` = `users.codigo` → `cod_usuario_web` → `pq_pedidosweb_clientes` o `pq_pedidosweb_vendedores` por `cod_login`.
+- Una sola entidad: cliente XOR vendedor/supervisor; ambiguo o ausente → `auth.noCommercialProfile`.
+- `pq_pedidosweb_login` no valida contraseña en login actual.

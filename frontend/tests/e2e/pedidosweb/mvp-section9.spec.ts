@@ -64,6 +64,15 @@ const dashboardResultado = {
 };
 
 async function mockPedidosWebApi(page: import('@playwright/test').Page) {
+  // Fallback: evita que requests no mockeados pasen al backend real (401 → sesión expirada).
+  await page.route('**/api/v1/**', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ error: 0, respuesta: 'ok', resultado: {} }),
+    });
+  });
+
   const sessionPayload = {
     token: 'token-pedidosweb',
     user: { id: 10, displayName: 'Supervisor MVP', login: 'supervisor.mvp' },
@@ -113,6 +122,26 @@ async function mockPedidosWebApi(page: import('@playwright/test').Page) {
     });
   });
 
+  await page.route('**/api/v1/config/public', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        error: 0,
+        respuesta: 'ok',
+        resultado: { gridLayoutsEnabled: false },
+      }),
+    });
+  });
+
+  await page.route('**/api/v1/auth/logout', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ error: 0, respuesta: 'ok', resultado: null }),
+    });
+  });
+
   await page.route('**/api/v1/clientes', async (route) => {
     await route.fulfill({
       status: 200,
@@ -120,7 +149,47 @@ async function mockPedidosWebApi(page: import('@playwright/test').Page) {
       body: JSON.stringify({
         error: 0,
         respuesta: 'ok',
-        resultado: [{ codCliente: 'CLI001', nombre: 'Cliente Demo' }],
+        resultado: [{ codCliente: 'CLI001', nombre: 'Cliente Demo', razonSocial: 'Cliente Demo SA' }],
+      }),
+    });
+  });
+
+  await page.route('**/api/v1/clientes/*/cabecera-inicial', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        error: 0,
+        respuesta: 'ok',
+        resultado: {
+          cabecera: {
+            cod_cliente: 'CLI001',
+            cod_vended: 'VEN001',
+            vendedor_nombre: 'Vendedor Demo',
+            cod_condvta: 1,
+            cod_transpor: 'MVP',
+            id_de: 1,
+            direccion_entrega: 'Calle Demo 123',
+            lista_precios: 1,
+            lista_precios_descripcion: 'Lista Demo',
+            moneda: 1,
+            incluye_iva: false,
+            bonif_1: 0,
+            bonif_2: 0,
+            bonif_3: 0,
+            observaciones: '',
+            cod_perfil: 'MVP',
+            leyenda_1: 'Leyenda pie 1',
+            leyenda_2: 'Leyenda pie 2',
+          },
+          catalogos: {
+            condicionesVenta: [{ codigo: 1, descripcion: 'Contado' }],
+            transportes: [{ codigo: 'MVP', descripcion: 'Transporte Demo' }],
+            listasPrecios: [{ cod_lista: 1, descripcion: 'Lista Demo', moneda: 1, incluye_iva: false }],
+            direccionesEntrega: [{ id_de: 1, direccion: 'Calle Demo 123', localidad: 'CABA', habitual: true }],
+            perfiles: [{ cod_perfil: 'MVP', descripcion: 'Perfil MVP' }],
+          },
+        },
       }),
     });
   });
@@ -137,10 +206,16 @@ async function mockPedidosWebApi(page: import('@playwright/test').Page) {
           modificaBonArt: true,
           modificaBonCli: true,
           modificaListaPrec: true,
+          clienteLeyenda1: true,
+          clienteLeyenda2: true,
+          clienteLeyenda3: true,
+          clienteLeyenda4: true,
+          clienteLeyenda5: true,
           functionalProfile: 'supervisor',
           codMotivoCierreExitoso: 1,
           noEliminaPedido: false,
           noModificaPedido: false,
+          cargaRecurrente: true,
         },
       }),
     });
@@ -158,8 +233,11 @@ async function mockPedidosWebApi(page: import('@playwright/test').Page) {
             {
               codArticulo: 'ART-001',
               descripcion: 'Artículo demo',
+              precio: 100,
               porcIva: 21,
               bonificacion: 0,
+              disponibleNeto: 150,
+              disponibleNetoBase: null,
             },
           ],
         },
@@ -233,6 +311,52 @@ async function login(page: import('@playwright/test').Page) {
   await expect(page).toHaveURL(/\/dashboard$/);
 }
 
+async function seleccionarClienteDemo(page: import('@playwright/test').Page) {
+  const cabeceraInicialResponse = page.waitForResponse(
+    (response) => response.url().includes('/cabecera-inicial') && response.status() === 200,
+  );
+
+  const clienteInput = page.getByTestId('cliente-select');
+  await expect(clienteInput).toBeVisible({ timeout: 15_000 });
+  await clienteInput.click();
+
+  const clienteOverlay = page.locator('.dx-dropdowneditor-overlay').last();
+  await expect(clienteOverlay.locator('.dx-list-item').filter({ hasText: 'Cliente Demo SA' })).toBeVisible({
+    timeout: 10_000,
+  });
+  await clienteOverlay.locator('.dx-list-item').filter({ hasText: 'Cliente Demo SA' }).click();
+  await cabeceraInicialResponse;
+
+  await expect(page.getByTestId('cliente-cargado')).toBeAttached({ timeout: 15_000 });
+  await expect(page.getByTestId('cabecera-perfil')).toBeVisible({ timeout: 15_000 });
+}
+
+async function agregarArticuloDemo(page: import('@playwright/test').Page) {
+  await expect(page.getByTestId('form-articulo-carga')).toBeVisible();
+
+  const articulosResponse = page.waitForResponse(
+    (response) => response.url().includes('/api/v1/articulos') && response.status() === 200,
+  );
+
+  await page.getByTestId('form-articulo-carga').getByRole('combobox', { name: 'Buscar artículo' }).click();
+  await articulosResponse;
+
+  const articuloOverlay = page.locator('.dx-dropdowneditor-overlay').last();
+  await expect(articuloOverlay.locator('.dx-list-item').filter({ hasText: 'Artículo demo' }).first()).toBeVisible({
+    timeout: 10_000,
+  });
+  await articuloOverlay.locator('.dx-list-item').filter({ hasText: 'Artículo demo' }).first().click();
+  await expect(page.getByTestId('btn-agregar-articulo').getByRole('button')).toBeEnabled({ timeout: 10_000 });
+  await page.getByTestId('btn-agregar-articulo').getByRole('button').click();
+  await expect(page.getByText('ART-001')).toBeVisible({ timeout: 15_000 });
+
+  const editOverlay = page.locator('.dx-overlay-shader');
+  if (await editOverlay.isVisible().catch(() => false)) {
+    await page.getByRole('button', { name: 'Aplicar cambios' }).click();
+    await expect(editOverlay).toBeHidden({ timeout: 15_000 });
+  }
+}
+
 test('smoke sección 9: login y navegación a carga', async ({ page }) => {
   await mockPedidosWebApi(page);
   await login(page);
@@ -264,12 +388,22 @@ test('carga: grabar pedido muestra confirmación y toast mail fallido', async ({
 
   await page.getByTestId('menuSidebarItem-cargaPedidosPresupuestos').click();
   await expect(page.getByTestId('page-pedidos-carga')).toBeVisible();
-  await expect(page.getByTestId('cliente-cargado')).toBeAttached({ timeout: 15_000 });
+
+  await seleccionarClienteDemo(page);
+  await agregarArticuloDemo(page);
   await expect(page.getByTestId('btn-grabar-pedido')).toBeVisible({ timeout: 15_000 });
 
+  const grabarResponse = page.waitForResponse(
+    (response) => response.url().includes('/comprobantes/grabar') && response.status() === 200,
+  );
   await page.getByTestId('btn-grabar-pedido').getByRole('button').click();
-  await expect(page.getByTestId('confirmacion-grabacion')).toContainText('42', { timeout: 15_000 });
-  await expect(page.getByTestId('confirmacion-grabacion')).toContainText('E2E001');
+  await grabarResponse;
+
+  // DevExtreme Popup: el wrapper con data-testid queda oculto en DOM; el diálogo accesible es role=dialog.
+  const confirmacionDialog = page.getByRole('dialog', { name: 'Comprobante grabado' });
+  await expect(confirmacionDialog).toBeVisible({ timeout: 15_000 });
+  await expect(confirmacionDialog.getByTestId('confirmacion-grabacion')).toContainText('42');
+  await expect(confirmacionDialog.getByTestId('confirmacion-grabacion')).toContainText('E2E001');
   await expect(page.getByTestId('aviso-mail-envio-fallido')).toBeVisible();
 });
 
@@ -281,7 +415,7 @@ test('consulta pedidos ingresados: comprobante visible y export habilitado', asy
   await page.getByTestId('menuSidebarItem-pedidosIngresados').click();
   await expect(page).toHaveURL(/\/pedidos\/ingresados$/);
   await expect(page.getByTestId('page-pedidos-ingresados')).toBeVisible();
-  await expect(page.getByText('42')).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByRole('gridcell', { name: 'PED-E2E-001' })).toBeVisible({ timeout: 15_000 });
 
   const exportButton = page.getByTestId('gridExportExcel');
   await expect(exportButton).toBeVisible();

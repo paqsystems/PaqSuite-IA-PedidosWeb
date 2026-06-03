@@ -21,10 +21,25 @@ export function ChequesPage() {
       rowActions={[]}
       columns={
         <>
-          <Column dataField="cliente" caption={t('consultas.column.cliente')} />
+          <Column dataField="interno" caption={t('consultas.column.interno')} />
+          <Column dataField="numero" caption={t('consultas.column.numero')} />
+          <Column dataField="codCliente" caption={t('consultas.column.cliente')} />
+          <Column dataField="nombreCliente" caption={t('consultas.column.nombre')} />
           <Column dataField="banco" caption={t('consultas.column.banco')} />
-          <Column dataField="vencimiento" caption={t('consultas.column.vencimiento')} />
-          <Column dataField="importe" caption={t('consultas.column.importe')} dataType="number" format="currency" />
+          <Column
+            dataField="fecha"
+            caption={t('consultas.column.fecha')}
+            dataType="date"
+            format="dd/MM/yyyy"
+          />
+          <Column
+            dataField="importe"
+            caption={t('consultas.column.importe')}
+            dataType="number"
+            format="#,##0.00"
+          />
+          <Column dataField="origen" caption={t('consultas.column.origen')} />
+          <Column dataField="estado" caption={t('consultas.column.estado')} />
         </>
       }
     />

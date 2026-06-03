@@ -14,6 +14,8 @@ return [
         'consultasDeuda' => 'pw_deudaclientes',
         'consultasCheques' => 'pw_consultacheques',
         'consultasHistorialVentas' => 'pw_historialventas',
+        'consultasDetallePedidos' => 'pw_detallepedidos',
+        'consultaParametros' => 'pw_consultaparametros',
         'tratativasPresupuestos' => 'pw_tratativaspresup',
         'logsIntegracion' => 'pw_logsintegracion',
     ],

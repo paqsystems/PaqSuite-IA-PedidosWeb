@@ -3,10 +3,11 @@
 namespace App\Services\PedidosWeb;
 
 use App\Models\PqPedidoswebPedidoCabecera;
-use App\Services\Visibility\VisibleClientsResolver;
 use App\Models\User;
+use App\Services\Visibility\VisibleClientsResolver;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Schema;
 
 final class DashboardOperativoService
 {
@@ -44,11 +45,13 @@ final class DashboardOperativoService
      */
     public function obtener(User $user): array
     {
-        $visibleClientCodes = $this->visibleClientsResolver
-            ->visibleClientsForUser($user)
-            ->pluck('cod_client');
+        if (! Schema::hasTable('pq_pedidosweb_pedidoscabecera')) {
+            return $this->emptyResult();
+        }
 
-        if ($visibleClientCodes->isEmpty()) {
+        $visibleClientsQuery = $this->visibleClientsResolver->visibleClientsForUser($user);
+
+        if (! (clone $visibleClientsQuery)->exists()) {
             return $this->emptyResult();
         }
 
@@ -56,11 +59,11 @@ final class DashboardOperativoService
         $minutosWeb = $this->parameterService->getMinutosWeb();
 
         $presupuestosQuery = PqPedidoswebPedidoCabecera::query()
-            ->whereIn('cod_cliente', $visibleClientCodes)
+            ->whereIn('cod_cliente', $visibleClientsQuery->clone()->select('cod_client'))
             ->where('estado', 99);
 
         $pedidosIngresadosQuery = PqPedidoswebPedidoCabecera::query()
-            ->whereIn('cod_cliente', $visibleClientCodes)
+            ->whereIn('cod_cliente', $visibleClientsQuery->clone()->select('cod_client'))
             ->where(function (Builder $query) use ($now, $minutosWeb): void {
                 $query->where('estado', 0)
                     ->orWhere(function (Builder $subQuery) use ($now, $minutosWeb): void {
@@ -73,7 +76,7 @@ final class DashboardOperativoService
             });
 
         $pedidosPendientesQuery = PqPedidoswebPedidoCabecera::query()
-            ->whereIn('cod_cliente', $visibleClientCodes)
+            ->whereIn('cod_cliente', $visibleClientsQuery->clone()->select('cod_client'))
             ->where('estado', 1);
 
         $topClientePresupuestos = $this->topCliente($presupuestosQuery);

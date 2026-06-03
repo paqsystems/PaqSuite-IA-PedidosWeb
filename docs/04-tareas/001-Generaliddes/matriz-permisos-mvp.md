@@ -65,6 +65,7 @@ Procedimientos ERP: `pw_cargapedidos`, `pw_presupuestosingresados`, `pw_pedidosi
 | PATCH | `/api/v1/users/me/preferences/locale` | Usuario autenticado | TR-GEN-01-idioma |
 | PATCH | `/api/v1/users/me/preferences/theme` | Usuario autenticado | TR-GEN-01-apariencia-temas |
 | GET | `/api/v1/config/public` | Usuario autenticado | TR-GEN-01-ayuda-externa, TR-GEN-03-layouts-grilla (`gridLayoutsEnabled`) |
+| GET | `/api/v1/config/parametros` | `Permiso_Repo` + **`pw_consultaparametros`** | TR-GEN-04-consulta-parametros |
 
 ## Menú
 
@@ -100,9 +101,25 @@ Procedimientos ERP: `pw_cargapedidos`, `pw_presupuestosingresados`, `pw_pedidosi
 | POST | `/api/v1/presupuestos/{id}/cerrar` | **`pw_cargapedidos`** | TR-SPEC-101-05-controllers-rest |
 | POST | `/api/v1/comprobantes/grabar`, `/copiar` | **`pw_cargapedidos`** | TR-SPEC-101-05-controllers-rest |
 | POST | `/api/v1/pedidos/{id}/edicion/*` | **`pw_cargapedidos`** | TR-SPEC-101-05-controllers-rest |
-| GET | `/api/v1/consultas/*` | `Permiso_Repo` + visibilidad | TR-SPEC-101-07-consultas-api |
-| GET | `/api/v1/dashboard/operativo` | `Permiso_Repo` + visibilidad | TR-SPEC-101-14-dashboard |
-| GET | `/api/v1/integracion/logs` | `Permiso_Repo` (supervisor/soporte) | TR-SPEC-101-08-logs-integracion |
+| GET | `/api/v1/consultas/pedidos-ingresados` | `Permiso_Repo` + **`pw_pedidosingresados`** + visibilidad | TR-SPEC-101-07-consultas-api |
+| GET | `/api/v1/consultas/pedidos-pendientes` | `Permiso_Repo` + **`pw_pedidospendientes`** + visibilidad | TR-SPEC-101-07-consultas-api |
+| GET | `/api/v1/consultas/presupuestos` | `Permiso_Repo` + **`pw_presupuestosingresados`** + visibilidad | TR-SPEC-101-07-consultas-api |
+| GET | `/api/v1/consultas/stock` | `Permiso_Repo` + **`pw_consultastock`** | TR-SPEC-101-07-consultas-api |
+| GET | `/api/v1/consultas/deuda` | `Permiso_Repo` + **`pw_deudaclientes`** + visibilidad | TR-SPEC-101-07-consultas-api |
+| GET | `/api/v1/consultas/cheques` | `Permiso_Repo` + **`pw_consultacheques`** + visibilidad | TR-SPEC-101-07-consultas-api |
+| GET | `/api/v1/consultas/historial-ventas` | `Permiso_Repo` + **`pw_historialventas`** + visibilidad | TR-SPEC-101-07-consultas-api |
+| GET | `/api/v1/consultas/detalle-pedidos` | `Permiso_Repo` + **`pw_detallepedidos`** + visibilidad | TR-SPEC-101-07-consultas-api (Bloque 3) |
+| GET | `/api/v1/config/parametros-carga` | Usuario autenticado + perfil comercial | TR-SPEC-101-10-pantalla-carga |
+| GET | `/api/v1/dashboard/operativo` | `Permiso_Repo` + **`pw_dashboard`** + visibilidad | TR-SPEC-101-14-dashboard |
+| GET | `/api/v1/integracion/logs` | `Permiso_Repo` + **`pw_logsintegracion`** | TR-SPEC-101-08-logs-integracion |
+
+## Menú MVP — procedimientos nuevos (2026-06-03)
+
+| Procedimiento | Ruta UI | TR origen |
+|---------------|---------|-----------|
+| `pw_consultaparametros` | `/general/parametros` | TR-GEN-04-consulta-parametros |
+| `pw_detallepedidos` | `/pedidos/detalle` | TR-SPEC-101-11-consultas-ui (Bloque 3) |
+| `grp_general` | (grupo) | TR-GEN-04-consulta-parametros |
 
 ## Checklist de mantenimiento
 

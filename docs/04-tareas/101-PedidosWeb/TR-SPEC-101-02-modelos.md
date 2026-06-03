@@ -31,7 +31,7 @@ para **que repositories y services consuman una capa de persistencia tipada sin 
 **In scope:**
 
 - Modelos para `pq_pedidosweb_pedidoscabecera` y `pq_pedidosweb_pedidosdetalle` (pedido y presupuesto comparten cabecera).
-- Maestras comerciales: clientes, clientesde, vendedores, artículos, stock, listas, listaprecios_articulos, descuentocantidad, condventa, transportes, perfil, provincias.
+- Maestras comerciales: clientes, clientesde, vendedores, artículos, **escalas (cabecera/detalle)**, stock, listas, listaprecios_articulos, descuentocantidad, condventa, transportes, perfil, provincias.
 - Tablas consulta ERP: cheques, deuda, ventadetallada (y resumencuenta si aplica consultas).
 - Tablas nuevas MVP: tratativas, tratativas_resultados, motivos_cierre, presupuestos_cierres, logs_integracion.
 - Campos de auditoría y bloqueo en cabecera: `usuario_creacion`, `fecha_creacion`, `usuario_modificacion`, `fechahora_inicio_proceso`, **`fechahora_ultima_actividad`**, **`cod_presupuesto_origen`**, `cod_pedido_origen`, `origen_comprobante`, `nro_visible`.
@@ -108,6 +108,8 @@ Feature: Modelos Eloquent PedidosWeb
 | `ClienteDireccionEntrega` | `pq_pedidosweb_clientesde` | compuesta |
 | `Vendedor` | `pq_pedidosweb_vendedores` | `cod_vended` |
 | `Articulo` | `pq_pedidosweb_articulos` | `codigo` |
+| `EscalasCabecera` | `pq_pedidosweb_escalas_cabecera` | `cod_escala` |
+| `EscalasDetalle` | `pq_pedidosweb_escalas_detalle` | compuesta `cod_escala`, `cod_valor` |
 | `Stock` | `pq_pedidosweb_stock` | `cod_articulo` |
 | `ListaPrecios` | `pq_pedidosweb_listaprecios` | `cod_lista` |
 | `ListaPreciosArticulo` | `pq_pedidosweb_listaprecios_articulos` | compuesta |

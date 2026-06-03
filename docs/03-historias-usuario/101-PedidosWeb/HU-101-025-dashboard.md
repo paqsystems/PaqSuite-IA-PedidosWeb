@@ -24,6 +24,10 @@ Q/$ presupuestos activos (99), Q/$ pedidos ingresados, Q/$ pedidos pendientes (1
 Incluir estados **0** y **-1**, **excluyendo** comprobantes donde  
 `fechahora_ultima_actividad + MinutosWeb >= fechahora_actual` (modificación **-1** activa — ver HU-101-011).
 
+## UI
+
+- Patrón visual (fuente de verdad): [`patron-dashboard-operativo-ui.md`](../../02-producto/PedidosWeb/patron-dashboard-operativo-ui.md) — layout tipo Producción (Tango), 8 KPIs en tarjetas agrupadas.
+
 ## Criterios de aceptación
 
 - [ ] **CA-01:** Los 8 indicadores visibles tras login con datos seed.

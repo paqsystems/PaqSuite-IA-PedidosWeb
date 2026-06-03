@@ -17,7 +17,7 @@ para **decidir cantidades en cargas y atención al cliente**.
 ## Reglas de negocio
 
 1. No restringida por cliente; búsqueda por código/descripción y opción “todos”.
-2. Mostrar stock real, comprometido, disponible ERP y neto según producto §13.
+2. Campos y fórmulas: **[consulta-stock.md](../../02-producto/PedidosWeb/consulta-stock.md)** (fuente de verdad).
 3. `fecha_proceso` en carátula (producto §17.7).
 
 ## Criterios de aceptación

@@ -40,7 +40,13 @@ Los **estado 0** sin bloqueo activo siempre cuentan.
 
 HU-101-025
 
+## UI (fuente de verdad)
+
+- Patrón visual y `data-testid`: [`docs/02-producto/PedidosWeb/patron-dashboard-operativo-ui.md`](../../02-producto/PedidosWeb/patron-dashboard-operativo-ui.md)
+- Referencia: dashboard Producción en PaqSuite-IA-Tango (TR-033)
+
 ## Definición de listo
 
 - [ ] 8 indicadores coherentes con datos seed/E2E
 - [ ] Tests feature + E2E dashboard
+- [ ] Layout KPI según patrón UI (tarjetas agrupadas, i18n, testids estables)

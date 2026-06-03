@@ -1,0 +1,43 @@
+---
+description: Patrones E2E Playwright con DevExtreme (Popups, SelectBox, mocks API)
+globs:
+  - frontend/tests/e2e/**/*.spec.ts
+  - frontend/tests/e2e/**/*.ts
+alwaysApply: false
+---
+
+# E2E Playwright + DevExtreme
+
+Referencia de flujo validado: `frontend/tests/e2e/pedidosweb/mvp-section9.spec.ts` (grabar pedido).
+
+## Popup / diálogo (DevExtreme `Popup`)
+
+- **No** usar `toBeVisible()` sobre el wrapper con `elementAttr` / `data-testid` del `Popup`: el nodo (`dx-overlay dx-popup`) queda en DOM como `hidden` aunque el diálogo esté abierto.
+- **Sí** assertar con `getByRole('dialog', { name: '<título i18n>' })` o sobre contenido interno estable (`data-testid` del hijo, p. ej. `confirmacion-grabacion` + `toContainText`).
+- Mantener `data-testid` en el Popup para trazabilidad; no como única señal de visibilidad.
+
+```typescript
+// ❌ Frágil
+await expect(page.getByTestId('dialog-confirmacion-grabar')).toBeVisible();
+
+// ✅ Correcto
+const dialog = page.getByRole('dialog', { name: 'Comprobante grabado' });
+await expect(dialog).toBeVisible();
+await expect(dialog.getByTestId('confirmacion-grabacion')).toContainText('42');
+```
+
+## SelectBox y overlays
+
+- Preferir `inputAttr` (`data-testid`) del control para abrir el combo.
+- Seleccionar ítems en el overlay activo: `.dx-dropdowneditor-overlay`.last()` + `.dx-list-item` (evitar `.dx-overlay-content` genérico: overlays superpuestos y elementos detached).
+- Registrar `waitForResponse` **antes** del clic que dispara la API (p. ej. `cabecera-inicial`, `comprobantes/grabar`).
+
+## Mocks de API en E2E
+
+- Registrar primero un fallback `**/api/v1/**` (200 vacío) y después los mocks específicos, para que requests no previstos no pasen al backend real (401 → sesión expirada en UI).
+- Mockear siempre `config/public`, `auth/logout` y endpoints del flujo bajo prueba.
+
+## Criterios generales
+
+- Textos visibles de assert: salir del i18n activo en el test (locale `es` por defecto en fixtures).
+- Preservar `data-testid` públicos; no acoplar tests al markup interno de DevExtreme salvo selectores de overlay documentados arriba.

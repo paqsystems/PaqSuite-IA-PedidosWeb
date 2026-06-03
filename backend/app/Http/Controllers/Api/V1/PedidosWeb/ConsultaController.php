@@ -6,6 +6,7 @@ use App\Exceptions\AuthFlowException;
 use App\Http\Controllers\Controller;
 use App\Http\Responses\ApiResponse;
 use App\Services\PedidosWeb\ConsultaListadoService;
+use App\Services\PedidosWeb\DetallePedidosConsultaService;
 use App\Services\Visibility\VisibilityPermissionGuard;
 use App\Support\AuthErrorCodes;
 use Illuminate\Http\JsonResponse;
@@ -15,6 +16,7 @@ final class ConsultaController extends Controller
 {
     public function __construct(
         private readonly ConsultaListadoService $consultaListadoService,
+        private readonly DetallePedidosConsultaService $detallePedidosConsultaService,
         private readonly VisibilityPermissionGuard $visibilityPermissionGuard,
     ) {}
 
@@ -68,6 +70,14 @@ final class ConsultaController extends Controller
     public function historialVentas(Request $request): JsonResponse
     {
         return $this->resolverConsulta($request, 'consultasHistorialVentas', fn () => $this->consultaListadoService->historialVentas(
+            $request->user(),
+            $request->query()
+        ));
+    }
+
+    public function detallePedidos(Request $request): JsonResponse
+    {
+        return $this->resolverConsulta($request, 'consultasDetallePedidos', fn () => $this->detallePedidosConsultaService->listar(
             $request->user(),
             $request->query()
         ));

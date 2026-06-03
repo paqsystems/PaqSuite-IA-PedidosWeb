@@ -4,7 +4,8 @@ namespace Tests\Support;
 
 use App\Contracts\PedidosWeb\PedidoDetalleRepositoryInterface;
 use App\Contracts\PedidosWeb\PedidoRepositoryInterface;
-use App\Models\PqPedidoswebMotivoCierre;
+use App\Models\User;
+use App\Services\PedidosWeb\PedidosWebSchemaBootstrap;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
@@ -37,17 +38,17 @@ trait SeedsPedidosWebFeatureData
     protected function bootstrapPedidosWebTenant(): bool
     {
         try {
-            if ($this->artisan('paqsuite:seed-menus-mvp') !== 0) {
+            if ($this->artisan('paqsuite:seed-menus-mvp')->run() !== 0) {
                 return false;
             }
 
-            if ($this->artisan('paqsuite:seed-seguridad-mvp') !== 0) {
+            if ($this->artisan('paqsuite:seed-seguridad-mvp')->run() !== 0) {
                 return false;
             }
 
             $this->ensureComprobanteReferences();
-            $this->ensureMotivosCierre();
             $this->ensureMailDestinatariosFixtures();
+            app(PedidosWebSchemaBootstrap::class)->ensureMvpSchema();
 
             return true;
         } catch (\Throwable) {
@@ -73,6 +74,34 @@ trait SeedsPedidosWebFeatureData
                 ],
             ],
         ];
+    }
+
+    protected function uniqueComprobanteCod(string $prefix): string
+    {
+        $suffix = strtoupper(substr(str_replace('.', '', uniqid('', true)), -8));
+
+        return substr($prefix.$suffix, 0, 20);
+    }
+
+    protected function uniqueClienteCod(string $prefix): string
+    {
+        $suffix = strtoupper(substr(str_replace('.', '', uniqid('', true)), -4));
+
+        return substr($prefix.$suffix, 0, 10);
+    }
+
+    protected function motivoRechazoFeatureId(): int
+    {
+        $idMotivo = DB::table('pq_pedidosweb_motivos_cierre')
+            ->where('tipo_cierre', 'negativo')
+            ->where('descripcion', 'Rechazo feature test')
+            ->value('id_motivo');
+
+        if ($idMotivo === null) {
+            $this->fail('Motivo de rechazo feature test no disponible en pq_pedidosweb_motivos_cierre.');
+        }
+
+        return (int) $idMotivo;
     }
 
     protected function insertComprobanteConDetalle(string $codPedido, int $estado, string $codCliente = 'CLIMVP001'): void
@@ -105,7 +134,7 @@ trait SeedsPedidosWebFeatureData
             'moneda' => 1,
             'estado' => $estado,
             'tal_pedido_tango' => 1,
-            'nro_pedido_tango' => $codPedido,
+            'nro_pedido_tango' => substr($codPedido, 0, 20),
             'cod_usuario_web' => 'supervisor.mvp',
             'fecha_modif' => $sqlServerDateTime,
             'total' => 150,
@@ -158,23 +187,6 @@ trait SeedsPedidosWebFeatureData
         }
     }
 
-    private function ensureMotivosCierre(): void
-    {
-        if (! Schema::hasTable('pq_pedidosweb_motivos_cierre')) {
-            return;
-        }
-
-        PqPedidoswebMotivoCierre::query()->updateOrCreate(
-            ['id_motivo' => 1],
-            ['tipo_cierre' => 'positivo', 'descripcion' => 'Cierre exitoso MVP', 'activo' => true]
-        );
-
-        PqPedidoswebMotivoCierre::query()->updateOrCreate(
-            ['id_motivo' => 9001],
-            ['tipo_cierre' => 'negativo', 'descripcion' => 'Rechazo feature test', 'activo' => true]
-        );
-    }
-
     protected function ensureClienteSinEmailDestinatarios(string $codCliente): void
     {
         if (! Schema::hasTable('pq_pedidosweb_clientes')) {
@@ -211,9 +223,42 @@ trait SeedsPedidosWebFeatureData
 
     protected function seedVisibilityUniverse(): void
     {
+        $this->grantVendedorAcotadoFeaturePermissions();
         $this->upsertClienteSeed('CLI-VEN-A', 'Cliente Vendedor A', 'VENACOT01');
         $this->upsertClienteSeed('CLI-VEN-B', 'Cliente Vendedor B', 'VENSINM01');
         $this->upsertComprobanteSeed('PED-VEN-B-0', 'CLI-VEN-B', 'VENSINM01', 0, 999.00);
+    }
+
+    protected function grantVendedorAcotadoFeaturePermissions(): void
+    {
+        $rol = \App\Models\PqRol::query()->where('nombre_rol', 'VendedorAcotado')->first();
+
+        if ($rol === null) {
+            return;
+        }
+
+        $procedimientos = [
+            (string) config('paqsuite_visibility.procedimientos.cargaComprobantes'),
+            (string) config('paqsuite_visibility.procedimientos.tratativasPresupuestos'),
+            (string) config('paqsuite_visibility.procedimientos.consultasDeuda'),
+            (string) config('paqsuite_visibility.procedimientos.consultasCheques'),
+            (string) config('paqsuite_visibility.procedimientos.consultasHistorialVentas'),
+        ];
+
+        foreach ($procedimientos as $procedimiento) {
+            \App\Models\PqRolAtributo::query()->updateOrInsert(
+                [
+                    'id_rol' => $rol->id,
+                    'procedimiento' => $procedimiento,
+                ],
+                [
+                    'permiso_alta' => true,
+                    'permiso_baja' => true,
+                    'permiso_modi' => true,
+                    'permiso_repo' => true,
+                ]
+            );
+        }
     }
 
     protected function upsertClienteSeed(string $codCliente, string $nombre, string $codVendedor): void
@@ -262,7 +307,7 @@ trait SeedsPedidosWebFeatureData
                 'moneda' => 1,
                 'estado' => $estado,
                 'tal_pedido_tango' => 1,
-                'nro_pedido_tango' => $codPedido,
+                'nro_pedido_tango' => substr($codPedido, 0, 20),
                 'cod_usuario_web' => $codCliente,
                 'fecha_modif' => $sqlServerDateTime,
                 'total' => $total,

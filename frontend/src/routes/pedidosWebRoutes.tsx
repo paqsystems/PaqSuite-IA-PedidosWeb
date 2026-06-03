@@ -56,6 +56,16 @@ const IntegracionLogsPage = lazy(() =>
     default: module.IntegracionLogsPage,
   })),
 );
+const ParametrosConsultaPage = lazy(() =>
+  import('../features/config/pages/ParametrosConsultaPage').then((module) => ({
+    default: module.ParametrosConsultaPage,
+  })),
+);
+const DetallePedidosPage = lazy(() =>
+  import('../features/consultas/pages/DetallePedidosPage').then((module) => ({
+    default: module.DetallePedidosPage,
+  })),
+);
 
 export type PedidosWebRoutePath = (typeof mvpMenuRoutePaths)[number];
 
@@ -90,6 +100,10 @@ export const pedidosWebRoutes: PedidosWebRoute[] = [
     path: '/pedidos/pendientes',
     element: withSuspense(<PedidosPendientesPage />, 'page-loading-pedidos-pendientes'),
   },
+  {
+    path: '/pedidos/detalle',
+    element: withSuspense(<DetallePedidosPage />, 'page-loading-detalle-pedidos'),
+  },
   { path: '/consultas/deuda', element: withSuspense(<DeudaPage />, 'page-loading-consulta-deuda') },
   { path: '/consultas/cheques', element: withSuspense(<ChequesPage />, 'page-loading-consulta-cheques') },
   {
@@ -103,4 +117,8 @@ export const pedidosWebRoutes: PedidosWebRoute[] = [
   },
   { path: '/dashboard', element: withSuspense(<DashboardPage />, 'page-loading-dashboard') },
   { path: '/integracion/logs', element: withSuspense(<IntegracionLogsPage />, 'page-loading-integracion-logs') },
+  {
+    path: '/general/parametros',
+    element: withSuspense(<ParametrosConsultaPage />, 'page-loading-parametros-consulta'),
+  },
 ];

@@ -4,6 +4,7 @@ export const mvpMenuRoutePaths = [
   '/presupuestos/ingresados',
   '/pedidos/ingresados',
   '/pedidos/pendientes',
+  '/pedidos/detalle',
   '/consultas/deuda',
   '/consultas/cheques',
   '/consultas/historial',
@@ -11,4 +12,5 @@ export const mvpMenuRoutePaths = [
   '/presupuestos/tratativas',
   '/dashboard',
   '/integracion/logs',
+  '/general/parametros',
 ] as const;

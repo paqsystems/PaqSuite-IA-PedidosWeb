@@ -5,7 +5,7 @@
 | **ID** | HU-101-005-inicializacion-cabecera |
 | **SPEC origen** | [SPEC-101-10-pantalla-carga](../../05-open-spec/101-PedidosWeb/SPEC-101-10-pantalla-carga.md) |
 | **Prioridad** | Must |
-| **Estado** | Pendiente |
+| **Estado** | Parcial — perfil cabecera implementado (2026-06-03) |
 | **B1** | Enriquecida (2026-06-01) |
 | **Dependencias** | HU-101-004; contexto SPEC-001-04 (parámetros §10.6 producto) |
 
@@ -29,7 +29,7 @@ Al seleccionar cliente, precargar según producto §10.4: vendedor, condición d
 
 ## Criterios de aceptación
 
-- [ ] **CA-01:** Tras elegir cliente, cabecera muestra valores ERP coherentes con maestra.
+- [x] **CA-01 (parcial):** Tras elegir cliente, cabecera muestra valores ERP coherentes con maestra (incl. `cod_perfil` inicial y catálogo `perfiles`).
 - [ ] **CA-02:** Cambio de cliente recalcula/reemplaza cabecera (con confirmación si hay renglones).
 - [ ] **CA-03:** Campos bloqueados por permiso aparecen deshabilitados, no ocultos sin traza.
 - [ ] **CA-04:** Textos de labels vía i18n.

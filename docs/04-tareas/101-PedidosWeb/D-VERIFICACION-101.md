@@ -255,3 +255,28 @@ Skipped: integración repositories (6) + 403 feature (2) — PHPUnit sin BD `Ank
 | 2026-06-02 | **101-07, 101-11 Bloque 2** (pedidos/presup) | **55 pass / 46 skip** | Flags acción API; join cierres 98; acciones grilla + cierre presupuesto DX |
 | 2026-06-02 | **101-04, 101-05, 101-10, 101-13 Bloque 3** | **61 pass / 46 skip** | Parametros-carga; articulos; Modifica*; PedidosCargaPage edición/copia/ver; OpenAPI |
 | 2026-06-02 | **101-08, 101-14, 101-11, 101-15 Bloque 4** | **66 pass / 47 skip**; build OK | Dashboard regla -1 test; logs UI; E2E §9 KPIs+export; i18n fr/pt/it |
+
+---
+
+## Verificación paso E (2026-06-03)
+
+Alcance: cierre D1 **consulta parámetros** (GEN-04), **detalle pedidos** (101-07/11 Bloque 3), **perfil cabecera** en carga (101-10 / HU-101-005).
+
+| Comando | Resultado |
+|---------|-----------|
+| `php artisan paqsuite:seed-menus-mvp` | OK |
+| `php artisan paqsuite:seed-seguridad-mvp` | OK |
+| `php artisan test --filter=ParametrosConsulta` | 2 pass, 1 skip (403 sin SQL) |
+| `php artisan test --filter=PedidosWebModelsTest` | 3 pass (incl. relación `perfil`) |
+| `php artisan test --filter=PedidosWebEndpointsAuthTest` | 31 pass (incl. detalle-pedidos + config/parametros) |
+| `npm run build` | OK |
+| `npx playwright test consultas-d1.spec.ts` | **3/3 OK** |
+| `npx playwright test mvp-section9.spec.ts` | **2/4 OK** — perfil visible tras elegir cliente; fallo preexistente en diálogo grabar (no bloqueante perfil/consultas) |
+
+**Documentación canónica actualizada:** `pantalla-carga-comprobante-ui.md` §5, `Updates-2026-06-03.md` §5, `TR-SPEC-101-10` contrato `cabecera-inicial`.
+
+**Pendiente tanda 2 (SQL):** feature 200/403 consultas y parámetros; smoke manual menús `pw_consultaparametros` / `pw_detallepedidos`.
+
+| Fecha | TR / tema | Tests | Notas |
+|-------|-----------|-------|-------|
+| 2026-06-03 | GEN-04, 101-07/11 B3, perfil cabecera | E2E consultas-d1 **3/3**; backend scoped **34 pass**; section9 **2/4** | Matriz permisos; doc canónica §5 perfil; mocks E2E |

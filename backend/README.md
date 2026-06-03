@@ -66,6 +66,18 @@ Orden obligatorio (SQL Server / diccionario legacy):
 ```powershell
 php artisan paqsuite:seed-menus-mvp
 php artisan paqsuite:seed-seguridad-mvp
+# Opcional: alinear pq_pedidosweb_login con todos los users (faltantes por usuario=codigo)
+php artisan paqsuite:sync-pedidosweb-login-from-users
+```
+
+**Recrear tablas comerciales + parámetros PedidosWeb (desarrollo, sin script ERP):**
+
+```powershell
+php scripts/bootstrap-pedidosweb-dev.php --yes
+# o: php artisan paqsuite:bootstrap-pedidosweb-dev --no-interaction
+```
+
+Recrea todas las `pq_pedidosweb_*` (25 tablas, incl. escalas), `PQ_parametros_gral` (57 claves del JSON seed) y datos MVP (stock, dashboard, consultas). No toca `users` ni `pq_menus`.
 ```
 
 Variables en `.env`:
@@ -77,6 +89,8 @@ Variables en `.env`:
 | `PAQSUITE_MONO_EMPRESA_ID` | `id_empresa` en `Pq_Permiso` (FK `PQ_Empresa`; default `8`) |
 
 Catálogo: `config/paqsuite_mvp.php`. Usuarios seed: §4.6 TR-GEN-02-modelo-roles-permisos-seed.
+
+**Login:** autenticación en tabla `users` (`codigo` + `password_hash`). Tras login, vínculo comercial: `pq_pedidosweb_login` → `pq_pedidosweb_clientes` / `pq_pedidosweb_vendedores`. Ver `docs/02-producto/PedidosWeb/patron-acceso-login-comercial.md`.
 
 **Nota legacy:** `pq_menus` usa `procedimiento` ERP (`pw_*`). Rol **`VendedorAcotado`** separa atributos de menú de **`Vendedor`** (`vendedor.sinMenu.mvp`).
 

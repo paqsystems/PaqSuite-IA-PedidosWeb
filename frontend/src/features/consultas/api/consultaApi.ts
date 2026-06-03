@@ -33,9 +33,46 @@ export type ComprobanteConsultaRow = {
   numero: string;
   cliente: string;
   codCliente: string;
+  razonSocial: string;
   estado: number;
   importe: number;
   fecha: string;
+  nivel: number | null;
+  observaciones: string;
+  incluyeIva: boolean;
+  moneda: number;
+  fechaModif: string;
+  total: number;
+  totalIva: number;
+  leyenda1: string;
+  leyenda2: string;
+  leyenda3: string;
+  leyenda4: string;
+  leyenda5: string;
+  descuento: number;
+  bonif1: number;
+  bonif2: number;
+  bonif3: number;
+  codPerfil: string;
+  perfilDescripcion: string;
+  codVended: string;
+  vendedorDescripcion: string;
+  codCondvta: number | null;
+  condicionVentaDescripcion: string;
+  idDe: number | null;
+  direccionEntregaDescripcion: string;
+  codTranspor: string;
+  transporteDescripcion: string;
+  listaPrecios: number | null;
+  listaPreciosDescripcion: string;
+  expreso: string;
+  expresoDire: string;
+  fechaEntrega: string;
+  usuarioCreacion: string;
+  fechaCreacion: string;
+  usuarioModificacion: string;
+  fechahoraInicioProceso: string;
+  fechahoraUltimaActividad: string;
   puedeEditar: boolean;
   puedeEliminar: boolean;
   puedeCopiar: boolean;
@@ -48,38 +85,84 @@ export type PedidoConsultaRow = ComprobanteConsultaRow;
 
 export type PresupuestoConsultaRow = ComprobanteConsultaRow;
 
+export type DetallePedidoConsultaRow = ComprobanteConsultaRow & {
+  renglon: number;
+  codArticulo: string;
+  descripcionArticulo: string;
+  cantidad: number;
+  porcBonif: number;
+  precioLista: number;
+  precioNeto: number;
+  importeBruto: number;
+  importeNeto: number;
+  ivaNeto: number;
+  importeNetoConIva: number;
+};
+
 export type StockConsultaRow = {
   id: string;
-  articulo: string;
+  codArticulo: string;
   descripcion: string;
-  stockActual: number;
-  stockComprometido: number;
+  stock: number;
+  comprometido: number;
+  comprometidoWeb: number;
+  disponibleNeto: number;
+  codBase: string | null;
+  stockBase: number | null;
+  comprometidoBase: number | null;
+  comprometidoBaseWeb: number | null;
+  disponibleNetoBase: number | null;
 };
 
 export type DeudaConsultaRow = {
   id: string;
-  cliente: string;
+  codCliente: string;
+  razonSocial: string;
+  tipo: string;
+  numero: string;
+  fecha: string;
   vencimiento: string;
-  importe: number;
+  saldo: number;
 };
 
 export type ChequeConsultaRow = {
   id: string;
-  cliente: string;
+  interno: string;
+  numero: string;
+  codCliente: string;
+  nombreCliente: string;
   banco: string;
-  vencimiento: string;
+  fecha: string;
   importe: number;
+  origen: string;
+  estado: string;
 };
 
 export type HistorialVentasRow = {
   id: string;
-  fecha: string;
-  cliente: string;
   codCliente: string;
-  articulo: string;
+  razonSocial: string;
+  nRemito: string;
+  tipo: string;
+  numero: string;
+  fechaEmision: string;
+  condVta: number | null;
+  porcDesc: number;
+  cotiz: number;
+  moneda: string;
+  totalComp: number;
+  codTransp: string;
+  nomTransp: string;
+  codArticulo: string;
   descripcion: string;
+  codDep: string;
+  um: string;
   cantidad: number;
-  importe: number;
+  precio: number;
+  totSinImp: number;
+  nCompRem: string;
+  cantRem: number;
+  fechaRem: string;
 };
 
 type ApiComprobanteConsultaItem = {
@@ -89,8 +172,43 @@ type ApiComprobanteConsultaItem = {
   razonSocial?: string;
   estado?: number;
   fecha?: string;
-  numeroVisible?: number;
+  nivel?: number | null;
+  observaciones?: string;
+  incluyeIva?: boolean;
+  moneda?: number;
+  fechaModif?: string;
   total?: number;
+  totalIva?: number;
+  leyenda1?: string;
+  leyenda2?: string;
+  leyenda3?: string;
+  leyenda4?: string;
+  leyenda5?: string;
+  descuento?: number;
+  bonif1?: number;
+  bonif2?: number;
+  bonif3?: number;
+  codPerfil?: string;
+  perfilDescripcion?: string;
+  codVended?: string;
+  vendedorDescripcion?: string;
+  codCondvta?: number | null;
+  condicionVentaDescripcion?: string;
+  idDe?: number | null;
+  direccionEntregaDescripcion?: string;
+  codTranspor?: string;
+  transporteDescripcion?: string;
+  listaPrecios?: number | null;
+  listaPreciosDescripcion?: string;
+  expreso?: string;
+  expresoDire?: string;
+  fechaEntrega?: string;
+  usuarioCreacion?: string;
+  fechaCreacion?: string;
+  usuarioModificacion?: string;
+  fechahoraInicioProceso?: string;
+  fechahoraUltimaActividad?: string;
+  numeroVisible?: number;
   puedeEditar?: boolean;
   puedeEliminar?: boolean;
   puedeCopiar?: boolean;
@@ -105,33 +223,80 @@ type ApiComprobanteConsultaItem = {
   };
 };
 
+type ApiDetallePedidoItem = ApiComprobanteConsultaItem & {
+  renglon?: number;
+  codArticulo?: string;
+  descripcionArticulo?: string;
+  cantidad?: number;
+  porcBonif?: number;
+  precioLista?: number;
+  precioNeto?: number;
+  importeBruto?: number;
+  importeNeto?: number;
+  ivaNeto?: number;
+  importeNetoConIva?: number;
+};
+
 type ApiStockItem = {
   codArticulo?: string;
   descripcion?: string;
   stock?: number;
   comprometido?: number;
+  comprometidoWeb?: number;
+  disponibleNeto?: number;
+  codBase?: string | null;
+  stockBase?: number | null;
+  comprometidoBase?: number | null;
+  comprometidoBaseWeb?: number | null;
+  disponibleNetoBase?: number | null;
 };
 
 type ApiDeudaItem = {
   codCliente?: string;
-  fechaVto?: string;
+  razonSocial?: string;
+  tipo?: string;
+  numero?: string;
+  fecha?: string;
+  vencimiento?: string;
   saldo?: number;
 };
 
 type ApiChequeItem = {
+  interno?: string;
+  numero?: string;
   codCliente?: string;
+  nombreCliente?: string;
   banco?: string;
   fecha?: string;
   importe?: number;
+  origen?: string;
+  estado?: string;
 };
 
 type ApiHistorialItem = {
   codCliente?: string;
-  fecha?: string;
+  razonSocial?: string;
+  nRemito?: string;
+  tipo?: string;
+  numero?: string;
+  fechaEmision?: string;
+  condVta?: number | null;
+  porcDesc?: number;
+  cotiz?: number;
+  moneda?: string;
+  totalComp?: number;
+  codTransp?: string;
+  nomTransp?: string;
   codArticulo?: string;
   descripcion?: string;
+  codDep?: string;
+  um?: string;
   cantidad?: number;
-  importe?: number;
+  precio?: number;
+  totSinImp?: number;
+  nCompRem?: string;
+  cantRem?: number;
+  fechaRem?: string;
 };
 
 function extractMeta(payload: ConsultaPayload<unknown>): ConsultaMeta | null {
@@ -141,16 +306,54 @@ function extractMeta(payload: ConsultaPayload<unknown>): ConsultaMeta | null {
 function mapComprobanteConsultaItem(item: ApiComprobanteConsultaItem): ComprobanteConsultaRow {
   const codPedido = item.codPedido ?? item.codPresupuesto ?? '';
   const numeroVisible = item.numeroVisible ?? 0;
+  const razonSocial = item.razonSocial ?? item.codCliente ?? '';
 
   return {
     id: codPedido,
     codPedido,
     numero: numeroVisible > 0 ? String(numeroVisible) : codPedido,
-    cliente: item.razonSocial ?? item.codCliente ?? '',
+    cliente: razonSocial,
     codCliente: item.codCliente ?? '',
+    razonSocial,
     estado: item.estado ?? 0,
     importe: item.total ?? 0,
     fecha: item.fecha ?? '',
+    nivel: item.nivel ?? null,
+    observaciones: item.observaciones ?? '',
+    incluyeIva: item.incluyeIva ?? false,
+    moneda: item.moneda ?? 1,
+    fechaModif: item.fechaModif ?? '',
+    total: item.total ?? 0,
+    totalIva: item.totalIva ?? 0,
+    leyenda1: item.leyenda1 ?? '',
+    leyenda2: item.leyenda2 ?? '',
+    leyenda3: item.leyenda3 ?? '',
+    leyenda4: item.leyenda4 ?? '',
+    leyenda5: item.leyenda5 ?? '',
+    descuento: item.descuento ?? 0,
+    bonif1: item.bonif1 ?? 0,
+    bonif2: item.bonif2 ?? 0,
+    bonif3: item.bonif3 ?? 0,
+    codPerfil: item.codPerfil ?? '',
+    perfilDescripcion: item.perfilDescripcion ?? '',
+    codVended: item.codVended ?? '',
+    vendedorDescripcion: item.vendedorDescripcion ?? '',
+    codCondvta: item.codCondvta ?? null,
+    condicionVentaDescripcion: item.condicionVentaDescripcion ?? '',
+    idDe: item.idDe ?? null,
+    direccionEntregaDescripcion: item.direccionEntregaDescripcion ?? '',
+    codTranspor: item.codTranspor ?? '',
+    transporteDescripcion: item.transporteDescripcion ?? '',
+    listaPrecios: item.listaPrecios ?? null,
+    listaPreciosDescripcion: item.listaPreciosDescripcion ?? '',
+    expreso: item.expreso ?? '',
+    expresoDire: item.expresoDire ?? '',
+    fechaEntrega: item.fechaEntrega ?? '',
+    usuarioCreacion: item.usuarioCreacion ?? '',
+    fechaCreacion: item.fechaCreacion ?? '',
+    usuarioModificacion: item.usuarioModificacion ?? '',
+    fechahoraInicioProceso: item.fechahoraInicioProceso ?? '',
+    fechahoraUltimaActividad: item.fechahoraUltimaActividad ?? '',
     puedeEditar: item.puedeEditar ?? false,
     puedeEliminar: item.puedeEliminar ?? false,
     puedeCopiar: item.puedeCopiar ?? false,
@@ -168,54 +371,114 @@ function mapComprobanteConsultaItem(item: ApiComprobanteConsultaItem): Comproban
   };
 }
 
+function mapDetallePedidoItem(item: ApiDetallePedidoItem): DetallePedidoConsultaRow {
+  const base = mapComprobanteConsultaItem(item);
+  const codPedido = item.codPedido ?? base.codPedido;
+  const renglon = item.renglon ?? 0;
+
+  return {
+    ...base,
+    id: `${codPedido}-${renglon}`,
+    renglon,
+    codArticulo: item.codArticulo ?? '',
+    descripcionArticulo: item.descripcionArticulo ?? '',
+    cantidad: item.cantidad ?? 0,
+    porcBonif: item.porcBonif ?? 0,
+    precioLista: item.precioLista ?? 0,
+    precioNeto: item.precioNeto ?? 0,
+    importeBruto: item.importeBruto ?? 0,
+    importeNeto: item.importeNeto ?? 0,
+    ivaNeto: item.ivaNeto ?? 0,
+    importeNetoConIva: item.importeNetoConIva ?? 0,
+  };
+}
+
 function mapStockItem(item: ApiStockItem, index: number): StockConsultaRow {
   const codArticulo = item.codArticulo ?? `stock-${index}`;
 
   return {
     id: codArticulo,
-    articulo: codArticulo,
+    codArticulo,
     descripcion: item.descripcion ?? '',
-    stockActual: item.stock ?? 0,
-    stockComprometido: item.comprometido ?? 0,
+    stock: item.stock ?? 0,
+    comprometido: item.comprometido ?? 0,
+    comprometidoWeb: item.comprometidoWeb ?? 0,
+    disponibleNeto: item.disponibleNeto ?? 0,
+    codBase: item.codBase ?? null,
+    stockBase: item.stockBase ?? null,
+    comprometidoBase: item.comprometidoBase ?? null,
+    comprometidoBaseWeb: item.comprometidoBaseWeb ?? null,
+    disponibleNetoBase: item.disponibleNetoBase ?? null,
   };
 }
 
 function mapDeudaItem(item: ApiDeudaItem, index: number): DeudaConsultaRow {
   const codCliente = item.codCliente ?? `deuda-${index}`;
+  const tipo = item.tipo ?? '';
+  const numero = item.numero ?? '';
 
   return {
-    id: `${codCliente}-${item.fechaVto ?? index}`,
-    cliente: codCliente,
-    vencimiento: item.fechaVto ?? '',
-    importe: item.saldo ?? 0,
+    id: `${codCliente}-${tipo}-${numero}-${item.vencimiento ?? index}`,
+    codCliente,
+    razonSocial: item.razonSocial ?? '',
+    tipo,
+    numero,
+    fecha: item.fecha ?? '',
+    vencimiento: item.vencimiento ?? '',
+    saldo: item.saldo ?? 0,
   };
 }
 
 function mapChequeItem(item: ApiChequeItem, index: number): ChequeConsultaRow {
-  const codCliente = item.codCliente ?? `cheque-${index}`;
+  const interno = item.interno ?? '';
+  const numero = item.numero ?? '';
+  const codCliente = item.codCliente ?? '';
 
   return {
-    id: `${codCliente}-${item.fecha ?? index}`,
-    cliente: codCliente,
+    id: `${interno}-${numero}-${codCliente || index}`,
+    interno,
+    numero,
+    codCliente,
+    nombreCliente: item.nombreCliente ?? '',
     banco: item.banco ?? '',
-    vencimiento: item.fecha ?? '',
+    fecha: item.fecha ?? '',
     importe: item.importe ?? 0,
+    origen: item.origen ?? '',
+    estado: item.estado ?? '',
   };
 }
 
 function mapHistorialItem(item: ApiHistorialItem, index: number): HistorialVentasRow {
   const codCliente = item.codCliente ?? '';
+  const tipo = item.tipo ?? '';
+  const numero = item.numero ?? '';
   const codArticulo = item.codArticulo ?? '';
 
   return {
-    id: `${codCliente}-${codArticulo}-${item.fecha ?? index}`,
-    fecha: item.fecha ?? '',
-    cliente: codCliente,
+    id: `${codCliente}-${tipo}-${numero}-${codArticulo}-${item.fechaEmision ?? index}`,
     codCliente,
-    articulo: codArticulo,
+    razonSocial: item.razonSocial ?? '',
+    nRemito: item.nRemito ?? '',
+    tipo,
+    numero,
+    fechaEmision: item.fechaEmision ?? '',
+    condVta: item.condVta ?? null,
+    porcDesc: item.porcDesc ?? 0,
+    cotiz: item.cotiz ?? 0,
+    moneda: item.moneda ?? '',
+    totalComp: item.totalComp ?? 0,
+    codTransp: item.codTransp ?? '',
+    nomTransp: item.nomTransp ?? '',
+    codArticulo,
     descripcion: item.descripcion ?? '',
+    codDep: item.codDep ?? '',
+    um: item.um ?? '',
     cantidad: item.cantidad ?? 0,
-    importe: item.importe ?? 0,
+    precio: item.precio ?? 0,
+    totSinImp: item.totSinImp ?? 0,
+    nCompRem: item.nCompRem ?? '',
+    cantRem: item.cantRem ?? 0,
+    fechaRem: item.fechaRem ?? '',
   };
 }
 
@@ -280,14 +543,13 @@ export function fetchHistorialVentas() {
   );
 }
 
-export function toHistorialDetalleRows(row: HistorialVentasRow) {
-  return [
-    {
-      id: `${row.id}-detalle`,
-      articulo: row.articulo,
-      descripcion: row.descripcion,
-      cantidad: row.cantidad,
-      importe: row.importe,
-    },
-  ];
+export function fetchDetallePedidos() {
+  return fetchConsultaMapped<ApiDetallePedidoItem, DetallePedidoConsultaRow>(
+    '/consultas/detalle-pedidos',
+    mapDetallePedidoItem,
+  );
+}
+
+export function toHistorialDetalleRows(row: HistorialVentasRow): HistorialVentasRow[] {
+  return [{ ...row, id: `${row.id}-detalle` }];
 }

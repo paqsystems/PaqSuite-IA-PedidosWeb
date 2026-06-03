@@ -24,5 +24,11 @@ return [
         'ModificaBonCliS' => (int) env('PAQSWEB_MODIFICA_BON_CLI_S', 1),
         'ModificaListaPrecV' => (int) env('PAQSWEB_MODIFICA_LISTA_PREC_V', 1),
         'ModificaListaPrecS' => (int) env('PAQSWEB_MODIFICA_LISTA_PREC_S', 1),
+        'ClienteLeyenda1' => (int) env('PAQSWEB_CLIENTE_LEYENDA_1', 1),
+        'ClienteLeyenda2' => (int) env('PAQSWEB_CLIENTE_LEYENDA_2', 1),
+        'ClienteLeyenda3' => (int) env('PAQSWEB_CLIENTE_LEYENDA_3', 1),
+        'ClienteLeyenda4' => (int) env('PAQSWEB_CLIENTE_LEYENDA_4', 1),
+        'ClienteLeyenda5' => (int) env('PAQSWEB_CLIENTE_LEYENDA_5', 1),
+        'CargaRecurrente' => (int) env('PAQSWEB_CARGA_RECURRENTE', 1),
     ],
 ];

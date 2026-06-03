@@ -31,6 +31,10 @@ para **acceder al menú y procesos comerciales autorizados**.
 
 **No reimplementar.** Validar que el login existente (GEN-02) cumple el contrato PedidosWeb: tenant header, perfil comercial, redirección al shell, mensajes i18n.
 
+## Fuente de verdad (acceso)
+
+- **[patron-acceso-login-comercial.md](../../02-producto/PedidosWeb/patron-acceso-login-comercial.md)** — credenciales en `users`; vínculo comercial vía `pq_pedidosweb_login` → cliente/vendedor.
+
 ## Reglas de negocio
 
 1. Cada login debe resolverse a **una sola** entidad comercial: cliente **o** vendedor/supervisor (`CommercialProfileResolver` + `SessionContextBuilder`).

@@ -4,13 +4,13 @@
     <meta charset="utf-8">
     <title>{{ __('mail.comprobanteNotification.subject', [
         'nombreEmpresa' => $nombreEmpresa,
-        'tipoComprobante' => $tipoComprobanteLabel,
-        'accionComprobante' => $accionComprobanteLabel,
+        'tipoComprobante' => __('mail.comprobanteNotification.tipoComprobante.' . $tipoComprobante),
+        'accionComprobante' => __('mail.comprobanteNotification.accionComprobante.' . $accionComprobante),
     ]) }}</title>
 </head>
 <body>
     <p>{{ __('mail.comprobanteNotification.intro.' . $accionComprobante, [
-        'tipoComprobante' => $tipoComprobanteIntroLabel,
+        'tipoComprobante' => __('mail.comprobanteNotification.tipoComprobanteIntro.' . $tipoComprobante),
         'guidSufijo' => $guidSufijo,
         'nombreEmpresa' => $nombreEmpresa,
     ]) }}</p>

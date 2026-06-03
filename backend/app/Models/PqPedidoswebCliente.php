@@ -32,6 +32,7 @@ class PqPedidoswebCliente extends Model
         'expreso_dire',
         'cod_login',
         'e_mail',
+        'razon_soci',
         'leyenda_1',
         'leyenda_2',
         'leyenda_3',

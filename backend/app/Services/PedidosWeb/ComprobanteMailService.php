@@ -58,7 +58,8 @@ final class ComprobanteMailService
                 ->send(new ComprobanteNotificationMail(
                     $viewData,
                     $this->parameterService->getMailDireccionRemitente(),
-                    (string) config('mail.from.name', config('app.name'))
+                    (string) config('mail.from.name', config('app.name')),
+                    $locale,
                 ));
 
             return true;
@@ -128,9 +129,6 @@ final class ComprobanteMailService
 
         return [
             'nombreEmpresa' => $nombreEmpresa,
-            'tipoComprobanteLabel' => __('mail.comprobanteNotification.tipoComprobante.'.$tipoComprobante),
-            'tipoComprobanteIntroLabel' => __('mail.comprobanteNotification.tipoComprobanteIntro.'.$tipoComprobante),
-            'accionComprobanteLabel' => __('mail.comprobanteNotification.accionComprobante.'.$accionComprobante),
             'tipoComprobante' => $tipoComprobante,
             'accionComprobante' => $accionComprobante,
             'guidSufijo' => strtoupper(substr((string) $cabecera->cod_pedido, -6)),
@@ -174,7 +172,7 @@ final class ComprobanteMailService
             return ucfirst(trim($tenant));
         }
 
-        return __('mail.comprobanteNotification.empresaFallback');
+        return 'Empresa';
     }
 
     private function formatCodigoDescripcion(mixed $codigo, mixed $descripcion): string

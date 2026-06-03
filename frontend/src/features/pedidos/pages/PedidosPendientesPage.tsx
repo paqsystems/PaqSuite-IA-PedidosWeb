@@ -1,7 +1,7 @@
 import { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Column } from 'devextreme-react/data-grid';
 import { ConsultaGridPage } from '../../consultas/components/ConsultaGridPage';
+import { ComprobanteConsultaColumns } from '../../consultas/components/ComprobanteConsultaColumns';
 import { useComprobanteConsultaActions } from '../../consultas/hooks/useComprobanteConsultaActions';
 import { fetchPedidosPendientes, type PedidoConsultaRow } from '../../consultas/api/consultaApi';
 import type { DataGridRowAction } from '../../../shared/ui/grids';
@@ -36,14 +36,7 @@ export function PedidosPendientesPage() {
       gridId={gridId}
       loadData={loadData}
       rowActions={rowActions}
-      columns={
-        <>
-          <Column dataField="numero" caption={t('consultas.column.numero')} />
-          <Column dataField="cliente" caption={t('consultas.column.cliente')} />
-          <Column dataField="estado" caption={t('consultas.column.estado')} />
-          <Column dataField="importe" caption={t('consultas.column.importe')} dataType="number" format="currency" />
-        </>
-      }
+      columns={<ComprobanteConsultaColumns t={t} />}
     />
   );
 }

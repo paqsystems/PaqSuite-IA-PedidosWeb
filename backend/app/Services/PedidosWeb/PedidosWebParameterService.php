@@ -31,6 +31,11 @@ final class PedidosWebParameterService
         return $this->getBool('NOmodificaPedido', false);
     }
 
+    public function getCargaRecurrente(): bool
+    {
+        return $this->getBool('CargaRecurrente', true);
+    }
+
     public function getDetallePorMail(): bool
     {
         return $this->getBool('DetallePorMail', true);
@@ -64,6 +69,34 @@ final class PedidosWebParameterService
     public function getDiasVentasDetalladas(): int
     {
         return $this->getInt('DiasVentasDetalladas', 90, 1);
+    }
+
+    public function getCodPerfilPedidos(): string
+    {
+        return trim((string) $this->resolveValue('CodPerfilPedidos', 'MVP')) ?: 'MVP';
+    }
+
+    public function getClienteLeyendaInicializa(int $numero): bool
+    {
+        if ($numero < 1 || $numero > 5) {
+            return false;
+        }
+
+        return $this->getBool("ClienteLeyenda{$numero}", true);
+    }
+
+    /**
+     * @return array{clienteLeyenda1: bool, clienteLeyenda2: bool, clienteLeyenda3: bool, clienteLeyenda4: bool, clienteLeyenda5: bool}
+     */
+    public function resolveClienteLeyendaFlags(): array
+    {
+        return [
+            'clienteLeyenda1' => $this->getClienteLeyendaInicializa(1),
+            'clienteLeyenda2' => $this->getClienteLeyendaInicializa(2),
+            'clienteLeyenda3' => $this->getClienteLeyendaInicializa(3),
+            'clienteLeyenda4' => $this->getClienteLeyendaInicializa(4),
+            'clienteLeyenda5' => $this->getClienteLeyendaInicializa(5),
+        ];
     }
 
     /**

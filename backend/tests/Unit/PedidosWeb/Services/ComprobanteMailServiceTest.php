@@ -66,6 +66,41 @@ final class ComprobanteMailServiceTest extends TestCase
     }
 
     #[Test]
+    public function asuntoUsaLocaleDelUsuarioAunqueAppLocaleSeaIngles(): void
+    {
+        Mail::fake();
+        app()->setLocale('en');
+
+        $cliente = new PqPedidoswebCliente();
+        $cliente->e_mail = 'cliente@empresa.test';
+        $cliente->nombre = 'Cliente MVP';
+
+        $cabecera = $this->buildCabeceraConCliente($cliente);
+        $service = $this->buildService();
+
+        $user = new User();
+        $user->locale = 'es';
+
+        $this->assertTrue($service->enviarComprobante($cabecera, [], 'pedido', 'ingresado', $user));
+
+        Mail::assertSent(ComprobanteNotificationMail::class, function (ComprobanteNotificationMail $mail): bool {
+            if ($mail->mailLocale !== 'es') {
+                return false;
+            }
+
+            $subject = (new ComprobanteNotificationMail(
+                $mail->comprobanteViewData,
+                $mail->fromAddress,
+                $mail->fromName,
+                $mail->mailLocale,
+            ))->build()->subject;
+
+            return str_contains($subject, 'Pedido ingresado')
+                && ! str_contains($subject, 'Order entered');
+        });
+    }
+
+    #[Test]
     public function deduplicaDestinatariosSinDistinguirMayusculas(): void
     {
         Mail::fake();

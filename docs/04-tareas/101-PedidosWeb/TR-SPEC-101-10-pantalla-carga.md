@@ -12,6 +12,7 @@
 
 **Origen:** HU-101-004 … HU-101-011, HU-101-009, HU-101-010, HU-101-013, HU-101-024, HU-101-026  
 **Referencia SPEC:** [SPEC-101-10-pantalla-carga](../../05-open-spec/101-PedidosWeb/SPEC-101-10-pantalla-carga.md)  
+**Fuente de verdad UI:** [pantalla-carga-comprobante-ui.md](../../02-producto/PedidosWeb/pantalla-carga-comprobante-ui.md)  
 **Normas transversales:** [`../_NORMAS-TRANSVERSALES-TR.md`](../_NORMAS-TRANSVERSALES-TR.md) (**obligatorio**)
 
 ---
@@ -183,7 +184,35 @@ Mapeo interno desde `ModificaPrecioV/S`, `ModificaBonArtV/S`, `ModificaBonCliV/S
 
 ---
 
-#### GET `/api/v1/comprobantes/{cod}`
+#### GET `/api/v1/clientes/{cod}/cabecera-inicial`
+
+**Autorización:** `Permiso_Repo` + cliente visible
+
+**Response 200 `resultado` (resumen):**
+
+```json
+{
+  "cabecera": {
+    "cod_cliente": "CLI001",
+    "cod_perfil": "MVP",
+    "lista_precios": 1,
+    "bonif_1": 0
+  },
+  "catalogos": {
+    "condicionesVenta": [{ "codigo": 1, "descripcion": "Contado" }],
+    "transportes": [],
+    "listasPrecios": [{ "cod_lista": 1, "descripcion": "Lista 1", "moneda": 1, "incluye_iva": false }],
+    "direccionesEntrega": [],
+    "perfiles": [{ "cod_perfil": "MVP", "descripcion": "Perfil estándar" }]
+  }
+}
+```
+
+- **`cabecera.cod_perfil`:** valor inicial = parámetro ERP `CodPerfilPedidos` (`PedidosWebParameterService`).
+- **`catalogos.perfiles`:** listado completo de `pq_pedidosweb_perfil` (orden `descripcion` ASC).
+- UI: `SelectBox` `cabecera-perfil` — ver [pantalla-carga-comprobante-ui.md](../../02-producto/PedidosWeb/pantalla-carga-comprobante-ui.md) §5.
+
+---
 
 **Autorización:** `Permiso_Repo` + visibilidad
 

@@ -16,9 +16,12 @@ para **informar al cliente**.
 
 ## Reglas de negocio
 
-1. Cheques con fecha **posterior al día** según producto §17.5.
-2. Por cliente o todos según perfil.
-3. `fecha_proceso` en carátula.
+Fuente de verdad columnas, joins y contrato API/UI: **[consulta-cheques.md](../../02-producto/PedidosWeb/consulta-cheques.md)**.
+
+1. Cheques con `fecha` **≥ día actual** (cartera o aplicados a futuro) según producto §17.5.
+2. Por cliente o todos según perfil (universo visible).
+3. Columnas: interno, número, cliente, nombre (`clientes.nombre`), banco, fecha, importe, origen, estado.
+4. `fecha_proceso` en carátula.
 
 ## Criterios de aceptación
 

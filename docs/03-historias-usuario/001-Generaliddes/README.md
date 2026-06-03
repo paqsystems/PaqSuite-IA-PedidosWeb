@@ -61,7 +61,14 @@ Convención: **`HU-GEN-{SPEC}-{tema}.md`** derivadas de `docs/05-open-spec/001-G
 
 **SPEC:** [SPEC-001-03-ui-transversal.md](../../05-open-spec/001-Generaliddes/SPEC-001-03-ui-transversal.md) — **C (2026-06-01):** TR generadas; orden implementación: grillas → layouts → ABM → exportación.
 
+## SPEC-001-04 — Configuración global
+
+| HU | TR | Título | Prioridad |
+|----|-----|--------|-----------|
+| [HU-GEN-04-consulta-parametros](HU-GEN-04-consulta-parametros.md) | [TR-GEN-04-consulta-parametros](../../04-tareas/001-Generaliddes/TR-GEN-04-consulta-parametros.md) | Consulta parámetros PedidosWeb (solo lectura) | Should |
+
+**SPEC:** [SPEC-001-04-configuracion-global.md](../../05-open-spec/001-Generaliddes/SPEC-001-04-configuracion-global.md) — **C (2026-06-03):** TR-GEN-04 generada.
+
 ## Pendientes (otros SPEC)
 
 - SPEC-001-05 → HU-GEN-05 + TR (tenancy; prioridad Fase 0)
-- SPEC-001-04 → HU-GEN-04 + TR (configuración global)

@@ -355,6 +355,18 @@ namespace App\OpenApi;
  * )
  *
  * @OA\Get(
+ *     path="/api/v1/consultas/detalle-pedidos",
+ *     summary="Consulta detalle de pedidos (cabecera + renglon)",
+ *     tags={"PedidosWeb"},
+ *     security={{"sanctum":{}},{"tenant":{}}},
+ *     @OA\Response(response=200, description="Listado paginado por renglon", @OA\JsonContent(ref="#/components/schemas/ApiEnvelope")),
+ *     @OA\Response(response=400, description="Tenant invalido"),
+ *     @OA\Response(response=401, description="No autenticado"),
+ *     @OA\Response(response=403, description="Sin permiso consulta"),
+ *     @OA\Response(response=404, description="Cliente no visible")
+ * )
+ *
+ * @OA\Get(
  *     path="/api/v1/integracion/logs",
  *     summary="Logs de integracion (mail, etc.)",
  *     tags={"PedidosWeb"},
@@ -387,12 +399,38 @@ namespace App\OpenApi;
  * )
  *
  * @OA\Get(
+ *     path="/api/v1/config/parametros",
+ *     summary="Consulta de parametros generales (solo lectura)",
+ *     tags={"PedidosWeb"},
+ *     security={{"sanctum":{}},{"tenant":{}}},
+ *     @OA\Parameter(name="programa", in="query", required=false, @OA\Schema(type="string", default="PedidosWeb")),
+ *     @OA\Response(response=200, description="Listado informativo de parametros", @OA\JsonContent(ref="#/components/schemas/ApiEnvelope")),
+ *     @OA\Response(response=400, description="Tenant invalido"),
+ *     @OA\Response(response=401, description="No autenticado"),
+ *     @OA\Response(response=403, description="Sin permiso repo")
+ * )
+ *
+ * @OA\Get(
+ *     path="/api/v1/clientes/{codCliente}/cabecera-inicial",
+ *     summary="Inicializar cabecera de comprobante desde cliente (HU-101-005)",
+ *     tags={"PedidosWeb"},
+ *     security={{"sanctum":{}},{"tenant":{}}},
+ *     @OA\Parameter(name="codCliente", in="path", required=true, @OA\Schema(type="string")),
+ *     @OA\Response(response=200, description="Cabecera y catalogos", @OA\JsonContent(ref="#/components/schemas/ApiEnvelope")),
+ *     @OA\Response(response=400, description="Tenant invalido"),
+ *     @OA\Response(response=401, description="No autenticado"),
+ *     @OA\Response(response=403, description="Sin permiso repo"),
+ *     @OA\Response(response=404, description="Cliente no visible o inexistente")
+ * )
+ *
+ * @OA\Get(
  *     path="/api/v1/articulos",
  *     summary="Autocompletar articulos para carga de comprobantes",
  *     tags={"PedidosWeb"},
  *     security={{"sanctum":{}},{"tenant":{}}},
  *     @OA\Parameter(name="q", in="query", required=false, @OA\Schema(type="string")),
  *     @OA\Parameter(name="page_size", in="query", required=false, @OA\Schema(type="integer", maximum=50)),
+ *     @OA\Parameter(name="lista_precios", in="query", required=false, @OA\Schema(type="integer")),
  *     @OA\Response(response=200, description="Listado de articulos", @OA\JsonContent(ref="#/components/schemas/ApiEnvelope")),
  *     @OA\Response(response=400, description="Tenant invalido"),
  *     @OA\Response(response=401, description="No autenticado"),

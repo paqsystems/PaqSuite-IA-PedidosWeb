@@ -1,43 +1,59 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { custom } from 'devextreme/ui/dialog';
 import Button from 'devextreme-react/button';
 import SelectBox from 'devextreme-react/select-box';
 import Toast from 'devextreme-react/toast';
-import DataGrid, { Column, Editing } from 'devextreme-react/data-grid';
-import type { RowUpdatedEvent } from 'devextreme/ui/data_grid';
+import { isDevExtremeUserChange } from '../../../shared/ui/devextremeUserChange';
 import { useRequiredSessionContext } from '../../auth/AuthProvider';
 import {
   cancelarEdicionPedido,
+  fetchCabeceraInicial,
   fetchClientes,
   fetchComprobante,
   fetchParametrosCarga,
   grabarComprobante,
   iniciarEdicionPedido,
-  searchArticulos,
   type ArticuloOption,
   type ClienteOption,
   type ComprobanteRenglon,
   type ParametrosCarga,
 } from '../api/comprobanteApi';
+import { ComprobanteCabeceraForm } from '../components/ComprobanteCabeceraForm';
+import { ComprobanteLeyendasPie } from '../components/ComprobanteLeyendasPie';
+import { PedidosCargaConfirmacionDialog } from '../components/PedidosCargaConfirmacionDialog';
+import { PedidosCargaRenglonesGrid } from '../components/PedidosCargaRenglonesGrid';
+import { useArticulosCargaDataSource } from '../hooks/useArticulosCargaDataSource';
+import {
+  emptyComprobanteCabecera,
+  type CabeceraCatalogos,
+  type ComprobanteCabecera,
+} from '../types/comprobanteCabecera';
+import {
+  etiquetaCliente,
+  formatArticuloCargaDisplay,
+} from '../utils/cargaCatalogos';
+import { actualizarPreciosRenglonesPorLista } from '../utils/actualizarPreciosRenglones';
+import {
+  calcularBonificacionNeta,
+  calcularTotalesComprobante,
+  createEmptyRenglon,
+  formatImporteMoneda,
+  nextRenglonNumber,
+  normalizarPorcIvaAlmacenado,
+  renglonesValidosParaGrabar,
+  tieneRenglonesCargados,
+} from '../utils/renglonesCarga';
+import './PedidosCargaPage.css';
 
-const gridId = 'grid-renglones-carga';
-
-function createEmptyRenglon(renglon: number): ComprobanteRenglon {
-  return {
-    renglon,
-    codArticulo: '',
-    descripcionArticulo: '',
-    cantidad: 1,
-    precio: 0,
-    porcBonif: 0,
-    porcIva: 21,
-  };
-}
-
-function nextRenglonNumber(renglones: ComprobanteRenglon[]): number {
-  return renglones.reduce((max, renglon) => Math.max(max, renglon.renglon), 0) + 1;
-}
+const emptyCatalogos: CabeceraCatalogos = {
+  condicionesVenta: [],
+  transportes: [],
+  listasPrecios: [],
+  direccionesEntrega: [],
+  perfiles: [],
+};
 
 export function PedidosCargaPage() {
   const navigate = useNavigate();
@@ -46,12 +62,16 @@ export function PedidosCargaPage() {
   const { t } = useTranslation();
   const edicionIniciadaRef = useRef(false);
   const codPedidoEdicionRef = useRef<string | null>(null);
+  const ultimaAccionGrabacionRef = useRef<'pedido' | 'presupuesto' | null>(null);
+  const isHydratingComprobanteRef = useRef(false);
 
   const [clientes, setClientes] = useState<ClienteOption[]>([]);
   const [selectedCliente, setSelectedCliente] = useState<string | null>(null);
+  const [cabecera, setCabecera] = useState<ComprobanteCabecera | null>(null);
+  const [catalogos, setCatalogos] = useState<CabeceraCatalogos>(emptyCatalogos);
   const [parametrosCarga, setParametrosCarga] = useState<ParametrosCarga | null>(null);
-  const [articulos, setArticulos] = useState<ArticuloOption[]>([]);
   const [articuloSeleccionado, setArticuloSeleccionado] = useState<string | null>(null);
+  const [articuloSeleccionadoData, setArticuloSeleccionadoData] = useState<ArticuloOption | null>(null);
   const [codPedidoActual, setCodPedidoActual] = useState<string | null>(null);
   const [estadoActual, setEstadoActual] = useState<number | null>(null);
   const [codPedidoOrigen, setCodPedidoOrigen] = useState<string | null>(null);
@@ -59,18 +79,31 @@ export function PedidosCargaPage() {
   const [codComprobanteOrigenCopia, setCodComprobanteOrigenCopia] = useState<string | null>(null);
   const [renglones, setRenglones] = useState<ComprobanteRenglon[]>([createEmptyRenglon(1)]);
   const [isLoading, setIsLoading] = useState(false);
+  const [cabeceraLoading, setCabeceraLoading] = useState(false);
   const [mailToastVisible, setMailToastVisible] = useState(false);
   const [pendingMailToast, setPendingMailToast] = useState(false);
   const [successToastVisible, setSuccessToastVisible] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
   const [confirmacionVisible, setConfirmacionVisible] = useState(false);
   const [mailAvisoVisible, setMailAvisoVisible] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [clienteSelectKey, setClienteSelectKey] = useState(0);
+  const [autoOpenRenglonId, setAutoOpenRenglonId] = useState<number | null>(null);
 
   const modo = searchParams.get('modo') ?? 'nuevo';
   const comprobanteId = searchParams.get('codComprobante') ?? searchParams.get('id');
   const readOnly = modo === 'ver';
   const isClienteProfile =
     sessionContext.functionalProfile === 'cliente' || sessionContext.codCliente !== null;
+
+  const clienteNombre = useMemo(() => {
+    if (!selectedCliente) {
+      return '';
+    }
+
+    const cliente = clientes.find((item) => item.codCliente === selectedCliente);
+    return cliente ? etiquetaCliente(cliente) : selectedCliente;
+  }, [clientes, selectedCliente]);
 
   const tipoComprobanteLabel =
     estadoActual === 99 || searchParams.get('tipoOrigen') === 'presupuesto'
@@ -104,6 +137,20 @@ export function PedidosCargaPage() {
     );
   }, [estadoActual, modo, readOnly]);
 
+  const loadCabeceraForCliente = useCallback(async (codCliente: string) => {
+    setCabeceraLoading(true);
+    try {
+      const result = await fetchCabeceraInicial(codCliente);
+      setCabecera(result.cabecera);
+      setCatalogos(result.catalogos);
+    } catch {
+      setCabecera(emptyComprobanteCabecera(codCliente));
+      setCatalogos(emptyCatalogos);
+    } finally {
+      setCabeceraLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
     let mounted = true;
 
@@ -131,7 +178,11 @@ export function PedidosCargaPage() {
 
   useEffect(() => {
     if (isClienteProfile) {
-      setSelectedCliente(sessionContext.codCliente);
+      const codCliente = sessionContext.codCliente ?? '';
+      setSelectedCliente(codCliente);
+      if (codCliente && modo === 'nuevo' && !comprobanteId) {
+        void loadCabeceraForCliente(codCliente);
+      }
       return;
     }
 
@@ -145,7 +196,6 @@ export function PedidosCargaPage() {
         }
 
         setClientes(data);
-        setSelectedCliente((previousValue) => previousValue ?? data[0]?.codCliente ?? null);
       } catch {
         if (!mounted) {
           return;
@@ -160,30 +210,15 @@ export function PedidosCargaPage() {
     return () => {
       mounted = false;
     };
-  }, [isClienteProfile, sessionContext.codCliente]);
+  }, [comprobanteId, isClienteProfile, loadCabeceraForCliente, modo, sessionContext.codCliente]);
 
   useEffect(() => {
-    let mounted = true;
+    if (!selectedCliente || comprobanteId || modo !== 'nuevo') {
+      return;
+    }
 
-    const loadArticulos = async () => {
-      try {
-        const items = await searchArticulos('');
-        if (mounted) {
-          setArticulos(items);
-        }
-      } catch {
-        if (mounted) {
-          setArticulos([]);
-        }
-      }
-    };
-
-    void loadArticulos();
-
-    return () => {
-      mounted = false;
-    };
-  }, []);
+    void loadCabeceraForCliente(selectedCliente);
+  }, [comprobanteId, loadCabeceraForCliente, modo, selectedCliente]);
 
   useEffect(() => {
     if (!comprobanteId) {
@@ -199,6 +234,7 @@ export function PedidosCargaPage() {
 
     const load = async () => {
       setIsLoading(true);
+      isHydratingComprobanteRef.current = true;
       try {
         const comprobante = await fetchComprobante(comprobanteId);
         if (!mounted) {
@@ -209,6 +245,8 @@ export function PedidosCargaPage() {
         setCodPedidoActual(esCopiaOConversion ? null : comprobante.codPedido);
         setEstadoActual(comprobante.estado);
         setSelectedCliente(comprobante.codCliente ?? sessionContext.codCliente ?? null);
+        setCabecera(comprobante.cabecera);
+        setCatalogos(comprobante.catalogos);
         setRenglones(
           comprobante.renglones.length > 0 ? comprobante.renglones : [createEmptyRenglon(1)],
         );
@@ -229,11 +267,22 @@ export function PedidosCargaPage() {
         }
       } catch {
         if (mounted) {
+          setSelectedCliente(null);
+          setCabecera(null);
+          setCatalogos(emptyCatalogos);
           setRenglones([createEmptyRenglon(1)]);
+          setSaveError(t('pedidos.carga.errorCargaComprobante'));
         }
       } finally {
         if (mounted) {
           setIsLoading(false);
+          window.requestAnimationFrame(() => {
+            window.requestAnimationFrame(() => {
+              isHydratingComprobanteRef.current = false;
+            });
+          });
+        } else {
+          isHydratingComprobanteRef.current = false;
         }
       }
     };
@@ -243,7 +292,7 @@ export function PedidosCargaPage() {
     return () => {
       mounted = false;
     };
-  }, [comprobanteId, modo, sessionContext.codCliente]);
+  }, [comprobanteId, modo, sessionContext.codCliente, t]);
 
   useEffect(
     () => () => {
@@ -253,6 +302,77 @@ export function PedidosCargaPage() {
       }
     },
     [],
+  );
+
+  const confirmarCambioCliente = useCallback(
+    () =>
+      new Promise<boolean>((resolve) => {
+        if (!tieneRenglonesCargados(renglones)) {
+          resolve(true);
+          return;
+        }
+
+        const dialog = custom({
+          title: t('pedidos.carga.cambioClienteTitulo'),
+          messageHtml: t('pedidos.carga.cambioClienteMensaje'),
+          dragEnabled: false,
+          buttons: [
+            {
+              text: t('pedidos.carga.cambioClienteCancelar'),
+              onClick: () => resolve(false),
+            },
+            {
+              text: t('pedidos.carga.cambioClienteConfirmar'),
+              type: 'default',
+              onClick: () => resolve(true),
+            },
+          ],
+        });
+
+        dialog.show();
+      }),
+    [renglones, t],
+  );
+
+  const handleClienteChange = useCallback(
+    async (codCliente: string | null) => {
+      if (isHydratingComprobanteRef.current) {
+        return;
+      }
+
+      if (!codCliente) {
+        setSelectedCliente(null);
+        setCabecera(null);
+        setCatalogos(emptyCatalogos);
+        setArticuloSeleccionado(null);
+        setArticuloSeleccionadoData(null);
+        setRenglones([createEmptyRenglon(1)]);
+        return;
+      }
+
+      setSelectedCliente(codCliente);
+      setRenglones([createEmptyRenglon(1)]);
+      setArticuloSeleccionado(null);
+      setArticuloSeleccionadoData(null);
+      await loadCabeceraForCliente(codCliente);
+    },
+    [loadCabeceraForCliente],
+  );
+
+  const handleListaPreciosChange = useCallback(
+    async (codLista: number) => {
+      if (readOnly || codLista <= 0) {
+        return;
+      }
+
+      try {
+        const renglonesActualizados = await actualizarPreciosRenglonesPorLista(renglones, codLista);
+        setRenglones(renglonesActualizados);
+      } catch {
+        // Mantiene precios previos si falla la consulta.
+      }
+    },
+    [readOnly, renglones],
   );
 
   const handleCancelar = useCallback(async () => {
@@ -270,96 +390,164 @@ export function PedidosCargaPage() {
     navigate(-1);
   }, [navigate]);
 
-  const handleAgregarArticulo = useCallback(() => {
-    if (readOnly || !articuloSeleccionado) {
-      return;
-    }
-
-    const articulo = articulos.find((item) => item.codArticulo === articuloSeleccionado);
-    if (!articulo) {
-      return;
-    }
-
-    setRenglones((previousRenglones) => [
-      ...previousRenglones,
-      {
-        renglon: nextRenglonNumber(previousRenglones),
-        codArticulo: articulo.codArticulo,
-        descripcionArticulo: articulo.descripcion,
-        cantidad: 1,
-        precio: 0,
-        porcBonif: articulo.bonificacion,
-        porcIva: articulo.porcIva,
-      },
-    ]);
+  const resetParaNuevoComprobante = useCallback(async () => {
+    setCodPedidoActual(null);
+    setEstadoActual(null);
+    setCodPedidoOrigen(null);
+    setCodPresupuestoOrigen(null);
+    setCodComprobanteOrigenCopia(null);
+    setRenglones([createEmptyRenglon(1)]);
     setArticuloSeleccionado(null);
-  }, [articuloSeleccionado, articulos, readOnly]);
+    setArticuloSeleccionadoData(null);
+    setAutoOpenRenglonId(null);
+    setSaveError(null);
 
-  const handleRowUpdated = useCallback((event: RowUpdatedEvent<ComprobanteRenglon, number>) => {
-    const updatedRow = event.data;
-    if (!updatedRow) {
+    if (isClienteProfile) {
+      const codCliente = sessionContext.codCliente ?? selectedCliente ?? '';
+      if (codCliente) {
+        setSelectedCliente(codCliente);
+        await loadCabeceraForCliente(codCliente);
+      }
       return;
     }
 
-    setRenglones((previousRenglones) =>
-      previousRenglones.map((renglon) =>
-        renglon.renglon === updatedRow.renglon ? { ...updatedRow } : renglon,
-      ),
-    );
-  }, []);
+    setSelectedCliente(null);
+    setCabecera(null);
+    setCatalogos(emptyCatalogos);
+    setClienteSelectKey((value) => value + 1);
 
-  const subtotal = useMemo(
-    () =>
-      renglones.reduce((total, renglon) => {
-        const neto = renglon.precio * (1 - renglon.porcBonif / 100);
-        return total + renglon.cantidad * neto;
-      }, 0),
-    [renglones],
+    if (comprobanteId || modo !== 'nuevo') {
+      navigate('/pedidos/carga?modo=nuevo', { replace: true });
+    }
+  }, [
+    comprobanteId,
+    isClienteProfile,
+    loadCabeceraForCliente,
+    modo,
+    navigate,
+    selectedCliente,
+    sessionContext.codCliente,
+  ]);
+
+  const handlePostGrabacion = useCallback(() => {
+    const accionGrabacion = ultimaAccionGrabacionRef.current;
+    ultimaAccionGrabacionRef.current = null;
+
+    if (!accionGrabacion) {
+      return;
+    }
+
+    const cargaRecurrente = parametrosCarga?.cargaRecurrente ?? true;
+
+    if (cargaRecurrente) {
+      void resetParaNuevoComprobante();
+      return;
+    }
+
+    const destino =
+      accionGrabacion === 'presupuesto' ? '/presupuestos/ingresados' : '/pedidos/ingresados';
+    navigate(destino);
+  }, [navigate, parametrosCarga?.cargaRecurrente, resetParaNuevoComprobante]);
+
+  const handleAgregarArticulo = useCallback(() => {
+    if (readOnly || !articuloSeleccionado || !articuloSeleccionadoData) {
+      return;
+    }
+
+    const articulo = articuloSeleccionadoData;
+
+    const renglonesActivos = renglonesValidosParaGrabar(renglones);
+    const yaExiste = renglonesActivos.some((renglon) => renglon.codArticulo === articulo.codArticulo);
+    if (yaExiste) {
+      setSaveError(t('pedidos.carga.articuloDuplicado'));
+      return;
+    }
+
+    setSaveError(null);
+    const sinVacios = renglonesValidosParaGrabar(renglones);
+    const nuevoRenglon: ComprobanteRenglon = {
+      renglon: nextRenglonNumber(sinVacios),
+      codArticulo: articulo.codArticulo,
+      descripcionArticulo: articulo.descripcion,
+      cantidad: 1,
+      precio: articulo.precio ?? 0,
+      porcBonif: articulo.bonificacion,
+      porcIva: normalizarPorcIvaAlmacenado(articulo.porcIva),
+    };
+
+    setRenglones([...sinVacios, nuevoRenglon]);
+    setAutoOpenRenglonId(nuevoRenglon.renglon);
+    setArticuloSeleccionado(null);
+    setArticuloSeleccionadoData(null);
+  }, [articuloSeleccionado, articuloSeleccionadoData, readOnly, renglones, t]);
+
+  const articulosDataSource = useArticulosCargaDataSource(cabecera?.listaPrecios);
+
+  const bonificacionNetaCabecera = useMemo(() => {
+    if (!cabecera) {
+      return 0;
+    }
+
+    return calcularBonificacionNeta(cabecera.bonif1, cabecera.bonif2, cabecera.bonif3);
+  }, [cabecera]);
+
+  const totales = useMemo(
+    () => calcularTotalesComprobante(renglones, bonificacionNetaCabecera),
+    [bonificacionNetaCabecera, renglones],
   );
-  const iva = useMemo(
-    () =>
-      renglones.reduce((total, renglon) => {
-        const neto = renglon.precio * (1 - renglon.porcBonif / 100) * renglon.cantidad;
-        return total + neto * (renglon.porcIva / 100);
-      }, 0),
-    [renglones],
-  );
-  const total = subtotal + iva;
   const modificaPrecio = parametrosCarga?.modificaPrecio ?? true;
   const modificaBonArt = parametrosCarga?.modificaBonArt ?? true;
+  const monedaSimbolo = '$';
 
   const saveComprobante = async (accionGrabacion: 'pedido' | 'presupuesto') => {
-    if (!selectedCliente || readOnly) {
+    if (!selectedCliente || !cabecera || readOnly) {
       return;
     }
 
+    const renglonesGrabar = renglonesValidosParaGrabar(renglones);
+    if (renglonesGrabar.length === 0) {
+      setSaveError(t('pedidos.carga.sinRenglones'));
+      return;
+    }
+
+    setSaveError(null);
     setIsLoading(true);
     try {
-      const codPedidoParaGrabar =
-        accionGrabacion === 'pedido' && estadoActual === 99 ? null : codPedidoActual;
+      const esEdicionPedido = estadoActual === 0 || estadoActual === -1;
+      const esEdicionPresupuesto = estadoActual === 99;
+      const esConversionPresupuestoAPedido =
+        accionGrabacion === 'pedido' && (estadoActual === 99 || modo === 'convertir');
+      const esConversionPedidoAPresupuesto =
+        accionGrabacion === 'presupuesto' && esEdicionPedido;
 
-      const codPresupuestoParaConversion =
-        accionGrabacion === 'pedido' && (estadoActual === 99 || modo === 'convertir')
-          ? (codPresupuestoOrigen ?? comprobanteId ?? codPedidoActual)
-          : codPresupuestoOrigen;
+      const codPedidoParaGrabar = (() => {
+        if (esConversionPresupuestoAPedido) {
+          return null;
+        }
 
-      const codPedidoParaConversion =
-        accionGrabacion === 'presupuesto' && (estadoActual === 0 || estadoActual === -1)
-          ? (codPedidoOrigen ?? codPedidoActual)
-          : codPedidoOrigen;
+        if (accionGrabacion === 'presupuesto') {
+          return esEdicionPresupuesto ? codPedidoActual : null;
+        }
+
+        return esEdicionPedido ? codPedidoActual : null;
+      })();
+
+      const codPresupuestoParaConversion = esConversionPresupuestoAPedido
+        ? (codPresupuestoOrigen ?? comprobanteId ?? codPedidoActual)
+        : null;
+
+      const codPedidoParaConversion = esConversionPedidoAPresupuesto
+        ? (codPedidoOrigen ?? codPedidoActual)
+        : null;
 
       const response = await grabarComprobante({
         accionGrabacion,
         codPedido: codPedidoParaGrabar,
-        codPedidoOrigen:
-          accionGrabacion === 'presupuesto' && estadoActual !== 99 ? codPedidoParaConversion : null,
-        codPresupuestoOrigen:
-          accionGrabacion === 'pedido' && (estadoActual === 99 || modo === 'convertir')
-            ? codPresupuestoParaConversion
-            : null,
+        codPedidoOrigen: codPedidoParaConversion,
+        codPresupuestoOrigen: codPresupuestoParaConversion,
         codComprobanteOrigenCopia: modo === 'copia' ? codComprobanteOrigenCopia : null,
-        codCliente: selectedCliente,
-        renglones,
+        cabecera: { ...cabecera, codCliente: selectedCliente },
+        renglones: renglonesGrabar,
       });
 
       const resultado = response.resultado;
@@ -368,6 +556,7 @@ export function PedidosCargaPage() {
 
       edicionIniciadaRef.current = false;
       codPedidoEdicionRef.current = null;
+      ultimaAccionGrabacionRef.current = accionGrabacion;
 
       setSuccessMessage(
         t('pedidos.carga.grabacionExitosa', {
@@ -382,6 +571,10 @@ export function PedidosCargaPage() {
         setCodPedidoActual(resultado.cod_pedido);
       }
 
+      if (typeof resultado.estado === 'number') {
+        setEstadoActual(resultado.estado);
+      }
+
       if (resultado.mailEnviado === false) {
         setPendingMailToast(true);
         setMailAvisoVisible(true);
@@ -389,162 +582,242 @@ export function PedidosCargaPage() {
           setMailToastVisible(true);
         }, 500);
       }
+    } catch {
+      setSaveError(t('pedidos.carga.errorGrabacion'));
     } finally {
       setIsLoading(false);
     }
   };
 
+  const cabeceraReady = cabecera !== null && selectedCliente !== null;
+
   return (
-    <section data-testid="page-pedidos-carga">
-      <h2>{t('pages.pedidosCarga')}</h2>
-      <p data-testid="label-tipo-comprobante">{tipoComprobanteLabel}</p>
+    <section className="pedidosCargaPage" data-testid="page-pedidos-carga">
+      <div className="pedidosCargaPage__header">
+        <h2>{t('pages.pedidosCarga')}</h2>
+        <p className="pedidosCargaPage__tipo" data-testid="label-tipo-comprobante">
+          {tipoComprobanteLabel}
+        </p>
+      </div>
+
       {readOnly ? (
         <p data-testid="label-modo-solo-lectura">{t('pedidos.carga.modoSoloLectura')}</p>
       ) : null}
+
       <div className="pedidosCargaPage__toolbar">
-        {showGrabarPedido ? (
-          <div data-testid="btn-grabar-pedido">
+        <div className="pedidosCargaPage__toolbarLeft">
+          <div data-testid="btn-cancelar-carga">
             <Button
-              text={t('pedidos.carga.grabarPedido')}
-              type="default"
-              stylingMode="contained"
-              disabled={isLoading}
+              text={t('pedidos.carga.cancelar')}
+              stylingMode="text"
               onClick={() => {
-                void saveComprobante('pedido');
+                void handleCancelar();
               }}
             />
           </div>
-        ) : null}
-        {showGrabarPresupuesto ? (
-          <div data-testid="btn-grabar-presupuesto">
-            <Button
-              text={t('pedidos.carga.grabarPresupuesto')}
-              type="default"
-              stylingMode="outlined"
-              disabled={isLoading}
-              onClick={() => {
-                void saveComprobante('presupuesto');
-              }}
-            />
-          </div>
-        ) : null}
-        <div data-testid="btn-cancelar-carga">
-          <Button
-            text={t('pedidos.carga.cancelar')}
-            stylingMode="text"
-            onClick={() => {
-              void handleCancelar();
-            }}
-          />
+        </div>
+        <div className="pedidosCargaPage__toolbarCenter">
+          {showGrabarPresupuesto ? (
+            <div data-testid="btn-grabar-presupuesto">
+              <Button
+                text={t('pedidos.carga.grabarPresupuesto')}
+                type="default"
+                stylingMode="outlined"
+                disabled={isLoading || !cabeceraReady}
+                onClick={() => {
+                  void saveComprobante('presupuesto');
+                }}
+              />
+            </div>
+          ) : null}
+        </div>
+        <div className="pedidosCargaPage__toolbarRight">
+          {showGrabarPedido ? (
+            <div data-testid="btn-grabar-pedido">
+              <Button
+                text={t('pedidos.carga.grabarPedido')}
+                type="default"
+                stylingMode="contained"
+                disabled={isLoading || !cabeceraReady}
+                onClick={() => {
+                  void saveComprobante('pedido');
+                }}
+              />
+            </div>
+          ) : null}
         </div>
       </div>
 
-      <section data-testid="form-cabecera-carga">
-        <h3>{t('pedidos.carga.cabeceraTitle')}</h3>
-        {selectedCliente ? <span data-testid="cliente-cargado" hidden aria-hidden="true" /> : null}
-        {isClienteProfile ? (
-          <p data-testid="cliente-fijo">{selectedCliente ?? sessionContext.codCliente}</p>
-        ) : (
-          <SelectBox
-            dataSource={clientes}
-            valueExpr="codCliente"
-            displayExpr="nombre"
-            value={selectedCliente}
-            readOnly={readOnly}
-            onValueChanged={(event) => {
-              setSelectedCliente((event.value as string | null) ?? null);
-            }}
-            placeholder={t('pedidos.carga.clientePlaceholder')}
-            inputAttr={{ 'data-testid': 'cliente-select' }}
-          />
-        )}
-      </section>
-
-      {!readOnly ? (
-        <section data-testid="form-articulo-carga">
-          <SelectBox
-            dataSource={articulos}
-            valueExpr="codArticulo"
-            displayExpr="descripcion"
-            value={articuloSeleccionado}
-            searchEnabled={true}
-            searchExpr={['codArticulo', 'descripcion']}
-            onValueChanged={(event) => {
-              setArticuloSeleccionado((event.value as string | null) ?? null);
-            }}
-            placeholder={t('pedidos.carga.articuloPlaceholder')}
-            inputAttr={{ 'data-testid': 'articulo-select' }}
-          />
-          <div data-testid="btn-agregar-articulo">
-            <Button
-              text={t('pedidos.carga.agregarArticulo')}
-              stylingMode="outlined"
-              onClick={handleAgregarArticulo}
-            />
-          </div>
-        </section>
+      {saveError ? (
+        <p className="pedidosCargaPage__error" role="alert" data-testid="carga-error">
+          {saveError}
+        </p>
       ) : null}
 
-      <div data-testid={gridId}>
-        <DataGrid
-          dataSource={renglones}
-          keyExpr="renglon"
-          showBorders={true}
-          disabled={isLoading}
-          onRowUpdated={handleRowUpdated}
-        >
-          <Editing mode="cell" allowUpdating={!readOnly} allowAdding={false} allowDeleting={false} />
-          <Column dataField="codArticulo" caption={t('pedidos.carga.grid.articulo')} allowEditing={false} />
-          <Column
-            dataField="descripcionArticulo"
-            caption={t('pedidos.carga.grid.descripcion')}
-            allowEditing={false}
-          />
-          <Column
-            dataField="cantidad"
-            caption={t('pedidos.carga.grid.cantidad')}
-            dataType="number"
-            allowEditing={!readOnly}
-          />
-          <Column
-            dataField="precio"
-            caption={t('pedidos.carga.grid.precio')}
-            dataType="number"
-            format="currency"
-            allowEditing={!readOnly && modificaPrecio}
-            cssClass="renglon-precio"
-          />
-          <Column
-            dataField="porcBonif"
-            caption={t('pedidos.carga.grid.bonificacion')}
-            dataType="number"
-            format="#0.##'%'"
-            allowEditing={!readOnly && modificaBonArt}
-            cssClass="renglon-bonificacion"
-          />
-        </DataGrid>
+      <div className="pedidosCargaPage__layout">
+        <section className="pedidosCargaPage__panel" data-testid="form-cabecera-carga">
+          <h3 className="pedidosCargaPage__panelTitle">{t('pedidos.carga.cabeceraTitle')}</h3>
+          {selectedCliente ? <span data-testid="cliente-cargado" hidden aria-hidden="true" /> : null}
+
+          {isClienteProfile ? (
+            <p data-testid="cliente-fijo">{clienteNombre || selectedCliente}</p>
+          ) : (
+            <SelectBox
+              key={`cliente-select-${clienteSelectKey}`}
+              dataSource={clientes}
+              valueExpr="codCliente"
+              displayExpr={(item: ClienteOption | null) =>
+                item ? etiquetaCliente(item) : ''
+              }
+              searchEnabled={true}
+              searchExpr={['razonSocial', 'nombre', 'codCliente']}
+              value={selectedCliente}
+              readOnly={readOnly}
+              onValueChanged={(event) => {
+                if (isHydratingComprobanteRef.current || !isDevExtremeUserChange(event)) {
+                  return;
+                }
+
+                const nextCliente = (event.value as string | null) ?? null;
+                if (nextCliente === selectedCliente) {
+                  return;
+                }
+
+                void (async () => {
+                  const confirmed = await confirmarCambioCliente();
+                  if (!confirmed) {
+                    setClienteSelectKey((value) => value + 1);
+                    return;
+                  }
+
+                  await handleClienteChange(nextCliente);
+                })();
+              }}
+              placeholder={t('pedidos.carga.clientePlaceholder')}
+              showClearButton={!readOnly}
+              inputAttr={{ 'data-testid': 'cliente-select' }}
+            />
+          )}
+
+          {!selectedCliente && !isClienteProfile ? (
+            <p>{t('pedidos.carga.seleccioneCliente')}</p>
+          ) : null}
+          {selectedCliente && cabeceraReady && !cabeceraLoading ? (
+            <ComprobanteCabeceraForm
+              cabecera={cabecera}
+              catalogos={catalogos}
+              parametrosCarga={parametrosCarga}
+              readOnly={readOnly}
+              clienteNombre={isClienteProfile ? clienteNombre : undefined}
+              onChange={setCabecera}
+              onListaPreciosChange={(codLista) => {
+                if (codLista !== null) {
+                  void handleListaPreciosChange(codLista);
+                }
+              }}
+            />
+          ) : null}
+          {selectedCliente && !cabeceraReady && cabeceraLoading ? (
+            <p>{t('pedidos.carga.cabeceraCargando')}</p>
+          ) : null}
+        </section>
+
+        <div className="pedidosCargaPage__main">
+          {!readOnly ? (
+            <section className="pedidosCargaPage__panel" data-testid="form-articulo-carga">
+              <h3 className="pedidosCargaPage__panelTitle">{t('pedidos.carga.articulosTitle')}</h3>
+              <div className="pedidosCargaPage__articuloRow">
+                <SelectBox
+                  dataSource={articulosDataSource ?? []}
+                  valueExpr="codArticulo"
+                  displayExpr={(item: ArticuloOption | null) =>
+                    item ? formatArticuloCargaDisplay(item, t) : ''
+                  }
+                  value={articuloSeleccionado}
+                  searchEnabled={true}
+                  searchMode="contains"
+                  minSearchLength={0}
+                  searchTimeout={350}
+                  onValueChanged={(event) => {
+                    setArticuloSeleccionado((event.value as string | null) ?? null);
+                    setArticuloSeleccionadoData(
+                      (event.component.option('selectedItem') as ArticuloOption | null) ?? null,
+                    );
+                  }}
+                  placeholder={t('pedidos.carga.articuloPlaceholder')}
+                  inputAttr={{ 'data-testid': 'articulo-select' }}
+                />
+                <div data-testid="btn-agregar-articulo">
+                  <Button
+                    text={t('pedidos.carga.agregarArticulo')}
+                    stylingMode="outlined"
+                    disabled={!articuloSeleccionado}
+                    onClick={handleAgregarArticulo}
+                  />
+                </div>
+              </div>
+            </section>
+          ) : null}
+
+          <section className="pedidosCargaPage__panel">
+            <h3 className="pedidosCargaPage__panelTitle">{t('pedidos.carga.renglonesTitle')}</h3>
+            <PedidosCargaRenglonesGrid
+              renglones={renglones}
+              readOnly={readOnly}
+              isLoading={isLoading}
+              modificaPrecio={modificaPrecio}
+              modificaBonArt={modificaBonArt}
+              bonificacionNetaCabecera={bonificacionNetaCabecera}
+              monedaSimbolo={monedaSimbolo}
+              autoOpenRenglonId={autoOpenRenglonId}
+              onAutoOpenConsumed={() => setAutoOpenRenglonId(null)}
+              onRenglonesChange={setRenglones}
+            />
+          </section>
+
+          <section className="pedidosCargaPage__panel" data-testid="totales-carga">
+            <h3 className="pedidosCargaPage__panelTitle">{t('pedidos.carga.totalesTitle')}</h3>
+            {mailAvisoVisible ? (
+              <p data-testid="aviso-mail-envio-fallido" role="status">
+                {t('pedidos.carga.mailEnvioFallido')}
+              </p>
+            ) : null}
+            <div className="pedidosCargaPage__totales">
+              <p>
+                <span>{t('pedidos.carga.subtotal')}</span>
+                <span data-testid="totales-subtotal">
+                  {formatImporteMoneda(monedaSimbolo, totales.subtotal)}
+                </span>
+              </p>
+              <p>
+                <span>{t('pedidos.carga.iva')}</span>
+                <span data-testid="totales-iva">
+                  {formatImporteMoneda(monedaSimbolo, totales.iva)}
+                </span>
+              </p>
+              <p className="pedidosCargaPage__totalesTotal">
+                <span>{t('pedidos.carga.total')}</span>
+                <span data-testid="totales-total">
+                  {formatImporteMoneda(monedaSimbolo, totales.total)}
+                </span>
+              </p>
+            </div>
+          </section>
+        </div>
       </div>
 
-      <section data-testid="totales-carga">
-        <h3>{t('pedidos.carga.totalesTitle')}</h3>
-        {confirmacionVisible ? (
-          <p data-testid="confirmacion-grabacion">{successMessage}</p>
-        ) : null}
-        {mailAvisoVisible ? (
-          <p data-testid="aviso-mail-envio-fallido" role="status">
-            {t('pedidos.carga.mailEnvioFallido')}
-          </p>
-        ) : null}
-        <p>
-          {t('pedidos.carga.subtotal')}: {subtotal.toFixed(2)}
-        </p>
-        <p>
-          {t('pedidos.carga.iva')}: {iva.toFixed(2)}
-        </p>
-        <p>
-          {t('pedidos.carga.total')}: {total.toFixed(2)}
-        </p>
-      </section>
+      {cabeceraReady && cabecera ? (
+        <ComprobanteLeyendasPie cabecera={cabecera} readOnly={readOnly} onChange={setCabecera} />
+      ) : null}
+
+      <PedidosCargaConfirmacionDialog
+        visible={confirmacionVisible}
+        message={successMessage}
+        onClose={() => {
+          setConfirmacionVisible(false);
+          handlePostGrabacion();
+        }}
+      />
 
       <Toast
         visible={successToastVisible}

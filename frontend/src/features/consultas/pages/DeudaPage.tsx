@@ -21,9 +21,28 @@ export function DeudaPage() {
       rowActions={[]}
       columns={
         <>
-          <Column dataField="cliente" caption={t('consultas.column.cliente')} />
-          <Column dataField="vencimiento" caption={t('consultas.column.vencimiento')} />
-          <Column dataField="importe" caption={t('consultas.column.importe')} dataType="number" format="currency" />
+          <Column dataField="codCliente" caption={t('consultas.column.cliente')} />
+          <Column dataField="razonSocial" caption={t('consultas.column.razonSocial')} />
+          <Column dataField="tipo" caption={t('consultas.column.tipo')} />
+          <Column dataField="numero" caption={t('consultas.column.numero')} />
+          <Column
+            dataField="fecha"
+            caption={t('consultas.column.fecha')}
+            dataType="date"
+            format="dd/MM/yyyy"
+          />
+          <Column
+            dataField="vencimiento"
+            caption={t('consultas.column.vencimiento')}
+            dataType="date"
+            format="dd/MM/yyyy"
+          />
+          <Column
+            dataField="saldo"
+            caption={t('consultas.column.saldo')}
+            dataType="number"
+            format="#,##0.00"
+          />
         </>
       }
     />

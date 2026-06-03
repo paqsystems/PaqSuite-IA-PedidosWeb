@@ -64,9 +64,11 @@ final class PedidosWebEndpointsAuthTest extends TestCase
         yield 'consultas deuda' => ['GET', '/api/v1/consultas/deuda'];
         yield 'consultas cheques' => ['GET', '/api/v1/consultas/cheques'];
         yield 'consultas historial ventas' => ['GET', '/api/v1/consultas/historial-ventas'];
+        yield 'consultas detalle pedidos' => ['GET', '/api/v1/consultas/detalle-pedidos'];
         yield 'integracion logs' => ['GET', '/api/v1/integracion/logs'];
         yield 'dashboard operativo' => ['GET', '/api/v1/dashboard/operativo'];
         yield 'parametros carga' => ['GET', '/api/v1/config/parametros-carga'];
+        yield 'config parametros consulta' => ['GET', '/api/v1/config/parametros?programa=PedidosWeb'];
         yield 'articulos index' => ['GET', '/api/v1/articulos'];
     }
 

@@ -22,10 +22,12 @@ final class ParametrosCargaService
 
         return [
             ...$modificaFlags,
+            ...$this->parameterService->resolveClienteLeyendaFlags(),
             'functionalProfile' => $functionalProfile,
             'codMotivoCierreExitoso' => $this->parameterService->getCodMotivoCierreExitoso(),
             'noEliminaPedido' => $this->parameterService->getNoEliminaPedido(),
             'noModificaPedido' => $this->parameterService->getNoModificaPedido(),
+            'cargaRecurrente' => $this->parameterService->getCargaRecurrente(),
         ];
     }
 

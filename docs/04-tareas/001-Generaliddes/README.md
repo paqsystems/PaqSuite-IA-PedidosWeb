@@ -87,6 +87,17 @@ Tareas técnicas (parte C) derivadas de **SPEC-001-01** y **SPEC-001-02**.
 
 **Patrón MONO (reutilizable):** [patron-i18n-grilla-devextreme.md](../../00-contexto/_mono/03-ui-transversal/patron-i18n-grilla-devextreme.md) — i18n `DataGridDx`, `loadMessages`, menús DX, totalizadores por columna.
 
+## SPEC-001-04 — Configuración global
+
+**C (2026-06-03):** TR generada para consulta parámetros PedidosWeb (solo lectura).  
+**C1 (2026-06-03):** revisión de ambigüedad — **apta para D1** (§3.1–3.3 TR-GEN-04).
+
+| TR | HU | Prioridad |
+|----|-----|-----------|
+| [TR-GEN-04-consulta-parametros](TR-GEN-04-consulta-parametros.md) | [HU-GEN-04-consulta-parametros](../../03-historias-usuario/001-Generaliddes/HU-GEN-04-consulta-parametros.md) | Should |
+
+**SPEC:** [SPEC-001-04-configuracion-global.md](../../05-open-spec/001-Generaliddes/SPEC-001-04-configuracion-global.md)
+
 ## SPEC-001-10 — Chat Asistente IA
 
 | TR | HU | Prioridad |

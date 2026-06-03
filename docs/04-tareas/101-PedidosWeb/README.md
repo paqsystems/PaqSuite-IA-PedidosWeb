@@ -19,11 +19,11 @@
 | 04 | [TR-SPEC-101-04-services-pedidos.md](TR-SPEC-101-04-services-pedidos.md) | Must | 005–013, 024, 026, 027, 007–012 |
 | 05 | [TR-SPEC-101-05-controllers-rest.md](TR-SPEC-101-05-controllers-rest.md) | Must | 009–013, 024, 026, 027, 012 |
 | 06 | [TR-SPEC-101-06-seguridad-visibilidad.md](TR-SPEC-101-06-seguridad-visibilidad.md) | Must | 001, 002, 004 |
-| 07 | [TR-SPEC-101-07-consultas-api.md](TR-SPEC-101-07-consultas-api.md) | Must | 015–018, 021–023 |
+| 07 | [TR-SPEC-101-07-consultas-api.md](TR-SPEC-101-07-consultas-api.md) | Must | 015–018, 021–023, **028** |
 | 08 | [TR-SPEC-101-08-logs-integracion.md](TR-SPEC-101-08-logs-integracion.md) | **Should** | 020 |
 | 09 | [TR-SPEC-101-09-frontend-base.md](TR-SPEC-101-09-frontend-base.md) | Must | Rutas / menú `pw_*` |
 | 10 | [TR-SPEC-101-10-pantalla-carga.md](TR-SPEC-101-10-pantalla-carga.md) | Must | 004–011, 009, 010, 013, 024, 026 |
-| 11 | [TR-SPEC-101-11-consultas-ui.md](TR-SPEC-101-11-consultas-ui.md) | Must | 015–018, 021–023 |
+| 11 | [TR-SPEC-101-11-consultas-ui.md](TR-SPEC-101-11-consultas-ui.md) | Must | 015–018, 021–023, **028** |
 | 12 | [TR-SPEC-101-12-tratativas-cierre.md](TR-SPEC-101-12-tratativas-cierre.md) | Should + Must cierre | 014, 027 |
 | 13 | [TR-SPEC-101-13-mails.md](TR-SPEC-101-13-mails.md) | Must | 019 |
 | 14 | [TR-SPEC-101-14-dashboard.md](TR-SPEC-101-14-dashboard.md) | Must | 025 |
@@ -50,6 +50,7 @@ Omitir **101-01** hasta etapa `EMPRESAS_CONEXION`. Secuencia recomendada (SPEC m
 | 009, 010 | 04, 05, 10 |
 | 014 | 12 |
 | 015–018, 021–023 | 07, 11 |
+| **028** | **07 (Bloque 3), 11 (Bloque 3)** |
 | 019 | 13 (+ hook 04) |
 | 020 | 08 |
 | 025 | 14 |

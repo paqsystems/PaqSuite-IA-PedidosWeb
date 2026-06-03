@@ -31,6 +31,8 @@ final class PedidosWebEndpointsHappyPathTest extends TestCase
         yield 'consultas deuda' => ['/api/v1/consultas/deuda'];
         yield 'consultas cheques' => ['/api/v1/consultas/cheques'];
         yield 'consultas historial ventas' => ['/api/v1/consultas/historial-ventas'];
+        yield 'consultas detalle pedidos' => ['/api/v1/consultas/detalle-pedidos'];
+        yield 'config parametros consulta' => ['/api/v1/config/parametros?programa=PedidosWeb'];
         yield 'motivos cierre' => ['/api/v1/motivos-cierre'];
         yield 'integracion logs' => ['/api/v1/integracion/logs'];
         yield 'dashboard operativo' => ['/api/v1/dashboard/operativo'];
@@ -65,6 +67,49 @@ final class PedidosWebEndpointsHappyPathTest extends TestCase
     }
 
     #[Test]
+    public function comprobanteGrabarPersisteCabeceraComercial(): void
+    {
+        $payload = [
+            'accionGrabacion' => 'pedido',
+            'cabecera' => [
+                'cod_cliente' => 'CLIMVP001',
+                'cod_vended' => 'VENACOT01',
+                'cod_condvta' => 1,
+                'cod_transpor' => 'MVP',
+                'id_de' => 1,
+                'lista_precios' => 1,
+                'cod_perfil' => 'MVP',
+            ],
+            'renglones' => [
+                [
+                    'cod_articulo' => 'ART-HP-001',
+                    'descripcion_articulo' => 'Articulo feature test',
+                    'cantidad' => 1,
+                    'precio' => 100,
+                    'porc_bonif' => 0,
+                    'porc_iva' => 21,
+                ],
+            ],
+        ];
+
+        $response = $this->postJson('/api/v1/comprobantes/grabar', $payload, $this->authHeadersFor(self::SUPERVISOR));
+        $response->assertOk()->assertJsonPath('error', 0);
+
+        $codPedido = (string) $response->json('resultado.cod_pedido');
+        $cabecera = \Illuminate\Support\Facades\DB::table('pq_pedidosweb_pedidoscabecera')
+            ->where('cod_pedido', $codPedido)
+            ->first();
+
+        $this->assertNotNull($cabecera);
+        $this->assertSame('VENACOT01', $cabecera->cod_vended);
+        $this->assertSame(1, (int) $cabecera->cod_condvta);
+        $this->assertSame('MVP', $cabecera->cod_transpor);
+        $this->assertSame(1, (int) $cabecera->id_de);
+        $this->assertSame(1, (int) $cabecera->lista_precios);
+        $this->assertSame('MVP', $cabecera->cod_perfil);
+    }
+
+    #[Test]
     public function pedidosStoreReturns200(): void
     {
         $response = $this->postJson('/api/v1/pedidos', $this->sampleGrabacionPayload(), $this->authHeadersFor(self::SUPERVISOR));
@@ -89,7 +134,7 @@ final class PedidosWebEndpointsHappyPathTest extends TestCase
     #[Test]
     public function pedidosShowReturns200(): void
     {
-        $codPedido = 'PED-HP-SHOW-'.substr(uniqid(), -8);
+        $codPedido = $this->uniqueComprobanteCod('PHPSHOW');
         $this->insertComprobanteConDetalle($codPedido, 0);
 
         $response = $this->getJson("/api/v1/pedidos/{$codPedido}", $this->authHeadersFor(self::SUPERVISOR));
@@ -105,7 +150,7 @@ final class PedidosWebEndpointsHappyPathTest extends TestCase
     #[Test]
     public function presupuestosShowReturns200(): void
     {
-        $codPresupuesto = 'PRE-HP-SHOW-'.substr(uniqid(), -8);
+        $codPresupuesto = $this->uniqueComprobanteCod('PRESHOW');
         $this->insertComprobanteConDetalle($codPresupuesto, 99);
 
         $this->getJson("/api/v1/presupuestos/{$codPresupuesto}", $this->authHeadersFor(self::SUPERVISOR))
@@ -117,7 +162,7 @@ final class PedidosWebEndpointsHappyPathTest extends TestCase
     #[Test]
     public function comprobantesCopiarReturns200(): void
     {
-        $codOrigen = 'PED-HP-COPY-'.substr(uniqid(), -8);
+        $codOrigen = $this->uniqueComprobanteCod('PHPCOPY');
         $this->insertComprobanteConDetalle($codOrigen, 0);
 
         $this->postJson('/api/v1/comprobantes/copiar', [
@@ -201,11 +246,11 @@ final class PedidosWebEndpointsHappyPathTest extends TestCase
     #[Test]
     public function presupuestosCerrarReturns200(): void
     {
-        $codPresupuesto = 'PRE-HP-CLOSE-'.substr(uniqid(), -8);
+        $codPresupuesto = $this->uniqueComprobanteCod('PRECLOSE');
         $this->insertComprobanteConDetalle($codPresupuesto, 99);
 
         $this->postJson("/api/v1/presupuestos/{$codPresupuesto}/cerrar", [
-            'id_motivo' => 9001,
+            'id_motivo' => $this->motivoRechazoFeatureId(),
             'observacion' => 'Cierre feature test',
         ], $this->authHeadersFor(self::SUPERVISOR))
             ->assertOk()
@@ -217,7 +262,7 @@ final class PedidosWebEndpointsHappyPathTest extends TestCase
     #[Test]
     public function tratativasIndexAndStoreReturn200(): void
     {
-        $codPresupuesto = 'PRE-HP-TRAT-'.substr(uniqid(), -8);
+        $codPresupuesto = $this->uniqueComprobanteCod('PRETRAT');
         $this->insertComprobanteConDetalle($codPresupuesto, 99);
         $headers = $this->authHeadersFor(self::SUPERVISOR);
 

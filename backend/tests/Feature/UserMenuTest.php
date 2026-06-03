@@ -60,7 +60,7 @@ final class UserMenuTest extends TestCase
         $menu = (array) $response->json('resultado');
 
         $this->assertSame(
-            ['grp_pedidos', 'grp_informes', 'grp_gestion_presupuestos', 'pw_dashboard', 'pw_logsintegracion'],
+            ['grp_pedidos', 'grp_informes', 'grp_gestion_presupuestos', 'pw_dashboard', 'pw_logsintegracion', 'grp_general'],
             array_map(
                 static fn (array $item): string => (string) ($item['procedimiento'] ?? ''),
                 $menu
@@ -68,7 +68,13 @@ final class UserMenuTest extends TestCase
         );
 
         $this->assertSame(
-            ['pw_cargapedidos', 'pw_presupuestosingresados', 'pw_pedidosingresados', 'pw_pedidospendientes'],
+            [
+                'pw_cargapedidos',
+                'pw_presupuestosingresados',
+                'pw_pedidosingresados',
+                'pw_pedidospendientes',
+                'pw_detallepedidos',
+            ],
             array_map(
                 static fn (array $item): string => (string) ($item['procedimiento'] ?? ''),
                 (array) ($menu[0]['children'] ?? [])

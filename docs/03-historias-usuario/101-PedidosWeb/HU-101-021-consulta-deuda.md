@@ -16,9 +16,9 @@ para **evaluar situación crediticia**.
 
 ## Reglas de negocio
 
-1. Por cliente o todos según perfil.
-2. Comprobantes con saldo, vencimiento, saldo acumulado.
-3. `fecha_proceso` en carátula.
+1. Por cliente o todos según perfil (visibilidad GEN-02).
+2. Columnas y origen BD: **[consulta-deuda.md](../../02-producto/PedidosWeb/consulta-deuda.md)** (fuente de verdad).
+3. `fecha_proceso` en carátula (`metadata.fecha_proceso`).
 
 ## Criterios de aceptación
 

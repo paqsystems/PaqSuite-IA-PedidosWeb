@@ -24,6 +24,8 @@ final class PedidoService
         private readonly ComprobanteMailService $comprobanteMailService,
         private readonly PedidosWebVisibilityGuard $pedidosWebVisibilityGuard,
         private readonly CommercialProfileResolver $commercialProfileResolver,
+        private readonly PedidosWebSchemaBootstrap $schemaBootstrap,
+        private readonly CabeceraInicialService $cabeceraInicialService,
     ) {}
 
     /**
@@ -265,17 +267,25 @@ final class PedidoService
             throw new PedidosWebBusinessException(4000, 'business.notFound', 404);
         }
 
+        $pedido->loadMissing(['cliente', 'cliente.vendedor', 'vendedor', 'listaPrecios', 'condicionVenta', 'transporte']);
+        $cliente = $pedido->cliente;
+
         return [
             'cabecera' => [
                 'cod_pedido' => (string) $pedido->cod_pedido,
                 'cod_cliente' => (string) $pedido->cod_cliente,
                 'estado' => (int) $pedido->estado,
                 'fecha' => optional($pedido->fecha)?->toIso8601String(),
-                'observaciones' => $pedido->observaciones,
                 'nro_visible' => (int) ($pedido->nro_visible ?? 0),
                 'total' => (float) $pedido->total,
                 'total_iva' => (float) $pedido->total_iva,
+                ...($cliente !== null
+                    ? $this->cabeceraInicialService->mapCabeceraFromPedido($cliente, $pedido)
+                    : []),
             ],
+            'catalogos' => $cliente !== null
+                ? $this->cabeceraInicialService->catalogosForCliente((string) $pedido->cod_cliente)
+                : [],
             'detalle' => $pedido->detalles
                 ->map(static fn ($row): array => [
                     'renglon' => (int) $row->renglon,
@@ -474,6 +484,15 @@ final class PedidoService
             'id_de' => $cabeceraPayload['id_de'] ?? null,
             'cod_transpor' => $cabeceraPayload['cod_transpor'] ?? null,
             'lista_precios' => $cabeceraPayload['lista_precios'] ?? null,
+            'expreso' => $cabeceraPayload['expreso'] ?? null,
+            'expreso_dire' => $cabeceraPayload['expreso_dire'] ?? null,
+            'fecha_entrega' => $cabeceraPayload['fecha_entrega'] ?? null,
+            'cod_perfil' => $cabeceraPayload['cod_perfil'] ?? null,
+            'leyenda_1' => $cabeceraPayload['leyenda_1'] ?? null,
+            'leyenda_2' => $cabeceraPayload['leyenda_2'] ?? null,
+            'leyenda_3' => $cabeceraPayload['leyenda_3'] ?? null,
+            'leyenda_4' => $cabeceraPayload['leyenda_4'] ?? null,
+            'leyenda_5' => $cabeceraPayload['leyenda_5'] ?? null,
             'usuario_modificacion' => $user->codigo,
             ...$extraAttributes,
         ];
@@ -482,6 +501,8 @@ final class PedidoService
             $attributes['fecha_creacion'] = $timestamp;
             $attributes['usuario_creacion'] = $user->codigo;
             $attributes['nro_visible'] = $nroVisible;
+            $attributes['tal_pedido_tango'] = 1;
+            $attributes['nro_pedido_tango'] = substr($codPedido, 0, 20);
             $cabecera = $this->pedidoRepository->insertCabecera($attributes);
         } else {
             $this->pedidoRepository->updateCabecera($codPedido, $attributes);
@@ -499,6 +520,10 @@ final class PedidoService
 
     private function nextNumeroVisible(): int
     {
+        if (! $this->schemaBootstrap->cabeceraSupportsNumeroVisible()) {
+            return (int) (PqPedidoswebPedidoCabecera::query()->count() + 1);
+        }
+
         $max = (int) PqPedidoswebPedidoCabecera::query()->max('nro_visible');
 
         return $max + 1;

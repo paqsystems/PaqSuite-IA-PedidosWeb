@@ -80,14 +80,14 @@ final class ComprobanteGrabarMailFeatureTest extends TestCase
     #[Test]
     public function grabarSinDestinatariosPersisteComprobanteConMailEnviadoFalse(): void
     {
-        $codCliente = 'CLI-NOMAIL-'.substr(uniqid(), -6);
+        $codCliente = $this->uniqueClienteCod('CLINML');
         $this->ensureClienteSinEmailDestinatarios($codCliente);
 
-        try {
-            $response = $this->postJson('/api/v1/pedidos', $this->sampleGrabacionPayload($codCliente), $this->authHeadersFor(self::SUPERVISOR));
-        } catch (\Throwable) {
-            $this->markTestSkipped('Requiere tabla pq_pedidosweb_logs_integracion (tanda 2 con SQL Server).');
-        }
+        $response = $this->postJson(
+            '/api/v1/pedidos',
+            $this->sampleGrabacionPayload($codCliente),
+            $this->authHeadersFor(self::SUPERVISOR)
+        );
 
         $response
             ->assertOk()

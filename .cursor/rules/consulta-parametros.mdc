@@ -1,0 +1,20 @@
+---
+description: Consulta parámetros PedidosWeb — solo lectura ERP
+globs:
+  - backend/app/Services/**/Parametros*
+  - backend/app/**/PqParametros*
+  - frontend/src/features/**/Parametros*
+  - docs/**/consulta-parametros.md
+  - docs/backend/seed/PQ_PARAMETROS_GRAL/**
+  - docs/00-contexto/_mono/04-configuracion-global/parametros-generales.md
+---
+
+# Consulta de parámetros
+
+- Fuente de verdad: `docs/02-producto/PedidosWeb/consulta-parametros.md`.
+- Marco MONO: `docs/00-contexto/_mono/04-configuracion-global/parametros-generales.md`.
+- Referencia Tango: mismo contrato seed `PQ_PARAMETROS_GRAL`.
+- **Solo lectura** en PedidosWeb: inhibir edición web; valores desde ERP.
+- Menú General, último ítem; proceso `pw_consultaparametros`.
+- Grilla: **sin columna Clave**; orden por **descripción** (`CAPTION` ASC).
+- Tipos `tipo_valor`: `docs/_base/pq-parametros-gral-tipo-valor.md`.

@@ -1,0 +1,30 @@
+---
+description: Prohibir bootstrap destructivo PedidosWeb sobre bases ERP compartidas
+alwaysApply: true
+---
+
+# Bootstrap destructivo PedidosWeb — NO ejecutar en Ankas_del_sur
+
+**Regla madre:** `.cursor/rules/no-drop-database-sin-consentimiento.mdc` — sin consentimiento explícito del usuario en el chat, **no ejecutar nada** de esta lista.
+
+## Comandos que BORRAN tablas (DROP TABLE)
+
+- `php artisan paqsuite:bootstrap-pedidosweb-dev`
+- `php scripts/bootstrap-pedidosweb-dev.php --yes`
+
+Eliminan y recrean **todas** las `pq_pedidosweb_*` y `PQ_parametros_gral`. Es el **único** código del repo con DROP masivo sobre esas tablas.
+
+## Comandos seguros (no DROP de esquema)
+
+- `php scripts/bootstrap-dev-login.php` — solo crea 5 tablas mínimas si faltan
+- `php artisan paqsuite:seed-seguridad-mvp` / `paqsuite:seed-menus-mvp`
+- `php artisan paqsuite:sync-pedidosweb-login-from-users`
+- Tests PHPUnit — no hacen DROP; escriben datos si la base es la misma del `.env`
+
+## Reglas para el agente
+
+1. **Nunca** ejecutar bootstrap destructivo sin consentimiento explícito del usuario (ver regla `no-drop-database-sin-consentimiento.mdc`).
+2. **Nunca** ejecutarlo sobre `DB_DATABASE=Ankas_del_sur` ni bases ERP compartidas salvo autorización literal del usuario.
+3. Para login roto por tablas faltantes, usar **solo** `bootstrap-dev-login.php` + seeds de seguridad.
+4. Para entorno MVP completo, exigir base dedicada (`*_dev`) y consentimiento explícito; no usar `--no-interaction` para saltear confirmación humana.
+5. Al iniciar entorno de desarrollo, **no** correr bootstrap destructivo por defecto.

@@ -3,7 +3,9 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\GridLayoutController;
 use App\Http\Controllers\HealthController;
+use App\Http\Controllers\Api\V1\Config\ParametrosController;
 use App\Http\Controllers\Api\V1\PedidosWeb\ArticuloController;
+use App\Http\Controllers\Api\V1\PedidosWeb\ClienteCabeceraController;
 use App\Http\Controllers\Api\V1\PedidosWeb\ComprobanteController;
 use App\Http\Controllers\Api\V1\PedidosWeb\ConsultaController;
 use App\Http\Controllers\Api\V1\PedidosWeb\DashboardController;
@@ -59,10 +61,14 @@ Route::prefix('v1')->group(function (): void {
                 ->name('api.v1.users.me.preferences.theme');
             Route::get('/config/parametros-carga', [ParametrosCargaController::class, 'show'])
                 ->name('api.v1.config.parametros-carga');
+            Route::get('/config/parametros', [ParametrosController::class, 'index'])
+                ->name('api.v1.config.parametros');
             Route::get('/articulos', [ArticuloController::class, 'index'])
                 ->name('api.v1.articulos.index');
             Route::get('/clientes', [VisibilityDataController::class, 'clients'])
                 ->name('api.v1.clientes.index');
+            Route::get('/clientes/{codCliente}/cabecera-inicial', [ClienteCabeceraController::class, 'show'])
+                ->name('api.v1.clientes.cabecera-inicial');
             Route::get('/comprobantes/{id}', [VisibilityDataController::class, 'showComprobante'])
                 ->name('api.v1.comprobantes.show');
             Route::get('/dashboard/resumen', [VisibilityDataController::class, 'dashboardResumen'])
@@ -109,6 +115,8 @@ Route::prefix('v1')->group(function (): void {
                 Route::get('/cheques', [ConsultaController::class, 'cheques'])->name('api.v1.consultas.cheques');
                 Route::get('/historial-ventas', [ConsultaController::class, 'historialVentas'])
                     ->name('api.v1.consultas.historial-ventas');
+                Route::get('/detalle-pedidos', [ConsultaController::class, 'detallePedidos'])
+                    ->name('api.v1.consultas.detalle-pedidos');
             });
 
             Route::get('/integracion/logs', [IntegracionLogController::class, 'index'])

@@ -14,7 +14,45 @@ import {
 const proceso = 'pw_historialventas';
 const gridId = 'pw_historialventas';
 
-type HistorialDetalleRow = ReturnType<typeof toHistorialDetalleRows>[number];
+const dateColumnProps = {
+  dataType: 'date' as const,
+  format: 'dd/MM/yyyy',
+};
+
+const decimalColumnProps = {
+  dataType: 'number' as const,
+  format: '#,##0.00',
+};
+
+function historialColumns(t: (key: string) => string) {
+  return (
+    <>
+      <Column dataField="codCliente" caption={t('consultas.column.cliente')} />
+      <Column dataField="razonSocial" caption={t('consultas.column.razonSocial')} />
+      <Column dataField="nRemito" caption={t('consultas.column.nRemito')} />
+      <Column dataField="tipo" caption={t('consultas.column.tipo')} />
+      <Column dataField="numero" caption={t('consultas.column.numero')} />
+      <Column dataField="fechaEmision" caption={t('consultas.column.fechaEmision')} {...dateColumnProps} />
+      <Column dataField="condVta" caption={t('consultas.column.condVta')} dataType="number" />
+      <Column dataField="porcDesc" caption={t('consultas.column.porcDesc')} {...decimalColumnProps} />
+      <Column dataField="cotiz" caption={t('consultas.column.cotiz')} {...decimalColumnProps} />
+      <Column dataField="moneda" caption={t('consultas.column.moneda')} />
+      <Column dataField="totalComp" caption={t('consultas.column.totalComp')} {...decimalColumnProps} />
+      <Column dataField="codTransp" caption={t('consultas.column.codTransp')} />
+      <Column dataField="nomTransp" caption={t('consultas.column.nomTransp')} />
+      <Column dataField="codArticulo" caption={t('consultas.column.codArticulo')} />
+      <Column dataField="descripcion" caption={t('consultas.column.descripcion')} />
+      <Column dataField="codDep" caption={t('consultas.column.codDep')} />
+      <Column dataField="um" caption={t('consultas.column.um')} />
+      <Column dataField="cantidad" caption={t('consultas.column.cantidad')} {...decimalColumnProps} />
+      <Column dataField="precio" caption={t('consultas.column.precio')} {...decimalColumnProps} />
+      <Column dataField="totSinImp" caption={t('consultas.column.totSinImp')} {...decimalColumnProps} />
+      <Column dataField="nCompRem" caption={t('consultas.column.nCompRem')} />
+      <Column dataField="cantRem" caption={t('consultas.column.cantRem')} {...decimalColumnProps} />
+      <Column dataField="fechaRem" caption={t('consultas.column.fechaRem')} {...dateColumnProps} />
+    </>
+  );
+}
 
 export function HistorialVentasPage() {
   const { t } = useTranslation();
@@ -29,7 +67,7 @@ export function HistorialVentasPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [detalleVisible, setDetalleVisible] = useState(false);
-  const [detalleRows, setDetalleRows] = useState<HistorialDetalleRow[]>([]);
+  const [detalleRows, setDetalleRows] = useState<HistorialVentasRow[]>([]);
 
   useEffect(() => {
     let mounted = true;
@@ -97,11 +135,7 @@ export function HistorialVentasPage() {
         toolbarEnd={layoutToolbar}
         rowActions={rowActions}
       >
-        <Column dataField="fecha" caption={t('consultas.column.fecha')} />
-        <Column dataField="cliente" caption={t('consultas.column.cliente')} />
-        <Column dataField="articulo" caption={t('consultas.column.articulo')} />
-        <Column dataField="cantidad" caption={t('consultas.column.cantidad')} dataType="number" />
-        <Column dataField="importe" caption={t('consultas.column.importe')} dataType="number" format="currency" />
+        {historialColumns(t)}
       </DataGridDx>
       {saveAsDialog}
       <Popup
@@ -109,12 +143,12 @@ export function HistorialVentasPage() {
         onHiding={() => setDetalleVisible(false)}
         dragEnabled={false}
         showCloseButton={true}
-        width={700}
-        height={420}
+        width="90%"
+        height={480}
         title={t('consultas.historialDetalleTitle')}
         elementAttr={{ 'data-testid': 'consultaHistorialDetallePopup' }}
       >
-        <DataGridDx<HistorialDetalleRow>
+        <DataGridDx<HistorialVentasRow>
           proceso={proceso}
           gridId="pw_historialventas_detalle"
           dataSource={detalleRows}
@@ -122,10 +156,7 @@ export function HistorialVentasPage() {
           exportEnabled={false}
           enableGrouping={false}
         >
-          <Column dataField="articulo" caption={t('consultas.column.articulo')} />
-          <Column dataField="descripcion" caption={t('consultas.column.descripcion')} />
-          <Column dataField="cantidad" caption={t('consultas.column.cantidad')} dataType="number" />
-          <Column dataField="importe" caption={t('consultas.column.importe')} dataType="number" format="currency" />
+          {historialColumns(t)}
         </DataGridDx>
       </Popup>
     </section>

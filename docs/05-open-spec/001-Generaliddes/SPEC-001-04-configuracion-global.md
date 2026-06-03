@@ -2,7 +2,8 @@
 
 | Campo | Valor |
 |-------|--------|
-| **HU relacionadas** | `HU-GEN-04-*` (a generar) |
+| **HU relacionadas** | [HU-GEN-04-consulta-parametros](../../03-historias-usuario/001-Generaliddes/HU-GEN-04-consulta-parametros.md), lectura runtime (servicios existentes) |
+| **TR relacionada** | [TR-GEN-04-consulta-parametros](../../04-tareas/001-Generaliddes/TR-GEN-04-consulta-parametros.md) (**C1** 2026-06-03) |
 | **Estado** | Pendiente |
 | **Revisión A1** | Apto con observaciones (2026-05-28) |
 
@@ -76,7 +77,8 @@ Inventario completo con **`CAPTION`**, **`TOOLTIP`** y `tipo_valor`: [`docs/back
 
 ## Trazabilidad HU
 
-| HU | Tema SPEC (a generar) |
-|----|------------------------|
+| HU | Tema SPEC |
+|----|-----------|
 | HU-GEN-04-lectura-parametros | Servicio/repository lectura |
+| [HU-GEN-04-consulta-parametros](../../03-historias-usuario/001-Generaliddes/HU-GEN-04-consulta-parametros.md) | Pantalla consulta solo lectura — **TR:** [TR-GEN-04-consulta-parametros](../../04-tareas/001-Generaliddes/TR-GEN-04-consulta-parametros.md) |
 | HU-GEN-04-fallback-parametros | Defaults y fallback críticos |

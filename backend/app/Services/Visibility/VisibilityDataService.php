@@ -20,11 +20,14 @@ final class VisibilityDataService
     public function listVisibleClients(User $user): array
     {
         return $this->visibleClientsResolver->visibleClientsForUser($user)
-            ->orderBy('cod_client')
+            ->orderByRaw("COALESCE(NULLIF(LTRIM(RTRIM(razon_soci)), ''), nombre) ASC")
             ->get()
             ->map(static fn ($cliente): array => [
                 'codCliente' => (string) $cliente->cod_client,
                 'nombre' => (string) $cliente->nombre,
+                'razonSocial' => trim((string) ($cliente->razon_soci ?? '')) !== ''
+                    ? (string) $cliente->razon_soci
+                    : (string) $cliente->nombre,
                 'fantasia' => $cliente->fantasia !== null ? (string) $cliente->fantasia : null,
                 'codVendedor' => $cliente->cod_vended !== null ? (string) $cliente->cod_vended : null,
                 'email' => $cliente->e_mail !== null ? (string) $cliente->e_mail : null,

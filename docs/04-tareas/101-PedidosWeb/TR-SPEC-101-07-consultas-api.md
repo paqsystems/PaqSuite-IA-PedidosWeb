@@ -2,15 +2,15 @@
 
 | Campo | Valor |
 |-------|--------|
-| **HU relacionada** | [HU-101-015](../../03-historias-usuario/101-PedidosWeb/HU-101-015-consulta-pedidos-ingresados.md) … [HU-101-018](../../03-historias-usuario/101-PedidosWeb/HU-101-018-consulta-stock.md), [HU-101-021](../../03-historias-usuario/101-PedidosWeb/HU-101-021-consulta-deuda.md) … [HU-101-023](../../03-historias-usuario/101-PedidosWeb/HU-101-023-historial-ventas.md) |
+| **HU relacionada** | [HU-101-015](../../03-historias-usuario/101-PedidosWeb/HU-101-015-consulta-pedidos-ingresados.md) … [HU-101-023](../../03-historias-usuario/101-PedidosWeb/HU-101-023-historial-ventas.md), [HU-101-028](../../03-historias-usuario/101-PedidosWeb/HU-101-028-consulta-detalle-pedidos.md) |
 | **SPEC relacionada** | [SPEC-101-07-consultas-api](../../05-open-spec/101-PedidosWeb/SPEC-101-07-consultas-api.md) |
 | **Épica** | 101 — PedidosWeb |
 | **Prioridad** | Must |
 | **Dependencias** | TR-SPEC-101-06 (visibilidad); SPEC-101-03 (repositories); contexto [SPEC-001-04](../../05-open-spec/001-Generaliddes/SPEC-001-04-configuracion-global.md) para `DiasVentasDetalladas` |
-| **Estado** | Pendiente de Revisión — **Bloques 1–2** (gestión + pedidos/presupuestos) |
-| **Última actualización** | 2026-06-02 |
+| **Estado** | **C1 cerrada** — Bloques 1–2 en D; **Bloque 3 apto para D1** (2026-06-03) |
+| **Última actualización** | 2026-06-03 (C1 Bloque 3) |
 
-**Origen:** HU-101-015, HU-101-016, HU-101-017, HU-101-018, HU-101-021, HU-101-022, HU-101-023  
+**Origen:** HU-101-015, HU-101-016, HU-101-017, HU-101-018, HU-101-021, HU-101-022, HU-101-023, **HU-101-028**  
 **Referencia SPEC:** [SPEC-101-07-consultas-api](../../05-open-spec/101-PedidosWeb/SPEC-101-07-consultas-api.md)  
 **Normas transversales:** [`../_NORMAS-TRANSVERSALES-TR.md`](../_NORMAS-TRANSVERSALES-TR.md) (**obligatorio**)
 
@@ -44,6 +44,7 @@ para **alimentar grillas DevExtreme (SPEC-101-11) y exportación Excel (GEN-03)*
 - **AC-08:** Historial: rango de fechas = hoy − `DiasVentasDetalladas` (días); valor desde parámetro tenant (SPEC-001-04) con default documentado en TR si SPEC-001-04 pendiente.
 - **AC-09:** 401 sin token; 403 sin `Permiso_Repo` (o regla acordada); 404 en detalle fuera de visibilidad.
 - **AC-10:** OpenAPI + matriz permisos actualizados; feature test por endpoint Must.
+- **AC-11 (Bloque 3):** `GET .../detalle-pedidos` devuelve join cabecera+detalle; todos los estados; paginación por **renglón**; sin flags `puede*`.
 
 ### Escenarios Gherkin
 
@@ -81,6 +82,102 @@ Feature: Consultas API PedidosWeb
 6. **RN-06:** `DiasVentasDetalladas`: entero ≥ 1; lectura vía servicio de parámetros (SPEC-001-04); fallback MVP `90` documentado hasta existir seed parámetro.
 7. **RN-07:** Deuda/cheques: por cliente o agregado según perfil (§17.4–17.5).
 8. **RN-08:** Preparar contrato estable para export Excel (GEN-03): mismos filtros/query que listado.
+9. **RN-09 (Bloque 3):** Detalle pedidos: sin filtro de estado por defecto; paginar filas detalle; `id` lógico `{codPedido}-{renglon}` en UI.
+
+---
+
+## 3.1) Informe C1 — Bloque 3 detalle pedidos (2026-06-03)
+
+**Fuentes revisadas:** HU-101-028, [consulta-detalle-pedidos.md](../../02-producto/PedidosWeb/consulta-detalle-pedidos.md), [consulta-comprobantes-cabecera.md](../../02-producto/PedidosWeb/consulta-comprobantes-cabecera.md), `ConsultaListadoService::mapComprobanteItem`, `PqPedidoswebPedidoDetalle`, bloques 1–2 ya implementados en esta TR.
+
+> **Nota:** Bloques 1–2 pasaron C1/D1 en 2026-06-02. Esta revisión cubre **solo el delta Bloque 3**.
+
+### Resultado general
+
+- **Estado:** Apto con observaciones
+- **Ambigüedades bloqueantes:** 0
+- **Puede pasar a D1:** **Sí** (aplicar resoluciones §3.2)
+
+### Ambigüedades críticas
+
+| ID | Tema | Riesgo | Estado | Resolución (→ D1) |
+|----|------|--------|--------|-------------------|
+| AMB-C01 | Paginación cabecera vs renglón | Total incorrecto en UI | **Cerrado** (R-C1-01) | Paginar por **renglón**; `total` = count join filtrado. |
+| AMB-C02 | Reutilizar `mapComprobanteItem` | Duplicación / drift contrato | **Cerrado** (R-C1-02) | Mismo mapper cabecera + campos detalle en ítem. |
+| AMB-C03 | `fecha_proceso` | Sin snapshot ERP dedicado | **Cerrado** (R-C1-03) | `now()->toIso8601String()` en `metadata` (igual bloques 1–2). |
+| AMB-C04 | Filtro `q` | Alcance búsqueda | **Cerrado** (R-C1-04) | `cod_articulo`, `descripcion_articulo`, fallback `articulos.descripcion`. |
+| AMB-C05 | `precioLista` | `precio` vs `importe_lista` | **Cerrado** (R-C1-05) | `precioLista` = `precio` si no null; si no `importe_lista`. |
+| AMB-C06 | Cabeceras sin renglones | INNER JOIN excluye filas | **Cerrado** (R-C1-06) | **INNER JOIN** MVP; cabecera sin detalle no aparece (aceptado producto). |
+
+### Ambigüedades menores
+
+| ID | Tema | Resolución (→ D1) |
+|----|------|-------------------|
+| AMB-M01 | Servicio dedicado vs extensión | **`DetallePedidosConsultaService`** nuevo; delega mapper cabecera a helper compartido. |
+| AMB-M02 | Eager load maestros cabecera | Reutilizar relaciones de `mapComprobanteItem`; evitar N+1 con `with()` en query join. |
+| AMB-M03 | Permiso procedimiento | `pw_detallepedidos` en `paqsuite_visibility.php`; matriz permisos nueva fila. |
+| AMB-M04 | OpenAPI | Añadir path en `PedidosWebOpenApiPaths` + feature happy path. |
+
+### Contradicciones TR ↔ HU ↔ producto
+
+| Contradicción | Resolución |
+|---------------|------------|
+| Producto §3 visible `estadoTexto` vs API solo `estado` numérico | UI traduce con i18n (`consultas.comprobanteEstado.*`); no campo API duplicado. |
+| Producto §4 `descuento` vs modelo `porc_bonif` | API `porcBonif`; UI caption «Descuento» vía i18n. |
+| Producto descripción: preferir congelada | `descripcion_articulo` si no vacío; else join `articulos.descripcion`. |
+| Ninguna bloqueante adicional | — |
+
+### Supuestos detectados
+
+- Existen filas en `pq_pedidosweb_pedidosdetalle` para pedidos QA del seed MVP.
+- Visibilidad reutiliza `PedidosWebVisibilityGuard` / `resolveCodCliente` (404 cliente ajeno).
+- Procedimiento menú `pw_detallepedidos` se agrega en mismo PR que endpoint.
+
+### Preguntas para decisión humana
+
+(Ninguna bloqueante — cerradas en §3.2.)
+
+### Veredicto C1
+
+**Apto con observaciones para D1** (Bloque 3).
+
+---
+
+## 3.2) Resoluciones C1 — pre-D1 (Bloque 3)
+
+| ID | Decisión |
+|----|----------|
+| R-C1-01 | Paginación estándar sobre query join; `metadata.fecha_proceso` presente. |
+| R-C1-02 | Ítem JSON = salida `mapComprobanteItem` + `{ renglon, codArticulo, descripcionArticulo, cantidad, porcBonif, precioLista, precioNeto, importeBruto, importeNeto, ivaNeto, importeNetoConIva }`. |
+| R-C1-03 | Sin flags `puede*` en respuesta. |
+| R-C1-04 | Orden SQL: `cabecera.fecha DESC`, `cabecera.cod_pedido`, `detalle.renglon`. |
+| R-C1-05 | `precioLista`: coalesce `detalle.precio`, `detalle.importe_lista`. |
+| R-C1-06 | INNER JOIN detalle; documentar en OpenAPI que solo comprobantes con ≥1 renglón. |
+| R-C1-07 | Método `ConsultaController::detallePedidos`; ruta `GET consultas/detalle-pedidos`. |
+| R-C1-08 | Tests: happy path supervisor; 404 `cod_cliente` ajeno; paginación `total` coherente. |
+
+---
+
+## 3.3) Plan D1 — Bloque 3 (2026-06-03)
+
+### Alcance entendido
+
+Un endpoint GET paginado con join cabecera+detalle+maestros, visibilidad, metadata, OpenAPI y tests. Sin cambios frontend (TR-101-11).
+
+### Orden sugerido
+
+```text
+1. DetallePedidosConsultaService (query + mapItem)
+2. ConsultaController::detallePedidos + ruta api.php
+3. paqsuite_visibility consultasDetallePedidos → pw_detallepedidos
+4. PedidosWebOpenApiPaths + matriz permisos
+5. Feature tests (200, 404 visibilidad, paginación)
+```
+
+### Dependencias D1
+
+- Bloques 1–2 operativos (`ConsultaListadoService`, visibilidad).
+- Columnas cabecera estables (`mapComprobanteItem`).
 
 ---
 
@@ -154,6 +251,7 @@ Feature: Consultas API PedidosWeb
 | GET | `/api/v1/consultas/deuda` | Bearer + tenant | `Permiso_Repo` | HU-101-021 |
 | GET | `/api/v1/consultas/cheques` | Bearer + tenant | `Permiso_Repo` | HU-101-022 |
 | GET | `/api/v1/consultas/historial-ventas` | Bearer + tenant | `Permiso_Repo` | HU-101-023 |
+| GET | `/api/v1/consultas/detalle-pedidos` | Bearer + tenant | `Permiso_Repo` | HU-101-028 |
 
 ### 5.2 Detalle por operación
 
@@ -202,7 +300,7 @@ Feature: Consultas API PedidosWeb
 
 **Visibilidad:** no filtra por cliente; sí por tenant.
 
-**Response 200:** ítems `codArticulo`, `descripcion`, `stock`, `unidad`, etc.; `metadata.fecha_proceso`.
+**Response 200:** ítems según [`consulta-stock.md`](../../02-producto/PedidosWeb/consulta-stock.md): `codArticulo`, `descripcion`, `stock`, `comprometido`, `comprometidoWeb`, `disponibleNeto`, métricas `*Base` opcionales; `metadata.fecha_proceso`. Implementación: `StockConsultaService` (SQL agregado).
 
 ---
 
@@ -212,7 +310,7 @@ Feature: Consultas API PedidosWeb
 
 **Query:** `cod_cliente` opcional (supervisor/vendedor); cliente fijo implícito si perfil `cliente`
 
-**Response 200:** ítems con saldo, vencimiento, saldo acumulado; `metadata.fecha_proceso`.
+**Response 200:** ítems según [`consulta-deuda.md`](../../02-producto/PedidosWeb/consulta-deuda.md): `codCliente`, `razonSocial`, `tipo`, `numero`, `fecha`, `vencimiento`, `saldo`; `metadata.fecha_proceso`. Implementación: `DeudaConsultaService` (SQL paginado + join clientes).
 
 ---
 
@@ -220,9 +318,9 @@ Feature: Consultas API PedidosWeb
 
 **Autorización:** `Permiso_Repo` + visibilidad
 
-**Regla:** cheques en cartera o aplicados con fecha **posterior al día** (§17.5).
+**Regla:** cheques en cartera o aplicados con `fecha` **≥ día actual** (§17.5).
 
-**Response 200:** ítems + `metadata.fecha_proceso`.
+**Response 200:** ítems según [`consulta-cheques.md`](../../02-producto/PedidosWeb/consulta-cheques.md): `interno`, `numero`, `codCliente`, `nombreCliente`, `banco`, `fecha`, `importe`, `origen`, `estado`; `metadata.fecha_proceso`. Implementación: `ChequesConsultaService` (SQL paginado + join clientes).
 
 ---
 
@@ -234,9 +332,48 @@ Feature: Consultas API PedidosWeb
 
 **Regla:** ventas desde `today - DiasVentasDetalladas` días (parámetro ERP/tenant).
 
-**Response 200:** ítems resumen; detalle vía endpoint opcional `GET .../historial-ventas/{id}/detalle` o payload embebido acordado en implementación (documentar en OpenAPI). Incluir `metadata.fecha_proceso` y `metadata.dias_ventas_detalladas`.
+**Response 200:** ítems según [`consulta-historial-ventas.md`](../../02-producto/PedidosWeb/consulta-historial-ventas.md) (22 campos JSON); `metadata.fecha_proceso` y `metadata.dias_ventas_detalladas`. Implementación: `HistorialVentasConsultaService`.
 
 **Response 422:** `cod_cliente` ausente cuando es obligatorio (`error` 1000, clave `validation.*`).
+
+---
+
+#### GET `/api/v1/consultas/detalle-pedidos`
+
+**Autorización:** `Permiso_Repo` + `visibleClientsForUser`
+
+**Regla:** join `pq_pedidosweb_pedidoscabecera` + `pq_pedidosweb_pedidosdetalle`; **todos los estados**; una fila por renglón.
+
+**Query:** paginación común; `cod_cliente`; `cod_pedido`; `estado` opcional; `q` (código/descripción artículo)
+
+**Response 200:** `resultado.items[]` con:
+
+- Campos cabecera: mismo contrato que `mapComprobanteItem` ([consulta-comprobantes-cabecera.md](../../02-producto/PedidosWeb/consulta-comprobantes-cabecera.md)).
+- Campos detalle (camelCase):
+
+| Propiedad | Origen BD |
+|-----------|-----------|
+| `renglon` | `detalle.renglon` |
+| `codArticulo` | `detalle.cod_articulo` |
+| `descripcionArticulo` | `detalle.descripcion_articulo` → fallback `articulos.descripcion` |
+| `cantidad` | `detalle.cantidad` |
+| `porcBonif` | `detalle.porc_bonif` |
+| `precioLista` | `detalle.precio` o `detalle.importe_lista` |
+| `precioNeto` | `detalle.precio_neto` |
+| `importeBruto` | `detalle.precio_bruto` |
+| `importeNeto` | `detalle.importe_neto` |
+| `ivaNeto` | `detalle.iva` |
+| `importeNetoConIva` | `detalle.importe_total` |
+
+Sin flags `puedeEditar` / `puedeEliminar` / etc.
+
+**Orden SQL:** `cabecera.fecha DESC`, `cabecera.cod_pedido`, `detalle.renglon`.
+
+**Implementación:** `DetallePedidosConsultaService` (nuevo) o método en `ConsultaListadoService`.
+
+**Response 404:** `cod_cliente` ajeno al universo visible.
+
+Fuente producto: [consulta-detalle-pedidos.md](../../02-producto/PedidosWeb/consulta-detalle-pedidos.md).
 
 ### 5.3 OpenAPI (L5-Swagger)
 
@@ -248,7 +385,7 @@ Feature: Consultas API PedidosWeb
 
 ### 5.4 Actualización matriz permisos
 
-- [ ] Una fila por endpoint §5.1 en `matriz-permisos-mvp.md` con TR origen `TR-SPEC-101-07`
+- [x] Una fila por endpoint §5.1 en `matriz-permisos-mvp.md` con TR origen `TR-SPEC-101-07` (incl. `detalle-pedidos`)
 
 ---
 
@@ -265,7 +402,8 @@ Ninguno en este slice (API only). TR-SPEC-101-11 consumirá estos endpoints.
 | ID | Tipo | Descripción | DoD |
 |----|------|-------------|-----|
 | T1 | Backend | Repositories consulta + visibilidad | Unit tests filtros |
-| T2 | Backend | 7 endpoints GET + DTO respuesta | OpenAPI |
+| T2 | Backend | 8 endpoints GET + DTO respuesta | OpenAPI |
+| T2b | Backend | `GET detalle-pedidos` + `DetallePedidosConsultaService` | Feature test HU-028 |
 | T3 | Backend | Servicio parámetro `DiasVentasDetalladas` | Fallback documentado |
 | T4 | Tests | Feature por endpoint: 200, 401, 403, 404 | CI verde |
 | T5 | Docs | Matriz permisos | Checklist §10 |
@@ -309,21 +447,25 @@ Ninguno en este slice (API only). TR-SPEC-101-11 consumirá estos endpoints.
 - [ ] AC-01…03 — pedidos/presupuestos (Bloque 2)
 - [ ] AC-10 — OpenAPI/matriz completos (parcial: paths en `PedidosWebOpenApiPaths`)
 
+### Checklist del slice (Bloque 3 — detalle pedidos, HU-101-028)
+- [x] AC-11 — endpoint `GET detalle-pedidos` + join cabecera/detalle
+- [x] OpenAPI + matriz permisos fila detalle-pedidos
+
 ### Checklist del slice (completo épica)
-- [ ] AC-01…AC-10
-- [ ] 7 endpoints operativos
-- [ ] Metadata `fecha_proceso` en consultas ERP
+- [x] AC-01…AC-11 (D1; feature 200/403 SQL tanda 2)
+- [x] 8 endpoints operativos (+ detalle-pedidos)
+- [x] Metadata `fecha_proceso` en consultas ERP
 
 ### Checklist normas transversales
 
-- [ ] Endpoints nuevos/modificados con policy en código
-- [ ] Matriz endpoint ↔ permiso actualizada
-- [ ] OpenAPI en /api/documentation coherente con código y matriz
-- [ ] 401 y 403 cuando aplique documentados por operación protegida
-- [ ] Envelope JSON respetado
-- [ ] X-Paq-Cliente documentado donde aplique
-- [ ] Tests API incluyen 401 (y 403 si aplica)
-- [ ] Sin ampliación de alcance fuera de SPEC/HU/TR
+- [x] Endpoints nuevos/modificados con policy en código
+- [x] Matriz endpoint ↔ permiso actualizada
+- [x] OpenAPI en `PedidosWebOpenApiPaths` coherente con código y matriz
+- [x] 401 y 403 cuando aplique documentados por operación protegida
+- [x] Envelope JSON respetado
+- [x] X-Paq-Cliente documentado donde aplique
+- [x] Tests API incluyen 401 (y 403 si aplica; skip sin SQL)
+- [x] Sin ampliación de alcance fuera de SPEC/HU/TR
 
 ---
 
@@ -345,8 +487,14 @@ Ninguno en este slice (API only). TR-SPEC-101-11 consumirá estos endpoints.
 - `app/Services/PedidosWeb/ConsultaListadoService.php`
 - Tests `tests/Feature/Api/PedidosWeb/PedidosWebEndpointsAuthTest.php`, `PedidosWebEndpointsHappyPathTest.php`
 
+### Bloque 3 — detalle pedidos (HU-101-028, 2026-06-03)
+- `backend/app/Services/PedidosWeb/DetallePedidosConsultaService.php` (nuevo)
+- `ConsultaController::detallePedidos`
+- `config/paqsuite_visibility.php` — `consultasDetallePedidos` → `pw_detallepedidos`
+- Tests feature `PedidosWebEndpointsHappyPathTest` + visibilidad 404
+
 ### OpenAPI
 - `app/OpenApi/PedidosWebOpenApiPaths.php`
 
 ### Docs
-- `matriz-permisos-mvp.md` (pendiente filas consultas gestión)
+- `matriz-permisos-mvp.md` (pendiente filas consultas gestión + detalle-pedidos)

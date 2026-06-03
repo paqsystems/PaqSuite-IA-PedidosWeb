@@ -154,6 +154,7 @@ Campos:
 | expreso_dire | Dirección expreso |
 | cod_login | Login asociado si el usuario es cliente |
 | e_mail | Mail cliente |
+| razon_soci | Razón social (consulta deuda y mails) |
 | leyenda_1..5 | Leyendas por defecto |
 
 Relaciones:
@@ -222,12 +223,59 @@ Campos:
 | valor2 | Valor escala 2 |
 | porc_iva | Porcentaje IVA |
 
+Relación con escalas (§3.5–3.6):
+
+- Si `usa_esc = true`, `valor1` y `valor2` referencian `pq_pedidosweb_escalas_detalle.cod_valor`.
+- `base` sigue siendo el código de presentación para agregados de stock (consulta stock); no confundir con `cod_escala`.
+
 Regla de stock base:
 
 - Si base está vacío, se muestra stock propio.
 - Si base tiene valor, se muestra stock propio y sumatoria de artículos con la misma base.
 
-### 3.5 pq_pedidosweb_stock
+### 3.5 pq_pedidosweb_escalas_cabecera
+
+Maestro de escalas comerciales (unidades / presentaciones configurables).
+
+Clave primaria:
+
+- cod_escala
+
+Campos:
+
+| Campo | Descripción |
+|---|---|
+| cod_escala | Código de escala (2 caracteres) |
+| descrip_es | Descripción de la escala |
+| nro_escala | Número ordinal de escala (ERP) |
+
+Relaciones:
+
+- Cabecera **1:N** `pq_pedidosweb_escalas_detalle` por `cod_escala`.
+
+### 3.6 pq_pedidosweb_escalas_detalle
+
+Valores permitidos por escala.
+
+Clave primaria compuesta:
+
+- cod_escala
+- cod_valor
+
+Campos:
+
+| Campo | Descripción |
+|---|---|
+| cod_escala | FK lógica a cabecera |
+| cod_valor | Código del valor dentro de la escala |
+| desc_valor | Descripción corta del valor |
+
+Relaciones:
+
+- Detalle **N:1** cabecera por `cod_escala`.
+- Referenciado desde `pq_pedidosweb_articulos.valor1` / `valor2` cuando `usa_esc = true`.
+
+### 3.7 pq_pedidosweb_stock
 
 Clave primaria:
 
@@ -242,12 +290,12 @@ Campos:
 | comprometido | Stock comprometido |
 | uma_fecha | Fecha de actualización |
 
-Cálculos:
+Cálculos (detalle en [consulta-stock.md](consulta-stock.md)):
 
-- Disponible = stock - comprometido.
-- Disponible neto = disponible - pedidos web ingresados no descargados.
+- Disponible neto = `stock - comprometido - comprometido_web` (`comprometido_web` = suma detalle con cabecera `estado = 0`).
+- Con `base` no vacío: agregados `stock_base`, `comprometido_base`, `comprometido_base_web`, `disponible_neto_base`.
 
-### 3.6 pq_pedidosweb_listaprecios
+### 3.8 pq_pedidosweb_listaprecios
 
 Clave primaria:
 
@@ -263,7 +311,7 @@ Campos:
 | descripcion | Descripción |
 | decimales | Cantidad de decimales |
 
-### 3.7 pq_pedidosweb_listaprecios_articulos
+### 3.9 pq_pedidosweb_listaprecios_articulos
 
 Clave primaria compuesta:
 
@@ -278,7 +326,7 @@ Campos:
 | cod_articulo | Artículo |
 | precio | Precio |
 
-### 3.8 pq_pedidosweb_descuentocantidad
+### 3.10 pq_pedidosweb_descuentocantidad
 
 Clave primaria compuesta:
 
@@ -295,7 +343,7 @@ Campos:
 
 Regla: si hay descuento por cantidad, prevalece sobre bonificación del artículo, salvo edición manual permitida.
 
-### 3.9 pq_pedidosweb_condventa
+### 3.11 pq_pedidosweb_condventa
 
 Clave primaria:
 
@@ -308,7 +356,7 @@ Campos:
 | codigo | Código condición venta |
 | descripcion | Descripción |
 
-### 3.10 pq_pedidosweb_transportes
+### 3.12 pq_pedidosweb_transportes
 
 Clave primaria:
 
@@ -321,7 +369,7 @@ Campos:
 | codigo | Código transporte |
 | descripcion | Descripción |
 
-### 3.11 pq_pedidosweb_perfil
+### 3.13 pq_pedidosweb_perfil
 
 Clave primaria:
 
@@ -334,7 +382,7 @@ Campos:
 | cod_perfil | Código perfil |
 | descripcion | Descripción |
 
-### 3.12 pq_pedidosweb_provincias
+### 3.14 pq_pedidosweb_provincias
 
 Clave primaria:
 
@@ -351,45 +399,23 @@ Campos:
 
 ### 4.1 pq_pedidosweb_cheques
 
-Clave primaria compuesta:
+Fuente de verdad de consulta: **[consulta-cheques.md](consulta-cheques.md)** (columnas ERP, join clientes, contrato API/UI).
 
-- interno
-- numero
+Resumen — clave primaria compuesta: `interno`, `numero`.
 
-Campos principales:
+Campos principales: `cod_cliente`, `Banco`, `fecha`, `Importe`, `Origen`, `Estado`, `fecha_proceso`. Nombre del cliente vía join a `pq_pedidosweb_clientes.nombre` (no `razon_soci`).
 
-| Campo | Descripción |
-|---|---|
-| interno | Identificador interno |
-| numero | Número cheque |
-| cod_client | Cliente |
-| banco | Banco |
-| importe | Importe |
-| fecha | Fecha |
-| origen | Origen |
-| estado | Cartera/aplicado/etc. |
-| fecha_proceso | Fecha actualización ERP |
+Compatibilidad legacy (`cod_client`, minúsculas): ver §4 de `consulta-cheques.md`.
 
 ### 4.2 pq_pedidosweb_deuda
 
-Clave primaria compuesta:
+Fuente de verdad de consulta: **[consulta-deuda.md](consulta-deuda.md)** (columnas ERP, join clientes, contrato API/UI).
 
-- cod_cliente
-- tipo_comprobante
-- nro_comprobante
-- fecha_vto
+Resumen — clave primaria compuesta: `cod_cliente`, `t_comp`, `n_comp`, `fecha_vto`.
 
-Campos:
+Campos principales: `fecha_emis`, `fecha_vto`, `saldo`, `fecha_proceso`. Razón social vía join a `pq_pedidosweb_clientes.razon_soci`.
 
-| Campo | Descripción |
-|---|---|
-| cod_cliente | Cliente |
-| tipo_comprobante | Tipo |
-| nro_comprobante | Número |
-| fecha | Fecha emisión |
-| fecha_vto | Vencimiento |
-| fecha_proceso | Fecha actualización |
-| saldo | Saldo |
+Compatibilidad legacy (`tipo_comprobante`, `nro_comprobante`, `fecha`): ver §4 de `consulta-deuda.md`.
 
 ### 4.3 pq_pedidosweb_resumencuenta
 
@@ -404,9 +430,39 @@ Debe usarse para consultas de cuenta corriente si corresponde.
 
 ### 4.4 pq_pedidosweb_ventadetallada
 
-Historial de ventas detallado.
+Fuente de verdad de consulta: **[consulta-historial-ventas.md](consulta-historial-ventas.md)** (columnas ERP, contrato API/UI).
 
-Debe permitir consulta por cliente, período y detalle de artículos vendidos.
+Historial de ventas detallado importado del ERP. Clave primaria: `id_gva53` (no se expone en API/UI).
+
+| Campo | Tipo | Descripción |
+|-------|------|-------------|
+| `cod_cli` | varchar(10) NOT NULL | Código cliente |
+| `razon_soci` | varchar(60) NULL | Razón social (denormalizada en export ERP) |
+| `n_remito` | varchar(14) NULL | Número remito |
+| `t_comp` | varchar(3) NOT NULL | Tipo comprobante |
+| `n_comp` | varchar(14) NOT NULL | Número comprobante |
+| `fecha_emi` | datetime NULL | Fecha emisión |
+| `cond_vta` | int NULL | Condición de venta |
+| `porc_desc` | decimal(6,2) NULL | Porcentaje descuento |
+| `cotiz` | decimal(15,2) NULL | Cotización |
+| `moneda` | varchar(3) NULL | Moneda |
+| `total_comp` | decimal(15,2) NULL | Total comprobante |
+| `cod_transp` | varchar(10) NULL | Código transporte |
+| `nom_transp` | varchar(60) NULL | Nombre transporte |
+| `cod_articu` | varchar(15) NULL | Código artículo |
+| `descripcio` | varchar(60) NULL | Descripción artículo |
+| `cod_dep` | varchar(10) NULL | Depósito |
+| `um` | varchar(10) NULL | Unidad de medida |
+| `cantidad` | decimal(15,2) NULL | Cantidad |
+| `precio` | decimal(15,2) NULL | Precio |
+| `tot_s_imp` | decimal(15,2) NULL | Total sin impuestos |
+| `n_comp_rem` | varchar(15) NULL | Número comprobante remito |
+| `cant_rem` | decimal(15,2) NULL | Cantidad remito |
+| `fecha_rem` | datetime NULL | Fecha remito |
+| `fecha_proceso` | datetime NULL | Fecha actualización ERP (carátula) |
+| `id_gva53` | int NOT NULL PK | Identificador ERP (interno) |
+
+Filtro consulta: `fecha_emi >= today - DiasVentasDetalladas`.
 
 ## 5. Seguridad
 

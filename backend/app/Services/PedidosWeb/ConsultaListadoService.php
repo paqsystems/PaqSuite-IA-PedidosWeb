@@ -3,11 +3,8 @@
 namespace App\Services\PedidosWeb;
 
 use App\Contracts\PedidosWeb\ConsultaRepositoryInterface;
-use App\Models\PqPedidoswebCheque;
-use App\Models\PqPedidoswebDeuda;
+use App\Models\PqPedidoswebClienteDireccionEntrega;
 use App\Models\PqPedidoswebPedidoCabecera;
-use App\Models\PqPedidoswebStock;
-use App\Models\PqPedidoswebVentaDetallada;
 use App\Models\User;
 use App\Services\Visibility\PedidosWebVisibilityGuard;
 use App\Services\Visibility\VisibleClientsResolver;
@@ -24,6 +21,10 @@ final class ConsultaListadoService
         private readonly PedidosWebParameterService $parameterService,
         private readonly PedidosWebVisibilityGuard $pedidosWebVisibilityGuard,
         private readonly VisibilityPermissionGuard $visibilityPermissionGuard,
+        private readonly StockConsultaService $stockConsultaService,
+        private readonly DeudaConsultaService $deudaConsultaService,
+        private readonly ChequesConsultaService $chequesConsultaService,
+        private readonly HistorialVentasConsultaService $historialVentasConsultaService,
     ) {}
 
     /**
@@ -82,7 +83,7 @@ final class ConsultaListadoService
 
         $query = $this->baseComprobantesQuery($user)
             ->where('estado', $estado)
-            ->with(['cliente', 'presupuestoCierre.motivo'])
+            ->with(['presupuestoCierre.motivo'])
             ->orderByDesc('fecha');
         $this->applyCodClienteFilter($user, $query, $filters);
 
@@ -113,26 +114,7 @@ final class ConsultaListadoService
      */
     public function stock(array $filters): array
     {
-        $query = PqPedidoswebStock::query()
-            ->with('articulo')
-            ->orderBy('cod_articulo');
-
-        if (filled($filters['q'] ?? null)) {
-            $query->where(function (Builder $builder) use ($filters): void {
-                $search = '%'.trim((string) $filters['q']).'%';
-
-                $builder->where('cod_articulo', 'like', $search)
-                    ->orWhereHas('articulo', static fn (Builder $articulosQuery) => $articulosQuery->where('descripcion', 'like', $search));
-            });
-        }
-
-        return $this->paginate($query, $filters, static fn (PqPedidoswebStock $item): array => [
-            'codArticulo' => (string) $item->cod_articulo,
-            'descripcion' => (string) ($item->articulo?->descripcion ?? ''),
-            'stock' => (float) $item->stock,
-            'comprometido' => (float) $item->comprometido,
-            'fechaProceso' => optional($item->uma_fecha)?->toIso8601String(),
-        ]);
+        return $this->stockConsultaService->listar($filters);
     }
 
     /**
@@ -141,85 +123,41 @@ final class ConsultaListadoService
      */
     public function deuda(User $user, array $filters): array
     {
-        $codCliente = $this->resolveCodCliente($user, $filters);
-
-        $items = $codCliente !== null
-            ? $this->consultaRepository->findDeudaByCodCliente($codCliente)->all()
-            : PqPedidoswebDeuda::query()
-                ->whereIn('cod_cliente', $this->visibleClientsResolver->visibleClientsForUser($user)->select('cod_client'))
-                ->orderByDesc('fecha_vto')
-                ->get()
-                ->all();
-
-        return $this->paginateCollection($items, $filters, static fn (PqPedidoswebDeuda $item): array => [
-            'codCliente' => (string) $item->cod_cliente,
-            'tipoComprobante' => (string) $item->tipo_comprobante,
-            'nroComprobante' => (string) $item->nro_comprobante,
-            'fecha' => optional($item->fecha)?->toIso8601String(),
-            'fechaVto' => optional($item->fecha_vto)?->toIso8601String(),
-            'saldo' => (float) $item->saldo,
-        ], $items !== [] ? optional($items[0]->fecha_proceso ?? null)?->toIso8601String() : null);
+        return $this->deudaConsultaService->listar($user, $filters);
     }
 
     /**
+     * Consulta de cheques — join clientes y columnas ERP/legacy.
+     *
+     * @see docs/02-producto/PedidosWeb/consulta-cheques.md
+     *
      * @param  array<string, mixed>  $filters
      * @return array<string, mixed>
      */
     public function cheques(User $user, array $filters): array
     {
-        $codCliente = $this->resolveCodCliente($user, $filters);
-
-        $items = $codCliente !== null
-            ? $this->consultaRepository->findChequesByCodClient($codCliente)->all()
-            : PqPedidoswebCheque::query()
-                ->whereIn('cod_client', $this->visibleClientsResolver->visibleClientsForUser($user)->select('cod_client'))
-                ->where('fecha', '>=', Carbon::today())
-                ->orderByDesc('fecha')
-                ->get()
-                ->all();
-
-        return $this->paginateCollection($items, $filters, static fn (PqPedidoswebCheque $item): array => [
-            'codCliente' => (string) $item->cod_client,
-            'numero' => (string) $item->numero,
-            'banco' => (string) $item->banco,
-            'importe' => (float) $item->importe,
-            'fecha' => optional($item->fecha)?->toIso8601String(),
-            'origen' => (string) $item->origen,
-            'estado' => (string) $item->estado,
-        ], $items !== [] ? optional($items[0]->fecha_proceso ?? null)?->toIso8601String() : null);
+        return $this->chequesConsultaService->listar($user, $filters);
     }
 
     /**
+     * Consulta historial de ventas — columnas ERP ventadetallada.
+     *
+     * @see docs/02-producto/PedidosWeb/consulta-historial-ventas.md
+     *
      * @param  array<string, mixed>  $filters
      * @return array<string, mixed>
      */
     public function historialVentas(User $user, array $filters): array
     {
-        $codCliente = $this->resolveCodCliente($user, $filters);
-        $dias = $this->parameterService->getDiasVentasDetalladas();
-        $fechaDesde = Carbon::today()->subDays($dias);
+        return $this->historialVentasConsultaService->listar($user, $filters);
+    }
 
-        $query = PqPedidoswebVentaDetallada::query()
-            ->where('fecha', '>=', $fechaDesde)
-            ->orderByDesc('fecha');
-
-        if ($codCliente !== null) {
-            $query->where('cod_client', $codCliente);
-        } else {
-            $query->whereIn('cod_client', $this->visibleClientsResolver->visibleClientsForUser($user)->select('cod_client'));
-        }
-
-        $result = $this->paginate($query, $filters, static fn (PqPedidoswebVentaDetallada $item): array => [
-            'codCliente' => (string) ($item->cod_client ?? ''),
-            'fecha' => isset($item->fecha) ? Carbon::parse((string) $item->fecha)->toIso8601String() : null,
-            'codArticulo' => (string) ($item->cod_articulo ?? ''),
-            'descripcion' => (string) ($item->descripcion ?? ''),
-            'cantidad' => (float) ($item->cantidad ?? 0),
-            'importe' => (float) ($item->importe ?? 0),
-        ]);
-        $result['metadata']['dias_ventas_detalladas'] = $dias;
-
-        return $result;
+    /**
+     * @return array<string, mixed>
+     */
+    public function mapComprobanteForConsulta(PqPedidoswebPedidoCabecera $item, string $codigoKey = 'codPedido'): array
+    {
+        return $this->mapComprobanteItem($item, $codigoKey);
     }
 
     /**
@@ -292,7 +230,14 @@ final class ConsultaListadoService
     private function baseComprobantesQuery(User $user): Builder
     {
         return PqPedidoswebPedidoCabecera::query()
-            ->with('cliente')
+            ->with([
+                'cliente',
+                'vendedor',
+                'condicionVenta',
+                'transporte',
+                'listaPrecios',
+                'perfil',
+            ])
             ->whereIn('cod_cliente', $this->visibleClientsResolver->visibleClientsForUser($user)->select('cod_client'));
     }
 
@@ -333,12 +278,59 @@ final class ConsultaListadoService
             $codigoKey => (string) $item->cod_pedido,
             'codCliente' => (string) $item->cod_cliente,
             'razonSocial' => (string) ($item->cliente?->nombre ?? ''),
-            'estado' => (int) $item->estado,
             'fecha' => optional($item->fecha)?->toIso8601String(),
+            'nivel' => $item->nivel !== null ? (int) $item->nivel : null,
+            'observaciones' => (string) ($item->observaciones ?? ''),
+            'incluyeIva' => (bool) $item->incluye_iva,
+            'moneda' => (int) ($item->moneda ?? 1),
+            'estado' => (int) $item->estado,
+            'fechaModif' => optional($item->fecha_modif)?->toIso8601String(),
+            'total' => (float) $item->total,
+            'totalIva' => (float) ($item->total_iva ?? 0),
+            'leyenda1' => (string) ($item->leyenda_1 ?? ''),
+            'leyenda2' => (string) ($item->leyenda_2 ?? ''),
+            'leyenda3' => (string) ($item->leyenda_3 ?? ''),
+            'leyenda4' => (string) ($item->leyenda_4 ?? ''),
+            'leyenda5' => (string) ($item->leyenda_5 ?? ''),
+            'descuento' => (float) ($item->descuento ?? 0),
+            'bonif1' => (float) ($item->bonif_1 ?? 0),
+            'bonif2' => (float) ($item->bonif_2 ?? 0),
+            'bonif3' => (float) ($item->bonif_3 ?? 0),
+            'codPerfil' => (string) ($item->cod_perfil ?? ''),
+            'perfilDescripcion' => (string) ($item->perfil?->descripcion ?? ''),
+            'codVended' => (string) ($item->cod_vended ?? ''),
+            'vendedorDescripcion' => (string) ($item->vendedor?->nombre ?? ''),
+            'codCondvta' => $item->cod_condvta !== null ? (int) $item->cod_condvta : null,
+            'condicionVentaDescripcion' => (string) ($item->condicionVenta?->descripcion ?? ''),
+            'idDe' => $item->id_de !== null ? (int) $item->id_de : null,
+            'direccionEntregaDescripcion' => $this->resolveDireccionEntregaDescripcion($item),
+            'codTranspor' => (string) ($item->cod_transpor ?? ''),
+            'transporteDescripcion' => (string) ($item->transporte?->descripcion ?? ''),
+            'listaPrecios' => $item->lista_precios !== null ? (int) $item->lista_precios : null,
+            'listaPreciosDescripcion' => (string) ($item->listaPrecios?->descripcion ?? ''),
+            'expreso' => (string) ($item->expreso ?? ''),
+            'expresoDire' => (string) ($item->expreso_dire ?? ''),
+            'fechaEntrega' => optional($item->fecha_entrega)?->toIso8601String(),
+            'usuarioCreacion' => (string) ($item->usuario_creacion ?? ''),
+            'fechaCreacion' => optional($item->fecha_creacion)?->toIso8601String(),
+            'usuarioModificacion' => (string) ($item->usuario_modificacion ?? ''),
+            'fechahoraInicioProceso' => optional($item->fechahora_inicio_proceso)?->toIso8601String(),
+            'fechahoraUltimaActividad' => optional($item->fechahora_ultima_actividad)?->toIso8601String(),
             'numeroVisible' => (int) ($item->nro_visible ?? 0),
             'guidSufijo' => strtoupper(substr((string) $item->cod_pedido, -6)),
-            'total' => (float) $item->total,
         ];
+    }
+
+    private function resolveDireccionEntregaDescripcion(PqPedidoswebPedidoCabecera $item): string
+    {
+        if ($item->id_de === null || ! filled($item->cod_cliente)) {
+            return '';
+        }
+
+        return (string) (PqPedidoswebClienteDireccionEntrega::query()
+            ->where('cod_client', $item->cod_cliente)
+            ->where('id_de', $item->id_de)
+            ->value('direccion') ?? '');
     }
 
     /**

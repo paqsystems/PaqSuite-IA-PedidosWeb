@@ -149,20 +149,22 @@ Feature: Dashboard operativo
 ## 6) Cambios Frontend
 
 ### Pantallas / componentes
-- `DashboardPage` (menú ítem 10): tarjetas/cards DX o layout acordado GEN-01
-- Mostrar 8 KPIs + moneda
-- i18n títulos indicadores
-- Sin gráficos obligatorios MVP
+- `DashboardPage` + `DashboardPage.css` (menú ítem 10, ruta `/dashboard`)
+- Layout **gráfico** alineado a PaqSuite-IA-Tango `DashboardProduccion` (secciones card, KPIs en grid, acentos por grupo, accesos rápidos, top clientes)
+- **Fuente de verdad UI:** [`docs/02-producto/PedidosWeb/patron-dashboard-operativo-ui.md`](../../02-producto/PedidosWeb/patron-dashboard-operativo-ui.md)
+- Mostrar 8 KPIs + moneda + `fechaCalculo` (“Actualizado”)
+- i18n: `dashboard.title`, `dashboard.subtitle`, `dashboard.section.*`, `dashboard.link*`, `dashboard.kpi.*`
+- Sin gráficos Chart obligatorios MVP
+- Controles: DevExtreme `Button` (Actualizar + navegación rápida)
 
-### data-testid sugeridos
-- `dashboardKpiPresupuestosCantidad`
-- `dashboardKpiPresupuestosImporte`
-- `dashboardKpiPedidosIngresadosCantidad`
-- `dashboardKpiPedidosIngresadosImporte`
-- `dashboardKpiPedidosPendientesCantidad`
-- `dashboardKpiPedidosPendientesImporte`
-- `dashboardTopClientePresupuestos`
-- `dashboardTopClientePedidos`
+### data-testid (obligatorios — ver patrón UI)
+- `page-dashboard`, `dashboardOperativo.titulo`, `dashboardOperativo.refresh`, `dashboardOperativo.quickLinks`
+- `dashboardOperativo.grupo.presupuestos` | `.ingresados` | `.pendientes`
+- `dashboardKpiPresupuestosCantidad`, `dashboardKpiPresupuestosImporte`
+- `dashboardKpiPedidosIngresadosCantidad`, `dashboardKpiPedidosIngresadosImporte`
+- `dashboardKpiPedidosPendientesCantidad`, `dashboardKpiPedidosPendientesImporte`
+- `dashboardTopClientePresupuestos`, `dashboardTopClientePedidos`
+- `nav-presupuestos-ingresados`, `nav-pedidos-ingresados`, `nav-pedidos-pendientes`
 
 ---
 
@@ -220,7 +222,9 @@ Feature: Dashboard operativo
 - `DashboardService`, `DashboardController`
 
 ### Frontend
-- `DashboardPage`
+- `DashboardPage.tsx`, `DashboardPage.css`
+- `docs/02-producto/PedidosWeb/patron-dashboard-operativo-ui.md`
+- `.cursor/rules/dashboard-operativo-ui.mdc`
 
 ### OpenAPI
 - GET `/api/v1/dashboard/operativo`

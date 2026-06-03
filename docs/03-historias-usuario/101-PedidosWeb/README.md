@@ -36,12 +36,13 @@ Convención: **`HU-101-NNN-tema.md`** derivadas de [PedidosWeb_SPEC_MVP.md](../.
 | [HU-101-025](HU-101-025-dashboard.md) | Must | 101-14 | Dashboard §4.1 |
 | [HU-101-026](HU-101-026-copiar-comprobante.md) | Must | 101-04, 101-10 | Copiar comprobante |
 | [HU-101-027](HU-101-027-cierre-rechazo-presupuesto.md) | Must | 101-04, 101-12 | Cierre/rechazo presupuesto → 98 |
+| [HU-101-028](HU-101-028-consulta-detalle-pedidos.md) | Must | 101-07 (B3), 101-11 (B3) | Consulta detalle pedidos (cabecera+renglón) |
 
 ## Dependencias transversales
 
 - **GEN-01 / GEN-03:** shell, grillas, layouts, export Excel.
 - **GEN-02:** auth y visibilidad base (heredado en 101-001/002/006).
-- **SPEC-001-04 (pendiente):** parámetros (`MinutosWeb`, `DiasVentasDetalladas`, permisos por atributo).
+- **SPEC-001-04:** parámetros (`MinutosWeb`, `DiasVentasDetalladas`, permisos por atributo); consulta parámetros → [TR-GEN-04](../../04-tareas/001-Generaliddes/TR-GEN-04-consulta-parametros.md).
 
 ## Siguiente paso
 

@@ -8,6 +8,7 @@ use App\Exceptions\PedidosWebBusinessException;
 use App\Models\PqPedidoswebPedidoCabecera;
 use App\Models\User;
 use App\Services\Auth\CommercialProfileResolver;
+use App\Services\PedidosWeb\CabeceraInicialService;
 use App\Services\PedidosWeb\CalculoTotalesService;
 use Illuminate\Support\Carbon;
 use App\Services\PedidosWeb\ComprobanteCopiaService;
@@ -15,6 +16,7 @@ use App\Services\PedidosWeb\ComprobanteMailService;
 use App\Services\PedidosWeb\LogIntegracionService;
 use App\Services\PedidosWeb\PedidoService;
 use App\Services\PedidosWeb\PedidosWebParameterService;
+use App\Services\PedidosWeb\PedidosWebSchemaBootstrap;
 use App\Services\PedidosWeb\PresupuestoCierreService;
 use App\Services\Visibility\PedidosWebVisibilityGuard;
 use PHPUnit\Framework\Attributes\Test;
@@ -315,6 +317,9 @@ final class PedidoServiceTest extends TestCase
         $copiaService = new ComprobanteCopiaService($pedidoRepository);
         $cierreService = new PresupuestoCierreService($pedidoRepository, $parameterService, $visibilityGuard);
         $mailService = new ComprobanteMailService($parameterService, new LogIntegracionService());
+        $schemaBootstrap = new PedidosWebSchemaBootstrap();
+
+        $cabeceraInicialService = new CabeceraInicialService($visibilityGuard, $parameterService);
 
         return new PedidoService(
             $pedidoRepository,
@@ -325,7 +330,9 @@ final class PedidoServiceTest extends TestCase
             $cierreService,
             $mailService,
             $visibilityGuard,
-            $this->createPermissiveCommercialProfileResolver()
+            $this->createPermissiveCommercialProfileResolver(),
+            $schemaBootstrap,
+            $cabeceraInicialService
         );
     }
 

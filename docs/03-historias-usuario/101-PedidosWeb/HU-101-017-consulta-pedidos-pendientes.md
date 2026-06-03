@@ -18,6 +18,7 @@ para **hacer seguimiento sin modificarlos**.
 
 1. Solo estado **1**; **sin** edición ni eliminación (producto §17.3).
 2. Solo consulta y export Excel.
+3. Columnas cabecera: **[consulta-comprobantes-cabecera.md](../../02-producto/PedidosWeb/consulta-comprobantes-cabecera.md)**.
 
 ## Criterios de aceptación
 

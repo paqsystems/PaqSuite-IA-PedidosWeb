@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Api\V1\PedidosWeb;
 use App\Exceptions\AuthFlowException;
 use App\Http\Controllers\Controller;
 use App\Http\Responses\ApiResponse;
+use App\Contracts\PedidosWeb\ArticuloRepositoryInterface;
 use App\Models\PqPedidoswebArticulo;
+use App\Services\PedidosWeb\StockConsultaService;
 use App\Services\Visibility\VisibilityPermissionGuard;
 use App\Support\AuthErrorCodes;
 use Illuminate\Database\Eloquent\Builder;
@@ -16,6 +18,8 @@ final class ArticuloController extends Controller
 {
     public function __construct(
         private readonly VisibilityPermissionGuard $visibilityPermissionGuard,
+        private readonly ArticuloRepositoryInterface $articuloRepository,
+        private readonly StockConsultaService $stockConsultaService,
     ) {}
 
     public function index(Request $request): JsonResponse
@@ -40,7 +44,7 @@ final class ArticuloController extends Controller
             );
         }
 
-        $query = PqPedidoswebArticulo::query()->orderBy('codigo');
+        $query = PqPedidoswebArticulo::query()->orderBy('descripcion');
 
         if (filled($request->query('q'))) {
             $search = '%'.trim((string) $request->query('q')).'%';
@@ -50,16 +54,48 @@ final class ArticuloController extends Controller
             });
         }
 
-        $pageSize = min(50, max(1, (int) ($request->query('page_size') ?? 20)));
-        $items = $query
+        if (filled($request->query('codigos'))) {
+            $codigos = array_values(array_filter(array_map(
+                static fn (string $codigo): string => trim($codigo),
+                explode(',', (string) $request->query('codigos'))
+            ), static fn (string $codigo): bool => $codigo !== ''));
+
+            if ($codigos !== []) {
+                $query->whereIn('codigo', $codigos);
+            }
+        }
+
+        $pageSize = min(1000, max(1, (int) ($request->query('page_size') ?? 500)));
+        $codLista = (int) ($request->query('lista_precios') ?? 0);
+        $articulos = $query
             ->limit($pageSize)
-            ->get()
-            ->map(static fn (PqPedidoswebArticulo $articulo): array => [
-                'codArticulo' => (string) $articulo->codigo,
-                'descripcion' => (string) $articulo->descripcion,
-                'porcIva' => (float) ($articulo->porc_iva ?? 0),
-                'bonificacion' => (float) ($articulo->bonificacion ?? 0),
-            ])
+            ->get();
+
+        $stockPorCodigo = $this->stockConsultaService->lookupDisponibilidadPorCodigos(
+            $articulos->map(static fn (PqPedidoswebArticulo $articulo): string => (string) $articulo->codigo)->all()
+        );
+
+        $items = $articulos
+            ->map(function (PqPedidoswebArticulo $articulo) use ($codLista, $stockPorCodigo): array {
+                $precio = 0.0;
+                if ($codLista > 0) {
+                    $precioLista = $this->articuloRepository->findPrecioLista($codLista, (string) $articulo->codigo);
+                    $precio = (float) ($precioLista?->precio ?? 0);
+                }
+
+                $codArticulo = (string) $articulo->codigo;
+                $stock = $stockPorCodigo[$codArticulo] ?? null;
+
+                return [
+                    'codArticulo' => $codArticulo,
+                    'descripcion' => (string) $articulo->descripcion,
+                    'porcIva' => (float) ($articulo->porc_iva ?? 0),
+                    'bonificacion' => (float) ($articulo->bonificacion ?? 0),
+                    'precio' => $precio,
+                    'disponibleNeto' => (float) ($stock['disponibleNeto'] ?? 0),
+                    'disponibleNetoBase' => $stock['disponibleNetoBase'] ?? null,
+                ];
+            })
             ->values()
             ->all();
 

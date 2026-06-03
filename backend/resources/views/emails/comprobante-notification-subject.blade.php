@@ -1,5 +1,5 @@
 {{ __('mail.comprobanteNotification.subject', [
     'nombreEmpresa' => $nombreEmpresa,
-    'tipoComprobante' => $tipoComprobanteLabel,
-    'accionComprobante' => $accionComprobanteLabel,
+    'tipoComprobante' => __('mail.comprobanteNotification.tipoComprobante.' . $tipoComprobante),
+    'accionComprobante' => __('mail.comprobanteNotification.accionComprobante.' . $accionComprobante),
 ]) }}

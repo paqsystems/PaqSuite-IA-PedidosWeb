@@ -117,6 +117,11 @@ class PqPedidoswebPedidoCabecera extends Model
         return $this->belongsTo(PqPedidoswebListaPrecios::class, 'lista_precios', 'cod_lista');
     }
 
+    public function perfil(): BelongsTo
+    {
+        return $this->belongsTo(PqPedidoswebPerfil::class, 'cod_perfil', 'cod_perfil');
+    }
+
     public function presupuestoCierre(): HasOne
     {
         return $this->hasOne(PqPedidoswebPresupuestoCierre::class, 'cod_presupuesto', 'cod_pedido');

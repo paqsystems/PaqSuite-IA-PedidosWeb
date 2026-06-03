@@ -30,6 +30,7 @@ para **armar el detalle del pedido o presupuesto**.
    - Descuento artículo: `ModificaBonArtV`, `ModificaBonArtS`
 3. Si el parámetro está deshabilitado en ERP → control de renglón en solo lectura y validación backend al grabar.
 4. Fuente de parámetros: producto §10.6; consumo en runtime: SPEC-001-04 (pendiente).
+5. **Descuento por cantidad:** al agregar renglón, descuento inicial = bonificación del artículo; al cambiar cantidad, aplicar regla `pq_pedidosweb_descuentocantidad` (mayor cantidad ≤ ingresada). Ver **[pantalla-carga-comprobante-ui.md](../../02-producto/PedidosWeb/pantalla-carga-comprobante-ui.md)** §12. Esta regla aplica **aunque** no haya permiso `ModificaBonArt*`.
 
 ## Fuera de alcance
 
