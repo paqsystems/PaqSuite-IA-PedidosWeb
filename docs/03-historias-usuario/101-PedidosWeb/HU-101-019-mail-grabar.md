@@ -5,7 +5,7 @@
 | **ID** | HU-101-019-mail-grabar |
 | **SPEC origen** | [SPEC-101-13-mails](../../05-open-spec/101-PedidosWeb/SPEC-101-13-mails.md) |
 | **Prioridad** | Must |
-| **Estado** | Pendiente |
+| **Estado** | Finalizado |
 | **B1** | Enriquecida (2026-06-01) |
 | **Dependencias** | HU-101-009, HU-101-010; SPEC-001-04 (`DetallePorMail`) |
 

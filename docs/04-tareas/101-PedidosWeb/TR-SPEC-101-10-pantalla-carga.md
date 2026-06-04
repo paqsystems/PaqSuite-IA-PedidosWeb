@@ -7,7 +7,7 @@
 | **Épica** | 101 — PedidosWeb |
 | **Prioridad** | Must |
 | **Dependencias** | TR-SPEC-101-05 (controllers), TR-SPEC-101-04 (services), TR-SPEC-101-06, TR-SPEC-101-09; SPEC-001-04 (parámetros `Modifica*`); TR-SPEC-101-13 (mail post-grabación) |
-| **Estado** | Pendiente de Revisión — **Bloque 3** |
+| **Estado** | Finalizado |
 | **Última actualización** | 2026-06-02 |
 
 **Origen:** HU-101-004 … HU-101-011, HU-101-009, HU-101-010, HU-101-013, HU-101-024, HU-101-026  

@@ -7,7 +7,7 @@
 | **Épica** | 101 — PedidosWeb |
 | **Prioridad** | Must |
 | **Dependencias** | TR-GEN-02-* (login, recuperación, políticas, visibilidad base); SPEC-101-04/05 para policies de dominio en endpoints 101 |
-| **Estado** | Pendiente |
+| **Estado** | Finalizado |
 | **Última actualización** | 2026-06-01 |
 
 **Origen:** HU-101-001, HU-101-002, HU-101-004  

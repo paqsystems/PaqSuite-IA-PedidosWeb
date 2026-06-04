@@ -5,7 +5,7 @@
 | **ID** | HU-101-024-conversion-pedido-presupuesto |
 | **SPEC origen** | [SPEC-101-04-services-pedidos](../../05-open-spec/101-PedidosWeb/SPEC-101-04-services-pedidos.md), SPEC madre §5.1 |
 | **Prioridad** | Must |
-| **Estado** | Pendiente |
+| **Estado** | Finalizado |
 | **B1** | Enriquecida (2026-06-01) |
 
 ## Narrativa

@@ -7,7 +7,7 @@
 | **Épica** | 101-PedidosWeb |
 | **Prioridad** | **Should** (tratativas, AMB-C01) + **Must** (cierre/rechazo HU-027; catálogo motivos) |
 | **Dependencias** | TR-SPEC-101-04-services-pedidos; TR-SPEC-101-05-controllers-rest; TR-SPEC-101-11-consultas-ui (acciones cerrar en grilla activos) |
-| **Estado** | Pendiente |
+| **Estado** | Finalizado |
 | **Última actualización** | 2026-06-01 |
 
 **Origen:** HU-101-014, HU-101-027, HU-101-013 (motivo exitoso paramétrico)  

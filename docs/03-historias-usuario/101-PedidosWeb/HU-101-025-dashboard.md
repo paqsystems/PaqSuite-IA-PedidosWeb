@@ -5,7 +5,7 @@
 | **ID** | HU-101-025-dashboard |
 | **SPEC origen** | [SPEC-101-14-dashboard](../../05-open-spec/101-PedidosWeb/SPEC-101-14-dashboard.md), SPEC madre §4.1 |
 | **Prioridad** | Must |
-| **Estado** | Pendiente |
+| **Estado** | Finalizado |
 | **B1** | Enriquecida (2026-06-01) |
 | **Dependencias** | Parámetro `MinutosWeb`; reemplaza demo `GET /dashboard/resumen` |
 

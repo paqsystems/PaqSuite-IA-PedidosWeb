@@ -5,7 +5,7 @@
 | **ID** | HU-101-004-seleccion-cliente |
 | **SPEC origen** | [SPEC-101-10-pantalla-carga](../../05-open-spec/101-PedidosWeb/SPEC-101-10-pantalla-carga.md) |
 | **Prioridad** | Must |
-| **Estado** | Pendiente |
+| **Estado** | Finalizado |
 | **B1** | Enriquecida (2026-06-01) |
 | **Dependencias** | HU-101-001; HU-GEN-02-visibilidad-datos-pedidosweb |
 

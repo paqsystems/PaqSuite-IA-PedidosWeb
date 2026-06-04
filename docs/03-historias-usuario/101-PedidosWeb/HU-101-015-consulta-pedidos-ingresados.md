@@ -5,7 +5,7 @@
 | **ID** | HU-101-015-consulta-pedidos-ingresados |
 | **SPEC origen** | [SPEC-101-07-consultas-api](../../05-open-spec/101-PedidosWeb/SPEC-101-07-consultas-api.md), [SPEC-101-11-consultas-ui](../../05-open-spec/101-PedidosWeb/SPEC-101-11-consultas-ui.md) |
 | **Prioridad** | Must |
-| **Estado** | Pendiente |
+| **Estado** | Finalizado |
 | **B1** | Enriquecida (2026-06-01) |
 | **Dependencias** | HU-GEN-03-grillas-listados; HU-GEN-03-exportaciones |
 

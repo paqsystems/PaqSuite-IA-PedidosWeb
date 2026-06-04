@@ -5,7 +5,7 @@
 | **ID** | HU-101-005-inicializacion-cabecera |
 | **SPEC origen** | [SPEC-101-10-pantalla-carga](../../05-open-spec/101-PedidosWeb/SPEC-101-10-pantalla-carga.md) |
 | **Prioridad** | Must |
-| **Estado** | Parcial — perfil cabecera implementado (2026-06-03) |
+| **Estado** | Finalizado |
 | **B1** | Enriquecida (2026-06-01) |
 | **Dependencias** | HU-101-004; contexto SPEC-001-04 (parámetros §10.6 producto) |
 

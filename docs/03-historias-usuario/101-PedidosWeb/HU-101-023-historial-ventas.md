@@ -5,7 +5,7 @@
 | **ID** | HU-101-023-historial-ventas |
 | **SPEC origen** | [SPEC-101-07](../../05-open-spec/101-PedidosWeb/SPEC-101-07-consultas-api.md), SPEC madre §5.2 |
 | **Prioridad** | Must |
-| **Estado** | Pendiente |
+| **Estado** | Finalizado |
 | **B1** | Enriquecida (2026-06-01) |
 | **Dependencias** | Parámetro `DiasVentasDetalladas` (SPEC-001-04) |
 

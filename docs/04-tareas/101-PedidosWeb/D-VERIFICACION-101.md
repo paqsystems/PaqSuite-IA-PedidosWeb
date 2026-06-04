@@ -48,7 +48,30 @@ Skipped: integración repositories (6) + 403 feature (2) — PHPUnit sin BD `Ank
 | 101-08 | Logs integración | Should | **Bloque 4 PARCIAL** | UI grilla + filtros DX |
 | 101-15 | Tests hardening | Must | **Bloque 4 PARCIAL** (~35%) | E2E §9 pasos 7–8 mock; cobertura CI pendiente |
 
-**Cierre formal D:** pendiente hasta resolver ítems **PENDIENTE** Must y ejecutar tanda 2 con entorno.
+**Cierre formal D:** cerrado con observaciones (2026-06-03) — QA manual usuario; ver paso F.
+
+---
+
+## Verificación paso F1 (agente) — 2026-06-03
+
+| Comando | Resultado |
+|---------|-----------|
+| `php artisan test --filter=PedidosWeb` | **75 passed**, 51 skipped (SQL) |
+| `php artisan test --filter=ParametrosConsulta` | **3 passed** |
+| `npm run build` | **OK** (fix i18n fr/pt menú) |
+| `npx playwright test consultas-d1.spec.ts mvp-section9.spec.ts` | **7/7 OK** |
+
+**Resultado F1:** Aprobado con observaciones. Detalle: [`F-101-PedidosWeb-cierre-formal.md`](F-101-PedidosWeb-cierre-formal.md).
+
+---
+
+## Verificación paso F (docs vs código) — 2026-06-03
+
+Contraste documentación canónica vs implementación: rutas menú, consultas, carga/edición comprobante, dashboard, parámetros, matriz permisos.
+
+**Resultado F:** Aprobado con observaciones (descuento por cantidad UI pendiente; tests integración SQL skipped; 101-01 diferida).
+
+Informe completo: [`F-101-PedidosWeb-cierre-formal.md`](F-101-PedidosWeb-cierre-formal.md).
 
 ---
 
@@ -279,4 +302,4 @@ Alcance: cierre D1 **consulta parámetros** (GEN-04), **detalle pedidos** (101-0
 
 | Fecha | TR / tema | Tests | Notas |
 |-------|-----------|-------|-------|
-| 2026-06-03 | GEN-04, 101-07/11 B3, perfil cabecera | E2E consultas-d1 **3/3**; backend scoped **34 pass**; section9 **2/4** | Matriz permisos; doc canónica §5 perfil; mocks E2E |
+| 2026-06-03 | Cierre F MVP | E2E **7/7**; backend scoped OK | TR 101-02…15 + GEN-04 → **Finalizado**; manuales usuario actualizados |

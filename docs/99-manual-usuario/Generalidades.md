@@ -9,7 +9,7 @@ Está pensado para dos públicos:
 - usuarios finales que necesitan saber cómo ingresar, navegar y resolver acciones habituales;
 - soporte funcional que necesita identificar el comportamiento esperado, interpretar bloqueos y orientar al usuario.
 
-El contenido cubre el uso general del portal en su modalidad monoempresa: ingreso al sistema, sesión de trabajo, navegación principal, idioma, apariencia, ayuda global, cambio de contraseña, recuperación de acceso y **grillas de listados** (consultas y procesos tabulares).
+El contenido cubre el uso general del portal en su modalidad monoempresa: ingreso al sistema, sesión de trabajo, navegación principal, idioma, apariencia, ayuda global, cambio de contraseña, recuperación de acceso, **grillas de listados** (consultas y procesos tabulares) y **consulta de parámetros** (solo lectura).
 
 ## 2. Alcance
 
@@ -96,7 +96,8 @@ Este manual se utiliza:
 - cuando se requiere cambiar idioma o apariencia;
 - cuando el usuario necesita cambiar su contraseña;
 - cuando se perdió el acceso y debe iniciarse la recuperación;
-- cuando un proceso muestra datos en forma de **grilla o listado** y el usuario necesita ordenar, filtrar, personalizar la vista o exportar.
+- cuando un proceso muestra datos en forma de **grilla o listado** y el usuario necesita ordenar, filtrar, personalizar la vista o exportar;
+- cuando se necesita consultar la **configuración de parámetros** del módulo (menú General, sección 18).
 
 Como condición previa, el usuario debe contar con una cuenta habilitada para operar en el portal.
 
@@ -783,4 +784,40 @@ Los puntos que usuario y soporte deben recordar son:
 - cerrar sesión sigue siendo la forma recomendada de finalizar el uso del portal;
 - en grillas, filtros y layouts modifican la **vista**, no los permisos ni los datos;
 - exportar y totalizar respetan lo visible en pantalla al momento de la acción;
-- el botón **+** de alta aparece solo en procesos ABM autorizados.
+- el botón **+** de alta aparece solo en procesos ABM autorizados;
+- la **Consulta de parámetros** (menú General) es solo lectura: muestra descripción, valor y ayuda de la configuración ERP, sin clave técnica visible.
+
+## 18. Consulta de parámetros (menú General)
+
+Proceso transversal del grupo **General**, ubicado al **final** del menú lateral. Permite consultar la configuración vigente del módulo PedidosWeb según los parámetros cargados desde el ERP.
+
+### 18.1 Qué muestra
+
+| Columna | Contenido |
+|---------|-----------|
+| **Descripción** | Texto legible del parámetro (`CAPTION` en ERP) |
+| **Valor** | Valor efectivo según su tipo (número, texto, fecha, Sí/No, etc.) |
+| **Tooltip** | Ayuda contextual cuando existe en ERP |
+
+La **clave técnica** del parámetro (identificador interno) **no se muestra** en la grilla.
+
+El listado se ordena por **descripción** ascendente.
+
+### 18.2 Qué no permite
+
+- **No** editar valores desde el portal.
+- **No** agregar ni eliminar parámetros.
+- **No** exportar a Excel en el MVP (salvo que el proceso lo habilite en una versión posterior).
+
+La administración de parámetros corresponde al **ERP** o herramientas internas de la empresa.
+
+### 18.3 Permisos
+
+- Requiere permiso de **consulta** (`Permiso_Repo`) sobre el procedimiento *Consulta de parámetros*.
+- Usuarios sin permiso no ven el ítem en el menú General.
+
+### 18.4 Caso habitual
+
+Un supervisor abre **General → Consulta de parámetros**, revisa valores como minutos de edición web, flags de mail o permisos de modificación, y utiliza la información para interpretar el comportamiento del resto del portal **sin modificar** la configuración.
+
+Para el detalle de grillas (filtros, layouts), aplicar también la sección 16 de este manual.

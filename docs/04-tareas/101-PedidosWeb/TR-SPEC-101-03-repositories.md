@@ -7,7 +7,7 @@
 | **Épica** | 101-PedidosWeb |
 | **Prioridad** | Must |
 | **Dependencias** | [TR-SPEC-101-02-modelos](TR-SPEC-101-02-modelos.md) |
-| **Estado** | Pendiente |
+| **Estado** | Finalizado |
 | **Última actualización** | 2026-06-01 |
 
 **Origen:** [SPEC-101-03](../../05-open-spec/101-PedidosWeb/SPEC-101-03-repositories.md)  

@@ -5,7 +5,7 @@
 | **ID** | HU-101-020-logs-integracion |
 | **SPEC origen** | [SPEC-101-08-logs-integracion](../../05-open-spec/101-PedidosWeb/SPEC-101-08-logs-integracion.md) |
 | **Prioridad** | **Should** (AMB-C02) |
-| **Estado** | Pendiente |
+| **Estado** | Finalizado |
 | **B1** | Enriquecida (2026-06-01) |
 
 ## Narrativa

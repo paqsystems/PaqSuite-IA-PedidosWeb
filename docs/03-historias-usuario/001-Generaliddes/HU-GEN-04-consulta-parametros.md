@@ -8,10 +8,7 @@
 | **MONO** | [parametros-generales.md](../../00-contexto/_mono/04-configuracion-global/parametros-generales.md) (HU-007 — variante solo lectura) |
 | **Épica** | 001 — Generalidades / Configuración global |
 | **Prioridad** | Should |
-| **Estado** | Pendiente |
-| **B1** | Enriquecida (2026-06-03) |
-| **C** | Generada (2026-06-03) |
-| **C1** | Cerrada — apto para D1 (2026-06-03) |
+| **Estado** | Finalizado |
 | **D1** | Implementado (2026-06-03) |
 | **TR relacionada** | [TR-GEN-04-consulta-parametros](../../04-tareas/001-Generaliddes/TR-GEN-04-consulta-parametros.md) |
 | **Dependencias** | HU-GEN-03-grillas-listados; tabla `PQ_parametros_gral`; seed [PQ_PARAMETROS_GRAL.PedidosWeb.seed.json](../../backend/seed/PQ_PARAMETROS_GRAL/PQ_PARAMETROS_GRAL.PedidosWeb.seed.json) |
@@ -140,3 +137,7 @@ Feature: Consulta de parámetros PedidosWeb (solo lectura)
 ## Veredicto D1
 
 **Implementado** — backend + frontend + menú seed según TR-GEN-04.
+
+## Veredicto F
+
+**Finalizado** — QA manual + F1 + F (2026-06-03). Ver [F-GEN-04-consulta-parametros-cierre](../../04-tareas/001-Generaliddes/F-GEN-04-consulta-parametros-cierre.md).

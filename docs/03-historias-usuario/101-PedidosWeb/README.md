@@ -47,4 +47,6 @@ Convención: **`HU-101-NNN-tema.md`** derivadas de [PedidosWeb_SPEC_MVP.md](../.
 ## Siguiente paso
 
 Parte **C:** cerrada (2026-06-01) — [TR por slice](../../04-tareas/101-PedidosWeb/README.md).  
-Parte **D:** implementación según orden Fase 1 del índice TR.
+Parte **D + F:** cerradas (2026-06-03) — [D-VERIFICACION-101](../../04-tareas/101-PedidosWeb/D-VERIFICACION-101.md), [F-101-PedidosWeb-cierre-formal](../../04-tareas/101-PedidosWeb/F-101-PedidosWeb-cierre-formal.md).
+
+**Manual de usuario:** [PedidosWeb.md](../../99-manual-usuario/PedidosWeb.md)

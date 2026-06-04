@@ -7,7 +7,7 @@
 | **Épica** | 101-PedidosWeb |
 | **Prioridad** | **Should** (AMB-C02) |
 | **Dependencias** | TR-SPEC-101-02-modelos; TR-SPEC-101-09-frontend-base (menú ítem 11) |
-| **Estado** | Pendiente de Revisión — **Bloque 4** |
+| **Estado** | Finalizado |
 | **Última actualización** | 2026-06-02 |
 
 **Origen:** [HU-101-020-logs-integracion](../../03-historias-usuario/101-PedidosWeb/HU-101-020-logs-integracion.md)  

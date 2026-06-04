@@ -5,7 +5,7 @@
 | Campo | Valor |
 |-------|--------|
 | **Fecha parte C** | 2026-06-01 |
-| **Estado** | **Parte D en curso** (ver [`D-VERIFICACION-101.md`](D-VERIFICACION-101.md)) |
+| **Estado** | **Parte F cerrada** — ver [`F-101-PedidosWeb-cierre-formal.md`](F-101-PedidosWeb-cierre-formal.md) |
 | **Plantilla** | [`../_PLANTILLA-TR-SLICE.md`](../_PLANTILLA-TR-SLICE.md) |
 | **Normas** | [`../_NORMAS-TRANSVERSALES-TR.md`](../_NORMAS-TRANSVERSALES-TR.md) |
 
@@ -62,9 +62,9 @@ Actualizar [`matriz-permisos-mvp.md`](../001-Generaliddes/matriz-permisos-mvp.md
 
 ## Siguiente paso
 
-**Parte D:** verificación TR por TR — [`D-VERIFICACION-101.md`](D-VERIFICACION-101.md).
+**Parte D + F:** cerradas (2026-06-03) — [`D-VERIFICACION-101.md`](D-VERIFICACION-101.md), [`F-101-PedidosWeb-cierre-formal.md`](F-101-PedidosWeb-cierre-formal.md).
 
-Resumen 2026-06-02: implementación D1 en rama `6a57231`; **40 tests OK**, **8 skipped** (integración/403 sin SQL en PHPUnit); frontend build OK. Cierre formal pendiente: OpenAPI 101, tests felices, cobertura services, E2E §9 con API real, gaps UI carga/consultas.
+Resumen: implementación MVP en rama `v1.1.0-paq`; QA manual usuario OK; F1 **75+3** tests backend, build OK, E2E **7/7**. Observaciones no bloqueantes: integración SQL skipped, descuento por cantidad UI pendiente, 101-01 diferida.
 
 ### Verificación D — comandos de test (2026-06-02)
 

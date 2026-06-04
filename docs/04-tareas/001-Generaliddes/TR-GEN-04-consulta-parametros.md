@@ -8,8 +8,8 @@
 | **Épica** | 001 — Generalidades / Configuración global |
 | **Prioridad** | Should |
 | **Dependencias** | TR-GEN-02-autorizacion-menu-api; TR-GEN-03-grillas-listados; `PQ_parametros_gral` + seed PedidosWeb |
-| **Estado** | **C1 cerrada** — apto para D1 (2026-06-03) |
-| **Última actualización** | 2026-06-03 (C1); ajuste columnas/orden 2026-06-03 |
+| **Estado** | Finalizado |
+| **Última actualización** | 2026-06-03 (C1); ajuste columnas/orden 2026-06-03; **F** 2026-06-03 |
 
 **Origen:** [HU-GEN-04-consulta-parametros](../../03-historias-usuario/001-Generaliddes/HU-GEN-04-consulta-parametros.md)  
 **Referencia SPEC:** [SPEC-001-04-configuracion-global](../../05-open-spec/001-Generaliddes/SPEC-001-04-configuracion-global.md)  

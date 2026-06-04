@@ -7,7 +7,7 @@
 | **Épica** | 101 — PedidosWeb |
 | **Prioridad** | Must |
 | **Dependencias** | TR-SPEC-101-06 (visibilidad); SPEC-101-03 (repositories); contexto [SPEC-001-04](../../05-open-spec/001-Generaliddes/SPEC-001-04-configuracion-global.md) para `DiasVentasDetalladas` |
-| **Estado** | **C1 cerrada** — Bloques 1–2 en D; **Bloque 3 apto para D1** (2026-06-03) |
+| **Estado** | Finalizado |
 | **Última actualización** | 2026-06-03 (C1 Bloque 3) |
 
 **Origen:** HU-101-015, HU-101-016, HU-101-017, HU-101-018, HU-101-021, HU-101-022, HU-101-023, **HU-101-028**  

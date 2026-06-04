@@ -7,7 +7,7 @@
 | **Épica** | 101-PedidosWeb |
 | **Prioridad** | Must (transversal) |
 | **Dependencias** | Slices TR-SPEC-101-02 … TR-SPEC-101-14 según orden §10 SPEC madre; GEN-01/02/03 completados |
-| **Estado** | Pendiente de Revisión — **Bloque 4** (parcial) |
+| **Estado** | Finalizado |
 | **Última actualización** | 2026-06-02 |
 
 **Origen:** [SPEC-101-15-tests-hardening](../../05-open-spec/101-PedidosWeb/SPEC-101-15-tests-hardening.md), [PedidosWeb_SPEC_MVP.md §9 y §12](../../05-open-spec/101-PedidosWeb/PedidosWeb_SPEC_MVP.md)  

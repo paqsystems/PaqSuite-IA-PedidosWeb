@@ -90,7 +90,8 @@ Tareas técnicas (parte C) derivadas de **SPEC-001-01** y **SPEC-001-02**.
 ## SPEC-001-04 — Configuración global
 
 **C (2026-06-03):** TR generada para consulta parámetros PedidosWeb (solo lectura).  
-**C1 (2026-06-03):** revisión de ambigüedad — **apta para D1** (§3.1–3.3 TR-GEN-04).
+**C1 (2026-06-03):** revisión de ambigüedad — **apta para D1** (§3.1–3.3 TR-GEN-04).  
+**D1 + F (2026-06-03):** implementado, QA manual y cierre formal — [F-GEN-04-consulta-parametros-cierre](F-GEN-04-consulta-parametros-cierre.md).
 
 | TR | HU | Prioridad |
 |----|-----|-----------|

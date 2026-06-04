@@ -7,7 +7,7 @@
 | **Épica** | 101 — PedidosWeb |
 | **Prioridad** | Must |
 | **Dependencias** | TR-GEN-01-shell-layout, TR-GEN-01-menu-general-sidebar, TR-GEN-02-login-sesion; `SPEC-001-01`, `SPEC-001-03` implementados |
-| **Estado** | Pendiente |
+| **Estado** | Finalizado |
 | **Última actualización** | 2026-06-01 |
 
 **Origen:** SPEC-101-09, menú producto §8, `backend/config/paqsuite_mvp.php`  
