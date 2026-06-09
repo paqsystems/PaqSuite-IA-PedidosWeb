@@ -6,7 +6,7 @@
 | **SPEC origen** | [SPEC-001-02-acceso-y-seguridad.md](../../05-open-spec/001-Generaliddes/SPEC-001-02-acceso-y-seguridad.md) |
 | **Épica** | 001 — Generaliddes / Acceso y seguridad |
 | **Prioridad** | Must |
-| **Estado** | Pendiente |
+| **Estado** | Finalizado |
 | **B1** | Enriquecida (2026-05-28) |
 | **Última actualización** | 2026-05-28 |
 | **Dependencias** | HU-GEN-02-login-sesion; HU-GEN-02-modelo-roles-permisos-seed; HU-GEN-01-menu-general-sidebar |

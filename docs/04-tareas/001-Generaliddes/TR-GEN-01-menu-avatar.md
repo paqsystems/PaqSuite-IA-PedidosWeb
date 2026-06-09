@@ -7,7 +7,7 @@
 | **Épica** | 001-Generaliddes |
 | **Prioridad** | Must |
 | **Dependencias** | TR-GEN-01-shell-layout; TR-GEN-02-login-sesion; TR-GEN-02-cambio-contrasena; integra TR-GEN-01-idioma, TR-GEN-01-apariencia-temas y TR-GEN-01-ayuda-externa |
-| **Estado** | Implementado |
+| **Estado** | Finalizado |
 | **Última actualización** | 2026-05-28 (D implementado) |
 
 **Origen:** [HU-GEN-01-menu-avatar](../../03-historias-usuario/001-Generaliddes/HU-GEN-01-menu-avatar.md)  

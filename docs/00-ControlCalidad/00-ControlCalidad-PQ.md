@@ -47,8 +47,8 @@ Este archivo **no sustituye** SPEC, HU ni TR: es la **entrada** del circuito de 
 | # | Fecha | Estado | Resumen |
 |---|-------|--------|---------|
 | 1 | 04/06/2026 | Finalizado (Parte I) | 10 familias HU — CC PQ; updates unificados 09/06/2026 |
-| 2 | 05/06/2026 | Pendiente | GEN-03 layouts/grillas/export |
-| 14 | 27/05/2026 | Pendiente | *(en curso)* |
+| 2 | 05/06/2026 | Pendiente | GEN-03 layouts/export Excel formateado |
+| 3 | 09/06/2026 | Pendiente | Cartel cargando, lentitud artículos y precios |
 
 ---
 
@@ -100,12 +100,7 @@ Registrar cada ítem bajo la HU correspondiente (`### HU-XXX-slug`) o como bulle
 
 a) en la descripción de los layouts a seleccionar, destacar de algún modo los que son propios por ej: colocando " (*)" al terminar la descripción.
 b) que la opción "plantilla del sistema" presente la grilla original provista por el sistema, considerar que cualquier cambio que se haga sobre la misma, el botón "Guardar" se debe comportar como "Guardar como..." (no alterar la plantilla base).
-c) Que este punto b) se agregue a las reglas de especificación standard de layouts-grilla.
-
-
-#### HU-GEN-03-grillas-listados
-
-a) Definir dentro de la regla de especificaciones standard de grillas, que cuando son procesos de tipo "Informes", agregue un icóno "actualizar" (con tooltip correspondiente en formato i18n), preferentemente junto al icono de "selección de campos", que vuelva a obtener los datos que se presentan en la grilla.
+c) Que estos puntos a) y b) se agregue a las reglas de especificación standard de layouts-grilla.
 
 #### HU-GEN-03-exportaciones
 

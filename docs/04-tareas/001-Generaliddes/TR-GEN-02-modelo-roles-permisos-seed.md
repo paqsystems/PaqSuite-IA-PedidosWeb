@@ -7,7 +7,7 @@
 | **Epica** | 001-Generaliddes |
 | **Prioridad** | Must |
 | **Dependencias** | Base de seguridad del bloque (primera TR del orden); prerequisito operativo: seed de `pq_menus` ([TR-GEN-01-menu-general-sidebar](TR-GEN-01-menu-general-sidebar.md)) |
-| **Estado** | Implementado |
+| **Estado** | Finalizado |
 | **Ultima actualizacion** | 2026-05-29 (D implementado) |
 
 **Origen:** [HU-GEN-02-modelo-roles-permisos-seed](../../03-historias-usuario/001-Generaliddes/HU-GEN-02-modelo-roles-permisos-seed.md)  

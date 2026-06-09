@@ -6,7 +6,7 @@
 | **SPEC origen** | [SPEC-001-01-experiencia-base.md](../../05-open-spec/001-Generaliddes/SPEC-001-01-experiencia-base.md) |
 | **Épica** | 001 — Generaliddes / Experiencia base |
 | **Prioridad** | Must |
-| **Estado** | Verificada F — Aprobada con observaciones |
+| **Estado** | Finalizado |
 | **B1** | Enriquecida (2026-05-28) |
 | **Última actualización** | 2026-05-31 |
 | **Dependencias** | HU-GEN-01-menu-avatar; HU-GEN-01-shell-layout |

@@ -7,7 +7,7 @@
 | **Epica** | 001-Generaliddes |
 | **Prioridad** | Must |
 | **Dependencias** | TR-GEN-02-modelo-roles-permisos-seed, TR-GEN-02-login-sesion, TR-GEN-02-autorizacion-menu-api |
-| **Estado** | Implementado |
+| **Estado** | Finalizado |
 | **Ultima actualizacion** | 2026-05-30 |
 
 **Origen:** [HU-GEN-02-politicas-endpoints](../../03-historias-usuario/001-Generaliddes/HU-GEN-02-politicas-endpoints.md)  

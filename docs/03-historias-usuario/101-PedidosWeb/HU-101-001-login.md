@@ -7,7 +7,7 @@
 | **HU canónica** | [HU-GEN-02-login-sesion](../001-Generaliddes/HU-GEN-02-login-sesion.md) |
 | **Épica** | 101 — PedidosWeb / Seguridad |
 | **Prioridad** | Must |
-| **Estado** | Heredada — verificación |
+| **Estado** | Finalizado |
 | **B1** | Enriquecida (2026-06-01) |
 | **Dependencias** | HU-GEN-02-login-sesion implementada en `v1.1.0-paq` |
 

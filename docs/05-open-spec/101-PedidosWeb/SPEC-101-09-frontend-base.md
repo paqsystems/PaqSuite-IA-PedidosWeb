@@ -3,7 +3,7 @@
 | Campo | Valor |
 |-------|--------|
 | **SPEC madre** | [PedidosWeb_SPEC_MVP.md](PedidosWeb_SPEC_MVP.md) |
-| **Estado** | Pendiente — **verificar herencia** GEN-01 / `v1.1.0-paq` |
+| **Estado** | Finalizado |
 | **Prioridad épica** | Must (extensión módulos negocio) |
 
 ## Objetivo

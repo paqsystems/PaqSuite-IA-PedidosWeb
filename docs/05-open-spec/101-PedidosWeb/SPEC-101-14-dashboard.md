@@ -3,7 +3,7 @@
 | Campo | Valor |
 |-------|--------|
 | **SPEC madre** | [PedidosWeb_SPEC_MVP.md](PedidosWeb_SPEC_MVP.md) §4.1 |
-| **Estado** | Especificado |
+| **Estado** | Finalizado |
 | **Prioridad épica** | Must |
 | **Última actualización** | 2026-06-09 (Parte I — CC PQ #1) |
 

@@ -7,7 +7,7 @@
 | **Epica** | 001-Generaliddes |
 | **Prioridad** | Must |
 | **Dependencias** | TR-GEN-02-modelo-roles-permisos-seed, TR-GEN-02-login-sesion, [TR-GEN-01-idioma](TR-GEN-01-idioma.md) (locale activo y checklist §4 ítem 13) |
-| **Estado** | Implementado |
+| **Estado** | Finalizado |
 | **Ultima actualizacion** | 2026-05-31 (F formal) |
 
 **Origen:** [HU-GEN-02-recuperacion-contrasena](../../03-historias-usuario/001-Generaliddes/HU-GEN-02-recuperacion-contrasena.md)  
@@ -380,7 +380,7 @@ Implementar el flujo completo de recuperación de contraseña del MVP con dos ru
 
 ### Resultado D
 
-- **Estado:** Implementado
+- **Estado:** Finalizado
 - **Observaciones:** el slice quedó implementado y con cobertura frontend ejecutada; la validación automatizada del backend quedó condicionada por la indisponibilidad/timeout de la base SQL Server del entorno.
 
 ---
