@@ -123,6 +123,8 @@ Route::prefix('v1')->group(function (): void {
                 ->name('api.v1.integracion.logs');
             Route::get('/dashboard/operativo', [DashboardController::class, 'operativo'])
                 ->name('api.v1.dashboard.operativo');
+            Route::get('/dashboard/resumen-mensual', [DashboardController::class, 'resumenMensual'])
+                ->name('api.v1.dashboard.resumen-mensual');
         });
     });
 });

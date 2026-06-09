@@ -46,17 +46,19 @@ Este archivo **no sustituye** SPEC, HU ni TR: es la **entrada** del circuito de 
 
 | # | Fecha | Estado | Resumen |
 |---|-------|--------|---------|
+| 1 | 04/06/2026 | Finalizado (Parte I) | 10 familias HU — CC PQ; updates unificados 09/06/2026 |
+| 2 | 05/06/2026 | Pendiente | GEN-03 layouts/grillas/export |
 | 14 | 27/05/2026 | Pendiente | *(en curso)* |
 
 ---
 
-## Control de Calidad #1
+## Control de Calidad #3
 
 ### Referencia del control
 
 | Campo | Valor |
 |-------|--------|
-| **Fecha** | 04/06/2026 |
+| **Fecha** | 09/06/2026 |
 | **Responsable** | Pablo Quarracino (PQ) |
 | **Estado** | Pendiente |
 | **Entorno probado** | *(completar: local / staging / producción)* |
@@ -68,15 +70,38 @@ Registrar cada ítem bajo la HU correspondiente (`### HU-XXX-slug`) o como bulle
 
 ### Errores encontrados - Mejoras solicitadas
 
-#### HU-GEN-02-expiracion-inactividad
+#### cartel "cargando..." y bloquear busqueda clientes
 
-Está considerando el tiempo de expiración desde que inició la sesión, en lugar de considerar desde la ultima acción del usuario (o hay alguna acción que no se está considerando)
+#### lentitud armado listado artículos
+
+#### lentitud actualizar precios tras cambio de lista
+
+---
+
+## Control de Calidad #2
+
+### Referencia del control
+
+| Campo | Valor |
+|-------|--------|
+| **Fecha** | 05/06/2026 |
+| **Responsable** | Pablo Quarracino (PQ) |
+| **Estado** | Pendiente |
+| **Entorno probado** | *(completar: local / staging / producción)* |
+| **Build / rama** | *(completar si aplica)* |
+
+### Hallazgos
+
+Registrar cada ítem bajo la HU correspondiente (`### HU-XXX-slug`) o como bullet con contexto suficiente para derivar HU en Parte G.
+
+### Errores encontrados - Mejoras solicitadas
 
 #### HU-GEN-03-layouts-grilla
 
 a) en la descripción de los layouts a seleccionar, destacar de algún modo los que son propios por ej: colocando " (*)" al terminar la descripción.
 b) que la opción "plantilla del sistema" presente la grilla original provista por el sistema, considerar que cualquier cambio que se haga sobre la misma, el botón "Guardar" se debe comportar como "Guardar como..." (no alterar la plantilla base).
 c) Que este punto b) se agregue a las reglas de especificación standard de layouts-grilla.
+
 
 #### HU-GEN-03-grillas-listados
 
@@ -92,52 +117,90 @@ booleanos : VERDADERO o FALSO
 Titulos resaltados, y si es factible con cambio de color (BackColor tonalidad Gris)
 Totalizar columnas numéricas y decimales
 
+---
+
+## Control de Calidad #1
+
+### Referencia del control
+
+| Campo | Valor |
+|-------|--------|
+| **Fecha** | 04/06/2026 |
+| **Responsable** | Pablo Quarracino (PQ) |
+| **Estado** | Finalizado (Parte I 09/06/2026) |
+| **Entorno probado** | *(completar: local / staging / producción)* |
+| **Build / rama** | *(completar si aplica)* |
+
+### Hallazgos
+
+Registrar cada ítem bajo la HU correspondiente (`### HU-XXX-slug`) o como bullet con contexto suficiente para derivar HU en Parte G.
+
+### Errores encontrados - Mejoras solicitadas
+
+#### HU-GEN-02-expiracion-inactividad
+
+Está considerando el tiempo de expiración desde que inició la sesión, en lugar de considerar desde la ultima acción del usuario (o hay alguna acción que no se está considerando)
+
+*Procesado* → *Unificado Parte I 09/06/2026* → [HU-GEN-02-expiracion-inactividad.md](../03-historias-usuario/001-Generaliddes/HU-GEN-02-expiracion-inactividad.md)
+
 #### HU-101-004-seleccion-cliente
 
 Agregar en la descripción, además de la razón social, el nombre de fantasía y el código de cliente (entre paréntesis).
-Formato : (xxxxxx) {razónsocial} - nombre_fantasia{}}
-habilitar opción de ordenamiento : codigo, razón social o nombre fantasía
+Formato: `(codigo) {razonSocial} - {nombreFantasia}`
+Habilitar opción de ordenamiento: código, razón social o nombre fantasía.
+
+*Procesado* → *Unificado Parte I 09/06/2026* → [HU-101-004-seleccion-cliente.md](../03-historias-usuario/101-PedidosWeb/HU-101-004-seleccion-cliente.md)
 
 #### HU-101-005-inicializacion-cabecera
 
-a) Que la tercera bonificación admita negativos : rango admitido : -99.99 a 99.99
-b) agregar en la grilla de renglones el "precio neto unitario" (ver punto anterior).
-c) Al cambiar precio de lista o alguna bonificación -> Recalcular los precios e importes si ya hay renglones ingreados en el detalle
+a) Que la tercera bonificación admita negativos: rango admitido -99.99 a 99.99
+b) Agregar en la grilla de renglones el "precio neto unitario" (ver punto anterior).
+c) Al cambiar precio de lista o alguna bonificación → recalcular los precios e importes si ya hay renglones ingresados en el detalle
+
+*Procesado* → *Unificado Parte I 09/06/2026* → [HU-101-005-inicializacion-cabecera.md](../03-historias-usuario/101-PedidosWeb/HU-101-005-inicializacion-cabecera.md)
 
 #### HU-101-006-carga-renglones
 
-a) busqueda articulos : no incluir artículos BASE (atributo pq_pedidosweb_articulos.base="")
-b) Agregar "precio neto unitario", no editable, que sea el precio de lista menos el descuento renglon y el descuento cabecera.
-NOTA : Si lo amerita, según los requerimientos a posteriori sobre este dato, generar un atributo nuevo en la tabla pq_pedidosweb_pedidosdetalle.
+a) Búsqueda artículos: no incluir artículos BASE (`pq_pedidosweb_articulos.usa_esc = 'B'`)
+b) Agregar "precio neto unitario", no editable, que sea el precio de lista menos el descuento renglón y el descuento cabecera.
+NOTA: Persistir en el campo existente `pq_pedidosweb_pedidosdetalle.precio_neto` (no requiere nuevo atributo en BD).
 
-#### Consultas
-HU-101-015-consulta-pedidos-ingresados
-HU-101-016-consulta-presupuestos
-HU-101-017-consulta-pedidos-pendientes
-HU-101-028-consulta-detalle-pedidos
+*Procesado* → *Unificado Parte I 09/06/2026* → [HU-101-006-carga-renglones.md](../03-historias-usuario/101-PedidosWeb/HU-101-006-carga-renglones.md) · [SPEC-101-10](../05-open-spec/101-PedidosWeb/SPEC-101-10-pantalla-carga.md) · [TR-SPEC-101-10](../04-tareas/101-PedidosWeb/TR-SPEC-101-10-pantalla-carga.md)
 
-a) incluir el nombre comercial del cliente como columna nueva
-b) Revisar el formato fecha del titulo "Fecha Ultimo Proceso". debe ser "dd/MM/yyyy hh:mm", respetando el i18n, y sin segundos ni milecimas de segundo
-c) Agregar un icono "Actualizar" que refresque la información de la grilla.
+#### Consultas (HU-101-015, HU-101-016, HU-101-017, HU-101-028)
+
+a) Incluir el nombre comercial del cliente como columna nueva
+b) Revisar el formato fecha del título "Fecha Ultimo Proceso": `dd/MM/yyyy HH:mm`, respetando i18n, sin segundos ni milésimas
+c) Agregar un icono "Actualizar" que refresque la información de la grilla
+
+*Procesado* → *Unificado Parte I 09/06/2026* → HU-101-015/016/017/028 + [SPEC-101-07](../05-open-spec/101-PedidosWeb/SPEC-101-07-consultas-api.md) / [SPEC-101-11](../05-open-spec/101-PedidosWeb/SPEC-101-11-consultas-ui.md)
 
 #### HU-101-017-consulta-pedidos-pendientes
 
 Agregar el icono "Copiar" como se encuentra en "Pedidos Ingresados" y "Presupuestos Ingresados"
 
+*Procesado* → *Unificado Parte I 09/06/2026* → [HU-101-017-consulta-pedidos-pendientes.md](../03-historias-usuario/101-PedidosWeb/HU-101-017-consulta-pedidos-pendientes.md)
+
 #### HU-101-028-consulta-detalle-pedidos
 
-a) Agregar atributo "Precio Neto Unitario" (ver punto más arriba). solo afecta el HU-101-028
+a) Mostrar columna **Precio neto unitario** mapeada a `precio_neto` (ver punto más arriba). Solo afecta HU-101-028
+
+*Procesado* → *Unificado Parte I 09/06/2026* → [HU-101-028-consulta-detalle-pedidos.md](../03-historias-usuario/101-PedidosWeb/HU-101-028-consulta-detalle-pedidos.md)
 
 #### HU-101-019-mail-grabar
 
-a) agregar en los renglones el Agregar atributo "Precio Neto Unitario" (ver punto más arriba)
-b) Está imprimiendo el "importe neto" sin los descuentos. 
+a) Incluir en los renglones del mail **Precio neto unitario** desde `precio_neto` (ver punto más arriba)
+b) Está imprimiendo el "importe neto" sin los descuentos
 c) Está imprimiendo el "importe bruto" sin los descuentos
+
+*Procesado* → *Unificado Parte I 09/06/2026* → [HU-101-019-mail-grabar.md](../03-historias-usuario/101-PedidosWeb/HU-101-019-mail-grabar.md) · [SPEC-101-13](../05-open-spec/101-PedidosWeb/SPEC-101-13-mails.md)
 
 #### HU-101-025-dashboard
 
-a) En los dashboard existentes, que además de cantidad de comprobantes e importe total, muestre Cantidade de unidades (suma de pq_pedidosweb_pedidosdetalle.cantidad)
-b) Agregar un nuevo dashboard con los mismos datos del anterior, pero a nivel mensual, considerando todos los estados : pedidos ingresados (estado 0), pedidos pendientes (estado 1), pedidos aprobados (estado 2), pedidos facturados (estado 3), prespuestos cerrados (estado 98) y presupuestos abiertos (estado 99)
+a) En los dashboard existentes, que además de cantidad de comprobantes e importe total, muestre cantidad de unidades (suma de `pq_pedidosweb_pedidosdetalle.cantidad`)
+b) Agregar un nuevo dashboard mensual con los mismos datos, considerando estados 0, 1, 2, 3, 98 y 99
+
+*Procesado* → *Unificado Parte I 09/06/2026* → [HU-101-025-dashboard.md](../03-historias-usuario/101-PedidosWeb/HU-101-025-dashboard.md) · [SPEC-101-14](../05-open-spec/101-PedidosWeb/SPEC-101-14-dashboard.md)
 
 ---
 

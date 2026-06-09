@@ -26,6 +26,7 @@ Al seleccionar cliente, precargar según producto §10.4: vendedor, condición d
 3. Campos editables de cabecera según parámetros `Modifica*` del **ERP** por tipo de usuario (**C** / **V** / **S**) — producto §10.5–§10.6; lectura vía SPEC-001-04.
 4. **Vendedor y supervisor:** bonificación de cliente (`ModificaBonCliV` / `ModificaBonCliS`) y lista de precios (`ModificaListaPrecV` / `ModificaListaPrecS`) **dependen de parámetros prefijados en el ERP**, no de reglas fijas del portal.
 5. **Cliente:** no modifica bonificaciones de cabecera ni lista de precios salvo parámetros explícitos para **C** (producto: cliente no modifica precio/lista/descuento artículo en renglón).
+6. **CC PQ 04/06/2026:** Tercera bonificación admite **-99,99 a 99,99**; al cambiar lista de precios o bonificaciones con renglones → recalcular precios e importes del detalle; grilla muestra columna **Precio neto unitario** (solo lectura).
 
 ## Criterios de aceptación
 
@@ -33,6 +34,9 @@ Al seleccionar cliente, precargar según producto §10.4: vendedor, condición d
 - [ ] **CA-02:** Cambio de cliente recalcula/reemplaza cabecera (con confirmación si hay renglones).
 - [ ] **CA-03:** Campos bloqueados por permiso aparecen deshabilitados, no ocultos sin traza.
 - [ ] **CA-04:** Textos de labels vía i18n.
+- [x] **CA-CC-01:** Tercera bonificación admite valores **-99,99 a 99,99** (negativos incluidos).
+- [x] **CA-CC-02:** Grilla de renglones muestra columna **Precio neto unitario** (solo lectura).
+- [x] **CA-CC-03:** Al cambiar lista de precios o bonificación de cabecera con renglones cargados → recálculo sin pérdida de filas.
 
 ## Veredicto B1
 

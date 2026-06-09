@@ -125,7 +125,8 @@ final class ComprobanteMailService
     ): array {
         $nombreEmpresa = $this->resolveNombreEmpresa();
         $cantidadTotal = array_sum(array_map(static fn (array $row): float => (float) ($row['cantidad'] ?? 0), $detalle));
-        $importeNeto = (float) $cabecera->total + (float) $cabecera->total_iva;
+        $importeBruto = $this->resolveImporteBrutoCabecera($detalle);
+        $importeNeto = round((float) $cabecera->total + (float) $cabecera->total_iva, 2);
 
         return [
             'nombreEmpresa' => $nombreEmpresa,
@@ -156,7 +157,7 @@ final class ComprobanteMailService
                 ),
                 'nivel' => (int) $cabecera->nivel,
                 'cantidades' => $cantidadTotal,
-                'importeBruto' => $this->formatImporte((float) $cabecera->total),
+                'importeBruto' => $this->formatImporte($importeBruto),
                 'importeNeto' => $this->formatImporte($importeNeto),
                 'descuento' => number_format((float) $cabecera->descuento, 2, ',', '.').' %',
                 'observaciones' => (string) ($cabecera->observaciones ?? ''),
@@ -194,5 +195,36 @@ final class ComprobanteMailService
     private function formatImporte(float $importe): string
     {
         return $this->parameterService->getMonedaSimbolo().' '.number_format($importe, 2, ',', '.');
+    }
+
+    /**
+     * Importe bruto cabecera: Σ importe_neto de renglones (post descuentos renglón y cabecera).
+     *
+     * @param  list<array<string, mixed>>  $detalle
+     */
+    private function resolveImporteBrutoCabecera(array $detalle): float
+    {
+        $total = 0.0;
+
+        foreach ($detalle as $renglon) {
+            if (array_key_exists('importe_neto', $renglon) && $renglon['importe_neto'] !== null && $renglon['importe_neto'] !== '') {
+                $total += (float) $renglon['importe_neto'];
+                continue;
+            }
+
+            $cantidad = (float) ($renglon['cantidad'] ?? 0);
+            $precioNeto = (float) ($renglon['precio_neto'] ?? 0);
+
+            if ($precioNeto > 0) {
+                $total += round($cantidad * $precioNeto, 2);
+                continue;
+            }
+
+            $precio = (float) ($renglon['precio'] ?? 0);
+            $porcBonif = (float) ($renglon['porc_bonif'] ?? 0);
+            $total += round($cantidad * $precio * (1 - ($porcBonif / 100)), 2);
+        }
+
+        return round($total, 2);
     }
 }

@@ -3,8 +3,9 @@
 | Campo | Valor |
 |-------|--------|
 | **SPEC madre** | [PedidosWeb_SPEC_MVP.md](PedidosWeb_SPEC_MVP.md) §4.1 |
-| **Estado** | Pendiente |
+| **Estado** | Especificado |
 | **Prioridad épica** | Must |
+| **Última actualización** | 2026-06-09 (Parte I — CC PQ #1) |
 
 ## Objetivo
 
@@ -13,8 +14,9 @@ Ocho indicadores §4.1 del SPEC madre; reemplazar/extender `GET /dashboard/resum
 ## In scope
 
 - Q/$ presupuestos activos (99)
-- Q/$ pedidos ingresados y pendientes (0/1) con regla **-1** abajo
+- Q/$/**unidades** pedidos ingresados y pendientes (0/1) con regla **-1** abajo
 - Top cliente por $ presupuestos activos y por $ pedidos ingresados; desempate por **razón social** A–Z (luego `cod_client` si persiste empate)
+- **Mes en curso por estado:** Q, $ y **unidades** por comprobante, filtrando solo el mes calendario actual, con un indicador por estado **0, 1, 2, 3, 98, 99** (`GET /dashboard/resumen-mensual`)
 - Visibilidad por perfil
 - Una moneda por tenant
 
@@ -50,3 +52,11 @@ HU-101-025
 - [ ] 8 indicadores coherentes con datos seed/E2E
 - [ ] Tests feature + E2E dashboard
 - [ ] Layout KPI según patrón UI (tarjetas agrupadas, i18n, testids estables)
+- [x] CC PQ #1: unidades en KPIs; mes en curso por estado (0–99)
+
+## Historial de cambios
+
+| Fecha | Origen | Resumen |
+|-------|--------|---------|
+| 04/06/2026 | CC PQ #1 | Unidades KPI + dashboard mes en curso por estado |
+| 09/06/2026 | Parte I | Unificación `SPEC-101-14-dashboard-update` |

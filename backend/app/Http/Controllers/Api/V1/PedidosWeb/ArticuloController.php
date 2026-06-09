@@ -44,7 +44,17 @@ final class ArticuloController extends Controller
             );
         }
 
+        $codigos = $this->parseCodigosQuery($request);
+        $solicitudPorCodigos = $codigos !== [];
+
         $query = PqPedidoswebArticulo::query()->orderBy('descripcion');
+
+        if ($solicitudPorCodigos) {
+            $query->whereIn('codigo', $codigos);
+        } else {
+            // Lookup de carga: excluir artículos BASE (usa_esc = 'B'). No aplica al refresh por codigos.
+            $query->excluirArticulosBaseCarga();
+        }
 
         if (filled($request->query('q'))) {
             $search = '%'.trim((string) $request->query('q')).'%';
@@ -54,18 +64,9 @@ final class ArticuloController extends Controller
             });
         }
 
-        if (filled($request->query('codigos'))) {
-            $codigos = array_values(array_filter(array_map(
-                static fn (string $codigo): string => trim($codigo),
-                explode(',', (string) $request->query('codigos'))
-            ), static fn (string $codigo): bool => $codigo !== ''));
-
-            if ($codigos !== []) {
-                $query->whereIn('codigo', $codigos);
-            }
-        }
-
-        $pageSize = min(1000, max(1, (int) ($request->query('page_size') ?? 500)));
+        $pageSize = $solicitudPorCodigos
+            ? min(1000, max(count($codigos), 1))
+            : min(1000, max(1, (int) ($request->query('page_size') ?? 500)));
         $codLista = (int) ($request->query('lista_precios') ?? 0);
         $articulos = $query
             ->limit($pageSize)
@@ -100,5 +101,20 @@ final class ArticuloController extends Controller
             ->all();
 
         return ApiResponse::success(['items' => $items]);
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function parseCodigosQuery(Request $request): array
+    {
+        if (! filled($request->query('codigos'))) {
+            return [];
+        }
+
+        return array_values(array_filter(array_map(
+            static fn (string $codigo): string => trim($codigo),
+            explode(',', (string) $request->query('codigos'))
+        ), static fn (string $codigo): bool => $codigo !== ''));
     }
 }

@@ -110,7 +110,11 @@ ch.[{$columns['origen']}] AS origen,
 ch.[{$columns['estado']}] AS estado,
 ch.fecha_proceso AS fecha_proceso
 SQL)
-            ->where('ch.fecha', '>=', Carbon::today()->startOfDay())
+            ->where(function (Builder $builder) use ($columns): void {
+                $builder
+                    ->where("ch.{$columns['estado']}", 'En cartera')
+                    ->orWhereRaw('ch.fecha >= CAST(GETDATE() AS date)');
+            })
             ->orderByDesc('ch.fecha')
             ->orderBy("ch.{$columns['cliente']}")
             ->orderBy('ch.numero');

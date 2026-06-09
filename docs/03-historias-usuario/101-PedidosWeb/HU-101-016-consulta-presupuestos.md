@@ -21,12 +21,16 @@ para **operar sobre 99 y auditar 98**.
 3. **Sin DELETE** presupuesto.
 4. Dos grillas o pestañas/procesos de menú distintos.
 5. Columnas cabecera: **[consulta-comprobantes-cabecera.md](../../02-producto/PedidosWeb/consulta-comprobantes-cabecera.md)**.
+6. **CC PQ #1:** Columna **nombre comercial**; carátula fecha último proceso; ícono **Actualizar**.
 
 ## Criterios de aceptación
 
 - [ ] **CA-01:** Listado activos muestra solo 99 del universo visible.
 - [ ] **CA-02:** Listado cerrados muestra 98 con motivo/tipo desde `presupuestos_cierres`.
 - [ ] **CA-03:** No hay acción eliminar en ninguna grilla de presupuesto.
+- [x] **CA-CC-01:** Columna **nombre comercial** del cliente (activos y cerrados).
+- [x] **CA-CC-02:** Carátula fecha último proceso `dd/MM/yyyy HH:mm` (i18n).
+- [x] **CA-CC-03:** Ícono **Actualizar** en grillas de presupuestos.
 
 ## Veredicto B1
 

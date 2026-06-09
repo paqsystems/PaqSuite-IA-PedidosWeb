@@ -54,4 +54,20 @@ final class DashboardOperativoServiceTest extends TestCase
 
         $this->assertFalse(DashboardOperativoService::pedidoIngresadoCuentaEnKpi(1, null, $now, 30));
     }
+
+    #[Test]
+    public function resumenMensualSinTablasRetornaPorEstadoVacio(): void
+    {
+        $user = new \App\Models\User(['id' => 1]);
+        $service = $this->app->make(DashboardOperativoService::class);
+
+        if (! \Illuminate\Support\Facades\Schema::hasTable('pq_pedidosweb_pedidoscabecera')) {
+            $result = $service->resumenMensual($user);
+            $this->assertCount(6, $result['porEstado']);
+            $this->assertSame((int) now()->year, $result['anio']);
+            $this->assertSame((int) now()->month, $result['mes']);
+        } else {
+            $this->markTestSkipped('Requiere SQL Server con tablas PedidosWeb para resumen mensual.');
+        }
+    }
 }

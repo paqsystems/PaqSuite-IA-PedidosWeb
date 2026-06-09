@@ -8,6 +8,7 @@
 | **Prioridad** | Must |
 | **Dependencias** | TR-SPEC-101-04-services-pedidos; TR-SPEC-101-05-controllers-rest; [TR-GEN-02-recuperacion-contrasena](../001-Generaliddes/TR-GEN-02-recuperacion-contrasena.md) (canal mail); [SPEC-001-04](../../05-open-spec/001-Generaliddes/SPEC-001-04-configuracion-global.md) (`DetallePorMail`, `MailDestinatariosAdicionales`, `Mail_DireccionRemitente`, `mailCCO`) |
 | **Estado** | Finalizado |
+| **Última actualización** | 2026-06-09 (Parte I — CC PQ #1) |
 | **Última actualización** | 2026-06-02 |
 
 **Origen:** [HU-101-019-mail-grabar](../../03-historias-usuario/101-PedidosWeb/HU-101-019-mail-grabar.md)  
@@ -336,3 +337,14 @@ Documentar en OpenAPI de **TR-SPEC-101-05** en `description` de `POST /api/v1/co
 
 ### Docs
 - Parámetros mail en runbook QA
+
+---
+
+## Historial CC PQ #1 (04/06/2026) — Parte I 09/06/2026
+
+| ID | Tarea | Evidencia |
+|----|-------|-----------|
+| T1 | Columna precio neto unitario en plantilla detalle | `ComprobanteMailService` |
+| T2 | Importes neto/bruto con descuentos | `resolveImporteBrutoCabecera` = Σ `importe_neto` renglones |
+| T3 | Unit test importes | `ComprobanteMailServiceTest` |
+| T4 | i18n columna precio neto | `mail.comprobanteNotification.*` |

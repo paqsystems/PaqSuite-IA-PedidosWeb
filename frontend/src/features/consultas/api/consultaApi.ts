@@ -34,6 +34,7 @@ export type ComprobanteConsultaRow = {
   cliente: string;
   codCliente: string;
   razonSocial: string;
+  nombreFantasia: string;
   estado: number;
   importe: number;
   fecha: string;
@@ -170,6 +171,7 @@ type ApiComprobanteConsultaItem = {
   codPresupuesto?: string;
   codCliente?: string;
   razonSocial?: string;
+  nombreFantasia?: string;
   estado?: number;
   fecha?: string;
   nivel?: number | null;
@@ -315,6 +317,7 @@ function mapComprobanteConsultaItem(item: ApiComprobanteConsultaItem): Comproban
     cliente: razonSocial,
     codCliente: item.codCliente ?? '',
     razonSocial,
+    nombreFantasia: item.nombreFantasia ?? '',
     estado: item.estado ?? 0,
     importe: item.total ?? 0,
     fecha: item.fecha ?? '',

@@ -1948,6 +1948,47 @@
                 ]
             }
         },
+        "/api/v1/consultas/detalle-pedidos": {
+            "get": {
+                "tags": [
+                    "PedidosWeb"
+                ],
+                "summary": "Consulta detalle de pedidos (cabecera + renglon)",
+                "operationId": "62cbfe448e837fa79f294842b8568396",
+                "responses": {
+                    "200": {
+                        "description": "Listado paginado por renglon",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelope"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Tenant invalido"
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "403": {
+                        "description": "Sin permiso consulta"
+                    },
+                    "404": {
+                        "description": "Cliente no visible"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
         "/api/v1/integracion/logs": {
             "get": {
                 "tags": [
@@ -2059,6 +2100,106 @@
                 ]
             }
         },
+        "/api/v1/config/parametros": {
+            "get": {
+                "tags": [
+                    "PedidosWeb"
+                ],
+                "summary": "Consulta de parametros generales (solo lectura)",
+                "operationId": "b854f4940f9281e06ec25f00e9f577ee",
+                "parameters": [
+                    {
+                        "name": "programa",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "default": "PedidosWeb"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Listado informativo de parametros",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelope"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Tenant invalido"
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "403": {
+                        "description": "Sin permiso repo"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/clientes/{codCliente}/cabecera-inicial": {
+            "get": {
+                "tags": [
+                    "PedidosWeb"
+                ],
+                "summary": "Inicializar cabecera de comprobante desde cliente (HU-101-005)",
+                "operationId": "6dcc3738aad0c8b1fafa302fdaf5de84",
+                "parameters": [
+                    {
+                        "name": "codCliente",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Cabecera y catalogos",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelope"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Tenant invalido"
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "403": {
+                        "description": "Sin permiso repo"
+                    },
+                    "404": {
+                        "description": "Cliente no visible o inexistente"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
         "/api/v1/articulos": {
             "get": {
                 "tags": [
@@ -2082,6 +2223,14 @@
                         "schema": {
                             "type": "integer",
                             "maximum": 50
+                        }
+                    },
+                    {
+                        "name": "lista_precios",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
                         }
                     }
                 ],

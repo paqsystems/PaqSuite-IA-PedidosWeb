@@ -31,6 +31,35 @@ final class CalculoTotalesServiceTest extends TestCase
     }
 
     #[Test]
+    public function calcularAplicaBonificacionNetaDeCabeceraEnPrecioNeto(): void
+    {
+        $service = new CalculoTotalesService();
+
+        $result = $service->calcular([
+            [
+                'cod_articulo' => 'ART001',
+                'cantidad' => 2,
+                'precio' => 100,
+                'porc_bonif' => 10,
+                'porc_iva' => 21,
+            ],
+        ], 5.0);
+
+        $this->assertSame(85.5, $result['renglones'][0]['precio_neto']);
+        $this->assertSame(171.0, $result['renglones'][0]['importe_neto']);
+    }
+
+    #[Test]
+    public function calcularBonificacionNetaAdmiteBonif3Negativa(): void
+    {
+        $service = new CalculoTotalesService();
+
+        $bonificacionNeta = $service->calcularBonificacionNeta(10.0, 0.0, -5.0);
+
+        $this->assertSame(5.5, $bonificacionNeta);
+    }
+
+    #[Test]
     public function calcularSumaVariosRenglones(): void
     {
         $service = new CalculoTotalesService();

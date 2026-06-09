@@ -44,6 +44,9 @@ para **enterarme sin ingresar al portal**.
 - [ ] **CA-06:** Tras modificar comprobante (pedido 0 / presupuesto 99) se reenvía con las mismas reglas; asunto/intro reflejan **modificado**.
 - [ ] **CA-07:** Asunto y cuerpo usan locale de sesión (claves i18n, sin literales hardcodeados en código); existen traducciones en **es, en, fr, pt, it**.
 - [ ] **CA-08:** Si grabó OK pero el mail no salió, el usuario ve un **toast informativo** (no error bloqueante); el comprobante permanece guardado.
+- [x] **CA-CC-01:** Tabla de renglones del mail incluye **Precio neto unitario**.
+- [x] **CA-CC-02:** **Importe neto** del mail refleja descuentos aplicados.
+- [x] **CA-CC-03:** **Importe bruto** del mail refleja descuentos aplicados (coherente con totales del comprobante).
 
 ## Veredicto B1
 

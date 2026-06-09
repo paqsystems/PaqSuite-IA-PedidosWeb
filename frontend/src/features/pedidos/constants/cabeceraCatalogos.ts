@@ -5,3 +5,6 @@ export const monedaCabeceraOptions = [
 ] as const;
 
 export const bonificacionCabeceraFormat = '#,##0.00';
+
+export const bonificacionCabecera3Min = -99.99;
+export const bonificacionCabecera3Max = 99.99;

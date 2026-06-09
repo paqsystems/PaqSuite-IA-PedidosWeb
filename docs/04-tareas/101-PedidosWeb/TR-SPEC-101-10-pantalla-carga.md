@@ -8,7 +8,7 @@
 | **Prioridad** | Must |
 | **Dependencias** | TR-SPEC-101-05 (controllers), TR-SPEC-101-04 (services), TR-SPEC-101-06, TR-SPEC-101-09; SPEC-001-04 (parámetros `Modifica*`); TR-SPEC-101-13 (mail post-grabación) |
 | **Estado** | Finalizado |
-| **Última actualización** | 2026-06-02 |
+| **Última actualización** | 2026-06-09 (unificación CC PQ 04/06/2026) |
 
 **Origen:** HU-101-004 … HU-101-011, HU-101-009, HU-101-010, HU-101-013, HU-101-024, HU-101-026  
 **Referencia SPEC:** [SPEC-101-10-pantalla-carga](../../05-open-spec/101-PedidosWeb/SPEC-101-10-pantalla-carga.md)  
@@ -28,7 +28,7 @@ quiero **cargar o editar pedidos y presupuestos en una sola pantalla con botones
 para **operar según la matriz de transiciones del producto §10.1 sin pantallas separadas**.
 
 ### In scope / Out of scope
-- **In scope:** UI DevExtreme; cabecera/renglones/totales; 6 transiciones §10.1; entrada nuevo/edición/copia/consulta; selector cliente; permisos precio/descuento vía parámetros ERP `Modifica*`; `data-testid` estables; integración API SPEC-101-05.
+- **In scope:** UI DevExtreme; cabecera/renglones/totales; 6 transiciones §10.1; entrada nuevo/edición/copia/consulta; selector cliente (formato y orden CC PQ); permisos precio/descuento vía parámetros ERP `Modifica*`; exclusión artículos BASE (`usa_esc = 'B'`); columna precio neto unitario; `data-testid` estables; integración API SPEC-101-05.
 - **Out of scope:** DELETE presupuesto; tratativas (101-12 Should); ABM parámetros ERP; eliminación pedido fuera de estado 0 (HU-101-012 en flujo consulta).
 
 ---
@@ -332,6 +332,8 @@ Ver contrato canónico en [TR-SPEC-101-05-controllers-rest](TR-SPEC-101-05-contr
 | Botón Grabar presupuesto | `btn-grabar-presupuesto` |
 | Botón Cancelar | `btn-cancelar-carga` |
 | Selector cliente | `cliente-select` |
+| Orden clientes | `cliente-orden-select` |
+| Columna precio neto unitario | `renglon-precio-neto-unitario` |
 | Form cabecera | `form-cabecera-carga` |
 | Grid renglones | `grid-renglones-carga` |
 | Campo precio renglón | `renglon-precio` |
@@ -355,6 +357,20 @@ Usar `elementAttr` / `inputAttr` DevExtreme; no acoplar tests al DOM interno DX.
 | T4 | Frontend | Flujos edición/copia/deep link | AC-08 |
 | T5 | Tests | E2E §9 madre + conversión T6 | Playwright verde |
 | T6 | Integración | Mail post-grabación (TR-101-13) | Log/mock |
+
+### 7.1 Control de calidad PQ 04/06/2026 (cerrado)
+
+| ID | Ámbito | Tarea | DoD |
+|----|--------|-------|-----|
+| T1 | API cliente | `displayExpr` `(codigo) {razonSocial} - {nombreFantasia}`; sort código/razón/fantasía | [x] FE `cargaCatalogos` + SelectBox |
+| T2 | UI cabecera | Bonificación 3: rango **-99,99..99,99** | [x] `NumberBox` validación |
+| T3 | API artículos | Excluir `usa_esc = 'B'` en browse carga | [x] scope `excluirArticulosBaseCarga` |
+| T4 | Dominio | `calcularPrecioNetoUnitario` (lista, bonif renglón, bonif cabecera) | [x] FE + BE |
+| T5 | UI grilla | Columna precio neto unitario; recálculo al cambiar cabecera/lista | [x] grilla + hooks |
+| T6 | BD | Persistir en `precio_neto` existente (sin migración) | [x] `PedidoService` |
+| T7 | Tests | Unit cálculo + scope BASE | [x] FE/BE tests |
+
+**AC-CC:** CA-CC-01..03 de HU-101-004/005/006 cubiertos por implementación y tests donde aplica.
 
 ---
 

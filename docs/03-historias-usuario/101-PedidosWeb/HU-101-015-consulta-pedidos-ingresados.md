@@ -22,6 +22,7 @@ para **ver, editar o eliminar según permisos**.
 3. Columnas: todos los campos de cabecera según **[consulta-comprobantes-cabecera.md](../../02-producto/PedidosWeb/consulta-comprobantes-cabecera.md)**; visibilidad inicial documentada allí.
 4. Acciones: ver, editar, eliminar (pedido 0), copiar (HU-101-026) — íconos + tooltip.
 5. Export **Excel** (GEN-03); PDF fuera MVP.
+6. **CC PQ #1:** Columna **nombre comercial**; carátula «Fecha último proceso» `dd/MM/yyyy HH:mm` (i18n); ícono **Actualizar** en toolbar de grilla.
 
 ## Criterios de aceptación
 
@@ -29,6 +30,9 @@ para **ver, editar o eliminar según permisos**.
 - [ ] **CA-02:** Usuario sin permiso no ve acciones de edición/baja.
 - [ ] **CA-03:** Layouts persistentes por `proceso`+`grid_id` si flag habilitado.
 - [ ] **CA-04:** ≥ 2 E2E (feliz + sin permiso o vacío).
+- [x] **CA-CC-01:** Columna **nombre comercial** del cliente en grilla.
+- [x] **CA-CC-02:** Carátula «Fecha último proceso» con formato `dd/MM/yyyy HH:mm` (i18n, sin segundos).
+- [x] **CA-CC-03:** Ícono **Actualizar** recarga datos (tooltip i18n).
 
 ## Veredicto B1
 

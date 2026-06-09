@@ -57,4 +57,8 @@ Seguir en orden:
 
 HU/TR: `docs/03-historias-usuario/`, `docs/04-tareas/`, `docs/05-open-spec/`.
 
+## CI
+
+GitHub Actions en `.github/workflows/ci.yml` (plantilla: [`docs/_base/00-github-actions-ci-scaffold.md`](docs/_base/00-github-actions-ci-scaffold.md)). Requiere secret **`VITE_DEVEXTREME_LICENSE`** en el repositorio.
+
 **No commit/push** sin autorización explícita.

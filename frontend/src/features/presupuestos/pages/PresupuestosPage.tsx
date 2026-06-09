@@ -4,13 +4,16 @@ import Tabs from 'devextreme-react/tabs';
 import { Column } from 'devextreme-react/data-grid';
 import { useGridLayouts } from '../../gridLayouts/hooks/useGridLayouts';
 import { ComprobanteConsultaColumns } from '../../consultas/components/ComprobanteConsultaColumns';
+import { GridRefreshButton } from '../../consultas/components/GridRefreshButton';
 import { useComprobanteConsultaActions } from '../../consultas/hooks/useComprobanteConsultaActions';
 import { DataGridDx, type DataGridDxHandle, type DataGridRowAction } from '../../../shared/ui/grids';
 import {
   fetchPresupuestosActivos,
   fetchPresupuestosCerrados,
+  type ConsultaMeta,
   type PresupuestoConsultaRow,
 } from '../../consultas/api/consultaApi';
+import { formatConsultaFechaProceso } from '../../consultas/utils/formatConsultaFechaProceso';
 import { PresupuestoCierreDialog } from '../components/PresupuestoCierreDialog';
 import { PresupuestoCierreDetalleDialog } from '../components/PresupuestoCierreDetalleDialog';
 
@@ -26,10 +29,11 @@ function resolveProceso(tabId: PresupuestosTabId): string {
 }
 
 export function PresupuestosPage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const gridRef = useRef<DataGridDxHandle>(null);
   const [activeTabId, setActiveTabId] = useState<PresupuestosTabId>('activos');
   const [rows, setRows] = useState<PresupuestoConsultaRow[]>([]);
+  const [meta, setMeta] = useState<ConsultaMeta | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [refreshToken, setRefreshToken] = useState(0);
@@ -66,9 +70,11 @@ export function PresupuestosPage() {
         }
 
         setRows(result.items);
+        setMeta(result.meta);
       } catch {
         if (mounted) {
           setRows([]);
+          setMeta(null);
           setLoadError(t('grid.error.load'));
         }
       } finally {
@@ -87,6 +93,26 @@ export function PresupuestosPage() {
 
   const tabLabels = useMemo(() => presupuestosTabItems.map((item) => t(item.labelKey)), [t]);
   const activeTabIndex = activeTabId === 'activos' ? 0 : 1;
+
+  const fechaProcesoLabel = useMemo(() => {
+    const rawValue = meta?.fecha_proceso;
+
+    if (!rawValue) {
+      return t('consultas.fechaProcesoSinDato');
+    }
+
+    return formatConsultaFechaProceso(rawValue, i18n.language);
+  }, [i18n.language, meta?.fecha_proceso, t]);
+
+  const toolbarEnd = useMemo(
+    () => (
+      <>
+        <GridRefreshButton onRefresh={reloadGrid} />
+        {layoutToolbar}
+      </>
+    ),
+    [layoutToolbar, reloadGrid],
+  );
 
   const rowActions: DataGridRowAction<PresupuestoConsultaRow>[] = useMemo(
     () => [
@@ -158,6 +184,7 @@ export function PresupuestosPage() {
         onSelectedIndexChange={(tabIndex) => handleTabChange(Number(tabIndex))}
         elementAttr={{ 'data-testid': 'presupuestos-tabs-99-98' }}
       />
+      <p>{t('consultas.fechaProceso', { value: fechaProcesoLabel })}</p>
       <DataGridDx<PresupuestoConsultaRow>
         ref={gridRef}
         proceso={proceso}
@@ -166,7 +193,7 @@ export function PresupuestosPage() {
         keyExpr="id"
         isLoading={isLoading}
         loadError={loadError}
-        toolbarEnd={layoutToolbar}
+        toolbarEnd={toolbarEnd}
         rowActions={rowActions}
       >
         <ComprobanteConsultaColumns

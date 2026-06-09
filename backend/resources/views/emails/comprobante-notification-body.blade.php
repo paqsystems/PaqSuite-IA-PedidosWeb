@@ -53,7 +53,7 @@
                         <td>{{ number_format((float) ($renglon['precio'] ?? 0), 2, ',', '.') }}</td>
                         <td>{{ number_format((float) ($renglon['porc_bonif'] ?? 0), 2, ',', '.') }} %</td>
                         <td>{{ number_format((float) ($renglon['precio_neto'] ?? 0), 2, ',', '.') }}</td>
-                        <td>{{ number_format((float) ($renglon['importe_total'] ?? 0), 2, ',', '.') }}</td>
+                        <td>{{ number_format((float) ($renglon['importe_neto'] ?? (($renglon['cantidad'] ?? 0) * ($renglon['precio_neto'] ?? 0))), 2, ',', '.') }}</td>
                     </tr>
                 @endforeach
             </tbody>

@@ -36,6 +36,7 @@ final class PedidosWebEndpointsHappyPathTest extends TestCase
         yield 'motivos cierre' => ['/api/v1/motivos-cierre'];
         yield 'integracion logs' => ['/api/v1/integracion/logs'];
         yield 'dashboard operativo' => ['/api/v1/dashboard/operativo'];
+        yield 'dashboard resumen mensual' => ['/api/v1/dashboard/resumen-mensual'];
     }
 
     #[Test]
@@ -45,6 +46,108 @@ final class PedidosWebEndpointsHappyPathTest extends TestCase
         $this->getJson($path, $this->authHeadersFor(self::SUPERVISOR))
             ->assertOk()
             ->assertJsonPath('error', 0);
+    }
+
+    #[Test]
+    public function consultasComprobantesIncluyenNombreFantasiaYFechaProcesoMinutos(): void
+    {
+        $codPedido = $this->uniqueComprobanteCod('PHPCC');
+        $this->insertComprobanteConDetalle($codPedido, 0);
+
+        $response = $this->getJson('/api/v1/consultas/pedidos-ingresados', $this->authHeadersFor(self::SUPERVISOR));
+
+        $response
+            ->assertOk()
+            ->assertJsonPath('error', 0)
+            ->assertJsonStructure([
+                'resultado' => [
+                    'items' => [['nombreFantasia']],
+                    'metadata' => ['fecha_proceso'],
+                ],
+            ]);
+
+        $fechaProceso = (string) $response->json('resultado.metadata.fecha_proceso');
+        $this->assertMatchesRegularExpression('/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/', $fechaProceso);
+
+        $item = collect($response->json('resultado.items'))
+            ->firstWhere('codPedido', $codPedido);
+
+        $this->assertNotNull($item);
+        $this->assertSame('Cliente MVP', $item['nombreFantasia']);
+    }
+
+    #[Test]
+    public function pedidosPendientesPermiteCopiarConPermisoAlta(): void
+    {
+        $codPedido = $this->uniqueComprobanteCod('PHPPEN');
+        $this->insertComprobanteConDetalle($codPedido, 1);
+
+        $response = $this->getJson('/api/v1/consultas/pedidos-pendientes', $this->authHeadersFor(self::SUPERVISOR));
+
+        $response->assertOk()->assertJsonPath('error', 0);
+
+        $item = collect($response->json('resultado.items'))
+            ->firstWhere('codPedido', $codPedido);
+
+        $this->assertNotNull($item);
+        $this->assertTrue($item['puedeCopiar']);
+    }
+
+    #[Test]
+    public function consultaDetallePedidosIncluyePrecioNeto(): void
+    {
+        $codPedido = $this->uniqueComprobanteCod('PHPDET');
+        $this->insertComprobanteConDetalle($codPedido, 0);
+
+        $response = $this->getJson('/api/v1/consultas/detalle-pedidos', $this->authHeadersFor(self::SUPERVISOR));
+
+        $response
+            ->assertOk()
+            ->assertJsonPath('error', 0)
+            ->assertJsonStructure([
+                'resultado' => [
+                    'items' => [['precioNeto']],
+                ],
+            ]);
+
+        $item = collect($response->json('resultado.items'))
+            ->firstWhere('codPedido', $codPedido);
+
+        $this->assertNotNull($item);
+        $this->assertSame(150.0, (float) $item['precioNeto']);
+    }
+
+    #[Test]
+    public function dashboardOperativoIncluyeUnidadesEnKpis(): void
+    {
+        $this->getJson('/api/v1/dashboard/operativo', $this->authHeadersFor(self::SUPERVISOR))
+            ->assertOk()
+            ->assertJsonPath('error', 0)
+            ->assertJsonStructure([
+                'resultado' => [
+                    'presupuestosActivos' => ['cantidad', 'importe', 'unidades'],
+                    'pedidosIngresados' => ['cantidad', 'importe', 'unidades'],
+                    'pedidosPendientes' => ['cantidad', 'importe', 'unidades'],
+                ],
+            ]);
+    }
+
+    #[Test]
+    public function dashboardResumenMensualRetornaEstructuraPorEstado(): void
+    {
+        $this->getJson('/api/v1/dashboard/resumen-mensual', $this->authHeadersFor(self::SUPERVISOR))
+            ->assertOk()
+            ->assertJsonPath('error', 0)
+            ->assertJsonStructure([
+                'resultado' => [
+                    'anio',
+                    'mes',
+                    'porEstado' => [
+                        '*' => ['estado', 'cantidad', 'importe', 'unidades'],
+                    ],
+                    'fechaCalculo',
+                ],
+            ]);
     }
 
     #[Test]

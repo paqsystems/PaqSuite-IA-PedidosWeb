@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Services\Visibility\PedidosWebVisibilityGuard;
 use App\Services\Visibility\VisibleClientsResolver;
 use App\Services\Visibility\VisibilityPermissionGuard;
+use App\Support\ConsultaFechaProcesoFormatter;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
@@ -65,11 +66,13 @@ final class ConsultaListadoService
             ->orderByDesc('fecha');
         $this->applyCodClienteFilter($user, $query, $filters);
 
+        $permisos = $this->resolveCargaPermisos($user);
+
         return $this->paginate($query, $filters, fn (PqPedidoswebPedidoCabecera $item): array => [
             ...$this->mapComprobanteItem($item, 'codPedido'),
             'puedeEditar' => false,
             'puedeEliminar' => false,
-            'puedeCopiar' => false,
+            'puedeCopiar' => $permisos['alta'],
         ]);
     }
 
@@ -179,7 +182,7 @@ final class ConsultaListadoService
             'total' => (int) $paginator->total(),
             'total_pages' => (int) $paginator->lastPage(),
             'metadata' => [
-                'fecha_proceso' => now()->toIso8601String(),
+                'fecha_proceso' => ConsultaFechaProcesoFormatter::now(),
             ],
         ];
     }
@@ -207,7 +210,7 @@ final class ConsultaListadoService
             'total' => $total,
             'total_pages' => (int) ceil($total / $pageSize),
             'metadata' => [
-                'fecha_proceso' => $fechaProceso ?? now()->toIso8601String(),
+                'fecha_proceso' => ConsultaFechaProcesoFormatter::format($fechaProceso) ?? ConsultaFechaProcesoFormatter::now(),
             ],
         ];
     }
@@ -278,6 +281,7 @@ final class ConsultaListadoService
             $codigoKey => (string) $item->cod_pedido,
             'codCliente' => (string) $item->cod_cliente,
             'razonSocial' => (string) ($item->cliente?->nombre ?? ''),
+            'nombreFantasia' => $this->resolveNombreFantasia($item),
             'fecha' => optional($item->fecha)?->toIso8601String(),
             'nivel' => $item->nivel !== null ? (int) $item->nivel : null,
             'observaciones' => (string) ($item->observaciones ?? ''),
@@ -319,6 +323,17 @@ final class ConsultaListadoService
             'numeroVisible' => (int) ($item->nro_visible ?? 0),
             'guidSufijo' => strtoupper(substr((string) $item->cod_pedido, -6)),
         ];
+    }
+
+    private function resolveNombreFantasia(PqPedidoswebPedidoCabecera $item): string
+    {
+        $fantasia = trim((string) ($item->cliente?->fantasia ?? ''));
+
+        if ($fantasia !== '') {
+            return $fantasia;
+        }
+
+        return (string) ($item->cliente?->nombre ?? '');
     }
 
     private function resolveDireccionEntregaDescripcion(PqPedidoswebPedidoCabecera $item): string

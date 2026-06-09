@@ -8,7 +8,7 @@
 | **Prioridad** | Must |
 | **Dependencias** | TR-SPEC-101-06 (visibilidad); SPEC-101-03 (repositories); contexto [SPEC-001-04](../../05-open-spec/001-Generaliddes/SPEC-001-04-configuracion-global.md) para `DiasVentasDetalladas` |
 | **Estado** | Finalizado |
-| **Última actualización** | 2026-06-03 (C1 Bloque 3) |
+| **Última actualización** | 2026-06-09 (Parte I — CC PQ #1) |
 
 **Origen:** HU-101-015, HU-101-016, HU-101-017, HU-101-018, HU-101-021, HU-101-022, HU-101-023, **HU-101-028**  
 **Referencia SPEC:** [SPEC-101-07-consultas-api](../../05-open-spec/101-PedidosWeb/SPEC-101-07-consultas-api.md)  
@@ -498,3 +498,17 @@ Ninguno en este slice (API only). TR-SPEC-101-11 consumirá estos endpoints.
 
 ### Docs
 - `matriz-permisos-mvp.md` (pendiente filas consultas gestión + detalle-pedidos)
+
+---
+
+## Historial CC PQ #1 (04/06/2026) — Parte I 09/06/2026
+
+| ID | Tarea | Evidencia |
+|----|-------|-----------|
+| T1 | `nombreFantasia` en DTOs consultas cabecera | `ConsultaListadoService::mapComprobanteItem` |
+| T2 | `fecha_proceso` precisión minutos | `ConsultaFechaProcesoFormatter` |
+| T3 | `precioNeto` en consulta detalle | `DetallePedidosConsultaService` |
+| T4 | Copiar desde pendientes (permiso alta) | `puedeCopiar` en pendientes |
+| T5 | Feature tests consultas | `PedidosWebEndpointsHappyPathTest` (CI SQL) |
+
+Producto actualizado: [consulta-comprobantes-cabecera.md](../../02-producto/PedidosWeb/consulta-comprobantes-cabecera.md), [consulta-detalle-pedidos.md](../../02-producto/PedidosWeb/consulta-detalle-pedidos.md).
