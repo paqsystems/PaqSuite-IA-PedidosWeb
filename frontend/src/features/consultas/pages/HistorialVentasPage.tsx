@@ -1,15 +1,17 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import Popup from 'devextreme-react/popup';
 import { Column } from 'devextreme-react/data-grid';
 import { useGridLayouts } from '../../gridLayouts/hooks/useGridLayouts';
 import { DataGridDx, type DataGridDxHandle, type DataGridRowAction } from '../../../shared/ui/grids';
+import { GridRefreshButton } from '../components/GridRefreshButton';
 import {
   fetchHistorialVentas,
   toHistorialDetalleRows,
   type ConsultaMeta,
   type HistorialVentasRow,
 } from '../api/consultaApi';
+import { formatConsultaFechaProceso } from '../utils/formatConsultaFechaProceso';
 
 const proceso = 'pw_historialventas';
 const gridId = 'pw_historialventas';
@@ -55,7 +57,7 @@ function historialColumns(t: (key: string) => string) {
 }
 
 export function HistorialVentasPage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const gridRef = useRef<DataGridDxHandle>(null);
   const { toolbar: layoutToolbar, saveAsDialog } = useGridLayouts({
     proceso,
@@ -68,6 +70,27 @@ export function HistorialVentasPage() {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [detalleVisible, setDetalleVisible] = useState(false);
   const [detalleRows, setDetalleRows] = useState<HistorialVentasRow[]>([]);
+  const [refreshToken, setRefreshToken] = useState(0);
+
+  const fechaProcesoLabel = useMemo(() => {
+    const rawValue = meta?.fecha_proceso;
+
+    if (!rawValue) {
+      return t('consultas.fechaProcesoSinDato');
+    }
+
+    return formatConsultaFechaProceso(rawValue, i18n.language);
+  }, [i18n.language, meta?.fecha_proceso, t]);
+
+  const toolbarEnd = useMemo(
+    () => (
+      <>
+        <GridRefreshButton onRefresh={() => setRefreshToken((value) => value + 1)} />
+        {layoutToolbar}
+      </>
+    ),
+    [layoutToolbar],
+  );
 
   useEffect(() => {
     let mounted = true;
@@ -99,7 +122,7 @@ export function HistorialVentasPage() {
     return () => {
       mounted = false;
     };
-  }, [t]);
+  }, [refreshToken, t]);
 
   const handleOpenDetalle = useCallback((row: HistorialVentasRow) => {
     setDetalleRows(toHistorialDetalleRows(row));
@@ -120,7 +143,7 @@ export function HistorialVentasPage() {
   return (
     <section data-testid="page-consulta-historial">
       <h2>{t('pages.consultaHistorial')}</h2>
-      <p>{t('consultas.fechaProceso', { value: meta?.fecha_proceso ?? t('consultas.fechaProcesoSinDato') })}</p>
+      <p>{t('consultas.fechaProceso', { value: fechaProcesoLabel })}</p>
       {meta?.dias_ventas_detalladas ? (
         <p>{t('consultas.historialPeriodo', { dias: meta.dias_ventas_detalladas })}</p>
       ) : null}
@@ -132,7 +155,7 @@ export function HistorialVentasPage() {
         keyExpr="id"
         isLoading={isLoading}
         loadError={loadError}
-        toolbarEnd={layoutToolbar}
+        toolbarEnd={toolbarEnd}
         rowActions={rowActions}
       >
         {historialColumns(t)}

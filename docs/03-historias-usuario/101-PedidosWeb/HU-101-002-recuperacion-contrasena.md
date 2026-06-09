@@ -6,7 +6,7 @@
 | **SPEC origen** | [SPEC-101-06-seguridad-visibilidad](../../05-open-spec/101-PedidosWeb/SPEC-101-06-seguridad-visibilidad.md) |
 | **HU canónica** | [HU-GEN-02-recuperacion-contrasena](../001-Generaliddes/HU-GEN-02-recuperacion-contrasena.md) |
 | **Prioridad** | Must |
-| **Estado** | Heredada — verificación |
+| **Estado** | Finalizado |
 | **B1** | Enriquecida (2026-06-01) |
 
 ## Narrativa

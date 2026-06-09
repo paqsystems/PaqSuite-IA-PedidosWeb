@@ -26,6 +26,21 @@ export function redondearImporte(valor: number): number {
   return Math.round(valor * 100) / 100;
 }
 
+export function redondearPrecioUnitario(valor: number): number {
+  return Math.round(valor * 10000) / 10000;
+}
+
+/** Precio lista × (1 − bonif. renglón / 100) × (1 − bonif. neta cabecera / 100), 4 decimales. */
+export function calcularPrecioNetoUnitario(
+  precioLista: number,
+  porcBonifRenglon: number,
+  bonificacionNetaCabecera: number,
+): number {
+  return redondearPrecioUnitario(
+    precioLista * (1 - porcBonifRenglon / 100) * (1 - bonificacionNetaCabecera / 100),
+  );
+}
+
 /** Normaliza `porc_iva` del ERP a escala 0–100 (ej. 0.21 → 21). */
 export function normalizarPorcIvaAlmacenado(porcIva: number): number {
   const valor = Math.abs(porcIva);

@@ -3,7 +3,7 @@
 | Campo | Valor |
 |-------|--------|
 | **SPEC madre** | [PedidosWeb_SPEC_MVP.md](PedidosWeb_SPEC_MVP.md) |
-| **Estado** | Pendiente — **verificar herencia** `SPEC-001-02` / `v1.1.0-paq` |
+| **Estado** | Finalizado |
 | **Prioridad épica** | Must (verificación + extensión dominio) |
 
 ## Objetivo

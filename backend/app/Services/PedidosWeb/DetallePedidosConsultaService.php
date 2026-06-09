@@ -7,6 +7,7 @@ use App\Models\PqPedidoswebPedidoDetalle;
 use App\Models\User;
 use App\Services\Visibility\PedidosWebVisibilityGuard;
 use App\Services\Visibility\VisibleClientsResolver;
+use App\Support\ConsultaFechaProcesoFormatter;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -67,7 +68,7 @@ final class DetallePedidosConsultaService
             'total' => (int) $paginator->total(),
             'total_pages' => (int) $paginator->lastPage(),
             'metadata' => [
-                'fecha_proceso' => now()->toIso8601String(),
+                'fecha_proceso' => ConsultaFechaProcesoFormatter::now(),
             ],
         ];
     }

@@ -17,7 +17,9 @@ para **monitorear pedidos y presupuestos de mi universo visible**.
 
 ## Indicadores (8)
 
-Q/$ presupuestos activos (99), Q/$ pedidos ingresados, Q/$ pedidos pendientes (1), top cliente $ presupuestos, top cliente $ pedidos ingresados.
+Q/$/**unidades** presupuestos activos (99), Q/$/**unidades** pedidos ingresados, Q/$/**unidades** pedidos pendientes (1), top cliente $ presupuestos, top cliente $ pedidos ingresados.
+
+**Mes en curso por estado (CC PQ #1):** sección adicional con Q, $ y unidades por estado **0, 1, 2, 3, 98, 99** del mes calendario actual.
 
 ## Regla pedidos ingresados (AMB-C09)
 
@@ -35,6 +37,10 @@ Incluir estados **0** y **-1**, **excluyendo** comprobantes donde
 - [ ] **CA-03:** Un solo símbolo moneda por tenant.
 - [ ] **CA-04:** E2E §9 paso dashboard verde.
 - [ ] **CA-05:** Top clientes (indicadores 7 y 8): empate en métrico → desempate por **razón social** A–Z (TR-101-14 AC-06).
+- [x] **CA-CC-01:** Cada KPI existente muestra **unidades** además de Q y $.
+- [x] **CA-CC-02:** Dashboard **mes en curso** con Q, $ y unidades **por estado**.
+- [x] **CA-CC-03:** Incluye estados **0, 1, 2, 3, 98, 99**.
+- [x] **CA-CC-04:** Visibilidad por perfil coherente con dashboard actual.
 
 ## Veredicto B1
 

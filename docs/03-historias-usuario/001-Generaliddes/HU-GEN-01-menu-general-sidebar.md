@@ -6,7 +6,7 @@
 | **SPEC origen** | [SPEC-001-01-experiencia-base.md](../../05-open-spec/001-Generaliddes/SPEC-001-01-experiencia-base.md) |
 | **Épica** | 001 — Generaliddes / Experiencia base |
 | **Prioridad** | Must |
-| **Estado** | D1 cerrado — pendiente D |
+| **Estado** | Finalizado |
 | **Última actualización** | 2026-05-29 |
 | **TR** | [TR-GEN-01-menu-general-sidebar](../../04-tareas/001-Generaliddes/TR-GEN-01-menu-general-sidebar.md) — D1 §3.4 (2026-05-29) |
 | **Dependencias** | HU-GEN-01-shell-layout; HU-GEN-02-autorizacion-menu-api; HU-GEN-02-modelo-roles-permisos-seed |

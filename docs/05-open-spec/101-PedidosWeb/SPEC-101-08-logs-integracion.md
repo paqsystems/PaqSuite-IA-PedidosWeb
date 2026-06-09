@@ -3,7 +3,7 @@
 | Campo | Valor |
 |-------|--------|
 | **SPEC madre** | [PedidosWeb_SPEC_MVP.md](PedidosWeb_SPEC_MVP.md) |
-| **Estado** | Pendiente |
+| **Estado** | Finalizado |
 | **Prioridad épica** | **Should** (AMB-C02, 2026-06-01) |
 
 ## Objetivo

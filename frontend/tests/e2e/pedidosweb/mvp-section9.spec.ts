@@ -56,11 +56,25 @@ const menuFixture = [
 
 const dashboardResultado = {
   moneda: { simbolo: '$', codigo: 'ARS' },
-  presupuestosActivos: { cantidad: 1, importe: 10 },
-  pedidosIngresados: { cantidad: 2, importe: 20 },
-  pedidosPendientes: { cantidad: 3, importe: 30 },
+  presupuestosActivos: { cantidad: 1, importe: 10, unidades: 4 },
+  pedidosIngresados: { cantidad: 2, importe: 20, unidades: 8 },
+  pedidosPendientes: { cantidad: 3, importe: 30, unidades: 12 },
   topClientePresupuestos: { cod_client: 'CLI001', razon_social: 'Cliente Demo', importe: 10 },
   topClientePedidosIngresados: { cod_client: 'CLI001', razon_social: 'Cliente Demo', importe: 20 },
+};
+
+const dashboardResumenMensual = {
+  anio: 2026,
+  mes: 6,
+  porEstado: [
+    { estado: 99, cantidad: 1, importe: 10, unidades: 4 },
+    { estado: 98, cantidad: 0, importe: 0, unidades: 0 },
+    { estado: 0, cantidad: 2, importe: 20, unidades: 8 },
+    { estado: 1, cantidad: 3, importe: 30, unidades: 12 },
+    { estado: 2, cantidad: 0, importe: 0, unidades: 0 },
+    { estado: 3, cantidad: 0, importe: 0, unidades: 0 },
+  ],
+  fechaCalculo: '2026-06-04T10:00:00Z',
 };
 
 async function mockPedidosWebApi(page: import('@playwright/test').Page) {
@@ -274,6 +288,18 @@ async function mockPedidosWebApi(page: import('@playwright/test').Page) {
     });
   });
 
+  await page.route('**/api/v1/dashboard/resumen-mensual', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        error: 0,
+        respuesta: 'ok',
+        resultado: dashboardResumenMensual,
+      }),
+    });
+  });
+
   await page.route('**/api/v1/consultas/pedidos-ingresados**', async (route) => {
     await route.fulfill({
       status: 200,
@@ -366,19 +392,28 @@ test('smoke sección 9: login y navegación a carga', async ({ page }) => {
   await expect(page.getByTestId('page-pedidos-carga')).toBeVisible();
 });
 
-test('dashboard §9 paso 8: muestra los 8 KPIs', async ({ page }) => {
+test('dashboard §9 paso 8: muestra KPIs con unidades y resumen mensual', async ({ page }) => {
   await mockPedidosWebApi(page);
   await login(page);
 
   await expect(page.getByTestId('page-dashboard')).toBeVisible();
   await expect(page.getByTestId('dashboardKpiPresupuestosCantidad')).toContainText('1');
   await expect(page.getByTestId('dashboardKpiPresupuestosImporte')).toContainText('10.00');
+  await expect(page.getByTestId('dashboardKpiPresupuestosUnidades')).toContainText('4');
   await expect(page.getByTestId('dashboardKpiPedidosIngresadosCantidad')).toContainText('2');
   await expect(page.getByTestId('dashboardKpiPedidosIngresadosImporte')).toContainText('20.00');
+  await expect(page.getByTestId('dashboardKpiPedidosIngresadosUnidades')).toContainText('8');
   await expect(page.getByTestId('dashboardKpiPedidosPendientesCantidad')).toContainText('3');
   await expect(page.getByTestId('dashboardKpiPedidosPendientesImporte')).toContainText('30.00');
+  await expect(page.getByTestId('dashboardKpiPedidosPendientesUnidades')).toContainText('12');
   await expect(page.getByTestId('dashboardTopClientePresupuestos')).toContainText('Cliente Demo');
   await expect(page.getByTestId('dashboardTopClientePedidos')).toContainText('Cliente Demo');
+  await expect(page.getByTestId('dashboardOperativo.mesEnCurso')).toBeVisible();
+  await expect(page.getByTestId('dashboardMesEnCurso.estado.0')).toBeVisible();
+  await expect(page.getByTestId('dashboardMesEnCurso-0-cantidad')).toContainText('2');
+  await expect(page.getByTestId('dashboardMesEnCurso-0-importe')).toContainText('20.00');
+  await expect(page.getByTestId('dashboardMesEnCurso-0-unidades')).toContainText('8');
+  await expect(page.getByTestId('dashboardMesEnCurso-99-cantidad')).toContainText('1');
 });
 
 test('carga: grabar pedido muestra confirmación y toast mail fallido', async ({ page }) => {

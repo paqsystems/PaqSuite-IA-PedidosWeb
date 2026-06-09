@@ -19,6 +19,11 @@ class PqPedidoswebPedidoCabecera extends Model
 
     public $timestamps = false;
 
+    /**
+     * SQL Server interpreta Y-m-d como mes/día; Ymd H:i:s es inequívoco (estilo 112).
+     */
+    protected $dateFormat = 'Ymd H:i:s';
+
     protected $fillable = [
         'cod_pedido',
         'cod_cliente',

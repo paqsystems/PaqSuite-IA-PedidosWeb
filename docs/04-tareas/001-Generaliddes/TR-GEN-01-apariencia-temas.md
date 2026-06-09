@@ -7,7 +7,7 @@
 | **Épica** | 001-Generaliddes |
 | **Prioridad** | Must |
 | **Dependencias** | TR-GEN-01-shell-layout; TR-GEN-01-menu-avatar; TR-GEN-02-login-sesion |
-| **Estado** | Implementado |
+| **Estado** | Finalizado |
 | **Última actualización** | 2026-05-31 (F formal) |
 
 **Origen:** [HU-GEN-01-apariencia-temas](../../03-historias-usuario/001-Generaliddes/HU-GEN-01-apariencia-temas.md)  

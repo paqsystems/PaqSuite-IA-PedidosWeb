@@ -1,5 +1,6 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import {
+  createInactivityController,
   resolveInactivityTimeoutMinutes,
   resolveInactivityTimeoutMs,
   shouldTrackInactivityKey,
@@ -22,5 +23,23 @@ describe('sessionInactivity', () => {
     expect(shouldTrackInactivityKey('Tab')).toBe(false);
     expect(shouldTrackInactivityKey('Enter')).toBe(true);
     expect(shouldTrackInactivityKey('a')).toBe(true);
+  });
+
+  it('createInactivityController mide desde ultima actividad', () => {
+    vi.useFakeTimers();
+    const onExpire = vi.fn();
+    const controller = createInactivityController(120000, onExpire);
+
+    vi.advanceTimersByTime(60000);
+    controller.touch();
+    vi.advanceTimersByTime(60000);
+
+    expect(onExpire).not.toHaveBeenCalled();
+
+    vi.advanceTimersByTime(120000);
+    expect(onExpire).toHaveBeenCalledTimes(1);
+
+    controller.dispose();
+    vi.useRealTimers();
   });
 });

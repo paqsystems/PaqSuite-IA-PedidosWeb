@@ -55,7 +55,7 @@ Todas las columnas de [consulta-comprobantes-cabecera.md](./consulta-comprobante
 | `cantidad` | `d.cantidad` | decimal |
 | `descuento` / `porcBonif` | `d.porc_bonif` | % bonificación renglón |
 | `precioLista` | `d.precio` o `d.importe_lista` | Precio de lista |
-| `precioNeto` | `d.precio_neto` | |
+| `precioNeto` | `d.precio_neto` | Precio neto unitario (SPEC-101-10) |
 | `importeBruto` | `d.precio_bruto` | |
 | `importeNeto` | `d.importe_neto` | |
 | `ivaNeto` | `d.iva` | Importe IVA del renglón |
@@ -80,7 +80,8 @@ Cada ítem combina propiedades camelCase de cabecera (mismo contrato que [consul
 - `DataGridDx` + `ComprobanteConsultaColumns` extendido con columnas de detalle, **o** componente dedicado `DetallePedidosConsultaColumns`.
 - Sin columna de acciones de edición.
 - Export Excel GEN-03.
-- Carátula `fecha_proceso`.
+- Carátula `fecha_proceso` (`dd/MM/yyyy HH:mm`, i18n).
+- Ícono **Actualizar** en toolbar (mismo patrón consultas cabecera).
 
 ---
 

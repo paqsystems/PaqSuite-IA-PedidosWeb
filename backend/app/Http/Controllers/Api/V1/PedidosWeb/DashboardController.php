@@ -44,4 +44,31 @@ final class DashboardController extends Controller
 
         return ApiResponse::success($resultado);
     }
+
+    public function resumenMensual(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        if ($user === null) {
+            return ApiResponse::error(AuthErrorCodes::unauthenticated, 'auth.unauthenticated', 401);
+        }
+
+        try {
+            $this->visibilityPermissionGuard->ensurePermission(
+                $user,
+                (string) config('paqsuite_visibility.procedimientos.dashboard'),
+                'repo'
+            );
+
+            $resultado = $this->dashboardOperativoService->resumenMensual($user);
+        } catch (AuthFlowException $exception) {
+            return ApiResponse::error(
+                $exception->errorCode(),
+                $exception->respuestaKey(),
+                $exception->httpStatus()
+            );
+        }
+
+        return ApiResponse::success($resultado);
+    }
 }

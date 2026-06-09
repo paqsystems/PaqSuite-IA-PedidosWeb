@@ -4,7 +4,7 @@
 |-------|--------|
 | **HU relacionadas** | `docs/03-historias-usuario/001-Generaliddes/HU-GEN-01-*.md` (6 HU; índice en README de la carpeta) |
 | **TR relacionadas** | `docs/04-tareas/001-Generaliddes/TR-GEN-01-*.md` (6 TR; índice en README de la carpeta) |
-| **Estado** | En ejecución — cierre F parcial |
+| **Estado** | Especificado |
 | **Revisión A1** | Apto con observaciones (2026-05-28) |
 
 ## Objetivo

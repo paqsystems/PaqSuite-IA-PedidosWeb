@@ -84,6 +84,10 @@ Fuente de verdad columnas, joins y contrato: **[consulta-detalle-pedidos.md](../
 - [ ] **CA-07:** No existen acciones de edición/eliminación en la grilla.
 - [ ] **CA-08:** Layouts por `proceso`=`pw_detallepedidos`, `grid_id`=`pw_detallepedidos` si flag habilitado.
 - [ ] **CA-09:** ≥ 1 E2E feliz (carga grilla con filas) + 1 caso visibilidad o vacío.
+- [x] **CA-CC-01:** Columna **nombre comercial** del cliente.
+- [x] **CA-CC-02:** Carátula fecha último proceso `dd/MM/yyyy HH:mm` (i18n).
+- [x] **CA-CC-03:** Ícono **Actualizar** recarga grilla.
+- [x] **CA-CC-04:** Columna **Precio neto unitario** en detalle (SPEC-101-10).
 
 ## Escenarios Gherkin
 

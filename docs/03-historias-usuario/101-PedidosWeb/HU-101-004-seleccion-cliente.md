@@ -25,6 +25,7 @@ para **no elegir entidades ajenas**.
 2. **Vendedor:** solo clientes asignados.
 3. **Supervisor:** todos los clientes visibles.
 4. Al elegir cliente se dispara inicialización de cabecera (HU-101-005).
+5. **CC PQ 04/06/2026:** SelectBox muestra `(codigo) {razonSocial} - {nombreFantasia}`; ordenamiento habilitado por código, razón social o nombre fantasía (`cliente-orden-select`).
 
 ## Criterios de aceptación
 
@@ -33,6 +34,9 @@ para **no elegir entidades ajenas**.
 - [ ] **CA-03:** Supervisor puede buscar/seleccionar cualquier cliente autorizado.
 - [ ] **CA-04:** Sin cliente seleccionado no se habilita carga de renglones.
 - [ ] **CA-05:** `data-testid` estable en selector (`cliente-select` o equivalente).
+- [x] **CA-CC-01:** SelectBox muestra `(codigo) {razonSocial} - {nombreFantasia}`.
+- [x] **CA-CC-02:** Ordenamiento habilitado por código, razón social o nombre fantasía.
+- [x] **CA-CC-03:** Textos y tooltips vía i18n; `data-testid` estable preservado.
 
 ## Escenarios Gherkin
 

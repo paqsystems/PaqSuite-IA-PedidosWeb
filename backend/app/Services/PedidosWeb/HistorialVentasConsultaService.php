@@ -84,8 +84,6 @@ final class HistorialVentasConsultaService
 
     private function buildQuery(?string $codCliente, User $user, int $dias): Builder
     {
-        $fechaDesde = Carbon::today()->subDays($dias)->startOfDay();
-
         $query = DB::table('pq_pedidosweb_ventadetallada as v')
             ->select([
                 'v.cod_cli',
@@ -112,7 +110,7 @@ final class HistorialVentasConsultaService
                 'v.cant_rem',
                 'v.fecha_rem',
             ])
-            ->where('v.fecha_emi', '>=', $fechaDesde)
+            ->whereRaw('v.fecha_emi >= DATEADD(day, -?, CAST(GETDATE() AS date))', [$dias])
             ->orderByDesc('v.fecha_emi')
             ->orderBy('v.cod_cli')
             ->orderBy('v.n_comp');

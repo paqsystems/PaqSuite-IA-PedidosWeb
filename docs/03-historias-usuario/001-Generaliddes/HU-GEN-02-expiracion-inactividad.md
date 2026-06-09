@@ -6,9 +6,9 @@
 | **SPEC origen** | [SPEC-001-02-acceso-y-seguridad.md](../../05-open-spec/001-Generaliddes/SPEC-001-02-acceso-y-seguridad.md) |
 | **Épica** | 001 — Generaliddes / Acceso y seguridad |
 | **Prioridad** | Must |
-| **Estado** | Pendiente |
+| **Estado** | Finalizado |
 | **B1** | Enriquecida (2026-05-28) |
-| **Última actualización** | 2026-05-28 |
+| **Última actualización** | 2026-06-09 (Parte I — CC PQ #1) |
 | **Dependencias** | HU-GEN-02-login-sesion; SPEC-001-04 (parámetro `MinutosWeb`) |
 
 ## Trazabilidad SPEC
@@ -59,6 +59,10 @@ SPEC-001-02 incluye explícitamente **expiración de sesión por inactividad**. 
 - [ ] Parámetro `MinutosWeb` leído desde configuración global (SPEC-001-04).
 - [ ] Default documentado si parámetro ausente (antes de cierre del slice).
 - [ ] E2E: simular inactividad (timeout reducido en test) → redirect login.
+- [x] **CA-CC-01:** Tras login, si el usuario interactúa antes de `MinutosWeb`, la sesión **no** expira.
+- [x] **CA-CC-02:** El contador de inactividad se **reinicia** con cada evento de actividad válido (TR-GEN-02 RN-02).
+- [x] **CA-CC-03:** Sin actividad durante `MinutosWeb` → cierre de sesión y redirect login.
+- [x] **CA-CC-04:** Test unitario o E2E que demuestre renovación del contador (no timeout fijo desde `loginAt`).
 
 ## Escenarios Gherkin
 

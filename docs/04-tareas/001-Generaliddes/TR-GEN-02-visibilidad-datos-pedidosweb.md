@@ -7,7 +7,7 @@
 | **Epica** | 001-Generaliddes |
 | **Prioridad** | Must |
 | **Dependencias** | TR-GEN-02-modelo-roles-permisos-seed, TR-GEN-02-login-sesion, TR-GEN-02-politicas-endpoints |
-| **Estado** | Implementado |
+| **Estado** | Finalizado |
 | **Ultima actualizacion** | 2026-05-31 (D implementado) |
 
 **Origen:** [HU-GEN-02-visibilidad-datos-pedidosweb](../../03-historias-usuario/001-Generaliddes/HU-GEN-02-visibilidad-datos-pedidosweb.md)  
@@ -339,7 +339,7 @@ Implementar la base de visibilidad por perfil funcional y, además, los endpoint
 - Integrar consumidores frontend reales en `SPEC-101-*` sobre esta base.
 
 #### Recomendación final
-- Mantener esta TR como **Implementado** con observación explícita de validación backend pendiente por infraestructura.
+- Mantener esta TR como **Finalizado** con observación explícita de validación backend pendiente por infraestructura.
 
 ---
 

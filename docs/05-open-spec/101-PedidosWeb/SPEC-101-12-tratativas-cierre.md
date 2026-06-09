@@ -3,7 +3,7 @@
 | Campo | Valor |
 |-------|--------|
 | **SPEC madre** | [PedidosWeb_SPEC_MVP.md](PedidosWeb_SPEC_MVP.md) |
-| **Estado** | Pendiente |
+| **Estado** | Finalizado |
 | **Prioridad épica** | **Should** — tratativas (AMB-C01); cierre 98 cubierto en 101-04/05 |
 
 ## Objetivo

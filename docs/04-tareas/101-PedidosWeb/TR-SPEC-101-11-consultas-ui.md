@@ -8,7 +8,7 @@
 | **Prioridad** | Must |
 | **Dependencias** | TR-SPEC-101-07-consultas-api; TR-SPEC-101-09-frontend-base; [TR-GEN-03-grillas-listados](../001-Generaliddes/TR-GEN-03-grillas-listados.md); [TR-GEN-03-exportaciones](../001-Generaliddes/TR-GEN-03-exportaciones.md); [TR-GEN-03-layouts-grilla](../001-Generaliddes/TR-GEN-03-layouts-grilla.md) |
 | **Estado** | Finalizado |
-| **Última actualización** | 2026-06-03 (C1 Bloque 3) |
+| **Última actualización** | 2026-06-09 (Parte I — CC PQ #1) |
 
 **Origen:** HU-101-015, 016, 017, 018, 021, 022, 023, **028**  
 **Referencia SPEC:** [SPEC-101-11-consultas-ui](../../05-open-spec/101-PedidosWeb/SPEC-101-11-consultas-ui.md)  
@@ -353,3 +353,17 @@ Ver TR-SPEC-101-07 para request/response, 401, 403 y envelope.
 ### Docs
 - Mapa grid_id ↔ proceso: `pw_stock`, `pw_deuda`, `pw_cheques`, `pw_historialventas`
 - Fuentes de verdad consultas: [`consulta-stock.md`](../../02-producto/PedidosWeb/consulta-stock.md), [`consulta-deuda.md`](../../02-producto/PedidosWeb/consulta-deuda.md), [`consulta-cheques.md`](../../02-producto/PedidosWeb/consulta-cheques.md), [`consulta-historial-ventas.md`](../../02-producto/PedidosWeb/consulta-historial-ventas.md)
+
+---
+
+## Historial CC PQ #1 (04/06/2026) — Parte I 09/06/2026
+
+| ID | Tarea | Evidencia |
+|----|-------|-----------|
+| T1 | Columna nombre comercial | `ComprobanteConsultaColumns` |
+| T2 | Carátula `fecha_proceso` i18n minutos | `formatConsultaFechaProceso` |
+| T3 | Ícono Actualizar en consultas | Toolbar grilla informes |
+| T4 | Copiar en `PedidosPendientesPage` | acción `copiar` con `puedeCopiar` |
+| T5 | Columna precio neto detalle | `DetallePedidosConsultaColumns` |
+| T6 | i18n 5 locales | `consultas.*` |
+| T7 | Vitest + E2E consultas | `consultas-d1.spec.ts`, columnas tests |

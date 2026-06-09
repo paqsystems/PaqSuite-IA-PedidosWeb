@@ -7,7 +7,7 @@
 | **Epica** | 001-Generaliddes |
 | **Prioridad** | Must |
 | **Dependencias** | **TR-GEN-02-modelo-roles-permisos-seed** (implementada; ver §3.2 D1-1) |
-| **Estado** | Implementado |
+| **Estado** | Finalizado |
 | **Ultima actualizacion** | 2026-05-31 (F formal) |
 
 **Origen:** [HU-GEN-02-login-sesion](../../03-historias-usuario/001-Generaliddes/HU-GEN-02-login-sesion.md)  

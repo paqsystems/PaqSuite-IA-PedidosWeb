@@ -6,7 +6,7 @@
 | **SPEC origen** | [SPEC-001-02-acceso-y-seguridad.md](../../05-open-spec/001-Generaliddes/SPEC-001-02-acceso-y-seguridad.md) |
 | **Épica** | 001 — Generaliddes / Acceso y seguridad |
 | **Prioridad** | Must |
-| **Estado** | Verificada F — Aprobada con observaciones |
+| **Estado** | Finalizado |
 | **B1** | Enriquecida (2026-05-28) |
 | **Última actualización** | 2026-05-31 |
 | **Dependencias** | SPEC-001-05 (tenancy MONO, `X-Paq-Cliente`); HU-GEN-01-idioma |

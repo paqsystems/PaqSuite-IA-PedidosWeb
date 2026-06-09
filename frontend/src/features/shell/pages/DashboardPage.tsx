@@ -2,7 +2,12 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import Button from 'devextreme-react/button';
-import { fetchDashboardOperativo, type DashboardOperativo } from '../api/dashboardApi';
+import {
+  fetchDashboardOperativo,
+  fetchDashboardResumenMensual,
+  type DashboardOperativo,
+  type DashboardResumenMensual,
+} from '../api/dashboardApi';
 import './DashboardPage.css';
 
 type KpiMetricCard = {
@@ -19,12 +24,44 @@ type KpiGroup = {
   cards: KpiMetricCard[];
 };
 
+const DASHBOARD_ESTADOS_ORDEN = [99, 98, 0, 1, 2, 3] as const;
+
+function accentClassForEstado(estado: number): string {
+  if (estado === 99 || estado === 98) {
+    return 'dashboard-kpi-group--presupuestos';
+  }
+  if (estado === 0) {
+    return 'dashboard-kpi-group--ingresados';
+  }
+  if (estado === 1) {
+    return 'dashboard-kpi-group--pendientes';
+  }
+
+  return 'dashboard-kpi-group--otros';
+}
+
 function formatAmount(value: number, currencySymbol: string): string {
   const formatted = value.toLocaleString('en-US', {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   });
   return `${currencySymbol}${formatted}`;
+}
+
+function formatUnidades(value: number): string {
+  return value.toLocaleString('en-US', {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  });
+}
+
+function formatMesAnio(anio: number, mes: number, locale: string): string {
+  const date = new Date(anio, mes - 1, 1);
+
+  return date.toLocaleDateString(locale, {
+    month: 'long',
+    year: 'numeric',
+  });
 }
 
 function formatUpdatedAt(isoDate: string | undefined, locale: string): string | null {
@@ -47,15 +84,21 @@ export function DashboardPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [dashboardData, setDashboardData] = useState<DashboardOperativo | null>(null);
+  const [resumenMensual, setResumenMensual] = useState<DashboardResumenMensual | null>(null);
 
   const loadDashboard = useCallback(async () => {
     setIsLoading(true);
     setLoadError(null);
     try {
-      const result = await fetchDashboardOperativo();
-      setDashboardData(result);
+      const [operativo, mensual] = await Promise.all([
+        fetchDashboardOperativo(),
+        fetchDashboardResumenMensual(),
+      ]);
+      setDashboardData(operativo);
+      setResumenMensual(mensual);
     } catch {
       setDashboardData(null);
+      setResumenMensual(null);
       setLoadError(t('dashboard.loadError'));
     } finally {
       setIsLoading(false);
@@ -87,6 +130,11 @@ export function DashboardPage() {
             value: formatAmount(dashboardData?.presupuestosActivos?.importe ?? 0, currencySymbol),
             variant: 'amount',
           },
+          {
+            testId: 'dashboardKpiPresupuestosUnidades',
+            label: t('dashboard.kpi.presupuestosUnidades'),
+            value: formatUnidades(dashboardData?.presupuestosActivos?.unidades ?? 0),
+          },
         ],
       },
       {
@@ -104,6 +152,11 @@ export function DashboardPage() {
             label: t('dashboard.kpi.pedidosIngresadosImporte'),
             value: formatAmount(dashboardData?.pedidosIngresados?.importe ?? 0, currencySymbol),
             variant: 'amount',
+          },
+          {
+            testId: 'dashboardKpiPedidosIngresadosUnidades',
+            label: t('dashboard.kpi.pedidosIngresadosUnidades'),
+            value: formatUnidades(dashboardData?.pedidosIngresados?.unidades ?? 0),
           },
         ],
       },
@@ -123,11 +176,60 @@ export function DashboardPage() {
             value: formatAmount(dashboardData?.pedidosPendientes?.importe ?? 0, currencySymbol),
             variant: 'amount',
           },
+          {
+            testId: 'dashboardKpiPedidosPendientesUnidades',
+            label: t('dashboard.kpi.pedidosPendientesUnidades'),
+            value: formatUnidades(dashboardData?.pedidosPendientes?.unidades ?? 0),
+          },
         ],
       },
     ],
     [currencySymbol, dashboardData, t],
   );
+
+  const mesEnCursoGroups = useMemo<KpiGroup[]>(() => {
+    const porEstadoMap = new Map(
+      (resumenMensual?.porEstado ?? []).map((item) => [item.estado, item]),
+    );
+
+    return DASHBOARD_ESTADOS_ORDEN.map((estado) => {
+      const metric = porEstadoMap.get(estado) ?? {
+        estado,
+        cantidad: 0,
+        importe: 0,
+        unidades: 0,
+      };
+
+      return {
+        key: String(estado),
+        title: t(`consultas.comprobanteEstado.${estado}`),
+        accentClass: accentClassForEstado(estado),
+        cards: [
+          {
+            testId: `dashboardMesEnCurso-${estado}-cantidad`,
+            label: t('dashboard.kpi.estadoCantidad'),
+            value: String(metric.cantidad),
+          },
+          {
+            testId: `dashboardMesEnCurso-${estado}-importe`,
+            label: t('dashboard.kpi.estadoImporte'),
+            value: formatAmount(metric.importe, currencySymbol),
+            variant: 'amount',
+          },
+          {
+            testId: `dashboardMesEnCurso-${estado}-unidades`,
+            label: t('dashboard.kpi.estadoUnidades'),
+            value: formatUnidades(metric.unidades),
+          },
+        ],
+      };
+    });
+  }, [currencySymbol, resumenMensual, t]);
+
+  const mesEnCursoLabel =
+    resumenMensual !== null
+      ? formatMesAnio(resumenMensual.anio, resumenMensual.mes, i18n.language)
+      : formatMesAnio(new Date().getFullYear(), new Date().getMonth() + 1, i18n.language);
 
   const topPresupuestos = dashboardData?.topClientePresupuestos;
   const topPedidos = dashboardData?.topClientePedidosIngresados;
@@ -230,6 +332,44 @@ export function DashboardPage() {
               </section>
             ))}
           </div>
+
+          <section
+            className="dashboard-pedidosweb__monthlySection"
+            data-testid="dashboardOperativo.mesEnCurso"
+          >
+            <h3>{t('dashboard.section.mesEnCurso')}</h3>
+            <p className="dashboard-pedidosweb__mesEnCursoPeriodo" data-testid="dashboardMesEnCurso.periodo">
+              {mesEnCursoLabel}
+            </p>
+            <div className="dashboard-pedidosweb__groups dashboard-pedidosweb__groups--mesEnCurso">
+              {mesEnCursoGroups.map((group) => (
+                <section
+                  key={group.key}
+                  className={`dashboard-kpi-group ${group.accentClass}`}
+                  data-testid={`dashboardMesEnCurso.estado.${group.key}`}
+                >
+                  <h2 className="dashboard-kpi-group__title">{group.title}</h2>
+                  <div className="dashboard-kpi-cards">
+                    {group.cards.map((card) => (
+                      <article
+                        key={card.testId}
+                        data-testid={card.testId}
+                        className={[
+                          'dashboard-kpi-card',
+                          card.variant === 'amount' ? 'dashboard-kpi-card--amount' : '',
+                        ]
+                          .filter(Boolean)
+                          .join(' ')}
+                      >
+                        <span className="dashboard-kpi-label">{card.label}</span>
+                        <span className="dashboard-kpi-value">{card.value}</span>
+                      </article>
+                    ))}
+                  </div>
+                </section>
+              ))}
+            </div>
+          </section>
 
           <section
             className="dashboard-pedidosweb__topSection"

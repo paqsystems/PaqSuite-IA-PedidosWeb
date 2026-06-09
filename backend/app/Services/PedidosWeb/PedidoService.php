@@ -49,7 +49,9 @@ final class PedidoService
         $this->assertVisibleWritePayload($user, $payload);
         $this->assertModificaPermisos($user, $cabeceraPayload, $renglonesPayload);
 
-        $calculo = $this->calculoTotalesService->calcular($renglonesPayload);
+        $bonificacionNetaCabecera = $this->calculoTotalesService->resolveBonificacionNetaCabecera($cabeceraPayload);
+        $cabeceraPayload['descuento'] = $bonificacionNetaCabecera;
+        $calculo = $this->calculoTotalesService->calcular($renglonesPayload, $bonificacionNetaCabecera);
         $codPedidoOrigen = $this->nullableString($payload['cod_pedido_origen'] ?? null);
         $codPresupuestoOrigen = $this->nullableString($payload['cod_presupuesto_origen'] ?? null);
         $codComprobanteOrigenCopia = $this->nullableString($payload['cod_comprobante_origen_copia'] ?? null);
@@ -570,6 +572,7 @@ final class PedidoService
                 'porc_bonif' => (float) $row->porc_bonif,
                 'precio' => (float) $row->precio,
                 'precio_neto' => (float) $row->precio_neto,
+                'importe_neto' => (float) $row->importe_neto,
                 'importe_total' => (float) $row->importe_total,
             ])
             ->values()

@@ -3,8 +3,9 @@
 | Campo | Valor |
 |-------|--------|
 | **SPEC madre** | [PedidosWeb_SPEC_MVP.md](PedidosWeb_SPEC_MVP.md) |
-| **Estado** | Pendiente |
+| **Estado** | Finalizado |
 | **Prioridad épica** | Must |
+| **Última actualización** | 2026-06-09 (Parte I — CC PQ #1) |
 
 ## Objetivo
 
@@ -14,7 +15,8 @@ Envío de mail al crear/modificar pedido o presupuesto usando el **mismo canal**
 
 - Disparo post-grabación y post-modificación (producto §18)
 - Plantillas **i18n** según locale de sesión; asunto `{nombreEmpresa} - {tipo} {accion}`
-- Cabecera completa en todo mail (13 campos §3.2 TR); tabla de renglones (7 columnas) solo si `DetallePorMail` activo; pie **solo texto fijo i18n** (`footerConsulta`)
+- Cabecera completa en todo mail (13 campos §3.2 TR); tabla de renglones (7 columnas + **precio neto unitario**) solo si `DetallePorMail` activo; pie **solo texto fijo i18n** (`footerConsulta`)
+- **Importe neto** e **importe bruto** en cabecera del mail reflejan descuentos/bonificaciones aplicados (coherente con totales grabados)
 - Redacción mail en **es, en, fr, pt, it** (locales del portal)
 - **Destinatarios TO** (HU-101-019, cerrado):
   1. `pq_pedidosweb_clientes.e_mail` del `pq_pedidosweb_pedidoscabecera.cod_cliente` del comprobante.
@@ -49,3 +51,11 @@ Detalle normativo: [TR-SPEC-101-13-mails](../../04-tareas/101-PedidosWeb/TR-SPEC
 - [ ] Test integración o feature con mail fake/log
 - [ ] Sin secretos en repo
 - [ ] Plantillas alineadas a legacy (asunto, intro con `guidSufijo`, cabecera, detalle condicional)
+- [x] CC PQ #1: precio neto unitario en detalle mail; importes neto/bruto con descuentos
+
+## Historial de cambios
+
+| Fecha | Origen | Resumen |
+|-------|--------|---------|
+| 04/06/2026 | CC PQ #1 | Mail: precio neto renglón + importes con descuento |
+| 09/06/2026 | Parte I | Unificación `SPEC-101-13-mails-update` |

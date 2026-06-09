@@ -8,7 +8,7 @@
 | **Prioridad** | Must |
 | **Dependencias** | TR-SPEC-101-06-seguridad-visibilidad; TR-SPEC-101-07-consultas-api (queries coherentes); parámetro `MinutosWeb` (SPEC-001-04); reemplaza demo `GET /api/v1/dashboard/resumen` (GEN-02) |
 | **Estado** | Finalizado |
-| **Última actualización** | 2026-06-02 |
+| **Última actualización** | 2026-06-09 (Parte I — CC PQ #1) |
 
 **Origen:** [HU-101-025-dashboard](../../03-historias-usuario/101-PedidosWeb/HU-101-025-dashboard.md)  
 **Referencia SPEC:** [SPEC-101-14-dashboard](../../05-open-spec/101-PedidosWeb/SPEC-101-14-dashboard.md), [PedidosWeb_SPEC_MVP.md §4.1](../../05-open-spec/101-PedidosWeb/PedidosWeb_SPEC_MVP.md)  
@@ -231,3 +231,17 @@ Feature: Dashboard operativo
 
 ### Docs
 - Matriz — actualizar fila dashboard
+
+---
+
+## Historial CC PQ #1 (04/06/2026) — Parte I 09/06/2026
+
+| ID | Tarea | Evidencia |
+|----|-------|-----------|
+| T1 | KPIs con `SUM(cantidad)` | `DashboardOperativoService::sumUnidadesForQuery` |
+| T2 | Cards UI unidades | `dashboardKpi*Unidades` |
+| T3 | `GET /dashboard/resumen-mensual` | `DashboardController::resumenMensual` |
+| T4 | Vista mes en curso por estado | `dashboardOperativo.mesEnCurso`, `dashboardMesEnCurso-{estado}-*` |
+| T5 | Filtro mes actual + estados 0–99 | `YEAR/MONTH(GETDATE())` + estados operativos |
+| T6 | Feature + unit + E2E | `mvp-section9`, `DashboardOperativoServiceTest` |
+| T7 | Doc producto patrón dashboard | [patron-dashboard-operativo-ui.md](../../02-producto/PedidosWeb/patron-dashboard-operativo-ui.md) § mes en curso |

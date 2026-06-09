@@ -31,8 +31,10 @@ import {
   type ComprobanteCabecera,
 } from '../types/comprobanteCabecera';
 import {
+  type ClienteSortField,
   etiquetaCliente,
   formatArticuloCargaDisplay,
+  ordenarClientes,
 } from '../utils/cargaCatalogos';
 import { actualizarPreciosRenglonesPorLista } from '../utils/actualizarPreciosRenglones';
 import {
@@ -78,6 +80,8 @@ export function PedidosCargaPage() {
   const [codPresupuestoOrigen, setCodPresupuestoOrigen] = useState<string | null>(null);
   const [codComprobanteOrigenCopia, setCodComprobanteOrigenCopia] = useState<string | null>(null);
   const [renglones, setRenglones] = useState<ComprobanteRenglon[]>([createEmptyRenglon(1)]);
+  const renglonesRef = useRef(renglones);
+  renglonesRef.current = renglones;
   const [isLoading, setIsLoading] = useState(false);
   const [cabeceraLoading, setCabeceraLoading] = useState(false);
   const [mailToastVisible, setMailToastVisible] = useState(false);
@@ -88,6 +92,7 @@ export function PedidosCargaPage() {
   const [mailAvisoVisible, setMailAvisoVisible] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [clienteSelectKey, setClienteSelectKey] = useState(0);
+  const [clienteSortField, setClienteSortField] = useState<ClienteSortField>('razonSocial');
   const [autoOpenRenglonId, setAutoOpenRenglonId] = useState<number | null>(null);
 
   const modo = searchParams.get('modo') ?? 'nuevo';
@@ -95,6 +100,20 @@ export function PedidosCargaPage() {
   const readOnly = modo === 'ver';
   const isClienteProfile =
     sessionContext.functionalProfile === 'cliente' || sessionContext.codCliente !== null;
+
+  const clientesOrdenados = useMemo(
+    () => ordenarClientes(clientes, clienteSortField),
+    [clientes, clienteSortField],
+  );
+
+  const clienteSortOptions = useMemo(
+    () =>
+      (['codCliente', 'razonSocial', 'nombreFantasia'] as const).map((field) => ({
+        value: field,
+        label: t(`pedidos.carga.clienteOrden.${field}`),
+      })),
+    [t],
+  );
 
   const clienteNombre = useMemo(() => {
     if (!selectedCliente) {
@@ -104,6 +123,13 @@ export function PedidosCargaPage() {
     const cliente = clientes.find((item) => item.codCliente === selectedCliente);
     return cliente ? etiquetaCliente(cliente) : selectedCliente;
   }, [clientes, selectedCliente]);
+
+  const handleCabeceraChange = useCallback((next: ComprobanteCabecera) => {
+    setCabecera({
+      ...next,
+      descuento: calcularBonificacionNeta(next.bonif1, next.bonif2, next.bonif3),
+    });
+  }, []);
 
   const tipoComprobanteLabel =
     estadoActual === 99 || searchParams.get('tipoOrigen') === 'presupuesto'
@@ -366,13 +392,16 @@ export function PedidosCargaPage() {
       }
 
       try {
-        const renglonesActualizados = await actualizarPreciosRenglonesPorLista(renglones, codLista);
+        const renglonesActualizados = await actualizarPreciosRenglonesPorLista(
+          renglonesRef.current,
+          codLista,
+        );
         setRenglones(renglonesActualizados);
       } catch {
         // Mantiene precios previos si falla la consulta.
       }
     },
-    [readOnly, renglones],
+    [readOnly],
   );
 
   const handleCancelar = useCallback(async () => {
@@ -546,7 +575,11 @@ export function PedidosCargaPage() {
         codPedidoOrigen: codPedidoParaConversion,
         codPresupuestoOrigen: codPresupuestoParaConversion,
         codComprobanteOrigenCopia: modo === 'copia' ? codComprobanteOrigenCopia : null,
-        cabecera: { ...cabecera, codCliente: selectedCliente },
+        cabecera: {
+          ...cabecera,
+          codCliente: selectedCliente,
+          descuento: bonificacionNetaCabecera,
+        },
         renglones: renglonesGrabar,
       });
 
@@ -662,15 +695,31 @@ export function PedidosCargaPage() {
           {isClienteProfile ? (
             <p data-testid="cliente-fijo">{clienteNombre || selectedCliente}</p>
           ) : (
+            <>
+            <SelectBox
+              label={t('pedidos.carga.clienteOrdenarPor')}
+              dataSource={clienteSortOptions}
+              valueExpr="value"
+              displayExpr="label"
+              value={clienteSortField}
+              onValueChanged={(event) => {
+                if (!isDevExtremeUserChange(event)) {
+                  return;
+                }
+
+                setClienteSortField((event.value as ClienteSortField) ?? 'razonSocial');
+              }}
+              inputAttr={{ 'data-testid': 'cliente-orden-select' }}
+            />
             <SelectBox
               key={`cliente-select-${clienteSelectKey}`}
-              dataSource={clientes}
+              dataSource={clientesOrdenados}
               valueExpr="codCliente"
               displayExpr={(item: ClienteOption | null) =>
                 item ? etiquetaCliente(item) : ''
               }
               searchEnabled={true}
-              searchExpr={['razonSocial', 'nombre', 'codCliente']}
+              searchExpr={['codCliente', 'razonSocial', 'nombreFantasia', 'nombre']}
               value={selectedCliente}
               readOnly={readOnly}
               onValueChanged={(event) => {
@@ -697,6 +746,7 @@ export function PedidosCargaPage() {
               showClearButton={!readOnly}
               inputAttr={{ 'data-testid': 'cliente-select' }}
             />
+            </>
           )}
 
           {!selectedCliente && !isClienteProfile ? (
@@ -709,7 +759,7 @@ export function PedidosCargaPage() {
               parametrosCarga={parametrosCarga}
               readOnly={readOnly}
               clienteNombre={isClienteProfile ? clienteNombre : undefined}
-              onChange={setCabecera}
+              onChange={handleCabeceraChange}
               onListaPreciosChange={(codLista) => {
                 if (codLista !== null) {
                   void handleListaPreciosChange(codLista);

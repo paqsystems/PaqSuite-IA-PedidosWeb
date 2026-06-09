@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ConsultaGridPage } from '../../consultas/components/ConsultaGridPage';
 import { ComprobanteConsultaColumns } from '../../consultas/components/ComprobanteConsultaColumns';
@@ -11,7 +11,11 @@ const gridId = 'pw_pedidospendientes';
 
 export function PedidosPendientesPage() {
   const { t } = useTranslation();
-  const { openCarga } = useComprobanteConsultaActions();
+  const [refreshToken, setRefreshToken] = useState(0);
+  const reloadGrid = useCallback(() => {
+    setRefreshToken((value) => value + 1);
+  }, []);
+  const { openCarga, handleCopiar } = useComprobanteConsultaActions({ onChanged: reloadGrid });
   const loadData = useCallback(() => fetchPedidosPendientes(), []);
 
   const rowActions: DataGridRowAction<PedidoConsultaRow>[] = useMemo(
@@ -24,8 +28,17 @@ export function PedidosPendientesPage() {
           openCarga(row, 'ver');
         },
       },
+      {
+        actionKey: 'copiar',
+        icon: 'copy',
+        hintKey: 'grid.action.copy',
+        visible: (row) => row.puedeCopiar,
+        onClick: (row) => {
+          handleCopiar(row);
+        },
+      },
     ],
-    [openCarga],
+    [handleCopiar, openCarga],
   );
 
   return (
@@ -36,6 +49,7 @@ export function PedidosPendientesPage() {
       gridId={gridId}
       loadData={loadData}
       rowActions={rowActions}
+      refreshToken={refreshToken}
       columns={<ComprobanteConsultaColumns t={t} />}
     />
   );

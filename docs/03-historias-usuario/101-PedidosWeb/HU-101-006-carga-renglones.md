@@ -31,6 +31,8 @@ para **armar el detalle del pedido o presupuesto**.
 3. Si el parámetro está deshabilitado en ERP → control de renglón en solo lectura y validación backend al grabar.
 4. Fuente de parámetros: producto §10.6; consumo en runtime: SPEC-001-04 (pendiente).
 5. **Descuento por cantidad:** al agregar renglón, descuento inicial = bonificación del artículo; al cambiar cantidad, aplicar regla `pq_pedidosweb_descuentocantidad` (mayor cantidad ≤ ingresada). Ver **[pantalla-carga-comprobante-ui.md](../../02-producto/PedidosWeb/pantalla-carga-comprobante-ui.md)** §12. Esta regla aplica **aunque** no haya permiso `ModificaBonArt*`.
+6. **CC PQ 04/06/2026:** Lookup de artículos **excluye** `pq_pedidosweb_articulos.usa_esc = 'B'` (artículos BASE).
+7. **Precio neto unitario** = precio lista − descuento renglón − descuento cabecera; no editable; se persiste en `pq_pedidosweb_pedidosdetalle.precio_neto`.
 
 ## Fuera de alcance
 
@@ -46,6 +48,9 @@ para **armar el detalle del pedido o presupuesto**.
 - [ ] **CA-05:** Cliente no puede modificar precio/lista/descuento artículo (producto §10.5).
 - [ ] **CA-06:** Con `ModificaPrecioV=false` (seed/ERP), vendedor ve precio de renglón deshabilitado; con `true`, editable.
 - [ ] **CA-07:** Con `ModificaBonArtS=false`, supervisor no edita descuento de renglón; coherente con parámetro ERP, no con rol hardcodeado.
+- [x] **CA-CC-01:** Búsqueda no devuelve artículos BASE (`usa_esc = 'B'`).
+- [x] **CA-CC-02:** Columna precio neto unitario visible y coherente al agregar/editar renglón.
+- [x] **CA-CC-03:** Valor persistido en `pq_pedidosweb_pedidosdetalle.precio_neto` al grabar/actualizar.
 
 ## Veredicto B1
 

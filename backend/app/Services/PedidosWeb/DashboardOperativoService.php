@@ -3,6 +3,7 @@
 namespace App\Services\PedidosWeb;
 
 use App\Models\PqPedidoswebPedidoCabecera;
+use App\Models\PqPedidoswebPedidoDetalle;
 use App\Models\User;
 use App\Services\Visibility\VisibleClientsResolver;
 use Illuminate\Database\Eloquent\Builder;
@@ -11,6 +12,8 @@ use Illuminate\Support\Facades\Schema;
 
 final class DashboardOperativoService
 {
+    /** @var list<int> */
+    private const ESTADOS_MES_EN_CURSO = [0, 1, 2, 3, 98, 99];
     public function __construct(
         private readonly VisibleClientsResolver $visibleClientsResolver,
         private readonly PedidosWebParameterService $parameterService,
@@ -79,30 +82,121 @@ final class DashboardOperativoService
             ->whereIn('cod_cliente', $visibleClientsQuery->clone()->select('cod_client'))
             ->where('estado', 1);
 
-        $topClientePresupuestos = $this->topCliente($presupuestosQuery);
-        $topClientePedidosIngresados = $this->topCliente($pedidosIngresadosQuery);
-
         return [
             'moneda' => [
                 'simbolo' => $this->parameterService->getMonedaSimbolo(),
                 'codigo' => $this->parameterService->getMonedaCodigo(),
             ],
             'presupuestosActivos' => [
-                'cantidad' => (int) $presupuestosQuery->count(),
-                'importe' => (float) $presupuestosQuery->sum('total'),
+                'cantidad' => (int) (clone $presupuestosQuery)->count(),
+                'importe' => (float) (clone $presupuestosQuery)->sum('total'),
+                'unidades' => $this->sumUnidadesForQuery($presupuestosQuery),
             ],
             'pedidosIngresados' => [
-                'cantidad' => (int) $pedidosIngresadosQuery->count(),
-                'importe' => (float) $pedidosIngresadosQuery->sum('total'),
+                'cantidad' => (int) (clone $pedidosIngresadosQuery)->count(),
+                'importe' => (float) (clone $pedidosIngresadosQuery)->sum('total'),
+                'unidades' => $this->sumUnidadesForQuery($pedidosIngresadosQuery),
             ],
             'pedidosPendientes' => [
-                'cantidad' => (int) $pedidosPendientesQuery->count(),
-                'importe' => (float) $pedidosPendientesQuery->sum('total'),
+                'cantidad' => (int) (clone $pedidosPendientesQuery)->count(),
+                'importe' => (float) (clone $pedidosPendientesQuery)->sum('total'),
+                'unidades' => $this->sumUnidadesForQuery($pedidosPendientesQuery),
             ],
-            'topClientePresupuestos' => $topClientePresupuestos,
-            'topClientePedidosIngresados' => $topClientePedidosIngresados,
+            'topClientePresupuestos' => $this->topCliente(clone $presupuestosQuery),
+            'topClientePedidosIngresados' => $this->topCliente(clone $pedidosIngresadosQuery),
             'fechaCalculo' => $now->toIso8601String(),
         ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function resumenMensual(User $user): array
+    {
+        $now = Carbon::now();
+
+        if (! Schema::hasTable('pq_pedidosweb_pedidoscabecera')) {
+            return $this->emptyMesEnCursoResult($now);
+        }
+
+        $visibleClientsQuery = $this->visibleClientsResolver->visibleClientsForUser($user);
+
+        if (! (clone $visibleClientsQuery)->exists()) {
+            return $this->emptyMesEnCursoResult($now);
+        }
+
+        $cabTable = (new PqPedidoswebPedidoCabecera)->getTable();
+        $detTable = (new PqPedidoswebPedidoDetalle)->getTable();
+
+        $rows = PqPedidoswebPedidoCabecera::query()
+            ->from("{$cabTable} as cab")
+            ->join("{$detTable} as det", 'det.cod_pedido', '=', 'cab.cod_pedido')
+            ->whereIn('cab.cod_cliente', $visibleClientsQuery->clone()->select('cod_client'))
+            ->whereIn('cab.estado', self::ESTADOS_MES_EN_CURSO)
+            ->whereNotNull('cab.fecha')
+            ->whereRaw('YEAR(cab.fecha) = YEAR(GETDATE())')
+            ->whereRaw('MONTH(cab.fecha) = MONTH(GETDATE())')
+            ->selectRaw('cab.estado as estado')
+            ->selectRaw('COUNT(DISTINCT cab.cod_pedido) as cantidad')
+            ->selectRaw('SUM(cab.total) as importe')
+            ->selectRaw('SUM(det.cantidad) as unidades')
+            ->groupBy('cab.estado')
+            ->get()
+            ->keyBy(static fn ($row): int => (int) $row->estado);
+
+        return [
+            'anio' => (int) $now->year,
+            'mes' => (int) $now->month,
+            'porEstado' => $this->mapPorEstado($rows),
+            'fechaCalculo' => $now->toIso8601String(),
+        ];
+    }
+
+    /**
+     * @param  \Illuminate\Support\Collection<int, object>  $rowsByEstado
+     * @return list<array<string, int|float>>
+     */
+    private function mapPorEstado($rowsByEstado): array
+    {
+        $porEstado = [];
+
+        foreach (self::ESTADOS_MES_EN_CURSO as $estado) {
+            $row = $rowsByEstado->get($estado);
+            $porEstado[] = [
+                'estado' => $estado,
+                'cantidad' => (int) ($row->cantidad ?? 0),
+                'importe' => (float) ($row->importe ?? 0),
+                'unidades' => (float) ($row->unidades ?? 0),
+            ];
+        }
+
+        return $porEstado;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function emptyMesEnCursoResult(Carbon $now): array
+    {
+        return [
+            'anio' => (int) $now->year,
+            'mes' => (int) $now->month,
+            'porEstado' => $this->mapPorEstado(collect()),
+            'fechaCalculo' => $now->toIso8601String(),
+        ];
+    }
+
+    private function sumUnidadesForQuery(Builder $query): float
+    {
+        $codPedidos = (clone $query)->pluck('cod_pedido');
+
+        if ($codPedidos->isEmpty()) {
+            return 0.0;
+        }
+
+        return (float) PqPedidoswebPedidoDetalle::query()
+            ->whereIn('cod_pedido', $codPedidos)
+            ->sum('cantidad');
     }
 
     /**
@@ -115,7 +209,7 @@ final class DashboardOperativoService
             ->with('cliente')
             ->groupBy('cod_cliente')
             ->get()
-            ->map(static fn (PqPedidoswebPedidoCabecera $item): array => [
+            ->map(static fn (object $item): array => [
                 'cod_client' => (string) $item->cod_cliente,
                 'razon_social' => (string) ($item->cliente?->nombre ?? ''),
                 'importe' => (float) $item->importe,
@@ -154,9 +248,9 @@ final class DashboardOperativoService
                 'simbolo' => $this->parameterService->getMonedaSimbolo(),
                 'codigo' => $this->parameterService->getMonedaCodigo(),
             ],
-            'presupuestosActivos' => ['cantidad' => 0, 'importe' => 0],
-            'pedidosIngresados' => ['cantidad' => 0, 'importe' => 0],
-            'pedidosPendientes' => ['cantidad' => 0, 'importe' => 0],
+            'presupuestosActivos' => ['cantidad' => 0, 'importe' => 0, 'unidades' => 0],
+            'pedidosIngresados' => ['cantidad' => 0, 'importe' => 0, 'unidades' => 0],
+            'pedidosPendientes' => ['cantidad' => 0, 'importe' => 0, 'unidades' => 0],
             'topClientePresupuestos' => ['cod_client' => '', 'razon_social' => '', 'importe' => 0],
             'topClientePedidosIngresados' => ['cod_client' => '', 'razon_social' => '', 'importe' => 0],
             'fechaCalculo' => now()->toIso8601String(),

@@ -60,6 +60,7 @@ export function ComprobanteConsultaColumns({ t, extraColumns, estadoVisible = fa
       <Column dataField="codPedido" caption={t('consultas.column.codPedido')} visible />
       <Column dataField="codCliente" caption={t('consultas.column.codCliente')} visible />
       <Column dataField="razonSocial" caption={t('consultas.column.razonSocial')} visible />
+      <Column dataField="nombreFantasia" caption={t('consultas.column.nombreFantasia')} visible />
       <Column dataField="fecha" caption={t('consultas.column.fecha')} {...dateColumnProps} visible />
       <Column dataField="nivel" caption={t('consultas.column.nivel')} dataType="number" visible={false} />
       <Column dataField="observaciones" caption={t('consultas.column.observaciones')} visible={false} />

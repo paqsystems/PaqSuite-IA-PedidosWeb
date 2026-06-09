@@ -2,7 +2,11 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import DataGrid, { Button, Column } from 'devextreme-react/data-grid';
 import type { ComprobanteRenglon } from '../api/comprobanteApi';
-import { calcularImporteNetoRenglon, renglonesValidosParaGrabar } from '../utils/renglonesCarga';
+import {
+  calcularImporteNetoRenglon,
+  calcularPrecioNetoUnitario,
+  renglonesValidosParaGrabar,
+} from '../utils/renglonesCarga';
 import { PedidosCargaRenglonEditDialog } from './PedidosCargaRenglonEditDialog';
 
 type PedidosCargaRenglonesGridProps = {
@@ -154,6 +158,15 @@ export function PedidosCargaRenglonesGrid({
           format="#0.##'%'"
           allowEditing={false}
           cssClass="renglon-bonificacion"
+        />
+        <Column
+          caption={t('pedidos.carga.grid.precioNetoUnitario')}
+          allowEditing={false}
+          calculateCellValue={(row: ComprobanteRenglon) =>
+            calcularPrecioNetoUnitario(row.precio, row.porcBonif, bonificacionNetaCabecera)
+          }
+          format={`${monedaSimbolo} #,##0.00`}
+          cssClass="renglon-precio-neto-unitario"
         />
         <Column
           caption={t('pedidos.carga.grid.importeNeto')}

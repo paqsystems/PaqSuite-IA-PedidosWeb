@@ -1,6 +1,6 @@
 import { apiRequest } from '../../../shared/http/client';
 import type { CabeceraCatalogos, ComprobanteCabecera } from '../types/comprobanteCabecera';
-import { ordenarArticulosPorDescripcion, ordenarClientesPorRazonSocial } from '../utils/cargaCatalogos';
+import { ordenarArticulosPorDescripcion, ordenarClientes } from '../utils/cargaCatalogos';
 import { normalizarPorcIvaAlmacenado } from '../utils/renglonesCarga';
 import { mapCabeceraFromApi, mapCabeceraToApi, mapCatalogosFromApi } from '../utils/mapCabeceraApi';
 
@@ -8,6 +8,7 @@ export type ClienteOption = {
   codCliente: string;
   nombre: string;
   razonSocial?: string;
+  nombreFantasia?: string | null;
 };
 
 export type ComprobanteRenglon = {
@@ -80,6 +81,8 @@ type ApiClienteRow = {
   codigo?: string;
   nombre: string;
   razonSocial?: string;
+  fantasia?: string | null;
+  nombreFantasia?: string | null;
 };
 
 type ApiComprobanteDetalleRow = {
@@ -133,11 +136,12 @@ export async function fetchClientes(): Promise<ClienteOption[]> {
   const payload = response.resultado;
   const rows = Array.isArray(payload) ? payload : (payload.items ?? []);
 
-  return ordenarClientesPorRazonSocial(
+  return ordenarClientes(
     rows.map((cliente) => ({
       codCliente: cliente.codCliente ?? cliente.codigo ?? '',
       nombre: cliente.nombre,
       razonSocial: cliente.razonSocial ?? cliente.nombre,
+      nombreFantasia: cliente.nombreFantasia ?? cliente.fantasia ?? cliente.nombre,
     })),
   );
 }

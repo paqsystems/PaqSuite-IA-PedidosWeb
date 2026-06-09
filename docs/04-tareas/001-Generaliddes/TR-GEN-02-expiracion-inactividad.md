@@ -7,8 +7,8 @@
 | **Epica** | 001-Generaliddes |
 | **Prioridad** | Must |
 | **Dependencias** | TR-GEN-02-modelo-roles-permisos-seed, TR-GEN-02-login-sesion |
-| **Estado** | Implementado |
-| **Ultima actualizacion** | 2026-05-31 (D ejecutado) |
+| **Estado** | Finalizado |
+| **Ultima actualizacion** | 2026-06-09 (Parte I — CC PQ #1) |
 
 **Origen:** [HU-GEN-02-expiracion-inactividad](../../03-historias-usuario/001-Generaliddes/HU-GEN-02-expiracion-inactividad.md)  
 **Referencia SPEC:** [SPEC-001-02-acceso-y-seguridad](../../05-open-spec/001-Generaliddes/SPEC-001-02-acceso-y-seguridad.md)  
@@ -452,3 +452,15 @@ Implementar expiración de sesión por inactividad en el MVP con la estrategia c
 
 ### Docs
 - `docs/04-tareas/001-Generaliddes/matriz-permisos-mvp.md`
+
+---
+
+## Historial CC PQ #1 (04/06/2026) — Parte I 09/06/2026
+
+Corrección: umbral `MinutosWeb` desde **última actividad** (`lastActivityAt`), no desde inicio de sesión.
+
+| ID | Tarea | Evidencia |
+|----|-------|-----------|
+| T1 | Auditar `useInactivityTimeout` y eventos | `SessionLifecycleManager`, eventos pointer/keydown/navegación/API |
+| T2 | Separar `sessionStart` de `lastActivityAt` | `createInactivityController` |
+| T3 | Tests regresión | Vitest `sessionInactivity.test.ts`, E2E `smoke.spec.ts` |

@@ -7,7 +7,12 @@ import TextArea from 'devextreme-react/text-area';
 import DateBox from 'devextreme-react/date-box';
 import { isDevExtremeUserChange } from '../../../shared/ui/devextremeUserChange';
 import type { ParametrosCarga } from '../api/comprobanteApi';
-import { bonificacionCabeceraFormat, monedaCabeceraOptions } from '../constants/cabeceraCatalogos';
+import {
+  bonificacionCabecera3Max,
+  bonificacionCabecera3Min,
+  bonificacionCabeceraFormat,
+  monedaCabeceraOptions,
+} from '../constants/cabeceraCatalogos';
 import type { CabeceraCatalogos, ComprobanteCabecera, CatalogoListaPrecios, CatalogoPerfil } from '../types/comprobanteCabecera';
 import { calcularBonificacionNeta } from '../utils/renglonesCarga';
 
@@ -273,7 +278,8 @@ export function ComprobanteCabeceraForm({
         label={t('pedidos.carga.cabecera.bonif3')}
         value={cabecera.bonif3}
         format={bonificacionCabeceraFormat}
-        min={0}
+        min={bonificacionCabecera3Min}
+        max={bonificacionCabecera3Max}
         step={0.01}
         showSpinButtons={true}
         disabled={!puedeEditarBonifCabecera}

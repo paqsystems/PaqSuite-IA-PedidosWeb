@@ -26,6 +26,7 @@ Para detalle de renglones (cabecera + detalle en una sola grilla), ver **[consul
 | `codPedido` / `codPresupuesto` | `cod_pedido` | PK |
 | `codCliente` | `cod_cliente` | |
 | `razonSocial` | `clientes.nombre` | `belongsTo cliente` |
+| `nombreFantasia` | `clientes.nombre_fantasia` | Nombre comercial (CC PQ #1) |
 | `fecha` | `fecha` | ISO 8601 |
 | `nivel` | `nivel` | |
 | `observaciones` | `observaciones` | |
@@ -71,6 +72,7 @@ Marcadas como visibles por defecto (`visible={true}` en `ComprobanteConsultaColu
 | Cód. pedido | `codPedido` |
 | Cód. cliente | `codCliente` |
 | Razón social | `razonSocial` |
+| Nombre comercial | `nombreFantasia` |
 | Fecha | `fecha` |
 | Moneda | `moneda` (texto Extranjera/Corriente) |
 | Total | `total` |
@@ -88,7 +90,7 @@ El resto de columnas está **disponible** vía selector de columnas DevExtreme (
 | Consulta | Estados | Acciones |
 |----------|---------|----------|
 | Pedidos ingresados | `0`, `-1` | ver, editar, eliminar (0), copiar |
-| Pedidos pendientes | `1` | solo ver |
+| Pedidos pendientes | `1` | ver, copiar |
 | Presupuestos activos | `99` | ver, editar, convertir, cerrar, copiar |
 | Presupuestos cerrados | `98` | ver + columnas cierre |
 
@@ -107,7 +109,14 @@ El resto de columnas está **disponible** vía selector de columnas DevExtreme (
 
 ---
 
-## 6) Implementación
+## 6) Carátula y actualización (CC PQ #1)
+
+- **Fecha último proceso:** título de carátula con valor de `metadata.fecha_proceso` formateado **`dd/MM/yyyy HH:mm`** según locale i18n (sin segundos).
+- **Actualizar:** ícono en toolbar de grilla (junto al selector de columnas) que recarga datos; tooltip i18n `consultas.refresh`.
+
+---
+
+## 7) Implementación
 
 | Capa | Archivo |
 |------|---------|

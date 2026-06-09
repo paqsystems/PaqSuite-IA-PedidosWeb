@@ -39,9 +39,9 @@ Controles: **DevExtreme** (`SelectBox`, `NumberBox`, `DataGrid`, `Popup`, `Butto
 | API | `GET /api/v1/clientes` |
 | Valor inicial | **Vacío** (`null`) en modo nuevo para perfiles vendedor/supervisor; el usuario debe elegir cliente |
 | Perfil cliente | Cliente fijo de sesión (sin combobox) |
-| Orden | **Razón social** ascendente: `COALESCE(razon_soci, nombre)` en API; refuerzo en cliente con `ordenarClientesPorRazonSocial` |
-| Etiqueta visible | `razonSocial` si existe; si no, `nombre` |
-| Búsqueda | `searchEnabled`, `searchExpr`: `razonSocial`, `nombre`, `codCliente` |
+| Orden | Selector `cliente-orden-select`: **código**, **razón social** o **nombre fantasía** (ascendente); default razón social |
+| Etiqueta visible | `(codigo) {razonSocial} - {nombreFantasia}` (`displayExpr`); si falta fantasía, segmento final vacío o omitido según i18n |
+| Búsqueda | `searchEnabled`, `searchExpr`: `razonSocial`, `nombre`, `nombreFantasia`, `codCliente` |
 | Limpiar | `showClearButton` cuando no es solo lectura; al limpiar se resetean cabecera, catálogos, artículos y renglones |
 | Placeholder | `pedidos.carga.clientePlaceholder` |
 
@@ -56,6 +56,7 @@ Controles: **DevExtreme** (`SelectBox`, `NumberBox`, `DataGrid`, `Popup`, `Butto
 | Carga de datos | **DevExtreme `CustomStore`**: al abrir o buscar, consulta remota con `q` (código/descripción); hasta **500** ítems por request (`page_size` máx. **1000** en API) |
 | Orden | **`descripcion` ASC** (API `orderBy('descripcion')` + `ordenarArticulosPorDescripcion` en cliente) |
 | Búsqueda | Escribir en el combobox filtra en servidor (`q`); no está limitado al primer grupo cargado en memoria |
+| Exclusión BASE | No listar artículos con `pq_pedidosweb_articulos.usa_esc = 'B'` (solo lookup/browse; refresh por `codigos` no aplica este filtro) |
 | Formato ítem | Ver §3.1 |
 | Precio al agregar | Campo `precio` de la respuesta (lista activa en cabecera) |
 | `porc_iva` | Normalizar a escala 0–100 con `normalizarPorcIvaAlmacenado` (0.21 → 21) |
@@ -130,7 +131,9 @@ Ubicación UI: después de **Vendedor**, antes de **Condición de venta**.
 ## 8. Cabecera — Bonificaciones 1, 2 y 3
 
 - `NumberBox` formato `#,##0.00`; habilitadas según `modificaBonCli`.
+- **Bonificación 3:** rango **-99,99 a 99,99** (negativos permitidos).
 - **Bonificación neta**: `calcularBonificacionNeta(bonif1, bonif2, bonif3)` — solo lectura.
+- Al cambiar lista de precios o bonificaciones con renglones cargados → recalcular precios e importes del detalle.
 
 ---
 
@@ -152,8 +155,10 @@ Ubicación UI: después de **Vendedor**, antes de **Condición de venta**.
 
 ### Grilla
 
+- Columna **Precio neto unitario** (solo lectura): precio lista − descuento renglón − descuento cabecera; `data-testid`: `renglon-precio-neto-unitario`.
 - Columna **Importe neto** (con bonificación neta de cabecera).
 - Acciones: íconos `edit` / `trash`.
+- Persistencia: `pq_pedidosweb_pedidosdetalle.precio_neto` al grabar/actualizar.
 
 ### Popup edición (§9.1)
 

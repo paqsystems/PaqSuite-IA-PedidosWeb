@@ -5,6 +5,7 @@ import {
   calcularImporteIvaRenglon,
   calcularImporteNetoConIvaRenglon,
   calcularImporteNetoRenglon,
+  calcularPrecioNetoUnitario,
   calcularTotalesComprobante,
   factorPorcIva,
   normalizarPorcIvaAlmacenado,
@@ -21,6 +22,10 @@ const renglonBase: ComprobanteRenglon = {
 };
 
 describe('renglonesCarga importes', () => {
+  it('calcula precio neto unitario con bonificaciones de renglón y cabecera', () => {
+    expect(calcularPrecioNetoUnitario(100, 10, 5)).toBe(85.5);
+  });
+
   it('calcula importe bruto con bonificación de renglón', () => {
     expect(calcularImporteBrutoRenglon(renglonBase)).toBe(900);
   });
