@@ -104,13 +104,14 @@ c) Que estos puntos a) y b) se agregue a las reglas de especificación standard 
 
 #### HU-GEN-03-exportaciones
 
-en la exportación a Excel en modo "Formateado", No se visualiza ninguna diferencia con la básica. Debería respetarse : 
+a) en la exportación a Excel en modo "Formateado", No se visualiza ninguna diferencia con la básica. Debería respetarse : 
 Fecha : Formato fecha según i18n
 Entero : Numérico sin decimales
 Decimales : Númerico según decimales del campo (si no se puede determinar, 2 decimales)
 booleanos : VERDADERO o FALSO 
 Titulos resaltados, y si es factible con cambio de color (BackColor tonalidad Gris)
 Totalizar columnas numéricas y decimales
+b) Que se agreguen estas definiciones a las reglas de especificación standard de layouts-grilla.
 
 ---
 
