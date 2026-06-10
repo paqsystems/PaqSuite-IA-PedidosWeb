@@ -1,0 +1,20 @@
+---
+description: Consulta historial ventas PedidosWeb — ventadetallada y API
+globs:
+  - backend/app/Services/PedidosWeb/HistorialVentasConsultaService.php
+  - backend/app/Services/PedidosWeb/ConsultaListadoService.php
+  - backend/app/Models/PqPedidoswebVentaDetallada.php
+  - frontend/src/features/consultas/**/Historial*
+  - frontend/src/features/consultas/api/consultaApi.ts
+  - docs/**/consulta-historial-ventas.md
+  - docs/**/TR-SPEC-101-07*.md
+---
+
+# Consulta historial de ventas
+
+- Fuente de verdad: `docs/02-producto/PedidosWeb/consulta-historial-ventas.md`.
+- Tabla ERP: `pq_pedidosweb_ventadetallada`; PK `id_gva53` (no exponer en API).
+- Exponer todos los campos exportados excepto `fecha_proceso` (metadata) e `id_gva53`.
+- Filtro: `fecha_emi >= today - DiasVentasDetalladas`.
+- Visibilidad por `cod_cli`; query `cod_cliente` opcional con guard 404.
+- Mantener consulta paginada en SQL (`HistorialVentasConsultaService`).

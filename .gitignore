@@ -1,0 +1,22 @@
+# Dependencias y artefactos de build
+node_modules/
+frontend/dist/
+frontend/test-results/
+frontend/.vite/
+
+# TypeScript incremental
+*.tsbuildinfo
+
+# Entorno local (no commitear secretos)
+.env
+backend/.env
+backend/.env.anterior
+frontend/.env
+
+# PHPUnit / caches locales
+backend/.phpunit.result.cache
+backend/.phpunit.cache
+
+# IDE
+.idea/
+.vscode/

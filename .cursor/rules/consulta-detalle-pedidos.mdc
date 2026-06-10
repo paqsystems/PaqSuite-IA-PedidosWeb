@@ -1,0 +1,19 @@
+---
+description: Consulta detalle pedidos — cabecera + renglones
+globs:
+  - backend/app/Services/PedidosWeb/*Detalle*
+  - backend/app/Services/PedidosWeb/ConsultaListadoService.php
+  - frontend/src/features/**/DetallePedidos*
+  - frontend/src/features/consultas/**
+  - docs/**/consulta-detalle-pedidos.md
+  - docs/**/TR-SPEC-101-07*.md
+  - docs/**/TR-SPEC-101-11*.md
+---
+
+# Consulta detalle de pedidos
+
+- Fuente de verdad: `docs/02-producto/PedidosWeb/consulta-detalle-pedidos.md`.
+- Grilla plana: `pq_pedidosweb_pedidoscabecera` + `pq_pedidosweb_pedidosdetalle`; todos los estados.
+- Estado en UI: descripción i18n (`consultas.comprobanteEstado.*`), no número.
+- Columnas cabecera: reutilizar contrato de `consulta-comprobantes-cabecera.md`.
+- Solo lectura; menú Pedidos; proceso `pw_detallepedidos`.

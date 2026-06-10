@@ -1,0 +1,39 @@
+# HU-101-015 — Consulta de pedidos ingresados
+
+| Campo | Valor |
+|-------|--------|
+| **ID** | HU-101-015-consulta-pedidos-ingresados |
+| **SPEC origen** | [SPEC-101-07-consultas-api](../../05-open-spec/101-PedidosWeb/SPEC-101-07-consultas-api.md), [SPEC-101-11-consultas-ui](../../05-open-spec/101-PedidosWeb/SPEC-101-11-consultas-ui.md) |
+| **Prioridad** | Must |
+| **Estado** | Finalizado |
+| **B1** | Enriquecida (2026-06-01) |
+| **Dependencias** | HU-GEN-03-grillas-listados; HU-GEN-03-exportaciones |
+
+## Narrativa
+
+Como **usuario comercial**,  
+quiero **consultar pedidos ingresados en una grilla**,  
+para **ver, editar o eliminar según permisos**.
+
+## Reglas de negocio
+
+1. Estados **0** y **-1** cuando aplique control operativo (producto §17.1).
+2. Visibilidad por perfil (cliente / vendedor / supervisor).
+3. Columnas: todos los campos de cabecera según **[consulta-comprobantes-cabecera.md](../../02-producto/PedidosWeb/consulta-comprobantes-cabecera.md)**; visibilidad inicial documentada allí.
+4. Acciones: ver, editar, eliminar (pedido 0), copiar (HU-101-026) — íconos + tooltip.
+5. Export **Excel** (GEN-03); PDF fuera MVP.
+6. **CC PQ #1:** Columna **nombre comercial**; carátula «Fecha último proceso» `dd/MM/yyyy HH:mm` (i18n); ícono **Actualizar** en toolbar de grilla.
+
+## Criterios de aceptación
+
+- [ ] **CA-01:** Grilla `DataGridDx` con filtros, agrupación, totales.
+- [ ] **CA-02:** Usuario sin permiso no ve acciones de edición/baja.
+- [ ] **CA-03:** Layouts persistentes por `proceso`+`grid_id` si flag habilitado.
+- [ ] **CA-04:** ≥ 2 E2E (feliz + sin permiso o vacío).
+- [x] **CA-CC-01:** Columna **nombre comercial** del cliente en grilla.
+- [x] **CA-CC-02:** Carátula «Fecha último proceso» con formato `dd/MM/yyyy HH:mm` (i18n, sin segundos).
+- [x] **CA-CC-03:** Ícono **Actualizar** recarga datos (tooltip i18n).
+
+## Veredicto B1
+
+**Lista para TR** (SPEC-101-07/11).

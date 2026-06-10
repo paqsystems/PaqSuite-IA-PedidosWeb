@@ -1,0 +1,23 @@
+---
+description: Pantalla única de carga/edición pedido y presupuesto — UI y reglas de controles
+globs:
+  - frontend/src/features/pedidos/**
+  - docs/02-producto/PedidosWeb/pantalla-carga-comprobante-ui.md
+---
+
+# Pantalla carga comprobante — contrato UI
+
+Antes de modificar cabecera, renglones, comboboxes o flujo de agregar artículo en PedidosWeb, leer **`docs/02-producto/PedidosWeb/pantalla-carga-comprobante-ui.md`** (fuente de verdad).
+
+Resumen obligatorio:
+
+- **Cliente:** `SelectBox` inicia **vacío**; orden por **razón social**; etiqueta `razonSocial` o `nombre`.
+- **Artículos:** `CustomStore` remoto (500 ítems/request, búsqueda `q`); orden por **descripción**; display `descripcion — Disp. X (Y)` según [consulta-stock.md](../../docs/02-producto/PedidosWeb/consulta-stock.md).
+- **IVA:** `factorPorcIva` = porcentaje / 100; normalizar `0.21` → `21` al cargar.
+- **Lista de precios:** `SelectBox` con `catalogos.listasPrecios`; moneda 0/1 solo lectura.
+- **Bonificaciones 1–3:** `NumberBox` `#,##0.00`; popup renglón con importes bruto/neto/IVA/neto c/IVA (2 columnas).
+- **Agregar artículo:** abre popup del renglón nuevo; totales = Σ neto / Σ IVA / Σ neto c/IVA.
+- **Toolbar:** Cancelar izq. / Presupuesto centro / Pedido der. **Leyendas 1–5** al pie (`ClienteLeyendaN`). **Lista precios** → recalcular precios grilla.
+- **Descuento por cantidad (§12):** al agregar renglón → bonificación artículo; al cambiar cantidad → `findDescuentoCantidad` (mayor `cantidad` ≤ ingresada); aplica aunque no haya `ModificaBonArt*`.
+
+DevExtreme obligatorio; i18n en claves `pedidos.carga.*`; preservar `data-testid` documentados.

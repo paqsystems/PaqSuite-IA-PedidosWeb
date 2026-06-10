@@ -1,0 +1,322 @@
+/**
+ * Dashboard operativo PedidosWeb — patrón visual alineado a PaqSuite-IA-Tango (Producción).
+ * @see docs/02-producto/PedidosWeb/patron-dashboard-operativo-ui.md
+ */
+
+.dashboard-pedidosweb {
+  --dashboard-card-bg: var(--shell-panel-elevated-color, #fff);
+  --dashboard-border: var(--shell-border-color, #e2e8f0);
+  --dashboard-text: var(--shell-text-color, #1f2937);
+  --dashboard-muted: var(--shell-muted-text-color, #64748b);
+  --dashboard-accent: var(--shell-accent-color, #4f46e5);
+  --dashboard-presupuestos: #6366f1;
+  --dashboard-ingresados: #0ea5e9;
+  --dashboard-pendientes: #f59e0b;
+  --dashboard-top: #10b981;
+  --dashboard-otros: #64748b;
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+.dashboard-pedidosweb__header {
+  background: var(--dashboard-card-bg);
+  padding: 1.5rem 2rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.05);
+  border: 1px solid var(--dashboard-border);
+  margin-bottom: 1.5rem;
+}
+
+.dashboard-pedidosweb__headerTop {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.dashboard-pedidosweb__title {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--dashboard-text);
+}
+
+.dashboard-pedidosweb__subtitle {
+  margin: 0.35rem 0 0;
+  font-size: 0.95rem;
+  color: var(--dashboard-muted);
+  max-width: 42rem;
+}
+
+.dashboard-pedidosweb__meta {
+  margin: 0.75rem 0 0;
+  font-size: 0.85rem;
+  color: var(--dashboard-muted);
+}
+
+.dashboard-pedidosweb__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.dashboard-pedidosweb__quickLinks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.dashboard-loading-block {
+  background: var(--dashboard-card-bg);
+  padding: 2.5rem;
+  border-radius: 12px;
+  text-align: center;
+  color: var(--dashboard-muted);
+  border: 1px solid var(--dashboard-border);
+  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.05);
+}
+
+.dashboard-error {
+  background: color-mix(in srgb, var(--shell-danger-color, #b91c1c) 10%, transparent);
+  color: var(--shell-danger-color, #b91c1c);
+  padding: 1rem 1.25rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  border: 1px solid color-mix(in srgb, var(--shell-danger-color, #b91c1c) 30%, transparent);
+}
+
+.dashboard-pedidosweb__groups {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  align-items: stretch;
+}
+
+.dashboard-kpi-group {
+  background: var(--dashboard-card-bg);
+  padding: 1.25rem 1.25rem 1.35rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.05);
+  border: 1px solid var(--dashboard-border);
+  min-width: 0;
+}
+
+.dashboard-kpi-group__title {
+  margin: 0 0 1rem;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--dashboard-text);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.dashboard-kpi-group__title::before {
+  content: '';
+  width: 4px;
+  height: 1.1rem;
+  border-radius: 2px;
+  background: var(--dashboard-group-accent, var(--dashboard-accent));
+}
+
+.dashboard-kpi-group--presupuestos {
+  --dashboard-group-accent: var(--dashboard-presupuestos);
+}
+
+.dashboard-kpi-group--ingresados {
+  --dashboard-group-accent: var(--dashboard-ingresados);
+}
+
+.dashboard-kpi-group--pendientes {
+  --dashboard-group-accent: var(--dashboard-pendientes);
+}
+
+.dashboard-kpi-group--otros {
+  --dashboard-group-accent: var(--dashboard-otros);
+}
+
+.dashboard-pedidosweb__mesEnCursoPeriodo {
+  margin: -0.5rem 0 1.25rem;
+  font-size: 0.95rem;
+  color: var(--dashboard-muted);
+  text-transform: capitalize;
+}
+
+.dashboard-pedidosweb__groups--mesEnCurso {
+  margin-bottom: 0;
+}
+
+.dashboard-pedidosweb__groups .dashboard-kpi-cards {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+}
+
+.dashboard-kpi-card {
+  background: color-mix(in srgb, var(--dashboard-group-accent, var(--dashboard-accent)) 6%, var(--dashboard-card-bg));
+  padding: 1rem 1.1rem;
+  border-radius: 10px;
+  border: 1px solid var(--dashboard-border);
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-height: 5.5rem;
+}
+
+.dashboard-kpi-card--amount .dashboard-kpi-value {
+  font-size: 1.65rem;
+}
+
+.dashboard-kpi-label {
+  font-size: 0.8rem;
+  line-height: 1.3;
+  color: var(--dashboard-muted);
+}
+
+.dashboard-kpi-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--dashboard-text);
+  letter-spacing: -0.02em;
+}
+
+.dashboard-pedidosweb__monthlySection {
+  background: var(--dashboard-card-bg);
+  padding: 1.25rem 1.5rem 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.05);
+  border: 1px solid var(--dashboard-border);
+  margin-bottom: 1.5rem;
+}
+
+.dashboard-pedidosweb__monthlySection > h3 {
+  margin: 0 0 1rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--dashboard-text);
+}
+
+.dashboard-monthly-empty {
+  margin: 0;
+  color: var(--dashboard-muted);
+  font-size: 0.9rem;
+}
+
+.dashboard-monthly-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.dashboard-monthly-card {
+  padding: 1rem 1.1rem;
+  border-radius: 10px;
+  border: 1px solid var(--dashboard-border);
+  background: color-mix(in srgb, var(--dashboard-accent) 6%, var(--dashboard-card-bg));
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.dashboard-monthly-card__label {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--dashboard-text);
+  text-transform: capitalize;
+}
+
+.dashboard-monthly-card__metric {
+  font-size: 0.85rem;
+  color: var(--dashboard-muted);
+}
+
+.dashboard-pedidosweb__topSection {
+  background: var(--dashboard-card-bg);
+  padding: 1.25rem 1.5rem 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.05);
+  border: 1px solid var(--dashboard-border);
+}
+
+.dashboard-pedidosweb__topSection > h3 {
+  margin: 0 0 1rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--dashboard-text);
+}
+
+.dashboard-pedidosweb__topCards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.dashboard-top-card {
+  padding: 1rem 1.15rem;
+  border-radius: 10px;
+  border: 1px solid var(--dashboard-border);
+  background: color-mix(in srgb, var(--dashboard-top) 8%, var(--dashboard-card-bg));
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.dashboard-top-card__label {
+  font-size: 0.8rem;
+  color: var(--dashboard-muted);
+}
+
+.dashboard-top-card__name {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--dashboard-text);
+  line-height: 1.35;
+}
+
+.dashboard-top-card__amount {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--dashboard-top);
+}
+
+.dashboard-top-card__empty {
+  font-size: 1rem;
+  color: var(--dashboard-muted);
+  font-style: italic;
+}
+
+@media (max-width: 960px) {
+  .dashboard-pedidosweb__groups {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard-pedidosweb__groups .dashboard-kpi-cards {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .dashboard-pedidosweb__groups .dashboard-kpi-card--amount {
+    grid-column: auto;
+  }
+}
+
+@media (max-width: 640px) {
+  .dashboard-pedidosweb__header {
+    padding: 1rem;
+  }
+
+  .dashboard-kpi-group {
+    padding: 1rem;
+  }
+
+  .dashboard-pedidosweb__groups .dashboard-kpi-cards {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .dashboard-pedidosweb__groups .dashboard-kpi-card--amount {
+    grid-column: 1 / -1;
+  }
+}

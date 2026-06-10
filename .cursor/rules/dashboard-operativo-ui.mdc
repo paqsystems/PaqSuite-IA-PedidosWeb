@@ -1,0 +1,17 @@
+---
+description: Dashboard operativo PedidosWeb — layout KPI y testids
+globs:
+  - frontend/src/features/shell/pages/DashboardPage.*
+  - frontend/src/features/shell/api/dashboardApi.ts
+  - docs/**/TR-SPEC-101-14-dashboard.md
+  - docs/02-producto/PedidosWeb/patron-dashboard-operativo-ui.md
+---
+
+# Dashboard operativo UI
+
+- Fuente de verdad: `docs/02-producto/PedidosWeb/patron-dashboard-operativo-ui.md`.
+- Referencia visual: PaqSuite-IA-Tango `DashboardProduccion` + `Dashboard.css` (tarjetas KPI, secciones card, estados loading/error).
+- Mantener los 8 KPIs y `data-testid` documentados; no acoplar tests al DOM interno de DevExtreme.
+- Agrupar KPIs por dominio (presupuestos / ingresados / pendientes) con acentos de color; top clientes en bloque aparte.
+- Textos solo i18n (`dashboard.*`); controles interactivos con DevExtreme `Button`.
+- API: `GET /api/v1/dashboard/operativo` — no cambiar contrato sin actualizar TR-SPEC-101-14 y SPEC-101-14.

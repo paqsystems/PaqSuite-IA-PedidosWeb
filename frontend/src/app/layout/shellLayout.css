@@ -1,0 +1,222 @@
+.shellLayout {
+  --shell-header-height: 3.5rem;
+  --shell-footer-height: 2.5rem;
+  --shell-sidebar-width: 16rem;
+  --shell-sidebar-collapsed-width: 0rem;
+  --shell-border-color: var(--app-shell-border-color, #d9dee7);
+  --shell-surface-color: var(--app-shell-surface-color, #f5f7fb);
+  --shell-panel-color: var(--app-shell-panel-color, #ffffff);
+  --shell-panel-elevated-color: var(--app-shell-panel-elevated-color, #ffffff);
+  --shell-text-color: var(--app-shell-text-color, #1f2937);
+  --shell-muted-text-color: var(--app-shell-muted-text-color, #64748b);
+  --shell-accent-color: var(--app-shell-accent-color, #4f46e5);
+  --shell-accent-contrast-color: var(--app-shell-accent-contrast-color, #ffffff);
+  --shell-accent-soft-color: var(--app-shell-accent-soft-color, rgba(79, 70, 229, 0.14));
+  --shell-accent-soft-hover-color: var(--app-shell-accent-soft-hover-color, rgba(79, 70, 229, 0.2));
+  --shell-footer-background-color: var(--app-shell-footer-background-color, #0f172a);
+  --shell-footer-text-color: var(--app-shell-footer-text-color, #cbd5e1);
+  --shell-footer-strong-text-color: var(--app-shell-footer-strong-text-color, #ffffff);
+  --shell-overlay-color: var(--app-shell-overlay-color, rgba(15, 23, 42, 0.35));
+  --shell-danger-color: var(--app-shell-danger-color, #b91c1c);
+  min-height: 100vh;
+  display: grid;
+  grid-template-rows: var(--shell-header-height) 1fr var(--shell-footer-height);
+  grid-template-columns: var(--shell-sidebar-width) 1fr;
+  grid-template-areas:
+    'header header'
+    'sidebar main'
+    'footer footer';
+  background: var(--shell-surface-color);
+  color: var(--shell-text-color);
+}
+
+.shellLayoutSidebarCollapsed {
+  --shell-sidebar-width: var(--shell-sidebar-collapsed-width);
+}
+
+.shellLayoutSidebarOverlay .shellSidebar {
+  position: fixed;
+  top: var(--shell-header-height);
+  left: 0;
+  bottom: var(--shell-footer-height);
+  width: min(85vw, 18rem);
+  z-index: 20;
+  transform: translateX(-110%);
+  transition: transform 0.2s ease;
+  box-shadow: 0 0.5rem 1.5rem rgba(15, 23, 42, 0.18);
+}
+
+.shellLayoutSidebarOverlay.shellLayoutSidebarOpen .shellSidebar {
+  transform: translateX(0);
+}
+
+.shellLayoutSidebarOverlay.shellLayoutSidebarOpen::before {
+  content: '';
+  position: fixed;
+  inset: var(--shell-header-height) 0 var(--shell-footer-height) 0;
+  background: var(--shell-overlay-color);
+  z-index: 10;
+}
+
+.shellHeader {
+  grid-area: header;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0 1rem;
+  background: var(--shell-panel-color);
+  border-bottom: 1px solid var(--shell-border-color);
+}
+
+.shellHeaderStart,
+.shellHeaderEnd {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.shellHeaderBrand {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.shellMenuControls {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.shellIconButton {
+  border: 1px solid var(--shell-border-color);
+  background: var(--shell-panel-color);
+  color: var(--shell-text-color);
+  border-radius: 0.375rem;
+  width: 2.25rem;
+  height: 2.25rem;
+  cursor: pointer;
+}
+
+.shellIconButton:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.shellHeaderSlot {
+  min-width: 5rem;
+  font-size: 0.875rem;
+  color: var(--shell-muted-text-color);
+}
+
+.shellSidebar {
+  grid-area: sidebar;
+  overflow: auto;
+  background: var(--shell-panel-color);
+  border-right: 1px solid var(--shell-border-color);
+  padding: 0.75rem;
+}
+
+.shellMain {
+  grid-area: main;
+  overflow: auto;
+  padding: 1rem;
+}
+
+.shellFooter {
+  grid-area: footer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0 1rem;
+  background: var(--shell-footer-background-color);
+  border-top: 1px solid var(--shell-border-color);
+  font-size: 0.8125rem;
+  color: var(--shell-footer-text-color);
+}
+
+.shellFooterSession {
+  font-weight: 500;
+  color: var(--shell-footer-strong-text-color);
+}
+
+.shellFooterBrand,
+.shellFooterVersion {
+  opacity: 0.92;
+}
+
+.menuSidebarTree {
+  background: transparent;
+  color: var(--shell-text-color);
+}
+
+.menuSidebarTree .dx-treeview-node,
+.menuSidebarTree .dx-treeview-item,
+.menuSidebarTree .dx-treeview-item-content,
+.menuSidebarTree .dx-treeview-toggle-item-visibility,
+.menuSidebarTree .dx-icon {
+  color: var(--shell-text-color);
+}
+
+.menuSidebarTree .dx-treeview-item {
+  border-radius: 0.375rem;
+}
+
+.menuSidebarTree .dx-treeview-item.dx-state-hover,
+.menuSidebarTree .dx-treeview-item.dx-state-focused {
+  background: var(--shell-accent-soft-color);
+}
+
+.menuSidebarTree .dx-state-selected > .dx-treeview-item {
+  background: var(--shell-accent-soft-hover-color);
+  color: var(--shell-accent-contrast-color);
+  font-weight: 600;
+}
+
+.menuSidebarTree .dx-state-selected > .dx-treeview-item .dx-treeview-item-content,
+.menuSidebarTree .dx-state-selected > .dx-treeview-item .dx-icon,
+.menuSidebarTree .dx-state-selected > .dx-treeview-item .dx-treeview-toggle-item-visibility {
+  color: inherit;
+}
+
+.menuSidebarTree .dx-treeview-node-container {
+  margin: 0;
+}
+
+.shellMain a {
+  color: var(--shell-accent-color);
+}
+
+.shellMain a:hover {
+  color: var(--shell-accent-color);
+  opacity: 0.92;
+}
+
+@media (max-width: 767px) {
+  .shellLayout {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      'header'
+      'main'
+      'footer';
+  }
+
+  .shellLayout .shellSidebar {
+    grid-area: unset;
+  }
+}
+
+html[data-color-scheme='dark'] .shellSidebar {
+  box-shadow: inset -1px 0 0 0 var(--shell-border-color);
+}
+
+@media (max-width: 767px) {
+  .shellFooter {
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: 0.45rem 0.75rem;
+    min-height: 3.5rem;
+    text-align: center;
+  }
+}

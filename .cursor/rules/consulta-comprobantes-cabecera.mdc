@@ -1,0 +1,19 @@
+---
+description: Consultas comprobantes cabecera — columnas ampliadas
+globs:
+  - backend/app/Services/PedidosWeb/ConsultaListadoService.php
+  - frontend/src/features/consultas/components/ComprobanteConsultaColumns.tsx
+  - frontend/src/features/consultas/api/consultaApi.ts
+  - frontend/src/features/pedidos/pages/PedidosIngresadosPage.tsx
+  - frontend/src/features/pedidos/pages/PedidosPendientesPage.tsx
+  - frontend/src/features/presupuestos/pages/PresupuestosPage.tsx
+  - docs/**/consulta-comprobantes-cabecera.md
+---
+
+# Consulta comprobantes (cabecera)
+
+- Fuente de verdad: `docs/02-producto/PedidosWeb/consulta-comprobantes-cabecera.md`.
+- Aplica a pedidos ingresados, pendientes y presupuestos (activos/cerrados).
+- Columnas visibles inicial vs ocultas: definidas en `ComprobanteConsultaColumns.tsx`.
+- Estado: texto i18n `consultas.comprobanteEstado.*`; moneda Extranjera/Corriente.
+- API: `ConsultaListadoService::mapComprobanteItem` con joins de maestros.

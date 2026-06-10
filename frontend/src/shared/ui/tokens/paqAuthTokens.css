@@ -1,0 +1,37 @@
+/**
+ * Tokens estéticos — pantallas públicas de credenciales (marca PaqSuite).
+ * Fuente normativa: docs/_base/00-modelo-estetica-ui-base.md
+ */
+:root {
+  --paq-auth-bg-gradient: linear-gradient(135deg, #5b6ee1 0%, #6d46a6 52%, #18243f 100%);
+  --paq-auth-bg-radial: radial-gradient(circle at top left, rgba(255, 255, 255, 0.18), transparent 32%);
+  --paq-auth-cta-gradient: linear-gradient(135deg, #5b6ee1 0%, #6d46a6 100%);
+  --paq-auth-focus-border: #5b6ee1;
+  --paq-auth-focus-ring: 0 0 0 4px rgba(91, 110, 225, 0.14);
+  --paq-auth-cta-hover-shadow: 0 16px 28px rgba(91, 110, 225, 0.28);
+  --paq-auth-card-bg: rgba(255, 255, 255, 0.96);
+  --paq-auth-card-shadow: 0 24px 60px rgba(8, 15, 30, 0.22);
+  --paq-auth-card-radius: 24px;
+  --paq-auth-card-radius-mobile: 20px;
+  --paq-auth-hero-text: #ffffff;
+  --paq-auth-hero-text-muted: rgba(255, 255, 255, 0.84);
+  --paq-auth-badge-bg: rgba(255, 255, 255, 0.16);
+  --paq-auth-badge-border: rgba(255, 255, 255, 0.26);
+  --paq-auth-heading: #0f172a;
+  --paq-auth-body: #475569;
+  --paq-auth-label: #334155;
+  --paq-auth-input-text: #0f172a;
+  --paq-auth-placeholder: #94a3b8;
+  --paq-auth-link: #4f46e5;
+  --paq-auth-panel-overlay: rgba(10, 18, 35, 0.16);
+  --paq-auth-error-bg: #fef2f2;
+  --paq-auth-error-border: #fecaca;
+  --paq-auth-error-text: #b91c1c;
+  --paq-auth-success-bg: #ecfdf5;
+  --paq-auth-success-border: #a7f3d0;
+  --paq-auth-success-text: #047857;
+  --paq-auth-gate-bg: #eef2ff;
+  --paq-auth-gate-border: #c7d2fe;
+  --paq-auth-gate-text: #3730a3;
+  --paq-auth-cta-disabled-opacity: 0.72;
+}

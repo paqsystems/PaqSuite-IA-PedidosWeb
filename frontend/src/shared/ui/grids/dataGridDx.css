@@ -1,0 +1,55 @@
+.dataGridDx {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.dataGridDx__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.dataGridDx__toolbarStart,
+.dataGridDx__toolbarEnd {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.dataGridDx__message {
+  margin: 0;
+  padding: 0.5rem 0.75rem;
+  border-radius: 4px;
+  font-size: 0.875rem;
+}
+
+.dataGridDx__message--error {
+  background: color-mix(in srgb, var(--dx-color-danger, #d9534f) 12%, transparent);
+  color: var(--dx-color-danger, #c9302c);
+}
+
+.dataGridDx__message--loading {
+  color: var(--dx-color-text, inherit);
+  opacity: 0.85;
+}
+
+/* Fila de totalizadores: alinear separación visual con el cuerpo de la grilla (por columna). */
+.dataGridDx .dx-datagrid-total-footer > td,
+.dataGridDx td.dataGridDx__summaryCell {
+  border-right: 1px solid var(--dx-datagrid-border-color, color-mix(in srgb, currentColor 14%, transparent));
+}
+
+.dataGridDx .dx-datagrid-total-footer > td:last-child,
+.dataGridDx td.dataGridDx__summaryCell:last-child {
+  border-right-width: 0;
+}
+
+.dataGridDx .dx-datagrid-total-footer {
+  border-top: 1px solid var(--dx-datagrid-border-color, color-mix(in srgb, currentColor 18%, transparent));
+  background-color: color-mix(in srgb, var(--dx-color-border, #94a3b8) 6%, transparent);
+}

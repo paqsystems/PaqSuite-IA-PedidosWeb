@@ -1,0 +1,21 @@
+---
+description: Consulta deuda PedidosWeb — campos, joins y API
+globs:
+  - backend/app/Services/PedidosWeb/DeudaConsultaService.php
+  - backend/app/Services/PedidosWeb/ConsultaListadoService.php
+  - backend/app/Services/PedidosWeb/PedidosWebSchemaBootstrap.php
+  - frontend/src/features/consultas/**/Deuda*
+  - frontend/src/features/consultas/api/consultaApi.ts
+  - docs/**/consulta-deuda.md
+  - docs/**/TR-SPEC-101-07*.md
+---
+
+# Consulta de deuda
+
+- Fuente de verdad: `docs/02-producto/PedidosWeb/consulta-deuda.md`.
+- Columnas ERP: `cod_cliente`, `t_comp`, `n_comp`, `fecha_emis`, `fecha_vto`, `saldo`.
+- Razón social: `pq_pedidosweb_clientes.razon_soci` (join por `cod_client`); fallback `nombre`.
+- Compatibilidad legacy: `tipo_comprobante`, `nro_comprobante`, `fecha` — detectar con `deudaColumnMap()`, no duplicar lógica.
+- Visibilidad: universo de clientes del usuario; `cod_cliente` query opcional con guard 404.
+- `metadata.fecha_proceso` en carátula; `saldo` con 2 decimales en API y `#,##0.00` en grilla.
+- Mantener consulta paginada en SQL (`DeudaConsultaService`); no recalcular saldos en PHP.

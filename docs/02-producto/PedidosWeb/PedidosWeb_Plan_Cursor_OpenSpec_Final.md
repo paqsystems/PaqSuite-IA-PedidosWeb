@@ -15,7 +15,9 @@ Cada paso debe generar:
 
 ## 2. Orden sugerido de specs
 
-### SPEC-001 - Backend base Laravel
+**Codificación:** slices, HU y TR de PedidosWeb usan prefijo **`SPEC-101-xx`** (alineado a `docs/05-open-spec/101-PedidosWeb/PedidosWeb_SPEC_MVP.md`). HU: **`HU-101-xxx`**; TR: **`TR-SPEC-101-xx-*.md`** en `docs/04-tareas/101-PedidosWeb/`.
+
+### SPEC-101-01 - Backend base Laravel
 
 Objetivo: crear estructura base backend con arquitectura limpia.
 
@@ -34,7 +36,7 @@ Incluye:
 
 No incluye lógica de pedidos.
 
-### SPEC-002 - Modelos Eloquent
+### SPEC-101-02 - Modelos Eloquent
 
 Crear modelos para tablas existentes:
 
@@ -52,7 +54,7 @@ Crear modelos para tablas existentes:
 
 Respetar claves primarias y relaciones.
 
-### SPEC-003 - Repositories
+### SPEC-101-03 - Repositories
 
 Crear repositories de acceso a datos:
 
@@ -64,7 +66,7 @@ Crear repositories de acceso a datos:
 
 Sin lógica de negocio.
 
-### SPEC-004 - PedidoService
+### SPEC-101-04 - PedidoService
 
 Implementar lógica real:
 
@@ -72,14 +74,15 @@ Implementar lógica real:
 - editar pedido estado 0.
 - eliminar pedido estado 0.
 - crear presupuesto estado 99.
-- editar presupuesto.
-- convertir presupuesto a pedido.
+- editar presupuesto **estado 99** (activo).
+- cerrar/rechazar presupuesto **estado 99 → 98** (con motivo y registro en `presupuestos_cierres`).
+- convertir presupuesto a pedido (**presupuesto → 98**, pedido nuevo estado 0).
 - convertir pedido a presupuesto.
 - copiar comprobante.
 - calcular totales.
 - auditoría.
 
-### SPEC-005 - Controllers REST
+### SPEC-101-05 - Controllers REST
 
 Crear endpoints JSON:
 
@@ -89,13 +92,13 @@ Crear endpoints JSON:
 - GET /pedidos.
 - GET /pedidos/{id}.
 - POST /presupuestos.
-- PUT /presupuestos/{id}.
-- DELETE /presupuestos/{id}.
-- POST /presupuestos/{id}/convertir-a-pedido.
+- PUT /presupuestos/{id} (solo estado 99).
+- POST /presupuestos/{id}/cerrar (cierre negativo/positivo → estado 98).
+- POST /presupuestos/{id}/convertir-a-pedido (presupuesto → 98).
 
 Controllers sin lógica de negocio.
 
-### SPEC-006 - Autenticación
+### SPEC-101-06 - Autenticación
 
 Implementar:
 
@@ -106,7 +109,7 @@ Implementar:
 - middleware de autenticación.
 - policies de visibilidad.
 
-### SPEC-007 - Consultas
+### SPEC-101-07 - Consultas
 
 Endpoints:
 
@@ -120,7 +123,7 @@ Endpoints:
 
 Con filtros básicos, paginación y preparación para exportación.
 
-### SPEC-008 - Logs de integración
+### SPEC-101-08 - Logs de integración
 
 Crear:
 
@@ -129,7 +132,7 @@ Crear:
 - endpoint de consulta.
 - filtros por fecha, tipo y severidad.
 
-### SPEC-009 - Frontend base
+### SPEC-101-09 - Frontend base
 
 Crear estructura React + DevExtreme:
 
@@ -140,7 +143,7 @@ Crear estructura React + DevExtreme:
 - cliente API.
 - manejo de sesión.
 
-### SPEC-010 - Pantalla clave de pedidos
+### SPEC-101-10 - Pantalla clave de pedidos
 
 Crear pantalla de carga:
 
@@ -152,29 +155,30 @@ Crear pantalla de carga:
 - guardar pedido.
 - guardar presupuesto.
 
-### SPEC-011 - Consultas frontend
+### SPEC-101-11 - Consultas frontend
 
 Crear pantallas con grillas DevExtreme para:
 
 - pedidos ingresados.
 - pedidos pendientes.
-- presupuestos.
+- presupuestos activos (estado 99).
+- presupuestos cerrados (estado 98, solo consulta).
 - stock.
 - deuda.
 - cheques.
 - historial.
 
-### SPEC-012 - Tratativas y motivos de cierre
+### SPEC-101-12 - Tratativas y motivos de cierre
 
 Crear:
 
 - tablas nuevas.
 - endpoints.
 - pantalla simple de tratativas.
-- cierre positivo/parcial/negativo.
+- cierre positivo/parcial/negativo (**presupuesto pasa a estado 98**).
 - motivo obligatorio cuando corresponda.
 
-### SPEC-013 - Mails
+### SPEC-101-13 - Mails
 
 Implementar:
 
@@ -184,7 +188,7 @@ Implementar:
 - destinatarios definidos.
 - logging de errores de mail.
 
-### SPEC-014 - Dashboard
+### SPEC-101-14 - Dashboard
 
 Crear indicadores:
 
@@ -193,7 +197,7 @@ Crear indicadores:
 - artículos CORE sin movimiento.
 - pedidos por vendedor.
 
-### SPEC-015 - Tests
+### SPEC-101-15 - Tests
 
 Agregar o completar:
 
@@ -235,7 +239,8 @@ Estados:
 - 0 pedido ingresado.
 - 1 pedido pendiente ERP.
 - 2 pedido cerrado/cumplido.
-- 99 presupuesto.
+- 98 presupuesto cerrado (conversión, cierre o rechazo).
+- 99 presupuesto activo/ingresado.
 ```
 
 ## 4. Criterio para Historias de Usuario
@@ -275,26 +280,28 @@ Cada HU debe contener:
 
 ## 6. Primeras HU Must
 
-- HU-001 Login de usuario.
-- HU-002 Recuperación de contraseña.
-- HU-003 Resolución de tenant (`{cliente}.pedidosweb` → `frontend.pedidosweb`, `X-Paq-Cliente`, SQL). Fuente: `docs/_base/resolucion-host-cliente-sql-mono.md`.
-- HU-004 Selección de cliente según tipo de usuario.
-- HU-005 Inicialización de cabecera desde cliente.
-- HU-006 Carga de renglones con artículos.
-- HU-007 Cálculo de bonificación neta.
-- HU-008 Cálculo de precio neto e importes.
-- HU-009 Grabación de pedido.
-- HU-010 Grabación de presupuesto.
-- HU-011 Edición de pedido ingresado.
-- HU-012 Eliminación de pedido ingresado.
-- HU-013 Conversión de presupuesto a pedido.
-- HU-014 Cierre negativo de presupuesto.
-- HU-015 Consulta de pedidos ingresados.
-- HU-016 Consulta de presupuestos ingresados.
-- HU-017 Consulta de pedidos pendientes.
-- HU-018 Consulta de stock.
-- HU-019 Envío de mail al grabar.
-- HU-020 Log de integración.
+Convención de archivo: `HU-101-xxx-nombre.md` en `docs/03-historias-usuario/101-PedidosWeb/`.
+
+- HU-101-001 Login de usuario (`SPEC-101-06`).
+- HU-101-002 Recuperación de contraseña (`SPEC-101-06`).
+- HU-101-003 Resolución de tenant (`{cliente}.pedidosweb` → `frontend.pedidosweb`, `X-Paq-Cliente`, SQL). Fuente: `docs/_base/resolucion-host-cliente-sql-mono.md` (`SPEC-101-01`).
+- HU-101-004 Selección de cliente según tipo de usuario.
+- HU-101-005 Inicialización de cabecera desde cliente.
+- HU-101-006 Carga de renglones con artículos.
+- HU-101-007 Cálculo de bonificación neta.
+- HU-101-008 Cálculo de precio neto e importes.
+- HU-101-009 Grabación de pedido.
+- HU-101-010 Grabación de presupuesto.
+- HU-101-011 Edición de pedido ingresado.
+- HU-101-012 Eliminación de pedido ingresado.
+- HU-101-013 Conversión de presupuesto a pedido (`SPEC-101-12`).
+- HU-101-014 Cierre/rechazo de presupuesto (estado 99 → 98 + `presupuestos_cierres`) (`SPEC-101-12`).
+- HU-101-015 Consulta de pedidos ingresados.
+- HU-101-016 Consulta de presupuestos activos (estado 99) y cerrados (estado 98).
+- HU-101-017 Consulta de pedidos pendientes.
+- HU-101-018 Consulta de stock.
+- HU-101-019 Envío de mail al grabar (`SPEC-101-13`).
+- HU-101-020 Log de integración (`SPEC-101-08`).
 
 ## 7. Recomendación de ejecución
 
@@ -310,4 +317,4 @@ Luego pedir:
 Generá las épicas y todas las historias de usuario del MVP respetando este contexto. No generes código todavía.
 ```
 
-Después revisar manualmente las HU y recién entonces pasar a tasks técnicas por SPEC.
+Después revisar manualmente las HU y recién entonces pasar a TR por slice (`TR-SPEC-101-xx-*.md`).

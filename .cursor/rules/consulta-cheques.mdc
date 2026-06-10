@@ -1,0 +1,23 @@
+---
+description: Consulta cheques PedidosWeb — campos, joins y API
+globs:
+  - backend/app/Services/PedidosWeb/ChequesConsultaService.php
+  - backend/app/Services/PedidosWeb/ConsultaListadoService.php
+  - backend/app/Services/PedidosWeb/PedidosWebSchemaBootstrap.php
+  - backend/app/Models/PqPedidoswebCheque.php
+  - frontend/src/features/consultas/**/Cheques*
+  - frontend/src/features/consultas/api/consultaApi.ts
+  - docs/**/consulta-cheques.md
+  - docs/**/TR-SPEC-101-07*.md
+---
+
+# Consulta de cheques
+
+- Fuente de verdad: `docs/02-producto/PedidosWeb/consulta-cheques.md`.
+- Columnas cheques: `interno`, `numero`, `cod_cliente`, `Banco`, `fecha`, `Importe`, `Origen`, `Estado`.
+- Nombre cliente: `pq_pedidosweb_clientes.nombre` (join por `cod_client`); **no** usar `razon_soci`.
+- Compatibilidad legacy: `cod_client`, `banco`, `importe`, `origen`, `estado` — detectar con `chequesColumnMap()`, no duplicar lógica.
+- Filtro negocio: `fecha >= hoy` (§17.5 — cartera o aplicados a futuro).
+- Visibilidad: universo de clientes del usuario; `cod_cliente` query opcional con guard 404.
+- `metadata.fecha_proceso` en carátula; `importe` con 2 decimales en API y `#,##0.00` en grilla.
+- Mantener consulta paginada en SQL con join clientes (`ChequesConsultaService`).

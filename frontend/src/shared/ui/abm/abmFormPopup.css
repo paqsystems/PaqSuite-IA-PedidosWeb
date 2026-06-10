@@ -1,0 +1,23 @@
+.abmFormPopup .dx-overlay-content {
+  max-height: 90vh;
+}
+
+.abmFormPopup__body {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 0.25rem 0;
+}
+
+.abmFormPopup__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.abmFormPopup__error {
+  margin: 0;
+  color: var(--dx-color-danger, #d32f2f);
+  font-size: 0.875rem;
+}

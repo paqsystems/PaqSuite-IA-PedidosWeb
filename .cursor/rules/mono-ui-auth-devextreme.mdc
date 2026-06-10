@@ -1,0 +1,14 @@
+---
+description: Norma MONO para UI auth, idioma y apariencia
+alwaysApply: true
+---
+
+# Patrón UI Auth DevExtreme
+
+- Al tocar login, forgot/reset password, change password, selector de idioma o apariencia, consultar `docs/00-contexto/_mono/01-experiencia-base/patron-ui-auth-devextreme.md`.
+- Tratar ese documento como contrato base reusable para proyectos MONO, salvo que la TR pida una excepción explícita.
+- Usar controles DevExtreme equivalentes; no introducir HTML nativo final si DX cubre el caso.
+- Todo texto visible debe salir de i18n activo: títulos, labels, placeholders, botones, mensajes y catálogos.
+- Preservar `data-testid` públicos y estables; no acoplar tests al DOM interno de DevExtreme.
+- En apariencia: `Aplicar` previsualiza sin cerrar, `Confirmar` persiste y cierra, `Cancelar/X` revierten previews no confirmados.
+- Verificar responsive mínimo: títulos no truncados, acciones visibles y listas usables en catálogos largos.

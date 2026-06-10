@@ -1,0 +1,73 @@
+.avatarMenu {
+  position: relative;
+}
+
+.avatarMenuTrigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border: 1px solid var(--shell-border-color, #d9dee7);
+  border-radius: 999px;
+  background: var(--app-shell-accent-soft-color, rgba(79, 70, 229, 0.14));
+  color: var(--app-shell-text-color, #1f2937);
+  cursor: pointer;
+  padding: 0;
+}
+
+.avatarMenuTrigger:focus-visible {
+  outline: 2px solid var(--app-shell-accent-color, #3b82f6);
+  outline-offset: 2px;
+}
+
+.avatarMenuInitials {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.avatarMenuPanel {
+  position: absolute;
+  top: calc(100% + 0.375rem);
+  right: 0;
+  z-index: 30;
+  min-width: 14rem;
+  padding: 0.5rem;
+  border: 1px solid var(--shell-border-color, #d9dee7);
+  border-radius: 0.5rem;
+  background: var(--app-shell-panel-elevated-color, #ffffff);
+  color: var(--app-shell-text-color, #1f2937);
+  box-shadow: 0 0.5rem 1.25rem rgba(15, 23, 42, 0.12);
+}
+
+.avatarMenuToggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.625rem;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+
+.avatarMenuAction {
+  display: block;
+  width: 100%;
+  padding: 0.5rem 0.625rem;
+  border: 0;
+  border-radius: 0.375rem;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.avatarMenuAction:hover,
+.avatarMenuAction:focus-visible {
+  background: var(--app-shell-accent-soft-color, rgba(79, 70, 229, 0.14));
+}
+
+.avatarMenuActionDanger {
+  color: var(--app-shell-danger-color, #b91c1c);
+}

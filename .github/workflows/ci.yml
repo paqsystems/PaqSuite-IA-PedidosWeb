@@ -1,0 +1,86 @@
+# Plantilla PaqSuite — Integración Continua (monorepo backend/ + frontend/)
+# Instalación: docs/_base/00-github-actions-ci-scaffold.md
+
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - 'v*.*.*'
+      - 'v*.*.*-*'
+  pull_request:
+    branches:
+      - main
+      - 'v*.*.*'
+      - 'v*.*.*-*'
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    name: Backend (PHPUnit smoke)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, xml, ctype, json, bcmath, openssl, pdo, pdo_sqlite
+          coverage: none
+
+      - name: Cache Composer
+        uses: actions/cache@v4
+        with:
+          path: backend/vendor
+          key: composer-${{ runner.os }}-${{ hashFiles('backend/composer.lock') }}
+
+      - name: Install dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: PHPUnit smoke (sin SQL Server)
+        env:
+          APP_ENV: testing
+          APP_KEY: base64:2fl+Ktvkuj6qLk5kF4Q8h3Y9x1ZvN0mP7wR6tU5sQ8=
+          DB_CONNECTION: sqlite
+          DB_DATABASE: ':memory:'
+        run: |
+          php artisan test \
+            tests/Feature/HealthCheckTest.php \
+            tests/Unit/ApiResponseTest.php
+
+  frontend:
+    name: Frontend (build + Vitest)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        env:
+          VITE_DEVEXTREME_LICENSE: ${{ secrets.VITE_DEVEXTREME_LICENSE }}
+        run: npm run build
+
+      - name: Unit tests
+        run: npm run test

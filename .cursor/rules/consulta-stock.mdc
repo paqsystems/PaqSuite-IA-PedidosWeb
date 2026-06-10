@@ -1,0 +1,20 @@
+---
+description: Consulta stock PedidosWeb — campos, fórmulas y API
+globs:
+  - backend/app/Services/PedidosWeb/StockConsultaService.php
+  - backend/app/Services/PedidosWeb/ConsultaListadoService.php
+  - frontend/src/features/consultas/**/Stock*
+  - frontend/src/features/consultas/api/consultaApi.ts
+  - docs/**/consulta-stock.md
+  - docs/**/TR-SPEC-101-07*.md
+---
+
+# Consulta stock
+
+- Fuente de verdad: `docs/02-producto/PedidosWeb/consulta-stock.md`.
+- `comprometidoWeb` / `comprometidoBaseWeb`: solo `pq_pedidosweb_pedidoscabecera.estado = 0`.
+- `disponibleNeto = stock - comprometido - comprometidoWeb`.
+- Métricas `*Base` solo si `pq_pedidosweb_articulos.base` no está vacío; agregar por mismo `base`.
+- `disponibleNetoBase = stockBase - comprometidoBase - comprometidoBaseWeb`.
+- Mantener consulta agregada en SQL (`StockConsultaService`); no recalcular en PHP fila a fila.
+- No filtrar por cliente visible; sí `q` por código/descripción.

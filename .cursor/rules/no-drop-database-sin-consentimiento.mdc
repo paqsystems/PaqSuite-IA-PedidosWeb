@@ -1,0 +1,52 @@
+---
+description: PROHIBIDO borrar tablas o esquema SQL sin consentimiento explícito del usuario
+alwaysApply: true
+---
+
+# Base de datos — cero destructivo sin consentimiento explícito
+
+## Regla absoluta
+
+**No ejecutar, proponer ejecutar ni automatizar** ninguna operación que **elimine o recree esquema** o **vacíe tablas** en la base configurada en `backend/.env` (`DB_DATABASE`, hoy suele ser `Ankas_del_sur`) **sin que el usuario lo pida de forma explícita y literal en el chat**.
+
+Frases del usuario que **NO** cuentan como consentimiento:
+
+- «iniciá el entorno», «arreglá el login», «corré tests», «dejá listo dev»
+- «restaurá datos», «bootstrap», «seed» (genérico)
+- Silencio o suposiciones del agente
+
+Frases que **SÍ** cuentan (ejemplos):
+
+- «Ejecutá el bootstrap destructivo en Ankas_del_sur»
+- «Autorizo DROP de tablas pq_pedidosweb_*»
+- «Confirmo: podés correr paqsuite:bootstrap-pedidosweb-dev»
+
+Si hace falta una operación destructiva, **detenerse y preguntar** con el comando exacto y la base objetivo. Esperar respuesta afirmativa del usuario.
+
+## Operaciones prohibidas sin consentimiento
+
+- `DROP TABLE`, `DROP DATABASE`, `TRUNCATE TABLE`
+- `Schema::drop`, `Schema::dropIfExists`, `migrate:fresh`, `migrate:refresh`, `db:wipe`
+- `php artisan paqsuite:bootstrap-pedidosweb-dev` y `php scripts/bootstrap-pedidosweb-dev.php` (DROP masivo `pq_pedidosweb_*` + `PQ_parametros_gral`)
+- Cualquier script/comando que invoque `PedidosWebDevSchemaBootstrap::dropPedidosWebTables` o `recreateParametrosGralTable`
+- SQL ad hoc o MCP que borre tablas o esquema
+
+## Permitido sin pedir (no borra esquema)
+
+- `CREATE TABLE` / `ALTER TABLE ADD` solo si faltan objetos y **no** implica DROP previo
+- `php scripts/bootstrap-dev-login.php` (solo crea tablas mínimas si no existen)
+- `paqsuite:seed-menus-mvp`, `paqsuite:seed-seguridad-mvp`, `paqsuite:sync-pedidosweb-login-from-users`
+- `INSERT` / `UPDATE` / `DELETE` acotado a filas de seed o tests (sin vaciar tablas enteras)
+- Consultas `SELECT` e inspección (`list-pq-tables.php`, diagnose, etc.)
+
+## Antes de cualquier comando backend que toque SQL
+
+1. Verificar si puede **DROP/TRUNCATE/recreate** esquema.
+2. Si puede → **no ejecutar** salvo consentimiento explícito del usuario.
+3. Preferir siempre la opción **no destructiva** (login mínimo, seeds, mocks E2E).
+
+## Bases ERP compartidas
+
+En `Ankas_del_sur` y bases de cliente/ERP compartidas: tratar **todo DROP** como incidente grave. Aunque exista `ALLOW_PEDIDOSWEB_DESTRUCTIVE_BOOTSTRAP=true` en `.env`, **igual** se requiere consentimiento explícito del usuario en el chat.
+
+Ver también: `.cursor/rules/pedidosweb-destructive-bootstrap.mdc`.

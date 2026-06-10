@@ -1,0 +1,16 @@
+---
+description: DevExtreme obligatorio en la UI frontend
+alwaysApply: true
+---
+
+# DevExtreme obligatorio
+
+- En este proyecto, toda UI interactiva de frontend debe usar controles DevExtreme cuando exista equivalente razonable.
+- No introducir controles HTML nativos finales como `<select>`, `<button>`, `<input type="checkbox">`, radios o modales custom si DevExtreme cubre ese caso.
+- Priorizar `SelectBox`, `TextBox`, `Button`, `Popup`, `List`, `TreeView`, `CheckBox`, `Switch`, `DataGrid` y demás componentes DX.
+- Mantener `data-testid` estables usando `inputAttr` o `elementAttr`, sin acoplar tests al DOM interno que genera DevExtreme.
+- La licencia de DevExtreme se configura vía `VITE_DEVEXTREME_LICENSE` y se inicializa en `frontend/src/init-devextreme-license.ts`.
+- Si el cambio toca login, recuperación, cambio de contraseña, idioma o apariencia, consultar además `docs/00-contexto/_mono/01-experiencia-base/patron-ui-auth-devextreme.md`.
+- Si el cambio toca **`DataGridDx`**, textos de grilla, filtros, agrupación, selector de columnas, menú de encabezado, pie/totalizadores o `syncDevExtremeLocale`, consultar **`docs/00-contexto/_mono/03-ui-transversal/patron-i18n-grilla-devextreme.md`** (i18n obligatorio: props + overrides `grid.dx.*`; `loadMessages` sin doble anidación; QA ítems 21–28 TR-GEN-01-idioma).
+- Si el cambio toca una grilla de proceso tipo **Informes** (consultas / reportes de solo lectura), consultar **`.cursor/rules/mono/08-devextreme-grid-standards.md`** §1.12 (ícono Actualizar en `toolbarEnd`, i18n `grid.refresh`, `data-testid="gridRefresh"`, re-fetch servidor).
+- Si un flujo ya existe con HTML nativo y se toca de forma sustancial, migrarlo a DevExtreme como parte del cambio.

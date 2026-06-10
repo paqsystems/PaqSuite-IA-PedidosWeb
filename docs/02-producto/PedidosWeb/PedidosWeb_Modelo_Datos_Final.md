@@ -67,11 +67,12 @@ Estados:
 
 | Estado | Significado |
 |---:|---|
-| -1 | En modificación/descarga/control transitorio |
+| -1 | Pedido en modificación web (evita descarga ERP) |
 | 0 | Pedido ingresado web |
 | 1 | Pedido pendiente ERP |
 | 2 | Pedido cerrado/cumplido ERP |
-| 99 | Presupuesto ingresado |
+| 98 | Presupuesto cerrado (conversión, cierre comercial o rechazo) |
+| 99 | Presupuesto ingresado / activo |
 
 Campos recomendados a agregar si no existen:
 
@@ -81,9 +82,11 @@ Campos recomendados a agregar si no existen:
 | usuario_creacion | varchar(50) | Auditoría liviana |
 | fecha_creacion | datetime | Auditoría liviana |
 | usuario_modificacion | varchar(50) | Auditoría liviana |
-| fecha_inicio_modificacion | datetime null | Control de simultaneidad robusto |
+| fechahora_inicio_proceso | datetime null | Inicio de sesión de edición en **-1** (auditoría; no usar para vigencia del bloqueo) |
+| fechahora_ultima_actividad | datetime null | Última interacción en edición **-1**; vigencia del bloqueo con `MinutosWeb` |
 | origen_comprobante | varchar(50) null | Si proviene de copia/conversión |
-| cod_pedido_origen | varchar(50) null | Trazabilidad de copia/conversión |
+| cod_pedido_origen | varchar(50) null | Trazabilidad pedido → presupuesto (conversión §15.2) |
+| cod_presupuesto_origen | varchar(50) null | Trazabilidad presupuesto → pedido (conversión §15.1) |
 
 ### 2.2 pq_pedidosweb_pedidosdetalle
 
@@ -151,6 +154,7 @@ Campos:
 | expreso_dire | Dirección expreso |
 | cod_login | Login asociado si el usuario es cliente |
 | e_mail | Mail cliente |
+| razon_soci | Razón social (consulta deuda y mails) |
 | leyenda_1..5 | Leyendas por defecto |
 
 Relaciones:
@@ -193,6 +197,8 @@ Campos detectados:
 | cod_vended | Código vendedor |
 | nombre | Nombre |
 | supervisor | Indica si ve todos los clientes |
+| mail_supervisor | Mail del supervisor del vendedor (destinatario mail comercial si ≠ e_mail del vendedor) |
+| e_mail | Mail del vendedor |
 | cod_login | Login asociado |
 | otros campos | Según script vigente |
 
@@ -217,12 +223,59 @@ Campos:
 | valor2 | Valor escala 2 |
 | porc_iva | Porcentaje IVA |
 
+Relación con escalas (§3.5–3.6):
+
+- Si `usa_esc = true`, `valor1` y `valor2` referencian `pq_pedidosweb_escalas_detalle.cod_valor`.
+- `base` sigue siendo el código de presentación para agregados de stock (consulta stock); no confundir con `cod_escala`.
+
 Regla de stock base:
 
 - Si base está vacío, se muestra stock propio.
 - Si base tiene valor, se muestra stock propio y sumatoria de artículos con la misma base.
 
-### 3.5 pq_pedidosweb_stock
+### 3.5 pq_pedidosweb_escalas_cabecera
+
+Maestro de escalas comerciales (unidades / presentaciones configurables).
+
+Clave primaria:
+
+- cod_escala
+
+Campos:
+
+| Campo | Descripción |
+|---|---|
+| cod_escala | Código de escala (2 caracteres) |
+| descrip_es | Descripción de la escala |
+| nro_escala | Número ordinal de escala (ERP) |
+
+Relaciones:
+
+- Cabecera **1:N** `pq_pedidosweb_escalas_detalle` por `cod_escala`.
+
+### 3.6 pq_pedidosweb_escalas_detalle
+
+Valores permitidos por escala.
+
+Clave primaria compuesta:
+
+- cod_escala
+- cod_valor
+
+Campos:
+
+| Campo | Descripción |
+|---|---|
+| cod_escala | FK lógica a cabecera |
+| cod_valor | Código del valor dentro de la escala |
+| desc_valor | Descripción corta del valor |
+
+Relaciones:
+
+- Detalle **N:1** cabecera por `cod_escala`.
+- Referenciado desde `pq_pedidosweb_articulos.valor1` / `valor2` cuando `usa_esc = true`.
+
+### 3.7 pq_pedidosweb_stock
 
 Clave primaria:
 
@@ -237,12 +290,12 @@ Campos:
 | comprometido | Stock comprometido |
 | uma_fecha | Fecha de actualización |
 
-Cálculos:
+Cálculos (detalle en [consulta-stock.md](consulta-stock.md)):
 
-- Disponible = stock - comprometido.
-- Disponible neto = disponible - pedidos web ingresados no descargados.
+- Disponible neto = `stock - comprometido - comprometido_web` (`comprometido_web` = suma detalle con cabecera `estado = 0`).
+- Con `base` no vacío: agregados `stock_base`, `comprometido_base`, `comprometido_base_web`, `disponible_neto_base`.
 
-### 3.6 pq_pedidosweb_listaprecios
+### 3.8 pq_pedidosweb_listaprecios
 
 Clave primaria:
 
@@ -258,7 +311,7 @@ Campos:
 | descripcion | Descripción |
 | decimales | Cantidad de decimales |
 
-### 3.7 pq_pedidosweb_listaprecios_articulos
+### 3.9 pq_pedidosweb_listaprecios_articulos
 
 Clave primaria compuesta:
 
@@ -273,7 +326,7 @@ Campos:
 | cod_articulo | Artículo |
 | precio | Precio |
 
-### 3.8 pq_pedidosweb_descuentocantidad
+### 3.10 pq_pedidosweb_descuentocantidad
 
 Clave primaria compuesta:
 
@@ -290,7 +343,7 @@ Campos:
 
 Regla: si hay descuento por cantidad, prevalece sobre bonificación del artículo, salvo edición manual permitida.
 
-### 3.9 pq_pedidosweb_condventa
+### 3.11 pq_pedidosweb_condventa
 
 Clave primaria:
 
@@ -303,7 +356,7 @@ Campos:
 | codigo | Código condición venta |
 | descripcion | Descripción |
 
-### 3.10 pq_pedidosweb_transportes
+### 3.12 pq_pedidosweb_transportes
 
 Clave primaria:
 
@@ -316,7 +369,7 @@ Campos:
 | codigo | Código transporte |
 | descripcion | Descripción |
 
-### 3.11 pq_pedidosweb_perfil
+### 3.13 pq_pedidosweb_perfil
 
 Clave primaria:
 
@@ -329,7 +382,7 @@ Campos:
 | cod_perfil | Código perfil |
 | descripcion | Descripción |
 
-### 3.12 pq_pedidosweb_provincias
+### 3.14 pq_pedidosweb_provincias
 
 Clave primaria:
 
@@ -346,45 +399,23 @@ Campos:
 
 ### 4.1 pq_pedidosweb_cheques
 
-Clave primaria compuesta:
+Fuente de verdad de consulta: **[consulta-cheques.md](consulta-cheques.md)** (columnas ERP, join clientes, contrato API/UI).
 
-- interno
-- numero
+Resumen — clave primaria compuesta: `interno`, `numero`.
 
-Campos principales:
+Campos principales: `cod_cliente`, `Banco`, `fecha`, `Importe`, `Origen`, `Estado`, `fecha_proceso`. Nombre del cliente vía join a `pq_pedidosweb_clientes.nombre` (no `razon_soci`).
 
-| Campo | Descripción |
-|---|---|
-| interno | Identificador interno |
-| numero | Número cheque |
-| cod_client | Cliente |
-| banco | Banco |
-| importe | Importe |
-| fecha | Fecha |
-| origen | Origen |
-| estado | Cartera/aplicado/etc. |
-| fecha_proceso | Fecha actualización ERP |
+Compatibilidad legacy (`cod_client`, minúsculas): ver §4 de `consulta-cheques.md`.
 
 ### 4.2 pq_pedidosweb_deuda
 
-Clave primaria compuesta:
+Fuente de verdad de consulta: **[consulta-deuda.md](consulta-deuda.md)** (columnas ERP, join clientes, contrato API/UI).
 
-- cod_cliente
-- tipo_comprobante
-- nro_comprobante
-- fecha_vto
+Resumen — clave primaria compuesta: `cod_cliente`, `t_comp`, `n_comp`, `fecha_vto`.
 
-Campos:
+Campos principales: `fecha_emis`, `fecha_vto`, `saldo`, `fecha_proceso`. Razón social vía join a `pq_pedidosweb_clientes.razon_soci`.
 
-| Campo | Descripción |
-|---|---|
-| cod_cliente | Cliente |
-| tipo_comprobante | Tipo |
-| nro_comprobante | Número |
-| fecha | Fecha emisión |
-| fecha_vto | Vencimiento |
-| fecha_proceso | Fecha actualización |
-| saldo | Saldo |
+Compatibilidad legacy (`tipo_comprobante`, `nro_comprobante`, `fecha`): ver §4 de `consulta-deuda.md`.
 
 ### 4.3 pq_pedidosweb_resumencuenta
 
@@ -399,9 +430,39 @@ Debe usarse para consultas de cuenta corriente si corresponde.
 
 ### 4.4 pq_pedidosweb_ventadetallada
 
-Historial de ventas detallado.
+Fuente de verdad de consulta: **[consulta-historial-ventas.md](consulta-historial-ventas.md)** (columnas ERP, contrato API/UI).
 
-Debe permitir consulta por cliente, período y detalle de artículos vendidos.
+Historial de ventas detallado importado del ERP. Clave primaria: `id_gva53` (no se expone en API/UI).
+
+| Campo | Tipo | Descripción |
+|-------|------|-------------|
+| `cod_cli` | varchar(10) NOT NULL | Código cliente |
+| `razon_soci` | varchar(60) NULL | Razón social (denormalizada en export ERP) |
+| `n_remito` | varchar(14) NULL | Número remito |
+| `t_comp` | varchar(3) NOT NULL | Tipo comprobante |
+| `n_comp` | varchar(14) NOT NULL | Número comprobante |
+| `fecha_emi` | datetime NULL | Fecha emisión |
+| `cond_vta` | int NULL | Condición de venta |
+| `porc_desc` | decimal(6,2) NULL | Porcentaje descuento |
+| `cotiz` | decimal(15,2) NULL | Cotización |
+| `moneda` | varchar(3) NULL | Moneda |
+| `total_comp` | decimal(15,2) NULL | Total comprobante |
+| `cod_transp` | varchar(10) NULL | Código transporte |
+| `nom_transp` | varchar(60) NULL | Nombre transporte |
+| `cod_articu` | varchar(15) NULL | Código artículo |
+| `descripcio` | varchar(60) NULL | Descripción artículo |
+| `cod_dep` | varchar(10) NULL | Depósito |
+| `um` | varchar(10) NULL | Unidad de medida |
+| `cantidad` | decimal(15,2) NULL | Cantidad |
+| `precio` | decimal(15,2) NULL | Precio |
+| `tot_s_imp` | decimal(15,2) NULL | Total sin impuestos |
+| `n_comp_rem` | varchar(15) NULL | Número comprobante remito |
+| `cant_rem` | decimal(15,2) NULL | Cantidad remito |
+| `fecha_rem` | datetime NULL | Fecha remito |
+| `fecha_proceso` | datetime NULL | Fecha actualización ERP (carátula) |
+| `id_gva53` | int NOT NULL PK | Identificador ERP (interno) |
+
+Filtro consulta: `fecha_emi >= today - DiasVentasDetalladas`.
 
 ## 5. Seguridad
 
@@ -440,10 +501,11 @@ Parámetros funcionales principales:
 | FechaControl | Control de descarga ERP |
 | ListaPrecios | Lista por defecto |
 | Mail_DireccionRemitente | Remitente |
-| mailCCO | Copias ocultas |
+| MailDestinatariosAdicionales | Mails extra al grabar/modificar comprobante |
+| mailCCO | Copias ocultas globales |
 | MinutosAviso | Margen aviso descarga |
 | MinutosBloqueo | Margen bloqueo descarga |
-| MinutosWeb | Inactividad web |
+| MinutosWeb | Inactividad sesión web (GEN-02) y ventana de modificación pedido **-1** (`fechahora_ultima_actividad`) |
 | NivelExtremo | Solo permite nivel 0/100 |
 | NOeliminaPedido | Bloquea eliminación |
 | NOmodificaPedido | Bloquea modificación |
@@ -510,6 +572,8 @@ Para seguimiento simple de presupuestos.
 | cod_usuario_web | varchar(50) | Usuario |
 | observacion | nvarchar(max) null | Observación |
 
+Al registrar un cierre, la cabecera del presupuesto en `pq_pedidosweb_pedidoscabecera` pasa de **estado 99** a **estado 98**.
+
 ### 7.5 pq_pedidosweb_logs_integracion
 
 | Campo | Tipo sugerido | Descripción |
@@ -533,6 +597,76 @@ Opcional para dashboard de artículos CORE si no se trae desde ERP.
 | activo | bit | Activo |
 | observacion | varchar(255) null | Nota |
 
+### 7.7 pq_pedidosweb_asistente_ia_proveedores
+
+Tabla recomendada para mantener el catálogo funcional de proveedores LLM habilitables por el producto.
+
+Objetivo:
+
+- centralizar nombre visible, URLs de ayuda y capacidades declaradas;
+- desacoplar la configuración del proveedor respecto de la credencial concreta del usuario;
+- facilitar seeds iniciales con proveedores conocidos;
+- permitir activar o desactivar proveedores sin tocar código.
+
+| Campo | Tipo sugerido | Descripción |
+|---|---|---|
+| id_proveedor | int identity PK | Identificador técnico |
+| provider_id | varchar(50) unique | `providerId` lógico estable para frontend y backend |
+| nombre_visible | varchar(80) | Nombre a mostrar en UI |
+| tipo_integracion | varchar(50) | API pública, agregador, runtime local, nube administrada |
+| soporta_byok | bit | Si admite credenciales aportadas por cliente o usuario |
+| soporta_imagenes | bit | Capacidad declarada por defecto |
+| requiere_base_url_editable | bit | Si el usuario debe informar endpoint propio |
+| url_documentacion | varchar(255) null | Documentación principal |
+| url_onboarding | varchar(255) null | `supportUrl` para onboarding y ayuda de configuración |
+| activo | bit | Habilitación lógica |
+| observacion | varchar(255) null | Nota funcional |
+
+Seed inicial recomendado:
+
+- `ollama`
+- `openai`
+- `anthropic`
+- `googleGemini`
+- `azureOpenAi`
+- `openRouter`
+- `groq`
+- `mistral`
+
+### 7.8 pq_pedidosweb_asistente_ia_credenciales
+
+Tabla recomendada para persistir, de forma separada de `users`, la configuración sensible del asistente IA por usuario.
+
+Objetivo:
+
+- aislar secretos y configuración sensible del perfil general del usuario;
+- permitir rotación y revocación sin contaminar la tabla de usuarios;
+- reducir exposición accidental en consultas, listados o exportaciones de usuarios;
+- dejar base para integración `BYOK` con proveedores externos.
+
+| Campo | Tipo sugerido | Descripción |
+|---|---|---|
+| id_credencial | bigint identity PK | Identificador técnico |
+| user_id | bigint | Usuario del portal al que pertenece la configuración |
+| provider_id | varchar(50) | `providerId` seleccionado por el usuario |
+| base_url | varchar(255) | Endpoint base configurado |
+| api_key_encrypted | nvarchar(max) | Credencial cifrada |
+| model_id | varchar(120) | Modelo configurado |
+| supports_vision | bit | Si la configuración admite imágenes |
+| is_enabled | bit | Habilitación lógica |
+| created_at | datetime | Alta |
+| updated_at | datetime | Última modificación |
+
+Reglas iniciales recomendadas:
+
+- una configuración activa por usuario en la primera versión;
+- referencia a un `providerId` existente en `pq_pedidosweb_asistente_ia_proveedores`;
+- la credencial no se guarda nunca en texto plano;
+- el backend cifra antes de persistir;
+- el backend descifra solo al momento de invocar al proveedor;
+- la clave o mecanismo de descifrado debe quedar fuera de la base de datos;
+- la credencial completa no debe exponerse en UI, logs, respuestas API ni mensajes de error.
+
 ## 8. Relaciones principales
 
 ```text
@@ -547,9 +681,12 @@ condventa 1:N clientes
 condventa 1:N pedidoscabecera
 transportes 1:N clientes
 transportes 1:N pedidoscabecera
-presupuestos/pedidos 1:N tratativas (solo estado 99 funcionalmente)
-presupuestos 1:0/1 cierres
+presupuestos/pedidos 1:N tratativas (solo presupuestos estado 99)
+presupuestos estado 99 1:0/1 cierres → al cerrar pasa a estado 98
+presupuestos estado 98 1:1 cierres (histórico)
 motivos_cierre 1:N cierres
+asistente_ia_proveedores 1:N asistente_ia_credenciales
+users 1:0/1 asistente_ia_credenciales
 ```
 
 ## 9. Modelos Eloquent prioritarios
@@ -576,6 +713,8 @@ Crear modelos iniciales:
 - MotivoCierre.
 - PresupuestoCierre.
 - LogIntegracion.
+- AsistenteIaProveedor.
+- AsistenteIaCredencial.
 
 Para claves compuestas, Laravel requiere tratamiento especial: definir repositories con queries explícitas o trait de clave compuesta.
 
@@ -585,5 +724,7 @@ Para claves compuestas, Laravel requiere tratamiento especial: definir repositor
 2. Agregar campos de auditoría liviana a cabecera si no existen.
 3. Definir número visible secuencial por empresa y tipo de comprobante.
 4. Crear tablas de tratativas, resultados, motivos de cierre y logs integración.
-5. Evaluar separar `estado = -1` de descarga/modificación usando campo específico de bloqueo.
+5. `estado = -1` solo modificación web; vigencia con `fechahora_ultima_actividad` + `MinutosWeb`.
 6. Confirmar tabla definitiva de parámetros generales dentro del esquema PaqSuite.
+7. Crear catálogo inicial de proveedores del asistente IA.
+8. Crear tabla dedicada para credenciales `BYOK` del asistente IA, separada de `users`.
