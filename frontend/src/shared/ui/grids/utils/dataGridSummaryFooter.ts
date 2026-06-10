@@ -2,6 +2,7 @@ import type dxDataGrid from 'devextreme/ui/data_grid';
 import type { CustomSummaryInfo } from 'devextreme/ui/data_grid';
 
 export const PAQ_SUMMARY_FOOTER_PLACEHOLDER_NAME = 'paqSummaryFooterPlaceholder';
+export const PAQ_SUMMARY_TOTAL_ITEMS_STATE_KEY = 'paqSummaryTotalItems';
 
 export type TotalSummaryItem = {
   name?: string;

@@ -8,7 +8,7 @@
 | **Prioridad** | Must |
 | **Dependencias** | TR-GEN-03-grillas-listados; TR-GEN-02-login-sesion |
 | **Estado** | Finalizado |
-| **Última actualización** | 2026-06-01 (cierre manual post-F) |
+| **Última actualización** | 2026-06-09 (Parte I — CC PQ #2 y #3) |
 
 **Cierre F formal:** [F-GEN-03-cierre-formal](F-GEN-03-cierre-formal.md)
 
@@ -42,6 +42,8 @@ Guardar, compartir y recuperar formatos de grilla por `proceso` + `grid_id`.
 - **AC-09**: i18n + `data-testid` en controles de layout.
 - **AC-10**: E2E: guardar → recargar → formato restaurado (dashboard o proceso referencia).
 - **AC-11**: Sin infra (flag config): controles ocultos/deshabilitados; listado sigue operativo.
+- **AC-12**: Layouts con `isOwner: true` muestran sufijo **` (*)`** en el selector (`gridLayout.ownerMarker` i18n); no se persiste en `layout_name`.
+- **AC-13**: Al seleccionar **Plantilla del sistema** (`layoutId: null`), `DataGridDx.applyState(null)` ejecuta `instance.state(null)` para restaurar columnas/estado por defecto del proceso.
 
 ### Escenarios Gherkin
 
@@ -58,6 +60,8 @@ Guardar, compartir y recuperar formatos de grilla por `proceso` + `grid_id`.
 5. **RN-05**: `state_json` = serialización `DataGrid.state()` (columnas, filter, sort, grouping, summary, widths).
 6. **RN-06**: Último usado: tabla auxiliar o columnas en preferencias — ver §4.
 7. **RN-07**: Sin límite de registros por usuario en MVP.
+8. **RN-08**: Layouts propios se distinguen en UI con sufijo ` (*)`.
+9. **RN-09**: Plantilla del sistema no es fila BD; su selección resetea el DataGrid al baseline del proceso (`instance.state(null)`).
 
 ---
 
@@ -371,7 +375,7 @@ dataGridRef.instance.state(state);
 ## 8) Estrategia de Tests
 
 - **Integration:** CRUD + duplicate name + 403 no creador + active last used.
-- **E2E:** guardar layout en dashboard → F5 → columnas persisten.
+- **E2E:** `grid-layouts.spec.ts` en `/consultas/historial` (toolbar, Guardar como, sufijo propios).
 
 ---
 
@@ -388,6 +392,8 @@ dataGridRef.instance.state(state);
 - **Tests:** `GridLayoutTest` 6 OK; E2E `grid-layouts.spec.ts` 2 OK
 - **Evidencia:** migración `pq_grid_layouts`, `GridLayoutController`, `GridLayoutToolbar`, flag `gridLayoutsEnabled`
 
+**CC PQ #2 (05/06/2026) — F1/F:** [F-CC-PQ-02-GEN-03-cierre-formal](F-CC-PQ-02-GEN-03-cierre-formal.md) — Aprobado con observaciones (09/06/2026). E2E reorientados a `/consultas/historial` (3 OK).
+
 ---
 
 ## 11) Checklist final
@@ -395,6 +401,32 @@ dataGridRef.instance.state(state);
 - [x] AC cumplidos
 - [x] Matriz actualizada (`matriz-permisos-mvp.md` § layouts)
 - [x] Coherente con patrón MONO layouts (TR + código)
+
+---
+
+## Historial CC PQ #2 (05/06/2026) — Parte I 09/06/2026
+
+Corrección layouts: sufijo propios y reset plantilla del sistema.
+
+| ID | Tarea | Evidencia |
+|----|-------|-----------|
+| T1 | Sufijo ` (*)` en selector si `isOwner` | `GridLayoutToolbar.tsx`, i18n `gridLayout.ownerMarker` |
+| T2 | Plantilla sistema restaura grilla original | `DataGridDx.tsx` → `instance.state(null)` |
+| T3 | Reglas estándar | `08-devextreme-grid-standards.md` §1.11, `grillas.md` |
+| T4 | E2E toolbar + Guardar como + sufijo | `grid-layouts.spec.ts` en `/consultas/historial` |
+
+---
+
+## Historial CC PQ #3 (09/06/2026) — Parte I 09/06/2026
+
+Corrección: persistencia de totalizadores del pie (footer Summary) al guardar/cargar layouts.
+
+| ID | Tarea | Evidencia |
+|----|-------|-----------|
+| T1 | Auditar `captureCurrentState` vs `instance.state().summary` | `DataGridDx.tsx`, `useGridLayouts.ts` |
+| T2 | Persistir/restaurar `paqSummaryTotalItems` sin placeholders | `PAQ_SUMMARY_TOTAL_ITEMS_STATE_KEY`, `filterRealSummaryItems` |
+| T3 | Regla mono layouts + totalizadores | `08-devextreme-grid-standards.md` §1.11 |
+| T4 | Vitest serialización layout con footer | `dataGridDxLayoutState.test.ts` |
 
 ---
 

@@ -151,8 +151,9 @@
   "pedidos.carga.clienteOrden.razonSocial": "Business name",
   "pedidos.carga.clienteOrden.nombreFantasia": "Trade name",
   "pedidos.carga.seleccioneCliente": "Select a customer to load the header.",
-  "pedidos.carga.articuloDisplay": "{{descripcion}} — Avail. {{disponible}}",
-  "pedidos.carga.articuloDisplayConBase": "{{descripcion}} — Avail. {{disponible}} ({{disponibleBase}})",
+  "pedidos.carga.articuloDisplay": "{{codigo}} - {{descripcion}} — Avail. {{disponible}}",
+  "pedidos.carga.articuloDisplayConBase": "{{codigo}} - {{descripcion}} — Avail. {{disponible}} ({{disponibleBase}})",
+  "selectBox.loading": "Loading…",
   "pedidos.carga.grid.articulo": "Item",
   "pedidos.carga.grid.cantidad": "Quantity",
   "pedidos.carga.grid.precio": "Price",
@@ -401,6 +402,7 @@
   "grid.action.viewDetail": "View detail",
   "grid.summary.count": "records",
   "gridLayout.systemTemplate": "System template",
+  "gridLayout.ownerMarker": " (*)",
   "gridLayout.selectLabel": "Grid layout",
   "gridLayout.save": "Save",
   "gridLayout.saveAs": "Save as",
@@ -450,6 +452,8 @@
   "gridExport.noData": "No data to export",
   "gridExport.mode.basic": "Basic",
   "gridExport.mode.formatted": "Formatted",
+  "gridExport.boolean.true": "TRUE",
+  "gridExport.boolean.false": "FALSE",
   "gridExport.emptyDemo.title": "Empty grid (export demo)",
   "gridExport.emptyDemo.description": "Reference to validate export disabled with no rows."
 }

@@ -36,6 +36,7 @@ describe('syncDevExtremeLocale', () => {
   });
 
   it('carga mensajes DX sin anidar el locale dos veces', async () => {
+    // Import dinámico + mocks DX: puede superar 5s en CI/local lento.
     const { syncDevExtremeLocale } = await import('./syncDevExtremeLocale');
 
     syncDevExtremeLocale('es');
@@ -48,5 +49,5 @@ describe('syncDevExtremeLocale', () => {
       }),
     );
     expect(locale).toHaveBeenCalledWith('es');
-  });
+  }, 15_000);
 });

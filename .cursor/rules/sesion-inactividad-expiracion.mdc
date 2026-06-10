@@ -1,0 +1,46 @@
+---
+description: Expiración de sesión por inactividad — eventos válidos y DevExtreme
+globs:
+  - frontend/src/features/auth/**
+  - frontend/src/shared/http/client.ts
+  - docs/**/TR-GEN-02-expiracion-inactividad.md
+  - docs/**/HU-GEN-02-expiracion-inactividad.md
+---
+
+# Sesión — expiración por inactividad
+
+- Fuente de verdad: `docs/04-tareas/001-Generaliddes/TR-GEN-02-expiracion-inactividad.md` (RN-02, §6.1, D1-4).
+- Motor: `createInactivityController` + `useInactivityTimeout` en shell autenticado (`SessionLifecycleManager`).
+- Umbral: `sessionContext.inactivityTimeoutMinutes` (`MinutosWeb`); fallback `10`.
+
+## Eventos que reinician el contador
+
+Registrar con `bindInactivityActivityListeners` en **`document`** y **`{ capture: true }`** (obligatorio para DevExtreme):
+
+| Evento | Uso |
+|--------|-----|
+| `pointerdown`, `click` | Botones, menú, ítems de lista |
+| `touchstart` | Toques móvil |
+| `keydown` | Todas las teclas, **incluido `Tab`** |
+| `wheel`, `scroll` | Rueda, barra, táctil, teclas en contenedor scrollable |
+| `input` | Campos de texto |
+| `location.pathname` | Navegación SPA |
+| `pedidosweb:authenticated-request-succeeded` | API autenticada OK |
+
+## No cuenta como actividad
+
+- `mousemove` continuo
+- `focus` / `blur` aislados sin tecla ni puntero
+- Cambio de visibilidad de pestaña
+- Polling o timers sin interacción del usuario
+
+## DevExtreme
+
+- No usar solo `pointerdown` en bubble sobre `window`: DX intercepta y detiene propagación.
+- Al tocar controles DX (Button, SelectBox, List, DataGrid, menú avatar), verificar que el evento esté en la lista §6.1 con capture.
+
+## Al modificar
+
+- Mantener tests en `sessionInactivity.test.ts` y E2E `smoke.spec.ts` (timeout corto).
+- No sincronizar actividad entre pestañas (D1-7).
+- Expiración: cleanup local + logout best-effort; `401` en requests posteriores.

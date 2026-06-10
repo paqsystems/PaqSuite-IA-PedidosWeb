@@ -47,8 +47,8 @@ Este archivo **no sustituye** SPEC, HU ni TR: es la **entrada** del circuito de 
 | # | Fecha | Estado | Resumen |
 |---|-------|--------|---------|
 | 1 | 04/06/2026 | Finalizado (Parte I) | 10 familias HU — CC PQ; updates unificados 09/06/2026 |
-| 2 | 05/06/2026 | Pendiente | GEN-03 layouts/export Excel formateado |
-| 3 | 09/06/2026 | Pendiente | Cartel cargando, lentitud artículos y precios |
+| 2 | 05/06/2026 | Finalizado (Parte I) | GEN-03 layouts/export Excel formateado — CC PQ #2; unificado 09/06/2026 |
+| 3 | 09/06/2026 | Finalizado (Parte I) | Cartel cargando, layouts totales, performance carga, parámetros — unificado 09/06/2026 |
 
 ---
 
@@ -60,9 +60,9 @@ Este archivo **no sustituye** SPEC, HU ni TR: es la **entrada** del circuito de 
 |-------|--------|
 | **Fecha** | 09/06/2026 |
 | **Responsable** | Pablo Quarracino (PQ) |
-| **Estado** | Pendiente |
-| **Entorno probado** | *(completar: local / staging / producción)* |
-| **Build / rama** | *(completar si aplica)* |
+| **Estado** | Finalizado (Parte I 09/06/2026) |
+| **Entorno probado** | Local — Vitest + Playwright E2E + PHPUnit + **QA manual PQ** (09/06/2026) |
+| **Build / rama** | `v1.1.0` working tree |
 
 ### Hallazgos
 
@@ -70,11 +70,39 @@ Registrar cada ítem bajo la HU correspondiente (`### HU-XXX-slug`) o como bulle
 
 ### Errores encontrados - Mejoras solicitadas
 
-#### cartel "cargando..." y bloquear busqueda clientes
+#### Regla General UI
 
-#### lentitud armado listado artículos
+Mientras se está completando la lista de un listbox/combobox, que aparezca un cartel en tamaño pequeño "cargando..." y bloquear el acceso a esa lista hasta que finalice el proceso.
 
-#### lentitud actualizar precios tras cambio de lista
+*Procesado* → [SPEC-001-01-experiencia-base.md](../05-open-spec/001-Generaliddes/SPEC-001-01-experiencia-base.md) · [HU-GEN-01-shell-layout.md](../03-historias-usuario/001-Generaliddes/HU-GEN-01-shell-layout.md) · [TR-GEN-01-shell-layout.md](../04-tareas/001-Generaliddes/TR-GEN-01-shell-layout.md) — Parte I 09/06/2026
+
+#### Regla General Plantillas Grillas (Layouts)
+
+Cuando se guarda un modelo, no se están guardando las totalizaciones definidas en el footer.
+
+*Procesado* → [SPEC-001-03-ui-transversal.md](../05-open-spec/001-Generaliddes/SPEC-001-03-ui-transversal.md) · [HU-GEN-03-layouts-grilla.md](../03-historias-usuario/001-Generaliddes/HU-GEN-03-layouts-grilla.md) · [TR-GEN-03-layouts-grilla.md](../04-tareas/001-Generaliddes/TR-GEN-03-layouts-grilla.md) — Parte I 09/06/2026
+
+#### Listas/Combobox : general
+
+Si es factible, que si al escribir un texto para búsqueda encuentra un solo item, ya lo coloque directamente como resultado.
+
+*Procesado* → [SPEC-001-01-experiencia-base.md](../05-open-spec/001-Generaliddes/SPEC-001-01-experiencia-base.md) · [HU-GEN-01-shell-layout.md](../03-historias-usuario/001-Generaliddes/HU-GEN-01-shell-layout.md) — Parte I 09/06/2026
+
+#### HU-101-005-inicializacion-cabecera
+
+a) aplicar el punto anterior en la lista de clientes.
+b) Analizar la posibilidad de optimizar tiempos para completar la lista de clientes
+c) Analizar la posibilidad de optimizar tiempos para completar la lista de artículos, que demora mucho más que la de clientes
+d) Analizar la posibilidad de optimizar tiempos para el recálculo de precios de los artículos en la grilla cuando se cambia la lista de precios.
+e) Lista de artículos: que muestre también el código (separar con " - " con la descripción)
+
+*Procesado* → [SPEC-101-10-pantalla-carga.md](../05-open-spec/101-PedidosWeb/SPEC-101-10-pantalla-carga.md) · [HU-101-005-inicializacion-cabecera.md](../03-historias-usuario/101-PedidosWeb/HU-101-005-inicializacion-cabecera.md) · [TR-SPEC-101-10-pantalla-carga.md](../04-tareas/101-PedidosWeb/TR-SPEC-101-10-pantalla-carga.md) — Parte I 09/06/2026
+
+#### Consulta de Parámetros
+
+La columna "Valor" que muestre título y datos centralizado.
+
+*Procesado* → [SPEC-001-04-configuracion-global.md](../05-open-spec/001-Generaliddes/SPEC-001-04-configuracion-global.md) · [HU-GEN-04-consulta-parametros.md](../03-historias-usuario/001-Generaliddes/HU-GEN-04-consulta-parametros.md) · [TR-GEN-04-consulta-parametros.md](../04-tareas/001-Generaliddes/TR-GEN-04-consulta-parametros.md) — Parte I 09/06/2026
 
 ---
 
@@ -86,9 +114,9 @@ Registrar cada ítem bajo la HU correspondiente (`### HU-XXX-slug`) o como bulle
 |-------|--------|
 | **Fecha** | 05/06/2026 |
 | **Responsable** | Pablo Quarracino (PQ) |
-| **Estado** | Pendiente |
-| **Entorno probado** | *(completar: local / staging / producción)* |
-| **Build / rama** | *(completar si aplica)* |
+| **Estado** | Finalizado (Parte I 09/06/2026) |
+| **Entorno probado** | Local — QA manual PQ (Excel + reset plantilla) |
+| **Build / rama** | v1.1.0-paq |
 
 ### Hallazgos
 
@@ -102,6 +130,8 @@ a) en la descripción de los layouts a seleccionar, destacar de algún modo los 
 b) que la opción "plantilla del sistema" presente la grilla original provista por el sistema, considerar que cualquier cambio que se haga sobre la misma, el botón "Guardar" se debe comportar como "Guardar como..." (no alterar la plantilla base).
 c) Que estos puntos a) y b) se agregue a las reglas de especificación standard de layouts-grilla.
 
+*Procesado* → [HU-GEN-03-layouts-grilla.md](../03-historias-usuario/001-Generaliddes/HU-GEN-03-layouts-grilla.md) · [TR-GEN-03-layouts-grilla.md](../04-tareas/001-Generaliddes/TR-GEN-03-layouts-grilla.md) — Parte I 09/06/2026
+
 #### HU-GEN-03-exportaciones
 
 a) en la exportación a Excel en modo "Formateado", No se visualiza ninguna diferencia con la básica. Debería respetarse : 
@@ -112,6 +142,8 @@ booleanos : VERDADERO o FALSO
 Titulos resaltados, y si es factible con cambio de color (BackColor tonalidad Gris)
 Totalizar columnas numéricas y decimales
 b) Que se agreguen estas definiciones a las reglas de especificación standard de layouts-grilla.
+
+*Procesado* → [HU-GEN-03-exportaciones.md](../03-historias-usuario/001-Generaliddes/HU-GEN-03-exportaciones.md) · [TR-GEN-03-exportaciones.md](../04-tareas/001-Generaliddes/TR-GEN-03-exportaciones.md) — Parte I 09/06/2026
 
 ---
 

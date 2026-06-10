@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { custom } from 'devextreme/ui/dialog';
 import Button from 'devextreme-react/button';
 import SelectBox from 'devextreme-react/select-box';
+import { SelectBoxDx } from '../../../shared/ui/controls/SelectBoxDx';
 import Toast from 'devextreme-react/toast';
 import { isDevExtremeUserChange } from '../../../shared/ui/devextremeUserChange';
 import { useRequiredSessionContext } from '../../auth/AuthProvider';
@@ -24,6 +25,7 @@ import { ComprobanteCabeceraForm } from '../components/ComprobanteCabeceraForm';
 import { ComprobanteLeyendasPie } from '../components/ComprobanteLeyendasPie';
 import { PedidosCargaConfirmacionDialog } from '../components/PedidosCargaConfirmacionDialog';
 import { PedidosCargaRenglonesGrid } from '../components/PedidosCargaRenglonesGrid';
+import { articulosCargaMinTypedLength } from '../hooks/articulosCargaLoadPolicy';
 import { useArticulosCargaDataSource } from '../hooks/useArticulosCargaDataSource';
 import {
   emptyComprobanteCabecera,
@@ -68,6 +70,7 @@ export function PedidosCargaPage() {
   const isHydratingComprobanteRef = useRef(false);
 
   const [clientes, setClientes] = useState<ClienteOption[]>([]);
+  const [clientesLoading, setClientesLoading] = useState(false);
   const [selectedCliente, setSelectedCliente] = useState<string | null>(null);
   const [cabecera, setCabecera] = useState<ComprobanteCabecera | null>(null);
   const [catalogos, setCatalogos] = useState<CabeceraCatalogos>(emptyCatalogos);
@@ -82,6 +85,7 @@ export function PedidosCargaPage() {
   const [renglones, setRenglones] = useState<ComprobanteRenglon[]>([createEmptyRenglon(1)]);
   const renglonesRef = useRef(renglones);
   renglonesRef.current = renglones;
+  const listaPreciosAnteriorRef = useRef<number | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [cabeceraLoading, setCabeceraLoading] = useState(false);
   const [mailToastVisible, setMailToastVisible] = useState(false);
@@ -215,6 +219,8 @@ export function PedidosCargaPage() {
     let mounted = true;
 
     const load = async () => {
+      setClientesLoading(true);
+
       try {
         const data = await fetchClientes();
         if (!mounted) {
@@ -228,6 +234,10 @@ export function PedidosCargaPage() {
         }
 
         setClientes([]);
+      } finally {
+        if (mounted) {
+          setClientesLoading(false);
+        }
       }
     };
 
@@ -385,24 +395,43 @@ export function PedidosCargaPage() {
     [loadCabeceraForCliente],
   );
 
-  const handleListaPreciosChange = useCallback(
-    async (codLista: number) => {
-      if (readOnly || codLista <= 0) {
-        return;
-      }
+  useEffect(() => {
+    const codListaRaw = cabecera?.listaPrecios ?? null;
+    const codLista = codListaRaw !== null ? Number(codListaRaw) : null;
 
+    if (codLista === null || Number.isNaN(codLista) || codLista <= 0 || readOnly) {
+      listaPreciosAnteriorRef.current = codLista;
+      return;
+    }
+
+    const listaAnterior = listaPreciosAnteriorRef.current;
+    listaPreciosAnteriorRef.current = codLista;
+
+    if (listaAnterior === null || listaAnterior === codLista) {
+      return;
+    }
+
+    let cancelled = false;
+
+    void (async () => {
       try {
         const renglonesActualizados = await actualizarPreciosRenglonesPorLista(
           renglonesRef.current,
           codLista,
         );
-        setRenglones(renglonesActualizados);
+
+        if (!cancelled) {
+          setRenglones(renglonesActualizados);
+        }
       } catch {
         // Mantiene precios previos si falla la consulta.
       }
-    },
-    [readOnly],
-  );
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [cabecera?.listaPrecios, readOnly]);
 
   const handleCancelar = useCallback(async () => {
     const codPedido = codPedidoEdicionRef.current;
@@ -510,7 +539,11 @@ export function PedidosCargaPage() {
     setArticuloSeleccionadoData(null);
   }, [articuloSeleccionado, articuloSeleccionadoData, readOnly, renglones, t]);
 
-  const articulosDataSource = useArticulosCargaDataSource(cabecera?.listaPrecios);
+  const {
+    dataSource: articulosDataSource,
+    isLoading: articulosLoading,
+    lazySelectBoxOptions: articulosLazySelectBoxOptions,
+  } = useArticulosCargaDataSource(cabecera?.listaPrecios);
 
   const bonificacionNetaCabecera = useMemo(() => {
     if (!cabecera) {
@@ -711,7 +744,7 @@ export function PedidosCargaPage() {
               }}
               inputAttr={{ 'data-testid': 'cliente-orden-select' }}
             />
-            <SelectBox
+            <SelectBoxDx
               key={`cliente-select-${clienteSelectKey}`}
               dataSource={clientesOrdenados}
               valueExpr="codCliente"
@@ -722,6 +755,8 @@ export function PedidosCargaPage() {
               searchExpr={['codCliente', 'razonSocial', 'nombreFantasia', 'nombre']}
               value={selectedCliente}
               readOnly={readOnly}
+              isLoading={clientesLoading}
+              autoSelectSingleMatch={!readOnly}
               onValueChanged={(event) => {
                 if (isHydratingComprobanteRef.current || !isDevExtremeUserChange(event)) {
                   return;
@@ -760,11 +795,6 @@ export function PedidosCargaPage() {
               readOnly={readOnly}
               clienteNombre={isClienteProfile ? clienteNombre : undefined}
               onChange={handleCabeceraChange}
-              onListaPreciosChange={(codLista) => {
-                if (codLista !== null) {
-                  void handleListaPreciosChange(codLista);
-                }
-              }}
             />
           ) : null}
           {selectedCliente && !cabeceraReady && cabeceraLoading ? (
@@ -777,7 +807,9 @@ export function PedidosCargaPage() {
             <section className="pedidosCargaPage__panel" data-testid="form-articulo-carga">
               <h3 className="pedidosCargaPage__panelTitle">{t('pedidos.carga.articulosTitle')}</h3>
               <div className="pedidosCargaPage__articuloRow">
-                <SelectBox
+                <SelectBoxDx
+                  key={`articulo-select-${cabecera?.listaPrecios ?? 'none'}`}
+                  {...articulosLazySelectBoxOptions}
                   dataSource={articulosDataSource ?? []}
                   valueExpr="codArticulo"
                   displayExpr={(item: ArticuloOption | null) =>
@@ -786,8 +818,13 @@ export function PedidosCargaPage() {
                   value={articuloSeleccionado}
                   searchEnabled={true}
                   searchMode="contains"
-                  minSearchLength={0}
+                  searchExpr={['codArticulo', 'descripcion']}
                   searchTimeout={350}
+                  isLoading={articulosLoading}
+                  disableWhileLoading={false}
+                  autoSelectSingleMatch={true}
+                  autoSelectMinSearchLength={articulosCargaMinTypedLength}
+                  disabled={!articulosDataSource}
                   onValueChanged={(event) => {
                     setArticuloSeleccionado((event.value as string | null) ?? null);
                     setArticuloSeleccionadoData(

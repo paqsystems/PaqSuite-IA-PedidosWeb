@@ -96,7 +96,8 @@ Feature: Expiración por inactividad (SPEC-001-02 / MinutosWeb)
 
 - Aviso previo N minutos antes del cierre: no en SPEC-001-02; opcional en TR.
 - Pestaña en background: comportamiento exacto en TR.
-- Llamadas API exitosas como actividad: no definido en SPEC.
+- Llamadas API exitosas como actividad: cerrado en TR-GEN-02 RN-02 / §6.1.
+- Lista cerrada de eventos de actividad (incl. `Tab`, scroll, capture DevExtreme): TR-GEN-02 §6.1 y regla `.cursor/rules/sesion-inactividad-expiracion.mdc`.
 
 ## Preguntas abiertas
 

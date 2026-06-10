@@ -4,7 +4,7 @@
 |-------|--------|
 | **HU relacionadas** | [HU-GEN-04-consulta-parametros](../../03-historias-usuario/001-Generaliddes/HU-GEN-04-consulta-parametros.md), lectura runtime (servicios existentes) |
 | **TR relacionada** | [TR-GEN-04-consulta-parametros](../../04-tareas/001-Generaliddes/TR-GEN-04-consulta-parametros.md) (**C1** 2026-06-03) |
-| **Estado** | Pendiente |
+| **Estado** | En revisión |
 | **Revisión A1** | Apto con observaciones (2026-05-28) |
 
 ## Objetivo
@@ -82,3 +82,14 @@ Inventario completo con **`CAPTION`**, **`TOOLTIP`** y `tipo_valor`: [`docs/back
 | HU-GEN-04-lectura-parametros | Servicio/repository lectura |
 | [HU-GEN-04-consulta-parametros](../../03-historias-usuario/001-Generaliddes/HU-GEN-04-consulta-parametros.md) | Pantalla consulta solo lectura — **TR:** [TR-GEN-04-consulta-parametros](../../04-tareas/001-Generaliddes/TR-GEN-04-consulta-parametros.md) |
 | HU-GEN-04-fallback-parametros | Defaults y fallback críticos |
+
+### UI consulta parámetros (CC PQ #3)
+
+- Columna **Valor**: encabezado y celdas **centrados** horizontalmente.
+
+## Historial de cambios
+
+| Fecha | Origen | Resumen |
+|-------|--------|---------|
+| 09/06/2026 | CC PQ #3 | Columna Valor centrada en consulta parámetros |
+| 09/06/2026 | Parte I | Unificación `SPEC-001-04-configuracion-global-update` |

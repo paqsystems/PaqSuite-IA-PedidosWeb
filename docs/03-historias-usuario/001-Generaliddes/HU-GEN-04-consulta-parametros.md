@@ -9,6 +9,7 @@
 | **Épica** | 001 — Generalidades / Configuración global |
 | **Prioridad** | Should |
 | **Estado** | Finalizado |
+| **Última actualización** | 2026-06-09 (Parte I — CC PQ #3) |
 | **D1** | Implementado (2026-06-03) |
 | **TR relacionada** | [TR-GEN-04-consulta-parametros](../../04-tareas/001-Generaliddes/TR-GEN-04-consulta-parametros.md) |
 | **Dependencias** | HU-GEN-03-grillas-listados; tabla `PQ_parametros_gral`; seed [PQ_PARAMETROS_GRAL.PedidosWeb.seed.json](../../backend/seed/PQ_PARAMETROS_GRAL/PQ_PARAMETROS_GRAL.PedidosWeb.seed.json) |
@@ -84,6 +85,9 @@ Fuente de verdad: **[consulta-parametros.md](../../02-producto/PedidosWeb/consul
 - [ ] **CA-06:** Booleanos muestran Sí/No (i18n), no `true`/`false` crudo.
 - [ ] **CA-07:** Tooltip visible por fila cuando `TOOLTIP` no está vacío.
 - [ ] **CA-08:** ≥ 1 E2E: supervisor ve listado con al menos una descripción conocida (ej. caption de `MinutosWeb`); la clave técnica no aparece en grilla.
+- [x] **CA-CC3-01:** Encabezado columna Valor centrado.
+- [x] **CA-CC3-02:** Celdas de valor centradas horizontalmente.
+- [x] **CA-CC3-03:** Sin regresión en descripción, tooltip ni ausencia de columna Clave.
 
 ## Escenarios Gherkin
 

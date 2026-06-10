@@ -7,7 +7,7 @@
 | **Ruta** | `/pedidos/carga` |
 | **TR** | [TR-SPEC-101-10-pantalla-carga](../../04-tareas/101-PedidosWeb/TR-SPEC-101-10-pantalla-carga.md) |
 | **SPEC** | [SPEC-101-10-pantalla-carga](../../05-open-spec/101-PedidosWeb/SPEC-101-10-pantalla-carga.md) |
-| **Última actualización** | 2026-06-03 |
+| **Última actualización** | 2026-06-09 (CC PQ #3) |
 
 Este documento es la **fuente de verdad** para comportamiento de UI de la pantalla única de carga/edición de pedidos y presupuestos. Ante conflicto con implementaciones antiguas, prevalece este archivo.
 
@@ -35,8 +35,10 @@ Controles: **DevExtreme** (`SelectBox`, `NumberBox`, `DataGrid`, `Popup`, `Butto
 
 | Regla | Detalle |
 |-------|---------|
-| Control | `SelectBox` (`data-testid`: `cliente-select`) |
-| API | `GET /api/v1/clientes` |
+| Control | `SelectBoxDx` (`data-testid`: `cliente-select`) — wrapper transversal CC3 |
+| API | `GET /api/v1/clientes` (cache en memoria por sesión tras primer fetch) |
+| Estado carga | Hint i18n `selectBox.loading` + control deshabilitado durante fetch inicial |
+| Auto-match | Si la búsqueda deja un único ítem, se selecciona automáticamente |
 | Valor inicial | **Vacío** (`null`) en modo nuevo para perfiles vendedor/supervisor; el usuario debe elegir cliente |
 | Perfil cliente | Cliente fijo de sesión (sin combobox) |
 | Orden | Selector `cliente-orden-select`: **código**, **razón social** o **nombre fantasía** (ascendente); default razón social |
@@ -51,11 +53,16 @@ Controles: **DevExtreme** (`SelectBox`, `NumberBox`, `DataGrid`, `Popup`, `Butto
 
 | Regla | Detalle |
 |-------|---------|
-| Control | `SelectBox` (`data-testid`: `articulo-select`) |
+| Control | `SelectBoxDx` (`data-testid`: `articulo-select`) |
 | API | `GET /api/v1/articulos?q=&lista_precios={cod_lista}&page_size=500` |
-| Carga de datos | **DevExtreme `CustomStore`**: al abrir o buscar, consulta remota con `q` (código/descripción); hasta **500** ítems por request (`page_size` máx. **1000** en API) |
+| Carga de datos | **DevExtreme `CustomStore`** (`useArticulosCargaDataSource`): consulta remota con `q` (trim en API); **no** consulta al solo enfocar el campo (`openOnFieldClick=false`) |
+| Umbral búsqueda | Mínimo **4** caracteres tipeados (espacios incluidos); tras **1 s** sin tipear con umbral cumplido → `component.open()` |
+| Flecha desplegable | Sin texto escrito: carga primer lote (hasta **500** ítems; `page_size` máx. **1000** en API) |
+| Estado carga | Hint i18n `selectBox.loading` durante fetch (`onLoadingChanged`); en artículos **no** se deshabilita al buscar (`disableWhileLoading=false`) |
+| Auto-match | Si la búsqueda deja un único ítem (≥ 4 caracteres), selección automática (`autoSelectMinSearchLength=4`) |
+| Lista precios | Sin `listaPrecios` válida en cabecera el combobox queda deshabilitado (sin `DataSource`); al cambiar lista → `actualizarPreciosRenglonesPorLista` (batch `codigos`) |
 | Orden | **`descripcion` ASC** (API `orderBy('descripcion')` + `ordenarArticulosPorDescripcion` en cliente) |
-| Búsqueda | Escribir en el combobox filtra en servidor (`q`); no está limitado al primer grupo cargado en memoria |
+| Búsqueda | Escribir filtra en servidor (`q`); `searchExpr` código/descripción; `cacheRawData=false` |
 | Exclusión BASE | No listar artículos con `pq_pedidosweb_articulos.usa_esc = 'B'` (solo lookup/browse; refresh por `codigos` no aplica este filtro) |
 | Formato ítem | Ver §3.1 |
 | Precio al agregar | Campo `precio` de la respuesta (lista activa en cabecera) |
@@ -70,8 +77,8 @@ Misma lógica que [consulta-stock.md](./consulta-stock.md) (`StockConsultaServic
 
 | Caso | Plantilla i18n |
 |------|----------------|
-| Sin base | `pedidos.carga.articuloDisplay` → `{{descripcion}} — Disp. {{disponible}}` |
-| Con base | `pedidos.carga.articuloDisplayConBase` → `{{descripcion}} — Disp. {{disponible}} ({{disponibleBase}})` |
+| Sin base | `pedidos.carga.articuloDisplay` → `{{codigo}} - {{descripcion}} — Disp. {{disponible}}` |
+| Con base | `pedidos.carga.articuloDisplayConBase` → `{{codigo}} - {{descripcion}} — Disp. {{disponible}} ({{disponibleBase}})` |
 
 Cantidades con 2 decimales (`es-AR`). Campos API en `ArticuloOption`: `disponibleNeto`, `disponibleNetoBase`.
 

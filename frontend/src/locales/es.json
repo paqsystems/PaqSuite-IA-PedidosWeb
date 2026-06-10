@@ -151,8 +151,9 @@
   "pedidos.carga.clienteOrden.razonSocial": "Razón social",
   "pedidos.carga.clienteOrden.nombreFantasia": "Nombre fantasía",
   "pedidos.carga.seleccioneCliente": "Seleccione un cliente para cargar la cabecera.",
-  "pedidos.carga.articuloDisplay": "{{descripcion}} — Disp. {{disponible}}",
-  "pedidos.carga.articuloDisplayConBase": "{{descripcion}} — Disp. {{disponible}} ({{disponibleBase}})",
+  "pedidos.carga.articuloDisplay": "{{codigo}} - {{descripcion}} — Disp. {{disponible}}",
+  "pedidos.carga.articuloDisplayConBase": "{{codigo}} - {{descripcion}} — Disp. {{disponible}} ({{disponibleBase}})",
+  "selectBox.loading": "Cargando…",
   "pedidos.carga.grid.articulo": "Artículo",
   "pedidos.carga.grid.cantidad": "Cantidad",
   "pedidos.carga.grid.precio": "Precio",
@@ -401,6 +402,7 @@
   "grid.action.viewDetail": "Ver detalle",
   "grid.summary.count": "registros",
   "gridLayout.systemTemplate": "Plantilla del sistema",
+  "gridLayout.ownerMarker": " (*)",
   "gridLayout.selectLabel": "Layout de grilla",
   "gridLayout.save": "Guardar",
   "gridLayout.saveAs": "Guardar como",
@@ -450,6 +452,8 @@
   "gridExport.noData": "No hay datos para exportar",
   "gridExport.mode.basic": "Basica",
   "gridExport.mode.formatted": "Formateada",
+  "gridExport.boolean.true": "VERDADERO",
+  "gridExport.boolean.false": "FALSO",
   "gridExport.emptyDemo.title": "Grilla vacia (demo export)",
   "gridExport.emptyDemo.description": "Referencia para validar exportacion deshabilitada sin filas."
 }

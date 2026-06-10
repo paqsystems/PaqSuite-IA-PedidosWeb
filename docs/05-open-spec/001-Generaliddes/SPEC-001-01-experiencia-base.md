@@ -4,7 +4,7 @@
 |-------|--------|
 | **HU relacionadas** | `docs/03-historias-usuario/001-Generaliddes/HU-GEN-01-*.md` (6 HU; índice en README de la carpeta) |
 | **TR relacionadas** | `docs/04-tareas/001-Generaliddes/TR-GEN-01-*.md` (6 TR; índice en README de la carpeta) |
-| **Estado** | Especificado |
+| **Estado** | En revisión |
 | **Revisión A1** | Apto con observaciones (2026-05-28) |
 
 ## Objetivo
@@ -140,3 +140,18 @@ Soporte consolidado: `docs/04-tareas/001-Generaliddes/F-GEN-01-02-cierre-formal.
 ### Criterio de lectura de estado
 
 Esta SPEC ya tiene slices implementados y verificados en F, pero **no** se considera cerrada en forma total mientras existan HU/TR asociadas sin cierre formal.
+
+---
+
+## Listas DevExtreme (SelectBox / Lookup / DropDown) — CC PQ #3
+
+1. **Carga de datos:** mientras se completa el `dataSource`, mostrar indicador **«cargando…»** (i18n, tamaño discreto) y **bloquear** interacción hasta finalizar el fetch.
+2. **Búsqueda con único resultado:** si al escribir texto de búsqueda queda **un solo ítem**, seleccionarlo automáticamente.
+3. **Alcance:** transversal a todo el portal salvo excepción documentada en HU de proceso.
+
+## Historial de cambios
+
+| Fecha | Origen | Resumen |
+|-------|--------|---------|
+| 09/06/2026 | CC PQ #3 | Listas DX: cargando+bloqueo; auto-match único ítem |
+| 09/06/2026 | Parte I | Unificación `SPEC-001-01-experiencia-base-update` |

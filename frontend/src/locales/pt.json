@@ -151,8 +151,9 @@
   "pedidos.carga.clienteOrden.razonSocial": "Razão social",
   "pedidos.carga.clienteOrden.nombreFantasia": "Nome fantasia",
   "pedidos.carga.seleccioneCliente": "Selecione um cliente para carregar o cabeçalho.",
-  "pedidos.carga.articuloDisplay": "{{descripcion}} — Disp. {{disponible}}",
-  "pedidos.carga.articuloDisplayConBase": "{{descripcion}} — Disp. {{disponible}} ({{disponibleBase}})",
+  "pedidos.carga.articuloDisplay": "{{codigo}} - {{descripcion}} — Disp. {{disponible}}",
+  "pedidos.carga.articuloDisplayConBase": "{{codigo}} - {{descripcion}} — Disp. {{disponible}} ({{disponibleBase}})",
+  "selectBox.loading": "Carregando…",
   "pedidos.carga.grid.articulo": "Artigo",
   "pedidos.carga.grid.cantidad": "Quantidade",
   "pedidos.carga.grid.precio": "Preço",
@@ -401,6 +402,7 @@
   "grid.action.viewDetail": "Ver detalhe",
   "grid.summary.count": "registros",
   "gridLayout.systemTemplate": "Modelo do sistema",
+  "gridLayout.ownerMarker": " (*)",
   "gridLayout.selectLabel": "Layout da grade",
   "gridLayout.save": "Salvar",
   "gridLayout.saveAs": "Salvar como",
@@ -450,6 +452,8 @@
   "gridExport.noData": "Não há dados para exportar",
   "gridExport.mode.basic": "Básica",
   "gridExport.mode.formatted": "Formatada",
+  "gridExport.boolean.true": "VERDADEIRO",
+  "gridExport.boolean.false": "FALSO",
   "gridExport.emptyDemo.title": "Grade vazia (demo exportação)",
   "gridExport.emptyDemo.description": "Referência para validar exportação desabilitada sem linhas."
 }
