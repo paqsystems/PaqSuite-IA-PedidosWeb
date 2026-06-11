@@ -1,27 +1,29 @@
 ## Summary
 
-Entrega **Fase 1 MVP** del portal **MONO PedidosWeb** en la rama **`v1.1.0`**, integrando el trabajo de **`v1.1.0-paq`**, cierres de **Control de Calidad PQ #1–#3**, saneamiento documental y la épica **GEN-08 Pivots (D1)**.
+Entrega **Fase 1 MVP** del portal **MONO PedidosWeb** en la rama **`v1.1.0`**, integrando el trabajo de **`v1.1.0-paq`**, cierres de **Control de Calidad PQ #1–#5**, saneamiento documental y la épica **GEN-08 Pivots (D1)**.
 
 1. **Scaffold fullstack** (Laravel 10 + React/Vite/DevExtreme) con **GEN-01 / GEN-02 / GEN-03** cerrados en documentación e implementación.
 2. **Épica 101 — PedidosWeb**: Parte D completa + cierre formal **F** (TR 101-02 … 101-15 + **TR-GEN-04** consulta parámetros).
 3. **CC PQ #1**: mejoras en carga, consultas, dashboard, mail, inactividad y manual de usuario.
 4. **CC PQ #2**: layouts propios `(*)`, plantilla sistema, export Excel formateado (fechas, booleanos, totales pie).
 5. **CC PQ #3**: `SelectBoxDx` con loading, auto-match único, carga artículos optimizada, totalizadores pie en layouts.
-6. **GEN-08 Pivots (SPEC-001-08)**: motor metadata/API, PivotGrid en historial ventas, diseños persistentes, export Excel client-side — **flags default `false`** hasta activación en deploy.
-7. **Documentación** SPEC-001-07 (importar Excel, A1) y SPEC-001-08 (pivots, A1 + F formal).
+6. **CC PQ #5**: listbox artículos en carga — disponible `stock − comprometido` (sin pedidos web); display `codigo - descripcion — Disp. X (Y)`.
+7. **GEN-08 Pivots (SPEC-001-08)**: motor metadata/API, PivotGrid en historial ventas, diseños persistentes, export Excel client-side — **flags default `false`** hasta activación en deploy.
+8. **Documentación** SPEC-001-07 (importar Excel, A1) y SPEC-001-08 (pivots, A1 + F formal).
 
 **Compare:** `main` ← **`v1.1.0`**  
-**Tip:** `cc2eb07` — `merge: integrar v1.1.0-paq (GEN-08 Pivots D1, CC PQ #3, docs SPEC-001-07/08)`  
+**Tip:** `7244247` — `fix(pedidosweb): disponible listbox carga sin pedidos web — CC PQ #5`  
 **Crear PR:** [Compare main...v1.1.0](https://github.com/paqsystems/PaqSuite-IA-PedidosWeb/compare/main...v1.1.0)
 
 ```powershell
-gh pr create --base main --head v1.1.0 --title "release(v1.1.0): MVP PedidosWeb + CC PQ #1–#3 + GEN-08 Pivots D1" --body-file .github/PR_BODY_v1.1.0.md
+gh pr create --base main --head v1.1.0 --title "release(v1.1.0): MVP PedidosWeb + CC PQ #1–#5 + GEN-08 Pivots D1" --body-file .github/PR_BODY_v1.1.0.md
 ```
 
 **Commits clave (cronología reciente):**
 
 | Commit | Resumen |
 |--------|---------|
+| `7244247` | **CC PQ #5** — lookup carga sin comprometido web + docs updates |
 | `cc2eb07` | Merge `v1.1.0-paq` → `v1.1.0` (GEN-08 + CC #3 + docs) |
 | `2735155` | **GEN-08** epic Pivots D1 — motor, PivotGrid, layouts, export |
 | `5eefea3` | Fix `onOpened` DevExtreme en SelectBox artículos |
@@ -47,7 +49,7 @@ Informes de cierre: [`F-101-PedidosWeb-cierre-formal.md`](docs/04-tareas/101-Ped
 | `SelectBoxDx` (loading, auto-match) | Finalizado — CC PQ #3 |
 | Visibilidad comercial (cliente / vendedor / supervisor) | Finalizado |
 | Consulta de parámetros (TR-GEN-04) | Finalizado — CC PQ #3 alineación Valor |
-| **Pivots (SPEC-001-08)** | **D1 implementado** — flags `pivotsEnabled` / `pivotLayoutsEnabled` default **false** |
+| **Pivots (SPEC-001-08)** | **Finalizado (D1)** — flags `pivotsEnabled` / `pivotLayoutsEnabled` default **false** |
 | CI GitHub Actions (smoke backend + build frontend) | `.github/workflows/ci.yml` |
 
 Cierres formales: `F-GEN-01-02-cierre-formal.md`, `F-GEN-03-cierre-formal.md`, `F-GEN-04-consulta-parametros-cierre.md`, `F-GEN-08-cierre-formal.md`.
@@ -58,8 +60,8 @@ Cierres formales: `F-GEN-01-02-cierre-formal.md`, `F-GEN-03-cierre-formal.md`, `
 
 | TR | Entregable | Estado |
 |----|------------|--------|
-| TR-GEN-08-motor-metadata-pivots | Catálogo `pq_pivots_*`, API metadata/data/validate | D1 — Aprobado |
-| TR-GEN-08-pivotgrid-visualizacion | `ConsultaGrillaPivotShell`, toggle grilla/pivot, piloto historial ventas | D1 — Aprobado |
+| TR-GEN-08-motor-metadata-pivots | Catálogo `pq_pivots_*`, API metadata/data/validate | Finalizado |
+| TR-GEN-08-pivotgrid-visualizacion | `ConsultaGrillaPivotShell`, toggle grilla/pivot, piloto historial ventas | Finalizado |
 | TR-GEN-08-layouts-pivot | `pq_pivots_config` + API CRUD, toolbar diseños | D1 — Aprobado |
 | TR-GEN-08-exportacion-pivot | Export client-side Excel básico/tabla dinámica | D1 — Aprobado |
 
@@ -73,7 +75,7 @@ Cierres formales: `F-GEN-01-02-cierre-formal.md`, `F-GEN-03-cierre-formal.md`, `
 
 ---
 
-## Bloque PedidosWeb (101) — D + F + CC #1–#3
+## Bloque PedidosWeb (101) — D + F + CC #1–#5
 
 | TR | Entregable | Estado |
 |----|------------|--------|
@@ -107,6 +109,15 @@ Cierres formales: `F-GEN-01-02-cierre-formal.md`, `F-GEN-03-cierre-formal.md`, `
 | Carga artículos | Política carga diferida, cache clientes sesión, display `codigo - descripcion` |
 | Layouts pie | Totalizadores persisten en guardar/cargar diseño |
 | Parámetros | Columna Valor centrada |
+
+### Highlights CC PQ #5
+
+| Tema | Cambio |
+|------|--------|
+| Listbox artículos (browse) | `lookupDisponibilidadCargaPorCodigos`: solo `stock − comprometido` |
+| Consulta stock | Sin cambio: sigue usando disponible neto con `comprometido_web` |
+| Display ítem | `codigo - descripcion — Disp. X (Y)` con base opcional entre paréntesis |
+| Docs | CC #5, updates SPEC-101-10 / HU-101-005 / TR-SPEC-101-10 |
 
 ---
 
@@ -166,6 +177,12 @@ OpenAPI: `backend/storage/api-docs/api-docs.json`
 - [ ] SelectBox cliente/artículo: indicador loading; auto-match si único resultado
 - [ ] Carga artículos: búsqueda diferida sin bloquear UI
 - [ ] Guardar diseño grilla preserva totalizadores pie
+
+### CC PQ #5
+
+- [ ] Listbox artículos en carga: disponible no descuenta pedidos web ingresados
+- [ ] Artículo con base: paréntesis muestra disponible del código base
+- [ ] Consulta de stock: disponible neto con pedidos web sin regresión
 
 ### GEN-08 Pivots (con flags activos en tenant piloto)
 
