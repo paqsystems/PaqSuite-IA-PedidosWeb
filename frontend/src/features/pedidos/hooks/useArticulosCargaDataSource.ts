@@ -2,7 +2,7 @@ import CustomStore from 'devextreme/data/custom_store';
 
 import DataSource from 'devextreme/data/data_source';
 
-import type { ClosedEvent, DropDownOpeningEvent, InputEvent } from 'devextreme/ui/select_box';
+import type { ClosedEvent, InputEvent, OpenedEvent } from 'devextreme/ui/select_box';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
@@ -62,7 +62,7 @@ export type ArticulosCargaDataSourceState = {
 
     openOnFieldClick: false;
 
-    onDropDownOpening: (event: DropDownOpeningEvent) => void;
+    onOpened: (event: OpenedEvent) => void;
 
     onClosed: (event: ClosedEvent) => void;
 
@@ -176,7 +176,7 @@ export function useArticulosCargaDataSource(
 
 
 
-  const onDropDownOpening = useCallback((event: DropDownOpeningEvent) => {
+  const onOpened = useCallback((event: OpenedEvent) => {
 
     const currentSearch = resolveRawSelectBoxText(event.component);
 
@@ -266,7 +266,7 @@ export function useArticulosCargaDataSource(
 
       openOnFieldClick: false as const,
 
-      onDropDownOpening,
+      onOpened,
 
       onClosed,
 
@@ -274,7 +274,7 @@ export function useArticulosCargaDataSource(
 
     }),
 
-    [onClosed, onDropDownOpening, onInput],
+    [onClosed, onOpened, onInput],
 
   );
 
