@@ -8,7 +8,7 @@
 | **Prioridad** | Must |
 | **Dependencias** | TR-GEN-03-grillas-listados; TR-GEN-03-layouts-grilla |
 | **Estado** | Finalizado |
-| **Última actualización** | 2026-06-01 (cierre manual post-F) |
+| **Última actualización** | 2026-06-09 (Parte I — CC PQ #2) |
 
 **Cierre F formal:** [F-GEN-03-cierre-formal](F-GEN-03-cierre-formal.md)
 
@@ -41,6 +41,7 @@ Exportar a Excel la vista vigente de la grilla (básica / formateada).
 - **AC-08**: Mismos permisos que ver la grilla (`exportEnabled` prop ligada a permiso proceso).
 - **AC-09**: `data-testid="gridExportExcel"`.
 - **AC-10**: E2E: exportar dashboard/demo completa flujo guardar (o stub del diálogo en entorno de test).
+- **AC-11**: Modalidad **formateada** diferenciada de básica: fechas según locale, enteros sin decimales, decimales según `column.format` (fallback 2), booleanos VERDADERO/FALSO (i18n), encabezados negrita + fondo gris (#D9D9D9), totales pie con formato numérico.
 
 ---
 
@@ -48,8 +49,8 @@ Exportar a Excel la vista vigente de la grilla (básica / formateada).
 
 1. **RN-01**: Exportar en misma franja que layouts y Agregar.
 2. **RN-02**: Base = vista visible (incluye layout cargado).
-3. **RN-03**: **Formateada** aplica estilos Excel por tipo de dato según `exportaciones.md`.
-4. **RN-04**: **Básica** exporta valores sin formato avanzado.
+3. **RN-03**: **Formateada** aplica estilos Excel por tipo de dato según `exportaciones.md` y `excelExportFormatting.ts` (fechas locale, enteros, decimales, booleanos i18n, encabezados gris, totales pie).
+4. **RN-04**: **Básica** exporta valores sin formato avanzado; debe **limpiar** estilos que DevExtreme aplica por defecto (`numFmt`, negrita, `autoFilter`) para no confundirse con formateada.
 5. **RN-05**: MVP: alcance **página actual** salvo que TR de proceso documente “dataset completo” con límite.
 6. **RN-06** (**nombre y guardado del archivo**):  
    - **Nombre por defecto sugerido:** `{proceso}_{yyyyMMdd_HHmm}.xlsx` (sanitizar `proceso`; zona horaria del cliente o acordada en implementación).  
@@ -200,9 +201,12 @@ frontend/src/features/gridExport/
 
 ### Modalidad formateada (mínimo)
 
-- Encabezados en negrita.
-- Fechas legibles según locale activo.
-- Números enteros sin decimales espurios; decimales según `format` columna si está declarado.
+- Encabezados en negrita + fondo gris (#D9D9D9).
+- Fechas con `numFmt` según locale activo (i18n).
+- Enteros sin decimales; decimales según `column.format` (fallback 2).
+- Booleanos como VERDADERO/FALSO (`gridExport.boolean.*` i18n).
+- Totales de pie (`totalFooter` / `groupFooter`) con negrita y formato numérico.
+- Implementación: `excelExportFormatting.ts`, `exportDataGridExcel.ts`, `GridExportButton.tsx`.
 
 ### Grilla vacía (AMB-C02)
 
@@ -231,7 +235,7 @@ frontend/src/features/gridExport/
 ## 8) Estrategia de Tests
 
 - **Unit:** `buildSuggestedExportFileName(proceso)` sanitización y formato.
-- **E2E:** Playwright `download` event tras export en grilla con filas (dashboard).
+- **E2E:** `grid-export.spec.ts` en `/demo/abm` (export habilitado, descarga formateada) y `/demo/export-empty` (deshabilitado).
 
 ---
 
@@ -248,12 +252,28 @@ frontend/src/features/gridExport/
 - **Tests:** E2E `grid-export.spec.ts` 3 OK; unit `buildSuggestedExportFileName` OK
 - **QA manual:** export formateada y grilla vacía con botón deshabilitado
 
+**CC PQ #2 (05/06/2026) — F1/F:** [F-CC-PQ-02-GEN-03-cierre-formal](F-CC-PQ-02-GEN-03-cierre-formal.md) — Aprobado con observaciones (09/06/2026). E2E en `/demo/abm` y `/demo/export-empty`; unit `excelExportFormatting.test.ts`.
+
 ---
 
 ## 11) Checklist final
 
 - [x] PDF no incluido (remisión SPEC-001-06 documentada en HU)
 - [x] Módulo `gridExport` integrado en `DataGridDx` toolbar
+
+---
+
+## Historial CC PQ #2 (05/06/2026) — Parte I 09/06/2026
+
+Corrección export Excel formateada vs básica.
+
+| ID | Tarea | Evidencia |
+|----|-------|-----------|
+| T1 | Helpers formato por tipo de dato | `excelExportFormatting.ts` |
+| T2 | `customizeCell` formateada + limpieza básica | `exportDataGridExcel.ts` (`autoFilterEnabled: false` en básica) |
+| T3 | Booleanos i18n 5 locales | `gridExport.boolean.true/false` |
+| T4 | Reglas estándar | `08-devextreme-grid-standards.md` §1.13, `grillas.md` |
+| T5 | Tests unit + E2E | `excelExportFormatting.test.ts`, `grid-export.spec.ts` |
 
 ---
 

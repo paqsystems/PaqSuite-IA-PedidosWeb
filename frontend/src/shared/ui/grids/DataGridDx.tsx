@@ -34,7 +34,10 @@ import { useDataGridDevExtremeTexts } from './hooks/useDataGridDevExtremeTexts';
 import { prepareDataGridSummaryContextMenu } from './utils/dataGridSummaryContextMenu';
 import {
   ensureDataGridSummaryFooter,
+  filterRealSummaryItems,
   handleSummaryFooterPlaceholderCalculate,
+  PAQ_SUMMARY_TOTAL_ITEMS_STATE_KEY,
+  type TotalSummaryItem,
 } from './utils/dataGridSummaryFooter';
 import { abmTestIds } from '../abm/abmTestIds';
 import { buildAbmRowActions, resolveAbmRowActionTestId } from './utils/buildAbmRowActions';
@@ -172,21 +175,56 @@ function DataGridDxInner<TRecord extends Record<string, unknown> = Record<string
           return null;
         }
 
-        return instance.state() as Record<string, unknown>;
+        const baseState = instance.state() as Record<string, unknown>;
+        const totalItems = filterRealSummaryItems(
+          (instance.option('summary.totalItems') as TotalSummaryItem[] | undefined) ?? [],
+        );
+
+        if (totalItems.length === 0) {
+          return baseState;
+        }
+
+        return {
+          ...baseState,
+          [PAQ_SUMMARY_TOTAL_ITEMS_STATE_KEY]: totalItems,
+        };
       },
       applyState: (state) => {
         const instance = dataGridRef.current?.instance();
 
-        if (!instance || state === null) {
+        if (!instance) {
           return;
         }
 
-        instance.state(state);
+        if (!state) {
+          instance.state(null);
+
+          if (enableSummary) {
+            ensureDataGridSummaryFooter(instance);
+          }
+
+          updateVisibleRowCount();
+          return;
+        }
+
+        const stateRecord = state as Record<string, unknown>;
+        const summaryTotalItems = stateRecord[PAQ_SUMMARY_TOTAL_ITEMS_STATE_KEY];
+        const gridState = { ...stateRecord };
+        delete gridState[PAQ_SUMMARY_TOTAL_ITEMS_STATE_KEY];
+
+        instance.state(gridState);
+
+        if (Array.isArray(summaryTotalItems) && summaryTotalItems.length > 0) {
+          instance.option('summary.totalItems', summaryTotalItems);
+        } else if (enableSummary) {
+          ensureDataGridSummaryFooter(instance);
+        }
+
         updateVisibleRowCount();
       },
       getVisibleRowCount: () => visibleRowCount,
     }),
-    [updateVisibleRowCount, visibleRowCount],
+    [enableSummary, updateVisibleRowCount, visibleRowCount],
   );
 
   const handleCellPrepared = (event: CellPreparedEvent) => {

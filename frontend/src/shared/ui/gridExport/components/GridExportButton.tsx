@@ -30,7 +30,7 @@ export function GridExportButton({
   exportEnabled = true,
   isEmpty,
 }: GridExportButtonProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [isExporting, setIsExporting] = useState(false);
 
   const menuItems = useMemo<ExportMenuItem[]>(
@@ -61,12 +61,18 @@ export function GridExportButton({
 
       try {
         const fileName = buildSuggestedExportFileName(proceso, gridId);
-        await exportDataGridExcel(gridInstance, mode, fileName);
+        await exportDataGridExcel(gridInstance, mode, fileName, {
+          locale: i18n.language,
+          booleanLabels: {
+            trueLabel: t('gridExport.boolean.true'),
+            falseLabel: t('gridExport.boolean.false'),
+          },
+        });
       } finally {
         setIsExporting(false);
       }
     },
-    [exportEnabled, gridId, gridRef, isEmpty, proceso],
+    [exportEnabled, gridId, gridRef, i18n.language, isEmpty, proceso, t],
   );
 
   if (!exportEnabled) {

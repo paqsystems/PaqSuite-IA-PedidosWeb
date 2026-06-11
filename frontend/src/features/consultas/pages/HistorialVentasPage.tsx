@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { ConsultaGrillaPivotShell } from '../../../shared/pivot';
 import { useTranslation } from 'react-i18next';
 import Popup from 'devextreme-react/popup';
 import { Column } from 'devextreme-react/data-grid';
@@ -15,6 +16,7 @@ import { formatConsultaFechaProceso } from '../utils/formatConsultaFechaProceso'
 
 const proceso = 'pw_historialventas';
 const gridId = 'pw_historialventas';
+const pivotConsultaId = 'CONSULTA_PILOTO_PIVOT';
 
 const dateColumnProps = {
   dataType: 'date' as const,
@@ -71,6 +73,7 @@ export function HistorialVentasPage() {
   const [detalleVisible, setDetalleVisible] = useState(false);
   const [detalleRows, setDetalleRows] = useState<HistorialVentasRow[]>([]);
   const [refreshToken, setRefreshToken] = useState(0);
+  const [drillDownFilters, setDrillDownFilters] = useState<Record<string, unknown> | null>(null);
 
   const fechaProcesoLabel = useMemo(() => {
     const rawValue = meta?.fecha_proceso;
@@ -129,6 +132,19 @@ export function HistorialVentasPage() {
     setDetalleVisible(true);
   }, []);
 
+  const visibleRows = useMemo(() => {
+    if (!drillDownFilters) {
+      return rows;
+    }
+
+    return rows.filter((row) =>
+      Object.entries(drillDownFilters).every(([field, value]) => {
+        const rowValue = row[field as keyof HistorialVentasRow];
+        return String(rowValue ?? '') === String(value ?? '');
+      }),
+    );
+  }, [drillDownFilters, rows]);
+
   const rowActions: DataGridRowAction<HistorialVentasRow>[] = [
     {
       actionKey: 'verDetalle',
@@ -147,19 +163,31 @@ export function HistorialVentasPage() {
       {meta?.dias_ventas_detalladas ? (
         <p>{t('consultas.historialPeriodo', { dias: meta.dias_ventas_detalladas })}</p>
       ) : null}
-      <DataGridDx<HistorialVentasRow>
-        ref={gridRef}
-        proceso={proceso}
-        gridId={gridId}
-        dataSource={rows}
-        keyExpr="id"
-        isLoading={isLoading}
-        loadError={loadError}
-        toolbarEnd={toolbarEnd}
-        rowActions={rowActions}
-      >
-        {historialColumns(t)}
-      </DataGridDx>
+      <ConsultaGrillaPivotShell
+        consultaId={pivotConsultaId}
+        tipoProceso="informe"
+        testIdPrefix="historialVentas"
+        refreshToken={refreshToken}
+        onRefresh={() => setRefreshToken((value) => value + 1)}
+        onDrillDownFilters={setDrillDownFilters}
+        gridContent={
+          (
+            <DataGridDx<HistorialVentasRow>
+              ref={gridRef}
+              proceso={proceso}
+              gridId={gridId}
+              dataSource={visibleRows}
+              keyExpr="id"
+              isLoading={isLoading}
+              loadError={loadError}
+              toolbarEnd={toolbarEnd}
+              rowActions={rowActions}
+            >
+              {historialColumns(t)}
+            </DataGridDx>
+          ) as ReactNode
+        }
+      />
       {saveAsDialog}
       <Popup
         visible={detalleVisible}

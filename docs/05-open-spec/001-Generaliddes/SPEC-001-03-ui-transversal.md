@@ -3,7 +3,7 @@
 | Campo | Valor |
 |-------|--------|
 | **HU relacionadas** | [HU-GEN-03-grillas-listados](../../03-historias-usuario/001-Generaliddes/HU-GEN-03-grillas-listados.md), [HU-GEN-03-layouts-grilla](../../03-historias-usuario/001-Generaliddes/HU-GEN-03-layouts-grilla.md), [HU-GEN-03-patron-abm](../../03-historias-usuario/001-Generaliddes/HU-GEN-03-patron-abm.md), [HU-GEN-03-exportaciones](../../03-historias-usuario/001-Generaliddes/HU-GEN-03-exportaciones.md) |
-| **Estado** | Pendiente |
+| **Estado** | En revisión |
 | **Revisión A1** | Apto con observaciones (2026-06-01) — decisiones humanas cerradas en B1 |
 
 ## Objetivo
@@ -72,7 +72,7 @@ Filtro de datos: **`proceso` + `grid_id`**.
 
 ### Contenido de un layout
 
-Columnas visibles y orden; filtros; agrupaciones; ordenamiento; totalizadores; anchos y demás propiedades del formato que el control persista sin ambigüedad.
+Columnas visibles y orden; filtros; agrupaciones; ordenamiento; **totalizadores del pie** (`Summary` DevExtreme: sum/count/avg/min/max por columna); anchos y demás propiedades del formato que el control persista sin ambigüedad. Al **cargar** un layout, deben restaurarse los totalizadores guardados.
 
 ### Operaciones (UI en toolbar superior inmediata de la grilla)
 
@@ -144,3 +144,10 @@ Los controles de layout deben convivir en la **misma franja superior** que expor
 | [HU-GEN-03-layouts-grilla](../../03-historias-usuario/001-Generaliddes/HU-GEN-03-layouts-grilla.md) | [TR-GEN-03-layouts-grilla](../../04-tareas/001-Generaliddes/TR-GEN-03-layouts-grilla.md) | Layouts persistentes `pq_grid_layouts` |
 | [HU-GEN-03-patron-abm](../../03-historias-usuario/001-Generaliddes/HU-GEN-03-patron-abm.md) | [TR-GEN-03-patron-abm](../../04-tareas/001-Generaliddes/TR-GEN-03-patron-abm.md) | ABM transversal sobre grilla |
 | [HU-GEN-03-exportaciones](../../03-historias-usuario/001-Generaliddes/HU-GEN-03-exportaciones.md) | [TR-GEN-03-exportaciones](../../04-tareas/001-Generaliddes/TR-GEN-03-exportaciones.md) | Exportación Excel desde grilla |
+
+## Historial de cambios
+
+| Fecha | Origen | Resumen |
+|-------|--------|---------|
+| 09/06/2026 | CC PQ #3 | Layouts persisten totalizadores del pie (footer Summary) |
+| 09/06/2026 | Parte I | Unificación `SPEC-001-03-ui-transversal-update` |

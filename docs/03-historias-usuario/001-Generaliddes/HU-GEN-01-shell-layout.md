@@ -7,7 +7,7 @@
 | **Épica** | 001 — Generaliddes / Experiencia base |
 | **Prioridad** | Must |
 | **Estado** | Finalizado |
-| **Última actualización** | 2026-05-31 |
+| **Última actualización** | 2026-06-09 (Parte I — CC PQ #3) |
 | **Dependencias** | HU-GEN-02 (login y sesión); SPEC-001-05 (tenancy MONO) |
 | **TR** | [TR-GEN-01-shell-layout](../../04-tareas/001-Generaliddes/TR-GEN-01-shell-layout.md) — C1/D1/D cerrados 2026-05-29 |
 
@@ -57,6 +57,8 @@ SPEC-001-01 establece lineamientos base de experiencia para el arranque del prod
 3. El header permanece visible y consistente al cambiar de proceso en el área principal.
 4. El footer no reemplaza toasts, confirmaciones ni indicadores de carga del proceso activo.
 5. Sesión inválida o expirada: redirigir a login sin renderizar shell.
+6. **CC PQ #3:** SelectBox/Lookup/DropDown DevExtreme: durante carga del catálogo, indicador **«cargando…»** (i18n) y control **deshabilitado** hasta finalizar el fetch.
+7. **CC PQ #3:** Si la búsqueda deja **exactamente un** ítem, seleccionarlo automáticamente (patrón transversal reutilizable en pantallas 101).
 
 ## Criterios de aceptación
 
@@ -69,6 +71,10 @@ SPEC-001-01 establece lineamientos base de experiencia para el arranque del prod
 - [ ] Error al cargar preferencias de usuario: shell visible con valores por defecto del SPEC (`es`, `generic.light` vía HUs de idioma/tema).
 - [ ] E2E: login → shell visible con `data-testid` en zonas clave.
 - [ ] El header expone los tres `data-testid` de controles de menú documentados en TR-GEN-01-menu-general-sidebar.
+- [x] **CA-CC3-01:** SelectBox de referencia aplica indicador cargando y bloqueo durante fetch.
+- [x] **CA-CC3-02:** Con un solo match tras búsqueda, el valor queda seleccionado sin segundo clic.
+- [x] **CA-CC3-03:** Textos vía i18n (5 locales); `data-testid` estables.
+- [x] **CA-CC3-04:** Patrón documentado para reutilizar en HU de proceso (101-004, 101-006, etc.).
 
 ## Escenarios Gherkin
 

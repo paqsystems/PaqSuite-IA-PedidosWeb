@@ -56,6 +56,7 @@ export function formatArticuloCargaDisplay(articulo: ArticuloOption, t: TFunctio
 
   if (articulo.disponibleNetoBase !== null && articulo.disponibleNetoBase !== undefined) {
     return t('pedidos.carga.articuloDisplayConBase', {
+      codigo: articulo.codArticulo,
       descripcion: articulo.descripcion,
       disponible,
       disponibleBase: formatCantidadStock(articulo.disponibleNetoBase),
@@ -63,6 +64,7 @@ export function formatArticuloCargaDisplay(articulo: ArticuloOption, t: TFunctio
   }
 
   return t('pedidos.carga.articuloDisplay', {
+    codigo: articulo.codArticulo,
     descripcion: articulo.descripcion,
     disponible,
   });

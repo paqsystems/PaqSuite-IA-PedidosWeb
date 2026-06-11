@@ -7,10 +7,9 @@
 | **Épica** | 001 — Generaliddes / UI transversal |
 | **Prioridad** | Must |
 | **Estado** | Finalizado |
-| **Última actualización** | 2026-06-01 (cierre manual post-F) |
+| **Última actualización** | 2026-06-09 (Parte I — CC PQ #2 y #3) |
 | **B1** | Enriquecida (2026-06-01) |
 | **TR relacionada** | [TR-GEN-03-layouts-grilla](../../04-tareas/001-Generaliddes/TR-GEN-03-layouts-grilla.md) |
-| **Última actualización** | 2026-06-01 |
 | **Dependencias** | HU-GEN-03-grillas-listados; HU-GEN-02-login-sesion |
 
 ## Trazabilidad SPEC
@@ -66,6 +65,8 @@ SPEC-001-03 normativiza layouts persistentes: estado de grilla (columnas, filtro
 7. Al montar la pantalla, aplicar **último layout usado** por el usuario si existe.
 8. Controles en la **misma franja superior** que exportar y acciones globales.
 9. **Sin límite** de layouts guardados por usuario en MVP.
+10. Layouts **propios** (`isOwner`) se distinguen en el selector con sufijo visual **` (*)`** (`gridLayout.ownerMarker` i18n); no se persiste en `layout_name`.
+11. **Plantilla del sistema** restaura la grilla original del proceso; cualquier cambio sobre ella hace que **Guardar** abra **Guardar como** (no altera la plantilla base).
 
 ## Decisiones cerradas (producto / B1)
 
@@ -87,6 +88,8 @@ SPEC-001-03 normativiza layouts persistentes: estado de grilla (columnas, filtro
 - [x] **CA-09:** Intento de Guardar como con nombre existente en proceso+grilla → error claro, sin pérdida de vista actual.
 - [x] **CA-10:** Con plantilla sistema, Guardar solicita nombre (Guardar como).
 - [x] **CA-11:** E2E: guardar layout → salir → volver → formato restaurado (proceso referencia MVP).
+- [x] **CA-12:** Layouts propios visibles con sufijo ` (*)` en el selector.
+- [x] **CA-13:** Al elegir plantilla del sistema, la grilla vuelve al formato por defecto del proceso.
 
 ## Escenarios Gherkin
 
@@ -135,3 +138,19 @@ Feature: Layouts persistentes de grilla (SPEC-001-03)
 ## Veredicto B1
 
 **Lista para TR:** Sí
+
+---
+
+## CC PQ #3 (09/06/2026) — Totalizadores del pie en layouts
+
+### Reglas de negocio (ampliadas)
+
+12. El JSON de estado persistido en `pq_grid_layouts` debe incluir **totalizadores del pie** (`Summary` DevExtreme) coherentes con lo visible al guardar.
+13. Al **cargar** un layout, deben restaurarse los totalizadores definidos en ese layout.
+
+### Criterios de aceptación CC #3
+
+- [x] **CA-CC3-01:** Totalizadores en pie → Guardar → recargar → Cargar layout → totalizadores restaurados.
+- [x] **CA-CC3-02:** Guardar como conserva totalizadores del estado actual.
+- [x] **CA-CC3-03:** Plantilla del sistema no alterada (coherente con RN-05 / CC #2).
+- [x] **CA-CC3-04:** Regla en `08-devextreme-grid-standards.md` §1.11.

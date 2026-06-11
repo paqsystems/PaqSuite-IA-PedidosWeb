@@ -364,17 +364,14 @@ async function agregarArticuloDemo(page: import('@playwright/test').Page) {
     (response) => response.url().includes('/api/v1/articulos') && response.status() === 200,
   );
 
-  await page.getByTestId('form-articulo-carga').getByRole('combobox', { name: 'Buscar artículo' }).click();
+  await page.getByTestId('articulo-select').click();
+  await page.getByTestId('articulo-select').pressSequentially('ART-', { delay: 40 });
   await articulosResponse;
 
-  const articuloOverlay = page.locator('.dx-dropdowneditor-overlay').last();
-  await expect(articuloOverlay.locator('.dx-list-item').filter({ hasText: 'Artículo demo' }).first()).toBeVisible({
-    timeout: 10_000,
-  });
-  await articuloOverlay.locator('.dx-list-item').filter({ hasText: 'Artículo demo' }).first().click();
-  await expect(page.getByTestId('btn-agregar-articulo').getByRole('button')).toBeEnabled({ timeout: 10_000 });
+  const agregarArticuloBtn = page.getByTestId('btn-agregar-articulo').getByRole('button');
+  await expect(agregarArticuloBtn).toBeEnabled({ timeout: 15_000 });
   await page.getByTestId('btn-agregar-articulo').getByRole('button').click();
-  await expect(page.getByText('ART-001')).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByRole('gridcell', { name: 'ART-001' })).toBeVisible({ timeout: 15_000 });
 
   const editOverlay = page.locator('.dx-overlay-shader');
   if (await editOverlay.isVisible().catch(() => false)) {

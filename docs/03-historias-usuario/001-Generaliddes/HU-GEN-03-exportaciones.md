@@ -7,10 +7,9 @@
 | **Épica** | 001 — Generaliddes / UI transversal |
 | **Prioridad** | Must |
 | **Estado** | Finalizado |
-| **Última actualización** | 2026-06-01 (cierre manual post-F) |
+| **Última actualización** | 2026-06-09 (Parte I — CC PQ #2) |
 | **B1** | Enriquecida (2026-06-01) |
 | **TR relacionada** | [TR-GEN-03-exportaciones](../../04-tareas/001-Generaliddes/TR-GEN-03-exportaciones.md) |
-| **Última actualización** | 2026-06-01 |
 | **Dependencias** | HU-GEN-03-grillas-listados; HU-GEN-03-layouts-grilla (vista vigente) |
 
 ## Trazabilidad SPEC
@@ -60,6 +59,8 @@ SPEC-001-03 limita la exportación transversal del MVP a **Excel** desde grillas
 3. Exporta filtros, orden y agrupación visibles; columnas según **layout activo**.
 4. Default modalidad **formateada** para grillas transversales.
 5. Permisos idénticos a los de ver la grilla del proceso.
+6. Modalidad **formateada** aplica formato Excel visible respecto de la básica: fechas según locale, enteros sin decimales, decimales según campo (fallback 2), booleanos VERDADERO/FALSO (i18n), encabezados con negrita y fondo gris, totalizadores de pie.
+7. Modalidad **básica** exporta valores sin formato avanzado (limpia estilos que DevExtreme aplica por defecto).
 
 ## Decisiones cerradas (producto / B1)
 
@@ -81,6 +82,7 @@ SPEC-001-03 limita la exportación transversal del MVP a **Excel** desde grillas
 - [x] **CA-08:** Usuario sin permiso al proceso no exporta (prop `exportEnabled` en integración).
 - [x] **CA-09:** i18n y `data-testid` en acción exportar.
 - [x] **CA-10:** E2E smoke del flujo exportar + guardar (o stub del picker en CI).
+- [x] **CA-11:** Formateada se distingue de básica (formatos por tipo, encabezados gris, totales pie, booleanos i18n).
 
 ## Escenarios Gherkin
 

@@ -131,7 +131,15 @@ function mapRenglonToApi(renglon: ComprobanteRenglon) {
   };
 }
 
-export async function fetchClientes(): Promise<ClienteOption[]> {
+let cachedClientes: ClienteOption[] | null = null;
+let cachedClientesRequest: Promise<ClienteOption[]> | null = null;
+
+export function clearClientesCache(): void {
+  cachedClientes = null;
+  cachedClientesRequest = null;
+}
+
+async function loadClientesFromApi(): Promise<ClienteOption[]> {
   const response = await apiRequest<ApiClienteRow[] | { items?: ApiClienteRow[] }>('/clientes');
   const payload = response.resultado;
   const rows = Array.isArray(payload) ? payload : (payload.items ?? []);
@@ -144,6 +152,25 @@ export async function fetchClientes(): Promise<ClienteOption[]> {
       nombreFantasia: cliente.nombreFantasia ?? cliente.fantasia ?? cliente.nombre,
     })),
   );
+}
+
+export async function fetchClientes(): Promise<ClienteOption[]> {
+  if (cachedClientes) {
+    return cachedClientes;
+  }
+
+  if (cachedClientesRequest) {
+    return cachedClientesRequest;
+  }
+
+  cachedClientesRequest = loadClientesFromApi();
+
+  try {
+    cachedClientes = await cachedClientesRequest;
+    return cachedClientes;
+  } finally {
+    cachedClientesRequest = null;
+  }
 }
 
 async function fetchComprobanteFromPath(path: string): Promise<ComprobanteDetalle | null> {
@@ -241,13 +268,14 @@ export async function fetchPreciosArticulosPorLista(
   listaPrecios: number,
 ): Promise<Array<{ codArticulo: string; precio: number }>> {
   const codigosUnicos = [...new Set(codigos.map((codigo) => codigo.trim()).filter(Boolean))];
-  if (codigosUnicos.length === 0 || listaPrecios <= 0) {
+  const codLista = Number(listaPrecios);
+  if (codigosUnicos.length === 0 || Number.isNaN(codLista) || codLista <= 0) {
     return [];
   }
 
   const params = new URLSearchParams();
   params.set('codigos', codigosUnicos.join(','));
-  params.set('lista_precios', String(listaPrecios));
+  params.set('lista_precios', String(codLista));
   params.set('page_size', String(Math.min(1000, codigosUnicos.length)));
 
   const response = await apiRequest<{ items?: ArticuloOption[] }>(`/articulos?${params.toString()}`);
@@ -267,8 +295,9 @@ export async function searchArticulos(
   if (query.trim() !== '') {
     params.set('q', query.trim());
   }
-  if (listaPrecios !== null && listaPrecios !== undefined && listaPrecios > 0) {
-    params.set('lista_precios', String(listaPrecios));
+  const codLista = Number(listaPrecios);
+  if (!Number.isNaN(codLista) && codLista > 0) {
+    params.set('lista_precios', String(codLista));
   }
   params.set('page_size', String(Math.min(1000, Math.max(1, pageSize))));
 

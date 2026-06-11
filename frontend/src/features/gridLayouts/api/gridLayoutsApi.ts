@@ -1,10 +1,9 @@
+import { fetchPublicConfig as fetchSharedPublicConfig } from '../../config/api/publicConfigApi';
 import { apiRequest, ApiClientError } from '../../../shared/http/client';
 import type { GridLayoutActive, GridLayoutListItem } from '../model/gridLayoutTypes';
 
-export async function fetchPublicConfig(): Promise<{ gridLayoutsEnabled: boolean }> {
-  const response = await apiRequest<{ gridLayoutsEnabled: boolean }>('/config/public');
-
-  return response.resultado;
+export async function fetchPublicConfig() {
+  return fetchSharedPublicConfig();
 }
 
 export async function fetchGridLayouts(proceso: string, gridId: string): Promise<GridLayoutListItem[]> {
