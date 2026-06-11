@@ -12,6 +12,8 @@ final class PublicConfigController extends Controller
     {
         return ApiResponse::success([
             'gridLayoutsEnabled' => (bool) config('paqsuite_mvp.gridLayoutsEnabled'),
+            'pivotsEnabled' => (bool) config('paqsuite_mvp.pivotsEnabled'),
+            'pivotLayoutsEnabled' => (bool) config('paqsuite_mvp.pivotLayoutsEnabled'),
         ]);
     }
 }

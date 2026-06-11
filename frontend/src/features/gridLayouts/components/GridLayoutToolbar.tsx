@@ -33,7 +33,9 @@ export function GridLayoutToolbar({
       { id: null, layoutName: t('gridLayout.systemTemplate') },
       ...layouts.map((layout) => ({
         id: layout.id,
-        layoutName: layout.layoutName,
+        layoutName: layout.isOwner
+          ? `${layout.layoutName}${t('gridLayout.ownerMarker')}`
+          : layout.layoutName,
       })),
     ],
     [layouts, t],

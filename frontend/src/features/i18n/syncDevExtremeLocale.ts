@@ -9,6 +9,7 @@ import ptMessages from 'devextreme/localization/messages/pt.json';
 import frMessages from 'devextreme/localization/messages/fr.json';
 import itMessages from 'devextreme/localization/messages/it.json';
 import { getGridDevExtremeMessageOverrides } from './gridDevExtremeMessages';
+import { getPivotDevExtremeMessageOverrides } from './pivotDevExtremeMessages';
 import { isSupportedLocale } from './model/supportedLocales';
 
 const devExtremeMessagesByLocale: Record<string, object> = {
@@ -40,7 +41,10 @@ export function syncDevExtremeLocale(localeCode: string): void {
     return;
   }
 
-  const overrides = getGridDevExtremeMessageOverrides(localeCode);
+  const overrides = {
+    ...getGridDevExtremeMessageOverrides(localeCode),
+    ...getPivotDevExtremeMessageOverrides(localeCode),
+  };
   if (Object.keys(overrides).length > 0) {
     loadMessages({ [localeCode]: overrides });
   }

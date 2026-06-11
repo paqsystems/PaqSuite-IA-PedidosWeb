@@ -49,6 +49,14 @@ export function PedidosCargaRenglonesGrid({
     [renglones],
   );
 
+  const gridRenderKey = useMemo(
+    () =>
+      renglonesVisibles
+        .map((renglon) => `${renglon.renglon}:${renglon.precio}:${renglon.cantidad}`)
+        .join('|'),
+    [renglonesVisibles],
+  );
+
   const handleEliminar = useCallback(
     (renglonId: number) => {
       onRenglonesChange(renglones.filter((renglon) => renglon.renglon !== renglonId));
@@ -93,6 +101,7 @@ export function PedidosCargaRenglonesGrid({
   return (
     <div data-testid={gridId} className="pedidosCargaRenglonesGrid">
       <DataGrid
+        key={gridRenderKey}
         dataSource={renglonesVisibles}
         keyExpr="renglon"
         showBorders={true}

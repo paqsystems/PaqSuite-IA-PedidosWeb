@@ -75,16 +75,20 @@ export function ComprobanteCabeceraForm({
   };
 
   const handleListaPreciosChange = (codLista: number | null) => {
-    const lista = catalogos.listasPrecios.find((item) => item.cod_lista === codLista);
+    const codListaNormalizado =
+      codLista !== null && codLista !== undefined ? Number(codLista) : null;
+    const lista = catalogos.listasPrecios.find(
+      (item) => Number(item.cod_lista) === codListaNormalizado,
+    );
     patchCabecera({
-      listaPrecios: codLista,
+      listaPrecios: codListaNormalizado,
       listaPreciosDescripcion: lista?.descripcion ?? '',
       moneda: lista?.moneda ?? cabecera.moneda,
       incluyeIva: lista?.incluye_iva ?? cabecera.incluyeIva,
     });
 
-    if (codLista !== null && codLista > 0) {
-      onListaPreciosChange?.(codLista);
+    if (codListaNormalizado !== null && !Number.isNaN(codListaNormalizado) && codListaNormalizado > 0) {
+      onListaPreciosChange?.(codListaNormalizado);
     }
   };
 

@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 |-------|--------|
-| **Versión documento** | MVP Fase 1 — 2026-06-09 |
+| **Versión documento** | MVP Fase 1 — 2026-06-09 (CC PQ #3) |
 | **Ámbito** | Módulo comercial PedidosWeb |
 | **Manual transversal** | [Generalidades.md](./Generalidades.md) (login, sesión, menú, grillas, idioma) |
 | **Público** | Usuarios finales (vendedor, supervisor, cliente) y soporte funcional/técnico |
@@ -180,6 +180,8 @@ Pantalla única para **alta**, **edición**, **consulta** (solo lectura), **copi
 
 En el combobox de cliente se muestra: **(código) razón social - nombre comercial**. Puede ordenar por **código**, **razón social** o **nombre comercial** mediante el selector de orden junto al campo.
 
+Mientras se carga el listado de clientes, el combobox muestra **Cargando…** y permanece bloqueado. Si al escribir en la búsqueda queda **un solo cliente**, se selecciona automáticamente.
+
 Al elegir cliente, el sistema inicializa la cabecera con los datos habituales del maestro (condición de venta, transporte, lista de precios, bonificaciones, perfil, etc.).
 
 ### 6.3 Alta de un comprobante nuevo
@@ -208,12 +210,16 @@ Al cambiar **lista de precios** o **bonificaciones de cabecera** con renglones y
 
 ### 6.6 Lista de precios
 
-Al cambiar la lista de precios en cabecera, el sistema recalcula precios de los renglones ya cargados según la nueva lista y actualiza moneda / incluye IVA cuando corresponda.
+Al cambiar la lista de precios en cabecera, el sistema recalcula precios de los renglones ya cargados según la nueva lista y actualiza moneda / incluye IVA cuando corresponda. El recálculo usa una consulta agrupada al servidor (más eficiente que consultar artículo por artículo).
 
 ### 6.7 Búsqueda de artículos
 
-- Búsqueda por código o descripción contra el servidor.
-- Cada ítem muestra la **disponibilidad neta** (y disponibilidad base cuando aplica).
+- Cada ítem se muestra como **código - descripción**, seguido de la **disponibilidad neta** (y disponibilidad base entre paréntesis cuando aplica).
+- La búsqueda en servidor se activa al escribir **al menos 4 caracteres** (los espacios cuentan). Si deja de escribir durante **1 segundo** con texto suficiente, se abre la lista con los resultados.
+- Solo hacer clic en el campo **no** dispara búsqueda; puede usar la **flecha** del desplegable para ver un primer lote sin escribir.
+- Mientras busca puede verse **Cargando…** sin bloquear el campo.
+- Sin lista de precios válida en cabecera, el combobox de artículos permanece deshabilitado.
+- Si la búsqueda devuelve **un solo artículo**, se selecciona automáticamente.
 - No aparecen artículos marcados como **BASE** en el catálogo ERP (`usa_esc = 'B'`).
 
 ### 6.8 Editar un comprobante existente

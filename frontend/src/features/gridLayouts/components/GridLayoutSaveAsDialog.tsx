@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useLayoutEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import Button from 'devextreme-react/button';
 import Popup from 'devextreme-react/popup';
@@ -20,7 +20,7 @@ export function GridLayoutSaveAsDialog({
   const { t } = useTranslation();
   const [layoutName, setLayoutName] = useState('');
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (isOpen) {
       setLayoutName('');
     }
@@ -45,6 +45,7 @@ export function GridLayoutSaveAsDialog({
       <div className="gridLayoutSaveAsDialog">
         <TextBox
           value={layoutName}
+          valueChangeEvent="input"
           label={t('gridLayout.saveAs.nameLabel')}
           stylingMode="outlined"
           inputAttr={{

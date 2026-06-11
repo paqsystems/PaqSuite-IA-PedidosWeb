@@ -51,25 +51,19 @@ async function mockAuthenticatedApi(page: import('@playwright/test').Page) {
   });
 }
 
-async function login(page: import('@playwright/test').Page) {
+async function loginAndOpenAbmDemo(page: import('@playwright/test').Page) {
   await mockAuthenticatedApi(page);
-  await page.route('**/api/v1/config/public', async (route) => {
-    await route.fulfill({
-      status: 200,
-      contentType: 'application/json',
-      body: JSON.stringify({ error: 0, respuesta: 'ok', resultado: { gridLayoutsEnabled: true } }),
-    });
-  });
-
   await page.goto('/login');
   await page.locator('input[name="codigo"]').fill('cliente.mvp');
   await page.locator('input[name="password"]').fill('secret');
   await page.getByTestId('login-submit').click();
-  await expect(page).toHaveURL(/\/dashboard$/);
+  await page.goto('/demo/abm');
+  await expect(page.getByTestId('process-demo-abm')).toBeVisible();
+  await expect(page.getByTestId('dataGridDx-main')).toBeVisible();
 }
 
-test('dashboard muestra exportar habilitado con datos', async ({ page }) => {
-  await login(page);
+test('demo ABM muestra exportar habilitado con datos', async ({ page }) => {
+  await loginAndOpenAbmDemo(page);
 
   const exportButton = page.getByTestId('gridExportExcel');
   await expect(exportButton).toBeVisible();
@@ -79,16 +73,20 @@ test('dashboard muestra exportar habilitado con datos', async ({ page }) => {
 test('exportar formateada descarga archivo sugerido', async ({ page }) => {
   test.setTimeout(60_000);
 
-  await login(page);
+  await loginAndOpenAbmDemo(page);
 
   const downloadPromise = page.waitForEvent('download');
   await page.locator('[data-testid="gridExportExcel"] .dx-dropdownbutton-action').click();
   const download = await downloadPromise;
-  expect(download.suggestedFilename()).toMatch(/^pw_dashboard_main_\d{8}_\d{4}\.xlsx$/);
+  expect(download.suggestedFilename()).toMatch(/^pw_demo_abm_main_\d{8}_\d{4}\.xlsx$/);
 });
 
 test('grilla vacia deshabilita exportar', async ({ page }) => {
-  await login(page);
+  await mockAuthenticatedApi(page);
+  await page.goto('/login');
+  await page.locator('input[name="codigo"]').fill('cliente.mvp');
+  await page.locator('input[name="password"]').fill('secret');
+  await page.getByTestId('login-submit').click();
   await page.goto('/demo/export-empty');
   await expect(page.getByTestId('process-export-empty')).toBeVisible();
 

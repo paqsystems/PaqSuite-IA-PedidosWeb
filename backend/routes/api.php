@@ -4,6 +4,8 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\GridLayoutController;
 use App\Http\Controllers\HealthController;
 use App\Http\Controllers\Api\V1\Config\ParametrosController;
+use App\Http\Controllers\Api\V1\Pivots\PivotConfigController;
+use App\Http\Controllers\Api\V1\Pivots\PivotController;
 use App\Http\Controllers\Api\V1\PedidosWeb\ArticuloController;
 use App\Http\Controllers\Api\V1\PedidosWeb\ClienteCabeceraController;
 use App\Http\Controllers\Api\V1\PedidosWeb\ComprobanteController;
@@ -51,6 +53,12 @@ Route::prefix('v1')->group(function (): void {
             Route::put('/grid-layouts/active', [GridLayoutController::class, 'setActive'])->name('api.v1.grid-layouts.active.set');
             Route::put('/grid-layouts/{id}', [GridLayoutController::class, 'update'])->name('api.v1.grid-layouts.update');
             Route::delete('/grid-layouts/{id}', [GridLayoutController::class, 'destroy'])->name('api.v1.grid-layouts.destroy');
+            Route::get('/pivot-configs', [PivotConfigController::class, 'index'])->name('api.v1.pivot-configs.index');
+            Route::get('/pivot-configs/active', [PivotConfigController::class, 'active'])->name('api.v1.pivot-configs.active');
+            Route::post('/pivot-configs', [PivotConfigController::class, 'store'])->name('api.v1.pivot-configs.store');
+            Route::put('/pivot-configs/active', [PivotConfigController::class, 'setActive'])->name('api.v1.pivot-configs.active.set');
+            Route::put('/pivot-configs/{configId}', [PivotConfigController::class, 'update'])->name('api.v1.pivot-configs.update');
+            Route::delete('/pivot-configs/{configId}', [PivotConfigController::class, 'destroy'])->name('api.v1.pivot-configs.destroy');
             Route::get('/users/me/preferences', [UserPreferencesController::class, 'show'])
                 ->name('api.v1.users.me.preferences.show');
             Route::patch('/users/me/preferences', [UserPreferencesController::class, 'update'])
@@ -102,6 +110,15 @@ Route::prefix('v1')->group(function (): void {
                 ->name('api.v1.tratativas.index');
             Route::post('/presupuestos/{cod}/tratativas', [TratativaController::class, 'store'])
                 ->name('api.v1.tratativas.store');
+
+            Route::prefix('pivots/consultas')->group(function (): void {
+                Route::get('/{consultaId}/metadata', [PivotController::class, 'metadata'])
+                    ->name('api.v1.pivots.consultas.metadata');
+                Route::post('/{consultaId}/data', [PivotController::class, 'data'])
+                    ->name('api.v1.pivots.consultas.data');
+                Route::post('/{consultaId}/validate-structure', [PivotController::class, 'validateStructure'])
+                    ->name('api.v1.pivots.consultas.validate-structure');
+            });
 
             Route::prefix('consultas')->group(function (): void {
                 Route::get('/pedidos-ingresados', [ConsultaController::class, 'pedidosIngresados'])

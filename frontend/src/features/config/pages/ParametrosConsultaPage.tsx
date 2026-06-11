@@ -32,6 +32,8 @@ export function ParametrosConsultaPage() {
           <Column
             dataField="valorMostrado"
             caption={t('parametros.column.valor')}
+            alignment="center"
+            cssClass="parametrosConsultaPage__valorColumn"
             cellRender={(cell) => {
               const row = cell.data as ParametroConsultaRow | undefined;
 

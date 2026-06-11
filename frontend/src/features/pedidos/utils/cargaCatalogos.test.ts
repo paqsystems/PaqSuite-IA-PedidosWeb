@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import type { ClienteOption } from '../api/comprobanteApi';
-import { etiquetaCliente, ordenarClientes } from './cargaCatalogos';
+import type { ArticuloOption, ClienteOption } from '../api/comprobanteApi';
+import { etiquetaCliente, formatArticuloCargaDisplay, ordenarClientes } from './cargaCatalogos';
 
 const clientesFixture: ClienteOption[] = [
   {
@@ -35,5 +35,28 @@ describe('cargaCatalogos clientes', () => {
       'A001',
       'B002',
     ]);
+  });
+});
+
+describe('formatArticuloCargaDisplay', () => {
+  const t = ((key: string, params?: Record<string, string>) =>
+    `${key}:${JSON.stringify(params ?? {})}`) as Parameters<typeof formatArticuloCargaDisplay>[1];
+
+  const articulo: ArticuloOption = {
+    codArticulo: 'ART-01',
+    descripcion: 'Tornillo hexagonal',
+    disponibleNeto: 12.5,
+    disponibleNetoBase: null,
+    precio: 100,
+    bonificacion: 0,
+    porcIva: 21,
+  };
+
+  it('incluye codigo y descripcion separados por guion', () => {
+    const display = formatArticuloCargaDisplay(articulo, t);
+
+    expect(display).toContain('ART-01');
+    expect(display).toContain('Tornillo hexagonal');
+    expect(display).toContain('pedidos.carga.articuloDisplay');
   });
 });

@@ -8,7 +8,7 @@
 | **Prioridad** | Must |
 | **Dependencias** | TR-GEN-02-login-sesion (post-login); base para TR-GEN-01-menu-general-sidebar, TR-GEN-01-menu-avatar, TR-GEN-01-idioma y TR-GEN-01-apariencia-temas |
 | **Estado** | Finalizado |
-| **Última actualización** | 2026-05-31 (F formal) |
+| **Última actualización** | 2026-06-09 (Parte I — CC PQ #3) |
 
 **Origen:** [HU-GEN-01-shell-layout](../../03-historias-usuario/001-Generaliddes/HU-GEN-01-shell-layout.md)  
 **Referencia SPEC:** [SPEC-001-01-experiencia-base](../../05-open-spec/001-Generaliddes/SPEC-001-01-experiencia-base.md)  
@@ -368,4 +368,17 @@ Este slice es **principalmente frontend**. No introduce endpoints nuevos; consum
 - [ ] X-Paq-Cliente documentado donde aplique
 - [ ] Tests API incluyen 401 (y 403 si aplica)
 - [ ] Sin ampliación de alcance fuera de SPEC/HU/TR
+
+---
+
+## Historial CC PQ #3 (09/06/2026) — Parte I 09/06/2026
+
+Patrón transversal listas DevExtreme: indicador cargando + bloqueo + auto-selección con un solo match.
+
+| ID | Tarea | Evidencia |
+|----|-------|-----------|
+| T1 | Wrapper `SelectBoxDx` + hook `useDxSelectBoxLoadState` + `tryAutoSelectSingleMatch` | `frontend/src/shared/ui/controls/` |
+| T2 | i18n `selectBox.loading` (5 locales) + JSDoc contrato pantallas 101 | `es/en/pt/fr/it.json`, `SelectBoxDx.tsx` |
+| T3 | Integración smoke en carga (cliente + artículo) | `PedidosCargaPage.tsx` |
+| T4 | Vitest loading + auto-match | `*.test.ts` en controls |
 

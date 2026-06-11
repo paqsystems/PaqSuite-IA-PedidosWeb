@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import { authenticatedRequestSucceededEventName } from './authEvents';
-import { createInactivityController, resolveInactivityTimeoutMs, shouldTrackInactivityKey } from './sessionInactivity';
+import { bindInactivityActivityListeners, createInactivityController, resolveInactivityTimeoutMs } from './sessionInactivity';
 
 type UseInactivityTimeoutParams = {
   enabled: boolean;
@@ -36,28 +36,19 @@ export function useInactivityTimeout({
     });
     controllerRef.current = controller;
 
-    const handleKeyboardActivity = (event: KeyboardEvent) => {
-      if (!shouldTrackInactivityKey(event.key)) {
-        return;
-      }
-
-      controller.touch();
-    };
-
     const handleAuthenticatedRequestSucceeded = () => {
       controller.touch();
     };
 
-    window.addEventListener('pointerdown', controller.touch);
-    window.addEventListener('keydown', handleKeyboardActivity);
+    const unbindDomActivity = bindInactivityActivityListeners(controller.touch);
+
     window.addEventListener(
       authenticatedRequestSucceededEventName,
       handleAuthenticatedRequestSucceeded as EventListener,
     );
 
     return () => {
-      window.removeEventListener('pointerdown', controller.touch);
-      window.removeEventListener('keydown', handleKeyboardActivity);
+      unbindDomActivity();
       window.removeEventListener(
         authenticatedRequestSucceededEventName,
         handleAuthenticatedRequestSucceeded as EventListener,

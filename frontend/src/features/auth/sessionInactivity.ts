@@ -12,13 +12,61 @@ export function resolveInactivityTimeoutMs(inactivityTimeoutMinutes: number | nu
   return resolveInactivityTimeoutMinutes(inactivityTimeoutMinutes) * 60 * 1000;
 }
 
-export function shouldTrackInactivityKey(key: string): boolean {
-  return key !== 'Tab';
+export function shouldTrackInactivityKey(_key: string): boolean {
+  return true;
 }
 
 export type InactivityController = {
   touch: () => void;
   dispose: () => void;
+};
+
+/** Eventos DOM que reinician el temporizador (fase capture para widgets DevExtreme). */
+export const inactivityDomActivityEvents = [
+  'pointerdown',
+  'click',
+  'touchstart',
+  'wheel',
+  'scroll',
+  'input',
+] as const;
+
+type BindInactivityActivityListenersOptions = {
+  target?: EventTarget;
+};
+
+export function bindInactivityActivityListeners(
+  onActivity: () => void,
+  options: BindInactivityActivityListenersOptions = {},
+): () => void {
+  const target = options.target ?? document;
+  const listenerOptions: AddEventListenerOptions = { capture: true };
+
+  const handleGenericActivity = () => {
+    onActivity();
+  };
+
+  const handleKeydown = (event: Event) => {
+    const keyboardEvent = event as KeyboardEvent;
+
+    if (!shouldTrackInactivityKey(keyboardEvent.key)) {
+      return;
+    }
+
+    onActivity();
+  };
+
+  inactivityDomActivityEvents.forEach((eventName) => {
+    target.addEventListener(eventName, handleGenericActivity, listenerOptions);
+  });
+  target.addEventListener('keydown', handleKeydown, listenerOptions);
+
+  return () => {
+    inactivityDomActivityEvents.forEach((eventName) => {
+      target.removeEventListener(eventName, handleGenericActivity, listenerOptions);
+    });
+    target.removeEventListener('keydown', handleKeydown, listenerOptions);
+  };
 };
 
 export function createInactivityController(timeoutMs: number, onExpire: () => void): InactivityController {

@@ -9,7 +9,7 @@
 | **Prioridad** | Should |
 | **Dependencias** | TR-GEN-02-autorizacion-menu-api; TR-GEN-03-grillas-listados; `PQ_parametros_gral` + seed PedidosWeb |
 | **Estado** | Finalizado |
-| **Última actualización** | 2026-06-03 (C1); ajuste columnas/orden 2026-06-03; **F** 2026-06-03 |
+| **Última actualización** | 2026-06-09 (Parte I — CC PQ #3); C1/F 2026-06-03 |
 
 **Origen:** [HU-GEN-04-consulta-parametros](../../03-historias-usuario/001-Generaliddes/HU-GEN-04-consulta-parametros.md)  
 **Referencia SPEC:** [SPEC-001-04-configuracion-global](../../05-open-spec/001-Generaliddes/SPEC-001-04-configuracion-global.md)  
@@ -331,3 +331,14 @@ Backend: servicio lectura + endpoint GET + seed menú/permisos + tests. Frontend
 - `frontend/src/features/config/pages/ParametrosConsultaPage.tsx`
 - `frontend/src/features/config/api/parametrosConsultaApi.ts`
 - `frontend/src/locales/*.json` — `parametros.column.*`
+
+---
+
+## Historial CC PQ #3 (09/06/2026) — Parte I 09/06/2026
+
+Alineación visual columna Valor en consulta de parámetros.
+
+| ID | Tarea | Evidencia |
+|----|-------|-----------|
+| T1 | `alignment="center"` columna Valor (título + celdas) | `ParametrosConsultaPage.tsx` |
+| T2 | Vitest columnas | `ParametrosConsultaPage.test.tsx` |

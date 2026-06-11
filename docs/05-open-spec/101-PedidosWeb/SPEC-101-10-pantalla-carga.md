@@ -3,7 +3,7 @@
 | Campo | Valor |
 |-------|--------|
 | **SPEC madre** | [PedidosWeb_SPEC_MVP.md](PedidosWeb_SPEC_MVP.md) |
-| **Estado** | Finalizado |
+| **Estado** | En revisión |
 | **Prioridad épica** | Must |
 | **Última actualización** | 2026-06-09 (unificación CC PQ 04/06/2026) |
 
@@ -69,10 +69,19 @@ HU-101-005…010, copia (B), HU-101-011, HU-101-012 (solo pedido delete)
 - [ ] E2E camino feliz carga pedido (§9 madre)
 - [ ] Copia desde comprobante existente verificada
 - [x] CC PQ 04/06/2026: cliente, bonif. 3, exclusión BASE (`usa_esc = 'B'`), precio neto unitario (HU-101-004/005/006)
+- [x] CC PQ 09/06/2026: listas carga (loading, performance, display código artículo, búsqueda lazy)
+
+## In scope — CC PQ #3 (09/06/2026)
+
+1. **Clientes:** patrón SPEC-001-01 (cargando + bloqueo + auto-match); cache catálogo por sesión.
+2. **Artículos:** búsqueda remota optimizada (mín. **4** caracteres, espacios incluidos; apertura lista tras **1 s** sin tipear; flecha desplegable sin texto); display **`{codigo} - {descripcion}`**.
+3. **Lista de precios:** recálculo batch de precios de renglones al cambiar lista (API `codigos` CSV).
 
 ## Historial de cambios
 
 | Fecha | Origen | Resumen |
 |-------|--------|---------|
 | 04/06/2026 | `00-ControlCalidad-PQ` #1 | CC: cliente, cabecera, renglones, precio neto unitario |
-| 09/06/2026 | Parte I | Unificación `SPEC-101-10-pantalla-carga-update` |
+| 09/06/2026 | Parte I CC #1 | Unificación `SPEC-101-10-pantalla-carga-update` (oleada 04/06) |
+| 09/06/2026 | CC PQ #3 | Listas carga: loading, performance, display artículo, búsqueda lazy |
+| 09/06/2026 | Parte I CC #3 | Unificación `SPEC-101-10-pantalla-carga-update` |

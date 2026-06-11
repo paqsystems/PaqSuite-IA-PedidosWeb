@@ -8,7 +8,7 @@
 | **Prioridad** | Must |
 | **Dependencias** | TR-SPEC-101-05 (controllers), TR-SPEC-101-04 (services), TR-SPEC-101-06, TR-SPEC-101-09; SPEC-001-04 (parámetros `Modifica*`); TR-SPEC-101-13 (mail post-grabación) |
 | **Estado** | Finalizado |
-| **Última actualización** | 2026-06-09 (unificación CC PQ 04/06/2026) |
+| **Última actualización** | 2026-06-09 (Parte I — CC PQ #3) |
 
 **Origen:** HU-101-004 … HU-101-011, HU-101-009, HU-101-010, HU-101-013, HU-101-024, HU-101-026  
 **Referencia SPEC:** [SPEC-101-10-pantalla-carga](../../05-open-spec/101-PedidosWeb/SPEC-101-10-pantalla-carga.md)  
@@ -371,6 +371,18 @@ Usar `elementAttr` / `inputAttr` DevExtreme; no acoplar tests al DOM interno DX.
 | T7 | Tests | Unit cálculo + scope BASE | [x] FE/BE tests |
 
 **AC-CC:** CA-CC-01..03 de HU-101-004/005/006 cubiertos por implementación y tests donde aplica.
+
+### 7.2 Control de calidad PQ 09/06/2026 (cerrado)
+
+| ID | Ámbito | Tarea | DoD |
+|----|--------|-------|-----|
+| T1 | UI cliente | `SelectBoxDx` + cache sesión `fetchClientes` | [x] `PedidosCargaPage.tsx`, `comprobanteApi.ts` |
+| T2 | UI artículos | Display `codigo - descripcion`; búsqueda lazy (mín. 4 chars; apertura 1 s) | [x] `useArticulosCargaDataSource.ts`, `cargaCatalogos.ts` |
+| T3 | Precios | Recálculo batch al cambiar lista (`actualizarPreciosRenglonesPorLista`) | [x] FE + API `codigos` |
+| T4 | Tests | Vitest + E2E carga grabar | [x] `mvp-section9.spec.ts` |
+| T5 | Manual | `PedidosWeb.md` §6.2–6.7 | [x] Parte I |
+
+**AC-CC3:** CA-CC3-01..06 de HU-101-005 cubiertos; QA manual PQ aprobado 09/06/2026.
 
 ---
 

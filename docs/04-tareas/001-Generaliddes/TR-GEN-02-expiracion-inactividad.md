@@ -72,7 +72,11 @@ Feature: Expiracion por inactividad
 ## 3) Reglas de Negocio
 
 1. **RN-01**: `MinutosWeb` se obtiene desde configuracion global (SPEC-001-04).
-2. **RN-02**: Eventos de actividad validos: navegacion, interaccion y/o request API segun definicion del slice.
+2. **RN-02**: Eventos de actividad válidos que **reinician** el contador (lista cerrada — detalle en §6.1):
+   - Interacciones DOM en fase **capture** sobre `document`: `pointerdown`, `click`, `touchstart`, `wheel`, `scroll`, `input`, `keydown` (**todas** las teclas, incluido `Tab`).
+   - Navegación SPA: cambio de `location.pathname`.
+   - Requests API autenticadas exitosas (evento `pedidosweb:authenticated-request-succeeded`).
+   - **No** reinician el contador: `mousemove` continuo, `focus`/`blur` aislados sin tecla ni puntero, visibilidad de pestaña, polling automático sin interacción del usuario.
 3. **RN-03**: Sesion expirada fuerza 401 en endpoints protegidos.
 4. **RN-04**: Si falta `MinutosWeb`, usar default trazable en documentacion.
 
@@ -154,7 +158,7 @@ Feature: Expiracion por inactividad
 |----|------|----------|
 | R-C1-01 | Mecanismo MVP de expiración (`AMB-C01`) | **Opción B.** El timeout de inactividad se controla en frontend. Al vencer, la pestaña activa intenta `POST /api/v1/auth/logout` en modo best-effort; independientemente del resultado, limpia estado local, borra credenciales del navegador y redirige a login con mensaje de sesión expirada. |
 | R-C1-02 | Eventos que reinician actividad (`AMB-C04`) | Reinician contador: interacciones de usuario, navegación dentro de la app y **llamadas API exitosas**. |
-| R-C1-03 | Tecla `Tab` / foco sin acción (`AMB-C05`) | Un cambio de foco o recorrido por `Tab` **sin acción efectiva sobre la app** no reinicia el contador. |
+| R-C1-03 | Tecla `Tab` / foco sin acción (`AMB-C05`) | **Revocado CC PQ #3 (09/06/2026):** `Tab` y el resto de teclas en `keydown` **sí** reinician el contador. Solo quedan fuera eventos de foco aislados (`focus`/`blur`) sin tecla ni puntero. |
 | R-C1-04 | Múltiples pestañas (`AMB-C05`) | La actividad de una pestaña **no propaga** ni reinicia el contador de otras pestañas. Cada pestaña mantiene su propio temporizador local. |
 | R-C1-05 | Default de `MinutosWeb` (`AMB-C03`) | Si el parámetro no existe, el MVP usa **10 minutos** como default documentado. |
 | R-C1-06 | Aviso previo (`AMB-M01`) | El MVP queda **explícitamente sin aviso previo** antes de la expiración. |
@@ -237,7 +241,7 @@ Implementar expiración de sesión por inactividad en el MVP con la estrategia c
 #### Tests
 
 - Backend: verificar shape de `sessionContext` con `inactivityTimeoutMinutes`, fallback `10`, coherencia login/me y `401` posterior a logout.
-- Frontend unit/component: cálculo/reinicio del contador, expiración con cleanup y no reanudación por simple `Tab`/foco.
+- Frontend unit/component: cálculo/reinicio del contador, expiración con cleanup, cobertura de eventos RN-02 §6.1 (incl. `Tab`, `scroll`, capture DevExtreme).
 - E2E: flujo autenticado con timeout corto, redirect a login, mensaje de expiración y rechazo posterior de shell/procesos.
 
 #### Documentación
@@ -258,7 +262,7 @@ Implementar expiración de sesión por inactividad en el MVP con la estrategia c
 | D1-1 | Fuente runtime | `inactivityTimeoutMinutes` viaja dentro del `sessionContext` de `POST /api/v1/auth/login` y `GET /api/v1/auth/me`; no se crea endpoint adicional de configuración pública para este slice. |
 | D1-2 | Fallback backend | Si `MinutosWeb` no existe o no puede resolverse, backend devuelve `10` como default documentado. |
 | D1-3 | Motor de timeout | El cronómetro vive en frontend y se activa solo dentro del shell autenticado. |
-| D1-4 | Eventos válidos | Reinician contador: interacciones de usuario, navegación dentro de la app y requests API exitosas; un mero cambio de foco o recorrido por `Tab` sin acción no cuenta como actividad. |
+| D1-4 | Eventos válidos | Lista cerrada en **RN-02** y §6.1. Implementación: `bindInactivityActivityListeners` en `sessionInactivity.ts` con `{ capture: true }` en `document` (obligatorio para DevExtreme). |
 | D1-5 | Expiración local | Al vencer el timeout, el frontend ejecuta cleanup local inmediato y luego intenta `logout` best-effort sin depender de su éxito para redirigir. |
 | D1-6 | 401 transversal | El cliente autenticado debe traducir `401` en limpieza de sesión y vuelta a login para evitar que una pestaña quede “dentro” con token ya revocado. |
 | D1-7 | Multi-tab | No se sincroniza actividad entre pestañas; la invalidación cruzada solo se observa cuando otra pestaña hace una request con token ya revocado y recibe `401`. |
@@ -381,9 +385,27 @@ Implementar expiración de sesión por inactividad en el MVP con la estrategia c
 ## 6) Cambios Frontend
 
 ### Pantallas / componentes
-- Hook/global guard de inactividad en shell.
+- Hook/global guard de inactividad en shell (`SessionLifecycleManager` + `useInactivityTimeout`).
 - Mensaje de sesion expirada y redireccion a login.
-- Reinicio de contador en eventos de actividad definidos.
+- Reinicio de contador en eventos de actividad definidos (§6.1).
+
+### 6.1 Eventos de actividad — fuente de verdad runtime
+
+| Origen | Mecanismo | Cubre |
+|--------|-----------|-------|
+| Puntero / clic | `pointerdown`, `click` (capture) | Botones, menú, ítems de lista DevExtreme |
+| Táctil | `touchstart` (capture) | Toques en móvil |
+| Teclado | `keydown` (capture, incl. `Tab`) | Navegación entre campos, Enter, atajos |
+| Scroll | `wheel`, `scroll` (capture) | Rueda, barra de scroll, táctil, Page Up/Down en contenedor |
+| Campos | `input` (capture) | TextBox y similares |
+| Routing | `location.pathname` | Navegación menú / sidebar |
+| API | `pedidosweb:authenticated-request-succeeded` | Requests autenticadas OK vía `apiRequest` |
+
+**Módulos:** `frontend/src/features/auth/sessionInactivity.ts` (`bindInactivityActivityListeners`, `createInactivityController`), `useInactivityTimeout.ts`, `SessionLifecycleManager.tsx`.
+
+**Regla DevExtreme:** los listeners van con `{ capture: true }` en `document`. No alcanza con `pointerdown` en bubble sobre `window`: DevExtreme intercepta y detiene propagación.
+
+**Fuera de alcance como actividad:** `mousemove` continuo, `focus`/`blur` aislados, cambio de visibilidad de pestaña, timers o polling sin interacción.
 
 ### data-testid sugeridos
 - `session-timeout-banner`
@@ -464,3 +486,15 @@ Corrección: umbral `MinutosWeb` desde **última actividad** (`lastActivityAt`),
 | T1 | Auditar `useInactivityTimeout` y eventos | `SessionLifecycleManager`, eventos pointer/keydown/navegación/API |
 | T2 | Separar `sessionStart` de `lastActivityAt` | `createInactivityController` |
 | T3 | Tests regresión | Vitest `sessionInactivity.test.ts`, E2E `smoke.spec.ts` |
+
+## Historial CC PQ #3 (09/06/2026)
+
+Corrección: el temporizador no consideraba interacciones DevExtreme (botones, menú, listas) ni scroll completo.
+
+| ID | Tarea | Evidencia |
+|----|-------|-----------|
+| T1 | Ampliar eventos RN-02 §6.1 con capture en `document` | `bindInactivityActivityListeners` en `sessionInactivity.ts` |
+| T2 | Incluir `scroll` además de `wheel` | Grillas y contenedores `.dx-scrollable-*` |
+| T3 | Incluir `Tab` en `keydown` | Revoca R-C1-03 original |
+| T4 | Tests regresión | `sessionInactivity.test.ts` (capture + scroll + Tab) |
+| T5 | Regla Cursor | `.cursor/rules/sesion-inactividad-expiracion.mdc` |

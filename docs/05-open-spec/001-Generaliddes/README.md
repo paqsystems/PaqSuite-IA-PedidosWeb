@@ -9,7 +9,9 @@ Este bloque define las **especificaciones de configuración inicial** para Pedid
 | SPEC | Estado A1 | HU MVP | Notas |
 |------|-----------|--------|--------|
 | 001-01 … 001-05 | Apto con observaciones | Sí (01–02 generadas; 03–05 pendientes) | Parches A1 + decisiones en producto §8.1, §7, §5 |
-| 001-06 … 001-09 | Documental | **No** en MVP portal | Preparación; sin HU en primer release |
+| 001-06, 001-09 | Documental | **No** en MVP portal | Preparación; sin HU en primer release |
+| 001-07 | B1 cerrado (2026-06-11) | **No** en MVP portal | 4 HU; epic importar Excel posterior |
+| 001-08 | **D1 + F cerrado** (2026-06-11) | **No** en MVP portal | 4 HU + 4 TR implementadas; activación vía flags |
 | 001-10 | Pendiente | No todavía | Chat Asistente IA en nueva pestaña con `BYOK`, proveedores y mensajes editables |
 
 **Fuente de producto compartida:** `docs/02-producto/PedidosWeb/PedidosWeb_Definicion_Conceptual_Final_OpenSpec.md`
@@ -33,7 +35,7 @@ Este bloque define las **especificaciones de configuración inicial** para Pedid
 5. `SPEC-001-05-variantes-y-alcance.md`
 6. `SPEC-001-06-emision.md` — documental
 7. `SPEC-001-07-importar-excel.md` — documental (fuera MVP)
-8. `SPEC-001-08-pivots.md` — documental
+8. `SPEC-001-08-pivots.md` — D1 implementado (fuera MVP portal)
 9. `SPEC-001-09-tareas-programadas.md` — documental
 10. `SPEC-001-10-chat-asistente-ia.md`
 
