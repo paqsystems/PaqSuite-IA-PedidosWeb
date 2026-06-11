@@ -68,12 +68,14 @@ Controles: **DevExtreme** (`SelectBox`, `NumberBox`, `DataGrid`, `Popup`, `Butto
 | Precio al agregar | Campo `precio` de la respuesta (lista activa en cabecera) |
 | `porc_iva` | Normalizar a escala 0–100 con `normalizarPorcIvaAlmacenado` (0.21 → 21) |
 
-### 3.1 Texto del ítem (disponible neto)
+### 3.1 Texto del ítem (disponible en listbox)
 
-Misma lógica que [consulta-stock.md](./consulta-stock.md) (`StockConsultaService::lookupDisponibilidadPorCodigos`):
+Lookup browse (`GET /articulos` sin `codigos`) — `StockConsultaService::lookupDisponibilidadCargaPorCodigos`:
 
-- **Disponible neto** = `stock − comprometido − comprometido_web` (pedidos `estado = 0`).
-- **Disponible neto base** = agregado por `articulos.base` cuando `base` no está vacío; si no hay base → `null` (no se muestra paréntesis).
+- **Disponible** = `pq_pedidosweb_stock.stock − pq_pedidosweb_stock.comprometido` (**sin** descontar pedidos web ingresados).
+- **Disponible base** = misma fórmula agregada por `articulos.base` cuando `base` no está vacío; si no hay base → `null` (no se muestra paréntesis).
+
+> La [consulta de stock](./consulta-stock.md) sigue usando disponible **neto** (`stock − comprometido − comprometido_web`). No confundir con el listbox de carga.
 
 | Caso | Plantilla i18n |
 |------|----------------|

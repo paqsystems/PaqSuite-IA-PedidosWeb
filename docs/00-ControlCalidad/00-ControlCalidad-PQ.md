@@ -46,10 +46,64 @@ Este archivo **no sustituye** SPEC, HU ni TR: es la **entrada** del circuito de 
 
 | # | Fecha | Estado | Resumen |
 |---|-------|--------|---------|
+| 5 | 09/06/2026 | Finalizado (Parte I) | Listbox artículos carga: disponible solo `stock − comprometido` (sin pedidos ingresados); display con base opcional — unificado 11/06/2026 |
 | 4 | 10/06/2026 | Pendiente | Vista pivot en **Detalle de pedidos** (piloto SPEC-001-08); resto de consultas fuera de alcance |
 | 1 | 04/06/2026 | Finalizado (Parte I) | 10 familias HU — CC PQ; updates unificados 09/06/2026 |
 | 2 | 05/06/2026 | Finalizado (Parte I) | GEN-03 layouts/export Excel formateado — CC PQ #2; unificado 09/06/2026 |
 | 3 | 09/06/2026 | Finalizado (Parte I) | Cartel cargando, layouts totales, performance carga, parámetros — unificado 09/06/2026 |
+
+---
+
+## Control de Calidad #5
+
+### Referencia del control
+
+| Campo | Valor |
+|-------|--------|
+| **Fecha** | 09/06/2026 |
+| **Responsable** | Pablo Quarracino (PQ) |
+| **Estado** | Finalizado (Parte I 11/06/2026) |
+| **Entorno probado** | Local — PHPUnit CC PQ #5 + QA manual PQ |
+| **Build / rama** | `v1.1.0` working tree |
+
+### Hallazgos
+
+Corrección en el **listbox de artículos** de la pantalla de **carga de pedidos**: el cálculo de disponible para el texto del ítem **no debe** consultar ni descontar cantidades de **pedidos ingresados** (`estado = 0` u otro agregado tipo `comprometido_web`). Aplica tanto al artículo como al artículo **base** (si existe).
+
+**Comportamiento vigente a corregir:** `StockConsultaService::lookupDisponibilidadPorCodigos` y producto [pantalla-carga-comprobante-ui.md](../02-producto/PedidosWeb/pantalla-carga-comprobante-ui.md) §3.1 usan `disponible_neto = stock − comprometido − comprometido_web`. Esa regla permanece válida para la **consulta de stock**; en el lookup de carga debe usarse solo columnas de `pq_pedidosweb_stock`.
+
+**Referencia producto:** [pantalla-carga-comprobante-ui.md](../02-producto/PedidosWeb/pantalla-carga-comprobante-ui.md) — combobox artículos, `GET /articulos`.
+
+### Errores encontrados - Mejoras solicitadas
+
+#### HU-101-005-inicializacion-cabecera · HU-101-006-carga-renglones
+
+En el listbox/combobox de artículos de carga de pedidos:
+
+a) **No** incluir en el disponible la búsqueda ni el descuento de pedidos ingresados para calcular disponibilidad — ni del artículo en sí, ni del artículo base.
+
+b) Disponible artículo = `pq_pedidosweb_stock.stock` menos `pq_pedidosweb_stock.comprometido` (sin `comprometido_web` ni equivalente desde `pq_pedidosweb_pedidos` / `pq_pedidosweb_pedidosdetalle`).
+
+c) Disponible artículo base (solo si el artículo posee `base` en `pq_pedidosweb_articulos`): misma fórmula sobre el stock del código base — `stock − comprometido` en `pq_pedidosweb_stock` del artículo base.
+
+d) **Formato de cada ítem** en la lista:
+
+| Parte | Contenido |
+|-------|-----------|
+| 1 | Código artículo |
+| 2 | ` - ` |
+| 3 | Descripción |
+| 4 | ` - ` |
+| 5 | Disponible artículo (resultado de b) |
+| 6 | Entre paréntesis: disponible del artículo base (resultado de c), **solo si posee base** |
+
+Ejemplo sin base: `ART001 - Tornillo M8 — Disp. 150,00`
+
+Ejemplo con base: `ART002 - Kit ensamble — Disp. 80,00 (120,00)`
+
+e) **Alcance:** solo lookup/browse de artículos en carga (`GET /articulos` sin `codigos`); no alterar la consulta de stock ni otros procesos que deban seguir usando disponible neto con pedidos web.
+
+*Procesado* → [SPEC-101-10-pantalla-carga-update](../05-open-spec/updates/101-PedidosWeb/SPEC-101-10-pantalla-carga-update.md) · [HU-101-005-inicializacion-cabecera-update](../03-historias-usuario/updates/101-PedidosWeb/HU-101-005-inicializacion-cabecera-update.md) · [TR-SPEC-101-10-pantalla-carga-update](../04-tareas/updates/101-PedidosWeb/TR-SPEC-101-10-pantalla-carga-update.md) — Parte I 11/06/2026
 
 ---
 
