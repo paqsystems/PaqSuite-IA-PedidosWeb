@@ -42,6 +42,8 @@ final class PivotMetadataFeatureTest extends TestCase
             ->assertJsonPath('resultado.pivotBase.filas.0', 'codCliente')
             ->assertJsonPath('resultado.campos.0.caption', 'Cliente')
             ->assertJsonPath('resultado.campos.0.dataField', 'codCliente')
+            ->assertJsonPath('resultado.campos.0.agregacionesPermitidas', ['count', 'min', 'max'])
+            ->assertJsonPath('resultado.campos.0.rolesPermitidos', fn ($roles) => in_array('valor', $roles, true))
             ->assertJsonPath('resultado.filtrosGenerales.0.filtroId', 'codCliente');
     }
 
@@ -68,6 +70,18 @@ final class PivotMetadataFeatureTest extends TestCase
     public function testDataRequiresMandatoryFilter(): void
     {
         Sanctum::actingAs($this->supervisorUser());
+
+        \Illuminate\Support\Facades\DB::table('pq_pivots_validaciones')->insert([
+            'consulta_id' => 'CONSULTA_PILOTO_PIVOT',
+            'tipo_validacion' => 'filtro_obligatorio',
+            'configuracion_json' => json_encode([
+                'filtroId' => 'campoTestObligatorio',
+                'dataField' => 'campoTestObligatorio',
+                'caption' => 'Campo test',
+                'obligatorio' => true,
+            ], JSON_THROW_ON_ERROR),
+            'activo' => true,
+        ]);
 
         $this->postJson('/api/v1/pivots/consultas/CONSULTA_PILOTO_PIVOT/data', [
             'filtros' => [],
@@ -114,6 +128,32 @@ final class PivotMetadataFeatureTest extends TestCase
             ->assertStatus(422)
             ->assertJsonPath('error', 3002)
             ->assertJsonPath('respuesta', 'pivot.structureInvalid');
+    }
+
+    /**
+     * @return array<string, array{0: string}>
+     */
+    public static function informesConsultaIdsProvider(): array
+    {
+        return [
+            'detalle_pedidos' => ['CONSULTA_DETALLE_PEDIDOS'],
+            'deuda' => ['CONSULTA_DEUDA'],
+            'cheques' => ['CONSULTA_CHEQUES'],
+            'stock' => ['CONSULTA_STOCK'],
+        ];
+    }
+
+    /** @dataProvider informesConsultaIdsProvider */
+    public function testInformesMetadataReturnsPivotEnabled(string $consultaId): void
+    {
+        Sanctum::actingAs($this->supervisorUser());
+
+        $this->getJson('/api/v1/pivots/consultas/'.$consultaId.'/metadata', $this->tenantHeaders())
+            ->assertOk()
+            ->assertJsonPath('error', 0)
+            ->assertJsonPath('resultado.consultaId', $consultaId)
+            ->assertJsonPath('resultado.pivotHabilitado', true)
+            ->assertJsonPath('resultado.configuracionGeneral.mostrarGrillaYPivot', true);
     }
 
     private function supervisorUser(): User

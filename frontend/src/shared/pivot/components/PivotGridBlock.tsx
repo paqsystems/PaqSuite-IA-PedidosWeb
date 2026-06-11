@@ -1,4 +1,4 @@
-import { forwardRef, useCallback, useImperativeHandle, useRef } from 'react';
+import { forwardRef, useCallback, useImperativeHandle, useRef, type ComponentProps } from 'react';
 import { useTranslation } from 'react-i18next';
 import PivotGrid, { FieldChooser, FieldPanel, type PivotGridRef } from 'devextreme-react/pivot-grid';
 import { isPivotExportEmpty } from '../../../features/pivotExport/utils/isPivotExportEmpty';
@@ -10,10 +10,17 @@ import { usePivotDataSource } from '../hooks/usePivotDataSource';
 import { usePivotDevExtremeTexts } from '../hooks/usePivotDevExtremeTexts';
 import {
   buildAggregationMenuItems,
-  findCampoMetadataByDataField,
 } from '../utils/pivotAggregationMenu';
+import { resolvePivotCampoForField } from '../utils/resolvePivotCampoForField';
+import { buildPivotHeaderContextMenuItems } from '../utils/pivotHeaderContextMenu';
 import type { PivotGridFieldConfig } from '../utils/mapMetadataToPivotFields';
 import { resolvePivotDataFieldIndex } from '../utils/resolvePivotDataFieldIndex';
+
+/**
+ * Layout standard (DevExtreme): dimensiones de fila en columnas adyacentes.
+ * Cliente + Razón social se ven juntos; el modo tree reemplaza el código por «Total» al expandir.
+ */
+const pivotRowHeaderLayout = 'standard' as const;
 
 type PivotGridBlockProps = {
   consultaId: string;
@@ -83,19 +90,23 @@ export const PivotGridBlock = forwardRef<PivotGridBlockHandle, PivotGridBlockPro
     (event: ContextMenuPreparingEvent) => {
       const field = event.field;
 
-      if (!field || field.area !== 'data' || !dataSource) {
+      if (!field || !dataSource) {
         return;
       }
 
-      const campo = findCampoMetadataByDataField(metadata.campos, field.dataField);
+      const isDataValueContext = field.area === 'data' || event.area === 'data';
 
-      if (!campo) {
+      if (!isDataValueContext || !field.dataField) {
         return;
       }
+
+      const campo = resolvePivotCampoForField(metadata.campos, field.dataField, {
+        caption: field.caption,
+        dataType: field.dataType,
+      });
 
       const menuItems = buildAggregationMenuItems({
-        allowedAgregaciones: campo.agregacionesPermitidas,
-        caption: campo.caption,
+        campo,
         translate: t,
         onSelect: (summaryType) => {
           const fields = dataSource.fields();
@@ -115,8 +126,24 @@ export const PivotGridBlock = forwardRef<PivotGridBlockHandle, PivotGridBlockPro
   const handleContextMenuPreparing = useCallback(
     (event: ContextMenuPreparingEvent) => {
       appendAggregationMenu(event);
+
+      if (!dataSource) {
+        return;
+      }
+
+      const headerItems = buildPivotHeaderContextMenuItems(
+        event,
+        dataSource,
+        metadata,
+        t,
+        pivotRowHeaderLayout,
+      );
+
+      if (headerItems.length > 0) {
+        event.items = [...(event.items ?? []), ...headerItems];
+      }
     },
-    [appendAggregationMenu],
+    [appendAggregationMenu, dataSource, metadata, t],
   );
 
   const handleCellClick = useCallback(
@@ -156,7 +183,7 @@ export const PivotGridBlock = forwardRef<PivotGridBlockHandle, PivotGridBlockPro
 
   return (
     <div className="pivot-grid-block" data-testid={`${testIdPrefix}.pivotRoot`}>
-      {toolbarEnd ? <div className="pivot-grid-block__toolbar">{toolbarEnd}</div> : null}
+      <div className="pivot-grid-block__toolbar">{toolbarEnd}</div>
       <PivotGrid
         ref={pivotGridComponentRef}
         key={`${consultaId}-${dxTexts.localeKey}-${fieldLayout.version}`}
@@ -171,6 +198,20 @@ export const PivotGridBlock = forwardRef<PivotGridBlockHandle, PivotGridBlockPro
         onContextMenuPreparing={handleContextMenuPreparing}
         onCellClick={handleCellClick}
         disabled={isLoading}
+        rowHeaderLayout={pivotRowHeaderLayout}
+        texts={{
+          expandAll: t('pivot.dx.expandAll'),
+          collapseAll: t('pivot.dx.collapseAll'),
+          grandTotal: t('pivot.dx.grandTotal'),
+          total: t('pivot.dx.total'),
+          dataNotAvailable: t('pivot.dx.dataNotAvailable'),
+        }}
+        fieldChooser={{
+          enabled: true,
+          allowSearch: true,
+          applyChangesMode: 'instantly',
+          onContextMenuPreparing: handleContextMenuPreparing,
+        } as ComponentProps<typeof PivotGrid>['fieldChooser']}
         elementAttr={{ 'data-testid': `${testIdPrefix}.pivotGrid` }}
       >
         <FieldPanel visible={true} allowFieldDragging={true} />

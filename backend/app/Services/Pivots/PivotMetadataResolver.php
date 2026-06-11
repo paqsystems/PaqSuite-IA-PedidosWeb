@@ -130,23 +130,31 @@ final class PivotMetadataResolver
             $override = $this->decodeJsonObject($row->override_json) ?? [];
             $merged = array_merge($plantillaProps, $override);
 
-            $rolesPermitidos = $merged['rolesPermitidos']
-                ?? $this->decodeJsonArray($row->roles_permitidos_json)
-                ?? [];
+            $rolesPermitidos = PivotCampoAggregationPolicy::normalizeRolesPermitidos(
+                $merged['rolesPermitidos']
+                    ?? $this->decodeJsonArray($row->roles_permitidos_json)
+                    ?? []
+            );
 
-            $agregacionesPermitidas = $merged['agregacionesPermitidas']
-                ?? $this->decodeJsonArray($row->agregaciones_permitidas_json);
+            $tipoDato = (string) ($merged['tipoDato'] ?? $row->tipo_dato);
+            $agregacionPreferida = $merged['agregacionDefault'] ?? $row->agregacion_default;
 
             return [
                 'campoId' => (string) $row->campo_id,
                 'dataField' => (string) $row->nombre_tecnico,
                 'caption' => (string) ($merged['nombreVisible'] ?? $row->nombre_visible),
-                'tipoDato' => (string) ($merged['tipoDato'] ?? $row->tipo_dato),
+                'tipoDato' => $tipoDato,
                 'rolCampo' => (string) ($merged['rolCampo'] ?? $row->rol_campo),
                 'rolesPermitidos' => $rolesPermitidos,
-                'agregacionDefault' => $merged['agregacionDefault'] ?? $row->agregacion_default,
-                'agregacionesPermitidas' => $agregacionesPermitidas,
-                'formato' => $merged['formato'] ?? $this->decodeJsonObject($row->formato_json),
+                'agregacionDefault' => PivotCampoAggregationPolicy::resolveAgregacionDefault(
+                    $tipoDato,
+                    is_string($agregacionPreferida) ? $agregacionPreferida : null
+                ),
+                'agregacionesPermitidas' => PivotCampoAggregationPolicy::resolveAgregacionesPermitidas($tipoDato),
+                'formato' => PivotCampoFormatPolicy::resolveFormato(
+                    $merged['formato'] ?? $this->decodeJsonObject($row->formato_json),
+                    $tipoDato
+                ),
             ];
         })->values()->all();
     }

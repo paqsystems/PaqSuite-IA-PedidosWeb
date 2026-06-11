@@ -5,7 +5,7 @@
 | **ID** | HU-101-022-consulta-cheques |
 | **SPEC origen** | [SPEC-101-07](../../05-open-spec/101-PedidosWeb/SPEC-101-07-consultas-api.md), SPEC madre §5.2 |
 | **Prioridad** | Must |
-| **Estado** | Finalizado |
+| **Estado** | En Control Calidad |
 | **B1** | Enriquecida (2026-06-01) |
 
 ## Narrativa

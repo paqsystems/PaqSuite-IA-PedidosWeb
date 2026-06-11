@@ -1,4 +1,6 @@
 import type { PivotCampoMetadata } from '../../types/pivotMetadata';
+import { resolvePivotDefaultSummaryType, type PivotSummaryType } from './resolvePivotAggregations';
+import { resolvePivotFieldFormat } from './resolvePivotDecimalFormat';
 
 export function findCampoMetadataByDataField(
   campos: PivotCampoMetadata[],
@@ -12,9 +14,11 @@ export type PivotGridFieldConfig = {
   dataField: string;
   dataType?: 'string' | 'number' | 'date';
   area?: 'row' | 'column' | 'data' | 'filter';
+  areaIndex?: number;
   summaryType?: 'sum' | 'avg' | 'min' | 'max' | 'count';
   format?: string | Record<string, unknown>;
   expanded?: boolean;
+  showTotals?: boolean;
 };
 
 export function mapTipoDatoToDx(tipoDato: string): 'string' | 'number' | 'date' {
@@ -55,18 +59,16 @@ export function mapAgregacionToSummaryType(
   return 'sum';
 }
 
+function mapDefaultSummaryTypeForCampo(campo: PivotCampoMetadata): PivotSummaryType {
+  return resolvePivotDefaultSummaryType(campo);
+}
+
 export function mapMetadataToPivotFields(campos: PivotCampoMetadata[]): PivotGridFieldConfig[] {
   return campos.map((campo) => ({
     caption: campo.caption,
     dataField: campo.dataField,
     dataType: mapTipoDatoToDx(campo.tipoDato),
-    summaryType:
-      campo.rolCampo === 'metrica'
-        ? mapAgregacionToSummaryType(campo.agregacionDefault)
-        : undefined,
-    format:
-      campo.formato && typeof campo.formato === 'object' && 'format' in campo.formato
-        ? (campo.formato.format as string | Record<string, unknown>)
-        : undefined,
+    summaryType: mapDefaultSummaryTypeForCampo(campo),
+    format: resolvePivotFieldFormat(campo.tipoDato, campo.formato),
   }));
 }

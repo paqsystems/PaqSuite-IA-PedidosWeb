@@ -8,7 +8,7 @@
 | **Prioridad** | Must |
 | **Dependencias** | TR-SPEC-101-05 (controllers), TR-SPEC-101-04 (services), TR-SPEC-101-06, TR-SPEC-101-09; SPEC-001-04 (parámetros `Modifica*`); TR-SPEC-101-13 (mail post-grabación) |
 | **Estado** | Finalizado |
-| **Última actualización** | 2026-06-09 (Parte I — CC PQ #3) |
+| **Última actualización** | 2026-06-11 (Parte I — CC PQ #5) |
 
 **Origen:** HU-101-004 … HU-101-011, HU-101-009, HU-101-010, HU-101-013, HU-101-024, HU-101-026  
 **Referencia SPEC:** [SPEC-101-10-pantalla-carga](../../05-open-spec/101-PedidosWeb/SPEC-101-10-pantalla-carga.md)  
@@ -383,6 +383,18 @@ Usar `elementAttr` / `inputAttr` DevExtreme; no acoplar tests al DOM interno DX.
 | T5 | Manual | `PedidosWeb.md` §6.2–6.7 | [x] Parte I |
 
 **AC-CC3:** CA-CC3-01..06 de HU-101-005 cubiertos; QA manual PQ aprobado 09/06/2026.
+
+### 7.3 Control de calidad PQ #5 (09/06/2026 — cerrado)
+
+| ID | Ámbito | Tarea | DoD |
+|----|--------|-------|-----|
+| T1 | API stock carga | `lookupDisponibilidadCargaPorCodigos`: `stock − comprometido` (sin `comprometido_web`) | [x] `StockConsultaService.php` |
+| T2 | API artículos | Browse sin `codigos` → lookup carga; refresh `codigos` → lookup neto | [x] `ArticuloController.php` |
+| T3 | Producto | `pantalla-carga-comprobante-ui.md` §3.1 distingue carga vs consulta stock | [x] |
+| T4 | Tests | `StockConsultaServiceTest::testLookupCargaExcluyeComprometidoWeb` | [x] |
+| T5 | Manual | `PedidosWeb.md` §6.7 y §9.4 | [x] Parte I |
+
+**AC-CC5:** CA-CC5-01..04 de HU-101-005 cubiertos; PHPUnit + QA manual PQ 11/06/2026.
 
 ---
 

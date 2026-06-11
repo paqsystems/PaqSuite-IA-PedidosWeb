@@ -3,9 +3,9 @@
 | Campo | Valor |
 |-------|--------|
 | **SPEC madre** | [PedidosWeb_SPEC_MVP.md](PedidosWeb_SPEC_MVP.md) |
-| **Estado** | En revisión |
+| **Estado** | Especificado |
 | **Prioridad épica** | Must |
-| **Última actualización** | 2026-06-09 (unificación CC PQ 04/06/2026) |
+| **Última actualización** | 2026-06-11 (Parte I — CC PQ #5) |
 
 ## Objetivo
 
@@ -70,6 +70,19 @@ HU-101-005…010, copia (B), HU-101-011, HU-101-012 (solo pedido delete)
 - [ ] Copia desde comprobante existente verificada
 - [x] CC PQ 04/06/2026: cliente, bonif. 3, exclusión BASE (`usa_esc = 'B'`), precio neto unitario (HU-101-004/005/006)
 - [x] CC PQ 09/06/2026: listas carga (loading, performance, display código artículo, búsqueda lazy)
+- [x] CC PQ #5 09/06/2026: listbox artículos — disponible `stock − comprometido` (sin pedidos web); display con base opcional
+
+## In scope — CC PQ #5 (09/06/2026)
+
+En el **lookup/browse** de artículos (`GET /articulos` sin `codigos`):
+
+| Contexto | Fórmula disponible |
+|----------|-------------------|
+| Listbox carga | `pq_pedidosweb_stock.stock − pq_pedidosweb_stock.comprometido` |
+| Disponible base (si `articulos.base` no vacío) | Misma fórmula agregada por `base` |
+| Consulta stock | Sin cambio: `stock − comprometido − comprometido_web` |
+
+Display ítem: `{codigo} - {descripcion} — Disp. {disponible}` y `({disponibleBase})` si hay base.
 
 ## In scope — CC PQ #3 (09/06/2026)
 
@@ -85,3 +98,5 @@ HU-101-005…010, copia (B), HU-101-011, HU-101-012 (solo pedido delete)
 | 09/06/2026 | Parte I CC #1 | Unificación `SPEC-101-10-pantalla-carga-update` (oleada 04/06) |
 | 09/06/2026 | CC PQ #3 | Listas carga: loading, performance, display artículo, búsqueda lazy |
 | 09/06/2026 | Parte I CC #3 | Unificación `SPEC-101-10-pantalla-carga-update` |
+| 09/06/2026 | CC PQ #5 | Listbox carga: disponible sin `comprometido_web` |
+| 11/06/2026 | Parte I CC #5 | Unificación `SPEC-101-10-pantalla-carga-update` (CC #5) |

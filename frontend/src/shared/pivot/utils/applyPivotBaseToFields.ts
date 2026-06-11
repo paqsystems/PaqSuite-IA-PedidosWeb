@@ -4,6 +4,7 @@ import {
   type PivotGridFieldConfig,
 } from './mapMetadataToPivotFields';
 import { resolvePivotDataFieldIndex } from './resolvePivotDataFieldIndex';
+import { resolvePivotDefaultSummaryType } from './resolvePivotAggregations';
 
 type PivotBaseValor = {
   campoId?: string;
@@ -23,7 +24,7 @@ export function applyPivotBaseToFields(
       return;
     }
 
-    campoIds.forEach((campoId) => {
+    campoIds.forEach((campoId, areaIndex) => {
       const campo = campoById[String(campoId)];
       const index = resolvePivotDataFieldIndex(nextFields, campo?.dataField);
 
@@ -31,6 +32,7 @@ export function applyPivotBaseToFields(
         nextFields[index] = {
           ...nextFields[index],
           area,
+          areaIndex,
         };
       }
     });
@@ -52,7 +54,8 @@ export function applyPivotBaseToFields(
         nextFields[index] = {
           ...nextFields[index],
           area: 'data',
-          summaryType: mapAgregacionToSummaryType(typedValor.agregacion ?? campo?.agregacionDefault),
+          summaryType: mapAgregacionToSummaryType(typedValor.agregacion ?? campo?.agregacionDefault)
+            ?? (campo ? resolvePivotDefaultSummaryType(campo) : 'sum'),
         };
       }
     });

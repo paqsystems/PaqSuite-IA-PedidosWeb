@@ -1,24 +1,26 @@
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Column } from 'devextreme-react/data-grid';
-import { ConsultaGridPage } from '../components/ConsultaGridPage';
+import { ConsultaInformePivotPage } from '../components/ConsultaInformePivotPage';
 import { fetchStock, type StockConsultaRow } from '../api/consultaApi';
 
 const proceso = 'pw_stock';
 const gridId = 'pw_stock';
+const pivotConsultaId = 'CONSULTA_STOCK';
 
 export function StockPage() {
   const { t } = useTranslation();
   const loadData = useCallback(() => fetchStock(), []);
 
   return (
-    <ConsultaGridPage<StockConsultaRow>
+    <ConsultaInformePivotPage<StockConsultaRow>
       pageTestId="page-consulta-stock"
       pageTitleKey="pages.consultaStock"
       proceso={proceso}
       gridId={gridId}
+      pivotConsultaId={pivotConsultaId}
+      testIdPrefix="consultaStock"
       loadData={loadData}
-      rowActions={[]}
       columns={
         <>
           <Column dataField="codArticulo" caption={t('consultas.column.codArticulo')} />

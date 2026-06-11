@@ -6,7 +6,7 @@
 | **SPEC origen** | [SPEC-101-10-pantalla-carga](../../05-open-spec/101-PedidosWeb/SPEC-101-10-pantalla-carga.md) |
 | **Prioridad** | Must |
 | **Estado** | Finalizado |
-| **Última actualización** | 2026-06-09 (Parte I — CC PQ #3) |
+| **Última actualización** | 2026-06-11 (Parte I — CC PQ #5) |
 | **B1** | Enriquecida (2026-06-01) |
 | **Dependencias** | HU-101-004; contexto SPEC-001-04 (parámetros §10.6 producto) |
 
@@ -31,6 +31,7 @@ Al seleccionar cliente, precargar según producto §10.4: vendedor, condición d
 7. **CC PQ #3:** Lista de **clientes:** patrón transversal cargando + bloqueo + auto-match único; cache de catálogo por sesión.
 8. **CC PQ #3:** Lista de **artículos:** búsqueda remota optimizada (mínimo 4 caracteres, espacios incluidos); display **`{codigo} - {descripcion}`**; sin consulta al solo enfocar el campo.
 9. **CC PQ #3:** Al cambiar **lista de precios** con renglones → recálculo batch de precios (API `codigos` CSV).
+10. **CC PQ #5:** Listbox **artículos** (browse): disponible = `stock − comprometido` (artículo y base); **sin** descontar pedidos web ingresados; display `codigo - descripcion — Disp. X (Y)`.
 
 ## Criterios de aceptación
 
@@ -47,6 +48,10 @@ Al seleccionar cliente, precargar según producto §10.4: vendedor, condición d
 - [x] **CA-CC3-04:** Cambio de lista de precios → recálculo batch sin pérdida de datos.
 - [x] **CA-CC3-05:** Lista artículos muestra `codigo - descripcion` (+ disponibilidad).
 - [x] **CA-CC3-06:** Sin regresión CA-CC 04/06/2026.
+- [x] **CA-CC5-01:** Browse artículos (`GET /articulos` sin `codigos`) → `disponibleNeto = stock − comprometido` (artículo y base).
+- [x] **CA-CC5-02:** Lookup carga no consulta `pq_pedidosweb_pedidos*`.
+- [x] **CA-CC5-03:** Display `codigo - descripcion — Disp. X,XX` y `(Y,YY)` si hay base.
+- [x] **CA-CC5-04:** Consulta stock mantiene disponible neto con `comprometido_web`.
 
 ## Veredicto B1
 

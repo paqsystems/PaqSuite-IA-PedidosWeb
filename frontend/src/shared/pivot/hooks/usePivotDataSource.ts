@@ -4,11 +4,15 @@ import type { PivotFieldLayoutState } from '../../../features/pivotLayouts/model
 import type { PivotMetadataResult } from '../../types/pivotMetadata';
 import { applyPivotBaseToFields } from '../utils/applyPivotBaseToFields';
 import {
-  findCampoMetadataByDataField,
   mapMetadataToPivotFields,
   mapTipoDatoToDx,
   type PivotGridFieldConfig,
 } from '../utils/mapMetadataToPivotFields';
+import { resolvePivotDateFormat } from '../utils/resolvePivotDateFormat';
+import { applyPivotNumberFieldFormat } from '../utils/resolvePivotDecimalFormat';
+import { preparePivotFields } from '../utils/preparePivotFields';
+import { reconcilePivotDataFieldSummaryType } from '../utils/resolvePivotAggregations';
+import { resolvePivotCampoForField } from '../utils/resolvePivotCampoForField';
 
 type UsePivotDataSourceParams = {
   metadata: PivotMetadataResult | null;
@@ -18,14 +22,29 @@ type UsePivotDataSourceParams = {
   localeKey: string;
 };
 
-function reconcileFieldDataTypes(fields: PivotGridFieldConfig[], metadata: PivotMetadataResult): void {
+function reconcileFieldDataTypes(
+  fields: PivotGridFieldConfig[],
+  metadata: PivotMetadataResult,
+  localeKey: string,
+): void {
   fields.forEach((field) => {
-    const campo = findCampoMetadataByDataField(metadata.campos, field.dataField);
-    const nextDataType = mapTipoDatoToDx(campo?.tipoDato ?? 'string');
+    const campo = resolvePivotCampoForField(metadata.campos, field.dataField, {
+      caption: field.caption,
+      dataType: field.dataType,
+    });
+    const nextDataType = mapTipoDatoToDx(campo.tipoDato);
 
     if (field.dataType !== nextDataType) {
       field.dataType = nextDataType;
     }
+
+    if (nextDataType === 'date' && !field.format) {
+      field.format = resolvePivotDateFormat(localeKey);
+    }
+
+    applyPivotNumberFieldFormat(field, campo.tipoDato);
+
+    reconcilePivotDataFieldSummaryType(field, campo);
   });
 }
 
@@ -34,16 +53,16 @@ function resolveFields(
   fieldLayout: PivotFieldLayoutState,
 ): PivotGridFieldConfig[] {
   if (fieldLayout.mode === 'saved' && fieldLayout.configuracionJson?.fields) {
-    return fieldLayout.configuracionJson.fields.map((field) => ({ ...field }));
+    return preparePivotFields(fieldLayout.configuracionJson.fields.map((field) => ({ ...field })));
   }
 
   const baseFields = mapMetadataToPivotFields(metadata.campos);
 
   if (fieldLayout.mode === 'pivotBase') {
-    return applyPivotBaseToFields(baseFields, metadata.pivotBase, metadata.campos);
+    return preparePivotFields(applyPivotBaseToFields(baseFields, metadata.pivotBase, metadata.campos));
   }
 
-  return baseFields;
+  return preparePivotFields(baseFields);
 }
 
 export function usePivotDataSource({
@@ -64,7 +83,7 @@ export function usePivotDataSource({
       fields,
       store,
       onFieldsPrepared: (preparedFields) => {
-        reconcileFieldDataTypes(preparedFields as PivotGridFieldConfig[], metadata);
+        reconcileFieldDataTypes(preparedFields as PivotGridFieldConfig[], metadata, localeKey);
       },
     });
   }, [consultaId, fieldLayout, localeKey, metadata, store]);

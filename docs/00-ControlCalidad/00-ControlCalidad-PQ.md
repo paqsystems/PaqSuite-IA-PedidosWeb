@@ -47,7 +47,7 @@ Este archivo **no sustituye** SPEC, HU ni TR: es la **entrada** del circuito de 
 | # | Fecha | Estado | Resumen |
 |---|-------|--------|---------|
 | 5 | 09/06/2026 | Finalizado (Parte I) | Listbox artículos carga: disponible solo `stock − comprometido` (sin pedidos ingresados); display con base opcional — unificado 11/06/2026 |
-| 4 | 10/06/2026 | Pendiente | Vista pivot en **Detalle de pedidos** (piloto SPEC-001-08); resto de consultas fuera de alcance |
+| 4 | 10/06/2026 | Especificado | Vista pivot en informes: **Detalle de pedidos**, **Deudas**, **Cheques** y **Stock** (SPEC-001-08) — Parte G 11/06/2026 |
 | 1 | 04/06/2026 | Finalizado (Parte I) | 10 familias HU — CC PQ; updates unificados 09/06/2026 |
 | 2 | 05/06/2026 | Finalizado (Parte I) | GEN-03 layouts/export Excel formateado — CC PQ #2; unificado 09/06/2026 |
 | 3 | 09/06/2026 | Finalizado (Parte I) | Cartel cargando, layouts totales, performance carga, parámetros — unificado 09/06/2026 |
@@ -103,7 +103,7 @@ Ejemplo con base: `ART002 - Kit ensamble — Disp. 80,00 (120,00)`
 
 e) **Alcance:** solo lookup/browse de artículos en carga (`GET /articulos` sin `codigos`); no alterar la consulta de stock ni otros procesos que deban seguir usando disponible neto con pedidos web.
 
-*Procesado* → [SPEC-101-10-pantalla-carga-update](../05-open-spec/updates/101-PedidosWeb/SPEC-101-10-pantalla-carga-update.md) · [HU-101-005-inicializacion-cabecera-update](../03-historias-usuario/updates/101-PedidosWeb/HU-101-005-inicializacion-cabecera-update.md) · [TR-SPEC-101-10-pantalla-carga-update](../04-tareas/updates/101-PedidosWeb/TR-SPEC-101-10-pantalla-carga-update.md) — Parte I 11/06/2026
+*Procesado* → [SPEC-101-10-pantalla-carga](../05-open-spec/101-PedidosWeb/SPEC-101-10-pantalla-carga.md) · [HU-101-005-inicializacion-cabecera](../03-historias-usuario/101-PedidosWeb/HU-101-005-inicializacion-cabecera.md) · [TR-SPEC-101-10-pantalla-carga](../04-tareas/101-PedidosWeb/TR-SPEC-101-10-pantalla-carga.md) — Parte I 11/06/2026
 
 ---
 
@@ -115,35 +115,49 @@ e) **Alcance:** solo lookup/browse de artículos en carga (`GET /articulos` sin 
 |-------|--------|
 | **Fecha** | 10/06/2026 |
 | **Responsable** | Pablo Quarracino (PQ) |
-| **Estado** | Pendiente |
+| **Estado** | Especificado |
 | **Entorno probado** | *(planificado — mejora funcional; sin QA manual previo)* |
-| **Build / rama** | *(completar al volcar Parte G)* |
+| **Build / rama** | `v1.1.0` working tree — Parte G 11/06/2026 |
 
 ### Hallazgos
 
-Mejora solicitada: incorporar **vista pivot** (tabla dinámica) en la consulta **Detalle de pedidos**, como **piloto de adopción** del bloque transversal [SPEC-001-08-pivots](../05-open-spec/001-Generaliddes/SPEC-001-08-pivots.md). El resto de consultas del portal (p. ej. Pedidos ingresados, pendientes, presupuestos) queda **fuera de alcance** en esta entrega.
+Mejora solicitada: incorporar **vista pivot** (tabla dinámica) en los informes **Detalle de pedidos**, **Deudas**, **Cheques** y **Stock**, siguiendo la norma transversal [SPEC-001-08-pivots](../05-open-spec/001-Generaliddes/SPEC-001-08-pivots.md) (patrón ya validado en **Historial ventas**). El resto de consultas del portal (p. ej. Pedidos ingresados, pendientes, presupuestos) queda **fuera de alcance** en esta entrega.
 
 **Dependencia documental:** SPEC-001-08 (B1 cerrado); infra transversal HU-GEN-08-* y TR-GEN-08-* a derivar en Parte G antes o en paralelo a la adopción en 101.
 
-**Referencia producto vigente:** [consulta-detalle-pedidos.md](../02-producto/PedidosWeb/consulta-detalle-pedidos.md) — proceso `pw_detallepedidos`, ruta `/pedidos/detalle`.
+**Referencias producto vigentes:**
+
+| Informe | Producto | Proceso UI / permiso |
+|---------|----------|----------------------|
+| Detalle de pedidos | [consulta-detalle-pedidos.md](../02-producto/PedidosWeb/consulta-detalle-pedidos.md) | `pw_detallepedidos` |
+| Deudas | [consulta-deuda.md](../02-producto/PedidosWeb/consulta-deuda.md) | `pw_deuda` / `pw_deudaclientes` |
+| Cheques | [consulta-cheques.md](../02-producto/PedidosWeb/consulta-cheques.md) | `pw_cheques` / `pw_consultacheques` |
+| Stock | [consulta-stock.md](../02-producto/PedidosWeb/consulta-stock.md) | `pw_stock` / `pw_consultastock` |
 
 ### Errores encontrados - Mejoras solicitadas
 
-#### HU-101-028-consulta-detalle-pedidos
+#### HU-101-028-consulta-detalle-pedidos · HU-101-021-consulta-deuda · HU-101-022-consulta-cheques · HU-101-018-consulta-stock
 
-Incorporar en **Detalle de pedidos** la alternancia **grilla / pivot** según norma MONO (`pivots.md`, SPEC-001-08):
+Incorporar en cada informe listado la alternancia **grilla / pivot** según norma MONO (`pivots.md`, SPEC-001-08):
 
 a) Vista inicial **grilla** (sin cambiar comportamiento operativo actual); toggle para pasar a **PivotGrid** DevExtreme cuando el usuario lo elija.
 
-b) Consulta pivotable solo en esta pantalla (piloto): metadata en catálogo `pq_pivots_*` para `consulta_id` / proceso `pw_detallepedidos`, con `pivotBase` útil (dimensiones sugeridas: cliente, artículo, período; métricas: cantidad, importes).
+b) Consultas pivotables en estas cuatro pantallas: metadata en catálogo `pq_pivots_*` por `consulta_id` / proceso, con `pivotBase` útil según columnas de cada informe:
 
-c) Paridad GEN-03 en bloque pivot: diseños guardados (`pq_pivots_config`), plantilla inicial vacía, Actualizar (`pivotRefresh`), export Excel básico y tabla dinámica — según [SPEC-001-08 / HU-GEN-08](../03-historias-usuario/001-Generaliddes/README.md).
+| Informe | Dimensiones sugeridas (pivotBase) | Métricas sugeridas |
+|---------|-----------------------------------|--------------------|
+| Detalle de pedidos | cliente, artículo, período | cantidad, importes, precio neto |
+| Deudas | cliente, tipo comprobante, vencimiento | saldo |
+| Cheques | cliente, banco, estado, vencimiento | importe |
+| Stock | artículo, depósito (si aplica) | stock, comprometido, disponible neto |
 
-d) **Fuera de alcance v1:** Pedidos ingresados, pedidos pendientes, presupuestos y demás consultas SPEC-101-11; no habilitar pivot allí en este control.
+c) Paridad GEN-03 en bloque pivot: diseños guardados (`pq_pivots_config`), plantilla inicial, Actualizar (`pivotRefresh`), export Excel básico y tabla dinámica — según [SPEC-001-08 / HU-GEN-08](../03-historias-usuario/001-Generaliddes/README.md).
 
-e) Derivar como **update** (no reemplazar HU/TR base): SPEC-update slice 101 (adopción consultas pivot), HU-update sobre HU-101-028, TR-update sobre TR-SPEC-101-07 / TR-SPEC-101-11; referenciar SPEC-001-08 y contexto `_mono/pivots/`.
+d) **Fuera de alcance v1:** Pedidos ingresados, pedidos pendientes, presupuestos, historial ventas (ya adoptado como piloto transversal) y demás consultas SPEC-101-11; no habilitar pivot allí en este control salvo las cuatro anteriores.
 
-*Sugerencia:* SPEC-101 slice adopción pivot (piloto detalle) · HU-101-028-update · TR-101-028-update (+ TR-GEN-08-* transversal según priorización del epic).
+e) Derivar como **update** (no reemplazar HU/TR base): SPEC-update slice 101 (adopción pivot informes), HU-update sobre HU-101-028, HU-101-021, HU-101-022 y HU-101-018; TR-update sobre TR-SPEC-101-07 / TR-SPEC-101-11; referenciar SPEC-001-08 y contexto `_mono/pivots/`.
+
+*Procesado* → [SPEC-101-11-consultas-ui-update](../05-open-spec/updates/101-PedidosWeb/SPEC-101-11-consultas-ui-update.md) · [HU-101-028-consulta-detalle-pedidos-update](../03-historias-usuario/updates/101-PedidosWeb/HU-101-028-consulta-detalle-pedidos-update.md) · [HU-101-021-consulta-deuda-update](../03-historias-usuario/updates/101-PedidosWeb/HU-101-021-consulta-deuda-update.md) · [HU-101-022-consulta-cheques-update](../03-historias-usuario/updates/101-PedidosWeb/HU-101-022-consulta-cheques-update.md) · [HU-101-018-consulta-stock-update](../03-historias-usuario/updates/101-PedidosWeb/HU-101-018-consulta-stock-update.md) · [TR-SPEC-101-11-consultas-ui-update](../04-tareas/updates/101-PedidosWeb/TR-SPEC-101-11-consultas-ui-update.md) — Parte G 11/06/2026
 
 ---
 

@@ -4,7 +4,11 @@ namespace App\Services\Pivots;
 
 use App\Exceptions\PivotFlowException;
 use App\Models\User;
+use App\Services\PedidosWeb\ChequesConsultaService;
+use App\Services\PedidosWeb\DeudaConsultaService;
+use App\Services\PedidosWeb\DetallePedidosConsultaService;
 use App\Services\PedidosWeb\HistorialVentasConsultaService;
+use App\Services\PedidosWeb\StockConsultaService;
 use App\Support\PivotErrorCodes;
 
 final class PivotDatasetExecutor
@@ -16,6 +20,10 @@ final class PivotDatasetExecutor
     public function __construct(
         private readonly PivotMetadataResolver $pivotMetadataResolver,
         private readonly HistorialVentasConsultaService $historialVentasConsultaService,
+        private readonly DetallePedidosConsultaService $detallePedidosConsultaService,
+        private readonly DeudaConsultaService $deudaConsultaService,
+        private readonly ChequesConsultaService $chequesConsultaService,
+        private readonly StockConsultaService $stockConsultaService,
     ) {}
 
     /**
@@ -105,28 +113,62 @@ final class PivotDatasetExecutor
         int $page,
         int $pageSize
     ): array {
-        if ($fuenteTipo === 'service' && $fuenteNombre === 'historial_ventas') {
-            $mappedFilters = [
-                'page' => $page,
-                'page_size' => $pageSize,
-            ];
-
-            if (isset($filtros['codCliente']) && $filtros['codCliente'] !== '') {
-                $mappedFilters['cod_cliente'] = (string) $filtros['codCliente'];
-            }
-
-            $result = $this->historialVentasConsultaService->listar($user, $mappedFilters);
-
-            return [
-                'items' => $result['items'],
-                'totalRegistros' => (int) ($result['total'] ?? 0),
-            ];
+        if ($fuenteTipo !== 'service') {
+            throw new PivotFlowException(
+                PivotErrorCodes::metadataInvalid,
+                'pivot.datasetSourceUnsupported',
+                422
+            );
         }
 
-        throw new PivotFlowException(
-            PivotErrorCodes::metadataInvalid,
-            'pivot.datasetSourceUnsupported',
-            422
-        );
+        $mappedFilters = $this->mapConsultaFilters($filtros, $page, $pageSize);
+
+        $result = match ($fuenteNombre) {
+            'historial_ventas' => $this->historialVentasConsultaService->listar($user, $mappedFilters),
+            'detalle_pedidos' => $this->detallePedidosConsultaService->listar($user, $mappedFilters),
+            'deuda' => $this->deudaConsultaService->listar($user, $mappedFilters),
+            'cheques' => $this->chequesConsultaService->listar($user, $mappedFilters),
+            'stock' => $this->stockConsultaService->listar($mappedFilters),
+            default => throw new PivotFlowException(
+                PivotErrorCodes::metadataInvalid,
+                'pivot.datasetSourceUnsupported',
+                422
+            ),
+        };
+
+        return [
+            'items' => $result['items'],
+            'totalRegistros' => (int) ($result['total'] ?? 0),
+        ];
+    }
+
+    /**
+     * @param  array<string, mixed>  $filtros
+     * @return array<string, mixed>
+     */
+    private function mapConsultaFilters(array $filtros, int $page, int $pageSize): array
+    {
+        $mapped = [
+            'page' => $page,
+            'page_size' => $pageSize,
+        ];
+
+        if (isset($filtros['codCliente']) && $filtros['codCliente'] !== '') {
+            $mapped['cod_cliente'] = (string) $filtros['codCliente'];
+        }
+
+        if (isset($filtros['codPedido']) && $filtros['codPedido'] !== '') {
+            $mapped['cod_pedido'] = (string) $filtros['codPedido'];
+        }
+
+        if (isset($filtros['estado']) && $filtros['estado'] !== '') {
+            $mapped['estado'] = $filtros['estado'];
+        }
+
+        if (isset($filtros['q']) && $filtros['q'] !== '') {
+            $mapped['q'] = (string) $filtros['q'];
+        }
+
+        return $mapped;
     }
 }

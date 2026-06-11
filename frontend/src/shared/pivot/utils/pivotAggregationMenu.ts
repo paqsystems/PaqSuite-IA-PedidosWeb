@@ -1,28 +1,27 @@
-import { mapAgregacionToSummaryType } from './mapMetadataToPivotFields';
+import type { PivotCampoMetadata } from '../../types/pivotMetadata';
+import {
+  resolvePivotAllowedAggregations,
+  type PivotSummaryType,
+} from './resolvePivotAggregations';
 
 export type PivotAggregationMenuItem = {
   text: string;
   onItemClick: () => void;
 };
 
-const summaryTypeOrder = ['sum', 'avg', 'min', 'max', 'count'] as const;
+const summaryTypeOrder: PivotSummaryType[] = ['sum', 'avg', 'min', 'max', 'count'];
 
 export function buildAggregationMenuItems(params: {
-  allowedAgregaciones: string[] | null | undefined;
-  caption: string;
+  campo: PivotCampoMetadata;
   translate: (key: string, options?: Record<string, string>) => string;
-  onSelect: (summaryType: 'sum' | 'avg' | 'min' | 'max' | 'count') => void;
+  onSelect: (summaryType: PivotSummaryType) => void;
 }): PivotAggregationMenuItem[] {
-  const allowed = new Set(
-    (params.allowedAgregaciones ?? summaryTypeOrder).map((item) =>
-      mapAgregacionToSummaryType(item),
-    ),
-  );
+  const allowed = new Set(resolvePivotAllowedAggregations(params.campo));
 
   return summaryTypeOrder
     .filter((summaryType) => allowed.has(summaryType))
     .map((summaryType) => ({
-      text: params.translate(`pivot.aggregation.${summaryType}`, { field: params.caption }),
+      text: params.translate(`pivot.aggregation.${summaryType}`, { field: params.campo.caption }),
       onItemClick: () => params.onSelect(summaryType),
     }));
 }
