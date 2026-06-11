@@ -7,7 +7,7 @@
 | **Épica** | 001-Generaliddes |
 | **Prioridad** | Could |
 | **Dependencias** | TR-GEN-08-motor-metadata-pivots; TR-GEN-03-grillas-listados |
-| **Estado** | D1 implementado (2026-06-11) |
+| **Estado** | Finalizado |
 | **Última actualización** | 2026-06-11 (D1 pivotgrid) |
 
 **Origen:** [HU-GEN-08-pivotgrid-visualizacion](../../03-historias-usuario/001-Generaliddes/HU-GEN-08-pivotgrid-visualizacion.md)  

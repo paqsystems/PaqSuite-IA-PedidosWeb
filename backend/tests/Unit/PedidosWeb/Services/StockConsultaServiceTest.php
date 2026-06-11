@@ -54,6 +54,25 @@ final class StockConsultaServiceTest extends TestCase
         $this->assertSame(122.0, $presentacion['disponibleNetoBase']);
     }
 
+    public function testLookupCargaExcluyeComprometidoWeb(): void
+    {
+        if (! Schema::hasTable('pq_pedidosweb_stock')) {
+            $this->markTestSkipped('Tablas de stock no disponibles en el entorno de test.');
+        }
+
+        $this->seedStockFixture();
+
+        $service = $this->app->make(StockConsultaService::class);
+        $carga = $service->lookupDisponibilidadCargaPorCodigos(['ART-A', 'ART-P1']);
+        $neto = $service->lookupDisponibilidadPorCodigos(['ART-A', 'ART-P1']);
+
+        $this->assertSame(90.0, $carga['ART-A']['disponibleNeto']);
+        $this->assertSame(85.0, $neto['ART-A']['disponibleNeto']);
+
+        $this->assertSame(130.0, $carga['ART-P1']['disponibleNetoBase']);
+        $this->assertSame(122.0, $neto['ART-P1']['disponibleNetoBase']);
+    }
+
     private function seedStockFixture(): void
     {
         DB::table('pq_pedidosweb_articulos')->whereIn('codigo', ['ART-A', 'ART-SIN-BASE', 'ART-P1', 'ART-P2'])->delete();

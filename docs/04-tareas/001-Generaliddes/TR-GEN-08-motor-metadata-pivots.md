@@ -7,7 +7,7 @@
 | **Épica** | 001-Generaliddes |
 | **Prioridad** | Could |
 | **Dependencias** | TR-GEN-02-login-sesion; TR-GEN-02-autorizacion-menu-api |
-| **Estado** | D1 implementado (2026-06-11) |
+| **Estado** | Finalizado |
 | **Última actualización** | 2026-06-11 (D1 motor-metadata) |
 
 **Origen:** [HU-GEN-08-motor-metadata-pivots](../../03-historias-usuario/001-Generaliddes/HU-GEN-08-motor-metadata-pivots.md)  

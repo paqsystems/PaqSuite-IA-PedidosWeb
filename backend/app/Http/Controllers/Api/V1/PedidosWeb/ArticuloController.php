@@ -72,9 +72,13 @@ final class ArticuloController extends Controller
             ->limit($pageSize)
             ->get();
 
-        $stockPorCodigo = $this->stockConsultaService->lookupDisponibilidadPorCodigos(
-            $articulos->map(static fn (PqPedidoswebArticulo $articulo): string => (string) $articulo->codigo)->all()
-        );
+        $codigosArticulos = $articulos
+            ->map(static fn (PqPedidoswebArticulo $articulo): string => (string) $articulo->codigo)
+            ->all();
+
+        $stockPorCodigo = $solicitudPorCodigos
+            ? $this->stockConsultaService->lookupDisponibilidadPorCodigos($codigosArticulos)
+            : $this->stockConsultaService->lookupDisponibilidadCargaPorCodigos($codigosArticulos);
 
         $items = $articulos
             ->map(function (PqPedidoswebArticulo $articulo) use ($codLista, $stockPorCodigo): array {

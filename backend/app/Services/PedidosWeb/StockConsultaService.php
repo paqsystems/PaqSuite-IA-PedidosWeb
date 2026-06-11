@@ -17,12 +17,34 @@ final class StockConsultaService
     private const BASE_NOT_EMPTY_SQL = "NULLIF(LTRIM(RTRIM(a.[base])), '') IS NOT NULL";
 
     /**
-     * Disponibilidad informativa para carga de comprobante (misma lógica que listar).
+     * Disponibilidad informativa para listbox de carga (solo stock ERP, sin pedidos web).
+     *
+     * @param  list<string>  $codigos
+     * @return array<string, array{disponibleNeto: float, disponibleNetoBase: float|null}>
+     *
+     * @see docs/02-producto/PedidosWeb/pantalla-carga-comprobante-ui.md §3.1
+     */
+    public function lookupDisponibilidadCargaPorCodigos(array $codigos): array
+    {
+        return $this->lookupDisponibilidadPorCodigosInternal($codigos, incluirComprometidoWeb: false);
+    }
+
+    /**
+     * Disponibilidad informativa con pedidos web (consulta stock y refresh por codigos).
      *
      * @param  list<string>  $codigos
      * @return array<string, array{disponibleNeto: float, disponibleNetoBase: float|null}>
      */
     public function lookupDisponibilidadPorCodigos(array $codigos): array
+    {
+        return $this->lookupDisponibilidadPorCodigosInternal($codigos, incluirComprometidoWeb: true);
+    }
+
+    /**
+     * @param  list<string>  $codigos
+     * @return array<string, array{disponibleNeto: float, disponibleNetoBase: float|null}>
+     */
+    private function lookupDisponibilidadPorCodigosInternal(array $codigos, bool $incluirComprometidoWeb): array
     {
         $codigos = array_values(array_unique(array_filter(array_map(
             static fn (mixed $codigo): string => trim((string) $codigo),
@@ -34,7 +56,7 @@ final class StockConsultaService
         }
 
         try {
-            $query = $this->buildStockQuery(['q' => null]);
+            $query = $this->buildStockQuery(['q' => null], $incluirComprometidoWeb);
             $query->whereIn('s.cod_articulo', $codigos);
 
             $resultado = [];
@@ -62,7 +84,7 @@ final class StockConsultaService
             return $this->emptyResult($page, $pageSize);
         }
 
-        $query = $this->buildStockQuery($filters);
+        $query = $this->buildStockQuery($filters, incluirComprometidoWeb: true);
 
         /** @var LengthAwarePaginator $paginator */
         $paginator = $query->paginate($pageSize, ['*'], 'page', $page);
@@ -91,9 +113,10 @@ final class StockConsultaService
     /**
      * @param  array<string, mixed>  $filters
      */
-    private function buildStockQuery(array $filters): Builder
+    private function buildStockQuery(array $filters, bool $incluirComprometidoWeb = true): Builder
     {
-        $hasPedidosTables = Schema::hasTable('pq_pedidosweb_pedidosdetalle')
+        $hasPedidosTables = $incluirComprometidoWeb
+            && Schema::hasTable('pq_pedidosweb_pedidosdetalle')
             && Schema::hasTable('pq_pedidosweb_pedidoscabecera');
         $hasArticulosTable = Schema::hasTable('pq_pedidosweb_articulos');
 
