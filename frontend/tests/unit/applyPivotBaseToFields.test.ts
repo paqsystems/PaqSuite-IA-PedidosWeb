@@ -35,6 +35,7 @@ describe('applyPivotBaseToFields', () => {
     );
 
     expect(fields.find((field) => field.dataField === 'codCliente')?.area).toBe('row');
+    expect(fields.find((field) => field.dataField === 'codCliente')?.areaIndex).toBe(0);
     expect(fields.find((field) => field.dataField === 'cantidad')?.area).toBe('data');
     expect(fields.find((field) => field.dataField === 'cantidad')?.summaryType).toBe('sum');
   });

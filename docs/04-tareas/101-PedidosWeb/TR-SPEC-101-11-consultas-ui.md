@@ -7,8 +7,8 @@
 | **Épica** | 101-PedidosWeb |
 | **Prioridad** | Must |
 | **Dependencias** | TR-SPEC-101-07-consultas-api; TR-SPEC-101-09-frontend-base; [TR-GEN-03-grillas-listados](../001-Generaliddes/TR-GEN-03-grillas-listados.md); [TR-GEN-03-exportaciones](../001-Generaliddes/TR-GEN-03-exportaciones.md); [TR-GEN-03-layouts-grilla](../001-Generaliddes/TR-GEN-03-layouts-grilla.md) |
-| **Estado** | Finalizado |
-| **Última actualización** | 2026-06-09 (Parte I — CC PQ #1) |
+| **Estado** | En Control Calidad |
+| **Última actualización** | 2026-06-11 (Parte G — CC PQ #4) |
 
 **Origen:** HU-101-015, 016, 017, 018, 021, 022, 023, **028**  
 **Referencia SPEC:** [SPEC-101-11-consultas-ui](../../05-open-spec/101-PedidosWeb/SPEC-101-11-consultas-ui.md)  

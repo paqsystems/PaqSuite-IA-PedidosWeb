@@ -7,7 +7,9 @@ import { usePivotLayouts } from '../../../features/pivotLayouts/hooks/usePivotLa
 import type { PivotFieldLayoutState } from '../../../features/pivotLayouts/model/pivotLayoutTypes';
 import { useRequiredSessionContext } from '../../../features/auth/AuthProvider';
 import type { PivotMetadataResult } from '../../types/pivotMetadata';
+import { ApiClientError } from '../../http/client';
 import { fetchPivotDataset, fetchPivotMetadata } from '../services/pivotApi';
+import { normalizePivotStoreRecords } from '../utils/normalizePivotStoreRecords';
 import {
   canCoexistGridAndPivot,
   shouldShowPivotOnly,
@@ -116,8 +118,6 @@ export function ConsultaGrillaPivotShell({
     }
 
     let cancelled = false;
-    setLayoutBootstrapReady(false);
-    setFieldLayout(defaultFieldLayout);
 
     const loadMetadata = async () => {
       try {
@@ -138,7 +138,18 @@ export function ConsultaGrillaPivotShell({
     return () => {
       cancelled = true;
     };
-  }, [consultaId, pivotsEnabled, refreshToken]);
+  }, [consultaId, pivotsEnabled]);
+
+  useEffect(() => {
+    if (!pivotsEnabled) {
+      return;
+    }
+
+    setLayoutBootstrapReady(false);
+    setFieldLayout(defaultFieldLayout);
+    setHasOpenedPivot(false);
+    setPivotStore([]);
+  }, [consultaId, pivotsEnabled]);
 
   const mostrarGrillaYPivot = metadata?.configuracionGeneral?.mostrarGrillaYPivot === true;
   const coexistence = metadata
@@ -188,12 +199,16 @@ export function ConsultaGrillaPivotShell({
         pagina: 1,
         tamanoPagina: 500,
       });
-      setPivotStore(result.items);
+      setPivotStore(normalizePivotStoreRecords(result.items, metadata.campos));
       setDatasetTruncado(result.truncado);
-    } catch {
+    } catch (error) {
       setPivotStore([]);
       setDatasetTruncado(false);
-      setPivotLoadError(t('pivot.error.load'));
+      const messageKey =
+        error instanceof ApiClientError && error.respuestaKey.startsWith('pivot.')
+          ? error.respuestaKey
+          : 'pivot.error.load';
+      setPivotLoadError(t(messageKey, { defaultValue: t('pivot.error.load') }));
     } finally {
       setIsPivotLoading(false);
     }

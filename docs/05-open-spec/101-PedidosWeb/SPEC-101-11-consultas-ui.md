@@ -3,9 +3,9 @@
 | Campo | Valor |
 |-------|--------|
 | **SPEC madre** | [PedidosWeb_SPEC_MVP.md](PedidosWeb_SPEC_MVP.md) |
-| **Estado** | Finalizado |
+| **Estado** | En revisión |
 | **Prioridad épica** | Must |
-| **Última actualización** | 2026-06-09 (Parte I — CC PQ #1) |
+| **Última actualización** | 2026-06-11 (Parte G — CC PQ #4) |
 
 ## Objetivo
 
@@ -15,6 +15,7 @@ Pantallas de consulta con `DataGridDx`, layouts, exportación **Excel** y accion
 
 - Grillas: pedidos ingresados, pendientes, presupuestos 99, presupuestos 98 (solo lectura)
 - Stock, deuda, cheques, historial (modal detalle ventas)
+- **CC PQ #4 (pendiente):** pivot en Detalle pedidos, Deudas, Cheques, Stock — ver [SPEC-101-11-consultas-ui-update](../updates/101-PedidosWeb/SPEC-101-11-consultas-ui-update.md)
 - Carátula con `fecha_proceso` (**formato `dd/MM/yyyy HH:mm`**, i18n, sin segundos)
 - Columna **nombre comercial** del cliente en consultas cabecera (015/016/017/028)
 - Ícono **Actualizar** (tooltip i18n) en informes de consulta — recarga datos de grilla
@@ -48,3 +49,4 @@ HU-101-015…018, HU-101-021…023
 |-------|--------|---------|
 | 04/06/2026 | CC PQ #1 | Consultas UI: columnas, refresh, copiar pendientes |
 | 09/06/2026 | Parte I | Unificación `SPEC-101-11-consultas-ui-update` |
+| 11/06/2026 | CC PQ #4 / Parte G | Pivot en 4 informes — SPEC-update en cola |

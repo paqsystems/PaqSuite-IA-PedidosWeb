@@ -1,24 +1,26 @@
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Column } from 'devextreme-react/data-grid';
-import { ConsultaGridPage } from '../components/ConsultaGridPage';
+import { ConsultaInformePivotPage } from '../components/ConsultaInformePivotPage';
 import { fetchDeuda, type DeudaConsultaRow } from '../api/consultaApi';
 
 const proceso = 'pw_deuda';
 const gridId = 'pw_deuda';
+const pivotConsultaId = 'CONSULTA_DEUDA';
 
 export function DeudaPage() {
   const { t } = useTranslation();
   const loadData = useCallback(() => fetchDeuda(), []);
 
   return (
-    <ConsultaGridPage<DeudaConsultaRow>
+    <ConsultaInformePivotPage<DeudaConsultaRow>
       pageTestId="page-consulta-deuda"
       pageTitleKey="pages.consultaDeuda"
       proceso={proceso}
       gridId={gridId}
+      pivotConsultaId={pivotConsultaId}
+      testIdPrefix="consultaDeuda"
       loadData={loadData}
-      rowActions={[]}
       columns={
         <>
           <Column dataField="codCliente" caption={t('consultas.column.cliente')} />

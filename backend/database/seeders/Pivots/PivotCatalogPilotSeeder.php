@@ -18,6 +18,7 @@ final class PivotCatalogPilotSeeder extends Seeder
         $this->seedConsultaPiloto();
         $this->seedConsultaSoloGrilla();
         $this->seedSupervisorPivotConfig();
+        (new PivotCatalogInformesSeeder())->run();
     }
 
     private function seedPlantillaMetrica(): void
@@ -31,7 +32,7 @@ final class PivotCatalogPilotSeeder extends Seeder
                     'tipoDato' => 'number',
                     'rolCampo' => 'metrica',
                     'agregacionDefault' => 'sum',
-                    'agregacionesPermitidas' => ['sum', 'avg', 'count', 'min', 'max'],
+                    'formato' => ['format' => '#,##0.00'],
                 ], JSON_THROW_ON_ERROR),
                 'activo' => true,
             ]
@@ -55,7 +56,7 @@ final class PivotCatalogPilotSeeder extends Seeder
                 'admite_drilldown' => true,
                 'activo' => true,
                 'pivot_base_json' => json_encode([
-                    'filas' => ['codCliente'],
+                    'filas' => ['codCliente', 'razonSocial'],
                     'columnas' => [],
                     'valores' => [['campoId' => 'cantidad', 'agregacion' => 'sum']],
                     'filtrosInternos' => [],
@@ -112,9 +113,8 @@ final class PivotCatalogPilotSeeder extends Seeder
             'nombre_visible' => 'Cantidad',
             'tipo_dato' => 'number',
             'rol_campo' => 'metrica',
-            'roles_permitidos_json' => json_encode(['valor'], JSON_THROW_ON_ERROR),
+            'roles_permitidos_json' => json_encode(['fila', 'columna', 'valor'], JSON_THROW_ON_ERROR),
             'agregacion_default' => 'sum',
-            'agregaciones_permitidas_json' => json_encode(['sum', 'avg', 'count'], JSON_THROW_ON_ERROR),
             'plantilla_global_id' => 'PLANTILLA_METRICA_NUM',
             'orden' => 40,
         ]);
@@ -124,12 +124,13 @@ final class PivotCatalogPilotSeeder extends Seeder
             'nombre_visible' => 'Total s/ imp.',
             'tipo_dato' => 'number',
             'rol_campo' => 'metrica',
-            'roles_permitidos_json' => json_encode(['valor'], JSON_THROW_ON_ERROR),
+            'roles_permitidos_json' => json_encode(['fila', 'columna', 'valor'], JSON_THROW_ON_ERROR),
             'agregacion_default' => 'sum',
-            'agregaciones_permitidas_json' => json_encode(['sum', 'avg'], JSON_THROW_ON_ERROR),
             'plantilla_global_id' => 'PLANTILLA_METRICA_NUM',
             'orden' => 50,
         ]);
+
+        $this->seedHistorialVentasCamposRestantes($consultaId);
 
         DB::table('pq_pivots_validaciones')
             ->where('consulta_id', $consultaId)
@@ -156,12 +157,58 @@ final class PivotCatalogPilotSeeder extends Seeder
                     'filtroId' => 'codCliente',
                     'dataField' => 'codCliente',
                     'caption' => 'Cliente',
-                    'obligatorio' => true,
+                    // Opcional: historial ventas aplica visibilidad server-side (paridad grilla / supervisor sin codCliente).
+                    'obligatorio' => false,
                     'tipoControl' => 'select',
                 ], JSON_THROW_ON_ERROR),
                 'activo' => true,
             ],
         ]);
+    }
+
+    private function seedHistorialVentasCamposRestantes(string $consultaId): void
+    {
+        $dimension = ['fila', 'columna', 'valor'];
+        $metrica = ['fila', 'columna', 'valor'];
+
+        $campos = [
+            ['nRemito', 'Nº remito', 'string', 'dimension', $dimension, null, 60],
+            ['tipo', 'Tipo', 'string', 'dimension', $dimension, null, 70],
+            ['numero', 'Número', 'string', 'dimension', $dimension, null, 80],
+            ['condVta', 'Cond. venta', 'number', 'dimension', $metrica, null, 90],
+            ['porcDesc', '% desc.', 'number', 'metrica', $metrica, 'sum', 100],
+            ['cotiz', 'Cotización', 'number', 'metrica', $metrica, 'sum', 110],
+            ['moneda', 'Moneda', 'string', 'dimension', $dimension, null, 120],
+            ['totalComp', 'Total comprob.', 'number', 'metrica', $metrica, 'sum', 130],
+            ['codTransp', 'Cód. transporte', 'string', 'dimension', $dimension, null, 140],
+            ['nomTransp', 'Transporte', 'string', 'dimension', $dimension, null, 150],
+            ['codArticulo', 'Artículo', 'string', 'dimension', $dimension, null, 160],
+            ['descripcion', 'Descripción', 'string', 'dimension', $dimension, null, 170],
+            ['codDep', 'Depósito', 'string', 'dimension', $dimension, null, 180],
+            ['um', 'UM', 'string', 'dimension', $dimension, null, 190],
+            ['precio', 'Precio', 'number', 'metrica', $metrica, 'sum', 200],
+            ['nCompRem', 'Nº comp. rem.', 'string', 'dimension', $dimension, null, 210],
+            ['cantRem', 'Cant. rem.', 'number', 'metrica', $metrica, 'sum', 220],
+            ['fechaRem', 'Fecha rem.', 'date', 'dimension', ['fila', 'columna'], null, 230],
+        ];
+
+        foreach ($campos as [$campoId, $nombreVisible, $tipoDato, $rolCampo, $roles, $agregacionDefault, $orden]) {
+            $payload = [
+                'nombre_tecnico' => $campoId,
+                'nombre_visible' => $nombreVisible,
+                'tipo_dato' => $tipoDato,
+                'rol_campo' => $rolCampo,
+                'roles_permitidos_json' => json_encode($roles, JSON_THROW_ON_ERROR),
+                'orden' => $orden,
+            ];
+
+            if ($agregacionDefault !== null) {
+                $payload['agregacion_default'] = $agregacionDefault;
+                $payload['plantilla_global_id'] = 'PLANTILLA_METRICA_NUM';
+            }
+
+            $this->upsertCampo($consultaId, $campoId, $payload);
+        }
     }
 
     private function seedConsultaSoloGrilla(): void
@@ -216,6 +263,16 @@ final class PivotCatalogPilotSeeder extends Seeder
                     'dataField' => 'codCliente',
                     'dataType' => 'string',
                     'area' => 'row',
+                    'areaIndex' => 0,
+                    'showTotals' => false,
+                ],
+                [
+                    'caption' => 'Razón social',
+                    'dataField' => 'razonSocial',
+                    'dataType' => 'string',
+                    'area' => 'row',
+                    'areaIndex' => 1,
+                    'showTotals' => false,
                 ],
                 [
                     'caption' => 'Cantidad',

@@ -1,24 +1,26 @@
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Column } from 'devextreme-react/data-grid';
-import { ConsultaGridPage } from '../components/ConsultaGridPage';
+import { ConsultaInformePivotPage } from '../components/ConsultaInformePivotPage';
 import { fetchCheques, type ChequeConsultaRow } from '../api/consultaApi';
 
 const proceso = 'pw_cheques';
 const gridId = 'pw_cheques';
+const pivotConsultaId = 'CONSULTA_CHEQUES';
 
 export function ChequesPage() {
   const { t } = useTranslation();
   const loadData = useCallback(() => fetchCheques(), []);
 
   return (
-    <ConsultaGridPage<ChequeConsultaRow>
+    <ConsultaInformePivotPage<ChequeConsultaRow>
       pageTestId="page-consulta-cheques"
       pageTitleKey="pages.consultaCheques"
       proceso={proceso}
       gridId={gridId}
+      pivotConsultaId={pivotConsultaId}
+      testIdPrefix="consultaCheques"
       loadData={loadData}
-      rowActions={[]}
       columns={
         <>
           <Column dataField="interno" caption={t('consultas.column.interno')} />

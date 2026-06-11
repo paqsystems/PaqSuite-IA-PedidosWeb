@@ -6,6 +6,7 @@ export type PivotCampoMetadata = {
   rolCampo: string;
   rolesPermitidos: string[];
   agregacionDefault?: string | null;
+  /** Calculado en backend según tipoDato; no configurar listas por campo en catálogo. */
   agregacionesPermitidas?: string[] | null;
   formato?: Record<string, unknown> | null;
 };
