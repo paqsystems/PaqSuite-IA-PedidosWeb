@@ -214,7 +214,7 @@ Al cambiar la lista de precios en cabecera, el sistema recalcula precios de los 
 
 ### 6.7 Búsqueda de artículos
 
-- Cada ítem se muestra como **código - descripción**, seguido de la **disponibilidad neta** (y disponibilidad base entre paréntesis cuando aplica).
+- Cada ítem se muestra como **código - descripción**, seguido de la **disponibilidad** (`stock − comprometido` del ERP) y, entre paréntesis, la del **artículo base** cuando aplica. **No** incluye pedidos web aún no procesados por el ERP (a diferencia del informe **Stock**, que sí descuenta pedidos ingresados).
 - La búsqueda en servidor se activa al escribir **al menos 4 caracteres** (los espacios cuentan). Si deja de escribir durante **1 segundo** con texto suficiente, se abre la lista con los resultados.
 - Solo hacer clic en el campo **no** dispara búsqueda; puede usar la **flecha** del desplegable para ver un primer lote sin escribir.
 - Mientras busca puede verse **Cargando…** sin bloquear el campo.
@@ -372,7 +372,7 @@ Ventas detalladas en un rango temporal (parámetro **DiasVentasDetalladas** en E
 
 ### 9.4 Stock
 
-Disponibilidad de artículos (stock neto comprometido). La misma lógica se refleja al buscar artículos en **carga**.
+Disponibilidad de artículos (**stock neto**: descuenta stock ERP, comprometido ERP y pedidos web ingresados). En la **búsqueda de artículos al cargar un pedido**, el número mostrado es solo **stock − comprometido** (sin descontar pedidos web en curso).
 
 ---
 

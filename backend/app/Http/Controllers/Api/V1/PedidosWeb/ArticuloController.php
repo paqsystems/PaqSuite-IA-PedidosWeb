@@ -5,12 +5,9 @@ namespace App\Http\Controllers\Api\V1\PedidosWeb;
 use App\Exceptions\AuthFlowException;
 use App\Http\Controllers\Controller;
 use App\Http\Responses\ApiResponse;
-use App\Contracts\PedidosWeb\ArticuloRepositoryInterface;
-use App\Models\PqPedidoswebArticulo;
-use App\Services\PedidosWeb\StockConsultaService;
+use App\Services\PedidosWeb\ArticuloCargaLookupService;
 use App\Services\Visibility\VisibilityPermissionGuard;
 use App\Support\AuthErrorCodes;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -18,8 +15,7 @@ final class ArticuloController extends Controller
 {
     public function __construct(
         private readonly VisibilityPermissionGuard $visibilityPermissionGuard,
-        private readonly ArticuloRepositoryInterface $articuloRepository,
-        private readonly StockConsultaService $stockConsultaService,
+        private readonly ArticuloCargaLookupService $articuloCargaLookupService,
     ) {}
 
     public function index(Request $request): JsonResponse
@@ -47,62 +43,18 @@ final class ArticuloController extends Controller
         $codigos = $this->parseCodigosQuery($request);
         $solicitudPorCodigos = $codigos !== [];
 
-        $query = PqPedidoswebArticulo::query()->orderBy('descripcion');
-
-        if ($solicitudPorCodigos) {
-            $query->whereIn('codigo', $codigos);
-        } else {
-            // Lookup de carga: excluir artículos BASE (usa_esc = 'B'). No aplica al refresh por codigos.
-            $query->excluirArticulosBaseCarga();
-        }
-
-        if (filled($request->query('q'))) {
-            $search = '%'.trim((string) $request->query('q')).'%';
-            $query->where(function (Builder $builder) use ($search): void {
-                $builder->where('codigo', 'like', $search)
-                    ->orWhere('descripcion', 'like', $search);
-            });
-        }
-
         $pageSize = $solicitudPorCodigos
             ? min(1000, max(count($codigos), 1))
             : min(1000, max(1, (int) ($request->query('page_size') ?? 500)));
         $codLista = (int) ($request->query('lista_precios') ?? 0);
-        $articulos = $query
-            ->limit($pageSize)
-            ->get();
 
-        $codigosArticulos = $articulos
-            ->map(static fn (PqPedidoswebArticulo $articulo): string => (string) $articulo->codigo)
-            ->all();
-
-        $stockPorCodigo = $solicitudPorCodigos
-            ? $this->stockConsultaService->lookupDisponibilidadPorCodigos($codigosArticulos)
-            : $this->stockConsultaService->lookupDisponibilidadCargaPorCodigos($codigosArticulos);
-
-        $items = $articulos
-            ->map(function (PqPedidoswebArticulo $articulo) use ($codLista, $stockPorCodigo): array {
-                $precio = 0.0;
-                if ($codLista > 0) {
-                    $precioLista = $this->articuloRepository->findPrecioLista($codLista, (string) $articulo->codigo);
-                    $precio = (float) ($precioLista?->precio ?? 0);
-                }
-
-                $codArticulo = (string) $articulo->codigo;
-                $stock = $stockPorCodigo[$codArticulo] ?? null;
-
-                return [
-                    'codArticulo' => $codArticulo,
-                    'descripcion' => (string) $articulo->descripcion,
-                    'porcIva' => (float) ($articulo->porc_iva ?? 0),
-                    'bonificacion' => (float) ($articulo->bonificacion ?? 0),
-                    'precio' => $precio,
-                    'disponibleNeto' => (float) ($stock['disponibleNeto'] ?? 0),
-                    'disponibleNetoBase' => $stock['disponibleNetoBase'] ?? null,
-                ];
-            })
-            ->values()
-            ->all();
+        $items = $this->articuloCargaLookupService->buscar(
+            q: filled($request->query('q')) ? (string) $request->query('q') : null,
+            pageSize: $pageSize,
+            codLista: $codLista,
+            codigos: $codigos,
+            incluirComprometidoWeb: $solicitudPorCodigos,
+        );
 
         return ApiResponse::success(['items' => $items]);
     }

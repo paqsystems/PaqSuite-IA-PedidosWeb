@@ -103,7 +103,7 @@ Ejemplo con base: `ART002 - Kit ensamble — Disp. 80,00 (120,00)`
 
 e) **Alcance:** solo lookup/browse de artículos en carga (`GET /articulos` sin `codigos`); no alterar la consulta de stock ni otros procesos que deban seguir usando disponible neto con pedidos web.
 
-*Procesado* → [SPEC-101-10-pantalla-carga-update](../05-open-spec/updates/101-PedidosWeb/SPEC-101-10-pantalla-carga-update.md) · [HU-101-005-inicializacion-cabecera-update](../03-historias-usuario/updates/101-PedidosWeb/HU-101-005-inicializacion-cabecera-update.md) · [TR-SPEC-101-10-pantalla-carga-update](../04-tareas/updates/101-PedidosWeb/TR-SPEC-101-10-pantalla-carga-update.md) — Parte I 11/06/2026
+*Procesado* → [SPEC-101-10-pantalla-carga](../05-open-spec/101-PedidosWeb/SPEC-101-10-pantalla-carga.md) · [HU-101-005-inicializacion-cabecera](../03-historias-usuario/101-PedidosWeb/HU-101-005-inicializacion-cabecera.md) · [TR-SPEC-101-10-pantalla-carga](../04-tareas/101-PedidosWeb/TR-SPEC-101-10-pantalla-carga.md) — Parte I 11/06/2026
 
 ---
 
