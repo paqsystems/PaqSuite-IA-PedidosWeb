@@ -2,7 +2,7 @@
 
 Documento **vivo**: actualizar en el mismo slice/PR que el endpoint (norma [`../_NORMAS-TRANSVERSALES-TR.md`](../_NORMAS-TRANSVERSALES-TR.md) §1).
 
-**Estado:** sincronizado con seed TR-GEN-02-modelo-roles-permisos-seed y login TR-GEN-02-login-sesion (2026-05-29).
+**Estado:** sincronizado con seed TR-GEN-02-modelo-roles-permisos-seed y login TR-GEN-02-login-sesion (2026-05-29). **Pivots (2026-06-11):** TR-GEN-08-*.
 
 ## Roles seed (`Pq_Rol`)
 
@@ -64,7 +64,7 @@ Procedimientos ERP: `pw_cargapedidos`, `pw_presupuestosingresados`, `pw_pedidosi
 | PATCH | `/api/v1/users/me/preferences` | Usuario autenticado | TR-GEN-01-menu-avatar |
 | PATCH | `/api/v1/users/me/preferences/locale` | Usuario autenticado | TR-GEN-01-idioma |
 | PATCH | `/api/v1/users/me/preferences/theme` | Usuario autenticado | TR-GEN-01-apariencia-temas |
-| GET | `/api/v1/config/public` | Usuario autenticado | TR-GEN-01-ayuda-externa, TR-GEN-03-layouts-grilla (`gridLayoutsEnabled`) |
+| GET | `/api/v1/config/public` | Usuario autenticado | TR-GEN-01-ayuda-externa, TR-GEN-03-layouts-grilla (`gridLayoutsEnabled`), TR-GEN-08-* (`pivotsEnabled`, `pivotLayoutsEnabled`) |
 | GET | `/api/v1/config/parametros` | `Permiso_Repo` + **`pw_consultaparametros`** | TR-GEN-04-consulta-parametros |
 
 ## Menú
@@ -83,6 +83,33 @@ Procedimientos ERP: `pw_cargapedidos`, `pw_presupuestosingresados`, `pw_pedidosi
 | PUT | `/api/v1/grid-layouts/{id}` | Usuario autenticado; solo creador del layout | TR-GEN-03-layouts-grilla |
 | DELETE | `/api/v1/grid-layouts/{id}` | Usuario autenticado; solo creador del layout | TR-GEN-03-layouts-grilla |
 | PUT | `/api/v1/grid-layouts/active` | Usuario autenticado | TR-GEN-03-layouts-grilla |
+
+## Pivots — metadata y dataset (SPEC-001-08)
+
+Permiso: `Permiso_Repo` sobre `procedimiento_host` de la fila en `pq_pivots_consultas` (resuelto vía `VisibilityPermissionGuard`).
+
+| Método | Path | Permiso / regla | TR origen |
+|--------|------|-----------------|-----------|
+| GET | `/api/v1/pivots/consultas/{consultaId}/metadata` | `Permiso_Repo` + `procedimiento_host` | TR-GEN-08-motor-metadata-pivots |
+| POST | `/api/v1/pivots/consultas/{consultaId}/data` | Idem | TR-GEN-08-motor-metadata-pivots |
+| POST | `/api/v1/pivots/consultas/{consultaId}/validate-structure` | Idem | TR-GEN-08-motor-metadata-pivots |
+
+## Pivots — diseños guardados (SPEC-001-08)
+
+Misma regla de permiso consulta que metadata. PUT/DELETE diseño: solo `created_by_user_id`.
+
+| Método | Path | Permiso / regla | TR origen |
+|--------|------|-----------------|-----------|
+| GET | `/api/v1/pivot-configs` | Permiso consulta (`consultaId`) | TR-GEN-08-layouts-pivot |
+| GET | `/api/v1/pivot-configs/active` | Permiso consulta | TR-GEN-08-layouts-pivot |
+| POST | `/api/v1/pivot-configs` | Permiso consulta | TR-GEN-08-layouts-pivot |
+| PUT | `/api/v1/pivot-configs/{configId}` | Permiso consulta; solo creador | TR-GEN-08-layouts-pivot |
+| DELETE | `/api/v1/pivot-configs/{configId}` | Permiso consulta; solo creador | TR-GEN-08-layouts-pivot |
+| PUT | `/api/v1/pivot-configs/active` | Permiso consulta | TR-GEN-08-layouts-pivot |
+
+## Export pivot (client-side)
+
+Sin endpoint API. Visible en UI solo en modo pivot; requiere permiso de ver la consulta (misma pantalla). TR: TR-GEN-08-exportacion-pivot.
 
 ## Visibilidad de datos (base; extiende SPEC-101)
 

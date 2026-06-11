@@ -99,6 +99,32 @@ Tareas técnicas (parte C) derivadas de **SPEC-001-01** y **SPEC-001-02**.
 
 **SPEC:** [SPEC-001-04-configuracion-global.md](../../05-open-spec/001-Generaliddes/SPEC-001-04-configuracion-global.md)
 
+## SPEC-001-08 — Pivots (epic D1 — fuera release MVP portal)
+
+**C (2026-06-11):** 4 TR generadas; orden implementación sugerido abajo. Epic fuera del release MVP portal actual.  
+**C1 (2026-06-11):** Revisión C1 cerrada — [F-GEN-08-cierre-c1](F-GEN-08-cierre-c1.md); las 4 TR **aptas para D1**.  
+**D1 + F (2026-06-11):** 4 TR implementadas — [F-GEN-08-cierre-formal](F-GEN-08-cierre-formal.md). Epic fuera release MVP portal (flags default `false`).
+
+**Orden de implementación:**
+
+```text
+1. TR-GEN-08-motor-metadata-pivots     (catálogo + API metadata/dataset)
+2. TR-GEN-08-pivotgrid-visualizacion   (PivotGridBlock + toggle grilla/pivot)
+3. TR-GEN-08-layouts-pivot           (pq_pivots_config + toolbar diseños)
+4. TR-GEN-08-exportacion-pivot         (export Excel pivot)
+```
+
+| TR | HU | Prioridad |
+|----|-----|-----------|
+| [TR-GEN-08-motor-metadata-pivots](TR-GEN-08-motor-metadata-pivots.md) | [HU-GEN-08-motor-metadata-pivots](../../03-historias-usuario/001-Generaliddes/HU-GEN-08-motor-metadata-pivots.md) | Could |
+| [TR-GEN-08-pivotgrid-visualizacion](TR-GEN-08-pivotgrid-visualizacion.md) | [HU-GEN-08-pivotgrid-visualizacion](../../03-historias-usuario/001-Generaliddes/HU-GEN-08-pivotgrid-visualizacion.md) | Could |
+| [TR-GEN-08-layouts-pivot](TR-GEN-08-layouts-pivot.md) | [HU-GEN-08-layouts-pivot](../../03-historias-usuario/001-Generaliddes/HU-GEN-08-layouts-pivot.md) | Could |
+| [TR-GEN-08-exportacion-pivot](TR-GEN-08-exportacion-pivot.md) | [HU-GEN-08-exportacion-pivot](../../03-historias-usuario/001-Generaliddes/HU-GEN-08-exportacion-pivot.md) | Could |
+
+**SPEC:** [SPEC-001-08-pivots.md](../../05-open-spec/001-Generaliddes/SPEC-001-08-pivots.md)
+
+**Patrones MONO:** [patron-i18n-pivot-devextreme.md](../../00-contexto/_mono/pivots/patron-i18n-pivot-devextreme.md), [frontend-pivotgrid-devextreme-agregaciones-y-menu.md](../../00-contexto/_mono/pivots/frontend-pivotgrid-devextreme-agregaciones-y-menu.md)
+
 ## SPEC-001-10 — Chat Asistente IA
 
 | TR | HU | Prioridad |

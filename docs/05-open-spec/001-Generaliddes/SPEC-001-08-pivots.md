@@ -2,9 +2,9 @@
 
 | Campo | Valor |
 |-------|--------|
-| **HU relacionadas** | Ninguna en MVP (referencia en `SPEC-001-03`) |
-| **Estado** | Documental |
-| **Revisión A1** | Apto con observaciones (2026-06-10) — sin HU MVP; decisiones §6 cerradas parcialmente |
+| **HU relacionadas** | [HU-GEN-08-motor-metadata-pivots](../../03-historias-usuario/001-Generaliddes/HU-GEN-08-motor-metadata-pivots.md), [HU-GEN-08-pivotgrid-visualizacion](../../03-historias-usuario/001-Generaliddes/HU-GEN-08-pivotgrid-visualizacion.md), [HU-GEN-08-layouts-pivot](../../03-historias-usuario/001-Generaliddes/HU-GEN-08-layouts-pivot.md), [HU-GEN-08-exportacion-pivot](../../03-historias-usuario/001-Generaliddes/HU-GEN-08-exportacion-pivot.md) |
+| **Estado** | Documental + **D1 implementado** (2026-06-11); fuera release MVP portal hasta activar flags |
+| **Revisión A1** | Apto con observaciones (2026-06-10) — decisiones §6 cerradas parcialmente |
 
 ## Objetivo
 
@@ -12,7 +12,9 @@ Definir la base conceptual y técnica de pivots (consultas pivotables, plantilla
 
 ## Estado de ejecución
 
-Documental para este bloque inicial (base de diseño para ejecución posterior).
+**D1 implementado (2026-06-11)** — 4 HU + 4 TR con código en repo. Epic **fuera del release MVP portal** hasta activar `PIVOTS_ENABLED` / `PIVOT_LAYOUTS_ENABLED` y migraciones en tenant.
+
+Informe cierre: [F-GEN-08-cierre-formal](../../04-tareas/001-Generaliddes/F-GEN-08-cierre-formal.md).
 
 ## Entradas requeridas
 
@@ -47,6 +49,9 @@ Transversal: `docs/00-contexto/_mono/03-ui-transversal/pivots.md`
 | **AMB-P08-05** | i18n PivotGrid | Patrón obligatorio en `patron-i18n-pivot-devextreme.md` (5 idiomas) |
 | **AMB-P08-06** | Primera apertura sin último diseño | Aplicar **pivot base** de metadata (consulta útil); plantilla inicial vacía solo al elegirla en selector |
 | **AMB-P08-07** | Unicidad de nombre guardado | **Paridad grilla:** único por `consulta_id` (un registro por nombre en la consulta); error i18n si duplicado en Guardar como |
+| **AMB-Q-P08-01** | Drill-down obligatorio | **Cerrada (2026-06-11):** solo si `admite_drilldown = 1` por consulta; no obligatorio en todas |
+| **AMB-Q-P08-02** | Límite diseños por consulta | **Cerrada (2026-06-11):** sin límite por `consulta_id` (paridad layouts grilla) |
+| **AMB-P08-08** | Convivencia grilla/pivot | `tipo_proceso` **informe** en menú (`pq_menus`) **o** `mostrarGrillaYPivot = true` explícito en metadata de consulta |
 
 Detalle normativo: `especificacion_tecnica_consultas_pivotables.md` §17–17.1, `frontend-pivotgrid-devextreme-agregaciones-y-menu.md` §6–8.
 
@@ -60,13 +65,48 @@ Detalle normativo: `especificacion_tecnica_consultas_pivotables.md` §17–17.1,
 ## Fuera de alcance
 
 - Implementación completa de pivots avanzados en el MVP core.
+- TR e implementación (partes C y D) hasta priorizar epic pivots.
 - HU/TR de ejecución en release MVP portal (`PedidosWeb_SPEC_MVP.md`).
+
+## Inventario de tablas y entidades
+
+| Objeto | Rol |
+|--------|-----|
+| `pq_pivots_consultas` | Catálogo de consultas pivotables |
+| `pq_pivots_campos` | Campos, dimensiones, métricas y agregaciones por consulta |
+| `pq_pivots_plantillas` / `pq_pivots_plantillas_det` | Plantillas globales reutilizables |
+| `pq_pivots_validaciones` | Restricciones y reglas por consulta |
+| `pq_pivots_config` | Diseños guardados (JSON de configuración pivot) |
+| `pq_pivots_config_last_used` | Último diseño usado por usuario/consulta (DDL en TR) |
+| `pq_pivots_aud` | Auditoría opcional de diseños |
+
+Diagrama y detalle: `modelo_datos_pivots_y_catalogo.md`, `arquitectura_motor_pivots_y_flujo.md`.
+
+## Flujo extremo a extremo (documental)
+
+1. Usuario abre **consulta** con `pivot_habilitado` (`HU-GEN-08-motor-metadata-pivots`).
+2. Motor resuelve metadata, valida filtros y obtiene dataset base.
+3. Vista inicial **grilla**; usuario alterna a **pivot** si aplica (`HU-GEN-08-pivotgrid-visualizacion`).
+4. Primera apertura pivot: `pivotBase` o último diseño guardado.
+5. Usuario reorganiza campos, agregaciones y drill-down (si habilitado).
+6. **Actualizar**, **Guardar** / **Guardar como** / **Eliminar** diseños (`HU-GEN-08-layouts-pivot`).
+7. **Exportar** básico o tabla dinámica (`HU-GEN-08-exportacion-pivot`).
+
+## Trazabilidad HU (parte B)
+
+| HU | TR | Foco | Orden |
+|----|-----|------|-------|
+| [HU-GEN-08-motor-metadata-pivots](../../03-historias-usuario/001-Generaliddes/HU-GEN-08-motor-metadata-pivots.md) | [TR-GEN-08-motor-metadata-pivots](../../04-tareas/001-Generaliddes/TR-GEN-08-motor-metadata-pivots.md) | Catálogos, API metadata, validaciones, dataset | 1 |
+| [HU-GEN-08-pivotgrid-visualizacion](../../03-historias-usuario/001-Generaliddes/HU-GEN-08-pivotgrid-visualizacion.md) | [TR-GEN-08-pivotgrid-visualizacion](../../04-tareas/001-Generaliddes/TR-GEN-08-pivotgrid-visualizacion.md) | PivotGrid, agregaciones, alternancia grilla/pivot, i18n | 2 |
+| [HU-GEN-08-layouts-pivot](../../03-historias-usuario/001-Generaliddes/HU-GEN-08-layouts-pivot.md) | [TR-GEN-08-layouts-pivot](../../04-tareas/001-Generaliddes/TR-GEN-08-layouts-pivot.md) | Diseños guardados, plantilla inicial, Actualizar | 3 |
+| [HU-GEN-08-exportacion-pivot](../../03-historias-usuario/001-Generaliddes/HU-GEN-08-exportacion-pivot.md) | [TR-GEN-08-exportacion-pivot](../../04-tareas/001-Generaliddes/TR-GEN-08-exportacion-pivot.md) | Export Excel básico y tabla dinámica | 4 |
 
 ## Entregables verificables
 
 - Definición técnica de catálogo de campos, plantillas y validaciones.
 - Criterios frontend para pivotgrid documentados (agregaciones, toolbar, i18n).
 - Inventario de fuentes en `docs/00-contexto/_mono/pivots/` trazable desde este SPEC.
+- **4 HU** enriquecidas en `docs/03-historias-usuario/001-Generaliddes/`.
 
 ## Criterios de aceptación medibles
 
@@ -78,6 +118,7 @@ Detalle normativo: `especificacion_tecnica_consultas_pivotables.md` §17–17.1,
   3. Guardar desde plantilla inicial equivale a Guardar como.
   4. Ícono Actualizar con re-fetch (`pivot.refresh`, `pivotRefresh`).
   5. i18n DevExtreme del pivot en 5 idiomas (`patron-i18n-pivot-devextreme.md`).
+- HU derivadas con criterios de aceptación y Gherkin trazables al contexto `_mono/pivots/`.
 
 ---
 
@@ -112,7 +153,7 @@ Ninguna bloqueante para el **estado documental** del SPEC (no hay HU MVP que imp
 
 | ID | Tema | Resolución |
 |----|------|------------|
-| AMB-M-P08-01 | `PQ_PIVOTS` vs `pq_pivots_config` | **Canónico:** `pq_pivots_config` (`modelo_datos_pivots_y_catalogo.md`). `modelo_datos_pivots_personalizados.md` es alias conceptual legacy — alinear en TR |
+| AMB-M-P08-01 | `PQ_PIVOTS` vs `pq_pivots_config` | **Cerrado (2026-06-11):** canónico `pq_pivots_config` (`modelo_datos_pivots_y_catalogo.md`); `personalizados.md` = reglas funcionales + boceto `PQ_PIVOTS` (patrón PaqSuite-IA-Tango / TR-020) |
 | AMB-M-P08-02 | Tabla `pq_pivots_config_last_used` | Mencionada en arquitectura; **definir DDL en TR** al implementar persistencia |
 | AMB-M-P08-03 | `configId` (frontend) vs `pivot_id` (BD) | Mapeo 1:1; documentar en contrato API de la TR |
 | AMB-M-P08-04 | `pivots.md` § capacidades vs plantilla inicial | **Alineado** en A1: primera apertura → pivot base; plantilla inicial → vacía bajo demanda (§6 AMB-P08-06) |
@@ -123,20 +164,116 @@ Ninguna bloqueante para el **estado documental** del SPEC (no hay HU MVP que imp
 - Dictionary DB con prefijo `pq_pivots_*` según catálogos.
 - En MVP portal solo referencia desde `SPEC-001-03`; implementación en módulo Informes u otro epic posterior.
 
-### Preguntas para decisión humana (no bloqueantes MVP)
+### Preguntas para decisión humana
 
-| ID | Pregunta | Propuesta default |
-|----|----------|-------------------|
-| AMB-Q-P08-01 | ¿Drill-down obligatorio en todas las consultas pivotables? | Según flag `admite_drilldown` por consulta (ya en arquitectura) |
-| AMB-Q-P08-02 | ¿Límite de diseños guardados por consulta? | Sin límite en MVP (paridad layouts grilla) |
+| ID | Tema | Decisión |
+|----|------|----------|
+| AMB-Q-P08-01 | Drill-down obligatorio | **Cerrada (2026-06-11):** solo si `admite_drilldown = 1` por consulta |
+| AMB-Q-P08-02 | Límite diseños guardados | **Cerrada (2026-06-11):** sin límite por `consulta_id` |
 
 ### Recomendaciones de ajuste del SPEC
 
 - [x] Incorporar §6 decisiones humanas (paridad grillas).
 - [x] Alinear `pivots.md` transversal con plantilla inicial y toolbar.
-- [ ] Al generar HU futura: referenciar este SPEC + `especificacion_tecnica` §17.1 como CA.
-- [ ] Unificar nomenclatura `PQ_PIVOTS` → `pq_pivots_config` en `modelo_datos_pivots_personalizados.md` (tarea documental opcional).
+- [x] Al generar HU futura: referenciar este SPEC + `especificacion_tecnica` §17.1 como CA.
+- [x] Nomenclatura `PQ_PIVOTS` vs `pq_pivots_config`: jerarquía documental (Tango) — canónico en `y_catalogo`; nota de mapeo en `personalizados.md` § cabecera y §5.1.
 
 ### Veredicto
 
-**Apto con observaciones** para cierre **A1 documental**. No avanzar a **B (HU)** en MVP portal. Cuando se priorice el epic pivots, usar este SPEC como fuente única y resolver AMB-M-P08-* en la TR correspondiente.
+**Apto con observaciones** para cierre **A1 documental**.
+
+---
+
+## Parte B — cierre (2026-06-11)
+
+### Resultado general
+
+| Campo | Valor |
+|-------|--------|
+| **Veredicto B1** | **Cerrado** — 4 HU enriquecidas |
+| **¿Puede pasar a parte C (TR) en MVP portal?** | **No** — epic posterior; sin prioridad en release MVP |
+| **¿Listo para parte C cuando se priorice epic?** | **Sí** — resolver AMB-M-P08-* en TR (AMB-Q-P08-* cerradas) |
+
+### Entregables parte B
+
+| Entregable | Estado |
+|------------|--------|
+| `HU-GEN-08-motor-metadata-pivots` | Enriquecida |
+| `HU-GEN-08-pivotgrid-visualizacion` | Enriquecida |
+| `HU-GEN-08-layouts-pivot` | Enriquecida |
+| `HU-GEN-08-exportacion-pivot` | Enriquecida |
+| Índice HU README 001-Generaliddes | Actualizado |
+
+### Decisiones producto cerradas post-B1 (2026-06-11)
+
+| ID | Tema | Decisión |
+|----|------|----------|
+| AMB-Q-P08-01 | Drill-down | Solo si `admite_drilldown = 1` por consulta |
+| AMB-Q-P08-02 | Límite diseños | Sin límite por `consulta_id` |
+| AMB-P08-08 | Convivencia grilla/pivot | `tipo_proceso` informe en menú o `mostrarGrillaYPivot` explícito en metadata |
+
+### Veredicto
+
+**B1 cerrado** para SPEC-001-08. **C generada (2026-06-11).** No avanzar a **parte D** en MVP portal. Al priorizar el epic pivots, implementar en orden motor-metadata → pivotgrid → layouts → exportación.
+
+---
+
+## Parte C — cierre (2026-06-11)
+
+### Entregables parte C
+
+| Entregable | Estado |
+|------------|--------|
+| `TR-GEN-08-motor-metadata-pivots` | Generada |
+| `TR-GEN-08-pivotgrid-visualizacion` | Generada |
+| `TR-GEN-08-layouts-pivot` | Generada |
+| `TR-GEN-08-exportacion-pivot` | Generada |
+| Índice TR README 001-Generaliddes | Actualizado |
+
+### Revisión C1 (2026-06-11)
+
+| TR | Veredicto C1 |
+|----|----------------|
+| TR-GEN-08-motor-metadata-pivots | Apto con observaciones |
+| TR-GEN-08-pivotgrid-visualizacion | Apto con observaciones |
+| TR-GEN-08-layouts-pivot | Apto con observaciones |
+| TR-GEN-08-exportacion-pivot | Apto con observaciones |
+
+Informe epic: [F-GEN-08-cierre-c1](../../04-tareas/001-Generaliddes/F-GEN-08-cierre-c1.md)
+
+### Próximo paso
+
+~~**D1** implementación~~ **Completado (2026-06-11).** Ver [F-GEN-08-cierre-formal](../../04-tareas/001-Generaliddes/F-GEN-08-cierre-formal.md). Siguiente: activación deploy + QA manual en tenant.
+
+---
+
+## Parte D — cierre (2026-06-11)
+
+### Resultado general
+
+| Campo | Valor |
+|-------|--------|
+| **Veredicto D1** | **Cerrado** — 4 TR implementadas |
+| **Veredicto F formal** | **Aprobado con observaciones** |
+| **Release MVP portal** | **No incluido** — flags default `false` |
+
+### Entregables parte D
+
+| Entregable | Estado |
+|------------|--------|
+| `TR-GEN-08-motor-metadata-pivots` | D1 implementado |
+| `TR-GEN-08-pivotgrid-visualizacion` | D1 implementado |
+| `TR-GEN-08-layouts-pivot` | D1 implementado |
+| `TR-GEN-08-exportacion-pivot` | D1 implementado |
+| Matriz permisos § Pivots | Actualizada |
+| Informe F | [F-GEN-08-cierre-formal](../../04-tareas/001-Generaliddes/F-GEN-08-cierre-formal.md) |
+
+### Piloto integrado
+
+- Consulta: `CONSULTA_PILOTO_PIVOT` (historial ventas, `pw_historialventas`).
+- UI: `HistorialVentasPage` + `ConsultaGrillaPivotShell`.
+- Convivencia grilla/pivot: `tipoProceso=informe` + `mostrarGrillaYPivot`.
+
+### Veredicto
+
+**Epic SPEC-001-08 cerrado en documentación e implementación D1.** Activación productiva = decisión de release aparte del MVP portal.

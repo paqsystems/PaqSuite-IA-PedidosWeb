@@ -69,6 +69,28 @@ Convención: **`HU-GEN-{SPEC}-{tema}.md`** derivadas de `docs/05-open-spec/001-G
 
 **SPEC:** [SPEC-001-04-configuracion-global.md](../../05-open-spec/001-Generaliddes/SPEC-001-04-configuracion-global.md) — **C (2026-06-03):** TR-GEN-04 generada.
 
+## SPEC-001-07 — Importar Excel (documental — fuera MVP)
+
+| HU | TR | Título | Prioridad |
+|----|-----|--------|-----------|
+| [HU-GEN-07-plantilla-excel](HU-GEN-07-plantilla-excel.md) | — | Plantilla modelo por proceso | Could |
+| [HU-GEN-07-carga-staging-excel](HU-GEN-07-carga-staging-excel.md) | — | Carga de archivo y staging | Could |
+| [HU-GEN-07-grilla-procesamiento-excel](HU-GEN-07-grilla-procesamiento-excel.md) | — | Grilla de staging y procesamiento | Could |
+| [HU-GEN-07-historial-importaciones](HU-GEN-07-historial-importaciones.md) | — | Historial de importaciones | Could |
+
+**SPEC:** [SPEC-001-07-importar-excel.md](../../05-open-spec/001-Generaliddes/SPEC-001-07-importar-excel.md) — **B1 (2026-06-11):** 4 HU enriquecidas; sin TR en MVP portal.
+
+## SPEC-001-08 — Pivots (D1 implementado — fuera release MVP portal)
+
+| HU | TR | Título | Prioridad |
+|----|-----|--------|-----------|
+| [HU-GEN-08-motor-metadata-pivots](HU-GEN-08-motor-metadata-pivots.md) | [TR-GEN-08-motor-metadata-pivots](../../04-tareas/001-Generaliddes/TR-GEN-08-motor-metadata-pivots.md) | Motor y catálogo de consultas pivotables | Could |
+| [HU-GEN-08-pivotgrid-visualizacion](HU-GEN-08-pivotgrid-visualizacion.md) | [TR-GEN-08-pivotgrid-visualizacion](../../04-tareas/001-Generaliddes/TR-GEN-08-pivotgrid-visualizacion.md) | PivotGrid DevExtreme y visualización | Could |
+| [HU-GEN-08-layouts-pivot](HU-GEN-08-layouts-pivot.md) | [TR-GEN-08-layouts-pivot](../../04-tareas/001-Generaliddes/TR-GEN-08-layouts-pivot.md) | Diseños guardados y toolbar del pivot | Could |
+| [HU-GEN-08-exportacion-pivot](HU-GEN-08-exportacion-pivot.md) | [TR-GEN-08-exportacion-pivot](../../04-tareas/001-Generaliddes/TR-GEN-08-exportacion-pivot.md) | Exportación Excel desde pivot | Could |
+
+**SPEC:** [SPEC-001-08-pivots.md](../../05-open-spec/001-Generaliddes/SPEC-001-08-pivots.md) — **B1 (2026-06-11):** 4 HU enriquecidas · **C (2026-06-11):** 4 TR generadas · **D1 + F (2026-06-11):** implementado — [F-GEN-08-cierre-formal](../../04-tareas/001-Generaliddes/F-GEN-08-cierre-formal.md).
+
 ## Pendientes (otros SPEC)
 
 - SPEC-001-05 → HU-GEN-05 + TR (tenancy; prioridad Fase 0)

@@ -46,9 +46,50 @@ Este archivo **no sustituye** SPEC, HU ni TR: es la **entrada** del circuito de 
 
 | # | Fecha | Estado | Resumen |
 |---|-------|--------|---------|
+| 4 | 10/06/2026 | Pendiente | Vista pivot en **Detalle de pedidos** (piloto SPEC-001-08); resto de consultas fuera de alcance |
 | 1 | 04/06/2026 | Finalizado (Parte I) | 10 familias HU — CC PQ; updates unificados 09/06/2026 |
 | 2 | 05/06/2026 | Finalizado (Parte I) | GEN-03 layouts/export Excel formateado — CC PQ #2; unificado 09/06/2026 |
 | 3 | 09/06/2026 | Finalizado (Parte I) | Cartel cargando, layouts totales, performance carga, parámetros — unificado 09/06/2026 |
+
+---
+
+## Control de Calidad #4
+
+### Referencia del control
+
+| Campo | Valor |
+|-------|--------|
+| **Fecha** | 10/06/2026 |
+| **Responsable** | Pablo Quarracino (PQ) |
+| **Estado** | Pendiente |
+| **Entorno probado** | *(planificado — mejora funcional; sin QA manual previo)* |
+| **Build / rama** | *(completar al volcar Parte G)* |
+
+### Hallazgos
+
+Mejora solicitada: incorporar **vista pivot** (tabla dinámica) en la consulta **Detalle de pedidos**, como **piloto de adopción** del bloque transversal [SPEC-001-08-pivots](../05-open-spec/001-Generaliddes/SPEC-001-08-pivots.md). El resto de consultas del portal (p. ej. Pedidos ingresados, pendientes, presupuestos) queda **fuera de alcance** en esta entrega.
+
+**Dependencia documental:** SPEC-001-08 (B1 cerrado); infra transversal HU-GEN-08-* y TR-GEN-08-* a derivar en Parte G antes o en paralelo a la adopción en 101.
+
+**Referencia producto vigente:** [consulta-detalle-pedidos.md](../02-producto/PedidosWeb/consulta-detalle-pedidos.md) — proceso `pw_detallepedidos`, ruta `/pedidos/detalle`.
+
+### Errores encontrados - Mejoras solicitadas
+
+#### HU-101-028-consulta-detalle-pedidos
+
+Incorporar en **Detalle de pedidos** la alternancia **grilla / pivot** según norma MONO (`pivots.md`, SPEC-001-08):
+
+a) Vista inicial **grilla** (sin cambiar comportamiento operativo actual); toggle para pasar a **PivotGrid** DevExtreme cuando el usuario lo elija.
+
+b) Consulta pivotable solo en esta pantalla (piloto): metadata en catálogo `pq_pivots_*` para `consulta_id` / proceso `pw_detallepedidos`, con `pivotBase` útil (dimensiones sugeridas: cliente, artículo, período; métricas: cantidad, importes).
+
+c) Paridad GEN-03 en bloque pivot: diseños guardados (`pq_pivots_config`), plantilla inicial vacía, Actualizar (`pivotRefresh`), export Excel básico y tabla dinámica — según [SPEC-001-08 / HU-GEN-08](../03-historias-usuario/001-Generaliddes/README.md).
+
+d) **Fuera de alcance v1:** Pedidos ingresados, pedidos pendientes, presupuestos y demás consultas SPEC-101-11; no habilitar pivot allí en este control.
+
+e) Derivar como **update** (no reemplazar HU/TR base): SPEC-update slice 101 (adopción consultas pivot), HU-update sobre HU-101-028, TR-update sobre TR-SPEC-101-07 / TR-SPEC-101-11; referenciar SPEC-001-08 y contexto `_mono/pivots/`.
+
+*Sugerencia:* SPEC-101 slice adopción pivot (piloto detalle) · HU-101-028-update · TR-101-028-update (+ TR-GEN-08-* transversal según priorización del epic).
 
 ---
 
