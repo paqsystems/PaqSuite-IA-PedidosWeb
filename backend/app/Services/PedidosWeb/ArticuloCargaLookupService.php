@@ -35,7 +35,6 @@ final class ArticuloCargaLookupService
         int $pageSize,
         int $codLista,
         array $codigos = [],
-        bool $incluirComprometidoWeb = false,
     ): array {
         if (! Schema::hasTable('pq_pedidosweb_articulos')) {
             return [];
@@ -45,8 +44,7 @@ final class ArticuloCargaLookupService
         $solicitudPorCodigos = $codigos !== [];
         $hasStockTable = Schema::hasTable('pq_pedidosweb_stock');
         $hasListaPreciosTable = Schema::hasTable('pq_pedidosweb_listaprecios_articulos');
-        $hasPedidosTables = $incluirComprometidoWeb
-            && Schema::hasTable('pq_pedidosweb_pedidosdetalle')
+        $hasPedidosTables = Schema::hasTable('pq_pedidosweb_pedidosdetalle')
             && Schema::hasTable('pq_pedidosweb_pedidoscabecera');
 
         $comprometidoWebExpr = $hasPedidosTables ? 'ISNULL(cw.comprometido_web, 0)' : '0';

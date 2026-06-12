@@ -58,6 +58,28 @@ final class ArticuloCargaLookupServiceTest extends TestCase
         $this->assertStringContainsString('pw_art_presentacion', $sql);
     }
 
+    #[Test]
+    public function buscarBrowseDescuentaComprometidoWebEnDisponible(): void
+    {
+        if (! Schema::hasTable('pq_pedidosweb_articulos')) {
+            $this->markTestSkipped('Tabla pq_pedidosweb_articulos no disponible.');
+        }
+
+        DB::enableQueryLog();
+
+        $service = $this->app->make(ArticuloCargaLookupService::class);
+        $service->buscar(q: null, pageSize: 5, codLista: 0);
+
+        $queries = DB::getQueryLog();
+        DB::disableQueryLog();
+
+        $sql = strtolower($this->findBuscarSql($queries));
+
+        $this->assertStringContainsString('pq_pedidosweb_pedidosdetalle', $sql);
+        $this->assertStringContainsString('pq_pedidosweb_pedidoscabecera', $sql);
+        $this->assertStringContainsString('comprometido_web', $sql);
+    }
+
     /**
      * @param  list<array{query: string}>  $queries
      */

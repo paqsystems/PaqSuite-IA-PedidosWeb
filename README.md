@@ -61,4 +61,9 @@ HU/TR: `docs/03-historias-usuario/`, `docs/04-tareas/`, `docs/05-open-spec/`.
 
 GitHub Actions en `.github/workflows/ci.yml` (plantilla: [`docs/_base/00-github-actions-ci-scaffold.md`](docs/_base/00-github-actions-ci-scaffold.md)). Requiere secret **`VITE_DEVEXTREME_LICENSE`** en el repositorio.
 
+## Operación / releases
+
+- Runbook actualización versión (BASE, Forge + Vercel): [`docs/_base/00-runbook-actualizacion-version.md`](docs/_base/00-runbook-actualizacion-version.md) — anexo PedidosWeb §10
+- Aviso commit/push (migrate, seeds, datos fijos): [`docs/_base/00-commit-push-revision-version-deploy.md`](docs/_base/00-commit-push-revision-version-deploy.md)
+
 **No commit/push** sin autorización explícita.
