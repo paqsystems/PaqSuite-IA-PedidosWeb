@@ -17,7 +17,7 @@ final class StockConsultaService
     private const BASE_NOT_EMPTY_SQL = "NULLIF(LTRIM(RTRIM(a.[base])), '') IS NOT NULL";
 
     /**
-     * Disponibilidad informativa para listbox de carga (misma fórmula que consulta stock).
+     * Disponibilidad informativa para listbox de carga (solo stock ERP, sin pedidos web).
      *
      * @param  list<string>  $codigos
      * @return array<string, array{disponibleNeto: float, disponibleNetoBase: float|null}>
@@ -26,7 +26,7 @@ final class StockConsultaService
      */
     public function lookupDisponibilidadCargaPorCodigos(array $codigos): array
     {
-        return $this->lookupDisponibilidadPorCodigos($codigos);
+        return $this->lookupDisponibilidadPorCodigosInternal($codigos, incluirComprometidoWeb: false);
     }
 
     /**
