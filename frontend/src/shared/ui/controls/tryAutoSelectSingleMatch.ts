@@ -3,12 +3,35 @@ import type { InputEvent } from 'devextreme/ui/select_box';
 type DataSourceLike = {
   load: () => Promise<unknown>;
   items: () => unknown[];
+  isLoading?: () => boolean;
 };
 
 type SelectBoxComponentLike = {
   getDataSource: () => DataSourceLike | null | undefined;
   option: (name: string, value?: unknown) => unknown;
 };
+
+const waitForItemsStepMs = 50;
+const waitForItemsMaxMs = 5000;
+
+async function waitForDataSourceItems(dataSource: DataSourceLike): Promise<unknown[]> {
+  const deadline = Date.now() + waitForItemsMaxMs;
+
+  while (Date.now() < deadline) {
+    const items = dataSource.items() ?? [];
+    if (items.length > 0) {
+      return items;
+    }
+
+    if (!dataSource.isLoading?.()) {
+      break;
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, waitForItemsStepMs));
+  }
+
+  return dataSource.items() ?? [];
+}
 
 export async function loadFilteredSelectBoxItems(
   component: SelectBoxComponentLike,
@@ -24,7 +47,15 @@ export async function loadFilteredSelectBoxItems(
     return existingItems;
   }
 
-  await dataSource.load();
+  if (dataSource.isLoading?.()) {
+    return waitForDataSourceItems(dataSource);
+  }
+
+  try {
+    await dataSource.load();
+  } catch {
+    return [];
+  }
 
   return dataSource.items() ?? [];
 }
