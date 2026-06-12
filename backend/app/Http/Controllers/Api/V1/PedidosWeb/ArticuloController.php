@@ -53,7 +53,6 @@ final class ArticuloController extends Controller
             pageSize: $pageSize,
             codLista: $codLista,
             codigos: $codigos,
-            incluirComprometidoWeb: $solicitudPorCodigos,
         );
 
         return ApiResponse::success(['items' => $items]);

@@ -70,12 +70,10 @@ Controles: **DevExtreme** (`SelectBox`, `NumberBox`, `DataGrid`, `Popup`, `Butto
 
 ### 3.1 Texto del ítem (disponible en listbox)
 
-Lookup browse (`GET /articulos` sin `codigos`) — `StockConsultaService::lookupDisponibilidadCargaPorCodigos`:
+Lookup browse (`GET /articulos`) — `ArticuloCargaLookupService::buscar` (misma fórmula que [consulta de stock](./consulta-stock.md)):
 
-- **Disponible** = `pq_pedidosweb_stock.stock − pq_pedidosweb_stock.comprometido` (**sin** descontar pedidos web ingresados).
-- **Disponible base** = misma fórmula agregada por `articulos.base` cuando `base` no está vacío; si no hay base → `null` (no se muestra paréntesis).
-
-> La [consulta de stock](./consulta-stock.md) sigue usando disponible **neto** (`stock − comprometido − comprometido_web`). No confundir con el listbox de carga.
+- **Disponible** = `stock − comprometido − comprometido_web`, con `comprometido_web` = suma de `pq_pedidosweb_pedidosdetalle.cantidad` cuya cabecera tiene `estado = 0`.
+- **Disponible base** = `stockBase − comprometidoBase − comprometidoBaseWeb` (agregado por `articulos.base` cuando `base` no está vacío); si no hay base → `null` (no se muestra paréntesis).
 
 | Caso | Plantilla i18n |
 |------|----------------|

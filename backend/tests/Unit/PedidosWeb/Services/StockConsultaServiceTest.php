@@ -54,7 +54,7 @@ final class StockConsultaServiceTest extends TestCase
         $this->assertSame(122.0, $presentacion['disponibleNetoBase']);
     }
 
-    public function testLookupCargaExcluyeComprometidoWeb(): void
+    public function testLookupCargaIncluyeComprometidoWeb(): void
     {
         if (! Schema::hasTable('pq_pedidosweb_stock')) {
             $this->markTestSkipped('Tablas de stock no disponibles en el entorno de test.');
@@ -66,11 +66,11 @@ final class StockConsultaServiceTest extends TestCase
         $carga = $service->lookupDisponibilidadCargaPorCodigos(['ART-A', 'ART-P1']);
         $neto = $service->lookupDisponibilidadPorCodigos(['ART-A', 'ART-P1']);
 
-        $this->assertSame(90.0, $carga['ART-A']['disponibleNeto']);
-        $this->assertSame(85.0, $neto['ART-A']['disponibleNeto']);
+        $this->assertSame($neto['ART-A']['disponibleNeto'], $carga['ART-A']['disponibleNeto']);
+        $this->assertSame(85.0, $carga['ART-A']['disponibleNeto']);
 
-        $this->assertSame(130.0, $carga['ART-P1']['disponibleNetoBase']);
-        $this->assertSame(122.0, $neto['ART-P1']['disponibleNetoBase']);
+        $this->assertSame($neto['ART-P1']['disponibleNetoBase'], $carga['ART-P1']['disponibleNetoBase']);
+        $this->assertSame(122.0, $carga['ART-P1']['disponibleNetoBase']);
     }
 
     private function seedStockFixture(): void
