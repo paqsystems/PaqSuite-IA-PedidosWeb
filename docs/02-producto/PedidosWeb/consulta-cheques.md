@@ -142,9 +142,22 @@ Columnas visibles (i18n `consultas.column.*`):
 
 `data-testid` página: `page-consulta-cheques`. Export Excel GEN-03 sobre grilla visible.
 
+**CC PQ #4:** toggle grilla/pivot; `consultaId` `CONSULTA_CHEQUES`; filtro `fecha >= hoy` preservado en dataset pivot. Ver §9.
+
 ---
 
-## 9) Referencias
+## 9) UI (vista pivot) — CC PQ #4
+
+| Campo | Valor |
+|-------|--------|
+| `consultaId` | `CONSULTA_CHEQUES` |
+| Componente | `ConsultaInformePivotPage` |
+| `pivotBase` sugerido | Filas: `codCliente`, `banco`, `estado`; valor: `importe` (sum) |
+| Filtro negocio | `fecha >= hoy` en SQL (sin cambio respecto grilla) |
+
+---
+
+## 10) Referencias
 
 - Producto §17.5: [PedidosWeb_Definicion_Conceptual_Final_OpenSpec.md](PedidosWeb_Definicion_Conceptual_Final_OpenSpec.md)  
 - Modelo §4.1: [PedidosWeb_Modelo_Datos_Final.md](PedidosWeb_Modelo_Datos_Final.md)  

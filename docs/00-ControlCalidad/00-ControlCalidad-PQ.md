@@ -47,7 +47,7 @@ Este archivo **no sustituye** SPEC, HU ni TR: es la **entrada** del circuito de 
 | # | Fecha | Estado | Resumen |
 |---|-------|--------|---------|
 | 5 | 09/06/2026 | Finalizado (Parte I) | Listbox artículos carga: disponible solo `stock − comprometido` (sin pedidos ingresados); display con base opcional — unificado 11/06/2026 |
-| 4 | 10/06/2026 | Especificado | Vista pivot en informes: **Detalle de pedidos**, **Deudas**, **Cheques** y **Stock** (SPEC-001-08) — Parte G 11/06/2026 |
+| 4 | 10/06/2026 | Finalizado (Parte I) | Vista pivot en informes: Detalle, Deudas, Cheques, Stock — unificado 16/06/2026 |
 | 1 | 04/06/2026 | Finalizado (Parte I) | 10 familias HU — CC PQ; updates unificados 09/06/2026 |
 | 2 | 05/06/2026 | Finalizado (Parte I) | GEN-03 layouts/export Excel formateado — CC PQ #2; unificado 09/06/2026 |
 | 3 | 09/06/2026 | Finalizado (Parte I) | Cartel cargando, layouts totales, performance carga, parámetros — unificado 09/06/2026 |
@@ -115,8 +115,8 @@ e) **Alcance:** solo lookup/browse de artículos en carga (`GET /articulos` sin 
 |-------|--------|
 | **Fecha** | 10/06/2026 |
 | **Responsable** | Pablo Quarracino (PQ) |
-| **Estado** | Especificado |
-| **Entorno probado** | *(planificado — mejora funcional; sin QA manual previo)* |
+| **Estado** | Finalizado (Parte I 16/06/2026) |
+| **Entorno probado** | Local — Vitest + E2E pivot informes + **QA manual PQ** (Parte F 11/06/2026) |
 | **Build / rama** | `v1.1.0` working tree — Parte G 11/06/2026 |
 
 ### Hallazgos
@@ -157,7 +157,7 @@ d) **Fuera de alcance v1:** Pedidos ingresados, pedidos pendientes, presupuestos
 
 e) Derivar como **update** (no reemplazar HU/TR base): SPEC-update slice 101 (adopción pivot informes), HU-update sobre HU-101-028, HU-101-021, HU-101-022 y HU-101-018; TR-update sobre TR-SPEC-101-07 / TR-SPEC-101-11; referenciar SPEC-001-08 y contexto `_mono/pivots/`.
 
-*Procesado* → [SPEC-101-11-consultas-ui-update](../05-open-spec/updates/101-PedidosWeb/SPEC-101-11-consultas-ui-update.md) · [HU-101-028-consulta-detalle-pedidos-update](../03-historias-usuario/updates/101-PedidosWeb/HU-101-028-consulta-detalle-pedidos-update.md) · [HU-101-021-consulta-deuda-update](../03-historias-usuario/updates/101-PedidosWeb/HU-101-021-consulta-deuda-update.md) · [HU-101-022-consulta-cheques-update](../03-historias-usuario/updates/101-PedidosWeb/HU-101-022-consulta-cheques-update.md) · [HU-101-018-consulta-stock-update](../03-historias-usuario/updates/101-PedidosWeb/HU-101-018-consulta-stock-update.md) · [TR-SPEC-101-11-consultas-ui-update](../04-tareas/updates/101-PedidosWeb/TR-SPEC-101-11-consultas-ui-update.md) — Parte G 11/06/2026
+*Procesado* → [SPEC-101-11-consultas-ui](../05-open-spec/101-PedidosWeb/SPEC-101-11-consultas-ui.md) · [HU-101-028](../03-historias-usuario/101-PedidosWeb/HU-101-028-consulta-detalle-pedidos.md) · [HU-101-021](../03-historias-usuario/101-PedidosWeb/HU-101-021-consulta-deuda.md) · [HU-101-022](../03-historias-usuario/101-PedidosWeb/HU-101-022-consulta-cheques.md) · [HU-101-018](../03-historias-usuario/101-PedidosWeb/HU-101-018-consulta-stock.md) · [TR-SPEC-101-11-consultas-ui](../04-tareas/101-PedidosWeb/TR-SPEC-101-11-consultas-ui.md) — Parte G 11/06/2026 · **Parte I 16/06/2026**
 
 ---
 

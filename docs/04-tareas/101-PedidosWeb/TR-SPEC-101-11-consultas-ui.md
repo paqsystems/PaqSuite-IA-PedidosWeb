@@ -7,8 +7,8 @@
 | **Épica** | 101-PedidosWeb |
 | **Prioridad** | Must |
 | **Dependencias** | TR-SPEC-101-07-consultas-api; TR-SPEC-101-09-frontend-base; [TR-GEN-03-grillas-listados](../001-Generaliddes/TR-GEN-03-grillas-listados.md); [TR-GEN-03-exportaciones](../001-Generaliddes/TR-GEN-03-exportaciones.md); [TR-GEN-03-layouts-grilla](../001-Generaliddes/TR-GEN-03-layouts-grilla.md) |
-| **Estado** | En Control Calidad |
-| **Última actualización** | 2026-06-11 (Parte G — CC PQ #4) |
+| **Estado** | Finalizado (Parte I — CC PQ #4) |
+| **Última actualización** | 2026-06-16 (Parte I — CC PQ #4 pivot informes) |
 
 **Origen:** HU-101-015, 016, 017, 018, 021, 022, 023, **028**  
 **Referencia SPEC:** [SPEC-101-11-consultas-ui](../../05-open-spec/101-PedidosWeb/SPEC-101-11-consultas-ui.md)  
@@ -44,6 +44,13 @@ Como **usuario comercial**, quiero **consultar pedidos, presupuestos, stock, deu
 - **AC-09:** ≥ 2 E2E por consulta crítica **o** suite agrupada documentada (pedidos ingresados + presupuestos activos mínimo).
 - **AC-10:** Textos grilla vía i18n (`grid.dx.*` + props); `data-testid` estables.
 - **AC-11 (Bloque 3):** Detalle pedidos: grilla plana cabecera+detalle; estado texto i18n; sin acciones fila; export/layouts GEN-03.
+- **AC-PVT-01 (CC PQ #4):** Cuatro informes (detalle, deuda, cheques, stock) exponen toggle grilla/pivot con `PIVOTS_ENABLED` + metadata `pivot_habilitado`.
+- **AC-PVT-02 (CC PQ #4):** Vista inicial grilla; grilla conserva layouts, export Excel GEN-03 y botón Actualizar.
+- **AC-PVT-03 (CC PQ #4):** Catálogo `pq_pivots_consultas` con `CONSULTA_DETALLE_PEDIDOS`, `CONSULTA_DEUDA`, `CONSULTA_CHEQUES`, `CONSULTA_STOCK`; `mostrarGrillaYPivot = true`.
+- **AC-PVT-04 (CC PQ #4):** `pq_pivots_campos` alineado a columnas API/grilla; fallback sintético FE si falta campo.
+- **AC-PVT-05 (CC PQ #4):** Diseños pivot (`pq_pivots_config`), plantilla inicial, `pivotRefresh`, export pivot GEN-08.
+- **AC-PVT-06 (CC PQ #4):** Pedidos ingresados, pendientes y presupuestos **sin** shell pivot.
+- **AC-PVT-07 (CC PQ #4):** E2E mínimo detalle + deuda con toggle (`pivot-informes.spec.ts`).
 
 ### Escenarios Gherkin
 
@@ -83,6 +90,7 @@ Feature: Presupuestos activos vs cerrados
 6. **RN-06:** Historial: período `DiasVentasDetalladas` (API); detalle solo en modal.
 7. **RN-07:** Export: alcance página actual salvo documentación explícita por proceso (GEN-03 RN-05).
 8. **RN-08 (Bloque 3):** Detalle pedidos: reutilizar `ComprobanteConsultaColumns` + `DetallePedidosConsultaColumns`; `id` fila `{codPedido}-{renglon}`; columna `estado` con `customizeText` i18n; sin columna acciones.
+9. **RN-09 (CC PQ #4):** Informes pivotables usan `ConsultaGrillaPivotShell` + `ConsultaInformePivotPage`; `tipoProceso="informe"`; dataset pivot reutiliza servicios TR-101-07 sin cambiar contrato listado; activación condicionada a `PIVOTS_ENABLED` / `PIVOT_LAYOUTS_ENABLED`.
 
 ---
 
@@ -232,11 +240,13 @@ Ver TR-SPEC-101-07 para request/response, 401, 403 y envelope.
 | Pedidos pendientes | `PedidosPendientesPage` | `pw_pedidospendientes` |
 | Presup. activos | `PresupuestosActivosPage` | `pw_presupuestosactivos` |
 | Presup. cerrados | `PresupuestosCerradosPage` | `pw_presupuestoscerrados` |
-| Stock | `StockPage` | `pw_stock` — columnas según [`consulta-stock.md`](../../02-producto/PedidosWeb/consulta-stock.md) |
-| Deuda | `DeudaPage` | `pw_deuda` — columnas según [`consulta-deuda.md`](../../02-producto/PedidosWeb/consulta-deuda.md) |
-| Cheques | `ChequesPage` | `pw_cheques` — columnas según [`consulta-cheques.md`](../../02-producto/PedidosWeb/consulta-cheques.md) |
-| Historial | `HistorialVentasPage` + `Popup` detalle | `pw_historialventas` — columnas según [`consulta-historial-ventas.md`](../../02-producto/PedidosWeb/consulta-historial-ventas.md) |
+| Stock | `StockPage` | `pw_stock` — [`consulta-stock.md`](../../02-producto/PedidosWeb/consulta-stock.md) |
+| Deuda | `DeudaPage` | `pw_deuda` — [`consulta-deuda.md`](../../02-producto/PedidosWeb/consulta-deuda.md) |
+| Cheques | `ChequesPage` | `pw_cheques` — [`consulta-cheques.md`](../../02-producto/PedidosWeb/consulta-cheques.md) |
+| Historial | `HistorialVentasPage` + `Popup` detalle | `pw_historialventas` — [`consulta-historial-ventas.md`](../../02-producto/PedidosWeb/consulta-historial-ventas.md) |
 | Detalle pedidos | `DetallePedidosPage` | `pw_detallepedidos` — [`consulta-detalle-pedidos.md`](../../02-producto/PedidosWeb/consulta-detalle-pedidos.md) |
+
+**CC PQ #4 — informes con pivot:** `DetallePedidosPage`, `DeudaPage`, `ChequesPage`, `StockPage` usan `ConsultaInformePivotPage` → `ConsultaGrillaPivotShell` (`consultaId` en catálogo pivot). Piloto previo: `HistorialVentasPage` (`CONSULTA_PILOTO_PIVOT`).
 
 - Toolbar: layouts, export (`gridExportExcel`), acciones por fila (DevExtreme `Button` / columna acciones) — **sin acciones en Detalle pedidos**
 - Controles DX: filtros `TextBox`, `SelectBox`, `DateBox` — no HTML nativo final
@@ -303,6 +313,12 @@ Ver TR-SPEC-101-07 para request/response, 401, 403 y envelope.
 - [x] i18n columnas detalle (`consultas.detalle.column.*`)
 - [x] E2E `consultas-d1.spec.ts` (renglón + export vacío)
 
+### Checklist del slice (CC PQ #4 — pivot informes)
+- [x] AC-PVT-01…07 — cuatro informes con `ConsultaGrillaPivotShell`
+- [x] Seeder `PivotCatalogInformesSeeder` + SQL ops
+- [x] E2E `pivot-informes.spec.ts` (detalle + deuda)
+- [x] Parte I — unificación SPEC/HU/TR + manual + producto
+
 ### Checklist del slice (completo épica)
 - [x] AC cumplidos (D1 Bloque 3; E2E API real tanda 2)
 - [x] 9 consultas Must con UI (incl. detalle pedidos)
@@ -353,6 +369,20 @@ Ver TR-SPEC-101-07 para request/response, 401, 403 y envelope.
 ### Docs
 - Mapa grid_id ↔ proceso: `pw_stock`, `pw_deuda`, `pw_cheques`, `pw_historialventas`
 - Fuentes de verdad consultas: [`consulta-stock.md`](../../02-producto/PedidosWeb/consulta-stock.md), [`consulta-deuda.md`](../../02-producto/PedidosWeb/consulta-deuda.md), [`consulta-cheques.md`](../../02-producto/PedidosWeb/consulta-cheques.md), [`consulta-historial-ventas.md`](../../02-producto/PedidosWeb/consulta-historial-ventas.md)
+
+---
+
+## Historial CC PQ #4 (10/06/2026) — Parte I 16/06/2026
+
+| ID | Tarea | Evidencia |
+|----|-------|-----------|
+| T-PVT-1 | Seeder `PivotCatalogInformesSeeder` + SQL `seed-pivot-catalog.sql` | 4 `consulta_id` |
+| T-PVT-2 | `ConsultaInformePivotPage` en detalle, deuda, cheques, stock | `tipoProceso="informe"` |
+| T-PVT-3 | Toggle grilla/pivot + diseños + export pivot | `ConsultaGrillaPivotShell` |
+| T-PVT-4 | Consultas cabecera sin pivot | `ConsultaGridPage` en ingresados/pendientes/presupuestos |
+| T-PVT-5 | E2E `pivot-informes.spec.ts` | 2/2 passed (detalle + deuda) |
+| T-PVT-6 | Manual usuario §9 pivot | `docs/99-manual-usuario/PedidosWeb.md` |
+| T-PVT-7 | Producto `consulta-*.md` § pivot | 4 informes |
 
 ---
 

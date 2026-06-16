@@ -134,9 +134,23 @@ Columnas visibles (i18n `consultas.column.stock*`):
 
 `data-testid` página: `page-consulta-stock`. Export Excel GEN-03 sobre grilla visible. Columnas numéricas: formato `#,##0.00`.
 
+**CC PQ #4:** toggle grilla/pivot; `consultaId` `CONSULTA_STOCK`; métricas pivot `stock`, `comprometido`, `comprometidoWeb`, `disponibleNeto`. Ver §9.
+
 ---
 
-## 9) Referencias
+## 9) UI (vista pivot) — CC PQ #4
+
+| Campo | Valor |
+|-------|--------|
+| `consultaId` | `CONSULTA_STOCK` |
+| Componente | `ConsultaInformePivotPage` |
+| `pivotBase` sugerido | Filas: `codArticulo`, `descripcion`; valores: `disponibleNeto` (sum) |
+| Fórmulas | Idénticas a §5 (`disponibleNeto = stock − comprometido − comprometidoWeb`) |
+| Sin filtro cliente | Igual que grilla; `q` vía refresh servidor |
+
+---
+
+## 10) Referencias
 
 - Producto §13: [PedidosWeb_Definicion_Conceptual_Final_OpenSpec.md](PedidosWeb_Definicion_Conceptual_Final_OpenSpec.md)  
 - Modelo §3.4–3.5: [PedidosWeb_Modelo_Datos_Final.md](PedidosWeb_Modelo_Datos_Final.md)  
