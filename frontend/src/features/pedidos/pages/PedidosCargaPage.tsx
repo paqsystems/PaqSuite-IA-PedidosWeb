@@ -16,6 +16,7 @@ import {
   fetchParametrosCarga,
   grabarComprobante,
   iniciarEdicionPedido,
+  searchArticulos,
   type ArticuloOption,
   type ClienteOption,
   type ComprobanteRenglon,
@@ -25,8 +26,7 @@ import { ComprobanteCabeceraForm } from '../components/ComprobanteCabeceraForm';
 import { ComprobanteLeyendasPie } from '../components/ComprobanteLeyendasPie';
 import { PedidosCargaConfirmacionDialog } from '../components/PedidosCargaConfirmacionDialog';
 import { PedidosCargaRenglonesGrid } from '../components/PedidosCargaRenglonesGrid';
-import { articulosCargaMinTypedLength } from '../hooks/articulosCargaLoadPolicy';
-import { useArticulosCargaDataSource } from '../hooks/useArticulosCargaDataSource';
+import { articulosCargaPageSize } from '../api/comprobanteApi';
 import {
   emptyComprobanteCabecera,
   type CabeceraCatalogos,
@@ -35,7 +35,8 @@ import {
 import {
   type ClienteSortField,
   etiquetaCliente,
-  formatArticuloCargaDisplay,
+  etiquetaArticulo,
+  ordenarArticulosPorDescripcion,
   ordenarClientes,
 } from '../utils/cargaCatalogos';
 import { actualizarPreciosRenglonesPorLista } from '../utils/actualizarPreciosRenglones';
@@ -77,6 +78,8 @@ export function PedidosCargaPage() {
   const [parametrosCarga, setParametrosCarga] = useState<ParametrosCarga | null>(null);
   const [articuloSeleccionado, setArticuloSeleccionado] = useState<string | null>(null);
   const [articuloSeleccionadoData, setArticuloSeleccionadoData] = useState<ArticuloOption | null>(null);
+  const [articulos, setArticulos] = useState<ArticuloOption[]>([]);
+  const [articulosLoading, setArticulosLoading] = useState(false);
   const [codPedidoActual, setCodPedidoActual] = useState<string | null>(null);
   const [estadoActual, setEstadoActual] = useState<number | null>(null);
   const [codPedidoOrigen, setCodPedidoOrigen] = useState<string | null>(null);
@@ -108,6 +111,11 @@ export function PedidosCargaPage() {
   const clientesOrdenados = useMemo(
     () => ordenarClientes(clientes, clienteSortField),
     [clientes, clienteSortField],
+  );
+
+  const articulosOrdenados = useMemo(
+    () => ordenarArticulosPorDescripcion(articulos),
+    [articulos],
   );
 
   const clienteSortOptions = useMemo(
@@ -247,6 +255,52 @@ export function PedidosCargaPage() {
       mounted = false;
     };
   }, [comprobanteId, isClienteProfile, loadCabeceraForCliente, modo, sessionContext.codCliente]);
+
+  useEffect(() => {
+    const codLista = Number(cabecera?.listaPrecios);
+    if (
+      cabecera?.listaPrecios === null ||
+      cabecera?.listaPrecios === undefined ||
+      Number.isNaN(codLista) ||
+      codLista <= 0
+    ) {
+      setArticulos([]);
+      setArticuloSeleccionado(null);
+      setArticuloSeleccionadoData(null);
+      return;
+    }
+
+    let mounted = true;
+
+    const load = async () => {
+      setArticulosLoading(true);
+
+      try {
+        const data = await searchArticulos('', codLista, articulosCargaPageSize, true);
+        if (!mounted) {
+          return;
+        }
+
+        setArticulos(data);
+      } catch {
+        if (!mounted) {
+          return;
+        }
+
+        setArticulos([]);
+      } finally {
+        if (mounted) {
+          setArticulosLoading(false);
+        }
+      }
+    };
+
+    void load();
+
+    return () => {
+      mounted = false;
+    };
+  }, [cabecera?.listaPrecios]);
 
   useEffect(() => {
     if (!selectedCliente || comprobanteId || modo !== 'nuevo') {
@@ -539,11 +593,15 @@ export function PedidosCargaPage() {
     setArticuloSeleccionadoData(null);
   }, [articuloSeleccionado, articuloSeleccionadoData, readOnly, renglones, t]);
 
-  const {
-    dataSource: articulosDataSource,
-    isLoading: articulosLoading,
-    lazySelectBoxOptions: articulosLazySelectBoxOptions,
-  } = useArticulosCargaDataSource(cabecera?.listaPrecios);
+  const listaPreciosArticulosValida = useMemo(() => {
+    const codLista = Number(cabecera?.listaPrecios);
+    return (
+      cabecera?.listaPrecios !== null &&
+      cabecera?.listaPrecios !== undefined &&
+      !Number.isNaN(codLista) &&
+      codLista > 0
+    );
+  }, [cabecera?.listaPrecios]);
 
   const bonificacionNetaCabecera = useMemo(() => {
     if (!cabecera) {
@@ -809,22 +867,17 @@ export function PedidosCargaPage() {
               <div className="pedidosCargaPage__articuloRow">
                 <SelectBoxDx
                   key={`articulo-select-${cabecera?.listaPrecios ?? 'none'}`}
-                  {...articulosLazySelectBoxOptions}
-                  dataSource={articulosDataSource ?? []}
+                  dataSource={articulosOrdenados}
                   valueExpr="codArticulo"
                   displayExpr={(item: ArticuloOption | null) =>
-                    item ? formatArticuloCargaDisplay(item, t) : ''
+                    item ? etiquetaArticulo(item) : ''
                   }
                   value={articuloSeleccionado}
                   searchEnabled={true}
-                  searchMode="contains"
                   searchExpr={['codArticulo', 'descripcion']}
-                  searchTimeout={350}
                   isLoading={articulosLoading}
-                  disableWhileLoading={false}
                   autoSelectSingleMatch={true}
-                  autoSelectMinSearchLength={articulosCargaMinTypedLength}
-                  disabled={!articulosDataSource}
+                  disabled={!listaPreciosArticulosValida}
                   onValueChanged={(event) => {
                     setArticuloSeleccionado((event.value as string | null) ?? null);
                     setArticuloSeleccionadoData(

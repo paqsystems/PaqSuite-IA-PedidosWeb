@@ -290,6 +290,7 @@ export async function searchArticulos(
   query = '',
   listaPrecios?: number | null,
   pageSize = articulosCargaPageSize,
+  soloCatalogo = false,
 ): Promise<ArticuloOption[]> {
   const params = new URLSearchParams();
   if (query.trim() !== '') {
@@ -300,6 +301,9 @@ export async function searchArticulos(
     params.set('lista_precios', String(codLista));
   }
   params.set('page_size', String(Math.min(1000, Math.max(1, pageSize))));
+  if (soloCatalogo) {
+    params.set('solo_catalogo', '1');
+  }
 
   const path = `/articulos?${params.toString()}`;
   const response = await apiRequest<{ items?: ArticuloOption[] }>(path);

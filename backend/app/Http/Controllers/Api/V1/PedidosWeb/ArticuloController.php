@@ -53,6 +53,7 @@ final class ArticuloController extends Controller
             pageSize: $pageSize,
             codLista: $codLista,
             codigos: $codigos,
+            soloCatalogo: $request->boolean('solo_catalogo'),
         );
 
         return ApiResponse::success(['items' => $items]);
