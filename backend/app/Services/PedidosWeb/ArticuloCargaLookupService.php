@@ -35,6 +35,7 @@ final class ArticuloCargaLookupService
         int $pageSize,
         int $codLista,
         array $codigos = [],
+        bool $soloCatalogo = false,
     ): array {
         if (! Schema::hasTable('pq_pedidosweb_articulos')) {
             return [];
@@ -42,7 +43,8 @@ final class ArticuloCargaLookupService
 
         $pageSize = min(1000, max(1, $pageSize));
         $solicitudPorCodigos = $codigos !== [];
-        $hasStockTable = Schema::hasTable('pq_pedidosweb_stock');
+        $incluirDisponible = ! $soloCatalogo;
+        $hasStockTable = $incluirDisponible && Schema::hasTable('pq_pedidosweb_stock');
         $hasListaPreciosTable = Schema::hasTable('pq_pedidosweb_listaprecios_articulos');
 
         $stockExpr = $hasStockTable ? 'ISNULL(s.stock, 0)' : '0';

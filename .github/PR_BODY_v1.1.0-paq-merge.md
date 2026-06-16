@@ -1,26 +1,28 @@
 ## Summary
 
-Integración incremental **`v1.1.0`** ← **`v1.1.0-paq`**: revierte la implementación de **CC PQ #5** en el listbox de artículos (carga), restaura el **disponible neto** con pedidos web ingresados, y agrega script SQL operativo para catálogo pivots.
+Integración incremental **`v1.1.0`** ← **`v1.1.0-paq`**: listbox de artículos en carga en modo **provisional** (solo catálogo `codigo - descripcion`), fix de loop infinito en búsqueda, planes técnicos NOLOCK y ajustes CC PQ #5.
 
-1. **Carga de pedidos — listbox artículos:** vuelve a descontar `comprometido_web` (cabeceras `estado = 0`) en `ArticuloCargaLookupService` y en el lookup de carga; misma fórmula que consulta de stock (`stock − comprometido − comprometido_web`).
-2. **Ops pivots:** script T-SQL idempotente `backend/scripts/sql/seed-pivot-catalog.sql` (equivalente a `PivotCatalogPilotSeeder` + informes CC PQ #4).
-3. **README:** enlaces al runbook de actualización de versión y aviso commit/push (docs BASE vía `docs/_base/`).
+1. **Carga de pedidos — listbox artículos (provisional):** precarga catálogo al elegir lista de precios; API `solo_catalogo=1` omite join de stock; display `codigo - descripcion` sin disponible.
+2. **Fix búsqueda artículos:** deduplicación de peticiones, manejo de errores, sin doble `load()` en auto-match.
+3. **Planes técnicos:** `.cursor/plans/nolock-concurrencia-sql.plan.md` y `paqsuite-framework-compartido.plan.md`.
+4. **Consulta stock:** sin cambio — sigue con disponible neto completo.
 
 **Compare:** `v1.1.0` ← **`v1.1.0-paq`**  
-**Tip:** `4702e06` — `fix(pedidosweb): restaurar disponible neto en listbox carga de articulos`  
+**Tip:** `893319a` — `fix(pedidosweb): listbox carga provisional solo catalogo codigo-descripcion`  
 **Crear PR:** [Compare v1.1.0...v1.1.0-paq](https://github.com/paqsystems/PaqSuite-IA-PedidosWeb/compare/v1.1.0...v1.1.0-paq)
 
 ```powershell
-gh pr create --base v1.1.0 --head v1.1.0-paq --title "fix(pedidosweb): restaurar disponible neto carga + SQL pivots ops" --body-file .github/PR_BODY_v1.1.0-paq-merge.md
+gh pr create --base v1.1.0 --head v1.1.0-paq --title "fix(pedidosweb): listbox catalogo provisional + planes NOLOCK" --body-file .github/PR_BODY_v1.1.0-paq-merge.md
 ```
 
-**Commits incluidos (delta respecto a `v1.1.0`):**
+**Commits incluidos (delta respecto a `v1.1.0` previo):**
 
 | Commit | Resumen |
 |--------|---------|
-| `4702e06` | Revert funcional CC PQ #5 en lookup carga; docs/regla §3.1; tests; `seed-pivot-catalog.sql`; README ops |
-
-> En `v1.1.0` existe además `1c4348f` (solo cuerpo PR release). El merge une ambas ramas sin conflicto funcional esperado.
+| `893319a` | Listbox carga provisional solo catálogo (`solo_catalogo`) |
+| `6c8c916` | Planes NOLOCK y framework compartido |
+| `721c23d` | Lookup carga sin `comprometido_web` (intermedio) |
+| `a87f2a2` | Fix loop infinito búsqueda artículos |
 
 ---
 
@@ -28,12 +30,12 @@ gh pr create --base v1.1.0 --head v1.1.0-paq --title "fix(pedidosweb): restaurar
 
 | Aspecto | Detalle |
 |---------|---------|
-| **CC original (09/06)** | Pedía disponible en listbox **sin** descontar pedidos ingresados (`7244247`) |
-| **Decisión 12/06** | Restaurar comportamiento previo: disponible **neto** con `comprometido_web` también en browse de carga |
-| **Sin cambio** | Consulta de stock sigue con disponible neto; display `codigo - descripcion — Disp. X (Y)` con base opcional |
-| **Documentación CC** | `00-ControlCalidad-PQ.md` #5 sigue describiendo el hallazgo original; **no** se reabrió Parte I en este PR |
+| **Hallazgo CC #5** | Disponible en listbox de carga vs consulta stock |
+| **Decisión actual** | Implementación **provisional**: listbox sin disponible; solo `codigo - descripcion` |
+| **API** | `GET /articulos?solo_catalogo=1&lista_precios={n}` |
+| **Pendiente** | Definir fórmula definitiva de disponible en browse de carga |
 
-Referencias: [`pantalla-carga-comprobante-ui.md`](docs/02-producto/PedidosWeb/pantalla-carga-comprobante-ui.md) §3.1 · [`.cursor/rules/pantalla-carga-comprobante-ui.mdc`](.cursor/rules/pantalla-carga-comprobante-ui.mdc)
+Referencias: [`pantalla-carga-comprobante-ui.md`](docs/02-producto/PedidosWeb/pantalla-carga-comprobante-ui.md) · [`.cursor/rules/pantalla-carga-comprobante-ui.mdc`](.cursor/rules/pantalla-carga-comprobante-ui.mdc)
 
 ---
 
@@ -43,20 +45,21 @@ Referencias: [`pantalla-carga-comprobante-ui.md`](docs/02-producto/PedidosWeb/pa
 
 | Archivo | Cambio |
 |---------|--------|
-| `ArticuloCargaLookupService.php` | Siempre une `pq_pedidosweb_pedidosdetalle` + cabecera `estado = 0`; eliminado flag `incluirComprometidoWeb` |
-| `ArticuloController.php` | Sin bifurcación por presencia de `codigos` |
-| `StockConsultaService.php` | `lookupDisponibilidadCargaPorCodigos` delega en `lookupDisponibilidadPorCodigos` |
+| `ArticuloController.php` | Parámetro `solo_catalogo` en `GET /articulos` |
+| `ArticuloCargaLookupService.php` | Omite join stock cuando `soloCatalogo=true` |
 
-### Ops / SQL
+### Frontend
 
-| Archivo | Uso |
-|---------|-----|
-| `backend/scripts/sql/seed-pivot-catalog.sql` | Ejecutar en tenant SQL Server **después** de migraciones pivots (`2026_06_11_100000_*`, `2026_06_11_110000_*`); idempotente; alternativa a `php artisan db:seed --class=...PivotCatalogPilotSeeder` |
+| Archivo | Cambio |
+|---------|--------|
+| `PedidosCargaPage.tsx` | Precarga catálogo al cambiar lista de precios |
+| `comprobanteApi.ts` | `searchArticulos(..., soloCatalogo)` |
+| `cargaCatalogos.ts` | `etiquetaArticulo` = `codigo - descripcion` |
 
-### Docs / tests
+### Docs / planes
 
-- Regla agente y producto §3.1 alineadas a disponible neto en listbox.
-- Tests: `ArticuloCargaLookupServiceTest`, `StockConsultaServiceTest` (requieren SQL Server en local).
+- `.cursor/plans/nolock-concurrencia-sql.plan.md`
+- `.cursor/plans/paqsuite-framework-compartido.plan.md`
 
 ---
 
@@ -64,39 +67,26 @@ Referencias: [`pantalla-carga-comprobante-ui.md`](docs/02-producto/PedidosWeb/pa
 
 | Entorno | Acción |
 |---------|--------|
-| **Forge (backend)** | Redeploy / `git pull` + restart PHP-FPM. **Sin** `migrate` ni cambios `.env` por este PR |
-| **Vercel (frontend)** | **No** requiere redeploy (sin cambios frontend) |
-| **SQL pivots** | Solo si el tenant aún no tiene catálogo: ejecutar `seed-pivot-catalog.sql` **o** seeders artisan (previo: migraciones + `PIVOTS_ENABLED=true`) |
-
-Tras merge en `v1.1.0`, actualizar [`.github/PR_BODY_v1.1.0.md`](.github/PR_BODY_v1.1.0.md) (ítem CC PQ #5 y test plan) antes de cerrar [PR #5](https://github.com/paqsystems/PaqSuite-IA-PedidosWeb/pull/5) hacia `main`.
+| **Forge (backend)** | Redeploy / `git pull`. **Sin** `migrate` ni cambios `.env` |
+| **Vercel (frontend)** | Redeploy con cambios en carga de pedidos |
 
 ---
 
 ## Test plan
 
-### CC PQ #5 — regresión (disponible neto restaurado)
+### CC PQ #5 — listbox provisional
 
-- [ ] Carga → combobox artículos (flecha sin texto): ítems muestran `Disp.` descontando pedidos web **ingresados** (`estado = 0`)
-- [ ] Artículo con **base**: paréntesis muestra disponible neto del código base
-- [ ] Consulta de stock: disponible neto sin regresión respecto a carga
-- [ ] Agregar renglón por código puntual (`codigos`): mismo disponible neto que browse
+- [ ] Carga → elegir cliente con lista de precios: combobox artículos precarga catálogo
+- [ ] Ítems muestran `codigo - descripcion` **sin** `Disp.`
+- [ ] Agregar renglón y grabar pedido funciona
+- [ ] Consulta de stock: disponible neto sin regresión
 
-### Ops pivots (opcional, tenant sin seed previo)
+### Fix búsqueda
 
-- [ ] Migraciones pivots ya aplicadas
-- [ ] Ejecutar `seed-pivot-catalog.sql` sin duplicar filas en re-ejecución
-- [ ] Con flags: informes pivot (stock, deuda, cheques, detalle pedidos) resuelven metadata
+- [ ] Sin loop infinito ante timeout backend o error de red
 
 ### Automatizado
 
-- [ ] `php artisan test --filter=ArticuloCargaLookupServiceTest` (SQL Server)
-- [ ] `php artisan test --filter=StockConsultaServiceTest` (SQL Server)
+- [ ] `npm run test` (Vitest `cargaCatalogos`)
+- [ ] E2E `mvp-section9` — carga artículo demo
 - [ ] CI GitHub Actions en verde
-
----
-
-## Post-merge sugerido
-
-1. Merge `v1.1.0-paq` → `v1.1.0` y push `v1.1.0`
-2. Ajustar cuerpo PR #5 (`main` ← `v1.1.0`) — CC PQ #5 y checklist
-3. QA manual listbox carga en tenant piloto antes de merge a `main`

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { ArticuloOption, ClienteOption } from '../api/comprobanteApi';
-import { etiquetaCliente, formatArticuloCargaDisplay, ordenarClientes } from './cargaCatalogos';
+import { etiquetaCliente, etiquetaArticulo, ordenarClientes } from './cargaCatalogos';
 
 const clientesFixture: ClienteOption[] = [
   {
@@ -38,10 +38,7 @@ describe('cargaCatalogos clientes', () => {
   });
 });
 
-describe('formatArticuloCargaDisplay', () => {
-  const t = ((key: string, params?: Record<string, string>) =>
-    `${key}:${JSON.stringify(params ?? {})}`) as Parameters<typeof formatArticuloCargaDisplay>[1];
-
+describe('etiquetaArticulo', () => {
   const articulo: ArticuloOption = {
     codArticulo: 'ART-01',
     descripcion: 'Tornillo hexagonal',
@@ -52,11 +49,7 @@ describe('formatArticuloCargaDisplay', () => {
     porcIva: 21,
   };
 
-  it('incluye codigo y descripcion separados por guion', () => {
-    const display = formatArticuloCargaDisplay(articulo, t);
-
-    expect(display).toContain('ART-01');
-    expect(display).toContain('Tornillo hexagonal');
-    expect(display).toContain('pedidos.carga.articuloDisplay');
+  it('muestra codigo y descripcion separados por guion', () => {
+    expect(etiquetaArticulo(articulo)).toBe('ART-01 - Tornillo hexagonal');
   });
 });
