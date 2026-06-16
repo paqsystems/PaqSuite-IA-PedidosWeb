@@ -35,6 +35,7 @@ final class ArticuloCargaLookupService
         int $pageSize,
         int $codLista,
         array $codigos = [],
+        bool $soloCatalogo = false,
     ): array {
         if (! Schema::hasTable('pq_pedidosweb_articulos')) {
             return [];
@@ -42,22 +43,20 @@ final class ArticuloCargaLookupService
 
         $pageSize = min(1000, max(1, $pageSize));
         $solicitudPorCodigos = $codigos !== [];
-        $hasStockTable = Schema::hasTable('pq_pedidosweb_stock');
+        $incluirDisponible = ! $soloCatalogo;
+        $hasStockTable = $incluirDisponible && Schema::hasTable('pq_pedidosweb_stock');
         $hasListaPreciosTable = Schema::hasTable('pq_pedidosweb_listaprecios_articulos');
-        $hasPedidosTables = Schema::hasTable('pq_pedidosweb_pedidosdetalle')
-            && Schema::hasTable('pq_pedidosweb_pedidoscabecera');
 
-        $comprometidoWebExpr = $hasPedidosTables ? 'ISNULL(cw.comprometido_web, 0)' : '0';
-        $comprometidoBaseWebExpr = $hasPedidosTables ? 'ISNULL(bw.comprometido_base_web, 0)' : '0';
         $stockExpr = $hasStockTable ? 'ISNULL(s.stock, 0)' : '0';
         $comprometidoExpr = $hasStockTable ? 'ISNULL(s.comprometido, 0)' : '0';
         $stockBaseExpr = $hasStockTable ? 'ISNULL(b.stock, 0)' : '0';
         $comprometidoBaseExpr = $hasStockTable ? 'ISNULL(b.comprometido, 0)' : '0';
         $precioExpr = $codLista > 0 && $hasListaPreciosTable ? 'ISNULL(lp.precio, 0)' : '0';
 
-        $disponibleExpr = "({$stockExpr} - {$comprometidoExpr} - {$comprometidoWebExpr})";
+        // CC PQ #5: listbox carga sin comprometido_web (pedidos ingresados) hasta optimizar SQL.
+        $disponibleExpr = "({$stockExpr} - {$comprometidoExpr})";
         $disponibleBaseExpr = 'CASE WHEN '.self::BASE_NOT_EMPTY_SQL
-            ." THEN ({$stockBaseExpr} - {$comprometidoBaseExpr} - {$comprometidoBaseWebExpr})"
+            ." THEN ({$stockBaseExpr} - {$comprometidoBaseExpr})"
             .' ELSE NULL END';
 
         $selectSql = <<<SQL
@@ -78,25 +77,6 @@ SQL;
         }
         if ($codLista > 0 && $hasListaPreciosTable) {
             $joins[] = 'LEFT JOIN [pq_pedidosweb_listaprecios_articulos] AS [lp] ON [lp].[cod_articulo] = [a].[codigo] AND [lp].[cod_lista] = ?';
-        }
-        if ($hasPedidosTables) {
-            $joins[] = <<<SQL
-OUTER APPLY (
-    SELECT SUM(d.cantidad) AS comprometido_web
-    FROM [pq_pedidosweb_pedidosdetalle] AS d
-    INNER JOIN [pq_pedidosweb_pedidoscabecera] AS c ON d.cod_pedido = c.cod_pedido
-    WHERE c.estado = 0
-      AND d.cod_articulo = a.codigo
-) AS cw
-SQL;
-            $joins[] = 'OUTER APPLY (
-    SELECT SUM(d2.cantidad) AS comprometido_base_web
-    FROM [pq_pedidosweb_pedidosdetalle] AS d2
-    INNER JOIN [pq_pedidosweb_pedidoscabecera] AS c2 ON d2.cod_pedido = c2.cod_pedido
-    WHERE c2.estado = 0
-      AND d2.cod_articulo = '.self::BASE_TRIM_SQL.'
-      AND '.self::BASE_NOT_EMPTY_SQL.'
-) AS bw';
         }
 
         $fromSql = '[pq_pedidosweb_articulos] AS [a]';

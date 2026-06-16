@@ -44,28 +44,11 @@ export function ordenarArticulosPorDescripcion(articulos: ArticuloOption[]): Art
   );
 }
 
-function formatCantidadStock(valor: number): string {
-  return valor.toLocaleString('es-AR', {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  });
+export function etiquetaArticulo(articulo: ArticuloOption): string {
+  return `${articulo.codArticulo} - ${articulo.descripcion}`;
 }
 
-export function formatArticuloCargaDisplay(articulo: ArticuloOption, t: TFunction): string {
-  const disponible = formatCantidadStock(articulo.disponibleNeto ?? 0);
-
-  if (articulo.disponibleNetoBase !== null && articulo.disponibleNetoBase !== undefined) {
-    return t('pedidos.carga.articuloDisplayConBase', {
-      codigo: articulo.codArticulo,
-      descripcion: articulo.descripcion,
-      disponible,
-      disponibleBase: formatCantidadStock(articulo.disponibleNetoBase),
-    });
-  }
-
-  return t('pedidos.carga.articuloDisplay', {
-    codigo: articulo.codArticulo,
-    descripcion: articulo.descripcion,
-    disponible,
-  });
+/** @deprecated Provisional: solo código y descripción; usar etiquetaArticulo. */
+export function formatArticuloCargaDisplay(articulo: ArticuloOption, _t: TFunction): string {
+  return etiquetaArticulo(articulo);
 }

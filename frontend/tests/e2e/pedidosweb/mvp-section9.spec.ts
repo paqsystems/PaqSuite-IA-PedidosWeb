@@ -341,6 +341,9 @@ async function seleccionarClienteDemo(page: import('@playwright/test').Page) {
   const cabeceraInicialResponse = page.waitForResponse(
     (response) => response.url().includes('/cabecera-inicial') && response.status() === 200,
   );
+  const articulosResponse = page.waitForResponse(
+    (response) => response.url().includes('/api/v1/articulos') && response.status() === 200,
+  );
 
   const clienteInput = page.getByTestId('cliente-select');
   await expect(clienteInput).toBeVisible({ timeout: 15_000 });
@@ -352,6 +355,7 @@ async function seleccionarClienteDemo(page: import('@playwright/test').Page) {
   });
   await clienteOverlay.locator('.dx-list-item').filter({ hasText: 'Cliente Demo SA' }).click();
   await cabeceraInicialResponse;
+  await articulosResponse;
 
   await expect(page.getByTestId('cliente-cargado')).toBeAttached({ timeout: 15_000 });
   await expect(page.getByTestId('cabecera-perfil')).toBeVisible({ timeout: 15_000 });
@@ -360,13 +364,8 @@ async function seleccionarClienteDemo(page: import('@playwright/test').Page) {
 async function agregarArticuloDemo(page: import('@playwright/test').Page) {
   await expect(page.getByTestId('form-articulo-carga')).toBeVisible();
 
-  const articulosResponse = page.waitForResponse(
-    (response) => response.url().includes('/api/v1/articulos') && response.status() === 200,
-  );
-
   await page.getByTestId('articulo-select').click();
   await page.getByTestId('articulo-select').pressSequentially('ART-', { delay: 40 });
-  await articulosResponse;
 
   const agregarArticuloBtn = page.getByTestId('btn-agregar-articulo').getByRole('button');
   await expect(agregarArticuloBtn).toBeEnabled({ timeout: 15_000 });

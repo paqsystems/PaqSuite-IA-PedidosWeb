@@ -1,13 +1,17 @@
 import { describe, expect, it, vi } from 'vitest';
-import { tryAutoSelectSingleMatch } from './tryAutoSelectSingleMatch';
+import { loadFilteredSelectBoxItems, tryAutoSelectSingleMatch } from './tryAutoSelectSingleMatch';
 
-function createMockComponent(items: unknown[]) {
+function createMockComponent(items: unknown[], options?: { isLoading?: () => boolean }) {
+  const load = vi.fn().mockResolvedValue(items);
+
   return {
     getDataSource: () => ({
-      load: vi.fn().mockResolvedValue(items),
+      load,
       items: () => items,
+      isLoading: options?.isLoading,
     }),
     option: vi.fn(),
+    load,
   };
 }
 
@@ -29,5 +33,26 @@ describe('tryAutoSelectSingleMatch', () => {
 
     expect(await tryAutoSelectSingleMatch(vacio, 'codCliente')).toBeNull();
     expect(await tryAutoSelectSingleMatch(multiples, 'codCliente')).toBeNull();
+  });
+});
+
+describe('loadFilteredSelectBoxItems', () => {
+  it('espera la búsqueda en curso en lugar de disparar un segundo load', async () => {
+    let loading = true;
+    const items: { codArticulo: string }[] = [];
+
+    const component = createMockComponent(items, {
+      isLoading: () => loading,
+    });
+
+    const pending = loadFilteredSelectBoxItems(component);
+
+    setTimeout(() => {
+      items.push({ codArticulo: 'A001' });
+      loading = false;
+    }, 80);
+
+    await expect(pending).resolves.toEqual([{ codArticulo: 'A001' }]);
+    expect(component.load).not.toHaveBeenCalled();
   });
 });
