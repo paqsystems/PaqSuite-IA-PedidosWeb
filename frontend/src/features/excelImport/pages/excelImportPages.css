@@ -1,0 +1,102 @@
+.excelImportPage {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.excelImportPage__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.excelImportPage__toolbar {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.excelImportPage__subtitle {
+  margin: 0;
+  color: var(--dx-color-text-secondary, #666);
+}
+
+.excelImportUploadPanel {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-width: 36rem;
+}
+
+.excelImportUploadPanel__sheet {
+  max-width: 20rem;
+}
+
+.excelImportUploadPanel__error {
+  color: var(--dx-color-danger, #d9534f);
+}
+
+.excelImportPage__confirmActions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.excelImportHistory__filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+:global(.excel-import-row-error) {
+  background-color: rgba(217, 83, 79, 0.12);
+}
+
+.excelImportHostToolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.excelImportHostModal__upload,
+.excelImportHostModal__structural,
+.excelImportHostModal__processing,
+.excelImportHostModal__errors {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.excelImportHostModal__sheet {
+  max-width: 20rem;
+}
+
+.excelImportHostModal__error {
+  color: var(--dx-color-danger, #d9534f);
+}
+
+.excelImportHostModal__summary {
+  margin: 0;
+}
+
+.excelImportHostModal__errorGrid {
+  min-height: 280px;
+  max-height: 360px;
+}
+
+.excelImportHostModal__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
+
+.excelImportPage__hint,
+.excelImportPage__hostResult {
+  margin: 0;
+  color: var(--dx-color-text-secondary, #666);
+}

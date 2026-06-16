@@ -54,6 +54,40 @@ Este archivo **no sustituye** SPEC, HU ni TR: es la **entrada** del circuito de 
 
 ---
 
+## Control de Calidad #6
+
+### Referencia del control
+
+| Campo | Valor |
+|-------|--------|
+| **Fecha** | 15/06/2026 |
+| **Responsable** | Pablo Quarracino (PQ) |
+| **Estado** | Pendiente |
+
+### Hallazgos
+
+en carga/edición de pedidos, Verificar que se esté inicializando el control de Perfiles con el parámetro correspondiente. y que al grabar se estén haciendo todas las validaciones indispensables.
+
+### Errores encontrados - Mejoras solicitadas
+
+#### HU-101-005-inicializacion-cabecera
+
+Cuando se comienza un nuevo comprobante, después de elegir el cliente, el control de selección de perfiles se debe inicializar con el valor INT del parámetro "CodPerfilPedidos"
+
+#### HU-101-009-grabar-pedido · HU-101-010-grabar-presupuesto
+
+Cuando se graba un pedido o presupuesto, hay que verificar que se hayan completado todos estos controles, con un valor válido (qué exista en tabla correspondiente):
+- Cliente
+- Vendedor
+- perfil
+- condición venta
+- transporte
+- Dirección Entrega
+- Lista de Precios
+Además que exista por lo menos un renglón en el detalle de artículos
+
+---
+
 ## Control de Calidad #5
 
 ### Referencia del control

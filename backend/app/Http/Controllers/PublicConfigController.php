@@ -14,6 +14,7 @@ final class PublicConfigController extends Controller
             'gridLayoutsEnabled' => (bool) config('paqsuite_mvp.gridLayoutsEnabled'),
             'pivotsEnabled' => (bool) config('paqsuite_mvp.pivotsEnabled'),
             'pivotLayoutsEnabled' => (bool) config('paqsuite_mvp.pivotLayoutsEnabled'),
+            'excelImportEnabled' => (bool) config('paqsuite_mvp.excelImportEnabled'),
         ]);
     }
 }

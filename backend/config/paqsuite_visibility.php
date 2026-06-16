@@ -16,6 +16,7 @@ return [
         'consultasHistorialVentas' => 'pw_historialventas',
         'consultasDetallePedidos' => 'pw_detallepedidos',
         'consultaParametros' => 'pw_consultaparametros',
+        'historialImportExcel' => 'pw_historialimportexcel',
         'tratativasPresupuestos' => 'pw_tratativaspresup',
         'logsIntegracion' => 'pw_logsintegracion',
     ],

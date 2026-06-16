@@ -4,6 +4,10 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\GridLayoutController;
 use App\Http\Controllers\HealthController;
 use App\Http\Controllers\Api\V1\Config\ParametrosController;
+use App\Http\Controllers\Api\V1\ExcelImport\ExcelImportHistoryController;
+use App\Http\Controllers\Api\V1\ExcelImport\ExcelImportLotController;
+use App\Http\Controllers\Api\V1\ExcelImport\ExcelImportProcessController;
+use App\Http\Controllers\Api\V1\ExcelImport\ExcelImportStagingController;
 use App\Http\Controllers\Api\V1\Pivots\PivotConfigController;
 use App\Http\Controllers\Api\V1\Pivots\PivotController;
 use App\Http\Controllers\Api\V1\PedidosWeb\ArticuloController;
@@ -110,6 +114,33 @@ Route::prefix('v1')->group(function (): void {
                 ->name('api.v1.tratativas.index');
             Route::post('/presupuestos/{cod}/tratativas', [TratativaController::class, 'store'])
                 ->name('api.v1.tratativas.store');
+
+            Route::prefix('excel-import')->group(function (): void {
+                Route::get('/procesos/{codigoProceso}', [ExcelImportProcessController::class, 'show'])
+                    ->name('api.v1.excel-import.procesos.show');
+                Route::get('/procesos/{codigoProceso}/plantilla', [ExcelImportProcessController::class, 'plantilla'])
+                    ->name('api.v1.excel-import.procesos.plantilla');
+                Route::post('/procesos/{codigoProceso}/archivo/hojas', [ExcelImportLotController::class, 'listarHojas'])
+                    ->name('api.v1.excel-import.procesos.hojas');
+                Route::post('/procesos/{codigoProceso}/lotes', [ExcelImportLotController::class, 'crearLote'])
+                    ->name('api.v1.excel-import.procesos.lotes');
+                Route::get('/lotes/{guidImportacion}', [ExcelImportLotController::class, 'show'])
+                    ->name('api.v1.excel-import.lotes.show');
+                Route::post('/lotes/{guidImportacion}/cancelar', [ExcelImportLotController::class, 'cancelar'])
+                    ->name('api.v1.excel-import.lotes.cancelar');
+                Route::get('/lotes/{guidImportacion}/filas', [ExcelImportStagingController::class, 'filas'])
+                    ->name('api.v1.excel-import.lotes.filas');
+                Route::get('/lotes/{guidImportacion}/filas/validas', [ExcelImportStagingController::class, 'filasValidas'])
+                    ->name('api.v1.excel-import.lotes.filas-validas');
+                Route::get('/lotes/{guidImportacion}/export-errores', [ExcelImportStagingController::class, 'exportErrores'])
+                    ->name('api.v1.excel-import.lotes.export-errores');
+                Route::get('/lotes/{guidImportacion}/columnas', [ExcelImportStagingController::class, 'columnas'])
+                    ->name('api.v1.excel-import.lotes.columnas');
+                Route::post('/lotes/{guidImportacion}/procesar', [ExcelImportStagingController::class, 'procesar'])
+                    ->name('api.v1.excel-import.lotes.procesar');
+                Route::get('/historial', [ExcelImportHistoryController::class, 'index'])
+                    ->name('api.v1.excel-import.historial');
+            });
 
             Route::prefix('pivots/consultas')->group(function (): void {
                 Route::get('/{consultaId}/metadata', [PivotController::class, 'metadata'])
