@@ -1,287 +1,175 @@
 # Pull Request Report
 
-**Base:** `v1.1.0` (documentación, reglas Cursor, symlinks — sin `backend/` ni `frontend/` en Git)  
-**Compare:** `v1.1.0-paq` (scaffold MVP fullstack + oleadas GEN-01 / GEN-02 / GEN-03)  
-**Último commit en rama:** `1bb5262` — `feat(gen-03): bloque SPEC-001-03 UI transversal completo`  
-**Magnitud:** ~433 archivos, +51 976 líneas (primera entrega ejecutable del portal MONO PedidosWeb)
+**Base:** `main`  
+**Compare:** `v1.1.0` (release MVP integrado desde `v1.1.0-paq`)  
+**Último commit en rama:** `f2c69ab` — merge `v1.1.0-paq` (listbox catálogo provisional + planes NOLOCK)  
+**Tip funcional:** `893319a` — listbox carga provisional solo catálogo `codigo - descripcion`
 
-**Crear PR:** [Compare v1.1.0...v1.1.0-paq](https://github.com/<org>/PaqSuite-IA-PedidosWeb/compare/v1.1.0...v1.1.0-paq) — sustituir `<org>` por el remoto real. `gh` no disponible en el entorno del agente; usar la UI de GitHub o `gh pr create` localmente.
+**Crear PR:** [Compare main...v1.1.0](https://github.com/paqsystems/PaqSuite-IA-PedidosWeb/compare/main...v1.1.0)
+
+```powershell
+gh pr create --base main --head v1.1.0 --title "release(v1.1.0): MVP PedidosWeb + CC PQ #1–#5 + GEN-08 Pivots D1" --body-file .github/PR_BODY_v1.1.0.md
+```
+
+**PR incremental paq → release:** [Compare v1.1.0...v1.1.0-paq](https://github.com/paqsystems/PaqSuite-IA-PedidosWeb/compare/v1.1.0...v1.1.0-paq) — ver `.github/PR_BODY_v1.1.0-paq-merge.md`
 
 ---
 
 ## Resumen
 
-Esta rama introduce el **scaffold MVP ejecutable** (Laravel 10 + React/Vite/DevExtreme) y cierra las oleadas de **Generalidades** necesarias para operar el portal: experiencia base (shell, menú, idioma, temas, avatar), acceso y seguridad (login, sesión, contraseñas, roles/seed, menú API, visibilidad de datos demo) y **UI transversal** (grillas `DataGridDx`, layouts persistentes, patrón ABM modal, exportación Excel).
+Release **v1.1.0** del portal **MONO PedidosWeb**: scaffold fullstack ejecutable (Laravel 10 + React/Vite/DevExtreme), épica **101 PedidosWeb** (D + F), cierres **Control de Calidad PQ #1–#5**, épica **GEN-08 Pivots (D1)** y planes técnicos de concurrencia SQL.
 
-No es un PR acotado solo a GEN-03: es la **primera integración de producto** sobre la línea documental `v1.1.0`.
+Incluye oleadas **GEN-01 / GEN-02 / GEN-03** (experiencia base, seguridad, UI transversal) y procesos de negocio MVP: carga de pedidos/presupuestos, consultas, dashboard, integración y pivots en informes (con flags default `false`).
 
 ## Contexto funcional
 
-PedidosWeb MONO necesita un portal autenticado con envelope API homogéneo, menú por permisos, preferencias de usuario (idioma/tema), flujos de contraseña alineados al patrón auth DevExtreme, y componentes transversales de listado reutilizables antes de implementar procesos de negocio (SPEC-101).
+PedidosWeb MONO necesita un portal autenticado con envelope API homogéneo, menú por permisos, preferencias de usuario, flujos de contraseña DevExtreme, componentes transversales de listado y procesos comerciales MVP antes de tenancy multi-empresa (TR-101-01 diferida).
 
 ## SPEC / HU / TR relacionadas
 
 ### SPEC-001-01 — Experiencia base
 
-| TR | HU | Estado en rama |
-|----|-----|----------------|
-| [TR-GEN-01-shell-layout](docs/04-tareas/001-Generaliddes/TR-GEN-01-shell-layout.md) | [HU-GEN-01-shell-layout](docs/03-historias-usuario/001-Generaliddes/HU-GEN-01-shell-layout.md) | Implementado — F formal en [F-GEN-01-02-cierre-formal](docs/04-tareas/001-Generaliddes/F-GEN-01-02-cierre-formal.md) |
-| [TR-GEN-01-menu-general-sidebar](docs/04-tareas/001-Generaliddes/TR-GEN-01-menu-general-sidebar.md) | [HU-GEN-01-menu-general-sidebar](docs/03-historias-usuario/001-Generaliddes/HU-GEN-01-menu-general-sidebar.md) | Implementado (D 2026-05-30) |
-| [TR-GEN-01-menu-avatar](docs/04-tareas/001-Generaliddes/TR-GEN-01-menu-avatar.md) | [HU-GEN-01-menu-avatar](docs/03-historias-usuario/001-Generaliddes/HU-GEN-01-menu-avatar.md) | Implementado (D) |
-| [TR-GEN-01-idioma](docs/04-tareas/001-Generaliddes/TR-GEN-01-idioma.md) | [HU-GEN-01-idioma](docs/03-historias-usuario/001-Generaliddes/HU-GEN-01-idioma.md) | Implementado — F formal en F-GEN-01-02 |
-| [TR-GEN-01-apariencia-temas](docs/04-tareas/001-Generaliddes/TR-GEN-01-apariencia-temas.md) | [HU-GEN-01-apariencia-temas](docs/03-historias-usuario/001-Generaliddes/HU-GEN-01-apariencia-temas.md) | Implementado — F formal en F-GEN-01-02 |
-| TR-GEN-01-ayuda-externa | HU-GEN-01-ayuda-externa | **Fuera de alcance** (Should; no implementado) |
-
-**SPEC:** [SPEC-001-01-experiencia-base](docs/05-open-spec/001-Generaliddes/SPEC-001-01-experiencia-base.md)
+Shell, menú sidebar, avatar, idioma (5 locales), temas — **Finalizado** (F-GEN-01-02).
 
 ### SPEC-001-02 — Acceso y seguridad
 
-| TR | HU | Estado en rama |
-|----|-----|----------------|
-| [TR-GEN-02-modelo-roles-permisos-seed](docs/04-tareas/001-Generaliddes/TR-GEN-02-modelo-roles-permisos-seed.md) | HU-GEN-02-modelo-roles-permisos-seed | Implementado (seed + matriz) |
-| [TR-GEN-02-login-sesion](docs/04-tareas/001-Generaliddes/TR-GEN-02-login-sesion.md) | HU-GEN-02-login-sesion | Implementado — F formal en F-GEN-01-02 |
-| [TR-GEN-02-recuperacion-contrasena](docs/04-tareas/001-Generaliddes/TR-GEN-02-recuperacion-contrasena.md) | HU-GEN-02-recuperacion-contrasena | Implementado — F formal en F-GEN-01-02 |
-| [TR-GEN-02-cambio-contrasena](docs/04-tareas/001-Generaliddes/TR-GEN-02-cambio-contrasena.md) | HU-GEN-02-cambio-contrasena | Implementado — F formal en F-GEN-01-02 |
-| [TR-GEN-02-autorizacion-menu-api](docs/04-tareas/001-Generaliddes/TR-GEN-02-autorizacion-menu-api.md) | HU-GEN-02-autorizacion-menu-api | Implementado |
-| [TR-GEN-02-visibilidad-datos-pedidosweb](docs/04-tareas/001-Generaliddes/TR-GEN-02-visibilidad-datos-pedidosweb.md) | HU-GEN-02-visibilidad-datos-pedidosweb | Implementado (slice MVP demo) |
-| [TR-GEN-02-expiracion-inactividad](docs/04-tareas/001-Generaliddes/TR-GEN-02-expiracion-inactividad.md) | HU-GEN-02-expiracion-inactividad | Implementado en código (`SessionLifecycleManager`); TR con observaciones C1 (multi-tab) |
-| [TR-GEN-02-politicas-endpoints](docs/04-tareas/001-Generaliddes/TR-GEN-02-politicas-endpoints.md) | HU-GEN-02-politicas-endpoints | Marco / matriz viva — no slice único |
-
-**SPEC:** [SPEC-001-02-acceso-seguridad](docs/05-open-spec/001-Generaliddes/SPEC-001-02-acceso-seguridad.md)  
-**Matriz viva:** [matriz-permisos-mvp.md](docs/04-tareas/001-Generaliddes/matriz-permisos-mvp.md)
+Login, sesión, recuperación/cambio contraseña, seed seguridad, menú API, visibilidad comercial, inactividad — **Finalizado**.
 
 ### SPEC-001-03 — UI transversal
 
-| TR | HU | Estado en rama |
-|----|-----|----------------|
-| [TR-GEN-03-grillas-listados](docs/04-tareas/001-Generaliddes/TR-GEN-03-grillas-listados.md) | HU-GEN-03-grillas-listados | **Finalizado** |
-| [TR-GEN-03-layouts-grilla](docs/04-tareas/001-Generaliddes/TR-GEN-03-layouts-grilla.md) | HU-GEN-03-layouts-grilla | **Finalizado** |
-| [TR-GEN-03-patron-abm](docs/04-tareas/001-Generaliddes/TR-GEN-03-patron-abm.md) | HU-GEN-03-patron-abm | **Finalizado** |
-| [TR-GEN-03-exportaciones](docs/04-tareas/001-Generaliddes/TR-GEN-03-exportaciones.md) | HU-GEN-03-exportaciones | **Finalizado** |
+`DataGridDx`, layouts, ABM modal, export Excel — **Finalizado** + CC PQ #2/#3.
 
-**SPEC:** [SPEC-001-03-ui-transversal](docs/05-open-spec/001-Generaliddes/SPEC-001-03-ui-transversal.md)  
-**Cierre F:** [F-GEN-03-cierre-formal](docs/04-tareas/001-Generaliddes/F-GEN-03-cierre-formal.md) — Aprobado con observaciones
+### SPEC-001-08 — Pivots
 
-### Documentación sin implementación en esta rama
+Motor metadata/API, PivotGrid, layouts pivot, export Excel — **Finalizado (D1)**. CC PQ #4 extiende a informes. Flags default **false**.
 
-- **SPEC-001-10** (chat asistente IA): solo definición OpenSpec/HU/TR (`5db6571`); sin código de producto.
+### SPEC-101 — PedidosWeb
+
+TR 101-02 … 101-15 + TR-GEN-04 — **Finalizado** (F-101). TR-101-01 **diferida**.
+
+### Control de Calidad PQ
+
+| # | Tema | Estado |
+|---|------|--------|
+| #1 | Dashboard, consultas, inactividad, manual | Cerrado |
+| #2 | Layouts `(*)`, export Excel formateado | Cerrado |
+| #3 | SelectBox loading, layouts pie, parámetros | Cerrado |
+| #4 | Pivots informes + `#,##0.00` | Cerrado |
+| #5 | Listbox artículos carga | **Provisional** — solo catálogo `codigo - descripcion` |
+
+Informes: [`00-ControlCalidad-PQ.md`](docs/00-ControlCalidad/00-ControlCalidad-PQ.md)
 
 ---
 
-## Historial de commits (orden cronológico)
+## Historial de commits recientes
 
 | Commit | Descripción |
 |--------|-------------|
-| `c82f586` | Docs OpenSpec Fase 0, HU B1 y plan scaffold MVP |
-| `bdb4186` | Cambio de contraseña autenticado + gate `firstLogin` |
-| `5f5c485` | `.gitignore`, plantillas `.env`, README arranque |
-| `6d7e6f2` | OpenSpec, HU, TR Generalidades y producto |
-| `0c93ecb` | Backend Laravel: seed, login, menú, health |
-| `6553cc4` | Frontend React: shell, sidebar, preferencias |
-| `17345a5` | Reglas Cursor tablas seguridad SQL |
-| `90f6c2d` | Idioma (D1), Swagger L5, schemas OpenAPI tipados |
-| `a51b518` | Menú avatar, `openInNewTab` |
-| `f9b995e` | Apariencia/temas, PATCH theme |
-| `5db6571` | Docs SPEC-001-10 chat IA |
-| `444d630` | Cierre C1/D1 pendientes, baseline OpenAPI |
-| `69d04d3` | Slices MVP seguridad y visibilidad |
-| `390cd79` | Auth UI y preferencias alineadas MONO |
-| `3bdff13` | Tokens CSS variables auth PaqSuite |
-| `1bb5262` | Bloque GEN-03 completo (grillas, layouts, ABM, export) |
+| `f2c69ab` | Merge `v1.1.0-paq` — listbox catálogo provisional + planes NOLOCK |
+| `893319a` | Listbox carga provisional (`solo_catalogo`) |
+| `6c8c916` | Planes NOLOCK y framework compartido |
+| `a87f2a2` | Fix loop infinito búsqueda artículos |
+| `4c3dc02` | CC PQ #4 — pivots informes |
+| `2735155` | GEN-08 Pivots D1 |
+| `514ea48` | CC PQ #1 |
 
 ---
 
 ## Cambios realizados por capa
 
-### Repositorio / DevOps
-
-- `.gitignore` raíz, `backend/.env.example`, `frontend/.env.example`
-- [README.md](README.md) con arranque local backend/frontend
-- Symlinks herencia IA (`base`, `mono`, `docs/_base`, `docs/00-contexto/_mono`) — sin duplicar MONO en Git de PedidosWeb
-
 ### Backend (Laravel 10)
 
-- **Scaffold:** envelope `ApiResponse`, middleware tenant `X-Paq-Cliente`, Sanctum, `GET /api/v1/health`
-- **Auth:** login/logout/me, forgot/reset/change password, bootstrap sesión en login
-- **Preferencias:** `GET/PATCH /users/me/preferences`, locale, theme
-- **Menú:** `GET /user/menu` filtrado por permisos
-- **Visibilidad demo:** clientes, comprobante, resumen dashboard
-- **Grid layouts (GEN-03):** CRUD + layout activo, `PublicConfigController` (`gridLayoutsEnabled`)
-- **Seed MVP:** `paqsuite:seed-seguridad-mvp`, menús MVP, usuarios QA (ver matriz)
-- **OpenAPI:** L5-Swagger + schemas tipados (commit `90f6c2d`)
-- **Tests Feature:** `AuthLoginTest`, `ChangePasswordTest`, `PasswordRecoveryTest`, `SeedSeguridadMvpTest`, `SeedMenusMvpTest`, `UserMenuTest`, `UserPreferencesTest`, `VisibilityDataTest`, `GridLayoutTest`, `HealthCheckTest`, `OpenApiDocumentationTest`
+- Scaffold envelope `ApiResponse`, tenant `X-Paq-Cliente`, Sanctum, health
+- Auth, preferencias, menú, visibilidad comercial
+- Comprobantes, pedidos, presupuestos, consultas, dashboard
+- Pivots: catálogo `pq_pivots_*`, API metadata/data, layouts `pq_pivots_config`
+- Artículos carga: `solo_catalogo` omite stock en lookup browse
+- Seeds MVP, tests Feature/Unit
 
 ### Frontend (React + Vite + DevExtreme)
 
-- **Shell:** layout autenticado, rutas protegidas, dashboard
-- **Auth (DevExtreme):** login, forgot/reset/change password, gate `firstLogin`, inactividad (`SessionLifecycleManager`)
-- **Menú:** sidebar TreeView, tres controles header, persistencia user/terminal
-- **Avatar:** menú usuario, cambio contraseña, logout, `openInNewTab`
-- **i18n:** `LocaleProvider`, 5 locales, selector, sync DevExtreme + claves `grid.dx.*`
-- **Temas:** selector apariencia, paleta en shell, PATCH theme
-- **GEN-03:** `DataGridDx`, `gridLayouts`, `gridExport`, `abm`, demos `/demo/abm`, `/demo/export-empty`
-- **Estilos auth:** variables CSS centralizadas (`3bdff13`)
+- Shell, auth DevExtreme, menú, i18n 5 locales, temas
+- `DataGridDx`, layouts, ABM, export Excel
+- Carga pedidos: precarga catálogo artículos, display `codigo - descripcion`
+- Consultas + pivots informes (`ConsultaGrillaPivotShell`)
+- E2E Playwright MVP + pivot
 
 ### Base de datos
 
-- Migraciones seguridad MVP (`Pq_*`), menús, preferencias usuario
-- Migración `pq_grid_layouts` + `pq_grid_layout_last_used` (GEN-03)
+- Migraciones seguridad, menús, preferencias, grid layouts
+- Migraciones pivots (`2026_06_11_100000_*`, `2026_06_11_110000_*`)
+- Seed SQL opcional: `backend/scripts/sql/seed-pivot-catalog.sql`
 
-### Documentación
+### Documentación / planes
 
-- OpenSpec Fase 0, HU/TR Generalidades (001-Generaliddes)
-- [F-GEN-01-02-cierre-formal.md](docs/04-tareas/001-Generaliddes/F-GEN-01-02-cierre-formal.md) — oleada shell/idioma/temas/login/contraseñas
-- [F-GEN-03-cierre-formal.md](docs/04-tareas/001-Generaliddes/F-GEN-03-cierre-formal.md) — bloque UI transversal
-- [README 001-Generaliddes](docs/04-tareas/001-Generaliddes/README.md) — orden TR y estado GEN-03
-- Reglas: `devextreme-frontend.mdc`, `41-i18n-and-testid.md` (sub-checklist `DataGridDx`)
-- Patrón MONO (symlink): `patron-i18n-grilla-devextreme` — versionado en repo **PaqSuite-IA-MONO**
-
-### Repos hermanos (fuera del diff de este PR)
-
-- Commits documentados en **PaqSuite-IA-BASE** (`49fa43f`) y **PaqSuite-IA-MONO** (`4793b50`) para reglas/patrones i18n grilla
+- OpenSpec, HU/TR 001 y 101, cierres F formales
+- `.cursor/plans/nolock-concurrencia-sql.plan.md`
+- `.cursor/plans/paqsuite-framework-compartido.plan.md`
 
 ---
 
-## API expuesta (referencia rápida)
+## Revisión de versión / deploy
 
-Ver [matriz-permisos-mvp.md](docs/04-tareas/001-Generaliddes/matriz-permisos-mvp.md) y `backend/routes/api.php`.
+**Conviene:** tag `v1.1.0` en merge a `main` (release MVP).
 
-Públicas: `health`, `auth/login`, `auth/password/forgot|reset`.  
-Autenticadas: `auth/logout|me|password/change`, `config/public`, `user/menu`, preferencias, `grid-layouts/*`, visibilidad `clientes`, `comprobantes/{id}`, `dashboard/resumen`.
+**En Forge (por tenant):**
+
+1. `git pull` / deploy del tag o rama `v1.1.0`
+2. `composer install --no-dev` + `php artisan config:cache`
+3. **Migraciones** (si no aplicadas): `php artisan migrate --force` — incluye `pq_pivots_*`
+4. **Pivots (opcional):** `PivotCatalogPilotSeeder` + `PivotCatalogInformesSeeder` o `backend/scripts/sql/seed-pivot-catalog.sql`
+5. **`.env`:** `PIVOTS_ENABLED=true`, `PIVOT_LAYOUTS_ENABLED=true` (solo si se activan informes pivot)
+
+**Vercel:** redeploy frontend (`frontend/vercel.json`).
+
+**Este delta reciente (893319a):** solo código — **sin** migrate ni seed adicional.
+
+**Smoke test post-deploy:**
+
+- Login `cliente.mvp` → carga pedido → listbox artículos muestra `codigo - descripcion`
+- Consulta stock con disponible neto
+- Con flags pivot: toggle grilla/pivot en informe deuda
 
 ---
 
 ## Validaciones y tests
 
-### Ejecutados y documentados en cierres F
-
-| Ámbito | Comando / spec | Resultado documentado |
-|--------|----------------|------------------------|
-| Frontend unit | `npm run test` (Vitest) | **60 passed** (incl. post-F `DataGridDx.test.tsx`) |
-| Frontend build | `npm run build` | **OK** (warning chunk DX > 500 kB) |
-| Backend layouts | `php artisan test --filter=GridLayout` | **6 passed** |
-| E2E GEN-03 | `grid-transversal`, `grid-layouts`, `grid-export`, `abm-transversal` | **9 passed** |
-| E2E F-GEN-01-02 | `password-recovery.spec.ts`, `theme.spec.ts` | **OK** |
-| QA manual GEN-03 | Dashboard + `/demo/abm` (es) | **OK** (usuario) |
-
-### Suite E2E completa en rama (ejecutar en CI / pre-merge)
-
-| Spec | TR / área |
-|------|-----------|
-| `smoke.spec.ts` | Arranque portal |
-| `change-password.spec.ts` | TR-GEN-02-cambio-contrasena |
-| `password-recovery.spec.ts` | TR-GEN-02-recuperacion-contrasena |
-| `locale.spec.ts` | TR-GEN-01-idioma |
-| `theme.spec.ts` | TR-GEN-01-apariencia-temas |
-| `menu-sidebar.spec.ts` | TR-GEN-01-menu-general-sidebar |
-| `avatar-menu.spec.ts` | TR-GEN-01-menu-avatar |
-| `grid-transversal.spec.ts` | TR-GEN-03-grillas-listados |
-| `grid-layouts.spec.ts` | TR-GEN-03-layouts-grilla |
-| `grid-export.spec.ts` | TR-GEN-03-exportaciones |
-| `abm-transversal.spec.ts` | TR-GEN-03-patron-abm |
-
-```powershell
-cd frontend
-npm run test:e2e
-```
-
-### Backend Feature (requiere SQL Server + seed estable)
-
-```powershell
-cd backend
-php artisan test
-```
-
-**Observación F-GEN-01-02:** `PasswordRecoveryTest` puede fallar si `paqsuite:seed-seguridad-mvp` no completa en el entorno local.
-
----
-
-## Evidencia de cierre
-
-| Documento | Veredicto |
-|-----------|-----------|
-| [F-GEN-01-02-cierre-formal](docs/04-tareas/001-Generaliddes/F-GEN-01-02-cierre-formal.md) | Aprobado con observaciones (oleada parcial GEN-01/02; no todos los TR de carpeta) |
-| [F-GEN-03-cierre-formal](docs/04-tareas/001-Generaliddes/F-GEN-03-cierre-formal.md) | Aprobado con observaciones (4 TR GEN-03) |
+| Comando | Resultado |
+|---------|-----------|
+| `php artisan test --filter=PedidosWeb` | 75+ passed (skips sin SQL Server) |
+| `php artisan test --filter=Pivot` | Requiere tenant SQL Server |
+| `npm run build` | OK |
+| `npm run test` | Vitest unit |
+| E2E | `mvp-section9`, `consultas-d1`, `pivot-*`, `grid-*` |
 
 ---
 
 ## Riesgos
 
-- **Primera carga del repo:** clon requiere symlinks BASE/MONO y SQL Server para seed completo
-- **Chunk DevExtreme** grande en build Vite — evaluar code-split en release
-- **Patrón i18n grilla** en symlink MONO — equipos deben actualizar MONO/BASE además de PedidosWeb
-- **Demos** `/demo/*` — no sustituyen procesos SPEC-101
-- **PasswordRecoveryTest** dependiente de entorno seed
-- **Inactividad multi-tab** — TR-GEN-02-expiracion-inactividad con ambigüedades C1 abiertas en documento
-
----
-
-## Pendientes / follow-ups (post-merge)
-
-- Integrar `DataGridDx` en pantallas de negocio (SPEC-101)
-- CI: suite E2E completa + `php artisan test` en pipeline
-- Re-ejecutar `PasswordRecoveryTest` con seed estable
-- TR-GEN-01-ayuda-externa (Should)
-- SPEC-001-10 chat IA (futuro)
-- OpenAPI detallado endpoints `grid-layouts` si falta en Swagger
+- Tests integración requieren SQL Server tenant en CI
+- GEN-08 inactivo hasta flags + migraciones + seed
+- CC PQ #5 listbox: implementación provisional sin disponible
+- Chunk DevExtreme > 500 kB en build Vite
+- TR-101-01 tenancy diferida
 
 ---
 
 ## Checklist para reviewer
 
-### Scaffold y arquitectura
-
 - [ ] `GET /api/v1/health` devuelve envelope MONO
-- [ ] Header `X-Paq-Cliente` requerido en rutas tenant
-- [ ] README y `.env.example` permiten arranque sin secretos en repo
-
-### GEN-01 / GEN-02 (experiencia y seguridad)
-
-- [ ] Login `cliente.mvp` / `secret` → dashboard con menú
-- [ ] `primerIngreso.mvp` fuerza cambio de contraseña
-- [ ] Recuperación y reset con UI DevExtreme + i18n
-- [ ] Selector idioma y tema persisten (PATCH) y shell refleja paleta
-- [ ] Sidebar: tres controles, menú acotado con `vendedor.acotado.mvp`
-- [ ] Avatar: logout, cambio clave, enlaces externos si aplica
-- [ ] `usuario.sinPermiso.mvp` → 403 coherente con envelope
-
-### GEN-03 (UI transversal)
-
-- [ ] Dashboard `DataGridDx`: filtros, agrupación, column chooser en idioma activo
-- [ ] Menú contextual encabezado (ordenar/agrupar) traducido
-- [ ] Totalizadores por columna (pie; dos columnas distintas)
-- [ ] Toolbar layouts: guardar como, cargar, persistencia
-- [ ] Export Excel con datos; deshabilitado en `/demo/export-empty`
-- [ ] `/demo/abm`: alta/edición/baja con confirmación
-- [ ] Dashboard **consulta** sin botón + ABM; hint `grid.consulta.noAbmHint` si aplica
-
-### Calidad
-
-- [ ] Matriz permisos alineada con rutas nuevas
-- [ ] Sin secretos ni `.env` reales en diff
-- [ ] `data-testid` estables en controles DX
-
----
-
-## Notas para QA
-
-| Usuario seed | Uso |
-|--------------|-----|
-| `cliente.mvp` / `secret` | Flujo feliz cliente + dashboard |
-| `vendedor.acotado.mvp` | Menú parcial |
-| `supervisor.mvp` | Acceso total |
-| `primerIngreso.mvp` | Gate first login |
-| `usuario.sinPermiso.mvp` | 403 permisos |
-
-- Cambiar idioma **sin F5** y validar textos de grilla (ítems 21–28 en [TR-GEN-01-idioma](docs/04-tareas/001-Generaliddes/TR-GEN-01-idioma.md) §4)
-- Tenant local: `desarrollo` o `demo` vía `X-Paq-Cliente`
+- [ ] Login seed MVP → dashboard con menú
+- [ ] Carga pedido: listbox artículos precarga catálogo; display `codigo - descripcion`
+- [ ] Consultas MVP operativas
+- [ ] Con flags pivot: informes CC #4 con toggle grilla/pivot
+- [ ] CI `.github/workflows/ci.yml` en verde
+- [ ] Sin secretos en diff
 
 ---
 
 ## Título sugerido para el PR
 
-`feat(mvp): scaffold PedidosWeb MONO — GEN-01/02 experiencia y seguridad + GEN-03 UI transversal`
+`release(v1.1.0): MVP PedidosWeb MONO — CC PQ #1–#5 + GEN-08 Pivots D1`
 
 ## Cuerpo sugerido (resumen corto para GitHub)
 
-Integración inicial del portal PedidosWeb sobre `v1.1.0`: backend Laravel y frontend React/DevExtreme con login, menú por permisos, preferencias (idioma/tema), visibilidad demo, y bloque GEN-03 (`DataGridDx`, layouts, ABM, export Excel). Incluye seeds QA, tests automatizados y cierres F documentados. Requiere symlinks BASE/MONO y SQL Server para seed completo.
+Release MVP del portal PedidosWeb: backend Laravel + frontend React/DevExtreme con login, menú por permisos, carga/consultas/dashboard, pivots en informes (flags default false) y cierres CC PQ #1–#5. Listbox artículos en carga: modo provisional solo catálogo. Requiere SQL Server para seed completo y activación pivots opcional post-deploy.
