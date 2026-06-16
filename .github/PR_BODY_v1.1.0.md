@@ -1,19 +1,20 @@
 ## Summary
 
-Entrega **Fase 1 MVP** del portal **MONO PedidosWeb** en la rama **`v1.1.0`**, integrando el trabajo de **`v1.1.0-paq`**, cierres de **Control de Calidad PQ #1–#5** (incl. **#4 pivot informes** y **#5 Parte I**), saneamiento documental y la épica **GEN-08 Pivots (D1)**.
+Entrega **Fase 1 MVP** del portal **MONO PedidosWeb** en la rama **`v1.1.0`**, integrando el trabajo de **`v1.1.0-paq`**, cierres de **Control de Calidad PQ #1–#5**, saneamiento documental y la épica **GEN-08 Pivots (D1)**.
 
 1. **Scaffold fullstack** (Laravel 10 + React/Vite/DevExtreme) con **GEN-01 / GEN-02 / GEN-03** cerrados en documentación e implementación.
 2. **Épica 101 — PedidosWeb**: Parte D completa + cierre formal **F** (TR 101-02 … 101-15 + **TR-GEN-04** consulta parámetros).
 3. **CC PQ #1**: mejoras en carga, consultas, dashboard, mail, inactividad y manual de usuario.
 4. **CC PQ #2**: layouts propios `(*)`, plantilla sistema, export Excel formateado (fechas, booleanos, totales pie).
 5. **CC PQ #3**: `SelectBoxDx` con loading, auto-match único, carga artículos optimizada, totalizadores pie en layouts.
-6. **CC PQ #4**: pivot en informes **Detalle pedidos**, **Deudas**, **Cheques** y **Stock** (`ConsultaInformePivotPage`, catálogo `PivotCatalogInformesSeeder`, formato decimal `#,##0.00`, agregaciones y menú contextual).
-7. **CC PQ #5**: listbox artículos en carga — disponible `stock − comprometido` (sin pedidos web); display `codigo - descripcion — Disp. X (Y)`; **Parte I** unificada en SPEC/HU/TR.
-8. **GEN-08 Pivots (SPEC-001-08)**: motor metadata/API, PivotGrid en historial ventas, diseños persistentes, export Excel client-side — **flags default `false`** hasta activación en deploy.
-9. **Documentación** SPEC-001-07 (importar Excel, A1) y SPEC-001-08 (pivots, A1 + F formal).
+6. **CC PQ #4**: pivots en informes (detalle pedidos, deuda, cheques, stock) + formato decimal unificado `#,##0.00`.
+7. **CC PQ #5 (provisional)**: listbox artículos en carga precarga catálogo; display `codigo - descripcion` sin disponible (`solo_catalogo=1`).
+8. **Fix post-QA**: evita loop infinito en búsqueda de artículos en carga.
+9. **GEN-08 Pivots (SPEC-001-08)**: motor metadata/API, PivotGrid, diseños persistentes, export Excel client-side — **flags default `false`** hasta activación en deploy.
+10. **Planes técnicos**: NOLOCK/concurrencia SQL y framework compartido en `.cursor/plans/`.
 
 **Compare:** `main` ← **`v1.1.0`**  
-**Tip:** `4c3dc02` — `feat(pivots): informes CC PQ #4 y formato decimal unificado`  
+**Tip:** `f2c69ab` — merge `v1.1.0-paq` (listbox catálogo provisional + planes NOLOCK)  
 **Crear PR:** [Compare main...v1.1.0](https://github.com/paqsystems/PaqSuite-IA-PedidosWeb/compare/main...v1.1.0)
 
 ```powershell
@@ -24,18 +25,13 @@ gh pr create --base main --head v1.1.0 --title "release(v1.1.0): MVP PedidosWeb 
 
 | Commit | Resumen |
 |--------|---------|
-| `4c3dc02` | **CC PQ #4** — pivot informes (4 consultas), formato decimal, agregaciones, E2E |
-| `4bbefe6` | **CC PQ #5 Parte I** — unificar SPEC/HU/TR y cierre documental |
-| `7244247` | **CC PQ #5** — lookup carga sin comprometido web + docs updates |
-| `cc2eb07` | Merge `v1.1.0-paq` → `v1.1.0` (GEN-08 + CC #3 + docs) |
-| `2735155` | **GEN-08** epic Pivots D1 — motor, PivotGrid, layouts, export |
-| `5eefea3` | Fix `onOpened` DevExtreme en SelectBox artículos |
-| `0c2c9f2` | Docs A1 SPEC-001-08 pivots + SPEC-001-07 importar Excel |
-| `e387e58` | **CC PQ #3** — listas DX, layouts pie, carga artículos |
-| `777c4e9` | Merge `v1.1.0-paq` (CC PQ, saneamiento docs, MVP) |
+| `f2c69ab` | Merge `v1.1.0-paq` — listbox catálogo provisional + planes NOLOCK |
+| `893319a` | **CC PQ #5 provisional** — listbox solo catálogo `codigo - descripcion` |
+| `6c8c916` | Planes NOLOCK y framework compartido |
+| `a87f2a2` | Fix loop infinito búsqueda artículos en carga |
+| `4c3dc02` | **CC PQ #4** — pivots en informes + formato decimal |
+| `2735155` | **GEN-08** epic Pivots D1 |
 | `514ea48` | **CC PQ #1** — dashboard, consultas, fechas, manual |
-| `75e7a25` | Hallazgos CC PQ #2 (export Excel formateado) |
-| `ad30265` | Ruteo SPA Vercel (`frontend/vercel.json`) |
 
 Informes de cierre: [`F-101-PedidosWeb-cierre-formal.md`](docs/04-tareas/101-PedidosWeb/F-101-PedidosWeb-cierre-formal.md) · [`F-GEN-04-consulta-parametros-cierre.md`](docs/04-tareas/001-Generaliddes/F-GEN-04-consulta-parametros-cierre.md) · [`F-CC-PQ-02-GEN-03-cierre-formal.md`](docs/04-tareas/001-Generaliddes/F-CC-PQ-02-GEN-03-cierre-formal.md) · [`F-CC-PQ-03-cierre-formal.md`](docs/04-tareas/001-Generaliddes/F-CC-PQ-03-cierre-formal.md) · [`F-CC-PQ-4-pivot-informes.md`](docs/04-tareas/101-PedidosWeb/F-CC-PQ-4-pivot-informes.md) · [`F-GEN-08-cierre-formal.md`](docs/04-tareas/001-Generaliddes/F-GEN-08-cierre-formal.md) · [`00-ControlCalidad-PQ.md`](docs/00-ControlCalidad/00-ControlCalidad-PQ.md)
 
@@ -55,8 +51,6 @@ Informes de cierre: [`F-101-PedidosWeb-cierre-formal.md`](docs/04-tareas/101-Ped
 | **Pivots (SPEC-001-08)** | **Finalizado (D1)** — flags `pivotsEnabled` / `pivotLayoutsEnabled` default **false** |
 | CI GitHub Actions (smoke backend + build frontend) | `.github/workflows/ci.yml` |
 
-Cierres formales: `F-GEN-01-02-cierre-formal.md`, `F-GEN-03-cierre-formal.md`, `F-GEN-04-consulta-parametros-cierre.md`, `F-GEN-08-cierre-formal.md`.
-
 ---
 
 ## Bloque GEN-08 — Pivots (SPEC-001-08)
@@ -64,17 +58,17 @@ Cierres formales: `F-GEN-01-02-cierre-formal.md`, `F-GEN-03-cierre-formal.md`, `
 | TR | Entregable | Estado |
 |----|------------|--------|
 | TR-GEN-08-motor-metadata-pivots | Catálogo `pq_pivots_*`, API metadata/data/validate | Finalizado |
-| TR-GEN-08-pivotgrid-visualizacion | `ConsultaGrillaPivotShell`, toggle grilla/pivot, piloto historial ventas | Finalizado |
+| TR-GEN-08-pivotgrid-visualizacion | `ConsultaGrillaPivotShell`, toggle grilla/pivot | Finalizado |
 | TR-GEN-08-layouts-pivot | `pq_pivots_config` + API CRUD, toolbar diseños | D1 — Aprobado |
 | TR-GEN-08-exportacion-pivot | Export client-side Excel básico/tabla dinámica | D1 — Aprobado |
+
+**CC PQ #4:** pivots en detalle pedidos, deuda, cheques y stock.
 
 **Activación en tenant (post-merge, no incluida en deploy MVP):**
 
 1. Migraciones `2026_06_11_100000_*`, `2026_06_11_110000_*`.
-2. Seeder `PivotCatalogPilotSeeder`.
+2. Seeders `PivotCatalogPilotSeeder` + `PivotCatalogInformesSeeder` (o `backend/scripts/sql/seed-pivot-catalog.sql`).
 3. `.env`: `PIVOTS_ENABLED=true`, `PIVOT_LAYOUTS_ENABLED=true` (opcional layouts).
-
-**Fuera del release MVP portal** hasta activar flags en deploy.
 
 ---
 
@@ -86,52 +80,14 @@ Cierres formales: `F-GEN-01-02-cierre-formal.md`, `F-GEN-03-cierre-formal.md`, `
 | 101-02 … 101-15 | Backend + frontend MVP | Finalizado |
 | TR-GEN-04 | Consulta parámetros | Finalizado + CC #3 |
 
-### Highlights CC PQ #1
+### Highlights CC PQ #5 (provisional)
 
 | Tema | Cambio |
 |------|--------|
-| Selección cliente | Display `(código) razón social - nombre fantasía` |
-| Cabecera / renglones | Bonif. 3 negativos; precio neto unitario; recálculo lista/bonif. |
-| Consultas | Nombre comercial; fecha `dd/MM/yyyy HH:mm`; ícono Actualizar; Copiar en pendientes |
-| Dashboard | KPIs con unidades + mes en curso |
-| Inactividad | Timeout desde última interacción |
-
-### Highlights CC PQ #2 (GEN-03)
-
-| Tema | Cambio |
-|------|--------|
-| Layouts propios | Sufijo ` (*)` en diseños del usuario |
-| Plantilla sistema | Reset con `state(null)` |
-| Export Excel | Fechas locale, enteros/decimales, booleanos i18n, encabezados gris, totales pie |
-
-### Highlights CC PQ #3
-
-| Tema | Cambio |
-|------|--------|
-| `SelectBoxDx` | Loading indicator, `onOpened`, auto-match único |
-| Carga artículos | Política carga diferida, cache clientes sesión, display `codigo - descripcion` |
-| Layouts pie | Totalizadores persisten en guardar/cargar diseño |
-| Parámetros | Columna Valor centrada |
-
-### Highlights CC PQ #4
-
-| Tema | Cambio |
-|------|--------|
-| Informes pivot | Detalle pedidos, Deudas, Cheques, Stock vía `ConsultaInformePivotPage` |
-| Catálogo backend | `PivotCatalogInformesSeeder` — 4 `consulta_id` con `mostrarGrillaYPivot: true` |
-| Dataset | `PivotDatasetExecutor` enlaza servicios deuda/cheques/stock/detalle |
-| Formato numérico | `resolvePivotDecimalFormat` — `#,##0.00` obligatorio para `tipoDato` number |
-| Agregaciones / menú | Políticas backend + `resolvePivotAggregations`, menú contextual encabezado |
-| Tests | E2E `pivot-informes.spec.ts`; unit pivot formatting/aggregations |
-
-### Highlights CC PQ #5
-
-| Tema | Cambio |
-|------|--------|
-| Listbox artículos (browse) | `ArticuloCargaLookupService`: solo `stock − comprometido` |
-| Consulta stock | Sin cambio: sigue usando disponible neto con `comprometido_web` |
-| Display ítem | `codigo - descripcion — Disp. X (Y)` con base opcional entre paréntesis |
-| Docs | Parte I — updates SPEC-101-11 / HU-101-018/021/022/028 / TR-SPEC-101-11 |
+| Listbox artículos (browse) | Precarga catálogo al elegir lista de precios; sin join de stock |
+| API | `GET /articulos?solo_catalogo=1` |
+| Display ítem | `codigo - descripcion` (sin `Disp. X`) |
+| Consulta stock | Sin cambio: disponible neto con `comprometido_web` |
 
 ---
 
@@ -140,8 +96,9 @@ Cierres formales: `F-GEN-01-02-cierre-formal.md`, `F-GEN-03-cierre-formal.md`, `
 Rutas bajo `/api/v1/` (autenticadas + tenant `X-Paq-Cliente`):
 
 - Comprobantes, pedidos, presupuestos, consultas, dashboard, integración (MVP existente)
-- **Pivots (nuevo):** `GET/POST /pivots/consultas/{id}/metadata|data|validate-structure`
-- **Pivot layouts (nuevo):** `GET/POST/PUT/DELETE /pivot-configs*`
+- **Artículos carga:** `GET /articulos?solo_catalogo=1&lista_precios={n}`
+- **Pivots:** `GET/POST /pivots/consultas/{id}/metadata|data|validate-structure`
+- **Pivot layouts:** `GET/POST/PUT/DELETE /pivot-configs*`
 - **Config pública:** `pivotsEnabled`, `pivotLayoutsEnabled` en `GET /config/public`
 
 Matriz permisos: [`matriz-permisos-mvp.md`](docs/04-tareas/001-Generaliddes/matriz-permisos-mvp.md) § Pivots.
@@ -157,9 +114,20 @@ OpenAPI: `backend/storage/api-docs/api-docs.json`
 | `php artisan test --filter=PedidosWeb` | 75+ passed (skips sin SQL Server) |
 | `php artisan test --filter=Pivot` | Feature + unit (requieren tenant SQL Server) |
 | `npm run build` (frontend) | OK |
-| `npm run test` (Vitest) | Unit pivot + grid export + SelectBox + formato/agregaciones |
-| E2E pivot | `pivot-historial`, `pivot-layout-persistencia`, `pivot-export`, `pivot-informes` |
+| `npm run test` (Vitest) | Unit pivot + grid export + SelectBox |
+| E2E pivot | `pivot-historial`, `pivot-informes`, `pivot-layout-persistencia`, `pivot-export` |
 | E2E MVP | `consultas-d1`, `mvp-section9`, `grid-layouts`, `grid-export` |
+
+---
+
+## Observaciones deploy
+
+| Entorno | Acción |
+|---------|--------|
+| **Forge (backend)** | `git pull` + redeploy. **Sin** `migrate` por este delta (solo código) |
+| **Vercel (frontend)** | Redeploy automático con push a `v1.1.0` |
+| **SQL pivots** | Solo si tenant sin catálogo: migraciones pivots + `seed-pivot-catalog.sql` o seeders |
+| **`.env`** | Verificar `PIVOTS_ENABLED` si se activan informes pivot |
 
 ---
 
@@ -167,9 +135,8 @@ OpenAPI: `backend/storage/api-docs/api-docs.json`
 
 - Tests integración pivot y PedidosWeb requieren **SQL Server tenant** en CI (skipped local sin BD).
 - **GEN-08** fuera del MVP release hasta flags + migraciones en tenant objetivo.
-- `pq_pivots_aud`, export pivot server-side, PDF pivot: fuera D1 v1.
+- **CC PQ #5 listbox:** implementación **provisional** sin disponible.
 - Advertencia Vite: chunk DevExtreme > 500 kB (preexistente).
-- **SPEC-001-07** (importar Excel): documentación A1; implementación pendiente de D1.
 - TR-101-01 permanece diferida hasta `EMPRESAS_CONEXION`.
 
 ---
@@ -189,33 +156,22 @@ OpenAPI: `backend/storage/api-docs/api-docs.json`
 - [ ] Layouts: sufijo ` (*)` en diseños propios; plantilla sistema resetea grilla
 - [ ] Export Excel: fechas, booleanos, totales pie formateados
 - [ ] SelectBox cliente/artículo: indicador loading; auto-match si único resultado
-- [ ] Carga artículos: búsqueda diferida sin bloquear UI
 - [ ] Guardar diseño grilla preserva totalizadores pie
 
-### CC PQ #4
+### CC PQ #4 / #5
 
-- [ ] Detalle pedidos, Deudas, Cheques, Stock: toggle Grilla / Pivot con `PIVOTS_ENABLED`
-- [ ] Valores numéricos pivot con formato `#,##0.00`; fechas con formato locale
-- [ ] Menú contextual encabezado pivot (agregación, formato) operativo
-- [ ] Consultas cabecera (ingresados, pendientes, presupuestos): solo grilla, sin pivot
-
-### CC PQ #5
-
-- [ ] Listbox artículos en carga: disponible no descuenta pedidos web ingresados
-- [ ] Artículo con base: paréntesis muestra disponible del código base
-- [ ] Consulta de stock: disponible neto con pedidos web sin regresión
+- [ ] Pivots en informes (con flags activos); formato `#,##0.00`
+- [ ] Listbox artículos en carga: precarga catálogo; display `codigo - descripcion`
+- [ ] Consulta de stock: disponible neto sin regresión
 
 ### GEN-08 Pivots (con flags activos en tenant piloto)
 
-- [ ] Migraciones + `PivotCatalogPilotSeeder` en tenant `desarrollo`
+- [ ] Migraciones + seeders pivot en tenant `desarrollo`
 - [ ] `.env`: `PIVOTS_ENABLED=true`, `PIVOT_LAYOUTS_ENABLED=true`
-- [ ] Historial ventas: toggle Grilla / Pivot; metadata y datos cargan
-- [ ] Guardar/cargar diseño pivot; persistencia tras F5
-- [ ] Export Excel pivot (básico y tabla dinámica si aplica)
-- [ ] Sin flags: historial ventas solo grilla (comportamiento MVP)
+- [ ] Historial ventas e informes CC #4: toggle Grilla / Pivot
+- [ ] Sin flags: solo grilla (comportamiento MVP)
 
 ### CI / despliegue
 
 - [ ] Workflow `.github/workflows/ci.yml` en verde
 - [ ] Deploy frontend Vercel con `frontend/vercel.json`
-- [ ] `php artisan test` con tenant SQL Server + seeds (tanda integración opcional)
