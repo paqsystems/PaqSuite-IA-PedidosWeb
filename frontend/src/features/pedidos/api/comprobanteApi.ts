@@ -292,7 +292,7 @@ export async function fetchPreciosArticulosPorLista(
 export async function fetchArticulosCatalogoCarga(
   listaPrecios: number,
 ): Promise<ArticuloOption[]> {
-  return searchArticulos('', listaPrecios, articulosCargaCatalogPageSize, true);
+  return searchArticulos('', listaPrecios, articulosCargaCatalogPageSize, false);
 }
 
 export async function searchArticulos(

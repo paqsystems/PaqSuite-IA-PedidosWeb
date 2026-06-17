@@ -39,17 +39,24 @@ describe('cargaCatalogos clientes', () => {
 });
 
 describe('etiquetaArticulo', () => {
+  const t = ((key: string, params?: Record<string, string>) => {
+    if (key === 'pedidos.carga.articuloDisplay' && params) {
+      return `${params.codigo} - ${params.descripcion} — Disp. ${params.disponible}`;
+    }
+    return key;
+  }) as import('i18next').TFunction;
+
   const articulo: ArticuloOption = {
     codArticulo: 'ART-01',
     descripcion: 'Tornillo hexagonal',
     disponibleNeto: 12.5,
-    disponibleNetoBase: null,
+    disponibleNetoBase: 3,
     precio: 100,
     bonificacion: 0,
     porcIva: 21,
   };
 
-  it('muestra codigo y descripcion separados por guion', () => {
-    expect(etiquetaArticulo(articulo)).toBe('ART-01 - Tornillo hexagonal');
+  it('muestra codigo, descripcion y disponible neto sin parentesis de base', () => {
+    expect(etiquetaArticulo(articulo, t)).toBe('ART-01 - Tornillo hexagonal — Disp. 12,50');
   });
 });

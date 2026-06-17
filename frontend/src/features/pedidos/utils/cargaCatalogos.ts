@@ -44,11 +44,22 @@ export function ordenarArticulosPorDescripcion(articulos: ArticuloOption[]): Art
   );
 }
 
-export function etiquetaArticulo(articulo: ArticuloOption): string {
-  return `${articulo.codArticulo} - ${articulo.descripcion}`;
+function formatDisponibleCarga(valor: number): string {
+  return valor.toLocaleString('es-AR', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
 }
 
-/** @deprecated Provisional: solo código y descripción; usar etiquetaArticulo. */
-export function formatArticuloCargaDisplay(articulo: ArticuloOption, _t: TFunction): string {
-  return etiquetaArticulo(articulo);
+/** Código, descripción y disponible neto según i18n de carga. */
+export function etiquetaArticulo(articulo: ArticuloOption, t: TFunction): string {
+  return t('pedidos.carga.articuloDisplay', {
+    codigo: articulo.codArticulo,
+    descripcion: articulo.descripcion,
+    disponible: formatDisponibleCarga(articulo.disponibleNeto ?? 0),
+  });
+}
+
+export function formatArticuloCargaDisplay(articulo: ArticuloOption, t: TFunction): string {
+  return etiquetaArticulo(articulo, t);
 }

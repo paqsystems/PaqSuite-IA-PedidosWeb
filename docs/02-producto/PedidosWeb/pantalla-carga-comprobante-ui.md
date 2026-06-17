@@ -54,7 +54,7 @@ Controles: **DevExtreme** (`SelectBox`, `NumberBox`, `DataGrid`, `Popup`, `Butto
 | Regla | Detalle |
 |-------|---------|
 | Control | `SelectBoxDx` (`data-testid`: `articulo-select`) |
-| API | `GET /api/v1/articulos?q=&lista_precios={cod_lista}&page_size=10000&solo_catalogo=1` |
+| API | `GET /api/v1/articulos?q=&lista_precios={cod_lista}&page_size=10000` (join `pq_pedidosweb_stock`; disponible = stock − comprometido − pedidos web ingresados) |
 | Carga de datos | Tras cabecera con **lista de precios** válida: **una** precarga del catálogo (hasta **10 000** ítems); array en memoria |
 | Búsqueda | **Local** DevExtreme (`searchEnabled`, `searchExpr`: `codArticulo`, `descripcion`, `searchMode`: `contains`); sin consultas API al tipear |
 | Auto-match | Si el filtro local deja un único ítem, selección automática |
@@ -68,17 +68,16 @@ Controles: **DevExtreme** (`SelectBox`, `NumberBox`, `DataGrid`, `Popup`, `Butto
 
 ### 3.1 Texto del ítem (disponible en listbox)
 
-Lookup browse (`GET /articulos`) — `ArticuloCargaLookupService::buscar` (CC PQ #5; **sin** pedidos web ingresados hasta optimizar SQL):
+Lookup browse (`GET /articulos`) — `ArticuloCargaLookupService::buscar`:
 
-- **Disponible** = `stock − comprometido` (no descuenta `comprometido_web` de pedidos con `estado = 0`).
-- **Disponible base** = `stockBase − comprometidoBase` (misma exclusión de pedidos web); si no hay base → `null` (no se muestra paréntesis).
+- **Disponible** = `stock − comprometido − comprometido_web`, con `comprometido_web` = suma de `pq_pedidosweb_pedidosdetalle.cantidad` en pedidos con `pq_pedidosweb_pedidoscabecera.estado = 0` (ingresados).
+- **Disponible base** (solo cálculo interno/API): no se muestra en el listbox de carga.
 
-La [consulta de stock](./consulta-stock.md) sigue usando `stock − comprometido − comprometido_web`.
+La [consulta de stock](./consulta-stock.md) usa la misma fórmula de disponible neto.
 
 | Caso | Plantilla i18n |
 |------|----------------|
-| Sin base | `pedidos.carga.articuloDisplay` → `{{codigo}} - {{descripcion}} — Disp. {{disponible}}` |
-| Con base | `pedidos.carga.articuloDisplayConBase` → `{{codigo}} - {{descripcion}} — Disp. {{disponible}} ({{disponibleBase}})` |
+| Listbox carga | `pedidos.carga.articuloDisplay` → `{{codigo}} - {{descripcion}} — Disp. {{disponible}}` |
 
 Cantidades con 2 decimales (`es-AR`). Campos API en `ArticuloOption`: `disponibleNeto`, `disponibleNetoBase`.
 

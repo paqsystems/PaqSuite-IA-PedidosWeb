@@ -990,7 +990,7 @@ export function PedidosCargaPage() {
                   dataSource={articulosOrdenados}
                   valueExpr="codArticulo"
                   displayExpr={(item: ArticuloOption | null) =>
-                    item ? etiquetaArticulo(item) : ''
+                    item ? etiquetaArticulo(item, t) : ''
                   }
                   value={articuloSeleccionado}
                   searchEnabled={true}
