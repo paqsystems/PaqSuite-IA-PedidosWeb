@@ -5,7 +5,7 @@
 | **SPEC madre** | [PedidosWeb_SPEC_MVP.md](PedidosWeb_SPEC_MVP.md) |
 | **Estado** | Especificado |
 | **Prioridad épica** | Must |
-| **Última actualización** | 2026-06-11 (Parte I — CC PQ #5) |
+| **Última actualización** | 2026-06-17 (disponible base agregado — alineación consulta stock) |
 
 ## Objetivo
 
@@ -70,19 +70,22 @@ HU-101-005…010, copia (B), HU-101-011, HU-101-012 (solo pedido delete)
 - [ ] Copia desde comprobante existente verificada
 - [x] CC PQ 04/06/2026: cliente, bonif. 3, exclusión BASE (`usa_esc = 'B'`), precio neto unitario (HU-101-004/005/006)
 - [x] CC PQ 09/06/2026: listas carga (loading, performance, display código artículo, búsqueda lazy)
-- [x] CC PQ #5 09/06/2026: listbox artículos — disponible `stock − comprometido` (sin pedidos web); display con base opcional
+- [x] CC PQ #5 09/06/2026: listbox artículos — disponible neto con `comprometido_web`; display con base opcional
+- [x] CC PQ #6 17/06/2026: disponible base en listbox = agregado SUM por `articulos.base` (§5 consulta stock), no stock del código base aislado
 
-## In scope — CC PQ #5 (09/06/2026)
+## In scope — CC PQ #5 / #6 (listbox artículos)
 
-En el **lookup/browse** de artículos (`GET /articulos` sin `codigos`):
+En el **lookup/browse** de artículos (`GET /articulos` sin `codigos`), servicio `ArticuloCargaLookupService`:
 
 | Contexto | Fórmula disponible |
 |----------|-------------------|
-| Listbox carga | `pq_pedidosweb_stock.stock − pq_pedidosweb_stock.comprometido` |
-| Disponible base (si `articulos.base` no vacío) | Misma fórmula agregada por `base` |
-| Consulta stock | Sin cambio: `stock − comprometido − comprometido_web` |
+| Disponible artículo | `stock − comprometido − comprometido_web` (pedidos ingresados `estado = 0`) |
+| Disponible base (si `articulos.base` no vacío) | `SUM(stock) − SUM(comprometido) − comprometido_base_web` sobre **todas** las presentaciones con la misma `base` — ver [consulta-stock.md](../../02-producto/PedidosWeb/consulta-stock.md) §5 |
+| Consulta stock (`GET /consultas/stock`) | Mismas fórmulas §4–§5 (`StockConsultaService`) |
 
-Display ítem: `{codigo} - {descripcion} — Disp. {disponible}` y `({disponibleBase})` si hay base.
+Display ítem: `{codigo} - {descripcion} — Disp. {disponibleNeto}` y `({disponibleNetoBase})` si hay base. Entre paréntesis va **disponible neto base**, no `comprometidoBaseWeb`.
+
+Fuente de verdad UI: [pantalla-carga-comprobante-ui.md](../../02-producto/PedidosWeb/pantalla-carga-comprobante-ui.md) §3.
 
 ## In scope — CC PQ #3 (09/06/2026)
 
@@ -100,3 +103,4 @@ Display ítem: `{codigo} - {descripcion} — Disp. {disponible}` y `({disponible
 | 09/06/2026 | Parte I CC #3 | Unificación `SPEC-101-10-pantalla-carga-update` |
 | 09/06/2026 | CC PQ #5 | Listbox carga: disponible sin `comprometido_web` |
 | 11/06/2026 | Parte I CC #5 | Unificación `SPEC-101-10-pantalla-carga-update` (CC #5) |
+| 17/06/2026 | CC PQ #6 | Disponible base listbox: agregado SUM por `base`; fórmula alineada con consulta stock §5 |

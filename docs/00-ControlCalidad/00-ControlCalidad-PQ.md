@@ -46,7 +46,8 @@ Este archivo **no sustituye** SPEC, HU ni TR: es la **entrada** del circuito de 
 
 | # | Fecha | Estado | Resumen |
 |---|-------|--------|---------|
-| 5 | 09/06/2026 | Finalizado (Parte I) | Listbox artículos carga: disponible solo `stock − comprometido` (sin pedidos ingresados); display con base opcional — unificado 11/06/2026 |
+| 6 | 17/06/2026 | Finalizado (Parte I) | Listbox artículos: disponible base = SUM por `base` (no stock código base); alineado consulta stock §5 |
+| 5 | 09/06/2026 | Finalizado (Parte I) | Listbox artículos carga: display disponible y base — unificado 11/06/2026; ítem (c) base revisado en #6 |
 | 4 | 10/06/2026 | Finalizado (Parte I) | Vista pivot en informes: Detalle, Deudas, Cheques, Stock — unificado 16/06/2026 |
 | 1 | 04/06/2026 | Finalizado (Parte I) | 10 familias HU — CC PQ; updates unificados 09/06/2026 |
 | 2 | 05/06/2026 | Finalizado (Parte I) | GEN-03 layouts/export Excel formateado — CC PQ #2; unificado 09/06/2026 |
@@ -104,6 +105,38 @@ Además agregar estas validaciones :
 
 ---
 
+## Control de Calidad #6
+
+### Referencia del control
+
+| Campo | Valor |
+|-------|--------|
+| **Fecha** | 17/06/2026 |
+| **Responsable** | Pablo Quarracino (PQ) |
+| **Estado** | Finalizado (Parte I) |
+| **Entorno probado** | Local — Ankas_del_sur; artículos AB 0100, AC01 *, AC03 1000 |
+| **Build / rama** | `v1.1.0-paq` working tree |
+
+### Hallazgos
+
+En el **listbox de artículos** de carga, el valor entre paréntesis (`disponibleNetoBase`) mostraba cantidades erróneas (p. ej. 10, 262, 55 — equivalentes a **impegnato web base**) en lugar del **disponible neto base** de la consulta de stock (p. ej. 1.126.520, 177.100, 745).
+
+**Causa:** `ArticuloCargaLookupService` tomaba `stock`/`comprometido` de una fila `pq_pedidosweb_stock` cuyo `cod_articulo` = código base, en lugar de **SUM** sobre todas las presentaciones con la misma `articulos.base` (regla [consulta-stock.md](../02-producto/PedidosWeb/consulta-stock.md) §5).
+
+### Errores encontrados - Mejoras solicitadas
+
+#### HU-101-005-inicializacion-cabecera · HU-101-006-carga-renglones
+
+a) `disponibleNetoBase` = `SUM(stock) − SUM(comprometido) − comprometido_base_web` agrupado por `articulos.base`.
+
+b) Entre paréntesis en el ítem: **solo** `disponibleNetoBase` (no `comprometidoBaseWeb`).
+
+c) Misma regla que consulta stock §5; implementación en `ArticuloCargaLookupService` (subconsulta `[bs]`, no join `stock.cod_articulo = a.base`).
+
+*Procesado* → [pantalla-carga-comprobante-ui.md](../02-producto/PedidosWeb/pantalla-carga-comprobante-ui.md) §3.1 · [SPEC-101-10-pantalla-carga](../05-open-spec/101-PedidosWeb/SPEC-101-10-pantalla-carga.md) · [HU-101-005](../03-historias-usuario/101-PedidosWeb/HU-101-005-inicializacion-cabecera.md) · [TR-SPEC-101-10-pantalla-carga](../04-tareas/101-PedidosWeb/TR-SPEC-101-10-pantalla-carga.md) §7.4
+
+---
+
 ## Control de Calidad #5
 
 ### Referencia del control
@@ -154,6 +187,8 @@ Ejemplo con base: `ART002 - Kit ensamble — Disp. 80,00 (120,00)`
 e) **Alcance:** solo lookup/browse de artículos en carga (`GET /articulos` sin `codigos`); no alterar la consulta de stock ni otros procesos que deban seguir usando disponible neto con pedidos web.
 
 *Procesado* → [SPEC-101-10-pantalla-carga](../05-open-spec/101-PedidosWeb/SPEC-101-10-pantalla-carga.md) · [HU-101-005-inicializacion-cabecera](../03-historias-usuario/101-PedidosWeb/HU-101-005-inicializacion-cabecera.md) · [TR-SPEC-101-10-pantalla-carga](../04-tareas/101-PedidosWeb/TR-SPEC-101-10-pantalla-carga.md) — Parte I 11/06/2026
+
+> **Nota histórica:** el ítem (c) pedía stock del código base aislado; **supersedido** por CC PQ #6 (17/06/2026) — agregado SUM por `base`. La fórmula de disponible artículo incluye `comprometido_web` (alineada con consulta stock §4); ver producto §3.1 vigente.
 
 ---
 

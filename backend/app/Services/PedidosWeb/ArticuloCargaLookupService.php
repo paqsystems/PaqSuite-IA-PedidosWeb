@@ -49,8 +49,8 @@ final class ArticuloCargaLookupService
 
         $stockExpr = $hasStockTable ? 'ISNULL(s.stock, 0)' : '0';
         $comprometidoExpr = $hasStockTable ? 'ISNULL(s.comprometido, 0)' : '0';
-        $stockBaseExpr = $hasStockTable ? 'ISNULL(b.stock, 0)' : '0';
-        $comprometidoBaseExpr = $hasStockTable ? 'ISNULL(b.comprometido, 0)' : '0';
+        $stockBaseExpr = $hasStockTable ? 'ISNULL(bs.stock_base, 0)' : '0';
+        $comprometidoBaseExpr = $hasStockTable ? 'ISNULL(bs.comprometido_base, 0)' : '0';
         $precioExpr = $codLista > 0 && $hasListaPreciosTable ? 'ISNULL(lp.precio, 0)' : '0';
 
         $hasPedidosTables = $hasStockTable
@@ -79,8 +79,16 @@ SQL;
         $joinBindings = [];
         if ($hasStockTable) {
             $joins[] = 'LEFT JOIN [pq_pedidosweb_stock] AS [s] ON [s].[cod_articulo] = [a].[codigo]';
-            $joins[] = 'LEFT JOIN [pq_pedidosweb_stock] AS [b] ON [b].[cod_articulo] = '.self::BASE_TRIM_SQL
-                .' AND '.self::BASE_NOT_EMPTY_SQL;
+
+            $baseStockSub = DB::table('pq_pedidosweb_stock as s2')
+                ->join('pq_pedidosweb_articulos as a2', 's2.cod_articulo', '=', 'a2.codigo')
+                ->whereRaw("NULLIF(LTRIM(RTRIM(CAST(a2.[base] AS NVARCHAR(50)))), '') IS NOT NULL")
+                ->groupBy('a2.base')
+                ->selectRaw('a2.[base] AS cod_base, SUM(s2.stock) AS stock_base, SUM(s2.comprometido) AS comprometido_base');
+
+            $joins[] = 'LEFT JOIN ('.$baseStockSub->toSql().') AS [bs] ON LTRIM(RTRIM(CAST([bs].[cod_base] AS NVARCHAR(50)))) = '
+                .self::BASE_TRIM_SQL.' AND '.self::BASE_NOT_EMPTY_SQL;
+            $joinBindings = array_merge($joinBindings, $baseStockSub->getBindings());
         }
         if ($codLista > 0 && $hasListaPreciosTable) {
             $joins[] = 'LEFT JOIN [pq_pedidosweb_listaprecios_articulos] AS [lp] ON [lp].[cod_articulo] = [a].[codigo] AND [lp].[cod_lista] = ?';

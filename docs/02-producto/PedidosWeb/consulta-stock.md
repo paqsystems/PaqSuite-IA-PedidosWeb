@@ -75,6 +75,8 @@ Todos los artículos con el **mismo** `articulos.base` participan en los agregad
 
 Si `articulos.base` está vacío o solo espacios: `stockBase`, `comprometidoBase`, `comprometidoBaseWeb` y `disponibleNetoBase` responden **`null`** (no se muestran agregados base).
 
+**Lookup carga de artículos** (`GET /api/v1/articulos`, listbox en [pantalla-carga-comprobante-ui.md](./pantalla-carga-comprobante-ui.md) §3.1): usa los mismos agregados §5 vía `ArticuloCargaLookupService` (subconsulta `SUM` por `articulos.base`; **no** join directo `stock.cod_articulo = articulos.base`).
+
 ---
 
 ## 6) Contrato API (`resultado.items[]`)

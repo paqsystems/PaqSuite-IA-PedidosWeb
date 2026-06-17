@@ -51,13 +51,22 @@ function formatDisponibleCarga(valor: number): string {
   });
 }
 
-/** Código, descripción y disponible neto según i18n de carga. */
+/** Código, descripción, disponible neto y — si aplica — disponible neto base entre paréntesis. */
 export function etiquetaArticulo(articulo: ArticuloOption, t: TFunction): string {
-  return t('pedidos.carga.articuloDisplay', {
+  const params = {
     codigo: articulo.codArticulo,
     descripcion: articulo.descripcion,
     disponible: formatDisponibleCarga(articulo.disponibleNeto ?? 0),
-  });
+  };
+
+  if (articulo.disponibleNetoBase !== null && articulo.disponibleNetoBase !== undefined) {
+    return t('pedidos.carga.articuloDisplayConBase', {
+      ...params,
+      disponibleBase: formatDisponibleCarga(articulo.disponibleNetoBase),
+    });
+  }
+
+  return t('pedidos.carga.articuloDisplay', params);
 }
 
 export function formatArticuloCargaDisplay(articulo: ArticuloOption, t: TFunction): string {

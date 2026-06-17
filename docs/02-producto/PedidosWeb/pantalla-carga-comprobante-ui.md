@@ -7,7 +7,7 @@
 | **Ruta** | `/pedidos/carga` |
 | **TR** | [TR-SPEC-101-10-pantalla-carga](../../04-tareas/101-PedidosWeb/TR-SPEC-101-10-pantalla-carga.md) |
 | **SPEC** | [SPEC-101-10-pantalla-carga](../../05-open-spec/101-PedidosWeb/SPEC-101-10-pantalla-carga.md) |
-| **Última actualización** | 2026-06-09 (CC PQ #3) |
+| **Última actualización** | 2026-06-17 (disponible base agregado) |
 
 Este documento es la **fuente de verdad** para comportamiento de UI de la pantalla única de carga/edición de pedidos y presupuestos. Ante conflicto con implementaciones antiguas, prevalece este archivo.
 
@@ -68,16 +68,22 @@ Controles: **DevExtreme** (`SelectBox`, `NumberBox`, `DataGrid`, `Popup`, `Butto
 
 ### 3.1 Texto del ítem (disponible en listbox)
 
-Lookup browse (`GET /articulos`) — `ArticuloCargaLookupService::buscar`:
+Lookup browse (`GET /articulos`) — `ArticuloCargaLookupService::buscar` (implementación alineada con [consulta de stock](./consulta-stock.md) §4–§5):
 
 - **Disponible** = `stock − comprometido − comprometido_web`, con `comprometido_web` = suma de `pq_pedidosweb_pedidosdetalle.cantidad` en pedidos con `pq_pedidosweb_pedidoscabecera.estado = 0` (ingresados).
-- **Disponible base** (solo cálculo interno/API): no se muestra en el listbox de carga.
+- **Disponible base** (`disponibleNetoBase`, solo si `articulos.base` ≠ vacío):
+  - `stockBase` = **SUM**(`stock`) de **todas** las presentaciones con el mismo `articulos.base` (no el stock de una fila cuyo `cod_articulo` = código base).
+  - `comprometidoBase` = **SUM**(`comprometido`) mismo criterio.
+  - `comprometidoBaseWeb` = **SUM**(`cantidad`) en pedidos ingresados de **todos** los artículos con esa `base`.
+  - `disponibleNetoBase` = `stockBase − comprometidoBase − comprometidoBaseWeb`.
+  - En el listbox se muestra entre paréntesis **solo** `disponibleNetoBase` (no `comprometidoBaseWeb` ni stock del código base aislado).
 
-La [consulta de stock](./consulta-stock.md) usa la misma fórmula de disponible neto.
+La [consulta de stock](./consulta-stock.md) usa las mismas fórmulas §4–§5.
 
 | Caso | Plantilla i18n |
 |------|----------------|
-| Listbox carga | `pedidos.carga.articuloDisplay` → `{{codigo}} - {{descripcion}} — Disp. {{disponible}}` |
+| Sin base | `pedidos.carga.articuloDisplay` → `{{codigo}} - {{descripcion}} — Disp. {{disponible}}` |
+| Con base | `pedidos.carga.articuloDisplayConBase` → `{{codigo}} - {{descripcion}} — Disp. {{disponible}} ({{disponibleBase}})` |
 
 Cantidades con 2 decimales (`es-AR`). Campos API en `ArticuloOption`: `disponibleNeto`, `disponibleNetoBase`.
 
@@ -239,7 +245,7 @@ Persistir `descuento_origen` en detalle cuando exista columna (`cantidad` | `art
 | Clientes visibles | `GET /api/v1/clientes` |
 | Cabecera inicial | `GET /api/v1/clientes/{cod}/cabecera-inicial` |
 | Artículos carga | `GET /api/v1/articulos?lista_precios=` |
-| Stock (lookup artículos) | Misma lógica que `GET /api/v1/consultas/stock` vía `StockConsultaService` |
+| Stock (lookup artículos) | `ArticuloCargaLookupService` — fórmulas §3.1 (equivalentes a `StockConsultaService` / consulta stock §4–§5) |
 | Grabación | `POST /api/v1/comprobantes/grabar` |
 
 ---
