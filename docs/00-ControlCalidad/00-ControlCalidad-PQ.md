@@ -70,9 +70,20 @@ en carga/edición de pedidos, Verificar que se esté inicializando el control de
 
 ### Errores encontrados - Mejoras solicitadas
 
+#### i18n - procesos donde no se está aplicando.
+
+no se está traduciendo como corresponde :
+- la grilla de Consulta de Parámetros (ni descripción, valor ni comentario)
+- los captions o títulos de datos en los pivots.
+corregir y colocarlo como fuente de verdad.
+
 #### HU-101-005-inicializacion-cabecera
 
 Cuando se comienza un nuevo comprobante, después de elegir el cliente, el control de selección de perfiles se debe inicializar con el valor INT del parámetro "CodPerfilPedidos"
+
+#### HU-101-005-inicializacion-cabecera
+
+Rediseñar estéticamente la pantalla conforme la imagen que se ve en `docs\02-producto\PedidosWeb\Diseño Carga Pedidos.png`
 
 #### HU-101-009-grabar-pedido · HU-101-010-grabar-presupuesto
 
@@ -84,7 +95,12 @@ Cuando se graba un pedido o presupuesto, hay que verificar que se hayan completa
 - transporte
 - Dirección Entrega
 - Lista de Precios
-Además que exista por lo menos un renglón en el detalle de artículos
+Además agregar estas validaciones : 
+- que exista por lo menos un renglón en el detalle de artículos
+- Si parámetro “NivelExtremo” es True, ese dato solo puede valer 0 ó 100.
+- Si parámetro "Artículopreciocero" o "Articulossinprecio" es false, no puede haber registros con precio cero. 
+- que el cliente tenga el atributo inhabilitado=FALSE (0).
+
 
 ---
 

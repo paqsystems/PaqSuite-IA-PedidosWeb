@@ -6,6 +6,7 @@ use App\Exceptions\AuthFlowException;
 use App\Exceptions\ExcelImportFlowException;
 use App\Http\Controllers\Controller;
 use App\Http\Responses\ApiResponse;
+use App\Services\ExcelImport\ExcelColumnI18nResolver;
 use App\Services\ExcelImport\ExcelImportAccessService;
 use App\Services\ExcelImport\ExcelTemplateService;
 use App\Services\Visibility\VisibilityPermissionGuard;
@@ -90,7 +91,11 @@ final class ExcelImportProcessController extends Controller
         try {
             $proceso = $this->excelTemplateService->findActiveProceso($codigoProceso);
             $this->visibilityPermissionGuard->ensureAltaPermission($user, (string) $proceso->procedimiento_host);
-            $spreadsheet = $this->excelTemplateService->generateSpreadsheet($proceso);
+            $locale = app(ExcelColumnI18nResolver::class)->resolveLocaleFromRequest(
+                $request->header('Accept-Language'),
+                $request->query('locale')
+            );
+            $spreadsheet = $this->excelTemplateService->generateSpreadsheet($proceso, $locale);
             $binary = $this->excelTemplateService->writeSpreadsheetToString($spreadsheet);
             $fileName = $this->excelTemplateService->buildSuggestedFileName($codigoProceso);
 

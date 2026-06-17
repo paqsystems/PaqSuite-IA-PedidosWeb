@@ -110,10 +110,15 @@ export async function fetchExcelImportProceso(codigoProceso: string): Promise<Ex
   return payload.resultado;
 }
 
-export async function downloadExcelTemplate(codigoProceso: string): Promise<Blob> {
+export async function downloadExcelTemplate(codigoProceso: string, locale?: string): Promise<Blob> {
+  const headers = await authHeaders();
+  if (locale) {
+    headers.set('Accept-Language', locale);
+  }
+
   const response = await fetch(
     `${getApiBaseUrl()}/excel-import/procesos/${encodeURIComponent(codigoProceso)}/plantilla`,
-    { headers: await authHeaders() },
+    { headers },
   );
 
   if (!response.ok) {

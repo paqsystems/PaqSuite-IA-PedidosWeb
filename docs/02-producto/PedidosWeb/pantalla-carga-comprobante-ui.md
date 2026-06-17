@@ -54,15 +54,13 @@ Controles: **DevExtreme** (`SelectBox`, `NumberBox`, `DataGrid`, `Popup`, `Butto
 | Regla | Detalle |
 |-------|---------|
 | Control | `SelectBoxDx` (`data-testid`: `articulo-select`) |
-| API | `GET /api/v1/articulos?q=&lista_precios={cod_lista}&page_size=500` |
-| Carga de datos | **DevExtreme `CustomStore`** (`useArticulosCargaDataSource`): consulta remota con `q` (trim en API); **no** consulta al solo enfocar el campo (`openOnFieldClick=false`) |
-| Umbral búsqueda | Mínimo **4** caracteres tipeados (espacios incluidos); tras **1 s** sin tipear con umbral cumplido → `component.open()` |
-| Flecha desplegable | Sin texto escrito: carga primer lote (hasta **500** ítems; `page_size` máx. **1000** en API) |
-| Estado carga | Hint i18n `selectBox.loading` durante fetch (`onLoadingChanged`); en artículos **no** se deshabilita al buscar (`disableWhileLoading=false`) |
-| Auto-match | Si la búsqueda deja un único ítem (≥ 4 caracteres), selección automática (`autoSelectMinSearchLength=4`) |
+| API | `GET /api/v1/articulos?q=&lista_precios={cod_lista}&page_size=10000&solo_catalogo=1` |
+| Carga de datos | Tras cabecera con **lista de precios** válida: **una** precarga del catálogo (hasta **10 000** ítems); array en memoria |
+| Búsqueda | **Local** DevExtreme (`searchEnabled`, `searchExpr`: `codArticulo`, `descripcion`, `searchMode`: `contains`); sin consultas API al tipear |
+| Auto-match | Si el filtro local deja un único ítem, selección automática |
 | Lista precios | Sin `listaPrecios` válida en cabecera el combobox queda deshabilitado (sin `DataSource`); al cambiar lista → `actualizarPreciosRenglonesPorLista` (batch `codigos`) |
 | Orden | **`descripcion` ASC** (API `orderBy('descripcion')` + `ordenarArticulosPorDescripcion` en cliente) |
-| Búsqueda | Escribir filtra en servidor (`q`); `searchExpr` código/descripción; `cacheRawData=false` |
+| Estado carga | Hint i18n `selectBox.loading` durante precarga inicial |
 | Exclusión BASE | No listar artículos con `pq_pedidosweb_articulos.usa_esc = 'B'` (solo lookup/browse; refresh por `codigos` no aplica este filtro) |
 | Formato ítem | Ver §3.1 |
 | Precio al agregar | Campo `precio` de la respuesta (lista activa en cabecera) |

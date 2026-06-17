@@ -41,7 +41,7 @@ final class ArticuloCargaLookupService
             return [];
         }
 
-        $pageSize = min(1000, max(1, $pageSize));
+        $pageSize = min(10000, max(1, $pageSize));
         $solicitudPorCodigos = $codigos !== [];
         $incluirDisponible = ! $soloCatalogo;
         $hasStockTable = $incluirDisponible && Schema::hasTable('pq_pedidosweb_stock');

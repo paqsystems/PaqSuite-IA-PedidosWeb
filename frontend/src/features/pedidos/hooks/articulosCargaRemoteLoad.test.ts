@@ -31,8 +31,8 @@ describe('loadArticulosCargaRemote', () => {
     searchArticulosMock.mockReturnValue(pendingSearch);
 
     const state = createArticulosCargaRemoteLoadState();
-    const first = loadArticulosCargaRemote('tosta', 4, false, state);
-    const second = loadArticulosCargaRemote('tosta', 4, false, state);
+    const first = loadArticulosCargaRemote('tosta', 4, state);
+    const second = loadArticulosCargaRemote('tosta', 4, state);
 
     expect(searchArticulosMock).toHaveBeenCalledTimes(1);
 
@@ -46,16 +46,16 @@ describe('loadArticulosCargaRemote', () => {
     searchArticulosMock.mockRejectedValue(new Error('timeout'));
 
     const state = createArticulosCargaRemoteLoadState();
-    await expect(loadArticulosCargaRemote('tosta', 4, false, state)).resolves.toEqual([]);
+    await expect(loadArticulosCargaRemote('tosta', 4, state)).resolves.toEqual([]);
     expect(searchArticulosMock).toHaveBeenCalledTimes(1);
 
-    await expect(loadArticulosCargaRemote('tosta', 4, false, state)).resolves.toEqual([]);
+    await expect(loadArticulosCargaRemote('tosta', 4, state)).resolves.toEqual([]);
     expect(searchArticulosMock).toHaveBeenCalledTimes(1);
 
     vi.advanceTimersByTime(articulosCargaFailedQueryCooldownMs);
 
     searchArticulosMock.mockResolvedValue([{ codArticulo: 'A1' }]);
-    await expect(loadArticulosCargaRemote('tosta', 4, false, state)).resolves.toEqual([
+    await expect(loadArticulosCargaRemote('tosta', 4, state)).resolves.toEqual([
       { codArticulo: 'A1' },
     ]);
     expect(searchArticulosMock).toHaveBeenCalledTimes(2);
@@ -65,12 +65,12 @@ describe('loadArticulosCargaRemote', () => {
     searchArticulosMock.mockRejectedValue(new Error('timeout'));
 
     const state = createArticulosCargaRemoteLoadState();
-    await loadArticulosCargaRemote('tosta', 4, false, state);
+    await loadArticulosCargaRemote('tosta', 4, state);
 
     resetArticulosCargaRemoteLoadState(state);
     searchArticulosMock.mockResolvedValue([{ codArticulo: 'A1' }]);
 
-    await expect(loadArticulosCargaRemote('tosta', 4, false, state)).resolves.toEqual([
+    await expect(loadArticulosCargaRemote('tosta', 4, state)).resolves.toEqual([
       { codArticulo: 'A1' },
     ]);
     expect(searchArticulosMock).toHaveBeenCalledTimes(2);

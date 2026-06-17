@@ -57,9 +57,19 @@
 
 .excelImportHostToolbar {
   display: flex;
+  flex-direction: row;
   flex-wrap: wrap;
   gap: 0.5rem;
   align-items: center;
+}
+
+.excelImportHostToolbar > div {
+  flex: 0 0 auto;
+  width: auto;
+}
+
+.excelImportHostToolbar .dx-button {
+  width: auto;
 }
 
 .excelImportHostModal__upload,
@@ -93,6 +103,43 @@
   flex-wrap: wrap;
   gap: 0.5rem;
   justify-content: flex-end;
+}
+
+.excelImportHostModal__actions--spread {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: center;
+  width: 100%;
+  gap: 0.5rem;
+  flex-wrap: nowrap;
+}
+
+.excelImportHostModal__actionSlot {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.excelImportHostModal__actionSlot .dx-button {
+  width: auto;
+}
+
+.excelImportHostModal__actionSlot--start {
+  justify-content: flex-start;
+}
+
+.excelImportHostModal__actionSlot--center {
+  justify-content: center;
+}
+
+.excelImportHostModal__actionSlot--end {
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.excelImportHostModal__errors .excelImportHostModal__actions--spread {
+  flex-shrink: 0;
+  margin-top: 0.25rem;
 }
 
 .excelImportPage__hint,

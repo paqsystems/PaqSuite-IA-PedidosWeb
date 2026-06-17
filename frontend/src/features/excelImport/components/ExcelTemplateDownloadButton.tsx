@@ -15,13 +15,13 @@ export function ExcelTemplateDownloadButton({
   visible = true,
   disabled = false,
 }: ExcelTemplateDownloadButtonProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [isLoading, setIsLoading] = useState(false);
 
   const handleDownload = useCallback(async () => {
     setIsLoading(true);
     try {
-      const blob = await downloadExcelTemplate(codigoProceso);
+      const blob = await downloadExcelTemplate(codigoProceso, i18n.language);
       const safeCodigo = codigoProceso.replace(/[^A-Za-z0-9_-]+/g, '_') || 'proceso';
       const suggestedName = `${safeCodigo}_plantilla.xlsx`;
       const buffer = await blob.arrayBuffer();
@@ -31,7 +31,7 @@ export function ExcelTemplateDownloadButton({
     } finally {
       setIsLoading(false);
     }
-  }, [codigoProceso]);
+  }, [codigoProceso, i18n.language]);
 
   if (!visible) {
     return null;

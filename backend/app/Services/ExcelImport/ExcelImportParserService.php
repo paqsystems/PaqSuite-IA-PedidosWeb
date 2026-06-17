@@ -16,6 +16,7 @@ final class ExcelImportParserService
 {
     public function __construct(
         private readonly ExcelImportNormalizer $normalizer,
+        private readonly ExcelColumnI18nResolver $columnI18nResolver,
     ) {}
 
     /**
@@ -48,7 +49,11 @@ final class ExcelImportParserService
         ExcelImportLotContext $ctx
     ): array {
         $headerMap = $this->readHeaderMap($sheet);
-        $structuralError = $this->validateStructure($headerMap, $campos);
+        $structuralError = $this->columnI18nResolver->validateStructure(
+            (string) $proceso->codigo_proceso,
+            $headerMap,
+            $campos
+        );
         if ($structuralError !== null) {
             return [
                 'structuralError' => $structuralError,
@@ -60,7 +65,11 @@ final class ExcelImportParserService
             ];
         }
 
-        $columnIndexByCampo = $this->buildColumnIndexMap($headerMap, $campos);
+        $columnIndexByCampo = $this->columnI18nResolver->buildColumnIndexMap(
+            (string) $proceso->codigo_proceso,
+            $headerMap,
+            $campos
+        );
         $highestRow = (int) $sheet->getHighestDataRow();
         $rows = [];
         $leidas = 0;
@@ -73,7 +82,7 @@ final class ExcelImportParserService
             $hasAnyValue = false;
 
             foreach ($columnIndexByCampo as $campoInterno => $colIndex) {
-                $cell = $sheet->getCellByColumnAndRow($colIndex, $rowIndex);
+                $cell = $sheet->getCell([$colIndex, $rowIndex]);
                 $calculated = $cell->getCalculatedValue();
                 $rawValues[$campoInterno] = $calculated;
                 if ($calculated !== null && (! is_string($calculated) || trim($calculated) !== '')) {
@@ -127,7 +136,7 @@ final class ExcelImportParserService
         $highestIndex = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::columnIndexFromString($highestColumn);
 
         for ($col = 1; $col <= $highestIndex; $col++) {
-            $value = $sheet->getCellByColumnAndRow($col, 1)->getCalculatedValue();
+            $value = $sheet->getCell([$col, 1])->getCalculatedValue();
             if ($value === null) {
                 continue;
             }

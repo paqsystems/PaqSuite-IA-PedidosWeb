@@ -15,6 +15,7 @@ interface ExcelImportHandlerInterface
 
     /**
      * @param  array<string, mixed>  $normalizedRow
+     * @return array<string, mixed> fila enriquecida para persistir en staging
      */
-    public function processRow(array $normalizedRow, ExcelImportLotContext $ctx): void;
+    public function processRow(array $normalizedRow, ExcelImportLotContext $ctx): array;
 }

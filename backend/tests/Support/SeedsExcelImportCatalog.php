@@ -9,5 +9,6 @@ trait SeedsExcelImportCatalog
     protected function seedExcelImportCatalog(): void
     {
         $this->seed(ExcelImportCatalogPilotSeeder::class);
+        $this->seed(\Database\Seeders\ExcelImport\PedidosWebExcelImportCatalogSeeder::class);
     }
 }

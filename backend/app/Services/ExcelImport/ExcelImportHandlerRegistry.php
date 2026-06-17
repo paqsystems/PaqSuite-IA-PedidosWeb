@@ -23,7 +23,8 @@ final class ExcelImportHandlerRegistry
             );
         }
 
-        $class = config('excel_import.handlers.'.$handlerBackend);
+        $handlers = config('excel_import.handlers', []);
+        $class = is_array($handlers) ? ($handlers[$handlerBackend] ?? null) : null;
 
         if (! is_string($class) || $class === '') {
             throw new ExcelImportFlowException(

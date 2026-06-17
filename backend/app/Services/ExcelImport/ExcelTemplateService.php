@@ -16,10 +16,12 @@ final class ExcelTemplateService
 {
     private const headerArgb = 'FF4472C4';
 
-    private const dataRowEnd = 1048576;
+    /** Filas con formato de columna en plantilla (alineado a validación booleana). */
+    private const dataRowEnd = 1000;
 
     public function __construct(
         private readonly ExcelImportHeaderCommentBuilder $headerCommentBuilder,
+        private readonly ExcelColumnI18nResolver $columnI18nResolver,
     ) {}
 
     public function findActiveProceso(string $codigoProceso): PqExcelProceso
@@ -64,8 +66,9 @@ final class ExcelTemplateService
         return sprintf('%s_plantilla.xlsx', $safeCodigo);
     }
 
-    public function generateSpreadsheet(PqExcelProceso $proceso): Spreadsheet
+    public function generateSpreadsheet(PqExcelProceso $proceso, string $locale = 'es'): Spreadsheet
     {
+        $locale = $this->columnI18nResolver->normalizeLocale($locale);
         if (! $proceso->genera_plantilla) {
             throw new ExcelImportFlowException(
                 ExcelImportErrorCodes::plantillaNoDisponible,
@@ -95,9 +98,17 @@ final class ExcelTemplateService
             $columnLetter = $this->columnLetter($columnIndex);
             $cellRef = $columnLetter.'1';
 
-            $sheet->setCellValue($cellRef, $campo->nombre_columna_excel);
+            $sheet->setCellValue(
+                $cellRef,
+                $this->columnI18nResolver->headerLabel(
+                    (string) $proceso->codigo_proceso,
+                    (string) $campo->nombre_campo_interno,
+                    (string) $campo->nombre_columna_excel,
+                    $locale
+                )
+            );
             $this->applyHeaderStyle($sheet, $cellRef);
-            $this->applyHeaderComment($sheet, $cellRef, $campo);
+            $this->applyHeaderComment($sheet, $cellRef, $campo, (string) $proceso->codigo_proceso, $locale);
             $this->applyColumnFormat($sheet, $columnLetter, $campo, (string) $proceso->formato_booleano_plantilla);
         }
 
@@ -126,11 +137,16 @@ final class ExcelTemplateService
     private function applyHeaderComment(
         \PhpOffice\PhpSpreadsheet\Worksheet\Worksheet $sheet,
         string $cellRef,
-        PqExcelProcesoCampo $campo
+        PqExcelProcesoCampo $campo,
+        string $codigoProceso,
+        string $locale
     ): void {
         $texto = $this->headerCommentBuilder->build(
+            $codigoProceso,
             (bool) $campo->es_columna_obligatoria_estructural,
-            $campo->observaciones
+            $campo->observaciones,
+            (string) $campo->nombre_campo_interno,
+            $locale
         );
 
         if ($texto === null) {

@@ -14,6 +14,7 @@ return [
 
     'handlers' => [
         'Importacion.Articulos.AltaHandler' => \App\Services\ExcelImport\Handlers\NoOpArticulosAltaHandler::class,
+        'Importacion.Pedidos.IndividualHandler' => \App\Services\ExcelImport\Handlers\PedidoIndividualExcelImportHandler::class,
     ],
 
 ];

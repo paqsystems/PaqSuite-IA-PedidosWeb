@@ -30,7 +30,10 @@ final class ExcelImportPlantillaFeatureTest extends ExcelImportFeatureTestCase
     {
         Sanctum::actingAs($this->supervisorUser());
 
-        $response = $this->get('/api/v1/excel-import/procesos/ARTICULOS_ALTA/plantilla', $this->tenantHeaders());
+        $response = $this->get('/api/v1/excel-import/procesos/ARTICULOS_ALTA/plantilla', array_merge(
+            $this->tenantHeaders(),
+            ['Accept-Language' => 'es']
+        ));
 
         $response->assertOk();
         $this->assertStringContainsString(

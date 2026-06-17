@@ -5,6 +5,7 @@ import { fetchExcelImportProceso } from '../api/excelImportApi';
 import { ExcelTemplateDownloadButton } from './ExcelTemplateDownloadButton';
 import { ExcelImportHostModal } from './ExcelImportHostModal';
 import type { ExcelImportHostResult, ExcelImportHostToolbarProps } from '../types/excelImportHostTypes';
+import '../pages/excelImportPages.css';
 
 export function ExcelImportHostToolbar({
   codigoProceso,

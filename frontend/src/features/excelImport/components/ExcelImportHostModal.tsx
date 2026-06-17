@@ -267,28 +267,38 @@ export function ExcelImportHostModal({
             })}
           </p>
           <ExcelImportErrorGrid guidImportacion={activeLot.guidImportacion} />
-          <div className="excelImportHostModal__actions">
-            <div data-testid="excelHostExportErrors">
-              <Button
-                text={t('excelImport.hostExportErrors')}
-                icon="export"
-                stylingMode="outlined"
-                onClick={() => void handleExportErrors()}
-              />
-            </div>
-            <Button text={t('excelImport.hostClose')} stylingMode="outlined" onClick={() => deliverEmpty(activeLot)} />
-            <div data-testid="excelHostRetry">
-              <Button text={t('excelImport.hostRetry')} type="default" onClick={resetUpload} />
-            </div>
-            {showContinue ? (
-              <div data-testid="excelHostContinue">
+          <div className="excelImportHostModal__actions excelImportHostModal__actions--spread">
+            <div className="excelImportHostModal__actionSlot excelImportHostModal__actionSlot--start">
+              <div data-testid="excelHostExportErrors">
                 <Button
-                  text={t('excelImport.hostContinue')}
-                  type="default"
-                  onClick={() => void deliverValidRows(activeLot)}
+                  text={t('excelImport.hostExportErrors')}
+                  icon="export"
+                  stylingMode="outlined"
+                  onClick={() => void handleExportErrors()}
                 />
               </div>
-            ) : null}
+            </div>
+            <div className="excelImportHostModal__actionSlot excelImportHostModal__actionSlot--center">
+              <Button
+                text={t('excelImport.hostClose')}
+                stylingMode="outlined"
+                onClick={() => deliverEmpty(activeLot)}
+              />
+            </div>
+            <div className="excelImportHostModal__actionSlot excelImportHostModal__actionSlot--end">
+              {showContinue ? (
+                <div data-testid="excelHostContinue">
+                  <Button
+                    text={t('excelImport.hostContinue')}
+                    type="default"
+                    onClick={() => void deliverValidRows(activeLot)}
+                  />
+                </div>
+              ) : null}
+              <div data-testid="excelHostRetry">
+                <Button text={t('excelImport.hostRetry')} type="default" onClick={resetUpload} />
+              </div>
+            </div>
           </div>
         </section>
       ) : null}

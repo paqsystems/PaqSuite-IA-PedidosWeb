@@ -13,8 +13,8 @@ final class NoOpArticulosAltaHandler implements ExcelImportHandlerInterface
         return [];
     }
 
-    public function processRow(array $normalizedRow, ExcelImportLotContext $ctx): void
+    public function processRow(array $normalizedRow, ExcelImportLotContext $ctx): array
     {
-        // Stub D1 — sin persistencia de negocio en v1 piloto.
+        return $normalizedRow;
     }
 }

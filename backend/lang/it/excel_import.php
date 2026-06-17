@@ -1,0 +1,45 @@
+<?php
+
+return [
+    'columnComment' => [
+        'required' => 'OBBLIGATORIO',
+    ],
+    'column' => [
+        'PEDIDO_INDIVIDUAL' => [
+            'codCliente' => 'codice cliente',
+            'codArticulo' => 'codice articolo',
+            'cantidad' => 'quantita',
+            'precioLista' => 'prezzo listino',
+            'bonifRenglon' => 'sconto riga',
+            'codPerfil' => 'codice profilo',
+            'codCondvta' => 'condizione vendita',
+            'codTranspor' => 'codice trasporto',
+            'idDe' => 'indirizzo consegna',
+            'codLista' => 'codice listino',
+            'nivel' => 'livello',
+            'bonif1' => 'sconto 1',
+            'bonif2' => 'sconto 2',
+            'bonif3' => 'sconto 3',
+            'expreso' => 'corriere',
+            'expresoDire' => 'indirizzo corriere',
+            'fechaEntrega' => 'data consegna',
+            'observaciones' => 'osservazioni',
+            'leyenda1' => 'legenda 1',
+            'leyenda2' => 'legenda 2',
+            'leyenda3' => 'legenda 3',
+            'leyenda4' => 'legenda 4',
+            'leyenda5' => 'legenda 5',
+        ],
+    ],
+    'pedidoIndividual' => [
+        'campoNoEditable' => 'Colonna non modificabile per il tuo profilo',
+        'clienteDistinto' => 'Tutte le righe devono avere lo stesso codice cliente',
+        'cabeceraIncoherente' => 'I dati di testata devono essere identici su tutte le righe',
+        'clienteSesion' => 'Il codice cliente deve coincidere con la sessione',
+        'articuloBase' => 'Articolo di tipo BASE non consentito',
+        'articuloNoEncontrado' => 'Articolo inesistente',
+        'cantidadInvalida' => 'La quantita deve essere maggiore di zero',
+        'precioCero' => 'Prezzo zero non consentito',
+        'nivelInvalido' => 'Livello non valido per la configurazione attuale',
+    ],
+];

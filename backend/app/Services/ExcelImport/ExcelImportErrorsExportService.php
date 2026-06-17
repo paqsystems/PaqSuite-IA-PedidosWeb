@@ -38,7 +38,7 @@ final class ExcelImportErrorsExportService
         $headers[] = 'NumeroFilaExcel';
 
         foreach ($headers as $index => $header) {
-            $sheet->setCellValueByColumnAndRow($index + 1, 1, $header);
+            $sheet->setCellValue([$index + 1, 1], $header);
         }
 
         $filas = PqExcelImportacionFila::query()
@@ -57,13 +57,13 @@ final class ExcelImportErrorsExportService
             $colIndex = 1;
             foreach ($campos as $campo) {
                 $value = $datos[$campo->nombre_campo_interno] ?? null;
-                $sheet->setCellValueByColumnAndRow($colIndex, $rowIndex, $value);
+                $sheet->setCellValue([$colIndex, $rowIndex], $value);
                 $colIndex++;
             }
 
-            $sheet->setCellValueByColumnAndRow($colIndex, $rowIndex, (string) $fila->error_importacion);
+            $sheet->setCellValue([$colIndex, $rowIndex], (string) $fila->error_importacion);
             $colIndex++;
-            $sheet->setCellValueByColumnAndRow($colIndex, $rowIndex, (int) $fila->numero_fila_excel);
+            $sheet->setCellValue([$colIndex, $rowIndex], (int) $fila->numero_fila_excel);
             $rowIndex++;
         }
 

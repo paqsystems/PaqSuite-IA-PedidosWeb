@@ -9,10 +9,13 @@ use App\Models\PqExcelImportacionFilaError;
 use App\Models\PqExcelImportacionNotificacion;
 use App\Models\PqExcelProceso;
 use App\Models\User;
+use App\Services\ExcelImport\Contracts\ExcelImportHandlerInterface;
+use App\Services\ExcelImport\Contracts\ExcelImportLotAwareHandler;
 use App\Services\ExcelImport\Dto\ExcelImportLotContext;
 use App\Services\ExcelImport\Dto\ExcelRowError;
 use App\Support\ExcelImportErrorCodes;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
@@ -95,7 +98,7 @@ final class ExcelImportLotService
             return $this->buildLotResponse($importacion->fresh());
         }
 
-        $this->processLotFile($importacion, $proceso, $path, $hojaSeleccionada, $campos);
+        $this->processLotFile($importacion, $proceso, $path, $hojaSeleccionada, $campos, $user);
 
         return $this->buildLotResponse($importacion->fresh());
     }
@@ -105,7 +108,31 @@ final class ExcelImportLotService
         PqExcelProceso $proceso,
         string $path,
         string $hojaSeleccionada,
-        $campos = null
+        $campos = null,
+        ?User $user = null,
+    ): void {
+        $user ??= User::query()->where('codigo', $importacion->usuario_ejecucion)->first();
+
+        if ($user !== null) {
+            $this->runWithUserLocale($user, function () use ($importacion, $proceso, $path, $hojaSeleccionada, $campos): void {
+                $this->processLotFileInternal($importacion, $proceso, $path, $hojaSeleccionada, $campos);
+            });
+
+            return;
+        }
+
+        $this->processLotFileInternal($importacion, $proceso, $path, $hojaSeleccionada, $campos);
+    }
+
+    /**
+     * @param  \Illuminate\Support\Collection<int, \App\Models\PqExcelProcesoCampo>|null  $campos
+     */
+    private function processLotFileInternal(
+        PqExcelImportacion $importacion,
+        PqExcelProceso $proceso,
+        string $path,
+        string $hojaSeleccionada,
+        $campos = null,
     ): void {
         $campos ??= $proceso->campos()->where('activo', true)->orderBy('orden_campo')->get();
         $spreadsheet = $this->workbookService->loadWorkbook($path);
@@ -130,7 +157,22 @@ final class ExcelImportLotService
             $ctx
         );
 
-        DB::transaction(function () use ($importacion, $parsed): void {
+        if ($parsed['structuralError'] === null && $handler instanceof ExcelImportLotAwareHandler) {
+            $parsed['rows'] = $handler->validateBusinessLot($parsed['rows'], $ctx);
+            $validas = 0;
+            $conError = 0;
+            foreach ($parsed['rows'] as $row) {
+                if ($row['tieneError']) {
+                    $conError++;
+                } else {
+                    $validas++;
+                }
+            }
+            $parsed['validas'] = $validas;
+            $parsed['conError'] = $conError;
+        }
+
+        DB::transaction(function () use ($importacion, $parsed, $handler, $ctx): void {
             if ($parsed['structuralError'] !== null) {
                 $importacion->update([
                     'estado_importacion' => 'con_error_estructura',
@@ -143,6 +185,11 @@ final class ExcelImportLotService
             }
 
             foreach ($parsed['rows'] as $row) {
+                $datosNormalizados = $row['datosNormalizados'];
+                if (! $row['tieneError']) {
+                    $datosNormalizados = $this->enrichValidRowPayload($handler, $datosNormalizados, $ctx);
+                }
+
                 $fila = PqExcelImportacionFila::query()->create([
                     'id_importacion' => $importacion->id,
                     'numero_fila_excel' => $row['numeroFilaExcel'],
@@ -151,7 +198,7 @@ final class ExcelImportLotService
                     'tiene_error' => $row['tieneError'],
                     'error_importacion' => $row['errorImportacion'],
                     'datos_originales_json' => json_encode($row['datosOriginales'], JSON_UNESCAPED_UNICODE),
-                    'datos_normalizados_json' => json_encode($row['datosNormalizados'], JSON_UNESCAPED_UNICODE),
+                    'datos_normalizados_json' => json_encode($datosNormalizados, JSON_UNESCAPED_UNICODE),
                     'fecha_alta' => now(),
                 ]);
 
@@ -183,6 +230,34 @@ final class ExcelImportLotService
         if ($importacion->es_asincronica) {
             $this->notifyAsyncComplete($importacion->fresh());
         }
+    }
+
+    /**
+     * @param  callable(): void  $callback
+     */
+    private function runWithUserLocale(User $user, callable $callback): void
+    {
+        $previousLocale = App::getLocale();
+        App::setLocale($this->resolveUserLocale($user));
+
+        try {
+            $callback();
+        } finally {
+            App::setLocale($previousLocale);
+        }
+    }
+
+    private function resolveUserLocale(User $user): string
+    {
+        $locale = strtolower(str_replace('_', '-', trim((string) ($user->locale ?? 'es'))));
+
+        return match (true) {
+            str_starts_with($locale, 'en') => 'en',
+            str_starts_with($locale, 'fr') => 'fr',
+            str_starts_with($locale, 'pt') => 'pt',
+            str_starts_with($locale, 'it') => 'it',
+            default => 'es',
+        };
     }
 
     public function cancelLot(PqExcelImportacion $importacion, User $user): void
@@ -296,5 +371,21 @@ final class ExcelImportLotService
             'mensaje' => 'excelImport.notif.cargaMensaje',
             'leida' => false,
         ]);
+    }
+
+    /**
+     * @param  array<string, mixed>  $datosNormalizados
+     * @return array<string, mixed>
+     */
+    private function enrichValidRowPayload(
+        ExcelImportHandlerInterface $handler,
+        array $datosNormalizados,
+        ExcelImportLotContext $ctx,
+    ): array {
+        if (isset($datosNormalizados['precio'])) {
+            return $datosNormalizados;
+        }
+
+        return $handler->processRow($datosNormalizados, $ctx);
     }
 }

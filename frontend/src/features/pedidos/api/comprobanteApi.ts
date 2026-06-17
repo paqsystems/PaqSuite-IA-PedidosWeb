@@ -260,8 +260,11 @@ export async function fetchCabeceraInicial(codCliente: string): Promise<{
   };
 }
 
-/** Tope de ítems por request en combobox de carga (autocompletar con búsqueda remota). */
-export const articulosCargaPageSize = 500;
+/** Precarga catálogo completo en combobox de carga (filtro local DevExtreme). */
+export const articulosCargaCatalogPageSize = 10_000;
+
+/** Tope por request en autocompletar puntual (p. ej. refresh por códigos). */
+export const articulosCargaPageSize = 1000;
 
 export async function fetchPreciosArticulosPorLista(
   codigos: string[],
@@ -286,6 +289,12 @@ export async function fetchPreciosArticulosPorLista(
   }));
 }
 
+export async function fetchArticulosCatalogoCarga(
+  listaPrecios: number,
+): Promise<ArticuloOption[]> {
+  return searchArticulos('', listaPrecios, articulosCargaCatalogPageSize, true);
+}
+
 export async function searchArticulos(
   query = '',
   listaPrecios?: number | null,
@@ -300,7 +309,7 @@ export async function searchArticulos(
   if (!Number.isNaN(codLista) && codLista > 0) {
     params.set('lista_precios', String(codLista));
   }
-  params.set('page_size', String(Math.min(1000, Math.max(1, pageSize))));
+  params.set('page_size', String(Math.min(10000, Math.max(1, pageSize))));
   if (soloCatalogo) {
     params.set('solo_catalogo', '1');
   }
