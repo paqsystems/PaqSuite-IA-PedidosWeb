@@ -1,6 +1,6 @@
 import CustomStore from 'devextreme/data/custom_store';
 import DataSource from 'devextreme/data/data_source';
-import type { DisposedEvent, InitializedEvent, InputEvent, KeyDownEvent } from 'devextreme/ui/select_box';
+import type { DisposingEvent, InitializedEvent, InputEvent, KeyDownEvent } from 'devextreme/ui/select_box';
 import { useCallback, useEffect, useMemo, useRef, useState, type MutableRefObject } from 'react';
 import { tryAutoSelectSingleMatch } from '../../../shared/ui/controls/tryAutoSelectSingleMatch';
 import { searchArticulos, type ArticuloOption } from '../api/comprobanteApi';
@@ -8,7 +8,6 @@ import {
   articulosCargaMinTypedLength,
   articulosCargaSearchTimeoutMs,
   hasEnoughArticulosSearchText,
-  hasPendingArticulosCargaQuery,
 } from './articulosCargaLoadPolicy';
 import {
   createArticulosCargaRemoteLoadState,
@@ -17,7 +16,7 @@ import {
 } from './articulosCargaRemoteLoad';
 import { resolveArticulosCargaSearchInput, resolveArticulosCargaSearchText } from './articulosCargaSearchText';
 
-type SelectBoxComponentLike = InitializedEvent['component'];
+type SelectBoxComponentLike = NonNullable<InitializedEvent['component']>;
 
 const articulosCargaSearchTriggerKeys = new Set(['Tab', 'Enter', 'ArrowDown', 'ArrowUp']);
 
@@ -103,13 +102,13 @@ export type ArticulosCargaDataSourceState = {
     showDataBeforeSearch: false;
     minSearchLength: number;
     searchTimeout: number;
-    searchExpr: ['codArticulo', 'descripcion'];
+    searchExpr: readonly ['codArticulo', 'descripcion'];
     searchMode: 'contains';
     openOnFieldClick: false;
     onKeyDown: (event: KeyDownEvent) => void;
     onInput: (event: InputEvent) => void;
     onInitialized: (event: InitializedEvent) => void;
-    onDisposed: (event: DisposedEvent) => void;
+    onDisposing: (event: DisposingEvent) => void;
   };
 };
 
@@ -144,7 +143,7 @@ export function useArticulosCargaDataSource(
         cacheRawData: false,
         load: () => {
           const pendingSearch = pendingExplicitSearchRef.current;
-          if (!hasPendingArticulosCargaQuery(pendingSearch)) {
+          if (pendingSearch === null || !hasEnoughArticulosSearchText(pendingSearch)) {
             if (
               lastLoadedSearchRef.current.length > 0 &&
               lastLoadedItemsRef.current.length > 0
@@ -180,12 +179,22 @@ export function useArticulosCargaDataSource(
   }, [listaPrecios]);
 
   const onInput = useCallback((event: InputEvent) => {
-    lastTypedSearchRef.current = resolveArticulosCargaSearchText(event.component);
+    const component = event.component;
+    if (!component) {
+      return;
+    }
+
+    lastTypedSearchRef.current = resolveArticulosCargaSearchText(component);
   }, []);
 
   const onKeyDown = useCallback((event: KeyDownEvent) => {
+    const component = event.component;
+    if (!component) {
+      return;
+    }
+
     handleArticulosCargaSearchKeyDown(
-      event.component,
+      component,
       pendingExplicitSearchRef,
       lastTypedSearchRef,
       lastLoadedItemsRef,
@@ -196,14 +205,19 @@ export function useArticulosCargaDataSource(
   }, []);
 
   const onInitialized = useCallback((event: InitializedEvent) => {
-    const field = resolveArticulosCargaSearchInput(event.component);
+    const component = event.component;
+    if (!component) {
+      return;
+    }
+
+    const field = resolveArticulosCargaSearchInput(component);
     if (!field) {
       return;
     }
 
     const handler = (keydownEvent: KeyboardEvent) => {
       handleArticulosCargaSearchKeyDown(
-        event.component,
+        component,
         pendingExplicitSearchRef,
         lastTypedSearchRef,
         lastLoadedItemsRef,
@@ -217,8 +231,13 @@ export function useArticulosCargaDataSource(
     field.addEventListener('keydown', handler);
   }, []);
 
-  const onDisposed = useCallback((event: DisposedEvent) => {
-    const field = resolveArticulosCargaSearchInput(event.component);
+  const onDisposing = useCallback((event: DisposingEvent) => {
+    const component = event.component;
+    if (!component) {
+      return;
+    }
+
+    const field = resolveArticulosCargaSearchInput(component);
     const handler = fieldKeydownHandlerRef.current;
     if (field && handler) {
       field.removeEventListener('keydown', handler);
@@ -237,9 +256,9 @@ export function useArticulosCargaDataSource(
       onInput,
       onKeyDown,
       onInitialized,
-      onDisposed,
+      onDisposing,
     }),
-    [onDisposed, onInitialized, onInput, onKeyDown],
+    [onDisposing, onInitialized, onInput, onKeyDown],
   );
 
   return { dataSource, isLoading, lazySelectBoxOptions };
