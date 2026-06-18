@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   articulosCargaMinTypedLength,
   hasEnoughArticulosSearchText,
+  hasPendingArticulosCargaQuery,
   shouldFetchArticulosCarga,
 } from './articulosCargaLoadPolicy';
 
@@ -18,14 +19,21 @@ describe('hasEnoughArticulosSearchText', () => {
 
 describe('shouldFetchArticulosCarga', () => {
   it('permite búsqueda con texto suficiente', () => {
-    expect(shouldFetchArticulosCarga('art ', false)).toBe(true);
-    expect(shouldFetchArticulosCarga('ART-', false)).toBe(true);
+    expect(shouldFetchArticulosCarga('art ')).toBe(true);
+    expect(shouldFetchArticulosCarga('ART-')).toBe(true);
   });
 
-  it('bloquea búsqueda corta o vacía salvo apertura explícita del desplegable', () => {
-    expect(shouldFetchArticulosCarga('art', false)).toBe(false);
-    expect(shouldFetchArticulosCarga('', false)).toBe(false);
-    expect(shouldFetchArticulosCarga('   ', false)).toBe(false);
-    expect(shouldFetchArticulosCarga('', true)).toBe(true);
+  it('bloquea búsqueda corta o vacía', () => {
+    expect(shouldFetchArticulosCarga('art')).toBe(false);
+    expect(shouldFetchArticulosCarga('')).toBe(false);
+    expect(shouldFetchArticulosCarga('   ')).toBe(false);
+  });
+});
+
+describe('hasPendingArticulosCargaQuery', () => {
+  it('solo acepta consultas explícitas con texto suficiente', () => {
+    expect(hasPendingArticulosCargaQuery('tosta')).toBe(true);
+    expect(hasPendingArticulosCargaQuery('art')).toBe(false);
+    expect(hasPendingArticulosCargaQuery(null)).toBe(false);
   });
 });

@@ -45,7 +45,7 @@ final class ArticuloController extends Controller
 
         $pageSize = $solicitudPorCodigos
             ? min(1000, max(count($codigos), 1))
-            : min(1000, max(1, (int) ($request->query('page_size') ?? 500)));
+            : min(10000, max(1, (int) ($request->query('page_size') ?? 500)));
         $codLista = (int) ($request->query('lista_precios') ?? 0);
 
         $items = $this->articuloCargaLookupService->buscar(

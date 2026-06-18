@@ -1,11 +1,12 @@
 import CustomStore from 'devextreme/data/custom_store';
 import DataSource from 'devextreme/data/data_source';
-import type { ClosedEvent, InputEvent, OpenedEvent } from 'devextreme/ui/select_box';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { searchArticulos } from '../api/comprobanteApi';
+import type { DisposingEvent, InitializedEvent, InputEvent, KeyDownEvent } from 'devextreme/ui/select_box';
+import { useCallback, useEffect, useMemo, useRef, useState, type MutableRefObject } from 'react';
+import { tryAutoSelectSingleMatch } from '../../../shared/ui/controls/tryAutoSelectSingleMatch';
+import { searchArticulos, type ArticuloOption } from '../api/comprobanteApi';
 import {
   articulosCargaMinTypedLength,
-  articulosCargaOpenDropdownDelayMs,
+  articulosCargaSearchTimeoutMs,
   hasEnoughArticulosSearchText,
 } from './articulosCargaLoadPolicy';
 import {
@@ -13,30 +14,101 @@ import {
   loadArticulosCargaRemote,
   resetArticulosCargaRemoteLoadState,
 } from './articulosCargaRemoteLoad';
+import { resolveArticulosCargaSearchInput, resolveArticulosCargaSearchText } from './articulosCargaSearchText';
 
-type SelectBoxComponentLike = InputEvent['component'];
+type SelectBoxComponentLike = NonNullable<InitializedEvent['component']>;
 
-function resolveRawSelectBoxText(component: SelectBoxComponentLike): string {
-  const searchValue = component.option('searchValue');
-  if (typeof searchValue === 'string') {
-    return searchValue;
+const articulosCargaSearchTriggerKeys = new Set(['Tab', 'Enter', 'ArrowDown', 'ArrowUp']);
+
+type ArticulosCargaLoadResult = {
+  data: ArticuloOption[];
+  totalCount: number;
+};
+
+function toArticulosCargaLoadResult(items: ArticuloOption[]): ArticulosCargaLoadResult {
+  return {
+    data: items,
+    totalCount: items.length,
+  };
+}
+
+async function triggerArticulosCargaSearch(
+  component: SelectBoxComponentLike,
+  pendingExplicitSearchRef: MutableRefObject<string | null>,
+  lastTypedSearchRef: MutableRefObject<string>,
+  lastLoadedItemsRef: MutableRefObject<ArticuloOption[]>,
+  lastLoadedSearchRef: MutableRefObject<string>,
+): Promise<void> {
+  const currentSearch = (
+    resolveArticulosCargaSearchText(component) || lastTypedSearchRef.current
+  ).trim();
+  if (!hasEnoughArticulosSearchText(currentSearch)) {
+    return;
   }
 
-  const text = component.option('text');
-  return typeof text === 'string' ? text : '';
+  const dataSource = component.getDataSource();
+  if (!dataSource) {
+    return;
+  }
+
+  lastLoadedItemsRef.current = [];
+  lastLoadedSearchRef.current = '';
+  pendingExplicitSearchRef.current = currentSearch;
+  component.option('searchValue', currentSearch);
+
+  if (!component.option('opened')) {
+    component.open();
+  }
+
+  await dataSource.reload();
+
+  const autoSelected = await tryAutoSelectSingleMatch(component, 'codArticulo');
+  if (autoSelected === null && !component.option('opened')) {
+    component.open();
+  }
+}
+
+function handleArticulosCargaSearchKeyDown(
+  component: SelectBoxComponentLike,
+  pendingExplicitSearchRef: MutableRefObject<string | null>,
+  lastTypedSearchRef: MutableRefObject<string>,
+  lastLoadedItemsRef: MutableRefObject<ArticuloOption[]>,
+  lastLoadedSearchRef: MutableRefObject<string>,
+  key: string,
+  nativeEvent?: KeyboardEvent,
+): void {
+  if (!articulosCargaSearchTriggerKeys.has(key)) {
+    return;
+  }
+
+  if (key === 'Enter') {
+    nativeEvent?.preventDefault();
+  }
+
+  void triggerArticulosCargaSearch(
+    component,
+    pendingExplicitSearchRef,
+    lastTypedSearchRef,
+    lastLoadedItemsRef,
+    lastLoadedSearchRef,
+  );
 }
 
 export type ArticulosCargaDataSourceState = {
   dataSource: DataSource | null;
   isLoading: boolean;
-  /** Props SelectBox: no consulta API hasta escribir o abrir con la flecha del desplegable. */
+  /** Props SelectBox: consulta remota solo al pulsar Tab / Enter / flechas (mín. 4 caracteres). */
   lazySelectBoxOptions: {
     showDataBeforeSearch: false;
     minSearchLength: number;
+    searchTimeout: number;
+    searchExpr: readonly ['codArticulo', 'descripcion'];
+    searchMode: 'contains';
     openOnFieldClick: false;
-    onOpened: (event: OpenedEvent) => void;
-    onClosed: (event: ClosedEvent) => void;
+    onKeyDown: (event: KeyDownEvent) => void;
     onInput: (event: InputEvent) => void;
+    onInitialized: (event: InitializedEvent) => void;
+    onDisposing: (event: DisposingEvent) => void;
   };
 };
 
@@ -44,45 +116,53 @@ export function useArticulosCargaDataSource(
   listaPrecios: number | null | undefined,
 ): ArticulosCargaDataSourceState {
   const [isLoading, setIsLoading] = useState(false);
-  const allowEmptySearchRef = useRef(false);
-  const openDropdownTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const remoteLoadStateRef = useRef(createArticulosCargaRemoteLoadState());
-
-  useEffect(
-    () => () => {
-      if (openDropdownTimerRef.current) {
-        clearTimeout(openDropdownTimerRef.current);
-      }
-    },
-    [],
-  );
+  const pendingExplicitSearchRef = useRef<string | null>(null);
+  const lastTypedSearchRef = useRef('');
+  const lastLoadedItemsRef = useRef<ArticuloOption[]>([]);
+  const lastLoadedSearchRef = useRef('');
+  const fieldKeydownHandlerRef = useRef<((event: KeyboardEvent) => void) | null>(null);
 
   useEffect(() => {
+    pendingExplicitSearchRef.current = null;
+    lastTypedSearchRef.current = '';
+    lastLoadedItemsRef.current = [];
+    lastLoadedSearchRef.current = '';
     resetArticulosCargaRemoteLoadState(remoteLoadStateRef.current);
   }, [listaPrecios]);
 
   const dataSource = useMemo(() => {
     const codLista = Number(listaPrecios);
     if (listaPrecios === null || listaPrecios === undefined || Number.isNaN(codLista) || codLista <= 0) {
-      allowEmptySearchRef.current = false;
       return null;
     }
-
-    allowEmptySearchRef.current = false;
 
     return new DataSource({
       store: new CustomStore({
         key: 'codArticulo',
         cacheRawData: false,
-        load: (loadOptions) => {
-          const rawSearchValue =
-            typeof loadOptions.searchValue === 'string' ? loadOptions.searchValue : '';
+        load: () => {
+          const pendingSearch = pendingExplicitSearchRef.current;
+          if (pendingSearch === null || !hasEnoughArticulosSearchText(pendingSearch)) {
+            if (
+              lastLoadedSearchRef.current.length > 0 &&
+              lastLoadedItemsRef.current.length > 0
+            ) {
+              return Promise.resolve(toArticulosCargaLoadResult(lastLoadedItemsRef.current));
+            }
 
-          return loadArticulosCargaRemote(
-            rawSearchValue,
-            codLista,
-            allowEmptySearchRef.current,
-            remoteLoadStateRef.current,
+            return Promise.resolve(toArticulosCargaLoadResult([]));
+          }
+
+          const searchText = pendingSearch.trim();
+
+          return loadArticulosCargaRemote(searchText, codLista, remoteLoadStateRef.current).then(
+            (items) => {
+              pendingExplicitSearchRef.current = null;
+              lastLoadedItemsRef.current = items;
+              lastLoadedSearchRef.current = searchText;
+              return toArticulosCargaLoadResult(items);
+            },
           );
         },
         byKey: (codArticulo) =>
@@ -91,62 +171,94 @@ export function useArticulosCargaDataSource(
           ),
       }),
       paginate: false,
+      searchExpr: ['codArticulo', 'descripcion'],
       onLoadingChanged: (loading) => {
         setIsLoading(loading === true);
       },
     });
   }, [listaPrecios]);
 
-  const onOpened = useCallback((event: OpenedEvent) => {
-    const currentSearch = resolveRawSelectBoxText(event.component);
-
-    if (hasEnoughArticulosSearchText(currentSearch)) {
+  const onInput = useCallback((event: InputEvent) => {
+    const component = event.component;
+    if (!component) {
       return;
     }
 
-    allowEmptySearchRef.current = true;
-    queueMicrotask(() => {
-      void event.component.getDataSource()?.reload();
-    });
+    lastTypedSearchRef.current = resolveArticulosCargaSearchText(component);
   }, []);
 
-  const onClosed = useCallback(() => {
-    allowEmptySearchRef.current = false;
-    if (openDropdownTimerRef.current) {
-      clearTimeout(openDropdownTimerRef.current);
-      openDropdownTimerRef.current = null;
-    }
-  }, []);
-
-  const onInput = useCallback((event: InputEvent) => {
+  const onKeyDown = useCallback((event: KeyDownEvent) => {
     const component = event.component;
-
-    if (openDropdownTimerRef.current) {
-      clearTimeout(openDropdownTimerRef.current);
+    if (!component) {
+      return;
     }
 
-    openDropdownTimerRef.current = setTimeout(() => {
-      const currentSearch = resolveRawSelectBoxText(component);
-      if (!hasEnoughArticulosSearchText(currentSearch)) {
-        return;
-      }
+    handleArticulosCargaSearchKeyDown(
+      component,
+      pendingExplicitSearchRef,
+      lastTypedSearchRef,
+      lastLoadedItemsRef,
+      lastLoadedSearchRef,
+      event.event?.key ?? '',
+      event.event ?? undefined,
+    );
+  }, []);
 
-      if (!component.option('opened')) {
-        component.open();
-      }
-    }, articulosCargaOpenDropdownDelayMs);
+  const onInitialized = useCallback((event: InitializedEvent) => {
+    const component = event.component;
+    if (!component) {
+      return;
+    }
+
+    const field = resolveArticulosCargaSearchInput(component);
+    if (!field) {
+      return;
+    }
+
+    const handler = (keydownEvent: KeyboardEvent) => {
+      handleArticulosCargaSearchKeyDown(
+        component,
+        pendingExplicitSearchRef,
+        lastTypedSearchRef,
+        lastLoadedItemsRef,
+        lastLoadedSearchRef,
+        keydownEvent.key,
+        keydownEvent,
+      );
+    };
+
+    fieldKeydownHandlerRef.current = handler;
+    field.addEventListener('keydown', handler);
+  }, []);
+
+  const onDisposing = useCallback((event: DisposingEvent) => {
+    const component = event.component;
+    if (!component) {
+      return;
+    }
+
+    const field = resolveArticulosCargaSearchInput(component);
+    const handler = fieldKeydownHandlerRef.current;
+    if (field && handler) {
+      field.removeEventListener('keydown', handler);
+    }
+    fieldKeydownHandlerRef.current = null;
   }, []);
 
   const lazySelectBoxOptions = useMemo(
     () => ({
       showDataBeforeSearch: false as const,
       minSearchLength: articulosCargaMinTypedLength,
+      searchTimeout: articulosCargaSearchTimeoutMs,
+      searchExpr: ['codArticulo', 'descripcion'] as const,
+      searchMode: 'contains' as const,
       openOnFieldClick: false as const,
-      onOpened,
-      onClosed,
       onInput,
+      onKeyDown,
+      onInitialized,
+      onDisposing,
     }),
-    [onClosed, onOpened, onInput],
+    [onDisposing, onInitialized, onInput, onKeyDown],
   );
 
   return { dataSource, isLoading, lazySelectBoxOptions };

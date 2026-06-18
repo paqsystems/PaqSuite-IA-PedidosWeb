@@ -8,15 +8,18 @@ import { SelectBoxDx } from '../../../shared/ui/controls/SelectBoxDx';
 import Toast from 'devextreme-react/toast';
 import { isDevExtremeUserChange } from '../../../shared/ui/devextremeUserChange';
 import { useRequiredSessionContext } from '../../auth/AuthProvider';
+import { fetchPublicConfig } from '../../config/api/publicConfigApi';
+import { ExcelImportHostToolbar } from '../../excelImport/components/ExcelImportHostToolbar';
+import type { ExcelImportHostResult } from '../../excelImport/types/excelImportHostTypes';
 import {
   cancelarEdicionPedido,
+  fetchArticulosCatalogoCarga,
   fetchCabeceraInicial,
   fetchClientes,
   fetchComprobante,
   fetchParametrosCarga,
   grabarComprobante,
   iniciarEdicionPedido,
-  searchArticulos,
   type ArticuloOption,
   type ClienteOption,
   type ComprobanteRenglon,
@@ -26,7 +29,6 @@ import { ComprobanteCabeceraForm } from '../components/ComprobanteCabeceraForm';
 import { ComprobanteLeyendasPie } from '../components/ComprobanteLeyendasPie';
 import { PedidosCargaConfirmacionDialog } from '../components/PedidosCargaConfirmacionDialog';
 import { PedidosCargaRenglonesGrid } from '../components/PedidosCargaRenglonesGrid';
-import { articulosCargaPageSize } from '../api/comprobanteApi';
 import {
   emptyComprobanteCabecera,
   type CabeceraCatalogos,
@@ -40,6 +42,12 @@ import {
   ordenarClientes,
 } from '../utils/cargaCatalogos';
 import { actualizarPreciosRenglonesPorLista } from '../utils/actualizarPreciosRenglones';
+import { EXCEL_PROCESO_PEDIDO_INDIVIDUAL } from '../constants/excelImportCarga';
+import {
+  isPedidosCargaExcelImportDisabled,
+  mapExcelRowToCabecera,
+  mapExcelRowsToRenglones,
+} from '../utils/mapExcelImportToCarga';
 import {
   calcularBonificacionNeta,
   calcularTotalesComprobante,
@@ -69,6 +77,7 @@ export function PedidosCargaPage() {
   const codPedidoEdicionRef = useRef<string | null>(null);
   const ultimaAccionGrabacionRef = useRef<'pedido' | 'presupuesto' | null>(null);
   const isHydratingComprobanteRef = useRef(false);
+  const hydratingFromExcelImportRef = useRef(false);
 
   const [clientes, setClientes] = useState<ClienteOption[]>([]);
   const [clientesLoading, setClientesLoading] = useState(false);
@@ -101,12 +110,35 @@ export function PedidosCargaPage() {
   const [clienteSelectKey, setClienteSelectKey] = useState(0);
   const [clienteSortField, setClienteSortField] = useState<ClienteSortField>('razonSocial');
   const [autoOpenRenglonId, setAutoOpenRenglonId] = useState<number | null>(null);
+  const [excelImportEnabled, setExcelImportEnabled] = useState(false);
 
   const modo = searchParams.get('modo') ?? 'nuevo';
   const comprobanteId = searchParams.get('codComprobante') ?? searchParams.get('id');
   const readOnly = modo === 'ver';
   const isClienteProfile =
     sessionContext.functionalProfile === 'cliente' || sessionContext.codCliente !== null;
+
+  const excelImportDisabled = useMemo(
+    () =>
+      isPedidosCargaExcelImportDisabled({
+        excelImportEnabled,
+        readOnly,
+        modo,
+        comprobanteId: comprobanteId ?? null,
+        renglones,
+        isClienteProfile,
+        selectedCliente,
+      }),
+    [
+      comprobanteId,
+      excelImportEnabled,
+      isClienteProfile,
+      modo,
+      readOnly,
+      renglones,
+      selectedCliente,
+    ],
+  );
 
   const clientesOrdenados = useMemo(
     () => ordenarClientes(clientes, clienteSortField),
@@ -176,6 +208,10 @@ export function PedidosCargaPage() {
   }, [estadoActual, modo, readOnly]);
 
   const loadCabeceraForCliente = useCallback(async (codCliente: string) => {
+    if (hydratingFromExcelImportRef.current) {
+      return;
+    }
+
     setCabeceraLoading(true);
     try {
       const result = await fetchCabeceraInicial(codCliente);
@@ -187,6 +223,26 @@ export function PedidosCargaPage() {
     } finally {
       setCabeceraLoading(false);
     }
+  }, []);
+
+  useEffect(() => {
+    let mounted = true;
+
+    void fetchPublicConfig()
+      .then((config) => {
+        if (mounted) {
+          setExcelImportEnabled(config.excelImportEnabled);
+        }
+      })
+      .catch(() => {
+        if (mounted) {
+          setExcelImportEnabled(false);
+        }
+      });
+
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   useEffect(() => {
@@ -276,7 +332,7 @@ export function PedidosCargaPage() {
       setArticulosLoading(true);
 
       try {
-        const data = await searchArticulos('', codLista, articulosCargaPageSize, true);
+        const data = await fetchArticulosCatalogoCarga(codLista);
         if (!mounted) {
           return;
         }
@@ -304,6 +360,10 @@ export function PedidosCargaPage() {
 
   useEffect(() => {
     if (!selectedCliente || comprobanteId || modo !== 'nuevo') {
+      return;
+    }
+
+    if (hydratingFromExcelImportRef.current) {
       return;
     }
 
@@ -426,7 +486,7 @@ export function PedidosCargaPage() {
 
   const handleClienteChange = useCallback(
     async (codCliente: string | null) => {
-      if (isHydratingComprobanteRef.current) {
+      if (isHydratingComprobanteRef.current || hydratingFromExcelImportRef.current) {
         return;
       }
 
@@ -715,6 +775,53 @@ export function PedidosCargaPage() {
 
   const cabeceraReady = cabecera !== null && selectedCliente !== null;
 
+  const handleExcelImportComplete = useCallback(
+    async (result: ExcelImportHostResult) => {
+      if (result.validRows.length === 0) {
+        return;
+      }
+
+      const firstRow = result.validRows[0];
+      const codCliente = String(firstRow.cod_cliente ?? '').trim();
+      if (!codCliente) {
+        return;
+      }
+
+      hydratingFromExcelImportRef.current = true;
+      setSaveError(null);
+
+      try {
+        const cabeceraResult = await fetchCabeceraInicial(codCliente);
+        const mergedCabecera = mapExcelRowToCabecera(firstRow, cabeceraResult.cabecera);
+        mergedCabecera.descuento = calcularBonificacionNeta(
+          mergedCabecera.bonif1,
+          mergedCabecera.bonif2,
+          mergedCabecera.bonif3,
+        );
+        const importedRenglones = mapExcelRowsToRenglones(result.validRows);
+
+        setSelectedCliente(codCliente);
+        setCatalogos(cabeceraResult.catalogos);
+        setCabecera(mergedCabecera);
+        setRenglones(importedRenglones);
+        setArticuloSeleccionado(null);
+        setArticuloSeleccionadoData(null);
+        setAutoOpenRenglonId(null);
+        setSuccessMessage(t('pedidos.carga.excelImport.importSuccess'));
+        setSuccessToastVisible(true);
+      } catch {
+        setSaveError(t('pedidos.carga.errorCargaComprobante'));
+      } finally {
+        window.requestAnimationFrame(() => {
+          window.requestAnimationFrame(() => {
+            hydratingFromExcelImportRef.current = false;
+          });
+        });
+      }
+    },
+    [t],
+  );
+
   return (
     <section className="pedidosCargaPage" data-testid="page-pedidos-carga">
       <div className="pedidosCargaPage__header">
@@ -726,6 +833,19 @@ export function PedidosCargaPage() {
 
       {readOnly ? (
         <p data-testid="label-modo-solo-lectura">{t('pedidos.carga.modoSoloLectura')}</p>
+      ) : null}
+
+      {excelImportEnabled ? (
+        <div className="pedidosCargaExcelToolbar" data-testid="pedidos-carga-excel-toolbar">
+          <p className="pedidosCargaExcelToolbar__hint">{t('pedidos.carga.excelImport.toolbarHint')}</p>
+          <ExcelImportHostToolbar
+            codigoProceso={EXCEL_PROCESO_PEDIDO_INDIVIDUAL}
+            disabled={excelImportDisabled}
+            onComplete={(result) => {
+              void handleExcelImportComplete(result);
+            }}
+          />
+        </div>
       ) : null}
 
       <div className="pedidosCargaPage__toolbar">
@@ -870,11 +990,12 @@ export function PedidosCargaPage() {
                   dataSource={articulosOrdenados}
                   valueExpr="codArticulo"
                   displayExpr={(item: ArticuloOption | null) =>
-                    item ? etiquetaArticulo(item) : ''
+                    item ? etiquetaArticulo(item, t) : ''
                   }
                   value={articuloSeleccionado}
                   searchEnabled={true}
                   searchExpr={['codArticulo', 'descripcion']}
+                  searchMode="contains"
                   isLoading={articulosLoading}
                   autoSelectSingleMatch={true}
                   disabled={!listaPreciosArticulosValida}

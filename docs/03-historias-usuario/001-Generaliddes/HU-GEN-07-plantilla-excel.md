@@ -4,12 +4,13 @@
 |-------|--------|
 | **ID** | HU-GEN-07-plantilla-excel |
 | **SPEC origen** | [SPEC-001-07-importar-excel.md](../../05-open-spec/001-Generaliddes/SPEC-001-07-importar-excel.md) |
+| **TR** | [TR-GEN-07-plantilla-excel.md](../../04-tareas/001-Generaliddes/TR-GEN-07-plantilla-excel.md) |
 | **MONO** | [PQ_EXCEL_Documento_Conceptual_Funcional_v3.md](../../00-contexto/_mono/importar-excel/PQ_EXCEL_Documento_Conceptual_Funcional_v3.md) §12 |
 | **Épica** | 001 — Generalidades / Importar Excel |
 | **Prioridad** | Could |
 | **Estado** | Pendiente |
 | **B1** | Enriquecida (2026-06-11) |
-| **Última actualización** | 2026-06-11 |
+| **Última actualización** | 2026-06-16 |
 | **Dependencias** | HU-GEN-02-autorizacion-menu-api; tablas `PQ_EXCEL_PROCESOS`, `PQ_EXCEL_PROCESOS_CAMPOS` |
 
 ## Trazabilidad SPEC
@@ -30,17 +31,20 @@ para **completar el archivo con la estructura exacta que el sistema espera**.
 
 ## Contexto funcional
 
-Cada proceso de importación tiene diseño fijo en `PQ_EXCEL_PROCESOS_CAMPOS`. La plantilla se genera desde esa definición: fila 1 con `NombreColumnaExcel`, orden según `OrdenCampo`, formato por `TipoDato`, validaciones de celda según `LargoMaximo`/`CantidadDecimales` y comentarios desde `Observaciones`. Solo procesos con `GeneraPlantilla = 1` exponen la acción.
+Cada proceso de importación tiene diseño fijo en `PQ_EXCEL_PROCESOS_CAMPOS`. La plantilla se genera desde esa definición: fila 1 con `NombreColumnaExcel`, orden según `OrdenCampo`, formato de columna según `TipoDato`, validaciones de celda según `LargoMaximo`/`CantidadDecimales`, comentarios en encabezado con `Observaciones` y línea **`OBLIGATORIO`** cuando `EsColumnaObligatoriaEstructural = 1`. En la pantalla del proceso, el botón **Descargar plantilla modelo** permanece siempre visible si `GeneraPlantilla = 1` (default catálogo). Solo procesos excepcionales con `GeneraPlantilla = 0` ocultan la acción.
 
 ## Alcance incluido
 
-- Acción **Descargar plantilla** en la pantalla del proceso de importación.
-- Generación `.xlsx` con encabezado fila 1 (fondo azul, letras blancas).
-- Columnas activas (`Activo = 1`) en orden `OrdenCampo`.
-- Formato de columna según `TipoDato` (`texto`, `entero`, `decimal`, `fecha`, `booleano`, `codigo`).
-- Validación de celda Excel según `LargoMaximo` y `CantidadDecimales` cuando aplique.
-- Comentario de celda en encabezado si `Observaciones` no está vacío.
-- Nombre de archivo sugerido: `{CodigoProceso}_plantilla_{fecha}.xlsx`.
+- Botón **Descargar plantilla modelo** **siempre visible** en la barra del proceso de importación (cuando `GeneraPlantilla = 1`; default catálogo).
+- Generación `.xlsx` con **todas** las columnas activas del proceso en orden `OrdenCampo`.
+- Fila 1: encabezados = `NombreColumnaExcel` exactos (fondo azul `#4472C4`, letras blancas).
+- **Comentario Excel** en cada celda de encabezado:
+  - línea `OBLIGATORIO` si `EsColumnaObligatoriaEstructural = 1`;
+  - texto de `Observaciones` si no está vacío (en línea adicional o única si no es obligatorio).
+- **Formato de columna** según `TipoDato` (`texto`, `codigo`, `entero`, `decimal`, `fecha`, `booleano`) en filas de datos (desde fila 2).
+- Validación de celda Excel: `LargoMaximo`, `CantidadDecimales`; lista desplegable en `booleano` según `FormatoBooleanoPlantilla`.
+- Plantilla sin filas de ejemplo: solo encabezados (usuario completa desde fila 2).
+- Nombre de archivo sugerido: `{CodigoProceso}_plantilla.xlsx` (fijo; ver patrón UI embebida).
 
 ## Fuera de alcance
 
@@ -56,25 +60,30 @@ Cada proceso de importación tiene diseño fijo en `PQ_EXCEL_PROCESOS_CAMPOS`. L
 3. Si `GeneraPlantilla = 0`, la acción no se muestra.
 4. Permisos: mismo criterio que ejecutar el proceso de importación (definir en TR por `CodigoProceso` / menú).
 5. La plantilla exportada es la referencia normativa para validación estructural en carga.
+6. El título del encabezado **no** incluye marcas de obligatoriedad; `OBLIGATORIO` va solo en el **comentario** de la celda.
+7. `GeneraPlantilla` default en catálogo = `1`; valor `0` solo para procesos excepcionales sin modelo descargable.
 
 ## Decisiones cerradas (producto / B1)
 
 | Tema | Decisión |
 |------|----------|
 | Fuente de columnas | `PQ_EXCEL_PROCESOS_CAMPOS` orden `OrdenCampo`, solo `Activo = 1` |
-| Estilo encabezado | Fondo azul, texto blanco (contexto §12) |
-| Formato booleano en plantilla | Definir por proceso en TR (`0`/`1`, `N`/`S` o `VERDADERO`/`FALSO`) según `HandlerBackend` |
+| Estilo encabezado | Fondo azul `#4472C4`, texto blanco (contexto §12.2) |
+| Comentario obligatorio | `EsColumnaObligatoriaEstructural = 1` → línea `OBLIGATORIO` en comentario (§12.3) |
+| Formato por tipo | Tabla §12.4 conceptual; booleano según `FormatoBooleanoPlantilla` |
 | MVP portal | **Fuera** — epic posterior |
 
 ## Criterios de aceptación
 
-- [ ] **CA-01:** Usuario con permiso ve acción Descargar plantilla en proceso con `GeneraPlantilla = 1`.
-- [ ] **CA-02:** Archivo `.xlsx` con fila 1 = nombres visibles del proceso en orden correcto.
-- [ ] **CA-03:** Encabezados coinciden carácter a carácter con `NombreColumnaExcel` (sin tildes ni símbolos prohibidos).
+- [ ] **CA-01:** Usuario con permiso ve botón **Descargar plantilla modelo** siempre en toolbar del proceso con `GeneraPlantilla = 1`.
+- [ ] **CA-02:** Archivo `.xlsx` con fila 1 = todos los `NombreColumnaExcel` activos en orden `OrdenCampo`.
+- [ ] **CA-03:** Encabezados coinciden carácter a carácter con catálogo (sin tildes ni símbolos prohibidos).
 - [ ] **CA-04:** Columnas inactivas no aparecen en la plantilla.
-- [ ] **CA-05:** Comentarios de encabezado visibles cuando `Observaciones` tiene valor.
-- [ ] **CA-06:** Proceso con `GeneraPlantilla = 0` no muestra la acción.
-- [ ] **CA-07:** i18n en etiqueta de acción y mensajes de error; `data-testid` estable (`excelTemplateDownload`).
+- [ ] **CA-05:** Comentario con `Observaciones` cuando el campo tiene valor.
+- [ ] **CA-06:** Campo con `EsColumnaObligatoriaEstructural = 1` tiene comentario con línea `OBLIGATORIO`.
+- [ ] **CA-07:** Columnas `decimal`, `fecha`, `entero`, `booleano`, `texto`/`codigo` con formato Excel acorde a `TipoDato` (filas ≥ 2).
+- [ ] **CA-08:** Proceso con `GeneraPlantilla = 0` no muestra el botón.
+- [ ] **CA-09:** i18n en etiqueta del botón y mensajes de error; `data-testid` estable (`excelTemplateDownload`).
 
 ## Escenarios Gherkin
 
@@ -93,10 +102,17 @@ Feature: Plantilla modelo Excel por proceso
     When el usuario abre la pantalla del proceso
     Then no ve la acción Descargar plantilla
 
-  Scenario: Comentario en encabezado
-    Given un campo con Observaciones "Debe venir como texto"
+  Scenario: Comentario con obligatorio y observaciones
+    Given un campo Codigo con EsColumnaObligatoriaEstructural activo
+    And Observaciones "Debe venir como texto"
     When descarga la plantilla
-    Then la celda de encabezado de ese campo tiene el comentario indicado
+    Then el comentario de la celda Codigo contiene la linea OBLIGATORIO
+    And el comentario contiene "Debe venir como texto"
+
+  Scenario: Formato de columna decimal
+    Given un campo Precio con TipoDato decimal y CantidadDecimales 2
+    When descarga la plantilla
+    Then la columna Precio tiene formato numerico con 2 decimales en filas de datos
 ```
 
 ## Supuestos explícitos

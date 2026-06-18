@@ -125,6 +125,31 @@ Tareas técnicas (parte C) derivadas de **SPEC-001-01** y **SPEC-001-02**.
 
 **Patrones MONO:** [patron-i18n-pivot-devextreme.md](../../00-contexto/_mono/pivots/patron-i18n-pivot-devextreme.md), [frontend-pivotgrid-devextreme-agregaciones-y-menu.md](../../00-contexto/_mono/pivots/frontend-pivotgrid-devextreme-agregaciones-y-menu.md)
 
+## SPEC-001-07 — Importar Excel (epic documental — fuera release MVP portal)
+
+**C (2026-06-16):** 4 TR generadas; orden implementación sugerido abajo. Epic fuera del release MVP portal actual.  
+**C1 (2026-06-16):** Revisión C1 cerrada — [F-GEN-07-cierre-c1](F-GEN-07-cierre-c1.md); las 4 TR **aptas para D1** cuando se priorice el epic.
+
+**Orden de implementación:**
+
+```text
+1. TR-GEN-07-plantilla-excel           (catálogo + descarga plantilla)
+2. TR-GEN-07-carga-staging-excel       (upload + staging + handler)
+3. TR-GEN-07-grilla-procesamiento-excel (grilla + procesar)
+4. TR-GEN-07-historial-importaciones    (historial + detalle readOnly)
+```
+
+| TR | HU | Prioridad |
+|----|-----|-----------|
+| [TR-GEN-07-plantilla-excel](TR-GEN-07-plantilla-excel.md) | [HU-GEN-07-plantilla-excel](../../03-historias-usuario/001-Generaliddes/HU-GEN-07-plantilla-excel.md) | Could |
+| [TR-GEN-07-carga-staging-excel](TR-GEN-07-carga-staging-excel.md) | [HU-GEN-07-carga-staging-excel](../../03-historias-usuario/001-Generaliddes/HU-GEN-07-carga-staging-excel.md) | Could |
+| [TR-GEN-07-grilla-procesamiento-excel](TR-GEN-07-grilla-procesamiento-excel.md) | [HU-GEN-07-grilla-procesamiento-excel](../../03-historias-usuario/001-Generaliddes/HU-GEN-07-grilla-procesamiento-excel.md) | Could |
+| [TR-GEN-07-historial-importaciones](TR-GEN-07-historial-importaciones.md) | [HU-GEN-07-historial-importaciones](../../03-historias-usuario/001-Generaliddes/HU-GEN-07-historial-importaciones.md) | Could |
+
+**SPEC:** [SPEC-001-07-importar-excel.md](../../05-open-spec/001-Generaliddes/SPEC-001-07-importar-excel.md)
+
+**Contexto MONO:** `docs/00-contexto/_mono/importar-excel/`
+
 ## SPEC-001-10 — Chat Asistente IA
 
 | TR | HU | Prioridad |

@@ -85,6 +85,21 @@ final class PedidosWebParameterService
         return $this->getBool("ClienteLeyenda{$numero}", true);
     }
 
+    public function getNivelExtremo(): bool
+    {
+        return $this->getBool('NivelExtremo', false);
+    }
+
+    public function getArticuloPrecioCero(): bool
+    {
+        return $this->getBool('Articulopreciocero', false);
+    }
+
+    public function getArticulosSinPrecio(): bool
+    {
+        return $this->getBool('Articulossinprecio', false);
+    }
+
     /**
      * @return array{clienteLeyenda1: bool, clienteLeyenda2: bool, clienteLeyenda3: bool, clienteLeyenda4: bool, clienteLeyenda5: bool}
      */

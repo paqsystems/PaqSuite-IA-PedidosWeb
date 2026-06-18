@@ -6,7 +6,7 @@
 | **SPEC origen** | [SPEC-101-07-consultas-api](../../05-open-spec/101-PedidosWeb/SPEC-101-07-consultas-api.md), [SPEC-101-11-consultas-ui](../../05-open-spec/101-PedidosWeb/SPEC-101-11-consultas-ui.md) |
 | **Producto** | [consulta-detalle-pedidos.md](../../02-producto/PedidosWeb/consulta-detalle-pedidos.md), §17.3.1 |
 | **Prioridad** | Must |
-| **Estado** | En Control Calidad |
+| **Estado** | Finalizado (Parte I — CC PQ #4) |
 | **B1** | Enriquecida (2026-06-03) |
 | **C** | Generada (2026-06-03) |
 | **C1** | Cerrada — apto para D1 (2026-06-03) |
@@ -42,6 +42,7 @@ Complementa las consultas de **cabecera** (§17.1–17.3): aquí cada fila es un
 - Carátula `metadata.fecha_proceso`.
 - Export Excel GEN-03; layouts persistentes si `gridLayoutsEnabled`.
 - Filtros opcionales: `cod_cliente`, `cod_pedido`, `estado`, `q` (código/descripción artículo).
+- **CC PQ #4:** alternancia grilla / pivot (`CONSULTA_DETALLE_PEDIDOS`) con diseños pivot, refresh y export GEN-08 cuando `PIVOTS_ENABLED`.
 
 ## Fuera de alcance
 
@@ -88,6 +89,17 @@ Fuente de verdad columnas, joins y contrato: **[consulta-detalle-pedidos.md](../
 - [x] **CA-CC-02:** Carátula fecha último proceso `dd/MM/yyyy HH:mm` (i18n).
 - [x] **CA-CC-03:** Ícono **Actualizar** recarga grilla.
 - [x] **CA-CC-04:** Columna **Precio neto unitario** en detalle (SPEC-101-10).
+- [x] **CA-PVT-01:** Toggle grilla/pivot con `PIVOTS_ENABLED` y permiso.
+- [x] **CA-PVT-02:** Grilla conserva export, layouts y Actualizar (CC previos).
+- [x] **CA-PVT-03:** Pivot carga metadata `CONSULTA_DETALLE_PEDIDOS` y dataset API pivot.
+- [x] **CA-PVT-04:** `pivotBase` sugiere cliente + artículo en filas; cantidad/importes en valores.
+- [x] **CA-PVT-05:** Agregaciones por tipo de dato en menú contextual pivot.
+- [x] **CA-PVT-06:** Guardar/cargar diseño pivot (`pq_pivots_config`).
+- [x] **CA-PVT-07:** E2E toggle pivot + field panel (`pivot-informes.spec.ts`).
+
+## Historial CC PQ #4 (10/06/2026) — Parte I 16/06/2026
+
+Unificación delta CC PQ #4 en esta HU (archivo `*-update` eliminado en Parte I). Ver [F-CC-PQ-4-pivot-informes](../../04-tareas/101-PedidosWeb/F-CC-PQ-4-pivot-informes.md) · [I-CC-PQ-4-cierre-formal](../../04-tareas/101-PedidosWeb/I-CC-PQ-4-cierre-formal.md).
 
 ## Escenarios Gherkin
 

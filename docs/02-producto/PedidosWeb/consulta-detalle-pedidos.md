@@ -82,10 +82,26 @@ Cada ítem combina propiedades camelCase de cabecera (mismo contrato que [consul
 - Export Excel GEN-03.
 - Carátula `fecha_proceso` (`dd/MM/yyyy HH:mm`, i18n).
 - Ícono **Actualizar** en toolbar (mismo patrón consultas cabecera).
+- **CC PQ #4:** `ConsultaGrillaPivotShell` con toggle grilla/pivot cuando `PIVOTS_ENABLED`; `consultaId` `CONSULTA_DETALLE_PEDIDOS`.
 
 ---
 
-## 7) Referencias TR
+## 7) UI (vista pivot) — CC PQ #4
+
+| Campo | Valor |
+|-------|--------|
+| `consultaId` | `CONSULTA_DETALLE_PEDIDOS` |
+| Componente | `ConsultaInformePivotPage` → `ConsultaGrillaPivotShell` |
+| Vista inicial | Grilla (sin cambio operativo) |
+| `pivotBase` sugerido | Filas: `codCliente`, `razonSocial`, `codArticulo`; valores: `cantidad`, `precioNeto`, importes (sum) |
+| Diseños | `pq_pivots_config`; plantilla inicial; export pivot GEN-08 |
+| Activación | `PIVOTS_ENABLED=true` + seed catálogo pivot en tenant |
+
+Drill-down opcional si `admite_drilldown` en catálogo. Sin acciones fila en ninguna vista.
+
+---
+
+## 8) Referencias TR
 
 - API: ampliar [TR-SPEC-101-07-consultas-api](../../04-tareas/101-PedidosWeb/TR-SPEC-101-07-consultas-api.md)
 - UI: ampliar [TR-SPEC-101-11-consultas-ui](../../04-tareas/101-PedidosWeb/TR-SPEC-101-11-consultas-ui.md)

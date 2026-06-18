@@ -3,7 +3,10 @@
 Convención: **`HU-101-NNN-tema.md`** derivadas de [PedidosWeb_SPEC_MVP.md](../../05-open-spec/101-PedidosWeb/PedidosWeb_SPEC_MVP.md) y slices `SPEC-101-xx`.
 
 **A1 (2026-06-01):** Cerrado en SPEC madre §14.  
-**B1 (2026-06-01):** 27 HU enriquecidas en esta carpeta.
+**B1 (2026-06-01):** 27 HU enriquecidas en esta carpeta.  
+**B1 (2026-06-17):** SPEC-101-16 — HU-101-029 y HU-101-030 **B1 cerrado** ([F-101-16-cierre-b1](../../04-tareas/101-PedidosWeb/F-101-16-cierre-b1.md)); estado **Especificado**.  
+**C (2026-06-17):** TR-16a y TR-16b generadas.  
+**C1 (2026-06-17):** Revisión C1 **Apto** — [F-101-16-cierre-c1](../../04-tareas/101-PedidosWeb/F-101-16-cierre-c1.md); listo **D1**.
 
 ## Índice
 
@@ -37,16 +40,22 @@ Convención: **`HU-101-NNN-tema.md`** derivadas de [PedidosWeb_SPEC_MVP.md](../.
 | [HU-101-026](HU-101-026-copiar-comprobante.md) | Must | 101-04, 101-10 | Copiar comprobante |
 | [HU-101-027](HU-101-027-cierre-rechazo-presupuesto.md) | Must | 101-04, 101-12 | Cierre/rechazo presupuesto → 98 |
 | [HU-101-028](HU-101-028-consulta-detalle-pedidos.md) | Must | 101-07 (B3), 101-11 (B3) | Consulta detalle pedidos (cabecera+renglón) |
+| [HU-101-029](HU-101-029-proceso-excel-pedido-individual.md) | **Should** | 101-16 | Proceso Excel `PEDIDO_INDIVIDUAL` — **B1 cerrado** |
+| [HU-101-030](HU-101-030-importacion-excel-pantalla-carga.md) | **Should** | 101-16 | Import Excel en pantalla de carga — **B1 cerrado** |
 
 ## Dependencias transversales
 
 - **GEN-01 / GEN-03:** shell, grillas, layouts, export Excel.
 - **GEN-02:** auth y visibilidad base (heredado en 101-001/002/006).
+- **GEN-07:** motor importación Excel (`HU-GEN-07-*`) — requerido por HU-101-029/030.
 - **SPEC-001-04:** parámetros (`MinutosWeb`, `DiasVentasDetalladas`, permisos por atributo); consulta parámetros → [TR-GEN-04](../../04-tareas/001-Generaliddes/TR-GEN-04-consulta-parametros.md).
 
 ## Siguiente paso
 
-Parte **C:** cerrada (2026-06-01) — [TR por slice](../../04-tareas/101-PedidosWeb/README.md).  
-Parte **D + F:** cerradas (2026-06-03) — [D-VERIFICACION-101](../../04-tareas/101-PedidosWeb/D-VERIFICACION-101.md), [F-101-PedidosWeb-cierre-formal](../../04-tareas/101-PedidosWeb/F-101-PedidosWeb-cierre-formal.md).
+Parte **C (SPEC-101-16):** **cerrada** — [TR-16a](../../04-tareas/101-PedidosWeb/TR-SPEC-101-16-proceso-excel-pedido-individual.md), [TR-16b](../../04-tareas/101-PedidosWeb/TR-SPEC-101-16-importacion-excel-pantalla-carga.md).
+
+Parte **D1 (SPEC-101-16):** implementar TR en orden 16a → 16b ([F-101-16-cierre-c1](../../04-tareas/101-PedidosWeb/F-101-16-cierre-c1.md) — C1 **Apto**).
+
+Parte **C/D/F (MVP):** cerradas (2026-06-01 / 2026-06-03) — [TR por slice](../../04-tareas/101-PedidosWeb/README.md), [D-VERIFICACION-101](../../04-tareas/101-PedidosWeb/D-VERIFICACION-101.md), [F-101-PedidosWeb-cierre-formal](../../04-tareas/101-PedidosWeb/F-101-PedidosWeb-cierre-formal.md).
 
 **Manual de usuario:** [PedidosWeb.md](../../99-manual-usuario/PedidosWeb.md)

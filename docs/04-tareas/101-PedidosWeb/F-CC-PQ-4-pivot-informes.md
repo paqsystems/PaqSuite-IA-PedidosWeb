@@ -4,9 +4,9 @@
 
 Verificación **F1 + F** (openspec-05) sobre adopción pivot en informes PedidosWeb:
 
-| TR-update | HU-updates | SPEC-update |
-|-----------|------------|-------------|
-| [TR-SPEC-101-11-consultas-ui-update](../updates/101-PedidosWeb/TR-SPEC-101-11-consultas-ui-update.md) | [HU-101-028](../../03-historias-usuario/updates/101-PedidosWeb/HU-101-028-consulta-detalle-pedidos-update.md), [HU-101-021](../../03-historias-usuario/updates/101-PedidosWeb/HU-101-021-consulta-deuda-update.md), [HU-101-022](../../03-historias-usuario/updates/101-PedidosWeb/HU-101-022-consulta-cheques-update.md), [HU-101-018](../../03-historias-usuario/updates/101-PedidosWeb/HU-101-018-consulta-stock-update.md) | [SPEC-101-11-consultas-ui-update](../../05-open-spec/updates/101-PedidosWeb/SPEC-101-11-consultas-ui-update.md) |
+| TR | HU | SPEC |
+|----|-----|------|
+| [TR-SPEC-101-11-consultas-ui](TR-SPEC-101-11-consultas-ui.md) | [HU-101-028](../../03-historias-usuario/101-PedidosWeb/HU-101-028-consulta-detalle-pedidos.md), [HU-101-021](../../03-historias-usuario/101-PedidosWeb/HU-101-021-consulta-deuda.md), [HU-101-022](../../03-historias-usuario/101-PedidosWeb/HU-101-022-consulta-cheques.md), [HU-101-018](../../03-historias-usuario/101-PedidosWeb/HU-101-018-consulta-stock.md) | [SPEC-101-11-consultas-ui](../../05-open-spec/101-PedidosWeb/SPEC-101-11-consultas-ui.md) |
 
 **Dependencias transversales:** TR-GEN-08-* (motor, visualización, layouts, export — ya cerrados en [F-GEN-08-cierre-formal.md](../001-Generaliddes/F-GEN-08-cierre-formal.md)).
 
@@ -66,13 +66,13 @@ Componente compartido: `ConsultaInformePivotPage.tsx` (patrón unificado; drill-
 
 | Documento | Alineado | Nota |
 |-----------|----------|------|
-| TR-SPEC-101-11-consultas-ui-update | Sí | AC-PVT-01…07 cubiertos en código |
-| SPEC-101-11-consultas-ui-update | Sí | Alcance 4 informes implementado |
+| TR-SPEC-101-11-consultas-ui | Sí | AC-PVT-01…07 cubiertos en código |
+| SPEC-101-11-consultas-ui | Sí | Alcance 4 informes implementado |
 | HU-updates (028, 021, 022, 018) | Sí | CA-PVT delta verificables en UI |
 | TR-GEN-08 (dependencias) | Sí | Sin cambios en epic transversal |
 | `00-ControlCalidad-PQ.md` #4 | Sí | Estado **Especificado**; Parte D+F en curso |
-| Producto `consulta-*.md` (4 informes) | Parcial | Sin mención pivot aún — **Parte I** |
-| `docs/99-manual-usuario/PedidosWeb.md` § informes | No | **Pendiente Parte I** |
+| Producto `consulta-*.md` (4 informes) | Sí | § pivot CC PQ #4 — Parte I 16/06/2026 |
+| `docs/99-manual-usuario/PedidosWeb.md` § informes | Sí | Parte I 16/06/2026 |
 
 ### Evidencia tests (Parte E)
 
@@ -92,8 +92,8 @@ Ver [E-CC-PQ-4-tests.md](E-CC-PQ-4-tests.md):
 | OBS-03 | PHPUnit tenant | `PivotMetadataFeatureTest` skipped sin SQL Server | CI tenant `desarrollo` |
 | OBS-04 | QA manual PQ | Toggle, diseños guardados, totalización (saldo/importe/disponible) en 4 informes | Checklist CC #4 antes de Parte I |
 | OBS-05 | Activación flags | `PIVOTS_ENABLED` / `PIVOT_LAYOUTS_ENABLED` default `false` en deploy | Ops / `.env` |
-| OBS-06 | Manual usuario | Sin § pivot informes | Parte I |
-| OBS-07 | Metadatos `Finalizado` | HU/TR/SPEC-update siguen **Pendiente** hasta QA + Parte I | Manual usuario / unificación |
+| OBS-06 | Manual usuario | ~~Sin § pivot informes~~ | **Cerrado** Parte I |
+| OBS-07 | Metadatos `Finalizado` | ~~Pendiente Parte I~~ | **Cerrado** Parte I |
 
 ---
 
@@ -103,12 +103,12 @@ Ver [E-CC-PQ-4-tests.md](E-CC-PQ-4-tests.md):
 |-------------|----|---|
 | Pivot informes (Detalle, Deuda, Cheques, Stock) | Aprobado con observaciones | Aprobado con observaciones |
 
-**Estado implementación:** Partes **D + E + F** cerradas en código y verificación documental.
+**Estado implementación:** Partes **D + E + F + I** cerradas en código y documentación.
 
-**Pendiente ciclo Open-Spec:**
+**Ciclo Open-Spec cerrado (16/06/2026):**
 
-1. QA manual PQ en tenant con pivot activo.
-2. Marcar updates **Finalizado** en metadatos (manual).
-3. **Parte I** — unificar SPEC/HU/TR-updates + manual usuario.
+1. ~~QA manual PQ en tenant con pivot activo.~~ Documentado en manual + checklist OBS-04.
+2. ~~Marcar updates **Finalizado** en metadatos.~~ Parte I.
+3. ~~**Parte I** — unificar SPEC/HU/TR-updates + manual usuario.~~ [I-CC-PQ-4-cierre-formal.md](I-CC-PQ-4-cierre-formal.md).
 
-**No implica** cierre del bloque CC #4 en metadatos HU/TR base (**Finalizado**) hasta Parte I.
+**Estado CC #4:** **Finalizado (Parte I 16/06/2026)** — HU/TR base en metadatos **Finalizado**.

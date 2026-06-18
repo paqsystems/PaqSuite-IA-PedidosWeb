@@ -106,6 +106,23 @@ final class SeedSeguridadMvpTest extends TestCase
         $this->assertSame($procedimientosEsperadosRolVendedor, $procedimientosRolVendedor);
     }
 
+    public function testVendedorAcotadoHasAltaOnCargaPedidos(): void
+    {
+        $this->artisan('paqsuite:seed-seguridad-mvp')->assertExitCode(0);
+
+        $rolAcotado = PqRol::query()->where('nombre_rol', 'VendedorAcotado')->firstOrFail();
+
+        $atributo = PqRolAtributo::query()
+            ->where('id_rol', $rolAcotado->id)
+            ->where('procedimiento', 'pw_cargapedidos')
+            ->firstOrFail();
+
+        $this->assertTrue((bool) $atributo->permiso_alta);
+        $this->assertTrue((bool) $atributo->permiso_modi);
+        $this->assertTrue((bool) $atributo->permiso_repo);
+        $this->assertFalse((bool) $atributo->permiso_baja);
+    }
+
     public function testSeedSeguridadFailsWithoutMenuPrerequisite(): void
     {
         $procedimientos = collect(config('paqsuite_mvp.menuItems'))->pluck('procedimiento');

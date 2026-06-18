@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 |-------|--------|
-| **Versión documento** | MVP Fase 1 — 2026-06-09 (CC PQ #3) |
+| **Versión documento** | MVP Fase 1 — 2026-06-16 (CC PQ #3–#5, pivot informes) |
 | **Ámbito** | Módulo comercial PedidosWeb |
 | **Manual transversal** | [Generalidades.md](./Generalidades.md) (login, sesión, menú, grillas, idioma) |
 | **Público** | Usuarios finales (vendedor, supervisor, cliente) y soporte funcional/técnico |
@@ -19,7 +19,7 @@ Está pensado como **documento de consulta y referencia** para:
 - soporte funcional y técnico que debe orientar sobre flujos, estados, permisos y validaciones;
 - la generación del **asistente conversacional (chatbot)** del módulo, que tomará este manual como base documental.
 
-Para login, navegación general, idioma, apariencia, **expiración de sesión por inactividad** y uso estándar de **grillas**, consultar primero [Generalidades.md](./Generalidades.md).
+Para login, navegación general, idioma, apariencia, **expiración de sesión por inactividad**, uso estándar de **grillas**, **vista pivot** y **consulta de parámetros**, consultar primero [Generalidades.md](./Generalidades.md).
 
 ---
 
@@ -31,7 +31,7 @@ Para login, navegación general, idioma, apariencia, **expiración de sesión po
 - Carga, edición, copia y conversión de pedidos y presupuestos.
 - Consultas de comprobantes (ingresados, pendientes, presupuestos).
 - Consulta **Detalle de pedidos** (cabecera + renglones en una grilla).
-- Consultas comerciales: deuda, cheques, historial de ventas, stock.
+- Consultas comerciales: deuda, cheques, historial de ventas, stock (con **vista pivot** opcional si el tenant la tiene habilitada).
 - Cierre de presupuestos.
 - Logs de integración (consulta).
 - Notificaciones por mail al grabar (según parámetros ERP).
@@ -105,12 +105,12 @@ Tras el login, el menú lateral agrupa los procesos PedidosWeb. Los ítems visib
 | **Pedidos → Carga** | Alta/edición de pedidos y presupuestos |
 | **Pedidos → Ingresados** | Consulta pedidos estado ingresado |
 | **Pedidos → Pendientes** | Consulta pedidos pendientes |
-| **Pedidos → Detalle** | Consulta plana cabecera + renglones (todos los estados) |
+| **Pedidos → Detalle** | Consulta plana cabecera + renglones (grilla y pivot opcional) |
 | **Presupuestos → Ingresados** | Presupuestos activos y cerrados |
-| **Informes → Deuda** | Situación de deuda de clientes |
-| **Informes → Cheques** | Cheques en cartera |
-| **Informes → Historial ventas** | Ventas detalladas por período |
-| **Informes → Stock** | Disponibilidad de artículos |
+| **Informes → Deuda** | Situación de deuda de clientes (grilla y pivot opcional) |
+| **Informes → Cheques** | Cheques en cartera (grilla y pivot opcional) |
+| **Informes → Historial ventas** | Ventas detalladas por período (grilla y pivot opcional) |
+| **Informes → Stock** | Disponibilidad de artículos (grilla y pivot opcional) |
 | **Gestión presupuestos → Tratativas** | Seguimiento de presupuestos (alcance Should) |
 | **Integración → Logs** | Consulta de logs técnicos |
 
@@ -214,13 +214,19 @@ Al cambiar la lista de precios en cabecera, el sistema recalcula precios de los 
 
 ### 6.7 Búsqueda de artículos
 
-- Cada ítem se muestra como **código - descripción**, seguido de la **disponibilidad** (`stock − comprometido` del ERP) y, entre paréntesis, la del **artículo base** cuando aplica. **No** incluye pedidos web aún no procesados por el ERP (a diferencia del informe **Stock**, que sí descuenta pedidos ingresados).
-- La búsqueda en servidor se activa al escribir **al menos 4 caracteres** (los espacios cuentan). Si deja de escribir durante **1 segundo** con texto suficiente, se abre la lista con los resultados.
-- Solo hacer clic en el campo **no** dispara búsqueda; puede usar la **flecha** del desplegable para ver un primer lote sin escribir.
-- Mientras busca puede verse **Cargando…** sin bloquear el campo.
-- Sin lista de precios válida en cabecera, el combobox de artículos permanece deshabilitado.
-- Si la búsqueda devuelve **un solo artículo**, se selecciona automáticamente.
+Comportamiento **vigente (provisional CC PQ #5):**
+
+- Cada ítem se muestra como **`código - descripción`** (sin columna de disponibilidad en el listbox de carga).
+- Al definir una **lista de precios válida** en cabecera, el sistema **precarga automáticamente** el catálogo de artículos de esa lista (hasta el límite configurado por página).
+- Mientras carga el catálogo puede verse **Cargando…** en el combobox.
+- Sin lista de precios válida en cabecera, el combobox de artículos permanece **deshabilitado**.
+- Puede **buscar por texto** dentro del listado precargado (código o descripción) usando el filtro del combobox.
+- Si al filtrar queda **un solo artículo**, se selecciona automáticamente.
 - No aparecen artículos marcados como **BASE** en el catálogo ERP (`usa_esc = 'B'`).
+
+**Diferencia con Consulta de stock (§9.4):** el informe **Stock** sí muestra **disponible neto** (`stock − comprometido − pedidos web ingresados`). El listbox de carga, en esta versión, **no** muestra disponible en el texto del ítem; conviene consultar el informe Stock si se necesita verificar existencias antes de cargar cantidades.
+
+> **Nota:** una versión futura puede reincorporar la disponibilidad en el listbox de carga según cierre definitivo de CC PQ #5.
 
 ### 6.8 Editar un comprobante existente
 
@@ -349,30 +355,48 @@ Grilla **plana**: cada fila = un renglón con datos de cabecera repetidos.
 - Columna **Precio neto unitario** por renglón.
 - Columna **Estado** como **texto** (no código numérico).
 - Solo consulta y export Excel; sin acciones de edición.
+- Con pivot habilitado en el tenant: conmutador **Grilla / Pivot** para análisis por dimensiones (cliente, artículo, vendedor, etc.) — ver [Generalidades §19](./Generalidades.md).
 
-**Cuándo usarla:** análisis de líneas, auditoría de renglones o exportación masiva cabecera + detalle.
+**Cuándo usarla:** análisis de líneas, auditoría de renglones, exportación masiva cabecera + detalle o totales pivotados por artículo/cliente.
 
 ---
 
 ## 9. Consultas comerciales (Informes)
 
-Grupo **Informes**. Procesos de **consulta** con grilla transversal e ícono **Actualizar** cuando aplique.
+Grupo **Informes**. Procesos de **consulta** con grilla transversal, ícono **Actualizar** y —cuando el tenant lo habilita— **vista pivot** ([Generalidades §19](./Generalidades.md)).
+
+Elementos comunes en informes con pivot:
+
+- Vista inicial **Grilla**; conmutador **Grilla / Pivot** en la barra superior.
+- Mismos criterios de visibilidad comercial que la grilla.
+- Exportación Excel desde grilla o desde pivot según la vista activa.
+- Valores numéricos en pivot con formato **`#,##0.00`**.
+
+Las consultas de **pedidos ingresados**, **pendientes** y **presupuestos** no incluyen pivot: solo grilla de cabecera.
 
 ### 9.1 Deuda de clientes
 
 Saldos y composición de deuda según visibilidad. Filtros por cliente y columnas expuestas en la grilla.
 
+**Pivot (opcional):** agrupar por cliente, vendedor o moneda; totalizar saldos e importes.
+
 ### 9.2 Cheques en cartera
 
 Cheques con fechas, importes y estado. Incluye cheques en cartera y aplicados según reglas comerciales.
+
+**Pivot (opcional):** analizar importes por cliente, banco o estado.
 
 ### 9.3 Historial de ventas
 
 Ventas detalladas en un rango temporal (parámetro **DiasVentasDetalladas** en ERP). Análisis por artículo, cliente o vendedor según columnas.
 
+**Pivot (opcional):** totales por artículo, cliente o período según campos arrastrados al panel pivot.
+
 ### 9.4 Stock
 
-Disponibilidad de artículos (**stock neto**: descuenta stock ERP, comprometido ERP y pedidos web ingresados). En la **búsqueda de artículos al cargar un pedido**, el número mostrado es solo **stock − comprometido** (sin descontar pedidos web en curso).
+Disponibilidad de artículos con **stock neto**: descuenta stock ERP, comprometido ERP y **pedidos web ingresados** (`estado = 0`).
+
+En la **carga de pedidos** (§6.7), el combobox de artículos muestra solo **`código - descripción`** y **no** incluye disponibilidad en el texto del ítem. Para verificar existencias antes de cargar, use este informe **Stock** o la vista pivot de stock (totales por depósito, artículo, etc.).
 
 ---
 
@@ -398,9 +422,9 @@ Consulta técnica de eventos de integración (fechas, tipos, mensajes). Solo lec
 
 ## 12. Sesión e inactividad
 
-La sesión expira tras un período de **inactividad** configurable (**MinutosWeb** en parámetros ERP). Cada acción del usuario (navegación, interacción con la pantalla, operaciones exitosas) **renueva** el contador.
+La sesión expira tras un período de **inactividad** configurable (**MinutosWeb** en parámetros ERP — ver **General → Consulta de parámetros**). Cada acción del usuario (navegación, interacción con pantallas, operaciones exitosas) **renueva** el contador.
 
-Si la sesión expira, el sistema redirige al login con mensaje informativo. Detalle en [Generalidades](./Generalidades.md) (sesión e inactividad).
+Si la sesión expira, el sistema redirige al login con mensaje informativo. Detalle en [Generalidades §11](./Generalidades.md) (comportamientos de sesión).
 
 ---
 
@@ -472,7 +496,9 @@ Para acceso, sesión o permisos generales: [Generalidades §10](./Generalidades.
 
 - Confundir **presupuesto** con **pedido** al grabar (usar el botón correcto en la toolbar).
 - Editar cabecera esperando cambiar **cliente** sin perder renglones (el sistema advierte antes).
-- Buscar un artículo con stock **cero** y asumir error del sistema (puede ser disponibilidad real).
+- Buscar un artículo con stock **cero** en carga y asumir error del sistema (el listbox de carga no muestra disponibilidad; consultar informe **Stock**).
+- Esperar ver **disponibilidad** en el combobox de artículos al cargar un pedido (comportamiento provisional: solo `código - descripción`; §6.7).
+- No ver el conmutador **Grilla / Pivot** en un informe (pivot puede no estar habilitado en el tenant; §9).
 - Fecha de comprobante distinta a la esperada en consultas (verificar zona/fecha de grabación con soporte si persiste).
 - No ver **Detalle de pedidos** en menú (requiere permiso; contactar administrador).
 - Tener permiso de menú pero **no ver Editar/Eliminar**: revisar *Impide modificar/eliminar pedidos* en Consulta de parámetros (§13).
@@ -483,8 +509,9 @@ Para acceso, sesión o permisos generales: [Generalidades §10](./Generalidades.
 ## 17. Recomendaciones de uso
 
 - Completar y **verificar lookups obligatorios** antes de grabar (§6.12).
-- Definir **lista de precios** en cabecera antes de cargar muchos renglones.
-- Usar **layouts** de grilla en consultas frecuentes ([Generalidades §16](./Generalidades.md)).
+- Definir **lista de precios** en cabecera **antes** de buscar artículos (el catálogo se precarga al elegir la lista; §6.7).
+- Usar **layouts** de grilla en consultas frecuentes ([Generalidades §16](./Generalidades.md)); diseños propios se identifican con **` (*)`**.
+- Guardar **diseños pivot** recurrentes en informes analíticos ([Generalidades §19](./Generalidades.md)).
 - Tras grabar, verificar el **número visible** en el mensaje de confirmación.
 - En edición, usar **Cancelar** para liberar bloqueo si no se grabará.
 - Revisar **Consulta de parámetros** (General) para flags de mail, minutos de edición y permisos de modificación.
@@ -534,6 +561,14 @@ Puede deberse a: (1) parámetros ERP *Impide modificar pedidos* o *Impide elimin
 
 En **carga nueva**, cada leyenda solo se copia del maestro cliente si el parámetro *Inicializar leyenda N desde cliente* está en **Sí** y el cliente tiene texto en esa leyenda. Si el parámetro está en **No** (común en instalaciones recientes), los campos arrancan vacíos aunque el cliente tenga leyendas en el ERP. En **edición** se muestran las leyendas del comprobante grabado, no las del cliente. Ver §6.13.
 
+### ¿Por qué el combobox de artículos no muestra disponibilidad?
+
+En la versión actual el listbox de carga muestra solo **`código - descripción`**. Para consultar stock neto use **Informes → Stock** (§9.4). Ver §6.7.
+
+### ¿Cómo uso la vista pivot en informes?
+
+Abrir un informe habilitado (deuda, cheques, stock, detalle de pedidos o historial), pulsar **Pivot** en el conmutador superior y arrastrar campos desde el panel lateral. Requiere que el tenant tenga pivots activos. Detalle en [Generalidades §19](./Generalidades.md).
+
 ---
 
 ## 19. Resumen operativo
@@ -542,10 +577,10 @@ PedidosWeb concentra la operatoria comercial web en cuatro ejes:
 
 1. **Dashboard** — KPIs operativos y mes en curso por estado.
 2. **Carga** — pedidos y presupuestos con cabecera completa y renglones.
-3. **Consultas** — comprobantes, detalle plano e informes comerciales.
+3. **Consultas** — comprobantes, detalle plano e informes comerciales (grilla y pivot opcional).
 4. **Soporte** — logs de integración y consulta de parámetros (General).
 
-Grillas, idioma y acceso se rigen por [Generalidades.md](./Generalidades.md). Permisos y parámetros ERP determinan qué ve y qué puede modificar cada usuario.
+Grillas, pivot, idioma y acceso se rigen por [Generalidades.md](./Generalidades.md). Permisos y parámetros ERP determinan qué ve y qué puede modificar cada usuario.
 
 ---
 

@@ -1,0 +1,45 @@
+<?php
+
+return [
+    'columnComment' => [
+        'required' => 'REQUIRED',
+    ],
+    'column' => [
+        'PEDIDO_INDIVIDUAL' => [
+            'codCliente' => 'customer code',
+            'codArticulo' => 'item code',
+            'cantidad' => 'quantity',
+            'precioLista' => 'list price',
+            'bonifRenglon' => 'line discount',
+            'codPerfil' => 'profile code',
+            'codCondvta' => 'sale condition',
+            'codTranspor' => 'carrier code',
+            'idDe' => 'delivery address',
+            'codLista' => 'price list code',
+            'nivel' => 'level',
+            'bonif1' => 'discount 1',
+            'bonif2' => 'discount 2',
+            'bonif3' => 'discount 3',
+            'expreso' => 'courier',
+            'expresoDire' => 'courier address',
+            'fechaEntrega' => 'delivery date',
+            'observaciones' => 'remarks',
+            'leyenda1' => 'legend 1',
+            'leyenda2' => 'legend 2',
+            'leyenda3' => 'legend 3',
+            'leyenda4' => 'legend 4',
+            'leyenda5' => 'legend 5',
+        ],
+    ],
+    'pedidoIndividual' => [
+        'campoNoEditable' => 'Column not editable for your profile',
+        'clienteDistinto' => 'All rows must have the same customer code',
+        'cabeceraIncoherente' => 'Header data must be identical on all rows',
+        'clienteSesion' => 'Customer code must match your session',
+        'articuloBase' => 'BASE item type is not allowed',
+        'articuloNoEncontrado' => 'Item not found',
+        'cantidadInvalida' => 'Quantity must be greater than zero',
+        'precioCero' => 'Zero price is not allowed',
+        'nivelInvalido' => 'Invalid level for current settings',
+    ],
+];

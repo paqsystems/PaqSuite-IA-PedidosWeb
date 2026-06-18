@@ -9,7 +9,7 @@ Está pensado para dos públicos:
 - usuarios finales que necesitan saber cómo ingresar, navegar y resolver acciones habituales;
 - soporte funcional que necesita identificar el comportamiento esperado, interpretar bloqueos y orientar al usuario.
 
-El contenido cubre el uso general del portal en su modalidad monoempresa: ingreso al sistema, sesión de trabajo, navegación principal, idioma, apariencia, ayuda global, cambio de contraseña, recuperación de acceso, **grillas de listados** (consultas y procesos tabulares) y **consulta de parámetros** (solo lectura).
+El contenido cubre el uso general del portal en su modalidad monoempresa: ingreso al sistema, sesión de trabajo e **inactividad**, navegación principal, idioma, apariencia, ayuda global, cambio de contraseña, recuperación de acceso, **grillas de listados** (consultas y procesos tabulares), **vista pivot** en informes analíticos (cuando el tenant la tiene habilitada) y **consulta de parámetros** (solo lectura).
 
 ## 2. Alcance
 
@@ -24,7 +24,8 @@ Este documento incluye:
 - el cambio de contraseña;
 - la recuperación de contraseña;
 - los comportamientos esperados ante bloqueos de acceso;
-- el uso estándar de **grillas y listados** (orden, filtros, columnas, agrupación, totalizadores, layouts, exportación y acciones por fila).
+- el uso estándar de **grillas y listados** (orden, filtros, columnas, agrupación, totalizadores, layouts, exportación y acciones por fila);
+- la **vista pivot** en informes que la admiten (alternar con grilla, diseños guardados y exportación).
 
 Este documento no incluye:
 
@@ -69,7 +70,15 @@ Es la presentación tabular de datos dentro del área principal de un proceso. E
 
 ### Layout de grilla
 
-Es un formato guardado de una grilla (columnas visibles, orden, filtros, agrupaciones, totalizadores y demás preferencias de vista). Los layouts se identifican por proceso y por grilla; pueden compartirse entre usuarios, pero solo quien creó un layout puede modificarlo o eliminarlo.
+Es un formato guardado de una grilla (columnas visibles, orden, filtros, agrupaciones, totalizadores y demás preferencias de vista). Los layouts se identifican por proceso y por grilla; pueden compartirse entre usuarios, pero solo quien creó un layout puede modificarlo o eliminarlo. En el selector, los diseños **propios** del usuario se distinguen con el sufijo **` (*)`**.
+
+### Vista pivot
+
+Es una presentación analítica alternativa a la grilla: permite arrastrar campos a filas, columnas y valores para agrupar y totalizar datos. Algunos informes comerciales ofrecen un conmutador **Grilla / Pivot** cuando la funcionalidad está habilitada en el tenant.
+
+### Inactividad de sesión
+
+Es el cierre automático de la sesión tras un período sin interacción del usuario (duración configurable en parámetros ERP). Cada acción en el portal —navegar, escribir, pulsar botones o completar operaciones— renueva el contador.
 
 ## 4. Objetivo operativo
 
@@ -82,7 +91,8 @@ El objetivo de estas generalidades es asegurar que el usuario pueda:
 - mantener su cuenta segura;
 - recuperar el acceso cuando olvida su contraseña;
 - cerrar sesión correctamente al finalizar su trabajo;
-- consultar y trabajar con listados tabulares usando una grilla homogénea en todos los procesos.
+- consultar y trabajar con listados tabulares usando una grilla homogénea en todos los procesos;
+- analizar informes con vista pivot cuando el tenant la tenga activa.
 
 El resultado esperado es una experiencia ordenada, segura y estable, con criterios de uso consistentes para todas las pantallas del portal.
 
@@ -97,7 +107,8 @@ Este manual se utiliza:
 - cuando el usuario necesita cambiar su contraseña;
 - cuando se perdió el acceso y debe iniciarse la recuperación;
 - cuando un proceso muestra datos en forma de **grilla o listado** y el usuario necesita ordenar, filtrar, personalizar la vista o exportar;
-- cuando se necesita consultar la **configuración de parámetros** del módulo (menú General, sección 18).
+- cuando se necesita consultar la **configuración de parámetros** del módulo (menú General, sección 18);
+- cuando un informe ofrece **vista pivot** y el usuario debe alternar entre grilla y análisis dinámico (sección 19).
 
 Como condición previa, el usuario debe contar con una cuenta habilitada para operar en el portal.
 
@@ -471,6 +482,7 @@ Control sugerido para soporte:
 - El cambio de contraseña actualiza la cuenta cuando los datos son correctos.
 - La recuperación de contraseña permite volver a acceder sin intervención manual cuando el usuario dispone del correo correspondiente.
 - El cierre de sesión devuelve al usuario a la pantalla de acceso y finaliza el uso actual del portal.
+- Tras un período de **inactividad** (según parámetro ERP *MinutosWeb*), la sesión expira y el usuario debe volver a ingresar; cada interacción renueva el contador.
 - Las grillas de listados ofrecen la misma experiencia transversal: filtros, orden, columnas, agrupación, totalizadores, layouts, exportación y acciones por fila según permisos.
 
 ## 12. Casos habituales
@@ -592,20 +604,23 @@ Según el proceso, la barra superior puede incluir:
 
 | Elemento | Para qué sirve |
 |----------|----------------|
-| **Layout de grilla** | Elegir un formato guardado o volver a la plantilla del sistema |
+| **Layout de grilla** | Elegir un formato guardado o volver a la **plantilla del sistema** |
 | **Guardar** | Actualiza el layout seleccionado (si el usuario es el creador y la vista lo permite) |
 | **Guardar como** | Crea un layout nuevo con el formato actual |
 | **Eliminar** | Quita un layout propio |
 | **Exportar** | Descarga la vista actual a Excel |
+| **Actualizar** | Recarga los datos desde el servidor (habitual en informes y consultas) |
 | Acciones del proceso | Botones adicionales definidos por cada pantalla |
 
 **Layouts**
 
-- Cada layout guarda, entre otras cosas: columnas visibles y su orden, filtros, agrupaciones, ordenamiento y totalizadores configurados.
+- Cada layout guarda, entre otras cosas: columnas visibles y su orden, filtros, agrupaciones, ordenamiento y **totalizadores del pie** configurados.
 - Todos los usuarios pueden **ver y aplicar** layouts existentes de la misma grilla.
 - Solo el **creador** puede **modificar o eliminar** un layout que guardó.
+- Los diseños **propios** aparecen en el selector con el sufijo **` (*)`** para distinguirlos de layouts de otros usuarios o de la plantilla del sistema.
 - Si partís de un layout de otro usuario, podés crear uno propio con **Guardar como**.
 - Si estás en la **plantilla del sistema**, **Guardar** se interpreta como **Guardar como** (crea un layout nuevo).
+- Elegir **Plantilla del sistema** restablece la vista base de la grilla (columnas, filtros y totalizadores por defecto del proceso).
 - Al volver a abrir la pantalla, el sistema intenta restaurar el **último layout usado** por el usuario.
 
 **Exportación a Excel**
@@ -615,7 +630,7 @@ Según el proceso, la barra superior puede incluir:
 - La exportación respeta la **vista vigente**: columnas visibles, filtros, orden y agrupaciones activas al momento de exportar.
 - Modalidades habituales:
   - **Básica:** datos tal como se ven, sin formato avanzado de Excel (útil para procesamiento externo).
-  - **Formateada:** encabezados, formatos por tipo de dato y totales visibles (útil para uso de negocio).
+  - **Formateada:** encabezados con fondo gris y negrita; fechas según el idioma activo; enteros sin decimales forzados; decimales con el formato de la columna; valores Sí/No traducidos; **totales del pie** incluidos cuando están visibles en pantalla (útil para uso de negocio).
 
 ### 16.3 Ordenar registros
 
@@ -754,6 +769,14 @@ Sí, con **Guardar** o **Guardar como** en la barra de layouts. El formato queda
 
 No directamente. Podés **aplicarlo** y, si te sirve como base, crear uno propio con **Guardar como**.
 
+**¿Qué significa el sufijo ` (*)` en un layout?**
+
+Indica que el diseño es **propio** del usuario conectado.
+
+**¿Qué hace la plantilla del sistema?**
+
+Restablece la grilla a la vista base del proceso, sin filtros ni personalizaciones del layout guardado.
+
 **¿La exportación incluye columnas ocultas?**
 
 No. Exporta la **vista vigente**: columnas visibles, filtros, orden y agrupaciones activas al exportar.
@@ -772,7 +795,7 @@ PedidosWeb ofrece una experiencia base organizada y segura: el usuario ingresa d
 
 Las preferencias personales, como idioma y apariencia, ayudan a adaptar la experiencia sin alterar la seguridad. Al mismo tiempo, las funciones de cambio y recuperación de contraseña permiten mantener el acceso bajo control y resolver incidentes habituales sin salir del circuito previsto.
 
-Las **grillas** unifican la consulta de listados: orden, filtros, columnas, agrupación, totalizadores por columna, layouts reutilizables, exportación a Excel y acciones por fila según permisos. Esa homogeneidad reduce la curva de aprendizaje entre procesos distintos.
+Las **grillas** unifican la consulta de listados: orden, filtros, columnas, agrupación, totalizadores por columna, layouts reutilizables (propios marcados con **` (*)`**), exportación a Excel formateada y acciones por fila según permisos. La **vista pivot** (sección 19) extiende el análisis en informes habilitados.
 
 Los puntos que usuario y soporte deben recordar son:
 
@@ -782,10 +805,12 @@ Los puntos que usuario y soporte deben recordar son:
 - el cambio de contraseña puede ser obligatorio;
 - la recuperación de contraseña debe hacerse sobre la cuenta y el correo correctos;
 - cerrar sesión sigue siendo la forma recomendada de finalizar el uso del portal;
+- la sesión **expira por inactividad** según parámetro ERP; conviene grabar el trabajo antes de ausentarse;
 - en grillas, filtros y layouts modifican la **vista**, no los permisos ni los datos;
 - exportar y totalizar respetan lo visible en pantalla al momento de la acción;
 - el botón **+** de alta aparece solo en procesos ABM autorizados;
-- la **Consulta de parámetros** (menú General) es solo lectura: muestra descripción, valor y ayuda de la configuración ERP, sin clave técnica visible.
+- la **Consulta de parámetros** (menú General) es solo lectura: muestra descripción, valor y ayuda de la configuración ERP, sin clave técnica visible;
+- la **vista pivot** en informes requiere habilitación del tenant; consultas de cabecera de comprobantes usan solo grilla.
 
 ## 18. Consulta de parámetros (menú General)
 
@@ -796,7 +821,7 @@ Proceso transversal del grupo **General**, ubicado al **final** del menú latera
 | Columna | Contenido |
 |---------|-----------|
 | **Descripción** | Texto legible del parámetro (`CAPTION` en ERP) |
-| **Valor** | Valor efectivo según su tipo (número, texto, fecha, Sí/No, etc.) |
+| **Valor** | Valor efectivo según su tipo (número, texto, fecha, Sí/No, etc.), **centrado** en la columna |
 | **Tooltip** | Ayuda contextual cuando existe en ERP |
 
 La **clave técnica** del parámetro (identificador interno) **no se muestra** en la grilla.
@@ -821,3 +846,75 @@ La administración de parámetros corresponde al **ERP** o herramientas internas
 Un supervisor abre **General → Consulta de parámetros**, revisa valores como minutos de edición web, flags de mail o permisos de modificación, y utiliza la información para interpretar el comportamiento del resto del portal **sin modificar** la configuración.
 
 Para el detalle de grillas (filtros, layouts), aplicar también la sección 16 de este manual.
+
+## 19. Vista pivot (PivotGrid)
+
+Esta sección describe el comportamiento **estándar** de la vista pivot en informes analíticos. No todos los procesos la ofrecen: depende de la consulta y de que el **tenant** tenga la funcionalidad habilitada por administración.
+
+### 19.1 Dónde aparece
+
+- Informes comerciales de PedidosWeb que admiten análisis pivot (deuda, cheques, stock, detalle de pedidos, historial de ventas, según configuración).
+- **No** aparece en consultas de comprobantes por cabecera (pedidos ingresados, pendientes, presupuestos): esas pantallas usan solo grilla.
+
+Si la funcionalidad no está habilitada en el tenant, el informe se muestra **únicamente en grilla** (comportamiento habitual del MVP).
+
+### 19.2 Conmutador Grilla / Pivot
+
+En informes habilitados, la barra superior incluye un conmutador para alternar entre:
+
+| Vista | Uso |
+|-------|-----|
+| **Grilla** | Listado tabular estándar (sección 16): filtros, layouts de grilla, exportación Excel de grilla |
+| **Pivot** | Tabla dinámica: arrastrar campos a filas, columnas y valores para agrupar y totalizar |
+
+La vista inicial suele ser **Grilla**. Al pasar a **Pivot** por primera vez, el sistema carga los datos analíticos del mismo informe.
+
+### 19.3 Elementos de la vista pivot
+
+| Elemento | Para qué sirve |
+|----------|----------------|
+| **Panel de campos** | Lista de dimensiones y medidas disponibles; arrastrar hacia filas, columnas o valores |
+| **Área pivot** | Muestra la tabla dinámica con totales y subtotales |
+| **Actualizar** | Recarga datos del servidor |
+| **Diseño pivot** | Selector de layouts guardados, **Guardar**, **Guardar como**, **Eliminar**, **Plantilla inicial** |
+| **Exportar** | Descarga la vista pivot a Excel (básica o tabla dinámica, según opciones del proceso) |
+
+**Diseños pivot**
+
+- Misma lógica que los layouts de grilla: todos pueden **ver y aplicar** diseños; solo el **creador** modifica o elimina el suyo.
+- **Plantilla inicial** restablece la pivot vacía sin borrar diseños de otros usuarios.
+- Los diseños propios pueden distinguirse con el sufijo **` (*)`** en el selector.
+
+### 19.4 Valores numéricos
+
+Los importes, cantidades y saldos en pivot usan formato decimal **`#,##0.00`** (dos decimales, separador de miles según locale del portal).
+
+### 19.5 Idioma
+
+Títulos de campos, botones y menús del pivot siguen el **idioma activo** del usuario. Los **datos de negocio** (nombres de clientes, descripciones, etc.) no se traducen.
+
+### 19.6 Casos habituales
+
+**Caso A.** Revisar deuda por cliente y vendedor: abrir informe Deuda, conmutar a Pivot, arrastrar *Cliente* a filas y *Saldo* a valores con suma.
+
+**Caso B.** Guardar diseño recurrente: configurar filas/columnas/valores, **Guardar como** con un nombre descriptivo y reutilizarlo en visitas posteriores.
+
+**Caso C.** Tenant sin pivot habilitado: el informe muestra solo grilla; exportar y filtrar con las herramientas de la sección 16.
+
+### 19.7 Preguntas frecuentes sobre pivot
+
+**¿Por qué no veo el conmutador Grilla / Pivot?**
+
+La consulta no lo admite o el tenant no tiene pivots activos. Contactar soporte o administración.
+
+**¿El pivot modifica datos en el ERP?**
+
+No. Es una vista analítica de solo lectura sobre los mismos datos del informe.
+
+**¿Puedo exportar la pivot?**
+
+Sí, con el botón **Exportar** del bloque pivot cuando hay datos cargados.
+
+**¿Los filtros de la grilla se aplican al pivot?**
+
+Los criterios de negocio del informe (cliente, fechas, etc.) se respetan; al cambiar de vista conviene pulsar **Actualizar** si se modificaron filtros en pantalla.

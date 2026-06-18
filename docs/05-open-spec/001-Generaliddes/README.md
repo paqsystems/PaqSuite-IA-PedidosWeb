@@ -10,7 +10,7 @@ Este bloque define las **especificaciones de configuración inicial** para Pedid
 |------|-----------|--------|--------|
 | 001-01 … 001-05 | Apto con observaciones | Sí (01–02 generadas; 03–05 pendientes) | Parches A1 + decisiones en producto §8.1, §7, §5 |
 | 001-06, 001-09 | Documental | **No** en MVP portal | Preparación; sin HU en primer release |
-| 001-07 | B1 cerrado (2026-06-11) | **No** en MVP portal | 4 HU; epic importar Excel posterior |
+| 001-07 | **C1 cerrado** (2026-06-16) | **No** en MVP portal | 4 HU + 4 TR; epic importar Excel posterior |
 | 001-08 | **D1 + F cerrado** (2026-06-11) | **No** en MVP portal | 4 HU + 4 TR implementadas; activación vía flags |
 | 001-10 | Pendiente | No todavía | Chat Asistente IA en nueva pestaña con `BYOK`, proveedores y mensajes editables |
 

@@ -32,7 +32,7 @@ final class MenusMvpSeeder extends Seeder
                 'enabled' => true,
                 'routeName' => $menuItem['routeName'] ?? null,
                 'tipo' => 'WEB',
-                'tipo_proceso' => (string) ($menuItem['tipoProceso'] ?? 'P'),
+                'tipo_proceso' => $this->normalizeTipoProceso((string) ($menuItem['tipoProceso'] ?? 'P')),
                 'expanded' => false,
                 'idparent' => 0,
             ]);
@@ -82,7 +82,7 @@ final class MenusMvpSeeder extends Seeder
                 $menu->enabled = true;
                 $menu->routeName = $menuItem['routeName'] ?? null;
                 $menu->tipo = 'WEB';
-                $menu->tipo_proceso = (string) ($menuItem['tipoProceso'] ?? 'P');
+                $menu->tipo_proceso = $this->normalizeTipoProceso((string) ($menuItem['tipoProceso'] ?? 'P'));
                 $menu->expanded = false;
                 $menu->idparent = $parentId;
 
@@ -92,5 +92,17 @@ final class MenusMvpSeeder extends Seeder
                 }
             }
         }
+    }
+
+    private function normalizeTipoProceso(string $tipoProceso): string
+    {
+        $normalized = strtoupper(trim($tipoProceso));
+
+        return match ($normalized) {
+            'G', 'GRUPO' => 'G',
+            'P', 'PROCESO' => 'P',
+            'I', 'INFORME' => 'I',
+            default => substr($normalized, 0, 1) ?: 'P',
+        };
     }
 }

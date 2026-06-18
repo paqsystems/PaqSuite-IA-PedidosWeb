@@ -1,0 +1,45 @@
+<?php
+
+return [
+    'columnComment' => [
+        'required' => 'OBLIGATOIRE',
+    ],
+    'column' => [
+        'PEDIDO_INDIVIDUAL' => [
+            'codCliente' => 'code client',
+            'codArticulo' => 'code article',
+            'cantidad' => 'quantite',
+            'precioLista' => 'prix liste',
+            'bonifRenglon' => 'remise ligne',
+            'codPerfil' => 'code profil',
+            'codCondvta' => 'condition vente',
+            'codTranspor' => 'code transport',
+            'idDe' => 'adresse livraison',
+            'codLista' => 'code liste',
+            'nivel' => 'niveau',
+            'bonif1' => 'remise 1',
+            'bonif2' => 'remise 2',
+            'bonif3' => 'remise 3',
+            'expreso' => 'express',
+            'expresoDire' => 'adresse express',
+            'fechaEntrega' => 'date livraison',
+            'observaciones' => 'observations',
+            'leyenda1' => 'legende 1',
+            'leyenda2' => 'legende 2',
+            'leyenda3' => 'legende 3',
+            'leyenda4' => 'legende 4',
+            'leyenda5' => 'legende 5',
+        ],
+    ],
+    'pedidoIndividual' => [
+        'campoNoEditable' => 'Colonne non modifiable pour votre profil',
+        'clienteDistinto' => 'Toutes les lignes doivent avoir le meme code client',
+        'cabeceraIncoherente' => 'Les donnees d en-tete doivent etre identiques sur toutes les lignes',
+        'clienteSesion' => 'Le code client doit correspondre a votre session',
+        'articuloBase' => 'Article de type BASE non autorise',
+        'articuloNoEncontrado' => 'Article introuvable',
+        'cantidadInvalida' => 'La quantite doit etre superieure a zero',
+        'precioCero' => 'Prix zero non autorise',
+        'nivelInvalido' => 'Niveau invalide pour la configuration actuelle',
+    ],
+];

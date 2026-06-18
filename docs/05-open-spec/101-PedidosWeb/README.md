@@ -32,6 +32,7 @@
 | 13 | [SPEC-101-13-mails.md](SPEC-101-13-mails.md) | Must |
 | 14 | [SPEC-101-14-dashboard.md](SPEC-101-14-dashboard.md) | Must |
 | 15 | [SPEC-101-15-tests-hardening.md](SPEC-101-15-tests-hardening.md) | Must |
+| 16 | [SPEC-101-16-importacion-pedido-individual-excel.md](SPEC-101-16-importacion-pedido-individual-excel.md) | **Should** — A1+B1+C+C1 cerrados; listo D1 |
 
 ## Dependencias transversales pendientes
 

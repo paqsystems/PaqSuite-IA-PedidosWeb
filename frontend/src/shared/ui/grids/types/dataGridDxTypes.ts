@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import type { DataGridTypes } from 'devextreme-react/data-grid';
+import type { RowPreparedEvent } from 'devextreme/ui/data_grid';
 import type { DataGridDxAbmConfig } from '../utils/buildAbmRowActions';
 
 export type DataGridDxSortingMode = 'single' | 'multiple';
@@ -34,4 +35,5 @@ export type DataGridDxProps<TRecord extends Record<string, unknown> = Record<str
   abm?: DataGridDxAbmConfig<TRecord>;
   /** Exportación Excel en toolbar (TR-GEN-03-exportaciones). Default: true. */
   exportEnabled?: boolean;
+  onRowPrepared?: (event: RowPreparedEvent) => void;
 };

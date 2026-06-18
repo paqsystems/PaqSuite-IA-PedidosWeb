@@ -3,50 +3,55 @@
 | Campo | Valor |
 |-------|--------|
 | **SPEC madre** | [PedidosWeb_SPEC_MVP.md](PedidosWeb_SPEC_MVP.md) |
-| **Estado** | En revisión |
+| **Estado** | Especificado |
 | **Prioridad épica** | Must |
-| **Última actualización** | 2026-06-11 (Parte G — CC PQ #4) |
+| **Última actualización** | 2026-06-16 (Parte I — CC PQ #4 pivot informes) |
 
 ## Objetivo
 
-Pantallas de consulta con `DataGridDx`, layouts, exportación **Excel** y acciones por ícono.
+Pantallas de consulta con `DataGridDx`, layouts, exportación **Excel**, acciones por ícono y **vista pivot** opcional en informes analíticos (SPEC-001-08).
 
 ## In scope
 
 - Grillas: pedidos ingresados, pendientes, presupuestos 99, presupuestos 98 (solo lectura)
 - Stock, deuda, cheques, historial (modal detalle ventas)
-- **CC PQ #4 (pendiente):** pivot en Detalle pedidos, Deudas, Cheques, Stock — ver [SPEC-101-11-consultas-ui-update](../updates/101-PedidosWeb/SPEC-101-11-consultas-ui-update.md)
+- **Detalle de pedidos** (grilla plana cabecera + renglón)
+- **CC PQ #4:** pivot en Detalle pedidos, Deudas, Cheques y Stock (`ConsultaGrillaPivotShell`, catálogo `pq_pivots_*`)
 - Carátula con `fecha_proceso` (**formato `dd/MM/yyyy HH:mm`**, i18n, sin segundos)
 - Columna **nombre comercial** del cliente en consultas cabecera (015/016/017/028)
 - Ícono **Actualizar** (tooltip i18n) en informes de consulta — recarga datos de grilla
 - Acción **Copiar** en pedidos pendientes (mismo patrón HU-101-026)
 - Columna **Precio neto unitario** en detalle pedidos (HU-101-028)
 - Export Excel (GEN-03); acciones ver/editar/eliminar según permisos (**eliminar** solo pedido 0)
+- Pivot: diseños `pq_pivots_config`, plantilla inicial, refresh, export Excel pivot (GEN-08) cuando flags activos
 - PDF: **fuera** — ver SPEC-001-06
 
 ## Fuera de scope
 
 - PDF en MVP
 - Lógica API (101-07)
+- Pivot en consultas de **cabecera** (ingresados, pendientes, presupuestos)
 
 ## Dependencias
 
-- SPEC-101-07, SPEC-101-09, GEN-03
+- SPEC-101-07, SPEC-101-09, GEN-03, **SPEC-001-08** (pivots)
 
 ## HU relacionadas
 
-HU-101-015…018, HU-101-021…023
+HU-101-015…018, HU-101-021…023, HU-101-028
 
 ## Definición de listo
 
-- [ ] ≥ 2 E2E por consulta crítica o suite agrupada documentada
-- [ ] Layouts y export operativos
+- [x] ≥ 2 E2E por consulta crítica o suite agrupada documentada
+- [x] Layouts y export operativos
 - [x] CC PQ #1: nombre comercial, carátula fecha, actualizar, copiar pendientes, precio neto detalle
+- [x] CC PQ #4: cuatro informes con toggle grilla/pivot; catálogo pivot; E2E detalle + deuda
 
 ## Historial de cambios
 
 | Fecha | Origen | Resumen |
 |-------|--------|---------|
 | 04/06/2026 | CC PQ #1 | Consultas UI: columnas, refresh, copiar pendientes |
-| 09/06/2026 | Parte I | Unificación `SPEC-101-11-consultas-ui-update` |
-| 11/06/2026 | CC PQ #4 / Parte G | Pivot en 4 informes — SPEC-update en cola |
+| 09/06/2026 | Parte I | Unificación oleada CC PQ #1 |
+| 11/06/2026 | CC PQ #4 / Parte G | Pivot en 4 informes — volcado updates |
+| 16/06/2026 | Parte I CC #4 | Unificación `SPEC-101-11-consultas-ui-update`; manual y producto pivot |

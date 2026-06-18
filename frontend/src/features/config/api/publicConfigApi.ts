@@ -4,6 +4,7 @@ export type PublicConfig = {
   gridLayoutsEnabled: boolean;
   pivotsEnabled: boolean;
   pivotLayoutsEnabled: boolean;
+  excelImportEnabled: boolean;
 };
 
 export async function fetchPublicConfig(): Promise<PublicConfig> {
@@ -13,5 +14,6 @@ export async function fetchPublicConfig(): Promise<PublicConfig> {
     gridLayoutsEnabled: Boolean(response.resultado.gridLayoutsEnabled),
     pivotsEnabled: Boolean(response.resultado.pivotsEnabled),
     pivotLayoutsEnabled: Boolean(response.resultado.pivotLayoutsEnabled),
+    excelImportEnabled: Boolean(response.resultado.excelImportEnabled),
   };
 }

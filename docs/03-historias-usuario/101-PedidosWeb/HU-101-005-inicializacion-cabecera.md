@@ -6,7 +6,7 @@
 | **SPEC origen** | [SPEC-101-10-pantalla-carga](../../05-open-spec/101-PedidosWeb/SPEC-101-10-pantalla-carga.md) |
 | **Prioridad** | Must |
 | **Estado** | Finalizado |
-| **Última actualización** | 2026-06-11 (Parte I — CC PQ #5) |
+| **Última actualización** | 2026-06-17 (CC PQ #6 — disponible base agregado) |
 | **B1** | Enriquecida (2026-06-01) |
 | **Dependencias** | HU-101-004; contexto SPEC-001-04 (parámetros §10.6 producto) |
 
@@ -29,9 +29,9 @@ Al seleccionar cliente, precargar según producto §10.4: vendedor, condición d
 5. **Cliente:** no modifica bonificaciones de cabecera ni lista de precios salvo parámetros explícitos para **C** (producto: cliente no modifica precio/lista/descuento artículo en renglón).
 6. **CC PQ 04/06/2026:** Tercera bonificación admite **-99,99 a 99,99**; al cambiar lista de precios o bonificaciones con renglones → recalcular precios e importes del detalle; grilla muestra columna **Precio neto unitario** (solo lectura).
 7. **CC PQ #3:** Lista de **clientes:** patrón transversal cargando + bloqueo + auto-match único; cache de catálogo por sesión.
-8. **CC PQ #3:** Lista de **artículos:** búsqueda remota optimizada (mínimo 4 caracteres, espacios incluidos); display **`{codigo} - {descripcion}`**; sin consulta al solo enfocar el campo.
+8. **CC PQ #3 (artículos):** Tras lista de precios en cabecera, **precarga local** del catálogo (hasta 10 000 ítems); búsqueda DevExtreme **local** por `codArticulo` y `descripcion`; display **`{codigo} - {descripcion} — Disp. X (Y)`**.
 9. **CC PQ #3:** Al cambiar **lista de precios** con renglones → recálculo batch de precios (API `codigos` CSV).
-10. **CC PQ #5:** Listbox **artículos** (browse): disponible = `stock − comprometido` (artículo y base); **sin** descontar pedidos web ingresados; display `codigo - descripcion — Disp. X (Y)`.
+10. **CC PQ #5 / #6 (listbox artículos):** `disponibleNeto = stock − comprometido − comprometido_web` (pedidos ingresados `estado = 0`). Si `articulos.base` ≠ vacío: `disponibleNetoBase = SUM(stock) − SUM(comprometido) − comprometido_base_web` sobre **todas** las presentaciones con la misma `base` ([consulta-stock.md](../../02-producto/PedidosWeb/consulta-stock.md) §5). Entre paréntesis en el ítem: solo `disponibleNetoBase`.
 
 ## Criterios de aceptación
 
@@ -44,14 +44,17 @@ Al seleccionar cliente, precargar según producto §10.4: vendedor, condición d
 - [x] **CA-CC-03:** Al cambiar lista de precios o bonificación de cabecera con renglones cargados → recálculo sin pérdida de filas.
 - [x] **CA-CC3-01:** SelectBox cliente: cargando, bloqueo durante fetch y auto-selección con un solo match.
 - [x] **CA-CC3-02:** Carga de clientes mejorada (cache sesión; sin benchmark numérico formal).
-- [x] **CA-CC3-03:** Búsqueda de artículos optimizada (mín. 4 caracteres; apertura lista tras 1 s sin tipear).
+- [x] **CA-CC3-03:** Catálogo artículos precargado; búsqueda local por código/descripción (sin API al tipear).
 - [x] **CA-CC3-04:** Cambio de lista de precios → recálculo batch sin pérdida de datos.
-- [x] **CA-CC3-05:** Lista artículos muestra `codigo - descripcion` (+ disponibilidad).
+- [x] **CA-CC3-05:** Lista artículos muestra `codigo - descripcion — Disp. X,XX` (+ base entre paréntesis si aplica).
 - [x] **CA-CC3-06:** Sin regresión CA-CC 04/06/2026.
-- [x] **CA-CC5-01:** Browse artículos (`GET /articulos` sin `codigos`) → `disponibleNeto = stock − comprometido` (artículo y base).
-- [x] **CA-CC5-02:** Lookup carga no consulta `pq_pedidosweb_pedidos*`.
-- [x] **CA-CC5-03:** Display `codigo - descripcion — Disp. X,XX` y `(Y,YY)` si hay base.
-- [x] **CA-CC5-04:** Consulta stock mantiene disponible neto con `comprometido_web`.
+- [x] **CA-CC5-01:** Browse artículos → `disponibleNeto = stock − comprometido − comprometido_web`.
+- [x] **CA-CC5-02:** `disponibleNetoBase` con agregados SUM por `articulos.base` (no fila única `cod_articulo = base`).
+- [x] **CA-CC5-03:** Display `codigo - descripcion — Disp. X,XX` y `(Y,YY)` con `Y = disponibleNetoBase` si hay base.
+- [x] **CA-CC5-04:** Consulta stock mantiene mismas fórmulas §4–§5.
+- [x] **CA-CC6-01:** Paréntesis base no muestra `comprometidoBaseWeb` ni stock aislado del código base.
+- [x] **CA-CC6-02:** Presentaciones con misma `base` (ej. AC01) comparten el mismo `disponibleNetoBase`.
+- [x] **CA-CC6-03:** Implementación en `ArticuloCargaLookupService` alineada con `StockConsultaService` §5.
 
 ## Veredicto B1
 

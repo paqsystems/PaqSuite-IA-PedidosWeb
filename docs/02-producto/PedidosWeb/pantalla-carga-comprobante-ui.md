@@ -7,7 +7,7 @@
 | **Ruta** | `/pedidos/carga` |
 | **TR** | [TR-SPEC-101-10-pantalla-carga](../../04-tareas/101-PedidosWeb/TR-SPEC-101-10-pantalla-carga.md) |
 | **SPEC** | [SPEC-101-10-pantalla-carga](../../05-open-spec/101-PedidosWeb/SPEC-101-10-pantalla-carga.md) |
-| **Última actualización** | 2026-06-09 (CC PQ #3) |
+| **Última actualización** | 2026-06-17 (disponible base agregado) |
 
 Este documento es la **fuente de verdad** para comportamiento de UI de la pantalla única de carga/edición de pedidos y presupuestos. Ante conflicto con implementaciones antiguas, prevalece este archivo.
 
@@ -54,15 +54,13 @@ Controles: **DevExtreme** (`SelectBox`, `NumberBox`, `DataGrid`, `Popup`, `Butto
 | Regla | Detalle |
 |-------|---------|
 | Control | `SelectBoxDx` (`data-testid`: `articulo-select`) |
-| API | `GET /api/v1/articulos?q=&lista_precios={cod_lista}&page_size=500` |
-| Carga de datos | **DevExtreme `CustomStore`** (`useArticulosCargaDataSource`): consulta remota con `q` (trim en API); **no** consulta al solo enfocar el campo (`openOnFieldClick=false`) |
-| Umbral búsqueda | Mínimo **4** caracteres tipeados (espacios incluidos); tras **1 s** sin tipear con umbral cumplido → `component.open()` |
-| Flecha desplegable | Sin texto escrito: carga primer lote (hasta **500** ítems; `page_size` máx. **1000** en API) |
-| Estado carga | Hint i18n `selectBox.loading` durante fetch (`onLoadingChanged`); en artículos **no** se deshabilita al buscar (`disableWhileLoading=false`) |
-| Auto-match | Si la búsqueda deja un único ítem (≥ 4 caracteres), selección automática (`autoSelectMinSearchLength=4`) |
+| API | `GET /api/v1/articulos?q=&lista_precios={cod_lista}&page_size=10000` (join `pq_pedidosweb_stock`; disponible = stock − comprometido − pedidos web ingresados) |
+| Carga de datos | Tras cabecera con **lista de precios** válida: **una** precarga del catálogo (hasta **10 000** ítems); array en memoria |
+| Búsqueda | **Local** DevExtreme (`searchEnabled`, `searchExpr`: `codArticulo`, `descripcion`, `searchMode`: `contains`); sin consultas API al tipear |
+| Auto-match | Si el filtro local deja un único ítem, selección automática |
 | Lista precios | Sin `listaPrecios` válida en cabecera el combobox queda deshabilitado (sin `DataSource`); al cambiar lista → `actualizarPreciosRenglonesPorLista` (batch `codigos`) |
 | Orden | **`descripcion` ASC** (API `orderBy('descripcion')` + `ordenarArticulosPorDescripcion` en cliente) |
-| Búsqueda | Escribir filtra en servidor (`q`); `searchExpr` código/descripción; `cacheRawData=false` |
+| Estado carga | Hint i18n `selectBox.loading` durante precarga inicial |
 | Exclusión BASE | No listar artículos con `pq_pedidosweb_articulos.usa_esc = 'B'` (solo lookup/browse; refresh por `codigos` no aplica este filtro) |
 | Formato ítem | Ver §3.1 |
 | Precio al agregar | Campo `precio` de la respuesta (lista activa en cabecera) |
@@ -70,12 +68,17 @@ Controles: **DevExtreme** (`SelectBox`, `NumberBox`, `DataGrid`, `Popup`, `Butto
 
 ### 3.1 Texto del ítem (disponible en listbox)
 
-Lookup browse (`GET /articulos`) — `ArticuloCargaLookupService::buscar` (CC PQ #5; **sin** pedidos web ingresados hasta optimizar SQL):
+Lookup browse (`GET /articulos`) — `ArticuloCargaLookupService::buscar` (implementación alineada con [consulta de stock](./consulta-stock.md) §4–§5):
 
-- **Disponible** = `stock − comprometido` (no descuenta `comprometido_web` de pedidos con `estado = 0`).
-- **Disponible base** = `stockBase − comprometidoBase` (misma exclusión de pedidos web); si no hay base → `null` (no se muestra paréntesis).
+- **Disponible** = `stock − comprometido − comprometido_web`, con `comprometido_web` = suma de `pq_pedidosweb_pedidosdetalle.cantidad` en pedidos con `pq_pedidosweb_pedidoscabecera.estado = 0` (ingresados).
+- **Disponible base** (`disponibleNetoBase`, solo si `articulos.base` ≠ vacío):
+  - `stockBase` = **SUM**(`stock`) de **todas** las presentaciones con el mismo `articulos.base` (no el stock de una fila cuyo `cod_articulo` = código base).
+  - `comprometidoBase` = **SUM**(`comprometido`) mismo criterio.
+  - `comprometidoBaseWeb` = **SUM**(`cantidad`) en pedidos ingresados de **todos** los artículos con esa `base`.
+  - `disponibleNetoBase` = `stockBase − comprometidoBase − comprometidoBaseWeb`.
+  - En el listbox se muestra entre paréntesis **solo** `disponibleNetoBase` (no `comprometidoBaseWeb` ni stock del código base aislado).
 
-La [consulta de stock](./consulta-stock.md) sigue usando `stock − comprometido − comprometido_web`.
+La [consulta de stock](./consulta-stock.md) usa las mismas fórmulas §4–§5.
 
 | Caso | Plantilla i18n |
 |------|----------------|
@@ -242,7 +245,7 @@ Persistir `descuento_origen` en detalle cuando exista columna (`cantidad` | `art
 | Clientes visibles | `GET /api/v1/clientes` |
 | Cabecera inicial | `GET /api/v1/clientes/{cod}/cabecera-inicial` |
 | Artículos carga | `GET /api/v1/articulos?lista_precios=` |
-| Stock (lookup artículos) | Misma lógica que `GET /api/v1/consultas/stock` vía `StockConsultaService` |
+| Stock (lookup artículos) | `ArticuloCargaLookupService` — fórmulas §3.1 (equivalentes a `StockConsultaService` / consulta stock §4–§5) |
 | Grabación | `POST /api/v1/comprobantes/grabar` |
 
 ---

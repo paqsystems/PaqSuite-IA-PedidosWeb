@@ -46,11 +46,94 @@ Este archivo **no sustituye** SPEC, HU ni TR: es la **entrada** del circuito de 
 
 | # | Fecha | Estado | Resumen |
 |---|-------|--------|---------|
-| 5 | 09/06/2026 | Finalizado (Parte I) | Listbox artículos carga: disponible solo `stock − comprometido` (sin pedidos ingresados); display con base opcional — unificado 11/06/2026 |
-| 4 | 10/06/2026 | Especificado | Vista pivot en informes: **Detalle de pedidos**, **Deudas**, **Cheques** y **Stock** (SPEC-001-08) — Parte G 11/06/2026 |
+| 6 | 17/06/2026 | Finalizado (Parte I) | Listbox artículos: disponible base = SUM por `base` (no stock código base); alineado consulta stock §5 |
+| 5 | 09/06/2026 | Finalizado (Parte I) | Listbox artículos carga: display disponible y base — unificado 11/06/2026; ítem (c) base revisado en #6 |
+| 4 | 10/06/2026 | Finalizado (Parte I) | Vista pivot en informes: Detalle, Deudas, Cheques, Stock — unificado 16/06/2026 |
 | 1 | 04/06/2026 | Finalizado (Parte I) | 10 familias HU — CC PQ; updates unificados 09/06/2026 |
 | 2 | 05/06/2026 | Finalizado (Parte I) | GEN-03 layouts/export Excel formateado — CC PQ #2; unificado 09/06/2026 |
 | 3 | 09/06/2026 | Finalizado (Parte I) | Cartel cargando, layouts totales, performance carga, parámetros — unificado 09/06/2026 |
+
+---
+
+## Control de Calidad #6
+
+### Referencia del control
+
+| Campo | Valor |
+|-------|--------|
+| **Fecha** | 15/06/2026 |
+| **Responsable** | Pablo Quarracino (PQ) |
+| **Estado** | Pendiente |
+
+### Hallazgos
+
+en carga/edición de pedidos, Verificar que se esté inicializando el control de Perfiles con el parámetro correspondiente. y que al grabar se estén haciendo todas las validaciones indispensables.
+
+### Errores encontrados - Mejoras solicitadas
+
+#### i18n - procesos donde no se está aplicando.
+
+no se está traduciendo como corresponde :
+- la grilla de Consulta de Parámetros (ni descripción, valor ni comentario)
+- los captions o títulos de datos en los pivots.
+corregir y colocarlo como fuente de verdad.
+
+#### HU-101-005-inicializacion-cabecera
+
+Cuando se comienza un nuevo comprobante, después de elegir el cliente, el control de selección de perfiles se debe inicializar con el valor INT del parámetro "CodPerfilPedidos"
+
+#### HU-101-005-inicializacion-cabecera
+
+Rediseñar estéticamente la pantalla conforme la imagen que se ve en `docs\02-producto\PedidosWeb\Diseño Carga Pedidos.png`
+
+#### HU-101-009-grabar-pedido · HU-101-010-grabar-presupuesto
+
+Cuando se graba un pedido o presupuesto, hay que verificar que se hayan completado todos estos controles, con un valor válido (qué exista en tabla correspondiente):
+- Cliente
+- Vendedor
+- perfil
+- condición venta
+- transporte
+- Dirección Entrega
+- Lista de Precios
+Además agregar estas validaciones : 
+- que exista por lo menos un renglón en el detalle de artículos
+- Si parámetro “NivelExtremo” es True, ese dato solo puede valer 0 ó 100.
+- Si parámetro "Artículopreciocero" o "Articulossinprecio" es false, no puede haber registros con precio cero. 
+- que el cliente tenga el atributo inhabilitado=FALSE (0).
+
+
+---
+
+## Control de Calidad #6
+
+### Referencia del control
+
+| Campo | Valor |
+|-------|--------|
+| **Fecha** | 17/06/2026 |
+| **Responsable** | Pablo Quarracino (PQ) |
+| **Estado** | Finalizado (Parte I) |
+| **Entorno probado** | Local — Ankas_del_sur; artículos AB 0100, AC01 *, AC03 1000 |
+| **Build / rama** | `v1.1.0-paq` working tree |
+
+### Hallazgos
+
+En el **listbox de artículos** de carga, el valor entre paréntesis (`disponibleNetoBase`) mostraba cantidades erróneas (p. ej. 10, 262, 55 — equivalentes a **impegnato web base**) en lugar del **disponible neto base** de la consulta de stock (p. ej. 1.126.520, 177.100, 745).
+
+**Causa:** `ArticuloCargaLookupService` tomaba `stock`/`comprometido` de una fila `pq_pedidosweb_stock` cuyo `cod_articulo` = código base, en lugar de **SUM** sobre todas las presentaciones con la misma `articulos.base` (regla [consulta-stock.md](../02-producto/PedidosWeb/consulta-stock.md) §5).
+
+### Errores encontrados - Mejoras solicitadas
+
+#### HU-101-005-inicializacion-cabecera · HU-101-006-carga-renglones
+
+a) `disponibleNetoBase` = `SUM(stock) − SUM(comprometido) − comprometido_base_web` agrupado por `articulos.base`.
+
+b) Entre paréntesis en el ítem: **solo** `disponibleNetoBase` (no `comprometidoBaseWeb`).
+
+c) Misma regla que consulta stock §5; implementación en `ArticuloCargaLookupService` (subconsulta `[bs]`, no join `stock.cod_articulo = a.base`).
+
+*Procesado* → [pantalla-carga-comprobante-ui.md](../02-producto/PedidosWeb/pantalla-carga-comprobante-ui.md) §3.1 · [SPEC-101-10-pantalla-carga](../05-open-spec/101-PedidosWeb/SPEC-101-10-pantalla-carga.md) · [HU-101-005](../03-historias-usuario/101-PedidosWeb/HU-101-005-inicializacion-cabecera.md) · [TR-SPEC-101-10-pantalla-carga](../04-tareas/101-PedidosWeb/TR-SPEC-101-10-pantalla-carga.md) §7.4
 
 ---
 
@@ -105,6 +188,8 @@ e) **Alcance:** solo lookup/browse de artículos en carga (`GET /articulos` sin 
 
 *Procesado* → [SPEC-101-10-pantalla-carga](../05-open-spec/101-PedidosWeb/SPEC-101-10-pantalla-carga.md) · [HU-101-005-inicializacion-cabecera](../03-historias-usuario/101-PedidosWeb/HU-101-005-inicializacion-cabecera.md) · [TR-SPEC-101-10-pantalla-carga](../04-tareas/101-PedidosWeb/TR-SPEC-101-10-pantalla-carga.md) — Parte I 11/06/2026
 
+> **Nota histórica:** el ítem (c) pedía stock del código base aislado; **supersedido** por CC PQ #6 (17/06/2026) — agregado SUM por `base`. La fórmula de disponible artículo incluye `comprometido_web` (alineada con consulta stock §4); ver producto §3.1 vigente.
+
 ---
 
 ## Control de Calidad #4
@@ -115,8 +200,8 @@ e) **Alcance:** solo lookup/browse de artículos en carga (`GET /articulos` sin 
 |-------|--------|
 | **Fecha** | 10/06/2026 |
 | **Responsable** | Pablo Quarracino (PQ) |
-| **Estado** | Especificado |
-| **Entorno probado** | *(planificado — mejora funcional; sin QA manual previo)* |
+| **Estado** | Finalizado (Parte I 16/06/2026) |
+| **Entorno probado** | Local — Vitest + E2E pivot informes + **QA manual PQ** (Parte F 11/06/2026) |
 | **Build / rama** | `v1.1.0` working tree — Parte G 11/06/2026 |
 
 ### Hallazgos
@@ -157,7 +242,7 @@ d) **Fuera de alcance v1:** Pedidos ingresados, pedidos pendientes, presupuestos
 
 e) Derivar como **update** (no reemplazar HU/TR base): SPEC-update slice 101 (adopción pivot informes), HU-update sobre HU-101-028, HU-101-021, HU-101-022 y HU-101-018; TR-update sobre TR-SPEC-101-07 / TR-SPEC-101-11; referenciar SPEC-001-08 y contexto `_mono/pivots/`.
 
-*Procesado* → [SPEC-101-11-consultas-ui-update](../05-open-spec/updates/101-PedidosWeb/SPEC-101-11-consultas-ui-update.md) · [HU-101-028-consulta-detalle-pedidos-update](../03-historias-usuario/updates/101-PedidosWeb/HU-101-028-consulta-detalle-pedidos-update.md) · [HU-101-021-consulta-deuda-update](../03-historias-usuario/updates/101-PedidosWeb/HU-101-021-consulta-deuda-update.md) · [HU-101-022-consulta-cheques-update](../03-historias-usuario/updates/101-PedidosWeb/HU-101-022-consulta-cheques-update.md) · [HU-101-018-consulta-stock-update](../03-historias-usuario/updates/101-PedidosWeb/HU-101-018-consulta-stock-update.md) · [TR-SPEC-101-11-consultas-ui-update](../04-tareas/updates/101-PedidosWeb/TR-SPEC-101-11-consultas-ui-update.md) — Parte G 11/06/2026
+*Procesado* → [SPEC-101-11-consultas-ui](../05-open-spec/101-PedidosWeb/SPEC-101-11-consultas-ui.md) · [HU-101-028](../03-historias-usuario/101-PedidosWeb/HU-101-028-consulta-detalle-pedidos.md) · [HU-101-021](../03-historias-usuario/101-PedidosWeb/HU-101-021-consulta-deuda.md) · [HU-101-022](../03-historias-usuario/101-PedidosWeb/HU-101-022-consulta-cheques.md) · [HU-101-018](../03-historias-usuario/101-PedidosWeb/HU-101-018-consulta-stock.md) · [TR-SPEC-101-11-consultas-ui](../04-tareas/101-PedidosWeb/TR-SPEC-101-11-consultas-ui.md) — Parte G 11/06/2026 · **Parte I 16/06/2026**
 
 ---
 

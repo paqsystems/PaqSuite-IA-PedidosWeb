@@ -13,4 +13,7 @@ export const mvpMenuRoutePaths = [
   '/dashboard',
   '/integracion/logs',
   '/general/parametros',
+  '/excel-import/historial',
+  '/excel-import/procesos/:codigoProceso',
+  '/excel-import/lotes/:guidImportacion',
 ] as const;

@@ -66,6 +66,21 @@ const DetallePedidosPage = lazy(() =>
     default: module.DetallePedidosPage,
   })),
 );
+const ExcelImportHistoryPage = lazy(() =>
+  import('../features/excelImport/pages/ExcelImportHistoryPage').then((module) => ({
+    default: module.ExcelImportHistoryPage,
+  })),
+);
+const ExcelImportProcessPage = lazy(() =>
+  import('../features/excelImport/pages/ExcelImportProcessPage').then((module) => ({
+    default: module.ExcelImportProcessPage,
+  })),
+);
+const ExcelStagingGridPage = lazy(() =>
+  import('../features/excelImport/pages/ExcelStagingGridPage').then((module) => ({
+    default: module.ExcelStagingGridPage,
+  })),
+);
 
 export type PedidosWebRoutePath = (typeof mvpMenuRoutePaths)[number];
 
@@ -120,5 +135,17 @@ export const pedidosWebRoutes: PedidosWebRoute[] = [
   {
     path: '/general/parametros',
     element: withSuspense(<ParametrosConsultaPage />, 'page-loading-parametros-consulta'),
+  },
+  {
+    path: '/excel-import/historial',
+    element: withSuspense(<ExcelImportHistoryPage />, 'page-loading-excel-import-historial'),
+  },
+  {
+    path: '/excel-import/procesos/:codigoProceso',
+    element: withSuspense(<ExcelImportProcessPage />, 'page-loading-excel-import-proceso'),
+  },
+  {
+    path: '/excel-import/lotes/:guidImportacion',
+    element: withSuspense(<ExcelStagingGridPage />, 'page-loading-excel-import-lote'),
   },
 ];

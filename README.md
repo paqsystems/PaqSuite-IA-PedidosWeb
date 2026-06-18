@@ -63,7 +63,7 @@ GitHub Actions en `.github/workflows/ci.yml` (plantilla: [`docs/_base/00-github-
 
 ## Operación / releases
 
-- Runbook actualización versión (BASE, Forge + Vercel): [`docs/_base/00-runbook-actualizacion-version.md`](docs/_base/00-runbook-actualizacion-version.md) — anexo PedidosWeb §10
+- Runbook actualización versión (BASE, Forge + Vercel): [`docs/_base/00-runbook-actualizacion-version.md`](docs/_base/00-runbook-actualizacion-version.md) — anexo PedidosWeb §10 (tablas `pq_pivots_*`, `pq_excel_*`, `pq_grid_layouts*`)
 - Aviso commit/push (migrate, seeds, datos fijos): [`docs/_base/00-commit-push-revision-version-deploy.md`](docs/_base/00-commit-push-revision-version-deploy.md)
 
 **No commit/push** sin autorización explícita.

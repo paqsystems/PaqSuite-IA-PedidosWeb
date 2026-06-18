@@ -199,20 +199,46 @@ final class SecurityMvpSeeder extends Seeder
         }
 
         foreach ($procedimientos as $procedimiento) {
-            $this->seedUpsertService->upsertByNaturalKey(
-                new PqRolAtributo(),
+            $permisos = $this->resolveRolAtributoPermisos($procedimiento, $userSeed);
+
+            PqRolAtributo::query()->updateOrInsert(
                 [
                     'id_rol' => $rol->id,
                     'procedimiento' => $procedimiento,
                 ],
-                [
-                    'permiso_alta' => false,
-                    'permiso_baja' => false,
-                    'permiso_modi' => false,
-                    'permiso_repo' => true,
-                ],
-                ['permiso_alta', 'permiso_baja', 'permiso_modi', 'permiso_repo'],
+                array_merge($permisos, [
+                    'id_rol' => $rol->id,
+                    'procedimiento' => $procedimiento,
+                ]),
             );
         }
+    }
+
+    /**
+     * @param  array<string, mixed>  $userSeed
+     * @return array{permiso_alta: bool, permiso_baja: bool, permiso_modi: bool, permiso_repo: bool}
+     */
+    private function resolveRolAtributoPermisos(string $procedimiento, array $userSeed): array
+    {
+        $vendedorAcotadoMenu = config('paqsuite_mvp.vendedorAcotadoProcedimientos', []);
+
+        if (($userSeed['rolAtributos'] ?? null) === 'acotado'
+            && in_array($procedimiento, $vendedorAcotadoMenu, true)) {
+            $isDashboard = $procedimiento === 'pw_dashboard';
+
+            return [
+                'permiso_alta' => ! $isDashboard,
+                'permiso_baja' => false,
+                'permiso_modi' => ! $isDashboard,
+                'permiso_repo' => true,
+            ];
+        }
+
+        return [
+            'permiso_alta' => false,
+            'permiso_baja' => false,
+            'permiso_modi' => false,
+            'permiso_repo' => true,
+        ];
     }
 }

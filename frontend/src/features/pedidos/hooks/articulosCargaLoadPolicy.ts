@@ -1,18 +1,22 @@
 /** Mínimo de caracteres tipeados (incluye espacios) para buscar artículos. */
 export const articulosCargaMinTypedLength = 4;
 
-/** Pausa sin tipear antes de abrir el desplegable con los resultados. */
-export const articulosCargaOpenDropdownDelayMs = 1000;
+/**
+ * DevExtreme dispara búsqueda tras `searchTimeout` ms; valor alto evita consultas al tipear.
+ * La API solo se llama con disparo explícito (Tab / Enter / flechas).
+ */
+export const articulosCargaSearchTimeoutMs = 86_400_000;
 
 export function hasEnoughArticulosSearchText(searchValue: string): boolean {
   return searchValue.length >= articulosCargaMinTypedLength;
 }
 
-/** Decide si el CustomStore de artículos debe llamar a la API. */
-export function shouldFetchArticulosCarga(searchValue: string, allowEmptySearch: boolean): boolean {
-  if (hasEnoughArticulosSearchText(searchValue)) {
-    return true;
-  }
+/** Hay una consulta explícita pendiente (Tab / Enter / flechas). */
+export function hasPendingArticulosCargaQuery(pendingSearch: string | null): boolean {
+  return pendingSearch !== null && hasEnoughArticulosSearchText(pendingSearch);
+}
 
-  return allowEmptySearch;
+/** Decide si el CustomStore de artículos debe llamar a la API (solo con texto de búsqueda). */
+export function shouldFetchArticulosCarga(searchValue: string): boolean {
+  return hasEnoughArticulosSearchText(searchValue);
 }

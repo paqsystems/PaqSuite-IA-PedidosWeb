@@ -73,12 +73,12 @@ Convención: **`HU-GEN-{SPEC}-{tema}.md`** derivadas de `docs/05-open-spec/001-G
 
 | HU | TR | Título | Prioridad |
 |----|-----|--------|-----------|
-| [HU-GEN-07-plantilla-excel](HU-GEN-07-plantilla-excel.md) | — | Plantilla modelo por proceso | Could |
-| [HU-GEN-07-carga-staging-excel](HU-GEN-07-carga-staging-excel.md) | — | Carga de archivo y staging | Could |
-| [HU-GEN-07-grilla-procesamiento-excel](HU-GEN-07-grilla-procesamiento-excel.md) | — | Grilla de staging y procesamiento | Could |
-| [HU-GEN-07-historial-importaciones](HU-GEN-07-historial-importaciones.md) | — | Historial de importaciones | Could |
+| [HU-GEN-07-plantilla-excel](HU-GEN-07-plantilla-excel.md) | [TR-GEN-07-plantilla-excel](../../04-tareas/001-Generaliddes/TR-GEN-07-plantilla-excel.md) | Plantilla modelo por proceso | Could |
+| [HU-GEN-07-carga-staging-excel](HU-GEN-07-carga-staging-excel.md) | [TR-GEN-07-carga-staging-excel](../../04-tareas/001-Generaliddes/TR-GEN-07-carga-staging-excel.md) | Carga de archivo y staging | Could |
+| [HU-GEN-07-grilla-procesamiento-excel](HU-GEN-07-grilla-procesamiento-excel.md) | [TR-GEN-07-grilla-procesamiento-excel](../../04-tareas/001-Generaliddes/TR-GEN-07-grilla-procesamiento-excel.md) | Grilla de staging y procesamiento | Could |
+| [HU-GEN-07-historial-importaciones](HU-GEN-07-historial-importaciones.md) | [TR-GEN-07-historial-importaciones](../../04-tareas/001-Generaliddes/TR-GEN-07-historial-importaciones.md) | Historial de importaciones | Could |
 
-**SPEC:** [SPEC-001-07-importar-excel.md](../../05-open-spec/001-Generaliddes/SPEC-001-07-importar-excel.md) — **B1 (2026-06-11):** 4 HU enriquecidas; sin TR en MVP portal.
+**SPEC:** [SPEC-001-07-importar-excel.md](../../05-open-spec/001-Generaliddes/SPEC-001-07-importar-excel.md) — **B1 (2026-06-11):** 4 HU enriquecidas · **C (2026-06-16):** 4 TR generadas — [F-GEN-07-cierre-c1](../../04-tareas/001-Generaliddes/F-GEN-07-cierre-c1.md).
 
 ## SPEC-001-08 — Pivots (D1 implementado — fuera release MVP portal)
 

@@ -1,3 +1,26 @@
+.pedidosCargaExcelToolbar {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 1rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--dx-color-border, #e0e0e0);
+}
+
+.pedidosCargaExcelToolbar__hint {
+  margin: 0;
+  flex: 1 1 12rem;
+  font-size: 0.9rem;
+  color: var(--dx-color-text-secondary, #5f6368);
+}
+
+.pedidosCargaExcelToolbar .excelImportHostToolbar {
+  flex: 0 0 auto;
+  margin-left: auto;
+}
+
 .pedidosCargaPage {
   display: flex;
   flex-direction: column;

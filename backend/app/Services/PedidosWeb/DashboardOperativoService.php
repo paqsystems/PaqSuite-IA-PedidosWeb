@@ -60,6 +60,7 @@ final class DashboardOperativoService
 
         $now = Carbon::now();
         $minutosWeb = $this->parameterService->getMinutosWeb();
+        $inactividadUmbral = $now->copy()->subMinutes($minutosWeb)->format('Y-m-d H:i:s');
 
         $presupuestosQuery = PqPedidoswebPedidoCabecera::query()
             ->whereIn('cod_cliente', $visibleClientsQuery->clone()->select('cod_client'))
@@ -67,13 +68,16 @@ final class DashboardOperativoService
 
         $pedidosIngresadosQuery = PqPedidoswebPedidoCabecera::query()
             ->whereIn('cod_cliente', $visibleClientsQuery->clone()->select('cod_client'))
-            ->where(function (Builder $query) use ($now, $minutosWeb): void {
+            ->where(function (Builder $query) use ($inactividadUmbral): void {
                 $query->where('estado', 0)
-                    ->orWhere(function (Builder $subQuery) use ($now, $minutosWeb): void {
+                    ->orWhere(function (Builder $subQuery) use ($inactividadUmbral): void {
                         $subQuery->where('estado', -1)
-                            ->where(function (Builder $windowQuery) use ($now, $minutosWeb): void {
+                            ->where(function (Builder $windowQuery) use ($inactividadUmbral): void {
                                 $windowQuery->whereNull('fechahora_ultima_actividad')
-                                    ->orWhere('fechahora_ultima_actividad', '<', $now->copy()->subMinutes($minutosWeb));
+                                    ->orWhereRaw(
+                                        'fechahora_ultima_actividad < CAST(? AS DATETIME2)',
+                                        [$inactividadUmbral]
+                                    );
                             });
                     });
             });
