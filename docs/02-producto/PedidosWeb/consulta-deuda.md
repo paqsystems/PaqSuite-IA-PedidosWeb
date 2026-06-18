@@ -129,11 +129,25 @@ Columnas visibles (i18n `consultas.column.*`):
 
 `data-testid` página: `page-consulta-deuda`. Export Excel GEN-03 sobre grilla visible.
 
+**CC PQ #4:** toggle grilla/pivot; `consultaId` `CONSULTA_DEUDA`; `pivotBase` sugerido: filas cliente + tipo; valor `saldo` (sum). Ver §9.
+
 **Pendiente HU (no MVP actual):** columna «saldo acumulado» mencionada en producto §17.4 — reservada para etapa posterior.
 
 ---
 
-## 9) Referencias
+## 9) UI (vista pivot) — CC PQ #4
+
+| Campo | Valor |
+|-------|--------|
+| `consultaId` | `CONSULTA_DEUDA` |
+| Componente | `ConsultaInformePivotPage` |
+| Dataset | Mismo `DeudaConsultaService` vía API pivot data |
+| Visibilidad | Universo clientes visible (GEN-02) |
+| Activación | `PIVOTS_ENABLED` + migraciones/seed pivots |
+
+---
+
+## 10) Referencias
 
 - Producto §17.4: [PedidosWeb_Definicion_Conceptual_Final_OpenSpec.md](PedidosWeb_Definicion_Conceptual_Final_OpenSpec.md)  
 - Modelo §4.2: [PedidosWeb_Modelo_Datos_Final.md](PedidosWeb_Modelo_Datos_Final.md)  

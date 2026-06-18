@@ -4,7 +4,7 @@
 
 ## Alcance
 
-Validación automatizada tras **Parte D** ([TR-SPEC-101-11-consultas-ui-update](../updates/101-PedidosWeb/TR-SPEC-101-11-consultas-ui-update.md)):
+Validación automatizada tras **Parte D** ([TR-SPEC-101-11-consultas-ui](TR-SPEC-101-11-consultas-ui.md)):
 
 | Entregable | Foco |
 |------------|------|

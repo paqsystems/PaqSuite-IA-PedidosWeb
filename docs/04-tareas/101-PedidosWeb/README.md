@@ -28,6 +28,17 @@
 | 13 | [TR-SPEC-101-13-mails.md](TR-SPEC-101-13-mails.md) | Must | 019 |
 | 14 | [TR-SPEC-101-14-dashboard.md](TR-SPEC-101-14-dashboard.md) | Must | 025 |
 | 15 | [TR-SPEC-101-15-tests-hardening.md](TR-SPEC-101-15-tests-hardening.md) | Must | E2E §9 madre |
+| 16a | [TR-SPEC-101-16-proceso-excel-pedido-individual.md](TR-SPEC-101-16-proceso-excel-pedido-individual.md) | **Should** | 029 |
+| 16b | [TR-SPEC-101-16-importacion-excel-pantalla-carga.md](TR-SPEC-101-16-importacion-excel-pantalla-carga.md) | **Should** | 030 |
+
+## Slice SPEC-101-16 (post-MVP)
+
+| Campo | Valor |
+|-------|--------|
+| **SPEC** | [SPEC-101-16](../../05-open-spec/101-PedidosWeb/SPEC-101-16-importacion-pedido-individual-excel.md) |
+| **Parte C** | **Cerrada** (2026-06-17) — [F-101-16-cierre-c1.md](F-101-16-cierre-c1.md) |
+| **Parte C1** | **Cerrada** (2026-06-17) — veredicto **Apto** |
+| **Orden D1** | 16a → 16b |
 
 ## Orden de implementación (Fase 1)
 
@@ -54,6 +65,8 @@ Omitir **101-01** hasta etapa `EMPRESAS_CONEXION`. Secuencia recomendada (SPEC m
 | 019 | 13 (+ hook 04) |
 | 020 | 08 |
 | 025 | 14 |
+| **029** | **16a** |
+| **030** | **16b** (+ 10) |
 | — | 15 (cierre transversal) |
 
 ## Matriz permisos

@@ -114,6 +114,7 @@ function DataGridDxInner<TRecord extends Record<string, unknown> = Record<string
     defaultPageSize = 10,
     abm,
     exportEnabled = true,
+    onRowPrepared,
   }: DataGridDxProps<TRecord>,
   ref: React.ForwardedRef<DataGridDxHandle>,
 ) {
@@ -340,6 +341,7 @@ function DataGridDxInner<TRecord extends Record<string, unknown> = Record<string
         noDataText={noDataText}
         disabled={gridDisabled}
         onCellPrepared={handleCellPrepared}
+        onRowPrepared={onRowPrepared}
         onInitNewRow={handleInitNewRow}
         onRowInserting={handleRowInserting}
         onToolbarPreparing={handleToolbarPreparing}

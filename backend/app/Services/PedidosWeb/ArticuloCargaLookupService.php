@@ -41,7 +41,7 @@ final class ArticuloCargaLookupService
             return [];
         }
 
-        $pageSize = min(1000, max(1, $pageSize));
+        $pageSize = min(10000, max(1, $pageSize));
         $solicitudPorCodigos = $codigos !== [];
         $incluirDisponible = ! $soloCatalogo;
         $hasStockTable = $incluirDisponible && Schema::hasTable('pq_pedidosweb_stock');
@@ -49,14 +49,20 @@ final class ArticuloCargaLookupService
 
         $stockExpr = $hasStockTable ? 'ISNULL(s.stock, 0)' : '0';
         $comprometidoExpr = $hasStockTable ? 'ISNULL(s.comprometido, 0)' : '0';
-        $stockBaseExpr = $hasStockTable ? 'ISNULL(b.stock, 0)' : '0';
-        $comprometidoBaseExpr = $hasStockTable ? 'ISNULL(b.comprometido, 0)' : '0';
+        $stockBaseExpr = $hasStockTable ? 'ISNULL(bs.stock_base, 0)' : '0';
+        $comprometidoBaseExpr = $hasStockTable ? 'ISNULL(bs.comprometido_base, 0)' : '0';
         $precioExpr = $codLista > 0 && $hasListaPreciosTable ? 'ISNULL(lp.precio, 0)' : '0';
 
-        // CC PQ #5: listbox carga sin comprometido_web (pedidos ingresados) hasta optimizar SQL.
-        $disponibleExpr = "({$stockExpr} - {$comprometidoExpr})";
+        $hasPedidosTables = $hasStockTable
+            && Schema::hasTable('pq_pedidosweb_pedidosdetalle')
+            && Schema::hasTable('pq_pedidosweb_pedidoscabecera');
+
+        $comprometidoWebExpr = $hasPedidosTables ? 'ISNULL(cw.comprometido_web, 0)' : '0';
+        $comprometidoBaseWebExpr = $hasPedidosTables ? 'ISNULL(bw.comprometido_base_web, 0)' : '0';
+
+        $disponibleExpr = "({$stockExpr} - {$comprometidoExpr} - {$comprometidoWebExpr})";
         $disponibleBaseExpr = 'CASE WHEN '.self::BASE_NOT_EMPTY_SQL
-            ." THEN ({$stockBaseExpr} - {$comprometidoBaseExpr})"
+            ." THEN ({$stockBaseExpr} - {$comprometidoBaseExpr} - {$comprometidoBaseWebExpr})"
             .' ELSE NULL END';
 
         $selectSql = <<<SQL
@@ -70,13 +76,45 @@ a.bonificacion,
 SQL;
 
         $joins = [];
+        $joinBindings = [];
         if ($hasStockTable) {
             $joins[] = 'LEFT JOIN [pq_pedidosweb_stock] AS [s] ON [s].[cod_articulo] = [a].[codigo]';
-            $joins[] = 'LEFT JOIN [pq_pedidosweb_stock] AS [b] ON [b].[cod_articulo] = '.self::BASE_TRIM_SQL
-                .' AND '.self::BASE_NOT_EMPTY_SQL;
+
+            $baseStockSub = DB::table('pq_pedidosweb_stock as s2')
+                ->join('pq_pedidosweb_articulos as a2', 's2.cod_articulo', '=', 'a2.codigo')
+                ->whereRaw("NULLIF(LTRIM(RTRIM(CAST(a2.[base] AS NVARCHAR(50)))), '') IS NOT NULL")
+                ->groupBy('a2.base')
+                ->selectRaw('a2.[base] AS cod_base, SUM(s2.stock) AS stock_base, SUM(s2.comprometido) AS comprometido_base');
+
+            $joins[] = 'LEFT JOIN ('.$baseStockSub->toSql().') AS [bs] ON LTRIM(RTRIM(CAST([bs].[cod_base] AS NVARCHAR(50)))) = '
+                .self::BASE_TRIM_SQL.' AND '.self::BASE_NOT_EMPTY_SQL;
+            $joinBindings = array_merge($joinBindings, $baseStockSub->getBindings());
         }
         if ($codLista > 0 && $hasListaPreciosTable) {
             $joins[] = 'LEFT JOIN [pq_pedidosweb_listaprecios_articulos] AS [lp] ON [lp].[cod_articulo] = [a].[codigo] AND [lp].[cod_lista] = ?';
+            $joinBindings[] = $codLista;
+        }
+        if ($hasPedidosTables) {
+            $comprometidoWebSub = DB::table('pq_pedidosweb_pedidosdetalle as d')
+                ->join('pq_pedidosweb_pedidoscabecera as c', 'd.cod_pedido', '=', 'c.cod_pedido')
+                ->where('c.estado', 0)
+                ->groupBy('d.cod_articulo')
+                ->selectRaw('d.cod_articulo, SUM(d.cantidad) AS comprometido_web');
+
+            $joins[] = 'LEFT JOIN ('.$comprometidoWebSub->toSql().') AS [cw] ON [cw].[cod_articulo] = [a].[codigo]';
+            $joinBindings = array_merge($joinBindings, $comprometidoWebSub->getBindings());
+
+            $baseWebSub = DB::table('pq_pedidosweb_pedidosdetalle as d2')
+                ->join('pq_pedidosweb_pedidoscabecera as c2', 'd2.cod_pedido', '=', 'c2.cod_pedido')
+                ->join('pq_pedidosweb_articulos as a3', 'd2.cod_articulo', '=', 'a3.codigo')
+                ->where('c2.estado', 0)
+                ->whereRaw("NULLIF(LTRIM(RTRIM(CAST(a3.[base] AS NVARCHAR(50)))), '') IS NOT NULL")
+                ->groupBy('a3.base')
+                ->selectRaw('a3.[base] AS cod_base, SUM(d2.cantidad) AS comprometido_base_web');
+
+            $joins[] = 'LEFT JOIN ('.$baseWebSub->toSql().') AS [bw] ON LTRIM(RTRIM(CAST([bw].[cod_base] AS NVARCHAR(50)))) = '
+                .self::BASE_TRIM_SQL.' AND '.self::BASE_NOT_EMPTY_SQL;
+            $joinBindings = array_merge($joinBindings, $baseWebSub->getBindings());
         }
 
         $fromSql = '[pq_pedidosweb_articulos] AS [a]';
@@ -87,11 +125,6 @@ SQL;
         $query = DB::table(DB::raw($fromSql))
             ->selectRaw($selectSql)
             ->limit($pageSize);
-
-        $bindings = [];
-        if ($codLista > 0 && $hasListaPreciosTable) {
-            $bindings[] = $codLista;
-        }
 
         if ($solicitudPorCodigos) {
             $codigos = array_values(array_unique(array_filter(array_map(
@@ -118,7 +151,7 @@ SQL;
 
         $query->orderBy('a.descripcion');
 
-        foreach ($bindings as $binding) {
+        foreach ($joinBindings as $binding) {
             $query->addBinding($binding, 'join');
         }
 

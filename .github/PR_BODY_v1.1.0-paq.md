@@ -8,26 +8,25 @@ Entrega **Fase 1 MVP** del portal **MONO PedidosWeb** en la rama **`v1.1.0-paq`*
 4. **CC PQ #2**: layouts propios `(*)`, plantilla sistema, export Excel formateado (fechas, booleanos, totales pie).
 5. **CC PQ #3**: `SelectBoxDx` con loading, auto-match único, carga artículos optimizada, totalizadores pie en layouts.
 6. **CC PQ #4**: pivots en informes (detalle pedidos, deuda, cheques, stock) + formato decimal unificado `#,##0.00`.
-7. **CC PQ #5**: listbox artículos en carga — disponible neto `stock − comprometido − comprometido_web`; display `codigo - descripcion — Disp. X (Y)`.
+7. **CC PQ #5 (provisional)**: listbox artículos en carga precarga catálogo por lista de precios; display `codigo - descripcion` sin disponible (`solo_catalogo=1` en API).
 8. **Fix post-QA**: evita loop infinito en búsqueda de artículos (deduplicación, manejo de errores, sin doble `load()` en auto-match).
 9. **GEN-08 Pivots (SPEC-001-08)**: motor metadata/API, PivotGrid, diseños persistentes, export Excel client-side — **flags default `false`** hasta activación en deploy.
+10. **Planes técnicos**: NOLOCK/concurrencia SQL y framework compartido en `.cursor/plans/`.
 
 **Compare:** `main` ← **`v1.1.0-paq`**  
-**Tip:** `a87f2a2` — `fix(pedidosweb): evitar loop infinito en busqueda de articulos en carga.`
+**Tip:** `893319a` — `fix(pedidosweb): listbox carga provisional solo catalogo codigo-descripcion`
 
 **Commits clave (cronología reciente):**
 
 | Commit | Resumen |
 |--------|---------|
+| `893319a` | **CC PQ #5 provisional** — listbox solo catálogo `codigo - descripcion` (`solo_catalogo`) |
+| `6c8c916` | Planes NOLOCK y framework compartido en `.cursor/plans/` |
+| `721c23d` | Lookup carga sin `comprometido_web` (intermedio; sustituido por provisional) |
 | `a87f2a2` | **Fix** — loop infinito búsqueda artículos en carga (dedupe + errores) |
-| `4702e06` | **CC PQ #5** — restaurar disponible neto con `comprometido_web` en listbox carga |
 | `4c3dc02` | **CC PQ #4** — pivots en informes + formato decimal unificado |
-| `7244247` | CC PQ #5 — separación lookup carga vs consulta stock (docs) |
 | `2735155` | **GEN-08** epic Pivots D1 — motor, PivotGrid, layouts, export |
-| `5eefea3` | Fix `onOpened` DevExtreme en SelectBox artículos |
-| `e387e58` | **CC PQ #3** — listas DX, layouts pie, carga artículos |
 | `514ea48` | **CC PQ #1** — dashboard, consultas, fechas, manual |
-| `ad30265` | Ruteo SPA Vercel (`frontend/vercel.json`) |
 
 Informes de cierre: [`F-101-PedidosWeb-cierre-formal.md`](docs/04-tareas/101-PedidosWeb/F-101-PedidosWeb-cierre-formal.md) · [`F-GEN-04-consulta-parametros-cierre.md`](docs/04-tareas/001-Generaliddes/F-GEN-04-consulta-parametros-cierre.md) · [`F-CC-PQ-02-GEN-03-cierre-formal.md`](docs/04-tareas/001-Generaliddes/F-CC-PQ-02-GEN-03-cierre-formal.md) · [`F-CC-PQ-03-cierre-formal.md`](docs/04-tareas/001-Generaliddes/F-CC-PQ-03-cierre-formal.md) · [`F-CC-PQ-4-pivot-informes.md`](docs/04-tareas/101-PedidosWeb/F-CC-PQ-4-pivot-informes.md) · [`F-GEN-08-cierre-formal.md`](docs/04-tareas/001-Generaliddes/F-GEN-08-cierre-formal.md) · [`00-ControlCalidad-PQ.md`](docs/00-ControlCalidad/00-ControlCalidad-PQ.md)
 
@@ -81,17 +80,18 @@ Informes de cierre: [`F-101-PedidosWeb-cierre-formal.md`](docs/04-tareas/101-Ped
 | Tema | Cambio |
 |------|--------|
 | `SelectBoxDx` | Loading indicator, `onOpened`, auto-match único |
-| Carga artículos | Política carga diferida (≥4 chars, sin consulta al foco) |
 | **Loop infinito** | Deduplica peticiones, absorbe errores 504/CORS, evita segundo `load()` en auto-match |
 | Layouts pie | Totalizadores persisten en guardar/cargar diseño |
 
-### Highlights CC PQ #5
+### Highlights CC PQ #5 (provisional)
 
 | Tema | Cambio |
 |------|--------|
-| Listbox artículos (browse) | Disponible neto: `stock − comprometido − comprometido_web` (pedidos `estado = 0`) |
-| Consulta stock | Misma fórmula de disponible neto (sin regresión) |
-| Display ítem | `codigo - descripcion — Disp. X (Y)` con base opcional entre paréntesis |
+| Listbox artículos (browse) | Precarga catálogo al elegir lista de precios; **sin** join de stock |
+| API | `GET /articulos?solo_catalogo=1` omite disponible en lookup |
+| Display ítem | `codigo - descripcion` (sin `Disp. X`) |
+| Consulta stock | Sin cambio: sigue con disponible neto completo |
+| Pendiente | Reincorporar disponible en listbox cuando se cierre definitivamente CC PQ #5 |
 
 ---
 
@@ -100,6 +100,7 @@ Informes de cierre: [`F-101-PedidosWeb-cierre-formal.md`](docs/04-tareas/101-Ped
 Rutas bajo `/api/v1/` (autenticadas + tenant `X-Paq-Cliente`):
 
 - Comprobantes, pedidos, presupuestos, consultas, dashboard, integración (MVP existente)
+- **Artículos carga:** `GET /articulos?solo_catalogo=1&lista_precios={n}` — catálogo sin stock
 - **Pivots:** `GET/POST /pivots/consultas/{id}/metadata|data|validate-structure`
 - **Pivot layouts:** `GET/POST/PUT/DELETE /pivot-configs*`
 - **Config pública:** `pivotsEnabled`, `pivotLayoutsEnabled` en `GET /config/public`
@@ -115,7 +116,7 @@ OpenAPI: `backend/storage/api-docs/api-docs.json`
 | `php artisan test --filter=PedidosWeb` | 75+ passed (skips sin SQL Server) |
 | `php artisan test --filter=Pivot` | Feature + unit (requieren tenant SQL Server) |
 | `npm run build` (frontend) | OK |
-| `npm run test` (Vitest) | Unit pivot + grid export + SelectBox + `articulosCargaRemoteLoad` |
+| `npm run test` (Vitest) | Unit pivot + grid export + SelectBox + `cargaCatalogos` |
 | E2E pivot | `pivot-historial`, `pivot-informes`, `pivot-layout-persistencia`, `pivot-export` |
 | E2E MVP | `consultas-d1`, `mvp-section9`, `grid-layouts`, `grid-export` |
 
@@ -125,6 +126,7 @@ OpenAPI: `backend/storage/api-docs/api-docs.json`
 
 - Tests integración pivot y PedidosWeb requieren **SQL Server tenant** en CI (skipped local sin BD).
 - **GEN-08** fuera del MVP release hasta flags + migraciones en tenant objetivo.
+- **CC PQ #5 listbox:** implementación **provisional** sin disponible; consulta stock no afectada.
 - Advertencia Vite: chunk DevExtreme > 500 kB (preexistente).
 - **SPEC-001-07** (importar Excel): documentación A1; implementación pendiente de D1.
 - TR-101-01 permanece diferida hasta `EMPRESAS_CONEXION`.
@@ -144,16 +146,14 @@ OpenAPI: `backend/storage/api-docs/api-docs.json`
 ### CC PQ #3 / fix artículos
 
 - [ ] SelectBox cliente/artículo: indicador loading; auto-match si único resultado
-- [ ] Carga artículos: búsqueda diferida sin bloquear UI
 - [ ] **Búsqueda artículos:** una sola petición por término; sin loop ante timeout backend
-- [ ] Desplegable vacío (flecha): carga primer lote sin reintentos infinitos
 
 ### CC PQ #4 / #5
 
 - [ ] Pivots en detalle pedidos, deuda, cheques, stock (con flags activos)
 - [ ] Valores numéricos pivot con formato `#,##0.00`
-- [ ] Listbox artículos en carga: disponible neto con pedidos web ingresados
-- [ ] Artículo con base: paréntesis muestra disponible del código base
+- [ ] Listbox artículos en carga: precarga al elegir lista; ítems `codigo - descripcion` sin `Disp.`
+- [ ] Consulta de stock: disponible neto sin regresión
 
 ### GEN-08 Pivots (con flags activos en tenant piloto)
 

@@ -39,6 +39,16 @@ describe('cargaCatalogos clientes', () => {
 });
 
 describe('etiquetaArticulo', () => {
+  const t = ((key: string, params?: Record<string, string>) => {
+    if (key === 'pedidos.carga.articuloDisplayConBase' && params) {
+      return `${params.codigo} - ${params.descripcion} — Disp. ${params.disponible} (${params.disponibleBase})`;
+    }
+    if (key === 'pedidos.carga.articuloDisplay' && params) {
+      return `${params.codigo} - ${params.descripcion} — Disp. ${params.disponible}`;
+    }
+    return key;
+  }) as import('i18next').TFunction;
+
   const articulo: ArticuloOption = {
     codArticulo: 'ART-01',
     descripcion: 'Tornillo hexagonal',
@@ -49,7 +59,13 @@ describe('etiquetaArticulo', () => {
     porcIva: 21,
   };
 
-  it('muestra codigo y descripcion separados por guion', () => {
-    expect(etiquetaArticulo(articulo)).toBe('ART-01 - Tornillo hexagonal');
+  it('muestra codigo, descripcion y disponible neto', () => {
+    expect(etiquetaArticulo(articulo, t)).toBe('ART-01 - Tornillo hexagonal — Disp. 12,50');
+  });
+
+  it('incluye disponible neto base entre parentesis cuando aplica', () => {
+    expect(
+      etiquetaArticulo({ ...articulo, disponibleNetoBase: 3 }, t),
+    ).toBe('ART-01 - Tornillo hexagonal — Disp. 12,50 (3,00)');
   });
 });

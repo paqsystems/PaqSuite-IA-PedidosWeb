@@ -8,6 +8,8 @@ return [
 
     'pivotLayoutsEnabled' => (bool) env('PIVOT_LAYOUTS_ENABLED', false),
 
+    'excelImportEnabled' => (bool) env('EXCEL_IMPORT_ENABLED', false),
+
     'menuItems' => [
         ['menuKey' => 'grupoPedidos', 'procedimiento' => 'grp_pedidos', 'text' => 'Pedidos', 'orden' => 10, 'tipoProceso' => 'G'],
         ['menuKey' => 'cargaPedidosPresupuestos', 'procedimiento' => 'pw_cargapedidos', 'text' => 'Carga de Pedidos', 'orden' => 11, 'routeName' => '/pedidos/carga', 'parentProcedimiento' => 'grp_pedidos'],
@@ -17,10 +19,11 @@ return [
         ['menuKey' => 'detallePedidos', 'procedimiento' => 'pw_detallepedidos', 'text' => 'Detalle de pedidos', 'orden' => 15, 'routeName' => '/pedidos/detalle', 'parentProcedimiento' => 'grp_pedidos'],
         ['menuKey' => 'grupoGeneral', 'procedimiento' => 'grp_general', 'text' => 'General', 'orden' => 60, 'tipoProceso' => 'G'],
         ['menuKey' => 'consultaParametros', 'procedimiento' => 'pw_consultaparametros', 'text' => 'Consulta de parametros', 'orden' => 61, 'routeName' => '/general/parametros', 'parentProcedimiento' => 'grp_general'],
+        ['menuKey' => 'historialImportExcel', 'procedimiento' => 'pw_historialimportexcel', 'text' => 'Historial importaciones Excel', 'orden' => 62, 'routeName' => '/excel-import/historial', 'parentProcedimiento' => 'grp_general'],
         ['menuKey' => 'grupoInformes', 'procedimiento' => 'grp_informes', 'text' => 'Informes', 'orden' => 20, 'tipoProceso' => 'G'],
         ['menuKey' => 'deudaClientes', 'procedimiento' => 'pw_deudaclientes', 'text' => 'Deudas', 'orden' => 21, 'routeName' => '/consultas/deuda', 'parentProcedimiento' => 'grp_informes'],
         ['menuKey' => 'chequesCartera', 'procedimiento' => 'pw_consultacheques', 'text' => 'Cheques', 'orden' => 22, 'routeName' => '/consultas/cheques', 'parentProcedimiento' => 'grp_informes'],
-        ['menuKey' => 'historialVentas', 'procedimiento' => 'pw_historialventas', 'text' => 'Historial Ventas', 'orden' => 23, 'routeName' => '/consultas/historial', 'parentProcedimiento' => 'grp_informes', 'tipoProceso' => 'informe'],
+        ['menuKey' => 'historialVentas', 'procedimiento' => 'pw_historialventas', 'text' => 'Historial Ventas', 'orden' => 23, 'routeName' => '/consultas/historial', 'parentProcedimiento' => 'grp_informes', 'tipoProceso' => 'I'],
         ['menuKey' => 'stock', 'procedimiento' => 'pw_consultastock', 'text' => 'Stock', 'orden' => 24, 'routeName' => '/consultas/stock', 'parentProcedimiento' => 'grp_informes'],
         ['menuKey' => 'grupoGestionPresupuestos', 'procedimiento' => 'grp_gestion_presupuestos', 'text' => 'Gestion Presupuestos', 'orden' => 30, 'tipoProceso' => 'G'],
         ['menuKey' => 'tratativasPresupuestos', 'procedimiento' => 'pw_tratativaspresup', 'text' => 'Tratativas Presupuestos', 'orden' => 31, 'routeName' => '/presupuestos/tratativas', 'parentProcedimiento' => 'grp_gestion_presupuestos'],

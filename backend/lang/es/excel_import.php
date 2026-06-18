@@ -1,0 +1,45 @@
+<?php
+
+return [
+    'columnComment' => [
+        'required' => 'OBLIGATORIO',
+    ],
+    'column' => [
+        'PEDIDO_INDIVIDUAL' => [
+            'codCliente' => 'codigo cliente',
+            'codArticulo' => 'codigo de articulo',
+            'cantidad' => 'cantidad',
+            'precioLista' => 'precio lista',
+            'bonifRenglon' => 'bonif renglon',
+            'codPerfil' => 'codigo perfil',
+            'codCondvta' => 'condicion de venta',
+            'codTranspor' => 'codigo transporte',
+            'idDe' => 'direccion entrega',
+            'codLista' => 'codigo lista',
+            'nivel' => 'nivel',
+            'bonif1' => 'bonificacion 1',
+            'bonif2' => 'bonificacion 2',
+            'bonif3' => 'bonificacion 3',
+            'expreso' => 'expreso',
+            'expresoDire' => 'direccion expreso',
+            'fechaEntrega' => 'fecha entrega',
+            'observaciones' => 'observaciones',
+            'leyenda1' => 'leyenda 1',
+            'leyenda2' => 'leyenda 2',
+            'leyenda3' => 'leyenda 3',
+            'leyenda4' => 'leyenda 4',
+            'leyenda5' => 'leyenda 5',
+        ],
+    ],
+    'pedidoIndividual' => [
+        'campoNoEditable' => 'Columna no editable para su perfil',
+        'clienteDistinto' => 'Todas las filas deben tener el mismo codigo cliente',
+        'cabeceraIncoherente' => 'Los datos de cabecera deben ser identicos en todas las filas',
+        'clienteSesion' => 'El codigo cliente debe coincidir con su sesion',
+        'articuloBase' => 'El articulo no puede ser de tipo BASE',
+        'articuloNoEncontrado' => 'Articulo inexistente',
+        'cantidadInvalida' => 'La cantidad debe ser mayor a cero',
+        'precioCero' => 'Precio cero no permitido',
+        'nivelInvalido' => 'Nivel invalido para la configuracion actual',
+    ],
+];

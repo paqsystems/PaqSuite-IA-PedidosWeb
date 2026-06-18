@@ -42,10 +42,14 @@ Epic **implementado en código** (D1 completo). **Fuera del release MVP portal**
 
 ## Activación en entorno
 
-1. Migraciones: `2026_06_11_100000_create_pq_pivots_catalog_tables`, `2026_06_11_110000_create_pq_pivots_config_tables`.
+1. Migraciones:
+   - `2026_06_11_100000_create_pq_pivots_catalog_tables` → `pq_pivots_consultas`, `pq_pivots_campos`, `pq_pivots_plantillas`, `pq_pivots_plantillas_det`, `pq_pivots_validaciones`
+   - `2026_06_11_110000_create_pq_pivots_config_tables` → `pq_pivots_config`, `pq_pivots_config_last_used`
 2. Seeder: `PivotCatalogPilotSeeder` (consulta piloto + diseño supervisor «Vista resumen»).
 3. `.env`: `PIVOTS_ENABLED=true`, `PIVOT_LAYOUTS_ENABLED=true` (opcional layouts).
 4. Pantalla piloto: historial ventas (`CONSULTA_PILOTO_PIVOT`, `tipoProceso=informe`).
+
+Inventario completo y pasos deploy: [`docs/_base/00-runbook-actualizacion-version.md`](../../_base/00-runbook-actualizacion-version.md) §10.1 Pivots.
 
 ## Matriz permisos
 

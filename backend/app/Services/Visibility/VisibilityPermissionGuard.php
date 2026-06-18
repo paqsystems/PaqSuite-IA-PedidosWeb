@@ -15,6 +15,11 @@ final class VisibilityPermissionGuard
         $this->ensurePermission($user, $procedimiento, 'repo');
     }
 
+    public function ensureAltaPermission(User $user, string $procedimiento): void
+    {
+        $this->ensurePermission($user, $procedimiento, 'alta');
+    }
+
     public function hasPermission(User $user, string $procedimiento, string $tipoPermiso): bool
     {
         try {

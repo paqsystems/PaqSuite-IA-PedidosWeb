@@ -34,8 +34,16 @@ try {
 
 try {
     $result = $app->make(DashboardOperativoService::class)->obtener($user);
-    echo 'Dashboard OK: '.json_encode($result, JSON_UNESCAPED_UNICODE)."\n";
+    echo 'Dashboard operativo OK: '.json_encode($result, JSON_UNESCAPED_UNICODE)."\n";
 } catch (Throwable $e) {
-    echo 'Dashboard ERROR: '.$e->getMessage()."\n";
+    echo 'Dashboard operativo ERROR: '.$e->getMessage()."\n";
+    echo $e->getFile().':'.$e->getLine()."\n";
+}
+
+try {
+    $result = $app->make(DashboardOperativoService::class)->resumenMensual($user);
+    echo 'Dashboard resumen mensual OK: '.json_encode($result, JSON_UNESCAPED_UNICODE)."\n";
+} catch (Throwable $e) {
+    echo 'Dashboard resumen mensual ERROR: '.$e->getMessage()."\n";
     echo $e->getFile().':'.$e->getLine()."\n";
 }

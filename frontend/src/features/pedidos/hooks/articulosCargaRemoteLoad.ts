@@ -27,10 +27,9 @@ export function resetArticulosCargaRemoteLoadState(state: ArticulosCargaRemoteLo
 export async function loadArticulosCargaRemote(
   rawSearchValue: string,
   codLista: number,
-  allowEmptySearch: boolean,
   state: ArticulosCargaRemoteLoadState,
 ): Promise<ArticuloOption[]> {
-  if (!shouldFetchArticulosCarga(rawSearchValue, allowEmptySearch)) {
+  if (!shouldFetchArticulosCarga(rawSearchValue)) {
     return [];
   }
 

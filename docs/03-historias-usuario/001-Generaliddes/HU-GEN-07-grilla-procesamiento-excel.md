@@ -4,6 +4,7 @@
 |-------|--------|
 | **ID** | HU-GEN-07-grilla-procesamiento-excel |
 | **SPEC origen** | [SPEC-001-07-importar-excel.md](../../05-open-spec/001-Generaliddes/SPEC-001-07-importar-excel.md) |
+| **TR** | [TR-GEN-07-grilla-procesamiento-excel.md](../../04-tareas/001-Generaliddes/TR-GEN-07-grilla-procesamiento-excel.md) |
 | **MONO** | [PQ_EXCEL_Documento_Conceptual_Funcional_v3.md](../../00-contexto/_mono/importar-excel/PQ_EXCEL_Documento_Conceptual_Funcional_v3.md) §6.1, §8 |
 | **Épica** | 001 — Generalidades / Importar Excel |
 | **Prioridad** | Could |
