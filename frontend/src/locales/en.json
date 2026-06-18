@@ -512,6 +512,7 @@
   "excelImport.procesoNotFound": "Import process not found.",
   "excelImport.epicDisabled": "Excel import is not enabled.",
   "excelImport.formatoInvalido": "Only valid .xlsx files are allowed.",
+  "excelImport.sinPermisoAlta": "You do not have create permission on order entry to import spreadsheets.",
   "excelImport.archivoCorrupto": "Could not read the Excel file.",
   "excelImport.hojaNoEncontrada": "Selected sheet was not found in the file.",
   "excelImport.cargaError": "Could not upload the file.",

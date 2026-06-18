@@ -512,6 +512,7 @@
   "excelImport.procesoNotFound": "Proceso de importacion no encontrado.",
   "excelImport.epicDisabled": "La importacion Excel no esta habilitada.",
   "excelImport.formatoInvalido": "Solo se admiten archivos .xlsx validos.",
+  "excelImport.sinPermisoAlta": "No tiene permiso de alta en carga de pedidos para importar planillas.",
   "excelImport.archivoCorrupto": "El archivo Excel no se pudo leer.",
   "excelImport.hojaNoEncontrada": "La hoja seleccionada no existe en el archivo.",
   "excelImport.cargaError": "No se pudo cargar el archivo.",

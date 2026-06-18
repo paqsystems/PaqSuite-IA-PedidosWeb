@@ -512,6 +512,7 @@
   "excelImport.procesoNotFound": "Processus d'import introuvable.",
   "excelImport.epicDisabled": "Import Excel non active.",
   "excelImport.formatoInvalido": "Seuls les fichiers .xlsx valides sont acceptes.",
+  "excelImport.sinPermisoAlta": "Vous n'avez pas la permission de creation sur la saisie de commandes pour importer des feuilles.",
   "excelImport.archivoCorrupto": "Impossible de lire le fichier Excel.",
   "excelImport.hojaNoEncontrada": "Feuille selectionnee introuvable.",
   "excelImport.cargaError": "Echec du chargement du fichier.",

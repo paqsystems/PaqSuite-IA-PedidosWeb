@@ -3,12 +3,13 @@
 namespace App\Services\PedidosWeb;
 
 use App\Models\PqPedidoswebArticulo;
-use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 /**
  * Lookup de artículos para carga de comprobante — una sola consulta SQL.
+ *
+ * Stock/disponible: CTEs lineales (misma lógica que articulos_stock_aws.sql).
  *
  * @see docs/02-producto/PedidosWeb/pantalla-carga-comprobante-ui.md §3
  */
@@ -42,120 +43,36 @@ final class ArticuloCargaLookupService
         }
 
         $pageSize = min(10000, max(1, $pageSize));
+        $codigos = $this->normalizeCodigos($codigos);
         $solicitudPorCodigos = $codigos !== [];
-        $incluirDisponible = ! $soloCatalogo;
-        $hasStockTable = $incluirDisponible && Schema::hasTable('pq_pedidosweb_stock');
+        $incluirDisponible = ! $soloCatalogo && Schema::hasTable('pq_pedidosweb_stock');
         $hasListaPreciosTable = Schema::hasTable('pq_pedidosweb_listaprecios_articulos');
-
-        $stockExpr = $hasStockTable ? 'ISNULL(s.stock, 0)' : '0';
-        $comprometidoExpr = $hasStockTable ? 'ISNULL(s.comprometido, 0)' : '0';
-        $stockBaseExpr = $hasStockTable ? 'ISNULL(bs.stock_base, 0)' : '0';
-        $comprometidoBaseExpr = $hasStockTable ? 'ISNULL(bs.comprometido_base, 0)' : '0';
-        $precioExpr = $codLista > 0 && $hasListaPreciosTable ? 'ISNULL(lp.precio, 0)' : '0';
-
-        $hasPedidosTables = $hasStockTable
+        $hasPedidosTables = $incluirDisponible
             && Schema::hasTable('pq_pedidosweb_pedidosdetalle')
             && Schema::hasTable('pq_pedidosweb_pedidoscabecera');
 
-        $comprometidoWebExpr = $hasPedidosTables ? 'ISNULL(cw.comprometido_web, 0)' : '0';
-        $comprometidoBaseWebExpr = $hasPedidosTables ? 'ISNULL(bw.comprometido_base_web, 0)' : '0';
-
-        $disponibleExpr = "({$stockExpr} - {$comprometidoExpr} - {$comprometidoWebExpr})";
-        $disponibleBaseExpr = 'CASE WHEN '.self::BASE_NOT_EMPTY_SQL
-            ." THEN ({$stockBaseExpr} - {$comprometidoBaseExpr} - {$comprometidoBaseWebExpr})"
-            .' ELSE NULL END';
-
-        $selectSql = <<<SQL
-a.codigo,
-a.descripcion,
-a.porc_iva,
-a.bonificacion,
-{$precioExpr} AS precio,
-{$disponibleExpr} AS disponible_neto,
-{$disponibleBaseExpr} AS disponible_neto_base
-SQL;
-
-        $joins = [];
-        $joinBindings = [];
-        if ($hasStockTable) {
-            $joins[] = 'LEFT JOIN [pq_pedidosweb_stock] AS [s] ON [s].[cod_articulo] = [a].[codigo]';
-
-            $baseStockSub = DB::table('pq_pedidosweb_stock as s2')
-                ->join('pq_pedidosweb_articulos as a2', 's2.cod_articulo', '=', 'a2.codigo')
-                ->whereRaw("NULLIF(LTRIM(RTRIM(CAST(a2.[base] AS NVARCHAR(50)))), '') IS NOT NULL")
-                ->groupBy('a2.base')
-                ->selectRaw('a2.[base] AS cod_base, SUM(s2.stock) AS stock_base, SUM(s2.comprometido) AS comprometido_base');
-
-            $joins[] = 'LEFT JOIN ('.$baseStockSub->toSql().') AS [bs] ON LTRIM(RTRIM(CAST([bs].[cod_base] AS NVARCHAR(50)))) = '
-                .self::BASE_TRIM_SQL.' AND '.self::BASE_NOT_EMPTY_SQL;
-            $joinBindings = array_merge($joinBindings, $baseStockSub->getBindings());
-        }
-        if ($codLista > 0 && $hasListaPreciosTable) {
-            $joins[] = 'LEFT JOIN [pq_pedidosweb_listaprecios_articulos] AS [lp] ON [lp].[cod_articulo] = [a].[codigo] AND [lp].[cod_lista] = ?';
-            $joinBindings[] = $codLista;
-        }
-        if ($hasPedidosTables) {
-            $comprometidoWebSub = DB::table('pq_pedidosweb_pedidosdetalle as d')
-                ->join('pq_pedidosweb_pedidoscabecera as c', 'd.cod_pedido', '=', 'c.cod_pedido')
-                ->where('c.estado', 0)
-                ->groupBy('d.cod_articulo')
-                ->selectRaw('d.cod_articulo, SUM(d.cantidad) AS comprometido_web');
-
-            $joins[] = 'LEFT JOIN ('.$comprometidoWebSub->toSql().') AS [cw] ON [cw].[cod_articulo] = [a].[codigo]';
-            $joinBindings = array_merge($joinBindings, $comprometidoWebSub->getBindings());
-
-            $baseWebSub = DB::table('pq_pedidosweb_pedidosdetalle as d2')
-                ->join('pq_pedidosweb_pedidoscabecera as c2', 'd2.cod_pedido', '=', 'c2.cod_pedido')
-                ->join('pq_pedidosweb_articulos as a3', 'd2.cod_articulo', '=', 'a3.codigo')
-                ->where('c2.estado', 0)
-                ->whereRaw("NULLIF(LTRIM(RTRIM(CAST(a3.[base] AS NVARCHAR(50)))), '') IS NOT NULL")
-                ->groupBy('a3.base')
-                ->selectRaw('a3.[base] AS cod_base, SUM(d2.cantidad) AS comprometido_base_web');
-
-            $joins[] = 'LEFT JOIN ('.$baseWebSub->toSql().') AS [bw] ON LTRIM(RTRIM(CAST([bw].[cod_base] AS NVARCHAR(50)))) = '
-                .self::BASE_TRIM_SQL.' AND '.self::BASE_NOT_EMPTY_SQL;
-            $joinBindings = array_merge($joinBindings, $baseWebSub->getBindings());
-        }
-
-        $fromSql = '[pq_pedidosweb_articulos] AS [a]';
-        if ($joins !== []) {
-            $fromSql .= ' '.implode(' ', $joins);
-        }
-
-        $query = DB::table(DB::raw($fromSql))
-            ->selectRaw($selectSql)
-            ->limit($pageSize);
-
-        if ($solicitudPorCodigos) {
-            $codigos = array_values(array_unique(array_filter(array_map(
-                static fn (mixed $codigo): string => trim((string) $codigo),
-                $codigos
-            ), static fn (string $codigo): bool => $codigo !== '')));
-
-            if ($codigos === []) {
-                return [];
-            }
-
-            $query->whereIn('a.codigo', $codigos);
+        if ($incluirDisponible) {
+            [$sql, $bindings] = $this->buildSqlConDisponible(
+                $pageSize,
+                $codLista,
+                $hasListaPreciosTable,
+                $hasPedidosTables,
+                $solicitudPorCodigos,
+                $codigos,
+                $q,
+            );
         } else {
-            $this->applyExcluirArticulosBaseCarga($query);
-        }
-
-        if (filled($q)) {
-            $search = '%'.trim((string) $q).'%';
-            $query->whereRaw(
-                '(ISNULL(CAST(a.codigo AS NVARCHAR(50)), \'\') + ISNULL(CAST(a.descripcion AS NVARCHAR(255)), \'\')) LIKE ?',
-                [$search],
+            [$sql, $bindings] = $this->buildSqlSoloCatalogo(
+                $pageSize,
+                $codLista,
+                $hasListaPreciosTable,
+                $solicitudPorCodigos,
+                $codigos,
+                $q,
             );
         }
 
-        $query->orderBy('a.descripcion');
-
-        foreach ($joinBindings as $binding) {
-            $query->addBinding($binding, 'join');
-        }
-
-        return collect($query->get())
+        return collect(DB::select($sql, $bindings))
             ->map(function (object $row): array {
                 $disponibleNetoBase = $row->disponible_neto_base;
 
@@ -175,26 +92,202 @@ SQL;
             ->all();
     }
 
-    private function applyExcluirArticulosBaseCarga(Builder $query): void
-    {
-        $query->where(function (Builder $builder): void {
-            $builder->whereNull('a.usa_esc')
-                ->orWhereRaw(
-                    'UPPER(LTRIM(RTRIM(CAST(a.usa_esc AS NVARCHAR(20))))) <> ?',
-                    [PqPedidoswebArticulo::MARCA_USA_ESC_BASE],
-                );
-        });
+    /**
+     * @param  list<string>  $codigos
+     * @return array{0: string, 1: list<mixed>}
+     */
+    private function buildSqlConDisponible(
+        int $pageSize,
+        int $codLista,
+        bool $hasListaPreciosTable,
+        bool $hasPedidosTables,
+        bool $solicitudPorCodigos,
+        array $codigos,
+        ?string $q,
+    ): array {
+        $ctes = [];
+        if ($hasPedidosTables) {
+            $ctes[] = <<<'SQL'
+pedidos_ingresados AS (
+    SELECT
+        pd.cod_articulo,
+        SUM(pd.cantidad) AS comprometido_web
+    FROM pq_pedidosweb_pedidosdetalle AS pd
+    INNER JOIN pq_pedidosweb_pedidoscabecera AS pc ON pd.cod_pedido = pc.cod_pedido
+    WHERE pc.[estado] = 0
+    GROUP BY pd.cod_articulo
+),
+pedidos_ingresados_base AS (
+    SELECT
+        a3.[base] AS cod_base,
+        SUM(d2.cantidad) AS comprometido_base_web
+    FROM pq_pedidosweb_pedidosdetalle AS d2
+    INNER JOIN pq_pedidosweb_pedidoscabecera AS c2 ON d2.cod_pedido = c2.cod_pedido
+    INNER JOIN pq_pedidosweb_articulos AS a3 ON d2.cod_articulo = a3.codigo
+    WHERE c2.[estado] = 0
+      AND NULLIF(LTRIM(RTRIM(CAST(a3.[base] AS NVARCHAR(50)))), '') IS NOT NULL
+    GROUP BY a3.[base]
+)
+SQL;
+        }
 
-        $query->whereNotExists(function (Builder $subquery): void {
-            $subquery->selectRaw('1')
-                ->from('pq_pedidosweb_articulos as pw_art_presentacion')
-                ->whereRaw("NULLIF(LTRIM(RTRIM(CAST(pw_art_presentacion.[base] AS NVARCHAR(50)))), '') IS NOT NULL")
-                ->whereRaw(
-                    'LTRIM(RTRIM(CAST(pw_art_presentacion.[base] AS NVARCHAR(50)))) = LTRIM(RTRIM(CAST(a.codigo AS NVARCHAR(50))))',
-                )
-                ->whereRaw(
-                    'LTRIM(RTRIM(CAST(pw_art_presentacion.codigo AS NVARCHAR(50)))) <> LTRIM(RTRIM(CAST(a.codigo AS NVARCHAR(50))))',
-                );
-        });
+        $ctes[] = <<<'SQL'
+stock_por_base AS (
+    SELECT
+        a2.[base] AS cod_base,
+        SUM(s2.stock) AS stock_base,
+        SUM(s2.comprometido) AS comprometido_base
+    FROM pq_pedidosweb_stock AS s2
+    INNER JOIN pq_pedidosweb_articulos AS a2 ON s2.cod_articulo = a2.codigo
+    WHERE NULLIF(LTRIM(RTRIM(CAST(a2.[base] AS NVARCHAR(50)))), '') IS NOT NULL
+    GROUP BY a2.[base]
+)
+SQL;
+
+        $comprometidoWebExpr = $hasPedidosTables ? 'ISNULL(piw.comprometido_web, 0)' : '0';
+        $comprometidoBaseWebExpr = $hasPedidosTables ? 'ISNULL(pib.comprometido_base_web, 0)' : '0';
+        $precioExpr = $codLista > 0 && $hasListaPreciosTable ? 'ISNULL(lp.precio, 0)' : '0';
+
+        $joins = [
+            'LEFT JOIN pq_pedidosweb_stock AS s ON s.cod_articulo = a.codigo',
+            'LEFT JOIN stock_por_base AS [bs] ON [bs].cod_base = a.[base] AND '.self::BASE_NOT_EMPTY_SQL,
+        ];
+        if ($hasPedidosTables) {
+            $joins[] = 'LEFT JOIN pedidos_ingresados AS piw ON piw.cod_articulo = a.codigo';
+            $joins[] = 'LEFT JOIN pedidos_ingresados_base AS pib ON pib.cod_base = a.[base] AND '.self::BASE_NOT_EMPTY_SQL;
+        }
+        if ($codLista > 0 && $hasListaPreciosTable) {
+            $joins[] = 'LEFT JOIN pq_pedidosweb_listaprecios_articulos AS lp ON lp.cod_articulo = a.codigo AND lp.cod_lista = ?';
+        }
+
+        $disponibleExpr = "(ISNULL(s.stock, 0) - ISNULL(s.comprometido, 0) - {$comprometidoWebExpr})";
+        $disponibleBaseExpr = 'CASE WHEN '.self::BASE_NOT_EMPTY_SQL
+            ." THEN (ISNULL(bs.stock_base, 0) - ISNULL(bs.comprometido_base, 0) - {$comprometidoBaseWebExpr})"
+            .' ELSE NULL END';
+
+        $sql = 'WITH '.implode(",\n", $ctes)."\n"
+            ."SELECT TOP ({$pageSize})\n"
+            ."    a.codigo,\n"
+            ."    a.descripcion,\n"
+            ."    a.porc_iva,\n"
+            ."    a.bonificacion,\n"
+            ."    {$precioExpr} AS precio,\n"
+            ."    {$disponibleExpr} AS disponible_neto,\n"
+            ."    {$disponibleBaseExpr} AS disponible_neto_base\n"
+            ."FROM pq_pedidosweb_articulos AS a\n"
+            .implode("\n", $joins)."\n"
+            .'WHERE 1=1';
+
+        $bindings = [];
+        if ($codLista > 0 && $hasListaPreciosTable) {
+            $bindings[] = $codLista;
+        }
+
+        [$sql, $bindings] = $this->appendFiltrosBusqueda(
+            $sql,
+            $bindings,
+            $solicitudPorCodigos,
+            $codigos,
+            $q,
+        );
+
+        $sql .= "\nORDER BY a.descripcion";
+
+        return [$sql, $bindings];
+    }
+
+    /**
+     * @param  list<string>  $codigos
+     * @return array{0: string, 1: list<mixed>}
+     */
+    private function buildSqlSoloCatalogo(
+        int $pageSize,
+        int $codLista,
+        bool $hasListaPreciosTable,
+        bool $solicitudPorCodigos,
+        array $codigos,
+        ?string $q,
+    ): array {
+        $precioExpr = $codLista > 0 && $hasListaPreciosTable ? 'ISNULL(lp.precio, 0)' : '0';
+        $joinLista = $codLista > 0 && $hasListaPreciosTable
+            ? 'LEFT JOIN pq_pedidosweb_listaprecios_articulos AS lp ON lp.cod_articulo = a.codigo AND lp.cod_lista = ?'
+            : '';
+
+        $sql = "SELECT TOP ({$pageSize})\n"
+            ."    a.codigo,\n"
+            ."    a.descripcion,\n"
+            ."    a.porc_iva,\n"
+            ."    a.bonificacion,\n"
+            ."    {$precioExpr} AS precio,\n"
+            ."    CAST(0 AS DECIMAL(18, 4)) AS disponible_neto,\n"
+            .'    CAST(NULL AS DECIMAL(18, 4)) AS disponible_neto_base'."\n"
+            ."FROM pq_pedidosweb_articulos AS a\n"
+            .$joinLista."\n"
+            .'WHERE 1=1';
+
+        $bindings = [];
+        if ($codLista > 0 && $hasListaPreciosTable) {
+            $bindings[] = $codLista;
+        }
+
+        [$sql, $bindings] = $this->appendFiltrosBusqueda(
+            $sql,
+            $bindings,
+            $solicitudPorCodigos,
+            $codigos,
+            $q,
+        );
+
+        $sql .= "\nORDER BY a.descripcion";
+
+        return [$sql, $bindings];
+    }
+
+    /**
+     * @param  list<string>  $codigos
+     * @param  list<mixed>  $bindings
+     * @return array{0: string, 1: list<mixed>}
+     */
+    private function appendFiltrosBusqueda(
+        string $sql,
+        array $bindings,
+        bool $solicitudPorCodigos,
+        array $codigos,
+        ?string $q,
+    ): array {
+        if ($solicitudPorCodigos) {
+            $placeholders = implode(', ', array_fill(0, count($codigos), '?'));
+            $sql .= "\nAND a.codigo IN ({$placeholders})";
+            $bindings = array_merge($bindings, $codigos);
+        } else {
+            $sql .= "\nAND (a.usa_esc IS NULL OR UPPER(LTRIM(RTRIM(CAST(a.usa_esc AS NVARCHAR(20))))) <> ?)";
+            $bindings[] = PqPedidoswebArticulo::MARCA_USA_ESC_BASE;
+            $sql .= "\nAND NOT EXISTS (
+    SELECT 1
+    FROM pq_pedidosweb_articulos AS pw_art_presentacion
+    WHERE NULLIF(LTRIM(RTRIM(CAST(pw_art_presentacion.[base] AS NVARCHAR(50)))), '') IS NOT NULL
+      AND LTRIM(RTRIM(CAST(pw_art_presentacion.[base] AS NVARCHAR(50)))) = LTRIM(RTRIM(CAST(a.codigo AS NVARCHAR(50))))
+      AND LTRIM(RTRIM(CAST(pw_art_presentacion.codigo AS NVARCHAR(50)))) <> LTRIM(RTRIM(CAST(a.codigo AS NVARCHAR(50))))
+)";
+        }
+
+        if (filled($q)) {
+            $sql .= "\nAND (ISNULL(CAST(a.codigo AS NVARCHAR(50)), '') + ISNULL(CAST(a.descripcion AS NVARCHAR(255)), '')) LIKE ?";
+            $bindings[] = '%'.trim((string) $q).'%';
+        }
+
+        return [$sql, $bindings];
+    }
+
+    /**
+     * @param  list<string>  $codigos
+     * @return list<string>
+     */
+    private function normalizeCodigos(array $codigos): array
+    {
+        return array_values(array_unique(array_filter(array_map(
+            static fn (mixed $codigo): string => trim((string) $codigo),
+            $codigos
+        ), static fn (string $codigo): bool => $codigo !== '')));
     }
 }

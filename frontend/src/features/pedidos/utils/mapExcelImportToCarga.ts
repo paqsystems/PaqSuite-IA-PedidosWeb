@@ -42,7 +42,7 @@ export function mapExcelRowsToRenglones(rows: ExcelImportRowPayload[]): Comproba
     descripcionArticulo: String(row.descripcion_articulo ?? ''),
     cantidad: Number(row.cantidad ?? 0),
     precio: Number(row.precio ?? 0),
-    porcBonif: Number(row.porc_bonif ?? 0),
+    porcBonif: Number(row.porc_bonif ?? row.bonif_renglon ?? 0),
     porcIva: normalizarPorcIvaAlmacenado(Number(row.porc_iva ?? 0)),
   }));
 }

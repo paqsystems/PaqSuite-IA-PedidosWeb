@@ -1,4 +1,9 @@
-import { buildTenantHeaders, getApiBaseUrl } from '../../../shared/http/client';
+import {
+  ApiClientError,
+  buildTenantHeaders,
+  getApiBaseUrl,
+} from '../../../shared/http/client';
+import { dispatchAuthExpired } from '../../auth/authEvents';
 import type { ExcelImportHostResult } from '../types/excelImportHostTypes';
 
 export type ExcelImportProcesoMeta = {
@@ -93,12 +98,58 @@ async function authHeaders(contentType?: string): Promise<Headers> {
 }
 
 async function parseEnvelope<T>(response: Response): Promise<Envelope<T>> {
-  const payload = (await response.json()) as Envelope<T>;
+  let payload: Envelope<T>;
+  try {
+    payload = (await response.json()) as Envelope<T>;
+  } catch {
+    throw new ApiClientError(response.status, 'request.failed', response.status);
+  }
+
   if (!response.ok) {
-    throw new Error(payload.respuesta ?? 'request.failed');
+    if (response.status === 401) {
+      dispatchAuthExpired(payload.respuesta ?? 'auth.unauthenticated');
+    }
+
+    throw new ApiClientError(
+      response.status,
+      payload.respuesta ?? 'request.failed',
+      payload.error ?? response.status,
+    );
   }
 
   return payload;
+}
+
+const EXCEL_IMPORT_ERROR_KEYS = new Set([
+  'excelImport.plantillaNoDisponible',
+  'excelImport.procesoNotFound',
+  'excelImport.epicDisabled',
+  'excelImport.formatoInvalido',
+  'excelImport.archivoCorrupto',
+  'excelImport.hojaNoEncontrada',
+  'excelImport.cargaError',
+  'excelImport.exportErrorsFailed',
+  'excelImport.sinPermisoAlta',
+  'auth.noPermission',
+]);
+
+export function resolveExcelImportErrorKey(error: unknown, fallbackKey: string): string {
+  const respuestaKey =
+    error instanceof ApiClientError
+      ? error.respuestaKey
+      : error instanceof Error
+        ? error.message
+        : fallbackKey;
+
+  if (respuestaKey === 'auth.noPermission') {
+    return 'excelImport.sinPermisoAlta';
+  }
+
+  if (EXCEL_IMPORT_ERROR_KEYS.has(respuestaKey)) {
+    return respuestaKey;
+  }
+
+  return fallbackKey;
 }
 
 export async function fetchExcelImportProceso(codigoProceso: string): Promise<ExcelImportProcesoMeta> {

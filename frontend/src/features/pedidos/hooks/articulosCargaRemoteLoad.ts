@@ -44,7 +44,7 @@ export async function loadArticulosCargaRemote(
     return [];
   }
 
-  const promise = searchArticulos(rawSearchValue.trim(), codLista)
+  const promise = searchArticulos(rawSearchValue.trim(), codLista, articulosCargaPageSize)
     .catch(() => {
       state.failedQueryAt.set(loadKey, Date.now());
       return [] as ArticuloOption[];

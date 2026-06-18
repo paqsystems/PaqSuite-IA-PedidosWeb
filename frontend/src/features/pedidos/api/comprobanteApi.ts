@@ -292,7 +292,7 @@ export async function fetchPreciosArticulosPorLista(
 export async function fetchArticulosCatalogoCarga(
   listaPrecios: number,
 ): Promise<ArticuloOption[]> {
-  return searchArticulos('', listaPrecios, articulosCargaCatalogPageSize, false);
+  return searchArticulos('', listaPrecios, articulosCargaCatalogPageSize);
 }
 
 export async function searchArticulos(
@@ -300,10 +300,15 @@ export async function searchArticulos(
   listaPrecios?: number | null,
   pageSize = articulosCargaPageSize,
   soloCatalogo = false,
+  codigos: string[] = [],
 ): Promise<ArticuloOption[]> {
   const params = new URLSearchParams();
   if (query.trim() !== '') {
     params.set('q', query.trim());
+  }
+  const codigosUnicos = [...new Set(codigos.map((codigo) => codigo.trim()).filter(Boolean))];
+  if (codigosUnicos.length > 0) {
+    params.set('codigos', codigosUnicos.join(','));
   }
   const codLista = Number(listaPrecios);
   if (!Number.isNaN(codLista) && codLista > 0) {
@@ -326,6 +331,20 @@ export async function searchArticulos(
       disponibleNetoBase: articulo.disponibleNetoBase ?? null,
     })),
   );
+}
+
+export async function fetchArticuloCargaByCodigo(
+  codArticulo: string,
+  listaPrecios: number,
+): Promise<ArticuloOption | null> {
+  const codigo = codArticulo.trim();
+  if (codigo === '') {
+    return null;
+  }
+
+  const items = await searchArticulos('', listaPrecios, 1, false, [codigo]);
+
+  return items.find((item) => item.codArticulo === codigo) ?? items[0] ?? null;
 }
 
 export async function iniciarEdicionPedido(codPedido: string): Promise<void> {

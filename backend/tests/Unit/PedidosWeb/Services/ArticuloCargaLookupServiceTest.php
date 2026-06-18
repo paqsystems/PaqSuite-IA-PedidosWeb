@@ -156,7 +156,10 @@ final class ArticuloCargaLookupServiceTest extends TestCase
     {
         foreach ($queries as $query) {
             $sql = strtolower($query['query']);
-            if (str_contains($sql, 'pq_pedidosweb_articulos') && str_contains($sql, ' as [bs]')) {
+            if (
+                str_contains($sql, 'pq_pedidosweb_articulos')
+                && (str_contains($sql, 'stock_por_base') || str_contains($sql, ' as [bs]'))
+            ) {
                 return $query['query'];
             }
         }
