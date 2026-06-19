@@ -1,3 +1,4 @@
+import type { TFunction } from 'i18next';
 import type { PivotCampoMetadata } from '../../types/pivotMetadata';
 import {
   resolvePivotAllowedAggregations,
@@ -14,7 +15,7 @@ const summaryTypeOrder: PivotSummaryType[] = ['sum', 'avg', 'min', 'max', 'count
 
 export function buildAggregationMenuItems(params: {
   campo: PivotCampoMetadata;
-  translate: (key: string, options?: Record<string, string>) => string;
+  translate: TFunction;
   onSelect: (summaryType: PivotSummaryType) => void;
 }): PivotAggregationMenuItem[] {
   const allowed = new Set(resolvePivotAllowedAggregations(params.campo));

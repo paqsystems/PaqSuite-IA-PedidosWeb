@@ -1,4 +1,4 @@
-import { searchArticulos, type ArticuloOption } from '../api/comprobanteApi';
+import { articulosCargaPageSize, searchArticulos, type ArticuloOption } from '../api/comprobanteApi';
 import { shouldFetchArticulosCarga } from './articulosCargaLoadPolicy';
 
 export const articulosCargaFailedQueryCooldownMs = 3000;
