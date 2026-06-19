@@ -46,13 +46,49 @@ Este archivo **no sustituye** SPEC, HU ni TR: es la **entrada** del circuito de 
 
 | # | Fecha | Estado | Resumen |
 |---|-------|--------|---------|
-| 7 | 15/06/2026 | Especificado | i18n parámetros/pivot, perfil CodPerfilPedidos, validaciones grabación, layout carga |
+| 8 | 19/06/2026 | Finalizado (Parte I) | Precarga artículos al ingresar, refresh catálogo, vendedor cliente al importar Excel |
+| 7 | 15/06/2026 | Finalizado (Parte I) | i18n parámetros/pivot, perfil CodPerfilPedidos, validaciones grabación, layout carga |
 | 6 | 17/06/2026 | Finalizado (Parte I) | Listbox artículos: disponible base = SUM por `base` (no stock código base); alineado consulta stock §5 |
 | 5 | 09/06/2026 | Finalizado (Parte I) | Listbox artículos carga: display disponible y base — unificado 11/06/2026; ítem (c) base revisado en #6 |
 | 4 | 10/06/2026 | Finalizado (Parte I) | Vista pivot en informes: Detalle, Deudas, Cheques, Stock — unificado 16/06/2026 |
 | 1 | 04/06/2026 | Finalizado (Parte I) | 10 familias HU — CC PQ; updates unificados 09/06/2026 |
 | 2 | 05/06/2026 | Finalizado (Parte I) | GEN-03 layouts/export Excel formateado — CC PQ #2; unificado 09/06/2026 |
 | 3 | 09/06/2026 | Finalizado (Parte I) | Cartel cargando, layouts totales, performance carga, parámetros — unificado 09/06/2026 |
+
+---
+
+## Control de Calidad #8
+
+### Referencia del control
+
+| Campo | Valor |
+|-------|--------|
+| **Fecha** | 19/06/2026 |
+| **Responsable** | Pablo Quarracino (PQ) |
+| **Estado** | Finalizado (Parte I 19/06/2026) |
+| **Entorno probado** | Local — Ankas_del_sur; Vitest + PHPUnit CC PQ #7/#8 |
+| **Build / rama** | `v1.1.0-paq` @ `df424e8` |
+
+### Hallazgos
+
+En carga de pedidos, optimizar la busqueda de articulos para que lo arme una sola vez, y cargar el vendedor cuando se importa desde Excel.
+
+### Errores encontrados - Mejoras solicitadas
+
+#### HU-101-029-proceso-excel-pedido-individual - HU-101-030-importacion-excel-pantalla-carga
+
+cuando se importa los datos desde el Excel, asignar al control de vendedor el codigo de vendedor que tiene el cliente
+
+*Procesado* → [HU-101-029-proceso-excel-pedido-individual](../03-historias-usuario/101-PedidosWeb/HU-101-029-proceso-excel-pedido-individual.md) · [HU-101-030-importacion-excel-pantalla-carga](../03-historias-usuario/101-PedidosWeb/HU-101-030-importacion-excel-pantalla-carga.md) · [TR-SPEC-101-16-importacion-excel-pantalla-carga](../04-tareas/101-PedidosWeb/TR-SPEC-101-16-importacion-excel-pantalla-carga.md) · Parte I 19/06/2026
+
+#### HU-101-005-inicializacion-cabecera
+
+- que el armado de la lista para la busqueda de artículos, la realice una sola vez al ingresar a la pantalla de carga de pedidos, desplegando algún mensaje para indicar que está cargando, en lugar de hacerlo cada vez que selecciona un cliente.
+No importa que no se esté actualizando el stock disponible.
+
+- Agregar un icono "Actualizar articulos" para volver a recargar dicha lista, si el usuario quiere tener el disponible actualizado
+
+*Procesado* → [HU-101-005-inicializacion-cabecera](../03-historias-usuario/101-PedidosWeb/HU-101-005-inicializacion-cabecera.md) · [TR-SPEC-101-10-pantalla-carga](../04-tareas/101-PedidosWeb/TR-SPEC-101-10-pantalla-carga.md) · Parte I 19/06/2026
 
 ---
 
@@ -64,7 +100,9 @@ Este archivo **no sustituye** SPEC, HU ni TR: es la **entrada** del circuito de 
 |-------|--------|
 | **Fecha** | 15/06/2026 |
 | **Responsable** | Pablo Quarracino (PQ) |
-| **Estado** | Especificado |
+| **Estado** | Finalizado (Parte I 19/06/2026) |
+| **Entorno probado** | Local — Ankas_del_sur; Vitest + PHPUnit CC PQ #7/#8 |
+| **Build / rama** | `v1.1.0-paq` @ `df424e8` |
 
 ### Hallazgos
 

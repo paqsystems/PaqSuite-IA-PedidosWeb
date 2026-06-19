@@ -539,6 +539,7 @@
   "pedidos.carga.articuloDuplicado": "The item is already on the document.",
   "pedidos.carga.articuloPlaceholder": "Search item",
   "pedidos.carga.articulosTitle": "Items",
+  "pedidos.carga.articulosCargando": "Loading item catalog…",
   "pedidos.carga.cabecera.bonif1": "Discount 1",
   "pedidos.carga.cabecera.bonif2": "Discount 2",
   "pedidos.carga.cabecera.bonif3": "Discount 3",

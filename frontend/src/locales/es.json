@@ -539,6 +539,7 @@
   "pedidos.carga.articuloDuplicado": "El artículo ya está en el comprobante.",
   "pedidos.carga.articuloPlaceholder": "Buscar artículo",
   "pedidos.carga.articulosTitle": "Artículos",
+  "pedidos.carga.articulosCargando": "Cargando catálogo de artículos…",
   "pedidos.carga.cabecera.bonif1": "Bonificación 1",
   "pedidos.carga.cabecera.bonif2": "Bonificación 2",
   "pedidos.carga.cabecera.bonif3": "Bonificación 3",

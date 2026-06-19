@@ -55,7 +55,8 @@ Controles: **DevExtreme** (`SelectBox`, `NumberBox`, `DataGrid`, `Popup`, `Butto
 |-------|---------|
 | Control | `SelectBoxDx` (`data-testid`: `articulo-select`) |
 | API | `GET /api/v1/articulos?q=&lista_precios={cod_lista}&page_size=10000` (join `pq_pedidosweb_stock`; disponible = stock − comprometido − pedidos web ingresados) |
-| Carga de datos | Tras cabecera con **lista de precios** válida: **una** precarga del catálogo (hasta **10 000** ítems); array en memoria |
+| Carga de datos | **Al montar** la pantalla: **una** precarga del catálogo (`fetchArticulosCatalogoCarga`, hasta **10 000** ítems); array en memoria; **no** se repite al cambiar cliente |
+| Actualizar catálogo | Botón icono **refresh** (`data-testid`: `articulosRefresh`) junto al combobox; reconsulta API y reemplaza el array en memoria |
 | Búsqueda | **Local** DevExtreme (`searchEnabled`, `searchExpr`: `codArticulo`, `descripcion`, `searchMode`: `contains`); sin consultas API al tipear |
 | Auto-match | Si el filtro local deja un único ítem, selección automática |
 | Lista precios | Sin `listaPrecios` válida en cabecera el combobox queda deshabilitado (sin `DataSource`); al cambiar lista → `actualizarPreciosRenglonesPorLista` (batch `codigos`) |

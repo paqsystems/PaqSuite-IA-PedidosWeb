@@ -539,6 +539,7 @@
   "pedidos.carga.articuloDuplicado": "L'article est déjà sur le document.",
   "pedidos.carga.articuloPlaceholder": "Rechercher un article",
   "pedidos.carga.articulosTitle": "Articles",
+  "pedidos.carga.articulosCargando": "Chargement du catalogue d'articles…",
   "pedidos.carga.cabecera.bonif1": "Remise 1",
   "pedidos.carga.cabecera.bonif2": "Remise 2",
   "pedidos.carga.cabecera.bonif3": "Remise 3",
