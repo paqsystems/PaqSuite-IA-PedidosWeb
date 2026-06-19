@@ -14,6 +14,7 @@ import type { ExcelImportHostResult } from '../../excelImport/types/excelImportH
 import {
   cancelarEdicionPedido,
   fetchArticulosCatalogoCarga,
+  fetchArticuloCargaByCodigo,
   fetchCabeceraInicial,
   fetchClientes,
   fetchComprobante,
@@ -226,6 +227,19 @@ export function PedidosCargaPage() {
     }
   }, []);
 
+  const loadArticulosCatalogo = useCallback(async () => {
+    setArticulosLoading(true);
+
+    try {
+      const data = await fetchArticulosCatalogoCarga();
+      setArticulos(data);
+    } catch {
+      setArticulos([]);
+    } finally {
+      setArticulosLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
     let mounted = true;
 
@@ -314,50 +328,8 @@ export function PedidosCargaPage() {
   }, [comprobanteId, isClienteProfile, loadCabeceraForCliente, modo, sessionContext.codCliente]);
 
   useEffect(() => {
-    const codLista = Number(cabecera?.listaPrecios);
-    if (
-      cabecera?.listaPrecios === null ||
-      cabecera?.listaPrecios === undefined ||
-      Number.isNaN(codLista) ||
-      codLista <= 0
-    ) {
-      setArticulos([]);
-      setArticuloSeleccionado(null);
-      setArticuloSeleccionadoData(null);
-      return;
-    }
-
-    let mounted = true;
-
-    const load = async () => {
-      setArticulosLoading(true);
-
-      try {
-        const data = await fetchArticulosCatalogoCarga(codLista);
-        if (!mounted) {
-          return;
-        }
-
-        setArticulos(data);
-      } catch {
-        if (!mounted) {
-          return;
-        }
-
-        setArticulos([]);
-      } finally {
-        if (mounted) {
-          setArticulosLoading(false);
-        }
-      }
-    };
-
-    void load();
-
-    return () => {
-      mounted = false;
-    };
-  }, [cabecera?.listaPrecios]);
+    void loadArticulosCatalogo();
+  }, [loadArticulosCatalogo]);
 
   useEffect(() => {
     if (!selectedCliente || comprobanteId || modo !== 'nuevo') {
@@ -622,12 +594,23 @@ export function PedidosCargaPage() {
     navigate(destino);
   }, [navigate, parametrosCarga?.cargaRecurrente, resetParaNuevoComprobante]);
 
-  const handleAgregarArticulo = useCallback(() => {
-    if (readOnly || !articuloSeleccionado || !articuloSeleccionadoData) {
+  const handleAgregarArticulo = useCallback(async () => {
+    if (readOnly || !articuloSeleccionado || !articuloSeleccionadoData || !cabecera) {
       return;
     }
 
-    const articulo = articuloSeleccionadoData;
+    let articulo = articuloSeleccionadoData;
+    const codLista = Number(cabecera.listaPrecios);
+    if (!Number.isNaN(codLista) && codLista > 0) {
+      try {
+        const fetched = await fetchArticuloCargaByCodigo(articulo.codArticulo, codLista);
+        if (fetched) {
+          articulo = fetched;
+        }
+      } catch {
+        // Mantiene datos del ítem seleccionado si falla la consulta puntual.
+      }
+    }
 
     const renglonesActivos = renglonesValidosParaGrabar(renglones);
     const yaExiste = renglonesActivos.some((renglon) => renglon.codArticulo === articulo.codArticulo);
@@ -652,7 +635,7 @@ export function PedidosCargaPage() {
     setAutoOpenRenglonId(nuevoRenglon.renglon);
     setArticuloSeleccionado(null);
     setArticuloSeleccionadoData(null);
-  }, [articuloSeleccionado, articuloSeleccionadoData, readOnly, renglones, t]);
+  }, [articuloSeleccionado, articuloSeleccionadoData, cabecera, readOnly, renglones, t]);
 
   const listaPreciosArticulosValida = useMemo(() => {
     const codLista = Number(cabecera?.listaPrecios);
@@ -996,9 +979,11 @@ export function PedidosCargaPage() {
             {!readOnly ? (
               <section className="pedidosCargaPage__panel" data-testid="form-articulo-carga">
                 <h3 className="pedidosCargaPage__panelTitle">{t('pedidos.carga.articulosTitle')}</h3>
+                {articulosLoading && articulos.length === 0 ? (
+                  <p data-testid="articulos-cargando">{t('pedidos.carga.articulosCargando')}</p>
+                ) : null}
                 <div className="pedidosCargaPage__articuloRow">
                   <SelectBoxDx
-                    key={`articulo-select-${cabecera?.listaPrecios ?? 'none'}`}
                     dataSource={articulosOrdenados}
                     valueExpr="codArticulo"
                     displayExpr={(item: ArticuloOption | null) =>
@@ -1010,7 +995,7 @@ export function PedidosCargaPage() {
                     searchMode="contains"
                     isLoading={articulosLoading}
                     autoSelectSingleMatch={true}
-                    disabled={!listaPreciosArticulosValida}
+                    disabled={!listaPreciosArticulosValida || articulosLoading}
                     onValueChanged={(event) => {
                       setArticuloSeleccionado((event.value as string | null) ?? null);
                       setArticuloSeleccionadoData(
@@ -1020,12 +1005,25 @@ export function PedidosCargaPage() {
                     placeholder={t('pedidos.carga.articuloPlaceholder')}
                     inputAttr={{ 'data-testid': 'articulo-select' }}
                   />
+                  <div data-testid="articulosRefresh">
+                    <Button
+                      icon="refresh"
+                      stylingMode="outlined"
+                      hint={t('grid.refresh')}
+                      disabled={articulosLoading}
+                      onClick={() => {
+                        void loadArticulosCatalogo();
+                      }}
+                    />
+                  </div>
                   <div data-testid="btn-agregar-articulo">
                     <Button
                       text={t('pedidos.carga.agregarArticulo')}
                       stylingMode="outlined"
                       disabled={!articuloSeleccionado}
-                      onClick={handleAgregarArticulo}
+                      onClick={() => {
+                        void handleAgregarArticulo();
+                      }}
                     />
                   </div>
                 </div>

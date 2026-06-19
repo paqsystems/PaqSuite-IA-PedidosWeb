@@ -290,9 +290,9 @@ export async function fetchPreciosArticulosPorLista(
 }
 
 export async function fetchArticulosCatalogoCarga(
-  listaPrecios: number,
+  listaPrecios?: number | null,
 ): Promise<ArticuloOption[]> {
-  return searchArticulos('', listaPrecios, articulosCargaCatalogPageSize);
+  return searchArticulos('', listaPrecios ?? null, articulosCargaCatalogPageSize);
 }
 
 export async function searchArticulos(

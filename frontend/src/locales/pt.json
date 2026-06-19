@@ -539,6 +539,7 @@
   "pedidos.carga.articuloDuplicado": "O artigo já está no documento.",
   "pedidos.carga.articuloPlaceholder": "Buscar artigo",
   "pedidos.carga.articulosTitle": "Artigos",
+  "pedidos.carga.articulosCargando": "Carregando catálogo de artigos…",
   "pedidos.carga.cabecera.bonif1": "Bonificação 1",
   "pedidos.carga.cabecera.bonif2": "Bonificação 2",
   "pedidos.carga.cabecera.bonif3": "Bonificação 3",

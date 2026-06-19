@@ -34,6 +34,24 @@ describe('mapExcelImportToCarga', () => {
     expect(cabecera.leyenda1).toBe('Leyenda 1');
   });
 
+  it('conserva vendedor de cabecera inicial al importar Excel', () => {
+    const base = {
+      ...emptyComprobanteCabecera('CLI001'),
+      codVended: 'V001',
+      vendedorNombre: 'Juan Pérez',
+    };
+    const cabecera = mapExcelRowToCabecera(
+      {
+        cod_cliente: 'CLI001',
+        cod_lista: 5,
+      },
+      base,
+    );
+
+    expect(cabecera.codVended).toBe('V001');
+    expect(cabecera.vendedorNombre).toBe('Juan Pérez');
+  });
+
   it('mapea renglones numerados con porcBonif', () => {
     const renglones = mapExcelRowsToRenglones([
       {

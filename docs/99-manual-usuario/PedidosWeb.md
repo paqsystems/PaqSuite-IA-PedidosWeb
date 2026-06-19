@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 |-------|--------|
-| **Versión documento** | MVP Fase 1 — 2026-06-16 (CC PQ #3–#5, pivot informes) |
+| **Versión documento** | MVP Fase 1 — 2026-06-19 (CC PQ #7–#8: validaciones grabación, layout carga, Excel, precarga artículos) |
 | **Ámbito** | Módulo comercial PedidosWeb |
 | **Manual transversal** | [Generalidades.md](./Generalidades.md) (login, sesión, menú, grillas, idioma) |
 | **Público** | Usuarios finales (vendedor, supervisor, cliente) y soporte funcional/técnico |
@@ -29,6 +29,7 @@ Para login, navegación general, idioma, apariencia, **expiración de sesión po
 
 - Dashboard operativo (KPIs y mes en curso por estado).
 - Carga, edición, copia y conversión de pedidos y presupuestos.
+- **Importación desde Excel** de pedido individual en carga (si el tenant la tiene habilitada).
 - Consultas de comprobantes (ingresados, pendientes, presupuestos).
 - Consulta **Detalle de pedidos** (cabecera + renglones en una grilla).
 - Consultas comerciales: deuda, cheques, historial de ventas, stock (con **vista pivot** opcional si el tenant la tiene habilitada).
@@ -164,12 +165,15 @@ Pantalla única para **alta**, **edición**, **consulta** (solo lectura), **copi
 
 | Zona | Contenido |
 |------|-----------|
+| **Barra Excel** (opcional) | Descargar plantilla e importar archivo — solo en altas nuevas, si el tenant lo habilita (§6.14) |
 | **Toolbar** | Cancelar; Grabar presupuesto; Grabar pedido (según modo y permisos) |
-| **Cabecera** | Cliente, datos comerciales, bonificaciones, expreso, fecha entrega, observaciones |
-| **Artículos** | Búsqueda y agregar renglones |
+| **Cabecera** | Cliente, vendedor, perfil, condiciones comerciales, transporte, lista de precios, bonificaciones, expreso, fecha entrega, observaciones |
+| **Columna leyendas** | Leyendas 1–5 al pie del comprobante (§6.13) |
+| **Artículos** | Búsqueda, actualizar catálogo y agregar renglones |
 | **Grilla renglones** | Líneas del comprobante con importes y precio neto unitario |
 | **Totales** | Subtotal, IVA, total |
-| **Leyendas 1–5** | Textos al pie del comprobante (ver §6.13) |
+
+El diseño organiza cabecera, leyendas y grilla en columnas para facilitar la carga sin desplazarse entre bloques alejados.
 
 ### 6.2 Selección de cliente
 
@@ -182,13 +186,15 @@ En el combobox de cliente se muestra: **(código) razón social - nombre comerci
 
 Mientras se carga el listado de clientes, el combobox muestra **Cargando…** y permanece bloqueado. Si al escribir en la búsqueda queda **un solo cliente**, se selecciona automáticamente.
 
-Al elegir cliente, el sistema inicializa la cabecera con los datos habituales del maestro (condición de venta, transporte, lista de precios, bonificaciones, perfil, etc.).
+Al elegir cliente, el sistema inicializa la cabecera con los datos habituales del maestro: **vendedor asignado al cliente**, condición de venta, transporte, lista de precios, bonificaciones, **perfil** (según parámetro *Perfil de pedidos por defecto* — §6.4), dirección de entrega habitual, etc.
+
+El campo **Vendedor** en cabecera es de **solo lectura**: muestra el código y nombre del vendedor del cliente en ERP, no el usuario logueado salvo que coincidan.
 
 ### 6.3 Alta de un comprobante nuevo
 
 1. Abrir **Carga** (modo nuevo).
 2. **Seleccionar cliente** (vendedor/supervisor) o ver cliente fijo (perfil cliente).
-3. Revisar y completar la **cabecera** (lookups obligatorios — ver §6.11).
+3. Revisar y completar la **cabecera** (lookups obligatorios — ver §6.12).
 4. Buscar **artículos** (no se listan artículos tipo BASE del catálogo), agregar renglones y completar cantidades en el popup de edición.
 5. Revisar **totales** y leyendas.
 6. Grabar como **pedido** o **presupuesto** según corresponda.
@@ -196,7 +202,7 @@ Al elegir cliente, el sistema inicializa la cabecera con los datos habituales de
 
 ### 6.4 Perfil de pedido
 
-Campo combobox en cabecera. Define el perfil comercial del comprobante (catálogo ERP). Valor inicial según parámetro **CodPerfilPedidos** en altas; en edición se muestra el valor **grabado** del comprobante.
+Campo combobox en cabecera. Define el perfil comercial del comprobante (catálogo ERP). En un **comprobante nuevo**, tras elegir cliente, el valor inicial proviene del parámetro ERP **Perfil de pedidos por defecto** (*CodPerfilPedidos* en Consulta de parámetros). Si ese parámetro está en cero o vacío, el perfil queda sin seleccionar y el operador debe elegirlo manualmente. En **edición** se muestra el valor **grabado** del comprobante.
 
 ### 6.5 Bonificaciones e importes
 
@@ -214,19 +220,14 @@ Al cambiar la lista de precios en cabecera, el sistema recalcula precios de los 
 
 ### 6.7 Búsqueda de artículos
 
-Comportamiento **vigente (provisional CC PQ #5):**
-
-- Cada ítem se muestra como **`código - descripción`** (sin columna de disponibilidad en el listbox de carga).
-- Al definir una **lista de precios válida** en cabecera, el sistema **precarga automáticamente** el catálogo de artículos de esa lista (hasta el límite configurado por página).
-- Mientras carga el catálogo puede verse **Cargando…** en el combobox.
-- Sin lista de precios válida en cabecera, el combobox de artículos permanece **deshabilitado**.
-- Puede **buscar por texto** dentro del listado precargado (código o descripción) usando el filtro del combobox.
+- Al **ingresar** a la pantalla de carga, el sistema **precarga una sola vez** el catálogo de artículos (hasta el límite configurado por página). Mientras dura esa carga puede verse el mensaje **Cargando…** sobre el combobox.
+- El combobox de artículos permanece **deshabilitado** hasta que la cabecera tenga una **lista de precios válida**; la búsqueda dentro del listado precargado es **local** (código o descripción).
+- Icono **Actualizar** (↻) junto al combobox: vuelve a consultar el catálogo al servidor si el usuario desea refrescar disponibilidades.
+- Cada ítem se muestra con **código, descripción y disponible** (y disponible del artículo base entre paréntesis cuando aplica).
 - Si al filtrar queda **un solo artículo**, se selecciona automáticamente.
-- No aparecen artículos marcados como **BASE** en el catálogo ERP (`usa_esc = 'B'`).
+- No aparecen artículos marcados como **BASE** en el catálogo ERP.
 
-**Diferencia con Consulta de stock (§9.4):** el informe **Stock** sí muestra **disponible neto** (`stock − comprometido − pedidos web ingresados`). El listbox de carga, en esta versión, **no** muestra disponible en el texto del ítem; conviene consultar el informe Stock si se necesita verificar existencias antes de cargar cantidades.
-
-> **Nota:** una versión futura puede reincorporar la disponibilidad en el listbox de carga según cierre definitivo de CC PQ #5.
+**Diferencia con Consulta de stock (§9.4):** el informe **Stock** permite análisis pivot y filtros amplios en servidor; el listbox de carga usa un catálogo precargado en memoria, optimizado para operatoria de alta.
 
 ### 6.8 Editar un comprobante existente
 
@@ -270,6 +271,7 @@ Lookups obligatorios (combobox contra catálogos ERP):
 | Campo | Obligatorio |
 |-------|-------------|
 | **Cliente** | Sí (vendedor/supervisor; fijo en perfil cliente) |
+| **Vendedor** | Sí — se completa automáticamente desde el cliente (solo lectura) |
 | **Perfil de pedido** | Sí |
 | **Condición de venta** | Sí |
 | **Transporte** | Sí |
@@ -277,9 +279,17 @@ Lookups obligatorios (combobox contra catálogos ERP):
 | **Lista de precios** | Sí |
 | **Renglones** | Al menos uno con artículo |
 
-Campos informativos (vendedor, moneda, incluye IVA) se completan automáticamente; conviene revisarlos antes de grabar.
+Campos informativos (moneda, incluye IVA) se completan automáticamente; conviene revisarlos antes de grabar.
 
-Si falta un dato obligatorio, el sistema muestra un **aviso** (texto según idioma activo) e impide la grabación.
+Validaciones adicionales del servidor:
+
+| Regla | Comportamiento |
+|-------|----------------|
+| **Nivel extremo** | Si el parámetro *Nivel extremo* está activo en Consulta de parámetros, el nivel solo puede ser **0** o **100** |
+| **Precio cero** | Si *Admitir artículos con precio cero* y *Admitir artículos sin precio* están inactivos, no se admiten renglones con precio cero |
+| **Cliente inhabilitado** | No se puede grabar para clientes marcados como inhabilitados en el maestro ERP |
+
+Si falta un dato obligatorio o incumple una regla, el sistema muestra un **aviso** (texto según idioma activo) e impide la grabación.
 
 ### 6.13 Leyendas al pie (1 a 5)
 
@@ -299,6 +309,27 @@ Si esperaba ver leyendas del cliente y los campos están vacíos:
 4. Tras corregir parámetros o datos del cliente, **volver a elegir el cliente** (o iniciar un comprobante nuevo) para que se apliquen.
 
 Las leyendas son **editables** en carga (salvo modo solo lectura) aunque no se hayan inicializado desde el cliente.
+
+### 6.14 Importación desde Excel (pedido individual)
+
+Cuando el tenant tiene habilitada la importación Excel en carga, aparece una **barra superior** con acceso a plantilla e importación.
+
+**Cuándo está disponible**
+
+| Condición | Efecto |
+|-----------|--------|
+| Modo **nuevo** sin renglones cargados | Habilitada (si el tenant la activó) |
+| **Edición**, **ver**, **copia** o comprobante ya abierto | **No** disponible |
+| Vendedor/supervisor con **cliente ya seleccionado** manualmente | Importación **deshabilitada** (usar importación **antes** de elegir cliente, o limpiar la pantalla) |
+| Perfil **cliente** con cliente fijo | Puede importar si no hay renglones previos |
+
+**Flujo**
+
+1. Descargar **plantilla modelo** (columnas según idioma activo del portal).
+2. Completar filas: repetir en cada renglón los datos de cabecera que deban aplicarse; columnas no editables según permisos del usuario deben ir **vacías** (el sistema las resuelve desde el maestro).
+3. Importar el archivo. Si **cualquier fila** tiene error de validación, **no se procesa nada** (sin ingreso parcial).
+4. Tras validar, el sistema **selecciona el cliente** de la primera fila, **inicializa la cabecera** desde el maestro (incluido el **vendedor del cliente**) y vuelca los renglones importados con los mismos cálculos que la carga manual (bonificación neta, precio neto, importes).
+5. Revisar cabecera, vendedor, lookups y totales antes de **Grabar pedido** o **Grabar presupuesto**.
 
 ---
 
@@ -396,7 +427,7 @@ Ventas detalladas en un rango temporal (parámetro **DiasVentasDetalladas** en E
 
 Disponibilidad de artículos con **stock neto**: descuenta stock ERP, comprometido ERP y **pedidos web ingresados** (`estado = 0`).
 
-En la **carga de pedidos** (§6.7), el combobox de artículos muestra solo **`código - descripción`** y **no** incluye disponibilidad en el texto del ítem. Para verificar existencias antes de cargar, use este informe **Stock** o la vista pivot de stock (totales por depósito, artículo, etc.).
+En la **carga de pedidos** (§6.7), el combobox muestra **código, descripción y disponible** (con disponible base entre paréntesis cuando aplica). Use el icono **Actualizar** si necesita refrescar cantidades desde el servidor, o este informe **Stock** para análisis pivot y filtros amplios.
 
 ---
 
@@ -466,10 +497,13 @@ Si una acción no aparece en la grilla, el usuario **no tiene permiso**, el **es
 ## 14. Validaciones habituales en carga
 
 - Cumplir requisitos de cabecera y renglones (§6.12).
+- Verificar que el **vendedor** de cabecera corresponda al cliente (especialmente tras importar Excel — §6.14).
 - No duplicar el mismo **código de artículo** en un comprobante.
 - Al **cambiar cliente** con renglones cargados, el sistema pide confirmación (se pierden las líneas).
 - Bonificaciones y precios pueden estar **deshabilitados** según permisos ERP.
 - Artículos **BASE** no se ofrecen en la búsqueda de carga.
+- Con *Nivel extremo* activo, el nivel solo admite **0** o **100**.
+- Con parámetros de precio cero inactivos, no se admiten renglones sin precio.
 
 ---
 
@@ -479,7 +513,9 @@ Los textos exactos dependen del **idioma activo**. Interpretación funcional hab
 
 | Situación | Acción sugerida |
 |-----------|-----------------|
-| No permite grabar | Completar lookups obligatorios (§6.12); agregar renglones; verificar permisos |
+| No permite grabar | Completar lookups obligatorios (§6.12); agregar renglones; verificar vendedor del cliente; revisar parámetros *Nivel extremo* y precio cero |
+| Importación Excel rechazada | Corregir todas las filas con error en la plantilla; no hay ingreso parcial; ver §6.14 |
+| Vendedor distinto al esperado tras Excel | Es el vendedor del **cliente** en ERP, no necesariamente el usuario logueado — §6.14 |
 | Grilla vacía en consulta | Revisar filtros; pulsar **Actualizar**; ampliar criterios |
 | No puedo editar un pedido | Revisar §7.1 y §13: parámetro *Impide modificar pedidos*, permiso de menú, estado del pedido o bloqueo en edición (-1) |
 | No puedo eliminar un pedido | Revisar §7.1 y §13: parámetro *Impide eliminar pedidos*, permiso de baja o estado distinto de ingresado (0) |
@@ -496,12 +532,12 @@ Para acceso, sesión o permisos generales: [Generalidades §10](./Generalidades.
 
 - Confundir **presupuesto** con **pedido** al grabar (usar el botón correcto en la toolbar).
 - Editar cabecera esperando cambiar **cliente** sin perder renglones (el sistema advierte antes).
-- Buscar un artículo con stock **cero** en carga y asumir error del sistema (el listbox de carga no muestra disponibilidad; consultar informe **Stock**).
-- Esperar ver **disponibilidad** en el combobox de artículos al cargar un pedido (comportamiento provisional: solo `código - descripción`; §6.7).
+- Buscar un artículo con stock **cero** en carga: el listbox muestra disponible según reglas de producto; use **Actualizar artículos** o el informe **Stock** si necesita datos más recientes.
 - No ver el conmutador **Grilla / Pivot** en un informe (pivot puede no estar habilitado en el tenant; §9).
 - Fecha de comprobante distinta a la esperada en consultas (verificar zona/fecha de grabación con soporte si persiste).
 - No ver **Detalle de pedidos** en menú (requiere permiso; contactar administrador).
 - Tener permiso de menú pero **no ver Editar/Eliminar**: revisar *Impide modificar/eliminar pedidos* en Consulta de parámetros (§13).
+- Intentar importar Excel **después** de haber elegido cliente manualmente (vendedor/supervisor): el botón queda deshabilitado — importar al inicio o en pantalla limpia (§6.14).
 - Esperar leyendas del cliente en **edición** de un comprobante ya grabado (solo se inicializan desde cliente en **alta nueva**; §6.13).
 
 ---
@@ -509,7 +545,7 @@ Para acceso, sesión o permisos generales: [Generalidades §10](./Generalidades.
 ## 17. Recomendaciones de uso
 
 - Completar y **verificar lookups obligatorios** antes de grabar (§6.12).
-- Definir **lista de precios** en cabecera **antes** de buscar artículos (el catálogo se precarga al elegir la lista; §6.7).
+- Definir **lista de precios** en cabecera **antes** de agregar renglones (el combobox de artículos permanece deshabilitado sin lista válida; §6.7).
 - Usar **layouts** de grilla en consultas frecuentes ([Generalidades §16](./Generalidades.md)); diseños propios se identifican con **` (*)`**.
 - Guardar **diseños pivot** recurrentes en informes analíticos ([Generalidades §19](./Generalidades.md)).
 - Tras grabar, verificar el **número visible** en el mensaje de confirmación.
@@ -561,9 +597,13 @@ Puede deberse a: (1) parámetros ERP *Impide modificar pedidos* o *Impide elimin
 
 En **carga nueva**, cada leyenda solo se copia del maestro cliente si el parámetro *Inicializar leyenda N desde cliente* está en **Sí** y el cliente tiene texto en esa leyenda. Si el parámetro está en **No** (común en instalaciones recientes), los campos arrancan vacíos aunque el cliente tenga leyendas en el ERP. En **edición** se muestran las leyendas del comprobante grabado, no las del cliente. Ver §6.13.
 
-### ¿Por qué el combobox de artículos no muestra disponibilidad?
+### ¿Cómo importo un pedido desde Excel?
 
-En la versión actual el listbox de carga muestra solo **`código - descripción`**. Para consultar stock neto use **Informes → Stock** (§9.4). Ver §6.7.
+En **Carga**, modo **nuevo**, usar la barra superior de importación (si el tenant la habilitó). Descargar plantilla, completar filas e importar **antes** de elegir cliente manualmente si es vendedor/supervisor. Ver §6.14.
+
+### ¿Por qué el combobox de artículos está deshabilitado o muestra disponibilidad desactualizada?
+
+El combobox se habilita cuando la cabecera tiene **lista de precios válida**. El catálogo se precarga al **ingresar** a la pantalla; use el icono **Actualizar artículos** para refrescar desde el servidor. Para análisis ampliado use **Informes → Stock** (§9.4). Ver §6.7.
 
 ### ¿Cómo uso la vista pivot en informes?
 
@@ -592,4 +632,5 @@ Grillas, pivot, idioma y acceso se rigen por [Generalidades.md](./Generalidades.
 | Consultas cabecera | [consulta-comprobantes-cabecera.md](../02-producto/PedidosWeb/consulta-comprobantes-cabecera.md) |
 | Detalle pedidos | [consulta-detalle-pedidos.md](../02-producto/PedidosWeb/consulta-detalle-pedidos.md) |
 | Dashboard | [patron-dashboard-operativo-ui.md](../02-producto/PedidosWeb/patron-dashboard-operativo-ui.md) |
+| Importación Excel | [Importación Pedido Individual desde Excel.md](../02-producto/PedidosWeb/Importación%20Pedido%20Individual%20desde%20Excel.md) |
 | Historias de usuario | [101-PedidosWeb/README.md](../03-historias-usuario/101-PedidosWeb/README.md) |

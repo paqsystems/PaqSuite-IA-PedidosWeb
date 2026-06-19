@@ -510,7 +510,8 @@ El usuario no recuerda su clave, solicita la recuperación, recibe el correo, de
 ## 13. Problemas frecuentes
 
 - El usuario espera ver opciones en el menú que no aparecen.
-- El usuario cambia el idioma y espera que se traduzcan datos propios del negocio.
+- El usuario cambia el idioma y espera que se traduzcan **datos de negocio** (nombres de clientes, descripciones de artículos); eso **no** ocurre — solo cambian textos del sistema.
+- El usuario cambia el idioma y espera que **Consulta de parámetros** siga en español del ERP: las descripciones y ayudas **sí** se traducen cuando existen en el idioma activo (§18.5).
 - El usuario interpreta que ocultar el menú lateral cambia sus permisos.
 - El usuario intenta recuperar la contraseña con un correo distinto del asociado a su cuenta.
 - El usuario utiliza un enlace viejo.
@@ -557,7 +558,7 @@ Porque el menú se ajusta al perfil y a las habilitaciones de cada usuario.
 
 ### ¿Cambiar el idioma traduce también los datos cargados por clientes, artículos o registros?
 
-No. El idioma cambia los textos del sistema, no el contenido propio del negocio.
+No. El idioma cambia los textos del sistema (menús, botones, cabeceras de grilla, descripciones de parámetros en Consulta de parámetros, títulos de campos en pivot), no el contenido propio del negocio cargado por usuarios (razones sociales, observaciones, etc.).
 
 ### ¿Cambiar la apariencia modifica solo una pantalla?
 
@@ -789,6 +790,13 @@ No. Traduce los textos del sistema (cabeceras, menús, mensajes). Los valores de
 
 Pasá el mouse sobre el ícono: aparece el nombre de la acción (tooltip).
 
+### 16.15 Comboboxes con carga remota
+
+En procesos como **Carga de pedidos** (clientes, artículos), los comboboxes pueden mostrar **Cargando…** mientras obtienen datos del servidor. Hasta que finalice la carga, el control permanece bloqueado o deshabilitado según el caso.
+
+- **Clientes:** se cargan al abrir la pantalla; si al filtrar queda un solo ítem, puede seleccionarse automáticamente.
+- **Artículos:** el catálogo se precarga **una vez** al ingresar a carga; la búsqueda posterior es local. Un icono **Actualizar** permite refrescar desde el servidor (detalle en [PedidosWeb §6.7](./PedidosWeb.md)).
+
 ## 17. Resumen operativo
 
 PedidosWeb ofrece una experiencia base organizada y segura: el usuario ingresa desde una pantalla simple, accede a un entorno principal estable y opera solo dentro de las opciones habilitadas para su perfil.
@@ -809,7 +817,7 @@ Los puntos que usuario y soporte deben recordar son:
 - en grillas, filtros y layouts modifican la **vista**, no los permisos ni los datos;
 - exportar y totalizar respetan lo visible en pantalla al momento de la acción;
 - el botón **+** de alta aparece solo en procesos ABM autorizados;
-- la **Consulta de parámetros** (menú General) es solo lectura: muestra descripción, valor y ayuda de la configuración ERP, sin clave técnica visible;
+- la **Consulta de parámetros** (menú General) es solo lectura: muestra descripción, valor y ayuda traducidos según idioma activo, sin clave técnica visible;
 - la **vista pivot** en informes requiere habilitación del tenant; consultas de cabecera de comprobantes usan solo grilla.
 
 ## 18. Consulta de parámetros (menú General)
@@ -820,9 +828,9 @@ Proceso transversal del grupo **General**, ubicado al **final** del menú latera
 
 | Columna | Contenido |
 |---------|-----------|
-| **Descripción** | Texto legible del parámetro (`CAPTION` en ERP) |
-| **Valor** | Valor efectivo según su tipo (número, texto, fecha, Sí/No, etc.), **centrado** en la columna |
-| **Tooltip** | Ayuda contextual cuando existe en ERP |
+| **Descripción** | Texto legible del parámetro en el **idioma activo** del portal (si existe traducción; si no, se muestra el texto del ERP) |
+| **Valor** | Valor efectivo según su tipo (booleanos como **Sí/No** traducidos; fechas con formato del locale), **centrado** en la columna |
+| **Tooltip** | Ayuda contextual traducida al idioma activo (si existe; si no, comentario del ERP) |
 
 La **clave técnica** del parámetro (identificador interno) **no se muestra** en la grilla.
 
@@ -846,6 +854,13 @@ La administración de parámetros corresponde al **ERP** o herramientas internas
 Un supervisor abre **General → Consulta de parámetros**, revisa valores como minutos de edición web, flags de mail o permisos de modificación, y utiliza la información para interpretar el comportamiento del resto del portal **sin modificar** la configuración.
 
 Para el detalle de grillas (filtros, layouts), aplicar también la sección 16 de este manual.
+
+### 18.5 Idioma en Consulta de parámetros
+
+- Al cambiar el **idioma del portal**, las columnas **Descripción** y **Tooltip** se actualizan con las traducciones disponibles para cada parámetro PedidosWeb.
+- Los **valores** booleanos se muestran como **Sí/No** (u equivalente en el idioma activo).
+- Si un parámetro aún no tiene traducción en el idioma elegido, el portal muestra el texto original del ERP como respaldo.
+- La **clave técnica** interna del parámetro **no** se muestra al usuario.
 
 ## 19. Vista pivot (PivotGrid)
 
@@ -891,7 +906,7 @@ Los importes, cantidades y saldos en pivot usan formato decimal **`#,##0.00`** (
 
 ### 19.5 Idioma
 
-Títulos de campos, botones y menús del pivot siguen el **idioma activo** del usuario. Los **datos de negocio** (nombres de clientes, descripciones, etc.) no se traducen.
+Títulos de campos, botones y menús del pivot siguen el **idioma activo** del usuario. Los **nombres de columnas** del informe se traducen cuando existe texto en el catálogo de idiomas del portal; los **datos de negocio** (nombres de clientes, descripciones de artículos, observaciones, etc.) **no** se traducen.
 
 ### 19.6 Casos habituales
 
@@ -918,3 +933,11 @@ Sí, con el botón **Exportar** del bloque pivot cuando hay datos cargados.
 **¿Los filtros de la grilla se aplican al pivot?**
 
 Los criterios de negocio del informe (cliente, fechas, etc.) se respetan; al cambiar de vista conviene pulsar **Actualizar** si se modificaron filtros en pantalla.
+
+**¿Los títulos de columnas en pivot se traducen?**
+
+Sí, cuando el portal tiene traducción para ese campo del informe. Los valores de negocio (nombres, descripciones) no.
+
+**¿Consulta de parámetros traduce descripción y ayuda?**
+
+Sí, según el idioma activo del usuario (§18.5). Los valores ERP se muestran con formato local (Sí/No, fechas).
