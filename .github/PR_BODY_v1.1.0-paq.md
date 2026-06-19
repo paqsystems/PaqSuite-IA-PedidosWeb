@@ -1,12 +1,13 @@
 ## Summary
 
-Entrega **Fase 1 MVP** del portal **MONO PedidosWeb** en la rama **`v1.1.0-paq`**, integrando scaffold fullstack, épica **101 PedidosWeb**, cierres **CC PQ #1–#6**, **GEN-08 Pivots**, **GEN-07 Importar Excel** y **SPEC-101-16** pedido individual desde Excel.
+Entrega **Fase 1 MVP** del portal **MONO PedidosWeb** en la rama **`v1.1.0-paq`**, integrando scaffold fullstack, épica **101 PedidosWeb**, cierres **CC PQ #1–#7**, **GEN-08 Pivots**, **GEN-07 Importar Excel** y **SPEC-101-16** pedido individual desde Excel.
 
 1. **Scaffold fullstack** (Laravel 10 + React/Vite/DevExtreme) — GEN-01/02/03.
 2. **Épica 101 — PedidosWeb:** carga, consultas, dashboard, mail, conversiones, copia.
 3. **CC PQ #1–#4:** mejoras carga, export Excel, SelectBox loading, pivots informes.
 4. **GEN-07 + SPEC-101-16:** motor Excel transversal + importación pedido individual en pantalla de carga.
 5. **CC PQ #5/#6:** listbox artículos con disponible neto y base (SUM por `articulos.base`).
+6. **CC PQ #7:** i18n consulta parámetros, layout pantalla carga, perfil vacío con `CodPerfilPedidos=0`, validaciones grabación, pivot expandir/contraer filas.
 
 **Compare:** [`main...v1.1.0-paq`](https://github.com/paqsystems/PaqSuite-IA-PedidosWeb/compare/main...v1.1.0-paq)
 
@@ -78,6 +79,23 @@ Fuente de verdad: [pantalla-carga-comprobante-ui.md](docs/02-producto/PedidosWeb
 
 ---
 
+## Bloque CC PQ #7 (2026-06-18)
+
+| Tema | Entregable |
+|------|------------|
+| **i18n consulta parámetros** | Claves `parametros.pedidosWeb.*` en 4 locales + `resolveParametroConsultaTexts`; remapeo al cambiar idioma |
+| **Captions pivot consultas** | `resolveConsultaColumnCaption` + claves `pivot.consulta.*` |
+| **Pivot menú filas** | Expandir/Contraer todo en encabezados de fila (`pivotHeaderContextMenu.ts`) |
+| **Layout pantalla carga** | Cabecera arriba (4 cols) → leyendas \| artículos+renglones → observaciones \| totales |
+| **Perfil pedido** | `CodPerfilPedidos=0` → vacío; `showClearButton`; sin fallback al primer perfil |
+| **Validación grabación** | `ComprobanteGrabacionValidator` integrado en `PedidoService` |
+
+Docs: [consulta-parametros.md](docs/02-producto/PedidosWeb/consulta-parametros.md) §5 · [idioma-multilingual.md](docs/00-contexto/_mono/01-experiencia-base/idioma-multilingual.md) · [pantalla-carga §4.1](docs/02-producto/PedidosWeb/pantalla-carga-comprobante-ui.md) · pivot [frontend-pivotgrid…](docs/00-contexto/_mono/pivots/frontend-pivotgrid-devextreme-agregaciones-y-menu.md) §3.2
+
+**Deploy:** sin migraciones nuevas en este bloque. Smoke: `/general/parametros` en `it`; pivot filas; carga layout + perfil vacío; grabar con validaciones.
+
+---
+
 ## Deploy post-merge (tenant)
 
 | Paso | Acción |
@@ -120,11 +138,14 @@ Fuente de verdad: [pantalla-carga-comprobante-ui.md](docs/02-producto/PedidosWeb
 - [ ] Toolbar oculto fuera de modo nuevo
 - [ ] Plantilla, staging, procesar, hidratar renglones
 
-### CC PQ #4 / #6
+### CC PQ #4 / #6 / #7
 
 - [ ] Pivots informes (flags activos)
+- [ ] Pivot: clic derecho encabezado **fila** → Expandir/Contraer todo
+- [ ] Consulta parámetros en locale `it` (captions traducidos, no español de BD)
 - [ ] Listbox artículos: disponible y base correctos vs consulta stock
-- [ ] Grabar pedido post-importación
+- [ ] Pantalla carga: layout §4.1; perfil vacío si `CodPerfilPedidos=0`
+- [ ] Grabar pedido post-importación / validaciones cabecera+renglones
 
 ### CI
 

@@ -3,6 +3,7 @@ import {
   resolvePivotAllowedAggregations,
   type PivotSummaryType,
 } from './resolvePivotAggregations';
+import { resolveConsultaColumnCaption } from './resolveConsultaColumnCaption';
 
 export type PivotAggregationMenuItem = {
   text: string;
@@ -21,7 +22,9 @@ export function buildAggregationMenuItems(params: {
   return summaryTypeOrder
     .filter((summaryType) => allowed.has(summaryType))
     .map((summaryType) => ({
-      text: params.translate(`pivot.aggregation.${summaryType}`, { field: params.campo.caption }),
+      text: params.translate(`pivot.aggregation.${summaryType}`, {
+        field: resolveConsultaColumnCaption(params.translate, params.campo.dataField, params.campo.caption),
+      }),
       onItemClick: () => params.onSelect(summaryType),
     }));
 }

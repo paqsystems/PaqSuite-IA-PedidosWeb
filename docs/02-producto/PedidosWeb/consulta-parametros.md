@@ -59,20 +59,41 @@ Filtro de filas: `Programa = 'PedidosWeb'` (comparación case-insensitive según
 
 **Orden del listado:** `CAPTION` ascendente; si `CAPTION` está vacío, usar `Clave` como criterio de orden (misma fila, sin mostrar la clave).
 
-Booleanos: etiquetas localizadas Sí/No (`pedidos.carga.cabecera.si` / `no` o claves `parametros.valor.*`).
+Booleanos: etiquetas localizadas Sí/No (`pedidos.carga.cabecera.si` / `no`).
 
 ---
 
-## 5) Reglas PedidosWeb
+## 5) Internacionalización (i18n)
+
+La API devuelve `caption` y `tooltip` desde BD (semilla en español). La UI **no** debe mostrarlos tal cual en locales distintos de `es` si existen traducciones.
+
+| Elemento | Resolución |
+|----------|------------|
+| Columna Descripción | `parametros.pedidosWeb.{Clave}.caption` → fallback `row.caption` (BD) |
+| Columna Tooltip | `parametros.pedidosWeb.{Clave}.tooltip` → fallback `row.tooltip` (BD) |
+| Valor booleano | `pedidos.carga.cabecera.si` / `no` cuando `tipoValor === 'B'` |
+| Fechas | `toLocaleDateString()` según locale activo cuando `tipoValor === 'D'` |
+
+**Archivos de recursos:** `frontend/src/locales/parametros/pedidosWeb.{en,it,fr,pt}.json` (57 claves × caption + tooltip). Fusión en `i18n.ts` al bootstrap.
+
+**Código:** `frontend/src/features/config/utils/resolveParametroConsultaTexts.ts`; página `ParametrosConsultaPage.tsx` remapea filas en `useEffect` dependiente de `i18n.language`.
+
+**QA:** con locale `it`, la grilla `/general/parametros` debe mostrar descripciones en italiano (p. ej. «Minuti Web»), no el `CAPTION` español de BD.
+
+Patrón transversal: [`idioma-multilingual.md`](../../00-contexto/_mono/01-experiencia-base/idioma-multilingual.md) § Consulta de parámetros.
+
+---
+
+## 6) Reglas PedidosWeb
 
 1. **Solo lectura:** no `POST`/`PUT`/`DELETE` sobre parámetros desde el portal.
 2. Administración de valores: ERP / herramientas internas (producto §10.6, SPEC-001-04).
 3. El backend de carga (`ParametrosCargaService`, `PedidosWebParameterService`) sigue leyendo parámetros en runtime; esta pantalla es informativa.
-4. Textos visibles vía i18n; `CAPTION`/`TOOLTIP` de BD como fallback.
+4. Textos visibles vía i18n (`parametros.pedidosWeb.*`); `CAPTION`/`TOOLTIP` de BD como **fallback** si falta clave.
 
 ---
 
-## 6) API
+## 7) API
 
 ```http
 GET /api/v1/config/parametros?programa=PedidosWeb
@@ -98,7 +119,7 @@ Respuesta envelope MONO:
 
 ---
 
-## 7) Menú
+## 8) Menú
 
 | Campo seed | Valor |
 |------------|-------|
@@ -111,7 +132,7 @@ TR: [TR-GEN-04-consulta-parametros](../../04-tareas/001-Generaliddes/TR-GEN-04-c
 
 ---
 
-## 8) Referencias implementación Tango
+## 9) Referencias implementación Tango
 
 Reutilizar como referencia de lectura (no copiar edición):
 

@@ -1,6 +1,8 @@
 import type { PivotCampoMetadata } from '../../types/pivotMetadata';
 import { resolvePivotDefaultSummaryType, type PivotSummaryType } from './resolvePivotAggregations';
 import { resolvePivotFieldFormat } from './resolvePivotDecimalFormat';
+import type { TFunction } from 'i18next';
+import { resolveConsultaColumnCaption } from './resolveConsultaColumnCaption';
 
 export function findCampoMetadataByDataField(
   campos: PivotCampoMetadata[],
@@ -63,9 +65,14 @@ function mapDefaultSummaryTypeForCampo(campo: PivotCampoMetadata): PivotSummaryT
   return resolvePivotDefaultSummaryType(campo);
 }
 
-export function mapMetadataToPivotFields(campos: PivotCampoMetadata[]): PivotGridFieldConfig[] {
+export function mapMetadataToPivotFields(
+  campos: PivotCampoMetadata[],
+  translate?: TFunction,
+): PivotGridFieldConfig[] {
   return campos.map((campo) => ({
-    caption: campo.caption,
+    caption: translate
+      ? resolveConsultaColumnCaption(translate, campo.dataField, campo.caption)
+      : campo.caption,
     dataField: campo.dataField,
     dataType: mapTipoDatoToDx(campo.tipoDato),
     summaryType: mapDefaultSummaryTypeForCampo(campo),

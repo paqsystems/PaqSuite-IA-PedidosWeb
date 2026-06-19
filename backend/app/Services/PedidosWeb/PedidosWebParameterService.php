@@ -73,7 +73,21 @@ final class PedidosWebParameterService
 
     public function getCodPerfilPedidos(): string
     {
-        return trim((string) $this->resolveValue('CodPerfilPedidos', 'MVP')) ?: 'MVP';
+        $row = $this->findParametro('CodPerfilPedidos');
+
+        if ($row !== null && ParametrosGralTipoValor::fromRow($row) === 'I') {
+            $intValue = (int) $row->Valor_Int;
+
+            return $intValue === 0 ? '' : (string) $intValue;
+        }
+
+        $resolved = trim((string) $this->resolveValue('CodPerfilPedidos', ''));
+
+        if ($resolved === '0') {
+            return '';
+        }
+
+        return $resolved !== '' ? $resolved : 'MVP';
     }
 
     public function getClienteLeyendaInicializa(int $numero): bool
@@ -92,12 +106,14 @@ final class PedidosWebParameterService
 
     public function getArticuloPrecioCero(): bool
     {
-        return $this->getBool('Articulopreciocero', false);
+        return $this->getBool('ArticulosPrecioCero', false)
+            || $this->getBool('Articulopreciocero', false);
     }
 
     public function getArticulosSinPrecio(): bool
     {
-        return $this->getBool('Articulossinprecio', false);
+        return $this->getBool('ArticulosSinPrecio', false)
+            || $this->getBool('Articulossinprecio', false);
     }
 
     /**

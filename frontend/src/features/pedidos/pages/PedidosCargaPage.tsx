@@ -27,6 +27,7 @@ import {
 } from '../api/comprobanteApi';
 import { ComprobanteCabeceraForm } from '../components/ComprobanteCabeceraForm';
 import { ComprobanteLeyendasPie } from '../components/ComprobanteLeyendasPie';
+import TextArea from 'devextreme-react/text-area';
 import { PedidosCargaConfirmacionDialog } from '../components/PedidosCargaConfirmacionDialog';
 import { PedidosCargaRenglonesGrid } from '../components/PedidosCargaRenglonesGrid';
 import {
@@ -898,74 +899,74 @@ export function PedidosCargaPage() {
         </p>
       ) : null}
 
-      <div className="pedidosCargaPage__layout">
-        <section className="pedidosCargaPage__panel" data-testid="form-cabecera-carga">
+      <div className="pedidosCargaPage__body">
+        <section className="pedidosCargaPage__panel pedidosCargaPage__cabeceraBand" data-testid="form-cabecera-carga">
           <h3 className="pedidosCargaPage__panelTitle">{t('pedidos.carga.cabeceraTitle')}</h3>
           {selectedCliente ? <span data-testid="cliente-cargado" hidden aria-hidden="true" /> : null}
 
           {isClienteProfile ? (
             <p data-testid="cliente-fijo">{clienteNombre || selectedCliente}</p>
           ) : (
-            <>
-            <SelectBox
-              label={t('pedidos.carga.clienteOrdenarPor')}
-              dataSource={clienteSortOptions}
-              valueExpr="value"
-              displayExpr="label"
-              value={clienteSortField}
-              onValueChanged={(event) => {
-                if (!isDevExtremeUserChange(event)) {
-                  return;
-                }
-
-                setClienteSortField((event.value as ClienteSortField) ?? 'razonSocial');
-              }}
-              inputAttr={{ 'data-testid': 'cliente-orden-select' }}
-            />
-            <SelectBoxDx
-              key={`cliente-select-${clienteSelectKey}`}
-              dataSource={clientesOrdenados}
-              valueExpr="codCliente"
-              displayExpr={(item: ClienteOption | null) =>
-                item ? etiquetaCliente(item) : ''
-              }
-              searchEnabled={true}
-              searchExpr={['codCliente', 'razonSocial', 'nombreFantasia', 'nombre']}
-              value={selectedCliente}
-              readOnly={readOnly}
-              isLoading={clientesLoading}
-              autoSelectSingleMatch={!readOnly}
-              onValueChanged={(event) => {
-                if (isHydratingComprobanteRef.current || !isDevExtremeUserChange(event)) {
-                  return;
-                }
-
-                const nextCliente = (event.value as string | null) ?? null;
-                if (nextCliente === selectedCliente) {
-                  return;
-                }
-
-                void (async () => {
-                  const confirmed = await confirmarCambioCliente();
-                  if (!confirmed) {
-                    setClienteSelectKey((value) => value + 1);
+            <div className="pedidosCargaPage__clienteRow">
+              <SelectBox
+                label={t('pedidos.carga.clienteOrdenarPor')}
+                dataSource={clienteSortOptions}
+                valueExpr="value"
+                displayExpr="label"
+                value={clienteSortField}
+                onValueChanged={(event) => {
+                  if (!isDevExtremeUserChange(event)) {
                     return;
                   }
 
-                  await handleClienteChange(nextCliente);
-                })();
-              }}
-              placeholder={t('pedidos.carga.clientePlaceholder')}
-              showClearButton={!readOnly}
-              inputAttr={{ 'data-testid': 'cliente-select' }}
-            />
-            </>
+                  setClienteSortField((event.value as ClienteSortField) ?? 'razonSocial');
+                }}
+                inputAttr={{ 'data-testid': 'cliente-orden-select' }}
+              />
+              <SelectBoxDx
+                key={`cliente-select-${clienteSelectKey}`}
+                dataSource={clientesOrdenados}
+                valueExpr="codCliente"
+                displayExpr={(item: ClienteOption | null) =>
+                  item ? etiquetaCliente(item) : ''
+                }
+                searchEnabled={true}
+                searchExpr={['codCliente', 'razonSocial', 'nombreFantasia', 'nombre']}
+                value={selectedCliente}
+                readOnly={readOnly}
+                isLoading={clientesLoading}
+                autoSelectSingleMatch={!readOnly}
+                onValueChanged={(event) => {
+                  if (isHydratingComprobanteRef.current || !isDevExtremeUserChange(event)) {
+                    return;
+                  }
+
+                  const nextCliente = (event.value as string | null) ?? null;
+                  if (nextCliente === selectedCliente) {
+                    return;
+                  }
+
+                  void (async () => {
+                    const confirmed = await confirmarCambioCliente();
+                    if (!confirmed) {
+                      setClienteSelectKey((value) => value + 1);
+                      return;
+                    }
+
+                    await handleClienteChange(nextCliente);
+                  })();
+                }}
+                placeholder={t('pedidos.carga.clientePlaceholder')}
+                showClearButton={!readOnly}
+                inputAttr={{ 'data-testid': 'cliente-select' }}
+              />
+            </div>
           )}
 
           {!selectedCliente && !isClienteProfile ? (
             <p>{t('pedidos.carga.seleccioneCliente')}</p>
           ) : null}
-          {selectedCliente && cabeceraReady && !cabeceraLoading ? (
+          {selectedCliente && cabeceraReady && cabecera && !cabeceraLoading ? (
             <ComprobanteCabeceraForm
               cabecera={cabecera}
               catalogos={catalogos}
@@ -980,63 +981,103 @@ export function PedidosCargaPage() {
           ) : null}
         </section>
 
-        <div className="pedidosCargaPage__main">
-          {!readOnly ? (
-            <section className="pedidosCargaPage__panel" data-testid="form-articulo-carga">
-              <h3 className="pedidosCargaPage__panelTitle">{t('pedidos.carga.articulosTitle')}</h3>
-              <div className="pedidosCargaPage__articuloRow">
-                <SelectBoxDx
-                  key={`articulo-select-${cabecera?.listaPrecios ?? 'none'}`}
-                  dataSource={articulosOrdenados}
-                  valueExpr="codArticulo"
-                  displayExpr={(item: ArticuloOption | null) =>
-                    item ? etiquetaArticulo(item, t) : ''
-                  }
-                  value={articuloSeleccionado}
-                  searchEnabled={true}
-                  searchExpr={['codArticulo', 'descripcion']}
-                  searchMode="contains"
-                  isLoading={articulosLoading}
-                  autoSelectSingleMatch={true}
-                  disabled={!listaPreciosArticulosValida}
-                  onValueChanged={(event) => {
-                    setArticuloSeleccionado((event.value as string | null) ?? null);
-                    setArticuloSeleccionadoData(
-                      (event.component.option('selectedItem') as ArticuloOption | null) ?? null,
-                    );
-                  }}
-                  placeholder={t('pedidos.carga.articuloPlaceholder')}
-                  inputAttr={{ 'data-testid': 'articulo-select' }}
-                />
-                <div data-testid="btn-agregar-articulo">
-                  <Button
-                    text={t('pedidos.carga.agregarArticulo')}
-                    stylingMode="outlined"
-                    disabled={!articuloSeleccionado}
-                    onClick={handleAgregarArticulo}
+        <div className="pedidosCargaPage__middle">
+          <aside className="pedidosCargaPage__leyendasColumn">
+            {cabeceraReady && cabecera ? (
+              <ComprobanteLeyendasPie
+                cabecera={cabecera}
+                readOnly={readOnly}
+                onChange={setCabecera}
+              />
+            ) : null}
+          </aside>
+
+          <div className="pedidosCargaPage__gridColumn">
+            {!readOnly ? (
+              <section className="pedidosCargaPage__panel" data-testid="form-articulo-carga">
+                <h3 className="pedidosCargaPage__panelTitle">{t('pedidos.carga.articulosTitle')}</h3>
+                <div className="pedidosCargaPage__articuloRow">
+                  <SelectBoxDx
+                    key={`articulo-select-${cabecera?.listaPrecios ?? 'none'}`}
+                    dataSource={articulosOrdenados}
+                    valueExpr="codArticulo"
+                    displayExpr={(item: ArticuloOption | null) =>
+                      item ? etiquetaArticulo(item, t) : ''
+                    }
+                    value={articuloSeleccionado}
+                    searchEnabled={true}
+                    searchExpr={['codArticulo', 'descripcion']}
+                    searchMode="contains"
+                    isLoading={articulosLoading}
+                    autoSelectSingleMatch={true}
+                    disabled={!listaPreciosArticulosValida}
+                    onValueChanged={(event) => {
+                      setArticuloSeleccionado((event.value as string | null) ?? null);
+                      setArticuloSeleccionadoData(
+                        (event.component.option('selectedItem') as ArticuloOption | null) ?? null,
+                      );
+                    }}
+                    placeholder={t('pedidos.carga.articuloPlaceholder')}
+                    inputAttr={{ 'data-testid': 'articulo-select' }}
                   />
+                  <div data-testid="btn-agregar-articulo">
+                    <Button
+                      text={t('pedidos.carga.agregarArticulo')}
+                      stylingMode="outlined"
+                      disabled={!articuloSeleccionado}
+                      onClick={handleAgregarArticulo}
+                    />
+                  </div>
                 </div>
+              </section>
+            ) : null}
+
+            <section className="pedidosCargaPage__panel">
+              <h3 className="pedidosCargaPage__panelTitle">{t('pedidos.carga.renglonesTitle')}</h3>
+              <PedidosCargaRenglonesGrid
+                renglones={renglones}
+                readOnly={readOnly}
+                isLoading={isLoading}
+                modificaPrecio={modificaPrecio}
+                modificaBonArt={modificaBonArt}
+                bonificacionNetaCabecera={bonificacionNetaCabecera}
+                monedaSimbolo={monedaSimbolo}
+                autoOpenRenglonId={autoOpenRenglonId}
+                onAutoOpenConsumed={() => setAutoOpenRenglonId(null)}
+                onRenglonesChange={setRenglones}
+              />
+            </section>
+          </div>
+        </div>
+
+        <div className="pedidosCargaPage__footer">
+          {cabeceraReady && cabecera ? (
+            <section className="pedidosCargaPage__panel pedidosCargaPage__observacionesPanel">
+              <div className="pedidosCargaPage__observacionesField">
+                <TextArea
+                  label={t('pedidos.carga.cabecera.observaciones')}
+                  value={cabecera.observaciones}
+                  height="100%"
+                  readOnly={readOnly}
+                  onValueChanged={(event) => {
+                    if (!isDevExtremeUserChange(event)) {
+                      return;
+                    }
+
+                    setCabecera({
+                      ...cabecera,
+                      observaciones: String(event.value ?? ''),
+                    });
+                  }}
+                  inputAttr={{ 'data-testid': 'cabecera-observaciones' }}
+                />
               </div>
             </section>
-          ) : null}
+          ) : (
+            <div className="pedidosCargaPage__observacionesPlaceholder" />
+          )}
 
-          <section className="pedidosCargaPage__panel">
-            <h3 className="pedidosCargaPage__panelTitle">{t('pedidos.carga.renglonesTitle')}</h3>
-            <PedidosCargaRenglonesGrid
-              renglones={renglones}
-              readOnly={readOnly}
-              isLoading={isLoading}
-              modificaPrecio={modificaPrecio}
-              modificaBonArt={modificaBonArt}
-              bonificacionNetaCabecera={bonificacionNetaCabecera}
-              monedaSimbolo={monedaSimbolo}
-              autoOpenRenglonId={autoOpenRenglonId}
-              onAutoOpenConsumed={() => setAutoOpenRenglonId(null)}
-              onRenglonesChange={setRenglones}
-            />
-          </section>
-
-          <section className="pedidosCargaPage__panel" data-testid="totales-carga">
+          <section className="pedidosCargaPage__panel pedidosCargaPage__totalesPanel" data-testid="totales-carga">
             <h3 className="pedidosCargaPage__panelTitle">{t('pedidos.carga.totalesTitle')}</h3>
             {mailAvisoVisible ? (
               <p data-testid="aviso-mail-envio-fallido" role="status">
@@ -1066,10 +1107,6 @@ export function PedidosCargaPage() {
           </section>
         </div>
       </div>
-
-      {cabeceraReady && cabecera ? (
-        <ComprobanteLeyendasPie cabecera={cabecera} readOnly={readOnly} onChange={setCabecera} />
-      ) : null}
 
       <PedidosCargaConfirmacionDialog
         visible={confirmacionVisible}

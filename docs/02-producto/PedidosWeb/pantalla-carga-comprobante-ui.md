@@ -7,7 +7,7 @@
 | **Ruta** | `/pedidos/carga` |
 | **TR** | [TR-SPEC-101-10-pantalla-carga](../../04-tareas/101-PedidosWeb/TR-SPEC-101-10-pantalla-carga.md) |
 | **SPEC** | [SPEC-101-10-pantalla-carga](../../05-open-spec/101-PedidosWeb/SPEC-101-10-pantalla-carga.md) |
-| **Última actualización** | 2026-06-17 (disponible base agregado) |
+| **Última actualización** | 2026-06-18 (layout CC PQ #7) |
 
 Este documento es la **fuente de verdad** para comportamiento de UI de la pantalla única de carga/edición de pedidos y presupuestos. Ante conflicto con implementaciones antiguas, prevalece este archivo.
 
@@ -103,6 +103,20 @@ Layout en **tres zonas** (`pedidosCargaPage__toolbar`):
 
 ---
 
+## 4.1 Layout general (CC PQ #7)
+
+Estructura vertical en `PedidosCargaPage` (`pedidosCargaPage__layout`):
+
+| Zona | Contenido | CSS / notas |
+|------|-----------|-------------|
+| **Cabecera** (arriba, ancho completo) | Fila cliente + `ComprobanteCabeceraForm` en **4 columnas temáticas** (comercial, distribución, precios, bonificaciones) | `pedidosCargaPage__cabecera` |
+| **Cuerpo** (flex horizontal) | **Izquierda:** bloque leyendas 1–5 (`ComprobanteLeyendasPie`). **Derecha:** selector artículo + grilla renglones | `pedidosCargaPage__middle`; leyendas con `justify-content: space-between` para igualar altura con la columna derecha |
+| **Pie** (flex horizontal, stretch) | **Izquierda:** observaciones. **Derecha:** totales | Misma altura visual entre columnas (`align-items: stretch`) |
+
+La toolbar de acciones (§4) permanece **debajo** del layout o en posición fija según implementación; no interrumpe la secuencia cabecera → cuerpo → pie.
+
+---
+
 ## 5. Cabecera — Perfil de pedido
 
 | Regla | Detalle |
@@ -113,7 +127,8 @@ Layout en **tres zonas** (`pedidosCargaPage__toolbar`):
 | Ítem catálogo | `{ cod_perfil, descripcion }` |
 | Formato visible | `{cod_perfil} — {descripcion}` |
 | Búsqueda | `searchEnabled`; `searchExpr`: `cod_perfil`, `descripcion` |
-| Valor inicial (nuevo) | Parámetro ERP **`CodPerfilPedidos`** (`CabeceraInicialService` → `cod_perfil` en cabecera) |
+| Valor inicial (nuevo) | Parámetro ERP **`CodPerfilPedidos`** (`CabeceraInicialService` → `cod_perfil` en cabecera). Si `Valor_Int === 0` → perfil **vacío** (`null`), sin fallback al primer ítem del catálogo |
+| Limpiar | `showClearButton` cuando no es solo lectura |
 | Edición / copia | Valor del comprobante origen |
 | Modo solo lectura | `readOnly` cuando `modo=ver` |
 | Permisos | Editable en carga/edición salvo solo lectura; **no** depende de `Modifica*` (producto §10.5–§10.7 no define bloqueo de perfil) |
@@ -153,7 +168,7 @@ Ubicación UI: después de **Vendedor**, antes de **Condición de venta**.
 
 | Regla | Detalle |
 |-------|---------|
-| Ubicación | Debajo del layout principal / totales (`ComprobanteLeyendasPie`) |
+| Ubicación | Columna **izquierda** del cuerpo (§4.1), no debajo de totales |
 | Controles | 5 × `TextBox` editables (si no es solo lectura) |
 | Inicialización | Parámetros ERP `ClienteLeyenda1` … `ClienteLeyenda5` (API `parametros-carga`) |
 | Origen valores | Si `ClienteLeyendaN` = true → `pq_pedidosweb_clientes.leyenda_N` en cabecera inicial; si false → vacío |
