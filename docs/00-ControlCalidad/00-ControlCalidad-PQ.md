@@ -46,6 +46,7 @@ Este archivo **no sustituye** SPEC, HU ni TR: es la **entrada** del circuito de 
 
 | # | Fecha | Estado | Resumen |
 |---|-------|--------|---------|
+| 7 | 15/06/2026 | Especificado | i18n parámetros/pivot, perfil CodPerfilPedidos, validaciones grabación, layout carga |
 | 6 | 17/06/2026 | Finalizado (Parte I) | Listbox artículos: disponible base = SUM por `base` (no stock código base); alineado consulta stock §5 |
 | 5 | 09/06/2026 | Finalizado (Parte I) | Listbox artículos carga: display disponible y base — unificado 11/06/2026; ítem (c) base revisado en #6 |
 | 4 | 10/06/2026 | Finalizado (Parte I) | Vista pivot en informes: Detalle, Deudas, Cheques, Stock — unificado 16/06/2026 |
@@ -55,7 +56,7 @@ Este archivo **no sustituye** SPEC, HU ni TR: es la **entrada** del circuito de 
 
 ---
 
-## Control de Calidad #6
+## Control de Calidad #7
 
 ### Referencia del control
 
@@ -63,7 +64,7 @@ Este archivo **no sustituye** SPEC, HU ni TR: es la **entrada** del circuito de 
 |-------|--------|
 | **Fecha** | 15/06/2026 |
 | **Responsable** | Pablo Quarracino (PQ) |
-| **Estado** | Pendiente |
+| **Estado** | Especificado |
 
 ### Hallazgos
 
@@ -78,13 +79,19 @@ no se está traduciendo como corresponde :
 - los captions o títulos de datos en los pivots.
 corregir y colocarlo como fuente de verdad.
 
+*Procesado* → [HU-GEN-04-consulta-parametros](../03-historias-usuario/001-Generaliddes/HU-GEN-04-consulta-parametros.md) · [HU-GEN-08-pivotgrid-visualizacion](../03-historias-usuario/001-Generaliddes/HU-GEN-08-pivotgrid-visualizacion.md) · [TR-GEN-04-consulta-parametros](../04-tareas/001-Generaliddes/TR-GEN-04-consulta-parametros.md) · [SPEC-001-04-configuracion-global](../05-open-spec/001-Generaliddes/SPEC-001-04-configuracion-global.md)
+
 #### HU-101-005-inicializacion-cabecera
 
 Cuando se comienza un nuevo comprobante, después de elegir el cliente, el control de selección de perfiles se debe inicializar con el valor INT del parámetro "CodPerfilPedidos"
 
+*Procesado* → [HU-101-005-inicializacion-cabecera](../03-historias-usuario/101-PedidosWeb/HU-101-005-inicializacion-cabecera.md) · [TR-SPEC-101-10-pantalla-carga](../04-tareas/101-PedidosWeb/TR-SPEC-101-10-pantalla-carga.md) · [pantalla-carga-comprobante-ui.md](../02-producto/PedidosWeb/pantalla-carga-comprobante-ui.md) §5
+
 #### HU-101-005-inicializacion-cabecera
 
 Rediseñar estéticamente la pantalla conforme la imagen que se ve en `docs\02-producto\PedidosWeb\Diseño Carga Pedidos.png`
+
+*Procesado* → [HU-101-005-inicializacion-cabecera](../03-historias-usuario/101-PedidosWeb/HU-101-005-inicializacion-cabecera.md) · [TR-SPEC-101-10-pantalla-carga](../04-tareas/101-PedidosWeb/TR-SPEC-101-10-pantalla-carga.md) · [pantalla-carga-comprobante-ui.md](../02-producto/PedidosWeb/pantalla-carga-comprobante-ui.md)
 
 #### HU-101-009-grabar-pedido · HU-101-010-grabar-presupuesto
 
@@ -101,6 +108,8 @@ Además agregar estas validaciones :
 - Si parámetro “NivelExtremo” es True, ese dato solo puede valer 0 ó 100.
 - Si parámetro "Artículopreciocero" o "Articulossinprecio" es false, no puede haber registros con precio cero. 
 - que el cliente tenga el atributo inhabilitado=FALSE (0).
+
+*Procesado* → [HU-101-009-grabar-pedido](../03-historias-usuario/101-PedidosWeb/HU-101-009-grabar-pedido.md) · [HU-101-010-grabar-presupuesto](../03-historias-usuario/101-PedidosWeb/HU-101-010-grabar-presupuesto.md) · [TR-SPEC-101-04-services-pedidos](../04-tareas/101-PedidosWeb/TR-SPEC-101-04-services-pedidos.md) · `ComprobanteGrabacionValidator`
 
 
 ---

@@ -38,7 +38,11 @@ final class CabeceraInicialService
 
         $listaPrecios = $this->resolveListaPrecios($cliente);
         $direccionHabitual = $this->resolveDireccionHabitual($cliente);
-        $codPerfil = $this->parameterService->getCodPerfilPedidos();
+        $catalogos = $this->buildCatalogos($codCliente);
+        $codPerfil = $this->resolveCodPerfilInicial(
+            $this->parameterService->getCodPerfilPedidos(),
+            $catalogos['perfiles'] ?? [],
+        );
 
         return [
             'cabecera' => [
@@ -69,7 +73,7 @@ final class CabeceraInicialService
                 'leyenda_5' => $this->resolveLeyendaCliente($cliente, 5),
                 'fecha_entrega' => null,
             ],
-            'catalogos' => $this->buildCatalogos($codCliente),
+            'catalogos' => $catalogos,
         ];
     }
 
@@ -228,6 +232,26 @@ final class CabeceraInicialService
         $valor = trim((string) ($cliente->{$attribute} ?? ''));
 
         return $valor !== '' ? $valor : null;
+    }
+
+    /**
+     * @param  list<array{cod_perfil: string, descripcion: string}>  $perfiles
+     */
+    private function resolveCodPerfilInicial(string $codPerfilParam, array $perfiles): ?string
+    {
+        $codPerfil = trim($codPerfilParam);
+
+        if ($codPerfil === '' || $codPerfil === '0') {
+            return null;
+        }
+
+        foreach ($perfiles as $perfil) {
+            if ((string) ($perfil['cod_perfil'] ?? '') === $codPerfil) {
+                return $codPerfil;
+            }
+        }
+
+        return null;
     }
 
     /**

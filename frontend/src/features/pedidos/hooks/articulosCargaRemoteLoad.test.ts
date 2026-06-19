@@ -9,6 +9,7 @@ import {
 const searchArticulosMock = vi.hoisted(() => vi.fn());
 
 vi.mock('../api/comprobanteApi', () => ({
+  articulosCargaPageSize: 1000,
   searchArticulos: searchArticulosMock,
 }));
 

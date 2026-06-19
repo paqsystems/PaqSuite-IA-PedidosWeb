@@ -13,6 +13,7 @@ import {
   fetchExcelValidRows,
   listExcelSheets,
   processExcelImportLot,
+  resolveExcelImportErrorKey,
   type ExcelImportLotSummary,
 } from '../api/excelImportApi';
 import type { ExcelImportHostModalPhase, ExcelImportHostResult } from '../types/excelImportHostTypes';
@@ -84,8 +85,8 @@ export function ExcelImportHostModal({
         const sheetNames = await listExcelSheets(codigoProceso, file);
         setHojas(sheetNames);
         setHojaSeleccionada(sheetNames[0] ?? null);
-      } catch {
-        setErrorKey('excelImport.formatoInvalido');
+      } catch (error) {
+        setErrorKey(resolveExcelImportErrorKey(error, 'excelImport.formatoInvalido'));
       } finally {
         setIsLoadingHojas(false);
       }
@@ -168,8 +169,8 @@ export function ExcelImportHostModal({
       const lot = await createExcelImportLot(codigoProceso, archivo, hojaSeleccionada);
       setActiveLot(lot);
       await runPostValidation(lot);
-    } catch {
-      setErrorKey('excelImport.cargaError');
+    } catch (error) {
+      setErrorKey(resolveExcelImportErrorKey(error, 'excelImport.cargaError'));
     } finally {
       setIsSubmitting(false);
     }

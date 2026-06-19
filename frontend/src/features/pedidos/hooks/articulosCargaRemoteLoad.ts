@@ -1,4 +1,4 @@
-import { searchArticulos, type ArticuloOption } from '../api/comprobanteApi';
+import { articulosCargaPageSize, searchArticulos, type ArticuloOption } from '../api/comprobanteApi';
 import { shouldFetchArticulosCarga } from './articulosCargaLoadPolicy';
 
 export const articulosCargaFailedQueryCooldownMs = 3000;
@@ -44,7 +44,7 @@ export async function loadArticulosCargaRemote(
     return [];
   }
 
-  const promise = searchArticulos(rawSearchValue.trim(), codLista)
+  const promise = searchArticulos(rawSearchValue.trim(), codLista, articulosCargaPageSize)
     .catch(() => {
       state.failedQueryAt.set(loadKey, Date.now());
       return [] as ArticuloOption[];

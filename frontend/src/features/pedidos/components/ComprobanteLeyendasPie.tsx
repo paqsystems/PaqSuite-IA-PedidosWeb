@@ -25,25 +25,26 @@ export function ComprobanteLeyendasPie({ cabecera, readOnly, onChange }: Comprob
       <h3 className="comprobanteLeyendasPie__title">{t('pedidos.carga.leyendasTitle')}</h3>
       <div className="comprobanteLeyendasPie__grid">
         {leyendaFields.map((field) => (
-          <TextBox
-            key={field.key}
-            label={t(field.labelKey)}
-            value={cabecera[field.key] ?? ''}
-            readOnly={readOnly}
-            onValueChanged={(event) => {
-              if (!isDevExtremeUserChange(event)) {
-                return;
-              }
+          <div key={field.key} className="comprobanteLeyendasPie__field">
+            <TextBox
+              label={t(field.labelKey)}
+              value={cabecera[field.key] ?? ''}
+              readOnly={readOnly}
+              onValueChanged={(event) => {
+                if (!isDevExtremeUserChange(event)) {
+                  return;
+                }
 
-              const valor = String(event.value ?? '').trim();
+                const valor = String(event.value ?? '').trim();
 
-              onChange({
-                ...cabecera,
-                [field.key]: valor !== '' ? valor : null,
-              });
-            }}
-            inputAttr={{ 'data-testid': field.testId }}
-          />
+                onChange({
+                  ...cabecera,
+                  [field.key]: valor !== '' ? valor : null,
+                });
+              }}
+              inputAttr={{ 'data-testid': field.testId }}
+            />
+          </div>
         ))}
       </div>
     </section>

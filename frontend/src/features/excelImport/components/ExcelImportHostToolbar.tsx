@@ -14,6 +14,7 @@ export function ExcelImportHostToolbar({
   onCancel,
 }: ExcelImportHostToolbarProps) {
   const { t } = useTranslation();
+  const [excelImportAvailable, setExcelImportAvailable] = useState(false);
   const [generaPlantilla, setGeneraPlantilla] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
 
@@ -22,11 +23,13 @@ export function ExcelImportHostToolbar({
     void fetchExcelImportProceso(codigoProceso)
       .then((meta) => {
         if (mounted) {
+          setExcelImportAvailable(true);
           setGeneraPlantilla(meta.generaPlantilla);
         }
       })
       .catch(() => {
         if (mounted) {
+          setExcelImportAvailable(false);
           setGeneraPlantilla(false);
         }
       });
@@ -52,15 +55,17 @@ export function ExcelImportHostToolbar({
   return (
     <div className="excelImportHostToolbar" data-testid="excelHostToolbar">
       <ExcelTemplateDownloadButton codigoProceso={codigoProceso} visible={generaPlantilla} disabled={disabled} />
-      <div data-testid="excelHostImport">
-        <Button
-          text={t('excelImport.hostImport')}
-          icon="upload"
-          stylingMode="outlined"
-          disabled={disabled}
-          onClick={() => setModalVisible(true)}
-        />
-      </div>
+      {excelImportAvailable ? (
+        <div data-testid="excelHostImport">
+          <Button
+            text={t('excelImport.hostImport')}
+            icon="upload"
+            stylingMode="outlined"
+            disabled={disabled}
+            onClick={() => setModalVisible(true)}
+          />
+        </div>
+      ) : null}
       <ExcelImportHostModal
         visible={modalVisible}
         codigoProceso={codigoProceso}

@@ -42,6 +42,7 @@ describe('mapExcelImportToCarga', () => {
         cantidad: 2,
         precio: 100,
         porc_bonif: 5,
+        bonif_renglon: 5,
         porc_iva: 21,
       },
       {
@@ -57,6 +58,20 @@ describe('mapExcelImportToCarga', () => {
     expect(renglones[0].renglon).toBe(1);
     expect(renglones[0].porcBonif).toBe(5);
     expect(renglones[1].porcIva).toBe(21);
+  });
+
+  it('usa bonif_renglon cuando porc_bonif no viene enriquecido', () => {
+    const renglones = mapExcelRowsToRenglones([
+      {
+        cod_articulo: 'ART01',
+        cantidad: 1,
+        precio: 100,
+        bonif_renglon: 8,
+        porc_iva: 21,
+      },
+    ]);
+
+    expect(renglones[0].porcBonif).toBe(8);
   });
 });
 

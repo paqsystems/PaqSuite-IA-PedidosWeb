@@ -3,7 +3,7 @@ import DataSource from 'devextreme/data/data_source';
 import type { DisposingEvent, InitializedEvent, InputEvent, KeyDownEvent } from 'devextreme/ui/select_box';
 import { useCallback, useEffect, useMemo, useRef, useState, type MutableRefObject } from 'react';
 import { tryAutoSelectSingleMatch } from '../../../shared/ui/controls/tryAutoSelectSingleMatch';
-import { searchArticulos, type ArticuloOption } from '../api/comprobanteApi';
+import { fetchArticuloCargaByCodigo, type ArticuloOption } from '../api/comprobanteApi';
 import {
   articulosCargaMinTypedLength,
   articulosCargaSearchTimeoutMs,
@@ -165,10 +165,7 @@ export function useArticulosCargaDataSource(
             },
           );
         },
-        byKey: (codArticulo) =>
-          searchArticulos(String(codArticulo), codLista).then(
-            (items) => items.find((item) => item.codArticulo === codArticulo) ?? null,
-          ),
+        byKey: (codArticulo) => fetchArticuloCargaByCodigo(String(codArticulo), codLista),
       }),
       paginate: false,
       searchExpr: ['codArticulo', 'descripcion'],

@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next';
 import SelectBox from 'devextreme-react/select-box';
 import NumberBox from 'devextreme-react/number-box';
 import TextBox from 'devextreme-react/text-box';
-import TextArea from 'devextreme-react/text-area';
 import DateBox from 'devextreme-react/date-box';
 import { isDevExtremeUserChange } from '../../../shared/ui/devextremeUserChange';
 import type { ParametrosCarga } from '../api/comprobanteApi';
@@ -103,267 +102,264 @@ export function ComprobanteCabeceraForm({
   return (
     <div className="comprobanteCabeceraForm">
       {clienteNombre ? (
-        <TextBox
-          label={t('pedidos.carga.cabecera.cliente')}
-          value={clienteNombre}
-          readOnly={true}
-          inputAttr={{ 'data-testid': 'cliente-fijo-label' }}
-        />
+        <div className="comprobanteCabeceraForm__clienteFijo">
+          <TextBox
+            label={t('pedidos.carga.cabecera.cliente')}
+            value={clienteNombre}
+            readOnly={true}
+            inputAttr={{ 'data-testid': 'cliente-fijo-label' }}
+          />
+        </div>
       ) : null}
 
-      <TextBox
-        label={t('pedidos.carga.cabecera.vendedor')}
-        value={cabecera.vendedorNombre || cabecera.codVended || ''}
-        readOnly={true}
-        inputAttr={{ 'data-testid': 'cabecera-vendedor' }}
-      />
+      <div className="comprobanteCabeceraForm__grid">
+        <div className="comprobanteCabeceraForm__column" data-testid="cabecera-columna-comercial">
+          <TextBox
+            label={t('pedidos.carga.cabecera.vendedor')}
+            value={cabecera.vendedorNombre || cabecera.codVended || ''}
+            readOnly={true}
+            inputAttr={{ 'data-testid': 'cabecera-vendedor' }}
+          />
 
-      <SelectBox
-        label={t('pedidos.carga.cabecera.perfil')}
-        dataSource={catalogos.perfiles}
-        valueExpr="cod_perfil"
-        displayExpr={formatPerfilItem}
-        searchEnabled={true}
-        searchExpr={['cod_perfil', 'descripcion']}
-        showClearButton={false}
-        value={cabecera.codPerfil}
-        readOnly={readOnly}
-        onValueChanged={(event) => {
-          if (!isDevExtremeUserChange(event)) {
-            return;
-          }
+          <SelectBox
+            label={t('pedidos.carga.cabecera.perfil')}
+            dataSource={catalogos.perfiles}
+            valueExpr="cod_perfil"
+            displayExpr={formatPerfilItem}
+            searchEnabled={true}
+            searchExpr={['cod_perfil', 'descripcion']}
+            showClearButton={!readOnly}
+            value={cabecera.codPerfil}
+            readOnly={readOnly}
+            onValueChanged={(event) => {
+              if (!isDevExtremeUserChange(event)) {
+                return;
+              }
 
-          patchCabecera({ codPerfil: (event.value as string | null) ?? null });
-        }}
-        elementAttr={{ 'data-testid': 'cabecera-perfil' }}
-      />
+              patchCabecera({ codPerfil: (event.value as string | null) ?? null });
+            }}
+            elementAttr={{ 'data-testid': 'cabecera-perfil' }}
+          />
 
-      <SelectBox
-        label={t('pedidos.carga.cabecera.condicionVenta')}
-        dataSource={catalogos.condicionesVenta}
-        valueExpr="codigo"
-        displayExpr="descripcion"
-        value={cabecera.codCondvta}
-        readOnly={readOnly}
-        onValueChanged={(event) => {
-          if (!isDevExtremeUserChange(event)) {
-            return;
-          }
+          <SelectBox
+            label={t('pedidos.carga.cabecera.condicionVenta')}
+            dataSource={catalogos.condicionesVenta}
+            valueExpr="codigo"
+            displayExpr="descripcion"
+            value={cabecera.codCondvta}
+            readOnly={readOnly}
+            onValueChanged={(event) => {
+              if (!isDevExtremeUserChange(event)) {
+                return;
+              }
 
-          patchCabecera({ codCondvta: (event.value as number | null) ?? null });
-        }}
-        inputAttr={{ 'data-testid': 'cabecera-condicion-venta' }}
-      />
+              patchCabecera({ codCondvta: (event.value as number | null) ?? null });
+            }}
+            inputAttr={{ 'data-testid': 'cabecera-condicion-venta' }}
+          />
 
-      <SelectBox
-        label={t('pedidos.carga.cabecera.transporte')}
-        dataSource={catalogos.transportes}
-        valueExpr="codigo"
-        displayExpr="descripcion"
-        value={cabecera.codTranspor}
-        readOnly={readOnly}
-        onValueChanged={(event) => {
-          if (!isDevExtremeUserChange(event)) {
-            return;
-          }
+          <DateBox
+            label={t('pedidos.carga.cabecera.fechaEntrega')}
+            value={cabecera.fechaEntrega ? new Date(cabecera.fechaEntrega) : null}
+            type="date"
+            readOnly={readOnly}
+            onValueChanged={(event) => {
+              if (!isDevExtremeUserChange(event)) {
+                return;
+              }
 
-          patchCabecera({ codTranspor: (event.value as string | null) ?? null });
-        }}
-        inputAttr={{ 'data-testid': 'cabecera-transporte' }}
-      />
+              const value = event.value;
+              patchCabecera({
+                fechaEntrega: value instanceof Date ? value.toISOString() : null,
+              });
+            }}
+            inputAttr={{ 'data-testid': 'cabecera-fecha-entrega' }}
+          />
+        </div>
 
-      <SelectBox
-        label={t('pedidos.carga.cabecera.direccionEntrega')}
-        dataSource={catalogos.direccionesEntrega}
-        valueExpr="id_de"
-        displayExpr={(item: { direccion?: string; localidad?: string } | null) =>
-          item ? `${item.direccion ?? ''}${item.localidad ? ` — ${item.localidad}` : ''}` : ''
-        }
-        value={cabecera.idDe}
-        readOnly={readOnly}
-        onValueChanged={(event) => {
-          if (!isDevExtremeUserChange(event)) {
-            return;
-          }
+        <div className="comprobanteCabeceraForm__column" data-testid="cabecera-columna-distribucion">
+          <SelectBox
+            label={t('pedidos.carga.cabecera.direccionEntrega')}
+            dataSource={catalogos.direccionesEntrega}
+            valueExpr="id_de"
+            displayExpr={(item: { direccion?: string; localidad?: string } | null) =>
+              item ? `${item.direccion ?? ''}${item.localidad ? ` — ${item.localidad}` : ''}` : ''
+            }
+            value={cabecera.idDe}
+            readOnly={readOnly}
+            onValueChanged={(event) => {
+              if (!isDevExtremeUserChange(event)) {
+                return;
+              }
 
-          handleDireccionChange((event.value as number | null) ?? null);
-        }}
-        inputAttr={{ 'data-testid': 'cabecera-direccion-entrega' }}
-      />
+              handleDireccionChange((event.value as number | null) ?? null);
+            }}
+            inputAttr={{ 'data-testid': 'cabecera-direccion-entrega' }}
+          />
 
-      <SelectBox
-        label={t('pedidos.carga.cabecera.listaPrecios')}
-        dataSource={catalogos.listasPrecios}
-        valueExpr="cod_lista"
-        displayExpr={formatListaPreciosItem}
-        searchEnabled={true}
-        searchExpr={['cod_lista', 'descripcion']}
-        showClearButton={false}
-        value={cabecera.listaPrecios}
-        disabled={readOnly || !modificaListaPrec}
-        onValueChanged={(event) => {
-          if (!isDevExtremeUserChange(event)) {
-            return;
-          }
+          <SelectBox
+            label={t('pedidos.carga.cabecera.transporte')}
+            dataSource={catalogos.transportes}
+            valueExpr="codigo"
+            displayExpr="descripcion"
+            value={cabecera.codTranspor}
+            readOnly={readOnly}
+            onValueChanged={(event) => {
+              if (!isDevExtremeUserChange(event)) {
+                return;
+              }
 
-          handleListaPreciosChange((event.value as number | null) ?? null);
-        }}
-        elementAttr={{ 'data-testid': 'cabecera-lista-precios' }}
-      />
+              patchCabecera({ codTranspor: (event.value as string | null) ?? null });
+            }}
+            inputAttr={{ 'data-testid': 'cabecera-transporte' }}
+          />
 
-      <NumberBox
-        label={t('pedidos.carga.cabecera.nivel')}
-        value={cabecera.nivel}
-        readOnly={readOnly}
-        onValueChanged={(event) => {
-          if (!isDevExtremeUserChange(event)) {
-            return;
-          }
+          <TextBox
+            label={t('pedidos.carga.cabecera.expreso')}
+            value={cabecera.expreso ?? ''}
+            readOnly={readOnly}
+            onValueChanged={(event) => {
+              if (!isDevExtremeUserChange(event)) {
+                return;
+              }
 
-          patchCabecera({ nivel: Number(event.value ?? 0) });
-        }}
-        inputAttr={{ 'data-testid': 'cabecera-nivel' }}
-      />
+              patchCabecera({ expreso: String(event.value ?? '') || null });
+            }}
+            inputAttr={{ 'data-testid': 'cabecera-expreso' }}
+          />
 
-      <SelectBox
-        label={t('pedidos.carga.cabecera.moneda')}
-        dataSource={monedaDataSource}
-        valueExpr="codigo"
-        displayExpr="descripcion"
-        value={cabecera.moneda}
-        readOnly={true}
-        inputAttr={{ 'data-testid': 'cabecera-moneda' }}
-      />
+          <TextBox
+            label={t('pedidos.carga.cabecera.expresoDire')}
+            value={cabecera.expresoDire ?? ''}
+            readOnly={readOnly}
+            onValueChanged={(event) => {
+              if (!isDevExtremeUserChange(event)) {
+                return;
+              }
 
-      <TextBox
-        label={t('pedidos.carga.cabecera.incluyeIva')}
-        value={cabecera.incluyeIva ? t('pedidos.carga.cabecera.si') : t('pedidos.carga.cabecera.no')}
-        readOnly={true}
-        inputAttr={{ 'data-testid': 'cabecera-incluye-iva' }}
-      />
+              patchCabecera({ expresoDire: String(event.value ?? '') || null });
+            }}
+            inputAttr={{ 'data-testid': 'cabecera-expreso-dire' }}
+          />
+        </div>
 
-      <NumberBox
-        label={t('pedidos.carga.cabecera.bonif1')}
-        value={cabecera.bonif1}
-        format={bonificacionCabeceraFormat}
-        min={0}
-        step={0.01}
-        showSpinButtons={true}
-        disabled={!puedeEditarBonifCabecera}
-        onValueChanged={(event) => {
-          if (!isDevExtremeUserChange(event)) {
-            return;
-          }
+        <div className="comprobanteCabeceraForm__column" data-testid="cabecera-columna-precios">
+          <SelectBox
+            label={t('pedidos.carga.cabecera.listaPrecios')}
+            dataSource={catalogos.listasPrecios}
+            valueExpr="cod_lista"
+            displayExpr={formatListaPreciosItem}
+            searchEnabled={true}
+            searchExpr={['cod_lista', 'descripcion']}
+            showClearButton={false}
+            value={cabecera.listaPrecios}
+            disabled={readOnly || !modificaListaPrec}
+            onValueChanged={(event) => {
+              if (!isDevExtremeUserChange(event)) {
+                return;
+              }
 
-          patchCabecera({ bonif1: Number(event.value ?? 0) });
-        }}
-        inputAttr={{ 'data-testid': 'cabecera-bonif-1' }}
-      />
+              handleListaPreciosChange((event.value as number | null) ?? null);
+            }}
+            elementAttr={{ 'data-testid': 'cabecera-lista-precios' }}
+          />
 
-      <NumberBox
-        label={t('pedidos.carga.cabecera.bonif2')}
-        value={cabecera.bonif2}
-        format={bonificacionCabeceraFormat}
-        min={0}
-        step={0.01}
-        showSpinButtons={true}
-        disabled={!puedeEditarBonifCabecera}
-        onValueChanged={(event) => {
-          if (!isDevExtremeUserChange(event)) {
-            return;
-          }
+          <SelectBox
+            label={t('pedidos.carga.cabecera.moneda')}
+            dataSource={monedaDataSource}
+            valueExpr="codigo"
+            displayExpr="descripcion"
+            value={cabecera.moneda}
+            readOnly={true}
+            inputAttr={{ 'data-testid': 'cabecera-moneda' }}
+          />
 
-          patchCabecera({ bonif2: Number(event.value ?? 0) });
-        }}
-        inputAttr={{ 'data-testid': 'cabecera-bonif-2' }}
-      />
+          <TextBox
+            label={t('pedidos.carga.cabecera.incluyeIva')}
+            value={cabecera.incluyeIva ? t('pedidos.carga.cabecera.si') : t('pedidos.carga.cabecera.no')}
+            readOnly={true}
+            inputAttr={{ 'data-testid': 'cabecera-incluye-iva' }}
+          />
 
-      <NumberBox
-        label={t('pedidos.carga.cabecera.bonif3')}
-        value={cabecera.bonif3}
-        format={bonificacionCabeceraFormat}
-        min={bonificacionCabecera3Min}
-        max={bonificacionCabecera3Max}
-        step={0.01}
-        showSpinButtons={true}
-        disabled={!puedeEditarBonifCabecera}
-        onValueChanged={(event) => {
-          if (!isDevExtremeUserChange(event)) {
-            return;
-          }
+          <NumberBox
+            label={t('pedidos.carga.cabecera.nivel')}
+            value={cabecera.nivel}
+            readOnly={readOnly}
+            onValueChanged={(event) => {
+              if (!isDevExtremeUserChange(event)) {
+                return;
+              }
 
-          patchCabecera({ bonif3: Number(event.value ?? 0) });
-        }}
-        inputAttr={{ 'data-testid': 'cabecera-bonif-3' }}
-      />
+              patchCabecera({ nivel: Number(event.value ?? 0) });
+            }}
+            inputAttr={{ 'data-testid': 'cabecera-nivel' }}
+          />
+        </div>
 
-      <TextBox
-        label={t('pedidos.carga.cabecera.bonificacionNeta')}
-        value={bonificacionNeta.toFixed(2)}
-        readOnly={true}
-        inputAttr={{ 'data-testid': 'cabecera-bonificacion-neta' }}
-      />
+        <div className="comprobanteCabeceraForm__column" data-testid="cabecera-columna-bonificaciones">
+          <NumberBox
+            label={t('pedidos.carga.cabecera.bonif1')}
+            value={cabecera.bonif1}
+            format={bonificacionCabeceraFormat}
+            min={0}
+            step={0.01}
+            showSpinButtons={true}
+            disabled={!puedeEditarBonifCabecera}
+            onValueChanged={(event) => {
+              if (!isDevExtremeUserChange(event)) {
+                return;
+              }
 
-      <TextBox
-        label={t('pedidos.carga.cabecera.expreso')}
-        value={cabecera.expreso ?? ''}
-        readOnly={readOnly}
-        onValueChanged={(event) => {
-          if (!isDevExtremeUserChange(event)) {
-            return;
-          }
+              patchCabecera({ bonif1: Number(event.value ?? 0) });
+            }}
+            inputAttr={{ 'data-testid': 'cabecera-bonif-1' }}
+          />
 
-          patchCabecera({ expreso: String(event.value ?? '') || null });
-        }}
-        inputAttr={{ 'data-testid': 'cabecera-expreso' }}
-      />
+          <NumberBox
+            label={t('pedidos.carga.cabecera.bonif2')}
+            value={cabecera.bonif2}
+            format={bonificacionCabeceraFormat}
+            min={0}
+            step={0.01}
+            showSpinButtons={true}
+            disabled={!puedeEditarBonifCabecera}
+            onValueChanged={(event) => {
+              if (!isDevExtremeUserChange(event)) {
+                return;
+              }
 
-      <TextBox
-        label={t('pedidos.carga.cabecera.expresoDire')}
-        value={cabecera.expresoDire ?? ''}
-        readOnly={readOnly}
-        onValueChanged={(event) => {
-          if (!isDevExtremeUserChange(event)) {
-            return;
-          }
+              patchCabecera({ bonif2: Number(event.value ?? 0) });
+            }}
+            inputAttr={{ 'data-testid': 'cabecera-bonif-2' }}
+          />
 
-          patchCabecera({ expresoDire: String(event.value ?? '') || null });
-        }}
-        inputAttr={{ 'data-testid': 'cabecera-expreso-dire' }}
-      />
+          <NumberBox
+            label={t('pedidos.carga.cabecera.bonif3')}
+            value={cabecera.bonif3}
+            format={bonificacionCabeceraFormat}
+            min={bonificacionCabecera3Min}
+            max={bonificacionCabecera3Max}
+            step={0.01}
+            showSpinButtons={true}
+            disabled={!puedeEditarBonifCabecera}
+            onValueChanged={(event) => {
+              if (!isDevExtremeUserChange(event)) {
+                return;
+              }
 
-      <DateBox
-        label={t('pedidos.carga.cabecera.fechaEntrega')}
-        value={cabecera.fechaEntrega ? new Date(cabecera.fechaEntrega) : null}
-        type="date"
-        readOnly={readOnly}
-        onValueChanged={(event) => {
-          if (!isDevExtremeUserChange(event)) {
-            return;
-          }
+              patchCabecera({ bonif3: Number(event.value ?? 0) });
+            }}
+            inputAttr={{ 'data-testid': 'cabecera-bonif-3' }}
+          />
 
-          const value = event.value;
-          patchCabecera({
-            fechaEntrega: value instanceof Date ? value.toISOString() : null,
-          });
-        }}
-        inputAttr={{ 'data-testid': 'cabecera-fecha-entrega' }}
-      />
-
-      <TextArea
-        label={t('pedidos.carga.cabecera.observaciones')}
-        value={cabecera.observaciones}
-        height={72}
-        readOnly={readOnly}
-        onValueChanged={(event) => {
-          if (!isDevExtremeUserChange(event)) {
-            return;
-          }
-
-          patchCabecera({ observaciones: String(event.value ?? '') });
-        }}
-        inputAttr={{ 'data-testid': 'cabecera-observaciones' }}
-      />
+          <TextBox
+            label={t('pedidos.carga.cabecera.bonificacionNeta')}
+            value={bonificacionNeta.toFixed(2)}
+            readOnly={true}
+            inputAttr={{ 'data-testid': 'cabecera-bonificacion-neta' }}
+          />
+        </div>
+      </div>
     </div>
   );
 }

@@ -1,6 +1,8 @@
 import { useMemo } from 'react';
 import PivotGridDataSource from 'devextreme/ui/pivot_grid/data_source';
+import { useTranslation } from 'react-i18next';
 import type { PivotFieldLayoutState } from '../../../features/pivotLayouts/model/pivotLayoutTypes';
+import type { TFunction } from 'i18next';
 import type { PivotMetadataResult } from '../../types/pivotMetadata';
 import { applyPivotBaseToFields } from '../utils/applyPivotBaseToFields';
 import {
@@ -13,6 +15,7 @@ import { applyPivotNumberFieldFormat } from '../utils/resolvePivotDecimalFormat'
 import { preparePivotFields } from '../utils/preparePivotFields';
 import { reconcilePivotDataFieldSummaryType } from '../utils/resolvePivotAggregations';
 import { resolvePivotCampoForField } from '../utils/resolvePivotCampoForField';
+import { resolveConsultaColumnCaption } from '../utils/resolveConsultaColumnCaption';
 
 type UsePivotDataSourceParams = {
   metadata: PivotMetadataResult | null;
@@ -51,12 +54,23 @@ function reconcileFieldDataTypes(
 function resolveFields(
   metadata: PivotMetadataResult,
   fieldLayout: PivotFieldLayoutState,
+  translate?: TFunction,
 ): PivotGridFieldConfig[] {
   if (fieldLayout.mode === 'saved' && fieldLayout.configuracionJson?.fields) {
-    return preparePivotFields(fieldLayout.configuracionJson.fields.map((field) => ({ ...field })));
+    const savedFields = preparePivotFields(fieldLayout.configuracionJson.fields.map((field) => ({ ...field })));
+
+    if (translate) {
+      savedFields.forEach((field) => {
+        if (field.dataField) {
+          field.caption = resolveConsultaColumnCaption(translate, field.dataField, field.caption);
+        }
+      });
+    }
+
+    return savedFields;
   }
 
-  const baseFields = mapMetadataToPivotFields(metadata.campos);
+  const baseFields = mapMetadataToPivotFields(metadata.campos, translate);
 
   if (fieldLayout.mode === 'pivotBase') {
     return preparePivotFields(applyPivotBaseToFields(baseFields, metadata.pivotBase, metadata.campos));
@@ -72,12 +86,14 @@ export function usePivotDataSource({
   consultaId,
   localeKey,
 }: UsePivotDataSourceParams): PivotGridDataSource | null {
+  const { t } = useTranslation();
+
   return useMemo(() => {
     if (!metadata) {
       return null;
     }
 
-    const fields = resolveFields(metadata, fieldLayout);
+    const fields = resolveFields(metadata, fieldLayout, t);
 
     return new PivotGridDataSource({
       fields,
@@ -86,5 +102,5 @@ export function usePivotDataSource({
         reconcileFieldDataTypes(preparedFields as PivotGridFieldConfig[], metadata, localeKey);
       },
     });
-  }, [consultaId, fieldLayout, localeKey, metadata, store]);
+  }, [consultaId, fieldLayout, localeKey, metadata, store, t]);
 }
