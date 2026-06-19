@@ -61,35 +61,164 @@
   justify-self: end;
 }
 
+.pedidosCargaPage__body {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.pedidosCargaPage__cabeceraBand {
+  width: 100%;
+}
+
+.pedidosCargaPage__clienteRow {
+  display: grid;
+  grid-template-columns: minmax(180px, 240px) minmax(0, 1fr);
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.pedidosCargaPage__middle {
+  display: grid;
+  grid-template-columns: minmax(220px, 280px) minmax(0, 1fr);
+  gap: 1.25rem;
+  align-items: stretch;
+}
+
+.pedidosCargaPage__leyendasColumn {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.pedidosCargaPage__leyendasColumn .comprobanteLeyendasPie {
+  flex: 1 1 auto;
+}
+
+.pedidosCargaPage__gridColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  min-width: 0;
+}
+
+.pedidosCargaPage__footer {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(220px, 320px);
+  gap: 1.25rem;
+  align-items: stretch;
+}
+
+.pedidosCargaPage__observacionesPanel {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+.pedidosCargaPage__observacionesField {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.pedidosCargaPage__observacionesField .dx-textarea {
+  flex: 1 1 auto;
+  height: 100%;
+}
+
+.pedidosCargaPage__observacionesField .dx-texteditor-container {
+  flex: 1 1 auto;
+  height: 100%;
+}
+
+.pedidosCargaPage__observacionesField .dx-texteditor-input-container {
+  flex: 1 1 auto;
+}
+
+.pedidosCargaPage__observacionesField .dx-texteditor-input {
+  height: 100%;
+}
+
+.pedidosCargaPage__observacionesPlaceholder {
+  min-height: 0;
+}
+
+.pedidosCargaPage__totalesPanel {
+  justify-self: end;
+  width: 100%;
+  max-width: 320px;
+}
+
 .comprobanteLeyendasPie {
   background: var(--dx-color-main-bg, #fff);
   border: 1px solid var(--dx-color-border, #e0e0e0);
   border-radius: 8px;
   padding: 1rem;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 100%;
 }
 
 .comprobanteLeyendasPie__title {
   margin: 0 0 0.75rem;
   font-size: 1rem;
   font-weight: 600;
+  flex: 0 0 auto;
 }
 
 .comprobanteLeyendasPie__grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 0.65rem;
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  justify-content: space-between;
+  min-height: 0;
 }
 
-.pedidosCargaPage__layout {
-  display: grid;
-  grid-template-columns: minmax(280px, 360px) minmax(0, 1fr);
-  gap: 1.25rem;
-  align-items: start;
+.comprobanteLeyendasPie__field {
+  flex: 0 0 auto;
+  min-width: 0;
 }
 
 @media (max-width: 1024px) {
-  .pedidosCargaPage__layout {
+  .pedidosCargaPage__middle,
+  .pedidosCargaPage__footer,
+  .pedidosCargaPage__clienteRow {
     grid-template-columns: 1fr;
+  }
+
+  .pedidosCargaPage__leyendasColumn {
+    display: block;
+  }
+
+  .pedidosCargaPage__leyendasColumn .comprobanteLeyendasPie {
+    flex: none;
+    height: auto;
+    min-height: 0;
+  }
+
+  .comprobanteLeyendasPie__grid {
+    flex: none;
+    justify-content: flex-start;
+    gap: 0.65rem;
+  }
+
+  .pedidosCargaPage__totalesPanel {
+    max-width: none;
+    justify-self: stretch;
+  }
+
+  .pedidosCargaPage__observacionesPanel {
+    height: auto;
+  }
+
+  .pedidosCargaPage__observacionesField {
+    flex: none;
+    min-height: 6rem;
   }
 }
 
@@ -122,7 +251,6 @@
 .pedidosCargaPage__totales {
   display: grid;
   gap: 0.35rem;
-  max-width: 280px;
 }
 
 .pedidosCargaPage__totales p {
@@ -140,9 +268,38 @@
 }
 
 .comprobanteCabeceraForm {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.comprobanteCabeceraForm__clienteFijo {
+  width: 100%;
+}
+
+.comprobanteCabeceraForm__grid {
   display: grid;
   grid-template-columns: 1fr;
+  gap: 0.75rem 1rem;
+}
+
+.comprobanteCabeceraForm__column {
+  display: flex;
+  flex-direction: column;
   gap: 0.65rem;
+  min-width: 0;
+}
+
+@media (min-width: 900px) {
+  .comprobanteCabeceraForm__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1200px) {
+  .comprobanteCabeceraForm__grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
 }
 
 .pedidosCargaRenglonesGrid .dx-datagrid {

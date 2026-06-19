@@ -9,7 +9,7 @@ export function mapExcelRowToCabecera(
   row: ExcelImportRowPayload,
   base: ComprobanteCabecera,
 ): ComprobanteCabecera {
-  return mapCabeceraFromApi(
+  const mapped = mapCabeceraFromApi(
     {
       cod_cliente: row.cod_cliente as string | undefined,
       cod_condvta: row.cod_condvta as number | null | undefined,
@@ -33,6 +33,12 @@ export function mapExcelRowToCabecera(
     },
     base.codCliente,
   );
+
+  return {
+    ...mapped,
+    codVended: base.codVended,
+    vendedorNombre: base.vendedorNombre,
+  };
 }
 
 export function mapExcelRowsToRenglones(rows: ExcelImportRowPayload[]): ComprobanteRenglon[] {
@@ -42,7 +48,7 @@ export function mapExcelRowsToRenglones(rows: ExcelImportRowPayload[]): Comproba
     descripcionArticulo: String(row.descripcion_articulo ?? ''),
     cantidad: Number(row.cantidad ?? 0),
     precio: Number(row.precio ?? 0),
-    porcBonif: Number(row.porc_bonif ?? 0),
+    porcBonif: Number(row.porc_bonif ?? row.bonif_renglon ?? 0),
     porcIva: normalizarPorcIvaAlmacenado(Number(row.porc_iva ?? 0)),
   }));
 }

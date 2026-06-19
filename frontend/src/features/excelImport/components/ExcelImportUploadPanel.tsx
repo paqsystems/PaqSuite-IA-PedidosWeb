@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import FileUploader from 'devextreme-react/file-uploader';
 import SelectBox from 'devextreme-react/select-box';
 import Button from 'devextreme-react/button';
-import { createExcelImportLot, listExcelSheets } from '../api/excelImportApi';
+import { createExcelImportLot, listExcelSheets, resolveExcelImportErrorKey } from '../api/excelImportApi';
 
 type ExcelImportUploadPanelProps = {
   codigoProceso: string;
@@ -35,8 +35,8 @@ export function ExcelImportUploadPanel({ codigoProceso, onLotCreated }: ExcelImp
         const sheetNames = await listExcelSheets(codigoProceso, file);
         setHojas(sheetNames);
         setHojaSeleccionada(sheetNames[0] ?? null);
-      } catch {
-        setErrorKey('excelImport.formatoInvalido');
+      } catch (error) {
+        setErrorKey(resolveExcelImportErrorKey(error, 'excelImport.formatoInvalido'));
       } finally {
         setIsLoadingHojas(false);
       }
@@ -54,8 +54,8 @@ export function ExcelImportUploadPanel({ codigoProceso, onLotCreated }: ExcelImp
     try {
       const lot = await createExcelImportLot(codigoProceso, archivo, hojaSeleccionada);
       onLotCreated(lot.guidImportacion);
-    } catch {
-      setErrorKey('excelImport.cargaError');
+    } catch (error) {
+      setErrorKey(resolveExcelImportErrorKey(error, 'excelImport.cargaError'));
     } finally {
       setIsSubmitting(false);
     }

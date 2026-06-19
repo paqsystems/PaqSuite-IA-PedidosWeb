@@ -54,7 +54,7 @@ Ver HU-GEN-04 § Escenarios Gherkin (copia autoritativa en HU).
 2. **RN-02:** Filtro `Programa = 'PedidosWeb'` case-insensitive.
 3. **RN-03:** Orden `CAPTION` (descripción) ASC; si `CAPTION` vacío, `Clave` como desempate.
 4. **RN-04:** `valorMostrado` según `ParametrosGralTipoValor::fromRow()` + columna `Valor_*` efectiva.
-5. **RN-05:** `CAPTION` / `TOOLTIP` desde BD; fallback seed/i18n opcional en UI.
+5. **RN-05:** `CAPTION` / `TOOLTIP` desde BD como fallback; UI resuelve **`parametros.pedidosWeb.{Clave}.caption|tooltip`** en los 5 locales (CC PQ #7, 2026-06-18).
 6. **RN-06:** Permiso `Permiso_Repo` sobre procedimiento `pw_consultaparametros`.
 7. **RN-07:** No paginar en MVP (≤ 57 filas); respuesta lista completa en `resultado.items[]`.
 
@@ -259,7 +259,8 @@ Backend: servicio lectura + endpoint GET + seed menú/permisos + tests. Frontend
 - `DataGridDx` sin columna acciones; sin `rowActions`.
 - Columnas visibles: `caption`, `valorMostrado`, `tooltip`; `tipoValor` oculta por defecto. **Sin** columna `clave`.
 - Booleanos: `customizeText` con i18n Sí/No cuando `tipoValor === 'B'`.
-- Fechas: formato `dd/MM/yyyy` o ISO según valor.
+- Filas: `mapParametroConsultaRow` (`resolveParametroConsultaTexts.ts`) al fetch y al cambiar `i18n.language`.
+- Recursos: `frontend/src/locales/parametros/pedidosWeb.*.json` fusionados en `i18n.ts`.
 
 ### data-testid sugeridos
 - `page-parametros-consulta`

@@ -15,7 +15,16 @@ Según HU-007 y `docs/00-contexto/_mono/04-configuracion-global/parametros-gener
 - **`caption` (`CAPTION`):** etiqueta breve visible en el listado de mantenimiento HU-007.
 - **`tooltip` (`TOOLTIP`):** ayuda contextual (hover o bloque en modal de edición).
 
-Los textos están en **español** como semilla; en runtime la UI puede resolver i18n con fallback al valor de BD (`parametrosGral.items.PedidosWeb.{clave}.caption|tooltip`).
+Los textos están en **español** como semilla en BD/seed. En runtime la UI resuelve i18n con claves **`parametros.pedidosWeb.{Clave}.caption|tooltip`** y fallback al valor de API/BD.
+
+| Recurso frontend | Propósito |
+|------------------|-----------|
+| `frontend/src/locales/parametros/pedidosWeb.{en,it,fr,pt}.json` | 114 traducciones por idioma (57 claves × caption + tooltip) |
+| `frontend/scripts/generate-parametros-pedidosWeb-i18n.mjs` | Genera borradores desde seed JSON |
+| `frontend/scripts/merge-parametros-pedidosWeb-i18n.mjs` | Fusiona traducciones en archivos locale |
+| `resolveParametroConsultaTexts.ts` | Resolución en pantalla consulta |
+
+Ver [`idioma-multilingual.md`](../../../00-contexto/_mono/01-experiencia-base/idioma-multilingual.md) § Consulta de parámetros.
 
 Ver [PaqSuite-IA-Tango — seed README](../../../PaqSuite-IA-Tango/docs/backend/seed/PQ_PARAMETROS_GRAL/README.md) (mismo contrato JSON).
 

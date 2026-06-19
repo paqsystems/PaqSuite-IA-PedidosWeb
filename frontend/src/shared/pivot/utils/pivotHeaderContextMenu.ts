@@ -6,6 +6,7 @@ import {
   includePivotFieldInRowArea,
   resolvePivotDetailDimensionField,
 } from './resolvePivotDetailDimensionField';
+import { resolveConsultaColumnCaption } from './resolveConsultaColumnCaption';
 
 type PivotHeaderContextMenuItem = {
   text: string;
@@ -102,7 +103,9 @@ export function buildPivotHeaderContextMenuItems(
 
     if (detailField) {
       items.push({
-        text: translate('pivot.menu.includeDetail', { field: detailField.caption }),
+        text: translate('pivot.menu.includeDetail', {
+          field: resolveConsultaColumnCaption(translate, detailField.dataField, detailField.caption),
+        }),
         onItemClick: () => {
           includePivotFieldInRowArea(dataSource, detailField.dataField);
 
@@ -116,7 +119,7 @@ export function buildPivotHeaderContextMenuItems(
     }
   }
 
-  if (area === 'column' && fieldKey !== undefined && rowHeaderLayout === 'standard') {
+  if (fieldKey !== undefined && rowHeaderLayout === 'standard' && (area === 'column' || area === 'row')) {
     items.push(
       {
         text: translate('pivot.dx.expandAll'),

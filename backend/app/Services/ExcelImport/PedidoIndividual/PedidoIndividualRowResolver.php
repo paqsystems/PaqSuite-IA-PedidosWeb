@@ -151,16 +151,24 @@ final class PedidoIndividualRowResolver
 
         $articulo = $this->articuloRepository->findByCodigo($codArticulo);
         $precioLista = $row['precio_lista'] ?? null;
-        $precio = $precioLista !== null && $precioLista !== ''
-            ? (float) $precioLista
-            : (float) ($this->articuloRepository->findPrecioLista($codLista, $codArticulo)?->precio ?? 0);
+        if (isset($row['precio']) && is_numeric($row['precio'])) {
+            $precio = (float) $row['precio'];
+        } else {
+            $precio = $precioLista !== null && $precioLista !== ''
+                ? (float) $precioLista
+                : (float) ($this->articuloRepository->findPrecioLista($codLista, $codArticulo)?->precio ?? 0);
+        }
 
         $bonifRenglon = $row['bonif_renglon'] ?? null;
         if ($bonifRenglon === null || $bonifRenglon === '') {
-            $descuentoCantidad = $this->articuloRepository->findDescuentoCantidad($codArticulo, $cantidad);
-            $porcBonif = $descuentoCantidad !== null
-                ? (float) $descuentoCantidad->descuento
-                : (float) ($articulo?->bonificacion ?? 0);
+            if (isset($row['porc_bonif']) && $row['porc_bonif'] !== '') {
+                $porcBonif = (float) $row['porc_bonif'];
+            } else {
+                $descuentoCantidad = $this->articuloRepository->findDescuentoCantidad($codArticulo, $cantidad);
+                $porcBonif = $descuentoCantidad !== null
+                    ? (float) $descuentoCantidad->descuento
+                    : (float) ($articulo?->bonificacion ?? 0);
+            }
         } else {
             $porcBonif = (float) $bonifRenglon;
         }

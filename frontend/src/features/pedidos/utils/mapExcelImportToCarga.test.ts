@@ -34,6 +34,24 @@ describe('mapExcelImportToCarga', () => {
     expect(cabecera.leyenda1).toBe('Leyenda 1');
   });
 
+  it('conserva vendedor de cabecera inicial al importar Excel', () => {
+    const base = {
+      ...emptyComprobanteCabecera('CLI001'),
+      codVended: 'V001',
+      vendedorNombre: 'Juan Pérez',
+    };
+    const cabecera = mapExcelRowToCabecera(
+      {
+        cod_cliente: 'CLI001',
+        cod_lista: 5,
+      },
+      base,
+    );
+
+    expect(cabecera.codVended).toBe('V001');
+    expect(cabecera.vendedorNombre).toBe('Juan Pérez');
+  });
+
   it('mapea renglones numerados con porcBonif', () => {
     const renglones = mapExcelRowsToRenglones([
       {
@@ -42,6 +60,7 @@ describe('mapExcelImportToCarga', () => {
         cantidad: 2,
         precio: 100,
         porc_bonif: 5,
+        bonif_renglon: 5,
         porc_iva: 21,
       },
       {
@@ -57,6 +76,20 @@ describe('mapExcelImportToCarga', () => {
     expect(renglones[0].renglon).toBe(1);
     expect(renglones[0].porcBonif).toBe(5);
     expect(renglones[1].porcIva).toBe(21);
+  });
+
+  it('usa bonif_renglon cuando porc_bonif no viene enriquecido', () => {
+    const renglones = mapExcelRowsToRenglones([
+      {
+        cod_articulo: 'ART01',
+        cantidad: 1,
+        precio: 100,
+        bonif_renglon: 8,
+        porc_iva: 21,
+      },
+    ]);
+
+    expect(renglones[0].porcBonif).toBe(8);
   });
 });
 

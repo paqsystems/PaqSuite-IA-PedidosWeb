@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Services\Auth\CommercialProfileResolver;
 use App\Services\PedidosWeb\CabeceraInicialService;
 use App\Services\PedidosWeb\CalculoTotalesService;
+use App\Services\PedidosWeb\ComprobanteGrabacionValidator;
 use Illuminate\Support\Carbon;
 use App\Services\PedidosWeb\ComprobanteCopiaService;
 use App\Services\PedidosWeb\ComprobanteMailService;
@@ -320,6 +321,7 @@ final class PedidoServiceTest extends TestCase
         $schemaBootstrap = new PedidosWebSchemaBootstrap();
 
         $cabeceraInicialService = new CabeceraInicialService($visibilityGuard, $parameterService);
+        $comprobanteGrabacionValidator = new ComprobanteGrabacionValidator($parameterService);
 
         return new PedidoService(
             $pedidoRepository,
@@ -332,7 +334,8 @@ final class PedidoServiceTest extends TestCase
             $visibilityGuard,
             $this->createPermissiveCommercialProfileResolver(),
             $schemaBootstrap,
-            $cabeceraInicialService
+            $cabeceraInicialService,
+            $comprobanteGrabacionValidator,
         );
     }
 
@@ -348,7 +351,7 @@ final class PedidoServiceTest extends TestCase
         $this->expectException(PedidosWebBusinessException::class);
         $service->grabarComprobante([
             'accionGrabacion' => 'pedido',
-            'cabecera' => ['cod_cliente' => 'CLI001'],
+            'cabecera' => $this->validCabeceraPayload(),
             'renglones' => [[
                 'cod_articulo' => 'A1',
                 'cantidad' => 1,
@@ -358,6 +361,20 @@ final class PedidoServiceTest extends TestCase
                 'importe_total' => 100,
             ]],
         ], $this->buildUser());
+    }
+
+    private function validCabeceraPayload(): array
+    {
+        return [
+            'cod_cliente' => 'CLI001',
+            'cod_vended' => 'V001',
+            'cod_perfil' => 'MVP',
+            'cod_condvta' => 1,
+            'cod_transpor' => 'T001',
+            'id_de' => 1,
+            'lista_precios' => 1,
+            'nivel' => 0,
+        ];
     }
 
     private function createPermissiveCommercialProfileResolver(): CommercialProfileResolver

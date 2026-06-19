@@ -8,7 +8,7 @@
 | **Prioridad** | Must |
 | **Dependencias** | TR-GEN-01-shell-layout (header/login); TR-GEN-02-login-sesion (estado autenticado); coordina con TR-GEN-01-menu-avatar |
 | **Estado** | Finalizado |
-| **Última actualización** | 2026-05-31 (F formal) |
+| **Última actualización** | 2026-06-18 (F formal) |
 
 **Origen:** [HU-GEN-01-idioma](../../03-historias-usuario/001-Generaliddes/HU-GEN-01-idioma.md)  
 **Referencia SPEC:** [SPEC-001-01-experiencia-base](../../05-open-spec/001-Generaliddes/SPEC-001-01-experiencia-base.md)  
@@ -333,7 +333,7 @@ Lista de **ámbitos** que deben usar claves i18n (no texto fijo en código) en e
 | 12 | **Pantalla de login y recuperación** | Labels de usuario/contraseña, enlaces; `auth.invalidCredentials` (401 genérico), `auth.noPermission` y `auth.noCommercialProfile` (403 explícitos) | Sí |
 | 13 | **Mail “Olvidé mi contraseña”** | Asunto y cuerpo según locale activo al solicitar | Sí — implementación: [TR-GEN-02-recuperacion-contrasena](TR-GEN-02-recuperacion-contrasena.md) |
 | 14 | **Wizard / UI de pivot** | Pasos, botones y mensajes del asistente pivot (referencia documental SPEC-001-08; si hay pivot en pantalla, mismas reglas) | Sí si hay pivot visible |
-| 15 | **Carga de parámetros** | Captions y tooltips en pantallas que lean parámetros globales (SPEC-001-04) | Sí cuando exista UI |
+| 15 | **Consulta de parámetros (PedidosWeb)** | `parametros.pedidosWeb.{Clave}.caption|tooltip`; archivos `locales/parametros/pedidosWeb.*.json`; remapeo al cambiar idioma | Sí — CC PQ #7 |
 | 16 | **Footer y versión** | Leyendas institucionales configurables vía i18n si no vienen de backend | Sí |
 | 17 | **Selector de idioma** | Nombres de idiomas en autodenominación (Español, English, Italiano, …) | Sí |
 | 18 | **Fechas y números** | Formato vía `Intl` / locale activo (no traducción literal, pero coherencia regional) | Sí |
@@ -347,8 +347,12 @@ Lista de **ámbitos** que deben usar claves i18n (no texto fijo en código) en e
 | 26 | **Menú contextual de encabezado de columna** | Ordenar, agrupar, mover columna: overrides `grid.dx.sort.*`, `grid.dx.group.*`, `grid.dx.column.move*` → `dxDataGrid-*`; requiere `loadMessages` sin doble anidación | Sí |
 | 27 | **Pie de grilla — totalizadores por columna** | Clic derecho en celda de pie; `grid.summary.*`; fila visible con placeholder; separadores CSS | Sí |
 | 28 | **Remount grilla al cambiar idioma** | `key={gridId-locale}` en `DataGridDx` + `syncDevExtremeLocale` en `LocaleProvider` | Sí |
+| 29 | **Captions pivot por consulta** | `pivot.consulta.{consultaId}.{dataField}` + `resolveConsultaColumnCaption` | Sí si hay pivot |
+| 30 | **Menú pivot — expandir/contraer filas** | `pivot.dx.expandAll` / `collapseAll` en encabezados de **fila** (paridad con columnas) | Sí — CC PQ #7 |
 
 **QA manual ítems 21–28 (GEN-03, 2026-06-01):** validados en dashboard y `/demo/abm` (locale `es`). Evidencia: [F-GEN-03-cierre-formal](F-GEN-03-cierre-formal.md) § QA manual.
+
+**QA CC PQ #7 (2026-06-18):** `/general/parametros` en `it`; pivot informes — clic derecho encabezado fila → Expandir/Contraer todo; pantalla carga layout §4.1 producto.
 
 **Patrón técnico completo (obligatorio en proyectos MONO):** [`patron-i18n-grilla-devextreme.md`](../../00-contexto/_mono/03-ui-transversal/patron-i18n-grilla-devextreme.md).
 

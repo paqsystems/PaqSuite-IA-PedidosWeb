@@ -100,7 +100,7 @@ export function ConsultaGridPage<TRecord extends BaseRow>({
     return () => {
       mounted = false;
     };
-  }, [effectiveRefreshToken, loadData, t]);
+  }, [effectiveRefreshToken, i18n.language, loadData, t]);
 
   return (
     <section data-testid={pageTestId}>

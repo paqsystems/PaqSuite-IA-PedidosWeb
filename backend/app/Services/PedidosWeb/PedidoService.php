@@ -26,6 +26,7 @@ final class PedidoService
         private readonly CommercialProfileResolver $commercialProfileResolver,
         private readonly PedidosWebSchemaBootstrap $schemaBootstrap,
         private readonly CabeceraInicialService $cabeceraInicialService,
+        private readonly ComprobanteGrabacionValidator $comprobanteGrabacionValidator,
     ) {}
 
     /**
@@ -42,11 +43,8 @@ final class PedidoService
             throw new PedidosWebBusinessException(2000, 'business.accionGrabacionInvalida', 422);
         }
 
-        if (($cabeceraPayload['cod_cliente'] ?? '') === '' || $renglonesPayload === []) {
-            throw new PedidosWebBusinessException(2000, 'business.invalidComprobanteData', 422);
-        }
-
         $this->assertVisibleWritePayload($user, $payload);
+        $this->comprobanteGrabacionValidator->assertComprobanteGrabable($cabeceraPayload, $renglonesPayload);
         $this->assertModificaPermisos($user, $cabeceraPayload, $renglonesPayload);
 
         $bonificacionNetaCabecera = $this->calculoTotalesService->resolveBonificacionNetaCabecera($cabeceraPayload);
