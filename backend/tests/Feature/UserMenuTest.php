@@ -43,12 +43,35 @@ final class UserMenuTest extends TestCase
 
         $response->assertOk();
 
-        $procedimientos = $this->flattenProcedimientos((array) $response->json('resultado'));
+        $menu = (array) $response->json('resultado');
 
         $this->assertSame(
-            config('paqsuite_mvp.vendedorAcotadoProcedimientos'),
-            $procedimientos
+            ['grp_pedidos', 'pw_dashboard'],
+            array_map(
+                static fn (array $item): string => (string) ($item['procedimiento'] ?? ''),
+                $menu
+            )
         );
+
+        $this->assertSame(
+            [
+                'pw_cargapedidos',
+                'pw_presupuestosingresados',
+                'pw_pedidosingresados',
+            ],
+            array_map(
+                static fn (array $item): string => (string) ($item['procedimiento'] ?? ''),
+                (array) ($menu[0]['children'] ?? [])
+            )
+        );
+
+        $procedimientos = $this->flattenProcedimientos($menu);
+
+        foreach (config('paqsuite_mvp.vendedorAcotadoProcedimientos', []) as $expectedProcedimiento) {
+            $this->assertContains($expectedProcedimiento, $procedimientos);
+        }
+
+        $this->assertContains('grp_pedidos', $procedimientos);
     }
 
     public function testSupervisorReceivesConfiguredGroupedMenuStructure(): void

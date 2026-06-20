@@ -148,6 +148,33 @@ Sin endpoint API. Visible en UI solo en modo pivot; requiere permiso de ver la c
 | `pw_detallepedidos` | `/pedidos/detalle` | TR-SPEC-101-11-consultas-ui (Bloque 3) |
 | `grp_general` | (grupo) | TR-GEN-04-consulta-parametros |
 
+## Admin seguridad — roles y permisos (SPEC-001-02-admin — aplicado D1 2026-06-19)
+
+Epic post-MVP. Gate: `ADMIN_SECURITY_UI_ENABLED` + `AdminSecurityAccessService`. Procedimientos menú: `pw_adminroles`, `pw_adminpermisos`.
+
+| Método | Path | Permiso / regla | TR origen |
+|--------|------|-----------------|-----------|
+| GET | `/api/v1/admin/roles` | `Permiso_Repo` + `pw_adminroles` | TR-GEN-02-admin-roles |
+| POST | `/api/v1/admin/roles` | `Permiso_Alta` + `pw_adminroles` | TR-GEN-02-admin-roles |
+| PUT | `/api/v1/admin/roles/{id}` | `Permiso_Modi` + `pw_adminroles` | TR-GEN-02-admin-roles |
+| DELETE | `/api/v1/admin/roles/{id}` | `Permiso_Baja` + `pw_adminroles` | TR-GEN-02-admin-roles |
+| GET | `/api/v1/admin/roles/{id}/atributos` | `Permiso_Repo` + `pw_adminroles` | TR-GEN-02-admin-rol-atributos |
+| PUT | `/api/v1/admin/roles/{id}/atributos` | `Permiso_Modi` + `pw_adminroles` | TR-GEN-02-admin-rol-atributos |
+| GET | `/api/v1/admin/permisos` | `Permiso_Repo` + `pw_adminpermisos` | TR-GEN-02-admin-permisos |
+| POST | `/api/v1/admin/permisos` | `Permiso_Alta` + `pw_adminpermisos` | TR-GEN-02-admin-permisos |
+| PUT | `/api/v1/admin/permisos/{id}` | `Permiso_Modi` + `pw_adminpermisos` | TR-GEN-02-admin-permisos |
+| DELETE | `/api/v1/admin/permisos/{id}` | `Permiso_Baja` + `pw_adminpermisos` | TR-GEN-02-admin-permisos |
+| POST | `/api/v1/admin/permisos/batch` | `Permiso_Alta` + `pw_adminpermisos` | TR-GEN-02-admin-permisos-bulk |
+| GET | `/api/v1/admin/usuarios` | `Permiso_Repo` + `pw_adminpermisos` | TR-GEN-02-admin-permisos |
+
+**Menú (seed D1 — `paqsuite:seed-menus-mvp`):**
+
+| Procedimiento | Ruta UI | TR origen |
+|---------------|---------|-----------|
+| `grp_seguridad` | (grupo) | TR-GEN-02-admin-roles |
+| `pw_adminroles` | `/admin/roles` | TR-GEN-02-admin-roles |
+| `pw_adminpermisos` | `/admin/permisos` | TR-GEN-02-admin-permisos |
+
 ## Checklist de mantenimiento
 
 - [ ] Cada fila nueva tiene OpenAPI con `security`, 401, 403 (si protegida)

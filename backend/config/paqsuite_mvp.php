@@ -10,6 +10,8 @@ return [
 
     'excelImportEnabled' => (bool) env('EXCEL_IMPORT_ENABLED', false),
 
+    'securityAdminEnabled' => (bool) env('ADMIN_SECURITY_UI_ENABLED', false),
+
     'menuItems' => [
         ['menuKey' => 'grupoPedidos', 'procedimiento' => 'grp_pedidos', 'text' => 'Pedidos', 'orden' => 10, 'tipoProceso' => 'G'],
         ['menuKey' => 'cargaPedidosPresupuestos', 'procedimiento' => 'pw_cargapedidos', 'text' => 'Carga de Pedidos', 'orden' => 11, 'routeName' => '/pedidos/carga', 'parentProcedimiento' => 'grp_pedidos'],
@@ -29,6 +31,9 @@ return [
         ['menuKey' => 'tratativasPresupuestos', 'procedimiento' => 'pw_tratativaspresup', 'text' => 'Tratativas Presupuestos', 'orden' => 31, 'routeName' => '/presupuestos/tratativas', 'parentProcedimiento' => 'grp_gestion_presupuestos'],
         ['menuKey' => 'dashboard', 'procedimiento' => 'pw_dashboard', 'text' => 'Dashboard', 'orden' => 40, 'routeName' => '/dashboard'],
         ['menuKey' => 'logsIntegracion', 'procedimiento' => 'pw_logsintegracion', 'text' => 'Logs Integracion', 'orden' => 50, 'routeName' => '/integracion/logs'],
+        ['menuKey' => 'grupoSeguridad', 'procedimiento' => 'grp_seguridad', 'text' => 'Seguridad', 'orden' => 70, 'tipoProceso' => 'G'],
+        ['menuKey' => 'adminRoles', 'procedimiento' => 'pw_adminroles', 'text' => 'Administracion de roles', 'orden' => 71, 'routeName' => '/admin/roles', 'parentProcedimiento' => 'grp_seguridad'],
+        ['menuKey' => 'adminPermisos', 'procedimiento' => 'pw_adminpermisos', 'text' => 'Administracion de permisos', 'orden' => 72, 'routeName' => '/admin/permisos', 'parentProcedimiento' => 'grp_seguridad'],
     ],
 
     'roles' => [

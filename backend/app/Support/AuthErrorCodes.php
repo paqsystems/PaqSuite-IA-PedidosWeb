@@ -23,4 +23,6 @@ final class AuthErrorCodes
     public const accountDisabled = 2005;
 
     public const passwordResetTokenInvalidOrExpired = 2006;
+
+    public const notFound = 4000;
 }

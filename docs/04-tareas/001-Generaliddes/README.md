@@ -150,6 +150,35 @@ Tareas técnicas (parte C) derivadas de **SPEC-001-01** y **SPEC-001-02**.
 
 **Contexto MONO:** `docs/00-contexto/_mono/importar-excel/`
 
+## SPEC-001-02-admin — Mantenimiento roles y permisos (epic post-MVP)
+
+**C (2026-06-19):** 4 TR generadas.  
+**C1 (2026-06-19):** Revisión C1 formal (`/tr-ambiguity-review`) — [F-GEN-02-admin-cierre-c1](F-GEN-02-admin-cierre-c1.md).  
+**D1 + F (2026-06-19):** 4 TR implementadas y verificadas — [F-GEN-02-admin-cierre-formal](F-GEN-02-admin-cierre-formal.md).  
+**E (2026-06-19):** tests automatizados + entorno dev — [F-GEN-02-admin-cierre-e](F-GEN-02-admin-cierre-e.md) · [E-GEN-02-admin-tests](E-GEN-02-admin-tests.md). Epic post-MVP (flag default `false`).
+
+**Orden de implementación:**
+
+```text
+1. TR-GEN-02-admin-roles           (T0 multi-rol + ABM Pq_Rol + seed menú admin)
+2. TR-GEN-02-admin-rol-atributos   (PQ_RolAtributo)
+3. TR-GEN-02-admin-permisos        (CRUD Pq_Permiso + lookup usuarios)
+4. TR-GEN-02-admin-permisos-bulk   (POST batch + modales bulk)
+```
+
+| TR | HU | Prioridad |
+|----|-----|-----------|
+| [TR-GEN-02-admin-roles](TR-GEN-02-admin-roles.md) | [HU-GEN-02-admin-roles](../../03-historias-usuario/001-Generaliddes/HU-GEN-02-admin-roles.md) | Should |
+| [TR-GEN-02-admin-rol-atributos](TR-GEN-02-admin-rol-atributos.md) | [HU-GEN-02-admin-rol-atributos](../../03-historias-usuario/001-Generaliddes/HU-GEN-02-admin-rol-atributos.md) | Should |
+| [TR-GEN-02-admin-permisos](TR-GEN-02-admin-permisos.md) | [HU-GEN-02-admin-permisos](../../03-historias-usuario/001-Generaliddes/HU-GEN-02-admin-permisos.md) | Should |
+| [TR-GEN-02-admin-permisos-bulk](TR-GEN-02-admin-permisos-bulk.md) | [HU-GEN-02-admin-permisos-bulk](../../03-historias-usuario/001-Generaliddes/HU-GEN-02-admin-permisos-bulk.md) | Should |
+
+**SPEC:** [SPEC-001-02-admin-mantenimiento-roles-permisos.md](../../05-open-spec/001-Generaliddes/SPEC-001-02-admin-mantenimiento-roles-permisos.md)
+
+**Contexto MONO:** `docs/00-contexto/_mono/02-acceso-y-seguridad/mantenimiento-roles-permisos.md`
+
+**Flag infra (D1):** `ADMIN_SECURITY_UI_ENABLED` default **false** hasta activar epic.
+
 ## SPEC-001-10 — Chat Asistente IA
 
 | TR | HU | Prioridad |

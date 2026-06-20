@@ -34,7 +34,7 @@ Toda respuesta `/api/v1/*` usa el envelope MONO **`error` / `respuesta` / `resul
 
 ## Fuentes (contexto MONO)
 
-`docs/00-contexto/_mono/02-acceso-y-seguridad/` — login, permisos, menú-autorización, administración (ABM UI fuera de alcance).
+`docs/00-contexto/_mono/02-acceso-y-seguridad/` — login, permisos, menú-autorización, administración; mantenimiento UI post-MVP: [`mantenimiento-roles-permisos.md`](../../00-contexto/_mono/02-acceso-y-seguridad/mantenimiento-roles-permisos.md) → [SPEC-001-02-admin-mantenimiento-roles-permisos](SPEC-001-02-admin-mantenimiento-roles-permisos.md).
 
 ## Alcance
 
@@ -48,7 +48,7 @@ Toda respuesta `/api/v1/*` usa el envelope MONO **`error` / `respuesta` / `resul
 ## Fuera de alcance
 
 - 2FA, login social, anti-fuerza bruta avanzado.
-- Administración funcional completa de seguridad vía UI (usuarios/roles/permisos ABM).
+- Administración funcional completa de seguridad vía UI (usuarios/roles/permisos ABM) en **MVP portal** — especificada para post-MVP en [SPEC-001-02-admin-mantenimiento-roles-permisos](SPEC-001-02-admin-mantenimiento-roles-permisos.md) (contexto: [`mantenimiento-roles-permisos.md`](../../00-contexto/_mono/02-acceso-y-seguridad/mantenimiento-roles-permisos.md)).
 
 ## Perfiles funcionales MVP (resumen desde producto)
 

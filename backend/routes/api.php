@@ -1,5 +1,8 @@
 <?php
 
+use App\Http\Controllers\Api\V1\Admin\AdminPermisoController;
+use App\Http\Controllers\Api\V1\Admin\AdminRoleController;
+use App\Http\Controllers\Api\V1\Admin\AdminUsuarioLookupController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\GridLayoutController;
 use App\Http\Controllers\HealthController;
@@ -173,6 +176,21 @@ Route::prefix('v1')->group(function (): void {
                 ->name('api.v1.dashboard.operativo');
             Route::get('/dashboard/resumen-mensual', [DashboardController::class, 'resumenMensual'])
                 ->name('api.v1.dashboard.resumen-mensual');
+
+            Route::middleware('admin.security.enabled')->prefix('admin')->group(function (): void {
+                Route::get('/roles', [AdminRoleController::class, 'index'])->name('api.v1.admin.roles.index');
+                Route::post('/roles', [AdminRoleController::class, 'store'])->name('api.v1.admin.roles.store');
+                Route::put('/roles/{id}', [AdminRoleController::class, 'update'])->name('api.v1.admin.roles.update');
+                Route::delete('/roles/{id}', [AdminRoleController::class, 'destroy'])->name('api.v1.admin.roles.destroy');
+                Route::get('/roles/{id}/atributos', [AdminRoleController::class, 'showAttributes'])->name('api.v1.admin.roles.atributos.show');
+                Route::put('/roles/{id}/atributos', [AdminRoleController::class, 'updateAttributes'])->name('api.v1.admin.roles.atributos.update');
+                Route::get('/permisos', [AdminPermisoController::class, 'index'])->name('api.v1.admin.permisos.index');
+                Route::post('/permisos', [AdminPermisoController::class, 'store'])->name('api.v1.admin.permisos.store');
+                Route::put('/permisos/{id}', [AdminPermisoController::class, 'update'])->name('api.v1.admin.permisos.update');
+                Route::delete('/permisos/{id}', [AdminPermisoController::class, 'destroy'])->name('api.v1.admin.permisos.destroy');
+                Route::post('/permisos/batch', [AdminPermisoController::class, 'batch'])->name('api.v1.admin.permisos.batch');
+                Route::get('/usuarios', [AdminUsuarioLookupController::class, 'index'])->name('api.v1.admin.usuarios.index');
+            });
         });
     });
 });
