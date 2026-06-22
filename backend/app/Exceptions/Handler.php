@@ -96,6 +96,19 @@ class Handler extends ExceptionHandler
             return null;
         });
 
+        $this->renderable(function (PedidosWebBusinessValidationException $exception, $request) {
+            if ($request->is('api/*')) {
+                return ApiResponse::error(
+                    $exception->errorCode(),
+                    'business.validationFailed',
+                    $exception->httpStatus(),
+                    ['errores' => $exception->respuestaKeys()]
+                );
+            }
+
+            return null;
+        });
+
         $this->reportable(function (Throwable $e) {
             //
         });

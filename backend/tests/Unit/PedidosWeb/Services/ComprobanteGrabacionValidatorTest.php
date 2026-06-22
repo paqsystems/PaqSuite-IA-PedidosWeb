@@ -19,6 +19,33 @@ final class ComprobanteGrabacionValidatorTest extends TestCase
         Schema::shouldReceive('hasColumn')->andReturn(false);
     }
     #[Test]
+    public function acumulaMultiplesErroresDeCabecera(): void
+    {
+        config()->set('paqsuite_pedidosweb.readFromErp', false);
+
+        $validator = new ComprobanteGrabacionValidator(new PedidosWebParameterService());
+
+        $errores = $validator->collectComprobanteGrabableErrors([
+            'cod_cliente' => '',
+            'cod_vended' => '',
+            'cod_perfil' => '',
+            'cod_condvta' => 0,
+            'cod_transpor' => '',
+            'id_de' => 0,
+            'lista_precios' => 0,
+        ], []);
+
+        $this->assertContains('business.clienteRequerido', $errores);
+        $this->assertContains('business.vendedorRequerido', $errores);
+        $this->assertContains('business.perfilRequerido', $errores);
+        $this->assertContains('business.condicionVentaRequerida', $errores);
+        $this->assertContains('business.transporteRequerido', $errores);
+        $this->assertContains('business.direccionEntregaRequerida', $errores);
+        $this->assertContains('business.listaPreciosRequerida', $errores);
+        $this->assertContains('business.sinRenglones', $errores);
+    }
+
+    #[Test]
     public function rechazaComprobanteSinRenglones(): void
     {
         config()->set('paqsuite_pedidosweb.readFromErp', false);

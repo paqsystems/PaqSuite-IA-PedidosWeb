@@ -5,6 +5,7 @@ namespace App\Services\PedidosWeb;
 use App\Contracts\PedidosWeb\PedidoDetalleRepositoryInterface;
 use App\Contracts\PedidosWeb\PedidoRepositoryInterface;
 use App\Exceptions\PedidosWebBusinessException;
+use App\Exceptions\PedidosWebBusinessValidationException;
 use App\Models\PqPedidoswebPedidoCabecera;
 use App\Models\User;
 use App\Services\Auth\CommercialProfileResolver;
@@ -44,8 +45,7 @@ final class PedidoService
         }
 
         $this->assertVisibleWritePayload($user, $payload);
-        $this->comprobanteGrabacionValidator->assertComprobanteGrabable($cabeceraPayload, $renglonesPayload);
-        $this->assertModificaPermisos($user, $cabeceraPayload, $renglonesPayload);
+        $this->assertGrabacionValidaOrThrow($user, $cabeceraPayload, $renglonesPayload);
 
         $bonificacionNetaCabecera = $this->calculoTotalesService->resolveBonificacionNetaCabecera($cabeceraPayload);
         $cabeceraPayload['descuento'] = $bonificacionNetaCabecera;
@@ -628,32 +628,52 @@ final class PedidoService
      * @param  array<string, mixed>  $cabeceraPayload
      * @param  list<array<string, mixed>>  $renglonesPayload
      */
-    private function assertModificaPermisos(User $user, array $cabeceraPayload, array $renglonesPayload): void
+    private function assertGrabacionValidaOrThrow(User $user, array $cabeceraPayload, array $renglonesPayload): void
+    {
+        $errores = array_merge(
+            $this->comprobanteGrabacionValidator->collectComprobanteGrabableErrors($cabeceraPayload, $renglonesPayload),
+            $this->collectModificaPermisosErrors($user, $cabeceraPayload, $renglonesPayload),
+        );
+
+        $errores = array_values(array_unique($errores));
+
+        if ($errores !== []) {
+            throw new PedidosWebBusinessValidationException(2000, $errores, 422);
+        }
+    }
+
+    /**
+     * @param  array<string, mixed>  $cabeceraPayload
+     * @param  list<array<string, mixed>>  $renglonesPayload
+     * @return list<string>
+     */
+    private function collectModificaPermisosErrors(User $user, array $cabeceraPayload, array $renglonesPayload): array
     {
         $functionalProfile = $this->resolveFunctionalProfile($user);
         $flags = $this->parameterService->resolveModificaFlags($functionalProfile);
+        $errores = [];
 
-        if ($flags['modificaPrecio'] && $flags['modificaBonArt']) {
-            return;
-        }
+        if (! ($flags['modificaPrecio'] && $flags['modificaBonArt'])) {
+            foreach ($renglonesPayload as $renglon) {
+                if (! $flags['modificaPrecio'] && (float) ($renglon['precio_modificado'] ?? 0) === 1.0) {
+                    $errores[] = 'business.precioNoModificable';
+                }
 
-        foreach ($renglonesPayload as $renglon) {
-            if (! $flags['modificaPrecio'] && (float) ($renglon['precio_modificado'] ?? 0) === 1.0) {
-                throw new PedidosWebBusinessException(2000, 'business.precioNoModificable', 422);
-            }
-
-            if (! $flags['modificaBonArt'] && (float) ($renglon['porc_bonif_modificado'] ?? 0) === 1.0) {
-                throw new PedidosWebBusinessException(2000, 'business.bonificacionNoModificable', 422);
+                if (! $flags['modificaBonArt'] && (float) ($renglon['porc_bonif_modificado'] ?? 0) === 1.0) {
+                    $errores[] = 'business.bonificacionNoModificable';
+                }
             }
         }
 
         if (! $flags['modificaBonCli'] && (float) ($cabeceraPayload['descuento_modificado'] ?? 0) === 1.0) {
-            throw new PedidosWebBusinessException(2000, 'business.bonificacionClienteNoModificable', 422);
+            $errores[] = 'business.bonificacionClienteNoModificable';
         }
 
         if (! $flags['modificaListaPrec'] && filled($cabeceraPayload['lista_precios_modificada'] ?? null)) {
-            throw new PedidosWebBusinessException(2000, 'business.listaPreciosNoModificable', 422);
+            $errores[] = 'business.listaPreciosNoModificable';
         }
+
+        return array_values(array_unique($errores));
     }
 
     private function resolveFunctionalProfile(User $user): string

@@ -57,7 +57,12 @@ export async function apiRequest<T>(path: string, options: ApiRequestOptions = {
       dispatchAuthExpired(payload.respuesta ?? 'auth.unauthenticated');
     }
 
-    throw new ApiClientError(response.status, payload.respuesta ?? 'request.failed', payload.error ?? response.status);
+    throw new ApiClientError(
+      response.status,
+      payload.respuesta ?? 'request.failed',
+      payload.error ?? response.status,
+      payload.resultado,
+    );
   }
 
   if (!options.skipAuth) {
@@ -72,6 +77,7 @@ export class ApiClientError extends Error {
     public readonly status: number,
     public readonly respuestaKey: string,
     public readonly errorCode: number,
+    public readonly resultado?: unknown,
   ) {
     super(respuestaKey);
   }

@@ -314,19 +314,19 @@ export function DashboardPage() {
                 <h2 className="dashboard-kpi-group__title">{group.title}</h2>
                 <div className="dashboard-kpi-cards">
                   {group.cards.map((card) => (
-                    <article
+                    <div
                       key={card.testId}
                       data-testid={card.testId}
                       className={[
-                        'dashboard-kpi-card',
-                        card.variant === 'amount' ? 'dashboard-kpi-card--amount' : '',
+                        'dashboard-kpi-metric',
+                        card.variant === 'amount' ? 'dashboard-kpi-metric--amount' : '',
                       ]
                         .filter(Boolean)
                         .join(' ')}
                     >
                       <span className="dashboard-kpi-label">{card.label}</span>
                       <span className="dashboard-kpi-value">{card.value}</span>
-                    </article>
+                    </div>
                   ))}
                 </div>
               </section>
@@ -351,19 +351,19 @@ export function DashboardPage() {
                   <h2 className="dashboard-kpi-group__title">{group.title}</h2>
                   <div className="dashboard-kpi-cards">
                     {group.cards.map((card) => (
-                      <article
+                      <div
                         key={card.testId}
                         data-testid={card.testId}
                         className={[
-                          'dashboard-kpi-card',
-                          card.variant === 'amount' ? 'dashboard-kpi-card--amount' : '',
+                          'dashboard-kpi-metric',
+                          card.variant === 'amount' ? 'dashboard-kpi-metric--amount' : '',
                         ]
                           .filter(Boolean)
                           .join(' ')}
                       >
                         <span className="dashboard-kpi-label">{card.label}</span>
                         <span className="dashboard-kpi-value">{card.value}</span>
-                      </article>
+                      </div>
                     ))}
                   </div>
                 </section>

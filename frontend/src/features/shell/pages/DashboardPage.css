@@ -98,7 +98,7 @@
 
 .dashboard-kpi-group {
   background: var(--dashboard-card-bg);
-  padding: 1.25rem 1.25rem 1.35rem;
+  padding: 1rem 1.1rem 1.1rem;
   border-radius: 12px;
   box-shadow: 0 2px 10px rgba(15, 23, 42, 0.05);
   border: 1px solid var(--dashboard-border);
@@ -106,7 +106,7 @@
 }
 
 .dashboard-kpi-group__title {
-  margin: 0 0 1rem;
+  margin: 0 0 0.65rem;
   font-size: 0.92rem;
   font-weight: 600;
   color: var(--dashboard-text);
@@ -151,37 +151,39 @@
 }
 
 .dashboard-pedidosweb__groups .dashboard-kpi-cards {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 0.75rem;
-}
-
-.dashboard-kpi-card {
   background: color-mix(in srgb, var(--dashboard-group-accent, var(--dashboard-accent)) 6%, var(--dashboard-card-bg));
-  padding: 1rem 1.1rem;
+  padding: 0.75rem 0.9rem;
   border-radius: 10px;
   border: 1px solid var(--dashboard-border);
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-  min-height: 5.5rem;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  column-gap: 0.85rem;
+  row-gap: 0.4rem;
+  align-items: baseline;
 }
 
-.dashboard-kpi-card--amount .dashboard-kpi-value {
-  font-size: 1.65rem;
+.dashboard-kpi-metric {
+  display: contents;
+}
+
+.dashboard-kpi-metric--amount .dashboard-kpi-value {
+  font-size: 1.55rem;
 }
 
 .dashboard-kpi-label {
-  font-size: 0.8rem;
-  line-height: 1.3;
+  font-size: 0.78rem;
+  line-height: 1.25;
   color: var(--dashboard-muted);
 }
 
 .dashboard-kpi-value {
-  font-size: 1.5rem;
+  font-size: 1.35rem;
   font-weight: 700;
   color: var(--dashboard-text);
   letter-spacing: -0.02em;
+  line-height: 1.15;
+  text-align: right;
+  white-space: nowrap;
 }
 
 .dashboard-pedidosweb__monthlySection {
@@ -293,14 +295,6 @@
   .dashboard-pedidosweb__groups {
     grid-template-columns: 1fr;
   }
-
-  .dashboard-pedidosweb__groups .dashboard-kpi-cards {
-    grid-template-columns: 1fr 1fr;
-  }
-
-  .dashboard-pedidosweb__groups .dashboard-kpi-card--amount {
-    grid-column: auto;
-  }
 }
 
 @media (max-width: 640px) {
@@ -309,14 +303,6 @@
   }
 
   .dashboard-kpi-group {
-    padding: 1rem;
-  }
-
-  .dashboard-pedidosweb__groups .dashboard-kpi-cards {
-    grid-template-columns: 1fr 1fr;
-  }
-
-  .dashboard-pedidosweb__groups .dashboard-kpi-card--amount {
-    grid-column: 1 / -1;
+    padding: 0.9rem;
   }
 }
