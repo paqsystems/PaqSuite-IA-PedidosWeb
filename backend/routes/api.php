@@ -6,6 +6,9 @@ use App\Http\Controllers\Api\V1\Admin\AdminUsuarioLookupController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\GridLayoutController;
 use App\Http\Controllers\HealthController;
+use App\Http\Controllers\Api\V1\ChatAssistant\ChatAssistantConfigurationController;
+use App\Http\Controllers\Api\V1\ChatAssistant\ChatAssistantMessageController;
+use App\Http\Controllers\Api\V1\ChatAssistant\ChatAssistantProviderCatalogController;
 use App\Http\Controllers\Api\V1\Config\ParametrosController;
 use App\Http\Controllers\Api\V1\ExcelImport\ExcelImportHistoryController;
 use App\Http\Controllers\Api\V1\ExcelImport\ExcelImportLotController;
@@ -74,6 +77,16 @@ Route::prefix('v1')->group(function (): void {
                 ->name('api.v1.users.me.preferences.locale');
             Route::patch('/users/me/preferences/theme', [UserPreferencesController::class, 'updateTheme'])
                 ->name('api.v1.users.me.preferences.theme');
+            Route::get('/chat-assistant/providers', [ChatAssistantProviderCatalogController::class, 'index'])
+                ->name('api.v1.chat-assistant.providers');
+            Route::get('/chat-assistant/me/configuration', [ChatAssistantConfigurationController::class, 'show'])
+                ->name('api.v1.chat-assistant.me.configuration.show');
+            Route::put('/chat-assistant/me/configuration', [ChatAssistantConfigurationController::class, 'upsert'])
+                ->name('api.v1.chat-assistant.me.configuration.upsert');
+            Route::patch('/chat-assistant/me/configuration/status', [ChatAssistantConfigurationController::class, 'updateStatus'])
+                ->name('api.v1.chat-assistant.me.configuration.status');
+            Route::post('/chat-assistant/messages', [ChatAssistantMessageController::class, 'store'])
+                ->name('api.v1.chat-assistant.messages.store');
             Route::get('/config/parametros-carga', [ParametrosCargaController::class, 'show'])
                 ->name('api.v1.config.parametros-carga');
             Route::get('/config/parametros', [ParametrosController::class, 'index'])

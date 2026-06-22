@@ -175,6 +175,16 @@ Epic post-MVP. Gate: `ADMIN_SECURITY_UI_ENABLED` + `AdminSecurityAccessService`.
 | `pw_adminroles` | `/admin/roles` | TR-GEN-02-admin-roles |
 | `pw_adminpermisos` | `/admin/permisos` | TR-GEN-02-admin-permisos |
 
+## Chat Asistente IA (SPEC-001-10 — slice 1 D 2026-06-21)
+
+| Método | Path | Permiso / regla | TR origen |
+|--------|------|-----------------|-----------|
+| GET | `/api/v1/chat-assistant/providers` | Usuario autenticado | TR-GEN-10-catalogo-proveedores-ia |
+| GET | `/api/v1/chat-assistant/me/configuration` | Usuario autenticado | TR-GEN-10-configuracion-asistente-ia |
+| PUT | `/api/v1/chat-assistant/me/configuration` | Usuario autenticado | TR-GEN-10-configuracion-asistente-ia |
+| PATCH | `/api/v1/chat-assistant/me/configuration/status` | Usuario autenticado | TR-GEN-10-configuracion-asistente-ia |
+| POST | `/api/v1/chat-assistant/messages` | Usuario autenticado + configuración válida | TR-GEN-10-chat-documental / TR-GEN-10-imagenes-asistente-ia (texto e imágenes JSON `contentBase64`) |
+
 ## Checklist de mantenimiento
 
 - [ ] Cada fila nueva tiene OpenAPI con `security`, 401, 403 (si protegida)

@@ -3,8 +3,8 @@
 | Campo | Valor |
 |-------|--------|
 | **HU relacionadas** | `HU-GEN-10-*` (a generar) |
-| **Estado** | Pendiente |
-| **Revisión A1** | Pendiente (2026-05-30) |
+| **Estado** | B1 + C1 cerrados — listo D (2026-06-21) |
+| **Revisión A1** | Apto con observaciones (2026-06-21) |
 
 ## Objetivo
 
@@ -350,30 +350,124 @@ Asistencia contextual enriquecida con combinación de conversación, pantalla ac
 
 ## Criterios de aceptación medibles
 
-- [ ] Queda explícito que el consumo del modelo no depende de la cuenta del proveedor del producto.
-- [ ] Queda explícito que la primera versión se configura solo por usuario.
-- [ ] La persistencia de credenciales queda definida fuera de `users`.
-- [ ] Existe catálogo inicial de proveedores y fuente editable para onboarding.
-- [ ] La entrada inicial del asistente queda definida en menú avatar como `Chat Asistente IA`.
-- [ ] El chat se abre en nueva pestaña y no embebido en la pantalla actual.
-- [ ] Sin configuración válida se informa falta de configuración y se muestra superficie vacía con CTA de configuración, sin error fatal.
-- [ ] El chat define límite inicial de `2.000` caracteres para texto solo y `1.000` para texto + imágenes.
-- [ ] La UX muestra contador, bloqueo de envío y mensaje claro cuando se supera el límite.
-- [ ] El asistente define soporte opcional de imágenes con límites concretos.
-- [ ] El saludo inicial y el cierre de derivación a soporte quedan externalizados a archivos editables.
-- [ ] `supportUrl` queda definido como dato del catálogo de proveedores.
-- [ ] El cierre de soporte queda definido solo para respuestas sin confianza suficiente.
-- [ ] Todos los proveedores del catálogo inicial quedan contemplados como soportados en la primera HU.
-- [ ] Las reglas de no persistencia de adjuntos quedan explícitas.
-- [ ] El corpus inicial queda delimitado a documentación operativa estable y excluye material técnico/metodológico.
-- [ ] El resultado esperado de las respuestas queda delimitado como orientación y no como resolución garantizada.
+- [x] Queda explícito que el consumo del modelo no depende de la cuenta del proveedor del producto.
+- [x] Queda explícito que la primera versión se configura solo por usuario.
+- [x] La persistencia de credenciales queda definida fuera de `users`.
+- [x] Existe catálogo inicial de proveedores y fuente editable para onboarding.
+- [x] La entrada inicial del asistente queda definida en menú avatar como `Chat Asistente IA`.
+- [x] El chat se abre en nueva pestaña y no embebido en la pantalla actual.
+- [x] Sin configuración válida se informa falta de configuración y se muestra superficie vacía con CTA de configuración, sin error fatal.
+- [x] El chat define límite inicial de `2.000` caracteres para texto solo y `1.000` para texto + imágenes.
+- [x] La UX muestra contador, bloqueo de envío y mensaje claro cuando se supera el límite.
+- [x] El asistente define soporte opcional de imágenes con límites concretos.
+- [x] El saludo inicial y el cierre de derivación a soporte quedan externalizados a archivos editables.
+- [x] `supportUrl` queda definido como dato del catálogo de proveedores.
+- [x] El cierre de soporte queda definido solo para respuestas sin confianza suficiente.
+- [x] Todos los proveedores del catálogo inicial quedan contemplados como soportados en la primera HU.
+- [x] Las reglas de no persistencia de adjuntos quedan explícitas.
+- [x] El corpus inicial queda delimitado a documentación operativa estable y excluye material técnico/metodológico.
+- [x] El resultado esperado de las respuestas queda delimitado como orientación y no como resolución garantizada.
 
-## Trazabilidad HU
+## Trazabilidad HU (parte B)
 
-| HU | Tema SPEC (a generar) |
-|----|------------------------|
-| HU-GEN-10-configuracion-asistente-ia | Alta/edición de proveedor, modelo y credencial |
-| HU-GEN-10-catalogo-proveedores-ia | Catálogo inicial y onboarding |
-| HU-GEN-10-chat-documental | Consulta textual con base documental |
-| HU-GEN-10-imagenes-asistente-ia | Adjuntos y validaciones de imágenes |
-| HU-GEN-10-mensajes-asistente-ia | Mensaje inicial, cierre y derivación a soporte |
+| HU | TR | Foco | Orden D1 |
+|----|-----|------|----------|
+| [HU-GEN-10-catalogo-proveedores-ia](../../03-historias-usuario/001-Generaliddes/HU-GEN-10-catalogo-proveedores-ia.md) | [TR-GEN-10-catalogo-proveedores-ia](../../04-tareas/001-Generaliddes/TR-GEN-10-catalogo-proveedores-ia.md) | Catálogo inicial y onboarding | 1 |
+| [HU-GEN-10-configuracion-asistente-ia](../../03-historias-usuario/001-Generaliddes/HU-GEN-10-configuracion-asistente-ia.md) | [TR-GEN-10-configuracion-asistente-ia](../../04-tareas/001-Generaliddes/TR-GEN-10-configuracion-asistente-ia.md) | Alta/edición proveedor, modelo y credencial | 2 |
+| [HU-GEN-10-mensajes-asistente-ia](../../03-historias-usuario/001-Generaliddes/HU-GEN-10-mensajes-asistente-ia.md) | [TR-GEN-10-mensajes-asistente-ia](../../04-tareas/001-Generaliddes/TR-GEN-10-mensajes-asistente-ia.md) | Mensaje inicial, cierre y derivación a soporte | 3 |
+| [HU-GEN-10-chat-documental](../../03-historias-usuario/001-Generaliddes/HU-GEN-10-chat-documental.md) | [TR-GEN-10-chat-documental](../../04-tareas/001-Generaliddes/TR-GEN-10-chat-documental.md) | Consulta textual con base documental | 4 |
+| [HU-GEN-10-imagenes-asistente-ia](../../03-historias-usuario/001-Generaliddes/HU-GEN-10-imagenes-asistente-ia.md) | [TR-GEN-10-imagenes-asistente-ia](../../04-tareas/001-Generaliddes/TR-GEN-10-imagenes-asistente-ia.md) | Adjuntos y validaciones de imágenes | 5 |
+
+---
+
+## Revisión A1 — cierre (2026-06-21)
+
+### Resultado general
+
+| Campo | Valor |
+|-------|--------|
+| **Veredicto** | **Apto con observaciones** |
+| **Puede pasar a HU (MVP portal)** | **No** — epic Chat Asistente IA fuera del MVP portal |
+| **Puede abrir epic / HU futura** | **Sí** — contexto `_mono/01-experiencia-base/asistente-ia-*` cerrado para derivar HU |
+
+### Checklist A1 (resumen)
+
+| Área | Estado | Notas |
+|------|--------|-------|
+| Alcance / fuera de alcance | OK | BYOK, nueva pestaña, sin automatización autónoma |
+| Actores / permisos | OK | Usuario autenticado; configuración solo por usuario en v1 |
+| Modelo de datos | OK | Tablas `pq_pedidosweb_asistente_ia_proveedores` y `pq_pedidosweb_asistente_ia_credenciales` |
+| Catálogo / onboarding | OK | Fuente editable `asistente-ia-proveedores.md` |
+| UX entrada / sin config | OK | Menú avatar; CTA a preferencias |
+| Límites texto e imágenes | OK | 2.000 / 1.000 caracteres; 4 imágenes × 5 MB |
+| Privacidad adjuntos | OK | No persistencia en portal |
+| Corpus Fase 1 | OK | `99-manual-usuario` + docs operativas; excluye SPEC/HU/TR |
+| APIs | Pendiente TR | Contratos REST en TR-GEN-10-* (cerrados en C1) |
+| Criterios aceptación | OK | Medibles y trazables a fuentes MONO |
+
+### Ambigüedades menores (resueltas en C1)
+
+| ID | Tema | Resolución |
+|----|------|------------|
+| AMB-M-10-01 | Deshabilitar vs eliminar credencial | `PATCH /status` solo cambia `isEnabled`; no borra secreto (TR configuración R-C1-04) |
+| AMB-M-10-02 | Heurística baja confianza | Backend expone `requiresSupportFollowup`; slice mensajes solo renderiza (TR mensajes R-C1-05) |
+| AMB-M-10-03 | Sincronización catálogo doc vs seed | Seed 1:1 con `asistente-ia-proveedores.md` (TR catálogo R-C1-07) |
+
+### Veredicto
+
+**Apto con observaciones** para cierre **A1 documental**. **Autoriza parte B** (HU derivadas).
+
+---
+
+## Parte B — cierre (2026-05-30)
+
+### Resultado general
+
+| Campo | Valor |
+|-------|--------|
+| **Veredicto B1** | **Cerrado** — 5 HU enriquecidas |
+| **¿Puede pasar a parte C (TR) en MVP portal?** | **No** — epic posterior |
+| **¿Listo para parte C cuando se priorice epic?** | **Sí** |
+
+### Entregables parte B
+
+| Entregable | Estado |
+|------------|--------|
+| `HU-GEN-10-catalogo-proveedores-ia` | Enriquecida |
+| `HU-GEN-10-configuracion-asistente-ia` | Enriquecida |
+| `HU-GEN-10-mensajes-asistente-ia` | Enriquecida |
+| `HU-GEN-10-chat-documental` | Enriquecida |
+| `HU-GEN-10-imagenes-asistente-ia` | Enriquecida |
+| Índice HU README 001-Generaliddes | Actualizado (2026-06-21) |
+
+### Veredicto
+
+**B1 cerrado** para SPEC-001-10. **C generada (2026-05-30).** Al priorizar el epic, ejecutar TR en orden catálogo → configuración → mensajes → chat → imágenes.
+
+---
+
+## Parte C — cierre (2026-06-21)
+
+### Resultado general
+
+| Campo | Valor |
+|-------|--------|
+| **Veredicto C1** | **Cerrado** — 5 TR generadas; aptas para D1 |
+| **¿Puede pasar a parte D en MVP portal?** | **No** — epic posterior |
+| **¿Listo para parte D cuando se priorice epic?** | **Sí** — ver [F-GEN-10-cierre-c1](../../04-tareas/001-Generaliddes/F-GEN-10-cierre-c1.md) |
+
+### Entregables parte C
+
+| Entregable | Estado |
+|------------|--------|
+| `TR-GEN-10-catalogo-proveedores-ia` | Generada; C1 cerrado |
+| `TR-GEN-10-configuracion-asistente-ia` | Generada; C1 cerrado |
+| `TR-GEN-10-mensajes-asistente-ia` | Generada; C1 cerrado |
+| `TR-GEN-10-chat-documental` | Generada; C1 cerrado |
+| `TR-GEN-10-imagenes-asistente-ia` | Generada; C1 cerrado |
+| `F-GEN-10-cierre-c1` | C1 formalizado |
+| Índice TR README 001-Generaliddes | Actualizado |
+
+### Veredicto
+
+**C1 cerrado** para SPEC-001-10. Epic **listo para D**; plan D1 ya incorporado en §3.3 de cada TR (2026-05-30).

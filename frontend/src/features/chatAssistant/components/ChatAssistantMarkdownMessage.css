@@ -1,0 +1,21 @@
+.chatAssistantMarkdownMessage {
+  color: var(--pw-text-primary, #1f2937);
+  font-size: 0.95rem;
+  line-height: 1.55;
+}
+
+.chatAssistantMarkdownMessage p {
+  margin: 0 0 0.75rem;
+}
+
+.chatAssistantMarkdownMessage p:last-child {
+  margin-bottom: 0;
+}
+
+.chatAssistantMarkdownMessage code {
+  background: var(--pw-surface-muted, #f3f4f6);
+  border-radius: 0.25rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.9em;
+  padding: 0.1rem 0.35rem;
+}

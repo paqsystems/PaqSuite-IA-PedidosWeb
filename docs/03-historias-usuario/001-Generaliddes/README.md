@@ -62,13 +62,23 @@ Convención: **`HU-GEN-{SPEC}-{tema}.md`** derivadas de `docs/05-open-spec/001-G
 
 | HU | TR | Título | Prioridad |
 |----|-----|--------|-----------|
-| [HU-GEN-10-configuracion-asistente-ia](HU-GEN-10-configuracion-asistente-ia.md) | — | Configuración personal del Chat Asistente IA | Should |
-| [HU-GEN-10-catalogo-proveedores-ia](HU-GEN-10-catalogo-proveedores-ia.md) | — | Catálogo inicial de proveedores IA | Should |
-| [HU-GEN-10-chat-documental](HU-GEN-10-chat-documental.md) | — | Chat documental del asistente IA | Should |
-| [HU-GEN-10-imagenes-asistente-ia](HU-GEN-10-imagenes-asistente-ia.md) | — | Adjuntos de imágenes en el chat | Should |
-| [HU-GEN-10-mensajes-asistente-ia](HU-GEN-10-mensajes-asistente-ia.md) | — | Mensajes editables del Chat Asistente IA | Should |
+| [HU-GEN-10-catalogo-proveedores-ia](HU-GEN-10-catalogo-proveedores-ia.md) | [TR-GEN-10-catalogo-proveedores-ia](../../04-tareas/001-Generaliddes/TR-GEN-10-catalogo-proveedores-ia.md) | Catálogo inicial de proveedores IA | Should |
+| [HU-GEN-10-configuracion-asistente-ia](HU-GEN-10-configuracion-asistente-ia.md) | [TR-GEN-10-configuracion-asistente-ia](../../04-tareas/001-Generaliddes/TR-GEN-10-configuracion-asistente-ia.md) | Configuración personal del Chat Asistente IA | Should |
+| [HU-GEN-10-mensajes-asistente-ia](HU-GEN-10-mensajes-asistente-ia.md) | [TR-GEN-10-mensajes-asistente-ia](../../04-tareas/001-Generaliddes/TR-GEN-10-mensajes-asistente-ia.md) | Mensajes editables del Chat Asistente IA | Should |
+| [HU-GEN-10-chat-documental](HU-GEN-10-chat-documental.md) | [TR-GEN-10-chat-documental](../../04-tareas/001-Generaliddes/TR-GEN-10-chat-documental.md) | Chat documental del asistente IA | Should |
+| [HU-GEN-10-imagenes-asistente-ia](HU-GEN-10-imagenes-asistente-ia.md) | [TR-GEN-10-imagenes-asistente-ia](../../04-tareas/001-Generaliddes/TR-GEN-10-imagenes-asistente-ia.md) | Adjuntos de imágenes en el chat | Should |
 
-**SPEC:** [SPEC-001-10-chat-asistente-ia.md](../../05-open-spec/001-Generaliddes/SPEC-001-10-chat-asistente-ia.md)
+**SPEC:** [SPEC-001-10-chat-asistente-ia.md](../../05-open-spec/001-Generaliddes/SPEC-001-10-chat-asistente-ia.md) — **B1 (2026-05-30):** 5 HU enriquecidas · **C + C1 (2026-06-21):** 5 TR generadas — [F-GEN-10-cierre-c1](../../04-tareas/001-Generaliddes/F-GEN-10-cierre-c1.md)
+
+**Orden D1:**
+
+```text
+1. TR-GEN-10-catalogo-proveedores-ia
+2. TR-GEN-10-configuracion-asistente-ia
+3. TR-GEN-10-mensajes-asistente-ia
+4. TR-GEN-10-chat-documental
+5. TR-GEN-10-imagenes-asistente-ia
+```
 
 ## SPEC-001-03 — UI transversal
 

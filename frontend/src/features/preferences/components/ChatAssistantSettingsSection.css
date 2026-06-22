@@ -1,0 +1,69 @@
+.chatAssistantSettingsSection {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-width: 40rem;
+}
+
+.chatAssistantSettingsSection__header h2 {
+  margin: 0 0 0.35rem;
+  font-size: 1.1rem;
+}
+
+.chatAssistantSettingsSection__header p {
+  margin: 0;
+  color: var(--dx-color-text-secondary, #5f6368);
+  font-size: 0.92rem;
+}
+
+.chatAssistantSettingsSection__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  font-size: 0.9rem;
+}
+
+.chatAssistantSettingsSection__error {
+  margin: 0;
+  color: var(--dx-color-danger, #d93025);
+}
+
+.chatAssistantSettingsSection__warning {
+  margin: 0;
+  color: var(--dx-color-warning, #b06000);
+  font-size: 0.9rem;
+}
+
+.chatAssistantSettingsSection__success {
+  margin: 0;
+  color: var(--dx-color-success, #188038);
+  font-size: 0.9rem;
+}
+
+.chatAssistantSettingsSection__status {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.chatAssistantSettingsSection__meta {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--dx-color-text-secondary, #5f6368);
+}
+
+.chatAssistantSettingsSection__actions {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.chatAssistantProviderFields__hint {
+  margin: 0;
+  font-size: 0.88rem;
+  color: var(--dx-color-text-secondary, #5f6368);
+}
+
+.chatAssistantProviderHelpLink {
+  align-self: flex-start;
+  font-size: 0.9rem;
+}

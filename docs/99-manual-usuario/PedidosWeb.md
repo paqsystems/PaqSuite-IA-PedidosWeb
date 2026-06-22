@@ -227,6 +227,22 @@ Al cambiar la lista de precios en cabecera, el sistema recalcula precios de los 
 - Si al filtrar queda **un solo artículo**, se selecciona automáticamente.
 - No aparecen artículos marcados como **BASE** en el catálogo ERP.
 
+**Significado de los números (Disp.)**
+
+Formato habitual en el combobox:
+
+| Caso | Ejemplo visual |
+|------|----------------|
+| Sin artículo base | `ART01 - Descripción — Disp. 120,00` |
+| Con artículo base | `ART01 - Descripción — Disp. 120,00 (450,00)` |
+
+| Número | Qué representa |
+|--------|----------------|
+| **Primero** (tras «Disp.») | **Disponible neto del artículo**: stock ERP − comprometido ERP − cantidades en **pedidos web ingresados** (estado 0) no descargados de ese artículo. |
+| **Segundo** (entre paréntesis, si existe) | **Disponible neto del artículo base**: agrega stock y comprometido ERP de **todas las presentaciones** con la misma base, y resta los pedidos web ingresados de esas presentaciones. Solo se muestra si el artículo tiene código base en el maestro ERP. |
+
+**Importante:** no son «stock» y «comprometido» por separado; ambos valores son **disponible neto** listo para operatoria de venta. Si el artículo no tiene base, verá un solo número.
+
 **Diferencia con Consulta de stock (§9.4):** el informe **Stock** permite análisis pivot y filtros amplios en servidor; el listbox de carga usa un catálogo precargado en memoria, optimizado para operatoria de alta.
 
 ### 6.8 Editar un comprobante existente
@@ -345,9 +361,22 @@ Elementos comunes:
 
 ### 7.1 Pedidos ingresados
 
+Ruta: **Pedidos → Pedidos ingresados**.
+
 Pedidos en estado **ingresado** y relacionados según reglas del proceso (incluye en modificación cuando aplica).
 
 **Acciones habituales** (según permisos): ver, editar, eliminar (solo ingresados), copiar, convertir a presupuesto.
+
+**Convertir pedido a presupuesto**
+
+Solo pedidos en estado **ingresado (0)** que aún no fueron descargados ni pasaron a pendiente.
+
+1. En **Pedidos → Pedidos ingresados**, localice el pedido que desea convertir.
+2. Pulse **Editar** en la fila del pedido (según permisos y parámetros ERP; ver abajo).
+3. En la pantalla de carga, revise cabecera y renglones si lo desea.
+4. Pulse **Grabar presupuesto** en la toolbar para generar un presupuesto **activo (99)**. El pedido origen deja de estar disponible como ingresado.
+
+También puede usar la acción **Convertir a presupuesto** directamente desde la grilla, sin pasar por edición previa.
 
 #### Por qué no veo Editar o Eliminar
 
@@ -370,9 +399,18 @@ Pedidos en cartera **pendiente** (estado 1). Consulta de seguimiento; **sin edic
 
 ### 7.3 Presupuestos ingresados
 
+Ruta: **Pedidos → Presupuestos ingresados**.
+
 Presupuestos **activos (99)** y **cerrados (98)** en procesos separados o pestañas según menú.
 
 **Acciones habituales:** ver, editar (activos), copiar, convertir a pedido, **cerrar presupuesto** (con motivo de cierre).
+
+**Convertir presupuesto a pedido**
+
+1. En **Pedidos → Presupuestos ingresados**, localice el presupuesto **activo (99)** que desea convertir.
+2. En la fila del presupuesto, use la acción **Convertir a pedido** (según permisos).
+3. Se abre la pantalla de **carga** con los datos del presupuesto; revise cabecera y renglones.
+4. Pulse **Grabar pedido** para generar el pedido nuevo. El presupuesto origen sigue su ciclo (puede cerrarse aparte; ver §10).
 
 ---
 
@@ -581,6 +619,27 @@ Sí, desde **Detalle de pedidos** con Exportar Excel (si hay datos visibles).
 
 Parámetros ERP o rol pueden inhibir modificación de bonificaciones.
 
+### ¿Cómo paso un presupuesto a pedido?
+
+Para convertir un presupuesto activo en pedido:
+
+1. Acceda a **Pedidos → Presupuestos ingresados**.
+2. Busque el presupuesto que desea convertir (debe estar **activo**, estado 99).
+3. Utilice la acción **Convertir a pedido** en la fila del presupuesto.
+4. En la pantalla de carga que se abre, revise los datos y pulse **Grabar pedido**.
+
+No use la acción **Copiar** para este fin: copia crea un comprobante nuevo del mismo tipo; la conversión es la acción **Convertir a pedido**. Detalle en §7.3.
+
+### ¿Puedo pasar un pedido a presupuesto?
+
+Sí, si el pedido está en estado **ingresado (0)** y no fue descargado:
+
+1. Acceda a **Pedidos → Pedidos ingresados**.
+2. **Edite** el pedido que desea convertir.
+3. En la pantalla de carga, pulse **Grabar presupuesto**.
+
+También puede usar **Convertir a presupuesto** desde la grilla sin editar antes. Detalle en §7.1.
+
 ### ¿La conversión presupuesto → pedido borra el presupuesto?
 
 Genera un **pedido nuevo**; el presupuesto origen sigue su ciclo (puede cerrarse aparte).
@@ -604,6 +663,15 @@ En **Carga**, modo **nuevo**, usar la barra superior de importación (si el tena
 ### ¿Por qué el combobox de artículos está deshabilitado o muestra disponibilidad desactualizada?
 
 El combobox se habilita cuando la cabecera tiene **lista de precios válida**. El catálogo se precarga al **ingresar** a la pantalla; use el icono **Actualizar artículos** para refrescar desde el servidor. Para análisis ampliado use **Informes → Stock** (§9.4). Ver §6.7.
+
+### ¿Qué significan los dos números en la lista de artículos en carga?
+
+En el combobox de **Carga de pedidos**, junto al código y la descripción aparece **Disp.** con uno o dos números:
+
+1. **Primer número:** disponible **neto** del artículo (stock ERP − comprometido ERP − pedidos web ingresados no descargados de ese artículo).
+2. **Segundo número (entre paréntesis):** disponible neto del **artículo base**, solo si el artículo tiene base en el maestro. Agrega todas las presentaciones con esa base y aplica la misma regla de descuentos.
+
+No representan stock y comprometido por separado. Si no hay artículo base, solo verá el primer número. Detalle en §6.7.
 
 ### ¿Cómo uso la vista pivot en informes?
 

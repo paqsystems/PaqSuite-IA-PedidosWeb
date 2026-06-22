@@ -1,0 +1,26 @@
+.chatAssistantMessageBubble {
+  border-radius: 0.75rem;
+  max-width: 42rem;
+  padding: 1rem 1.1rem;
+}
+
+.chatAssistantMessageBubble--assistant {
+  background: var(--pw-surface-muted, #f8fafc);
+  border: 1px solid var(--pw-border-subtle, #e5e7eb);
+}
+
+.chatAssistantMessageBubble--support {
+  background: var(--pw-surface-warning, #fffbeb);
+  border: 1px solid var(--pw-border-warning, #fcd34d);
+}
+
+.chatAssistantMessageBubble--user {
+  background: var(--pw-surface-accent, #eff6ff);
+  border: 1px solid var(--pw-border-accent, #bfdbfe);
+  margin-left: auto;
+}
+
+.chatAssistantMessageBubble__plainText {
+  margin: 0;
+  white-space: pre-wrap;
+}

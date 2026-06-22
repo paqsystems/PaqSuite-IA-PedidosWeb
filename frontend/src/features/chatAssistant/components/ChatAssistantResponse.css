@@ -1,0 +1,11 @@
+.chatAssistantResponse {
+  background: var(--pw-surface-muted, #f8fafc);
+  border: 1px solid var(--pw-border-subtle, #e5e7eb);
+  border-radius: 0.75rem;
+  padding: 1rem 1.1rem;
+}
+
+.chatAssistantResponse__text {
+  margin: 0;
+  white-space: pre-wrap;
+}

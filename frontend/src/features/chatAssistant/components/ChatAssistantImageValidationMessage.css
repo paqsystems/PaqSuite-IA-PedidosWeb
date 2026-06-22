@@ -1,0 +1,5 @@
+.chatAssistantImageValidationMessage {
+  color: var(--pw-text-danger, #b91c1c);
+  font-size: 0.85rem;
+  margin: 0;
+}

@@ -1,0 +1,16 @@
+.chatAssistantEmptyState {
+  background: var(--pw-surface-muted, #f8fafc);
+  border: 1px dashed var(--pw-border-subtle, #d1d5db);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+}
+
+.chatAssistantEmptyState h2 {
+  font-size: 1.1rem;
+  margin: 0 0 0.5rem;
+}
+
+.chatAssistantEmptyState p {
+  color: var(--pw-text-secondary, #4b5563);
+  margin: 0 0 1rem;
+}

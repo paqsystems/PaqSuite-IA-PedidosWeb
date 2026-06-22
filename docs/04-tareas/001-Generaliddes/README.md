@@ -181,10 +181,26 @@ Tareas técnicas (parte C) derivadas de **SPEC-001-01** y **SPEC-001-02**.
 
 ## SPEC-001-10 — Chat Asistente IA
 
+**C1 (2026-06-21):** revisión de ambigüedad en las 5 TR — todas **aptas para D1** — [F-GEN-10-cierre-c1](F-GEN-10-cierre-c1.md).  
+**D1 (2026-05-30):** plan §3.3 cerrado en cada TR; **no requiere oleada D1 adicional** antes de implementar.  
+**D (2026-06-21):** en curso — slice 1 `catalogo-proveedores-ia`.
+
+**Orden de implementación:**
+
+```text
+1. TR-GEN-10-catalogo-proveedores-ia      (seed + GET /chat-assistant/providers)
+2. TR-GEN-10-configuracion-asistente-ia   (credenciales cifradas + preferencias)
+3. TR-GEN-10-mensajes-asistente-ia        (saludo/cierre Markdown)
+4. TR-GEN-10-chat-documental              (ruta chat + POST messages)
+5. TR-GEN-10-imagenes-asistente-ia        (adjuntos en mismo endpoint)
+```
+
 | TR | HU | Prioridad |
-|----|----|-----------|
-| [TR-GEN-10-configuracion-asistente-ia](TR-GEN-10-configuracion-asistente-ia.md) | [HU-GEN-10-configuracion-asistente-ia](../../03-historias-usuario/001-Generaliddes/HU-GEN-10-configuracion-asistente-ia.md) | Should |
+|----|-----|-----------|
 | [TR-GEN-10-catalogo-proveedores-ia](TR-GEN-10-catalogo-proveedores-ia.md) | [HU-GEN-10-catalogo-proveedores-ia](../../03-historias-usuario/001-Generaliddes/HU-GEN-10-catalogo-proveedores-ia.md) | Should |
-| [TR-GEN-10-chat-documental](TR-GEN-10-chat-documental.md) | [HU-GEN-10-chat-documental](../../03-historias-usuario/001-Generaliddes/HU-GEN-10-chat-documental.md) | Should |
+| [TR-GEN-10-configuracion-asistente-ia](TR-GEN-10-configuracion-asistente-ia.md) | [HU-GEN-10-configuracion-asistente-ia](../../03-historias-usuario/001-Generaliddes/HU-GEN-10-configuracion-asistente-ia.md) | Should |
 | [TR-GEN-10-mensajes-asistente-ia](TR-GEN-10-mensajes-asistente-ia.md) | [HU-GEN-10-mensajes-asistente-ia](../../03-historias-usuario/001-Generaliddes/HU-GEN-10-mensajes-asistente-ia.md) | Should |
+| [TR-GEN-10-chat-documental](TR-GEN-10-chat-documental.md) | [HU-GEN-10-chat-documental](../../03-historias-usuario/001-Generaliddes/HU-GEN-10-chat-documental.md) | Should |
 | [TR-GEN-10-imagenes-asistente-ia](TR-GEN-10-imagenes-asistente-ia.md) | [HU-GEN-10-imagenes-asistente-ia](../../03-historias-usuario/001-Generaliddes/HU-GEN-10-imagenes-asistente-ia.md) | Should |
+
+**SPEC:** [SPEC-001-10-chat-asistente-ia.md](../../05-open-spec/001-Generaliddes/SPEC-001-10-chat-asistente-ia.md)

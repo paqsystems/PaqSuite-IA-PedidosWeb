@@ -1,0 +1,33 @@
+.chatAssistantReferences {
+  border-top: 1px solid var(--pw-border-subtle, #e5e7eb);
+  margin-top: 0.5rem;
+  padding-top: 0.75rem;
+}
+
+.chatAssistantReferences__title {
+  font-size: 0.9rem;
+  margin: 0 0 0.5rem;
+}
+
+.chatAssistantReferences__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.chatAssistantReferences__list li {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  margin-bottom: 0.5rem;
+}
+
+.chatAssistantReferences__titleText {
+  font-weight: 600;
+}
+
+.chatAssistantReferences__path {
+  color: var(--pw-text-secondary, #6b7280);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.85rem;
+}

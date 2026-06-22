@@ -32,6 +32,11 @@ export function AvatarMenu({
     navigate('/change-password');
   }
 
+  function handleOpenChatAssistant() {
+    closeMenu();
+    window.open(`${window.location.origin}/chat-assistant`, '_blank', 'noopener,noreferrer');
+  }
+
   function handleAppearance() {
     closeMenu();
     setIsThemeModalOpen(true);
@@ -72,6 +77,16 @@ export function AvatarMenu({
               />
               <span>{t('avatar.openInNewTab')}</span>
             </label>
+
+            <button
+              type="button"
+              className="avatarMenuAction"
+              role="menuitem"
+              data-testid="avatarMenuItemChatAssistant"
+              onClick={handleOpenChatAssistant}
+            >
+              {t('avatar.chatAssistant')}
+            </button>
 
             <button
               type="button"

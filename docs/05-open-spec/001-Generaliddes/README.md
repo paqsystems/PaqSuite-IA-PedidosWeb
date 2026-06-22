@@ -13,7 +13,7 @@ Este bloque define las **especificaciones de configuración inicial** para Pedid
 | 001-06, 001-09 | Documental | **No** en MVP portal | Preparación; sin HU en primer release |
 | 001-07 | **C1 cerrado** (2026-06-16) | **No** en MVP portal | 4 HU + 4 TR; epic importar Excel posterior |
 | 001-08 | **D1 + F cerrado** (2026-06-11) | **No** en MVP portal | 4 HU + 4 TR implementadas; activación vía flags |
-| 001-10 | Pendiente | No todavía | Chat Asistente IA en nueva pestaña con `BYOK`, proveedores y mensajes editables |
+| 001-10 | **C1 cerrado** (2026-06-21) | **No** en MVP portal | 5 HU + 5 TR; epic Chat Asistente IA posterior — [F-GEN-10-cierre-c1](../../04-tareas/001-Generaliddes/F-GEN-10-cierre-c1.md) |
 
 **Fuente de producto compartida:** `docs/02-producto/PedidosWeb/PedidosWeb_Definicion_Conceptual_Final_OpenSpec.md`
 

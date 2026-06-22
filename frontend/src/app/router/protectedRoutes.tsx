@@ -1,5 +1,7 @@
 import { Route } from 'react-router-dom';
 import { ChangePasswordPage } from '../../features/auth/ChangePasswordPage';
+import { ChatAssistantPage } from '../../features/chatAssistant/pages/ChatAssistantPage';
+import { PreferencesPage } from '../../features/preferences/pages/PreferencesPage';
 import { ShellLayout } from '../layout/ShellLayout';
 import { RequireAuth } from './RequireAuth';
 import { RequirePasswordChange } from './RequirePasswordChange';
@@ -22,6 +24,8 @@ export const protectedRouteElements = (
         {adminSecurityRoutes.map((route) => (
           <Route key={route.path} path={route.path} element={route.element} />
         ))}
+        <Route path="/preferences" element={<PreferencesPage />} />
+        <Route path="/chat-assistant" element={<ChatAssistantPage />} />
         <Route path="*" element={<ProcessPlaceholderPage />} />
       </Route>
     </Route>

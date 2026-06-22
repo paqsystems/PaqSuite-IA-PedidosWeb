@@ -403,6 +403,141 @@ namespace App\OpenApi;
  *     },
  *     example={"error": 0, "respuesta": "auth.logoutOk", "resultado": {}}
  * )
+ *
+ * @OA\Schema(
+ *     schema="ChatAssistantProviderCatalogItem",
+ *     type="object",
+ *     @OA\Property(property="providerId", type="string", example="ollama"),
+ *     @OA\Property(property="displayName", type="string", example="Ollama"),
+ *     @OA\Property(property="supportsVision", type="boolean", example=true),
+ *     @OA\Property(property="requiresBaseUrl", type="boolean", example=true),
+ *     @OA\Property(property="supportUrl", type="string", example="https://ollama.com/download")
+ * )
+ *
+ * @OA\Schema(
+ *     schema="ChatAssistantProviderCatalogResultado",
+ *     type="object",
+ *     @OA\Property(
+ *         property="items",
+ *         type="array",
+ *         @OA\Items(ref="#/components/schemas/ChatAssistantProviderCatalogItem")
+ *     )
+ * )
+ *
+ * @OA\Schema(
+ *     schema="ApiEnvelopeChatAssistantProviderCatalog",
+ *     allOf={
+ *         @OA\Schema(ref="#/components/schemas/ApiEnvelope"),
+ *         @OA\Schema(
+ *             type="object",
+ *             @OA\Property(property="resultado", ref="#/components/schemas/ChatAssistantProviderCatalogResultado")
+ *         )
+ *     }
+ * )
+ *
+ * @OA\Schema(
+ *     schema="ChatAssistantConfigurationResultado",
+ *     type="object",
+ *     @OA\Property(property="hasConfiguration", type="boolean", example=true),
+ *     @OA\Property(property="hasApiKey", type="boolean", example=true),
+ *     @OA\Property(property="apiKeyHint", type="string", example="••••••••"),
+ *     @OA\Property(property="providerId", type="string", example="ollama"),
+ *     @OA\Property(property="modelId", type="string", example="llama3.1"),
+ *     @OA\Property(property="baseUrl", type="string", example="http://localhost:11434"),
+ *     @OA\Property(property="supportsVision", type="boolean", example=true),
+ *     @OA\Property(property="isEnabled", type="boolean", example=true)
+ * )
+ *
+ * @OA\Schema(
+ *     schema="UpsertChatAssistantConfigurationRequest",
+ *     type="object",
+ *     required={"providerId", "modelId"},
+ *     @OA\Property(property="providerId", type="string", example="ollama"),
+ *     @OA\Property(property="apiKey", type="string", example="secret-value"),
+ *     @OA\Property(property="modelId", type="string", example="llama3.1"),
+ *     @OA\Property(property="baseUrl", type="string", example="http://localhost:11434")
+ * )
+ *
+ * @OA\Schema(
+ *     schema="UpdateChatAssistantConfigurationStatusRequest",
+ *     type="object",
+ *     required={"isEnabled"},
+ *     @OA\Property(property="isEnabled", type="boolean", example=false)
+ * )
+ *
+ * @OA\Schema(
+ *     schema="ApiEnvelopeChatAssistantConfiguration",
+ *     allOf={
+ *         @OA\Schema(ref="#/components/schemas/ApiEnvelope"),
+ *         @OA\Schema(
+ *             type="object",
+ *             @OA\Property(property="resultado", ref="#/components/schemas/ChatAssistantConfigurationResultado")
+ *         )
+ *     }
+ * )
+ *
+ * @OA\Schema(
+ *     schema="ApiEnvelopeChatAssistantConfigurationSaved",
+ *     allOf={
+ *         @OA\Schema(ref="#/components/schemas/ApiEnvelope"),
+ *         @OA\Schema(
+ *             type="object",
+ *             @OA\Property(property="respuesta", type="string", example="chatAssistant.configurationSaved"),
+ *             @OA\Property(property="resultado", ref="#/components/schemas/ChatAssistantConfigurationResultado")
+ *         )
+ *     }
+ * )
+ *
+ * @OA\Schema(
+ *     schema="SendChatAssistantMessageRequest",
+ *     type="object",
+ *     @OA\Property(property="message", type="string", example="Necesito ayuda con esta pantalla"),
+ *     @OA\Property(
+ *         property="images",
+ *         type="array",
+ *         maxItems=4,
+ *         @OA\Items(ref="#/components/schemas/ChatAssistantImageAttachmentRequest")
+ *     )
+ * )
+ *
+ * @OA\Schema(
+ *     schema="ChatAssistantImageAttachmentRequest",
+ *     type="object",
+ *     required={"fileName", "mimeType", "contentBase64"},
+ *     @OA\Property(property="fileName", type="string", example="captura.png"),
+ *     @OA\Property(property="mimeType", type="string", example="image/png"),
+ *     @OA\Property(property="contentBase64", type="string", example="iVBORw0KGgo=")
+ * )
+ *
+ * @OA\Schema(
+ *     schema="ChatAssistantDocumentReference",
+ *     type="object",
+ *     @OA\Property(property="title", type="string", example="Manual de usuario"),
+ *     @OA\Property(property="path", type="string", example="99-manual-usuario/PedidosWeb.md")
+ * )
+ *
+ * @OA\Schema(
+ *     schema="ChatAssistantMessageReplyResultado",
+ *     type="object",
+ *     @OA\Property(property="reply", type="string", example="Texto orientativo de la respuesta"),
+ *     @OA\Property(
+ *         property="references",
+ *         type="array",
+ *         @OA\Items(ref="#/components/schemas/ChatAssistantDocumentReference")
+ *     ),
+ *     @OA\Property(property="requiresSupportFollowup", type="boolean", example=false)
+ * )
+ *
+ * @OA\Schema(
+ *     schema="ApiEnvelopeChatAssistantMessageReply",
+ *     allOf={
+ *         @OA\Schema(ref="#/components/schemas/ApiEnvelope"),
+ *         @OA\Schema(
+ *             type="object",
+ *             @OA\Property(property="resultado", ref="#/components/schemas/ChatAssistantMessageReplyResultado")
+ *         )
+ *     }
+ * )
  */
 final class OpenApiSchemas
 {
