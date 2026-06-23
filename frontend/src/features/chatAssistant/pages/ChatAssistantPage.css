@@ -25,7 +25,22 @@
 }
 
 .chatAssistantPage__headerActions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
   flex-shrink: 0;
+  gap: 0.5rem;
+  max-width: 15rem;
+}
+
+.chatAssistantPage__setupHint {
+  color: var(--pw-text-info, #1d4ed8);
+  font-size: 0.8125rem;
+  font-style: italic;
+  font-weight: 500;
+  line-height: 1.45;
+  margin: 0;
+  text-align: right;
 }
 
 .chatAssistantPage__configurationSelect {

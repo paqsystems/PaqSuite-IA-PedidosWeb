@@ -64,17 +64,20 @@ export function ChatAssistantPageView({
           <p>{t('chatAssistant.page.intro')}</p>
         </div>
         <div className="chatAssistantPage__headerActions">
-          {isOperational && (
-            <Button
-              text={t('chatAssistant.page.preferencesCta')}
-              stylingMode="outlined"
-              type="default"
-              onClick={() => {
-                navigate('/preferences');
-              }}
-              elementAttr={{ 'data-testid': 'chatAssistantPreferencesButton' }}
-            />
-          )}
+          <Button
+            text={t('chatAssistant.page.preferencesCta')}
+            stylingMode="outlined"
+            type="default"
+            onClick={() => {
+              navigate('/preferences');
+            }}
+            elementAttr={{ 'data-testid': 'chatAssistantPreferencesButton' }}
+          />
+          {!isLoading && !isOperational ? (
+            <p className="chatAssistantPage__setupHint" data-testid="chatAssistantSetupHint">
+              {t('chatAssistant.page.setupHint')}
+            </p>
+          ) : null}
         </div>
       </header>
 

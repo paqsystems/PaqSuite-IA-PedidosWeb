@@ -755,6 +755,7 @@
   "chatAssistant.page.title": "Chat Asistente IA",
   "chatAssistant.page.intro": "Consultá sobre el uso del sistema. Las respuestas son orientativas según la documentación disponible.",
   "chatAssistant.page.preferencesCta": "Preferencias",
+  "chatAssistant.page.setupHint": "Para usar el chat, ingresá a Preferencias y definí un proveedor LLM con tu credencial (API de pago o gratuito, por ejemplo Ollama en tu red).",
   "chatAssistant.page.configurationLabel": "Configuración LLM activa",
   "chatAssistant.messages.initialFallback": "Hola. Soy el asistente de ayuda de {{projectName}}.",
   "chatAssistant.messages.supportFollowupFallback": "Si necesitás más ayuda, contactá a soporte en {{supportEmail}}.",

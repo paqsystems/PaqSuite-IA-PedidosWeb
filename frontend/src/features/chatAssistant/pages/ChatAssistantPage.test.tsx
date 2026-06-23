@@ -48,6 +48,16 @@ describe('ChatAssistantPageView', () => {
     expect(
       view.container.querySelector('[data-testid="chatAssistantEmptyStateConfigurationCta"]'),
     ).not.toBeNull();
+    expect(view.container.querySelector('[data-testid="chatAssistantPreferencesButton"]')).not.toBeNull();
+    expect(view.container.querySelector('[data-testid="chatAssistantSetupHint"]')).not.toBeNull();
+    view.unmount();
+  });
+
+  it('hides setup hint when chat is operational', () => {
+    const view = renderView(<ChatAssistantPageView isOperational />);
+
+    expect(view.container.querySelector('[data-testid="chatAssistantSetupHint"]')).toBeNull();
+    expect(view.container.querySelector('[data-testid="chatAssistantPreferencesButton"]')).not.toBeNull();
     view.unmount();
   });
 });
