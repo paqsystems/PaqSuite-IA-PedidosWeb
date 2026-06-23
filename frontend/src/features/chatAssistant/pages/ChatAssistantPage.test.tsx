@@ -20,6 +20,18 @@ vi.mock('devextreme-react/button', () => ({
   ),
 }));
 
+vi.mock('../components/ChatAssistantComposer', () => ({
+  ChatAssistantComposer: () => <div data-testid="chatAssistantComposerStub" />,
+}));
+
+vi.mock('../components/ChatAssistantConversationPanel', () => ({
+  ChatAssistantConversationPanel: () => <div data-testid="chatAssistantConversationPanelStub" />,
+}));
+
+vi.mock('../../../shared/ui/controls/SelectBoxDx', () => ({
+  SelectBoxDx: () => null,
+}));
+
 function renderView(ui: ReactElement) {
   const container = document.createElement('div');
   document.body.appendChild(container);
