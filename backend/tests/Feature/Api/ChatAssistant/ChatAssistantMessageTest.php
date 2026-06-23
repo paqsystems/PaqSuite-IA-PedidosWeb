@@ -83,7 +83,7 @@ final class ChatAssistantMessageTest extends TestCase
             ->assertJsonPath('respuesta', 'chatAssistant.configurationRequired');
     }
 
-    public function testSendMessageReturnsOrientativeReplyWithReferencesFromApprovedCorpus(): void
+    public function testSendMessageReturnsOrientativeReplyFromApprovedCorpus(): void
     {
         $user = $this->authenticatedUser();
         Sanctum::actingAs($user);
@@ -100,18 +100,10 @@ final class ChatAssistantMessageTest extends TestCase
             ->assertJsonStructure([
                 'resultado' => [
                     'reply',
-                    'references' => [
-                        ['title', 'path'],
-                    ],
                     'requiresSupportFollowup',
                 ],
             ]);
 
-        $references = $response->json('resultado.references');
-
-        $this->assertIsArray($references);
-        $this->assertNotEmpty($references);
-        $this->assertStringContainsString('99-manual-usuario/', (string) ($references[0]['path'] ?? ''));
         $this->assertStringContainsString(
             'orientación operativa para grabar pedidos',
             (string) $response->json('resultado.reply'),
@@ -149,8 +141,8 @@ final class ChatAssistantMessageTest extends TestCase
             'message' => 'xyzqplmn',
         ], $this->tenantHeaders())
             ->assertOk()
-            ->assertJsonPath('resultado.requiresSupportFollowup', true)
-            ->assertJsonPath('resultado.references', []);
+            ->assertJsonPath('error', 0)
+            ->assertJsonPath('resultado.requiresSupportFollowup', true);
     }
 
     public function testCorpusResolverExcludesTechnicalAndSpecDocumentation(): void
@@ -184,7 +176,7 @@ final class ChatAssistantMessageTest extends TestCase
             ->assertOk()
             ->assertJsonPath('error', 0)
             ->assertJsonStructure([
-                'resultado' => ['reply', 'references', 'requiresSupportFollowup'],
+                'resultado' => ['reply', 'requiresSupportFollowup'],
             ]);
     }
 

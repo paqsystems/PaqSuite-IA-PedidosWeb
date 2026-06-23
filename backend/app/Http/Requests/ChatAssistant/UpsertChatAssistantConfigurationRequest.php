@@ -18,6 +18,8 @@ final class UpsertChatAssistantConfigurationRequest extends FormRequest
     {
         return [
             'providerId' => ['required', 'string', 'max:50'],
+            'displayName' => ['nullable', 'string', 'max:80'],
+            'credentialId' => ['nullable', 'integer', 'min:1'],
             'modelId' => ['required', 'string', 'max:120'],
             'baseUrl' => ['nullable', 'string', 'max:255'],
             'apiKey' => ['nullable', 'string', 'max:500'],

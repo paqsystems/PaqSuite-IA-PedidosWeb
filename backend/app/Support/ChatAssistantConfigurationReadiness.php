@@ -16,6 +16,8 @@ final class ChatAssistantConfigurationReadiness
 
     /**
      * @return array{
+     *     credentialId: int,
+     *     displayName: string,
      *     hasConfiguration: bool,
      *     hasApiKey: bool,
      *     apiKeyHint: string,
@@ -26,25 +28,31 @@ final class ChatAssistantConfigurationReadiness
      *     isEnabled: bool
      * }
      */
-    public function getConfiguration(User $user): array
+    public function getConfiguration(User $user, ?int $credentialId = null): array
     {
-        return $this->configurationService->getConfiguration($user);
+        return $this->configurationService->getConfiguration($user, $credentialId);
     }
 
-    public function isOperational(User $user): bool
+    public function isOperational(User $user, ?int $credentialId = null): bool
     {
-        $configuration = $this->getConfiguration($user);
+        if ($credentialId !== null) {
+            return $this->isConfigurationOperational($this->getConfiguration($user, $credentialId));
+        }
 
-        return $configuration['hasConfiguration']
-            && $configuration['hasApiKey']
-            && $configuration['isEnabled']
-            && $configuration['providerId'] !== ''
-            && $this->providerCatalogService->isActiveProvider($configuration['providerId']);
+        $configurations = $this->configurationService->listConfigurations($user)['items'];
+
+        foreach ($configurations as $configuration) {
+            if ($this->isConfigurationOperational($configuration)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
-    public function assertOperational(User $user): void
+    public function assertOperational(User $user, ?int $credentialId = null): void
     {
-        $configuration = $this->getConfiguration($user);
+        $configuration = $this->getConfiguration($user, $credentialId);
 
         if (
             ! $configuration['hasConfiguration']
@@ -66,5 +74,28 @@ final class ChatAssistantConfigurationReadiness
                 'chatAssistant.providerInactive',
             );
         }
+    }
+
+    /**
+     * @param  array{
+     *     credentialId?: int,
+     *     displayName?: string,
+     *     hasConfiguration: bool,
+     *     hasApiKey: bool,
+     *     apiKeyHint: string,
+     *     providerId: string,
+     *     modelId: string,
+     *     baseUrl: string,
+     *     supportsVision: bool,
+     *     isEnabled: bool
+     * }  $configuration
+     */
+    private function isConfigurationOperational(array $configuration): bool
+    {
+        return $configuration['hasConfiguration']
+            && $configuration['hasApiKey']
+            && $configuration['isEnabled']
+            && $configuration['providerId'] !== ''
+            && $this->providerCatalogService->isActiveProvider($configuration['providerId']);
     }
 }

@@ -10,11 +10,9 @@ use Illuminate\Support\Facades\Crypt;
 
 final class ChatAssistantCredentialResolver
 {
-    public function resolve(User $user): ChatAssistantInvocationContext
+    public function resolve(User $user, ?int $credentialId = null): ChatAssistantInvocationContext
     {
-        $credencial = PqPedidoswebAsistenteIaCredencial::query()
-            ->where('user_id', $user->id)
-            ->first();
+        $credencial = $this->resolveCredencial($user, $credentialId);
 
         if ($credencial === null) {
             throw new ChatAssistantMessageException(
@@ -48,5 +46,23 @@ final class ChatAssistantCredentialResolver
             apiKey: $apiKey,
             supportsVision: (bool) $credencial->supports_vision,
         );
+    }
+
+    private function resolveCredencial(User $user, ?int $credentialId): ?PqPedidoswebAsistenteIaCredencial
+    {
+        if ($credentialId !== null) {
+            return PqPedidoswebAsistenteIaCredencial::query()
+                ->where('user_id', $user->id)
+                ->where('id_credencial', $credentialId)
+                ->where('is_enabled', true)
+                ->first();
+        }
+
+        return PqPedidoswebAsistenteIaCredencial::query()
+            ->where('user_id', $user->id)
+            ->where('is_enabled', true)
+            ->orderBy('display_name')
+            ->orderBy('id_credencial')
+            ->first();
     }
 }

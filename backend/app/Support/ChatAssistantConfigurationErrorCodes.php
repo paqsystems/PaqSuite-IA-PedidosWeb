@@ -15,4 +15,6 @@ final class ChatAssistantConfigurationErrorCodes
     public const configurationUnavailable = 2105;
 
     public const configurationNotFound = 2106;
+
+    public const displayNameRequired = 2107;
 }

@@ -1,0 +1,11 @@
+.chatAssistantModelSelect__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.chatAssistantModelSelect__hint {
+  margin: 0;
+  color: var(--pw-color-text-muted, #666);
+  font-size: 0.875rem;
+}

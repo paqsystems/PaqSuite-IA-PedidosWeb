@@ -64,7 +64,18 @@ final class ChatAssistantProviderCatalogService
             'supportsVision' => (bool) $provider->soporta_imagenes,
             'requiresBaseUrl' => (bool) $provider->requiere_base_url_editable,
             'supportUrl' => (string) ($provider->url_onboarding ?? ''),
+            'suggestedModels' => $this->resolveSuggestedModels((string) $provider->provider_id),
         ];
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function resolveSuggestedModels(string $providerId): array
+    {
+        $models = config('chat_assistant.provider_suggested_models.'.$providerId, []);
+
+        return is_array($models) ? array_values(array_filter($models, 'is_string')) : [];
     }
 
     private function resolveSortIndex(string $providerId): int

@@ -26,14 +26,14 @@ final class ChatAssistantMessageService
      *     requiresSupportFollowup: bool
      * }
      */
-    public function sendMessage(User $user, string $message, array $images = []): array
+    public function sendMessage(User $user, string $message, array $images = [], ?int $credentialId = null): array
     {
-        $this->configurationReadiness->assertOperational($user);
+        $this->configurationReadiness->assertOperational($user, $credentialId);
 
         $normalizedImages = $this->imageAttachmentValidator->validateAndNormalize($images);
 
         if ($normalizedImages !== []) {
-            $configuration = $this->configurationReadiness->getConfiguration($user);
+            $configuration = $this->configurationReadiness->getConfiguration($user, $credentialId);
 
             if (! $configuration['supportsVision']) {
                 throw new ChatAssistantMessageException(
@@ -51,19 +51,12 @@ final class ChatAssistantMessageService
 
         $matches = $this->corpusResolver->searchRelevantDocuments($searchQuery);
 
-        $references = array_map(
-            static fn (array $match): array => [
-                'title' => $match['title'],
-                'path' => $match['path'],
-            ],
-            $matches,
-        );
-
         $reply = $this->llmGateway->generateReply(
             $user,
             $message,
             $matches,
             $normalizedImages,
+            $credentialId,
         );
 
         if ($normalizedImages !== []) {
@@ -75,7 +68,6 @@ final class ChatAssistantMessageService
 
         return [
             'reply' => trim($reply),
-            'references' => $references,
             'requiresSupportFollowup' => $matches === [],
         ];
     }

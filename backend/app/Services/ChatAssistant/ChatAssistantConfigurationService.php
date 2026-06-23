@@ -18,7 +18,38 @@ final class ChatAssistantConfigurationService
     ) {}
 
     /**
+     * @return array{items: list<array{
+     *     credentialId: int,
+     *     displayName: string,
+     *     hasConfiguration: bool,
+     *     hasApiKey: bool,
+     *     apiKeyHint: string,
+     *     providerId: string,
+     *     modelId: string,
+     *     baseUrl: string,
+     *     supportsVision: bool,
+     *     isEnabled: bool
+     * }>}
+     */
+    public function listConfigurations(User $user): array
+    {
+        $this->assertTableAvailable();
+
+        $items = PqPedidoswebAsistenteIaCredencial::query()
+            ->where('user_id', $user->id)
+            ->orderBy('display_name')
+            ->orderBy('id_credencial')
+            ->get()
+            ->map(fn (PqPedidoswebAsistenteIaCredencial $credencial): array => $this->mapper->fromModel($credencial))
+            ->all();
+
+        return ['items' => $items];
+    }
+
+    /**
      * @return array{
+     *     credentialId: int,
+     *     displayName: string,
      *     hasConfiguration: bool,
      *     hasApiKey: bool,
      *     apiKeyHint: string,
@@ -29,11 +60,20 @@ final class ChatAssistantConfigurationService
      *     isEnabled: bool
      * }
      */
-    public function getConfiguration(User $user): array
+    public function getConfiguration(User $user, ?int $credentialId = null): array
     {
         $this->assertTableAvailable();
 
-        $credencial = $this->findCredencialForUser($user);
+        if ($credentialId !== null) {
+            $credencial = $this->findCredencialForUser($user, $credentialId);
+
+            return $credencial === null
+                ? $this->mapper->emptyResult()
+                : $this->mapper->fromModel($credencial);
+        }
+
+        $credencial = $this->findFirstEnabledCredencialForUser($user)
+            ?? $this->findCredencialesForUser($user)->first();
 
         if ($credencial === null) {
             return $this->mapper->emptyResult();
@@ -44,12 +84,15 @@ final class ChatAssistantConfigurationService
 
     /**
      * @param  array{
+     *     displayName?: mixed,
      *     providerId?: mixed,
      *     apiKey?: mixed,
      *     modelId?: mixed,
      *     baseUrl?: mixed
      * }  $payload
      * @return array{
+     *     credentialId: int,
+     *     displayName: string,
      *     hasConfiguration: bool,
      *     hasApiKey: bool,
      *     apiKeyHint: string,
@@ -60,14 +103,19 @@ final class ChatAssistantConfigurationService
      *     isEnabled: bool
      * }
      */
-    public function upsertConfiguration(User $user, array $payload): array
+    public function upsertConfiguration(User $user, array $payload, ?int $credentialId = null, bool $createNew = false): array
     {
         $this->assertTableAvailable();
 
+        $displayName = trim((string) ($payload['displayName'] ?? ''));
         $providerId = trim((string) ($payload['providerId'] ?? ''));
         $modelId = trim((string) ($payload['modelId'] ?? ''));
         $baseUrl = trim((string) ($payload['baseUrl'] ?? ''));
         $apiKey = trim((string) ($payload['apiKey'] ?? ''));
+
+        if ($displayName === '') {
+            $displayName = $providerId.' / '.$modelId;
+        }
 
         if ($providerId === '') {
             throw new ChatAssistantConfigurationException(
@@ -99,8 +147,22 @@ final class ChatAssistantConfigurationService
             );
         }
 
-        $existing = $this->findCredencialForUser($user);
+        $existing = $createNew
+            ? null
+            : ($credentialId !== null
+                ? $this->findCredencialForUser($user, $credentialId)
+                : $this->findCredencialesForUser($user)->first());
+
+        if ($credentialId !== null && $existing === null) {
+            throw new ChatAssistantConfigurationException(
+                ChatAssistantConfigurationErrorCodes::configurationNotFound,
+                'chatAssistant.configurationNotFound',
+            );
+        }
+
         $attributes = [
+            'user_id' => $user->id,
+            'display_name' => $displayName,
             'provider_id' => $providerId,
             'base_url' => $baseUrl === '' ? null : $baseUrl,
             'model_id' => $this->normalizeModelIdForProvider($providerId, $modelId),
@@ -114,16 +176,21 @@ final class ChatAssistantConfigurationService
             $this->assertExistingApiKeyAvailable($existing);
         }
 
-        $credencial = PqPedidoswebAsistenteIaCredencial::query()->updateOrCreate(
-            ['user_id' => $user->id],
-            $attributes,
-        );
+        if ($existing !== null) {
+            $existing->fill($attributes);
+            $existing->save();
+            $credencial = $existing->fresh() ?? $existing;
+        } else {
+            $credencial = PqPedidoswebAsistenteIaCredencial::query()->create($attributes);
+        }
 
-        return $this->mapper->fromModel($credencial->fresh() ?? $credencial);
+        return $this->mapper->fromModel($credencial);
     }
 
     /**
      * @return array{
+     *     credentialId: int,
+     *     displayName: string,
      *     hasConfiguration: bool,
      *     hasApiKey: bool,
      *     apiKeyHint: string,
@@ -134,11 +201,13 @@ final class ChatAssistantConfigurationService
      *     isEnabled: bool
      * }
      */
-    public function updateStatus(User $user, bool $isEnabled): array
+    public function updateStatus(User $user, bool $isEnabled, ?int $credentialId = null): array
     {
         $this->assertTableAvailable();
 
-        $credencial = $this->findCredencialForUser($user);
+        $credencial = $credentialId !== null
+            ? $this->findCredencialForUser($user, $credentialId)
+            : ($this->findFirstEnabledCredencialForUser($user) ?? $this->findCredencialesForUser($user)->first());
 
         if ($credencial === null) {
             throw new ChatAssistantConfigurationException(
@@ -153,6 +222,22 @@ final class ChatAssistantConfigurationService
         return $this->mapper->fromModel($credencial->fresh() ?? $credencial);
     }
 
+    public function deleteConfiguration(User $user, int $credentialId): void
+    {
+        $this->assertTableAvailable();
+
+        $credencial = $this->findCredencialForUser($user, $credentialId);
+
+        if ($credencial === null) {
+            throw new ChatAssistantConfigurationException(
+                ChatAssistantConfigurationErrorCodes::configurationNotFound,
+                'chatAssistant.configurationNotFound',
+            );
+        }
+
+        $credencial->delete();
+    }
+
     private function assertTableAvailable(): void
     {
         if (! Schema::hasTable('pq_pedidosweb_asistente_ia_credenciales')) {
@@ -164,10 +249,33 @@ final class ChatAssistantConfigurationService
         }
     }
 
-    private function findCredencialForUser(User $user): ?PqPedidoswebAsistenteIaCredencial
+    /**
+     * @return \Illuminate\Database\Eloquent\Collection<int, PqPedidoswebAsistenteIaCredencial>
+     */
+    private function findCredencialesForUser(User $user)
     {
         return PqPedidoswebAsistenteIaCredencial::query()
             ->where('user_id', $user->id)
+            ->orderBy('display_name')
+            ->orderBy('id_credencial')
+            ->get();
+    }
+
+    private function findFirstEnabledCredencialForUser(User $user): ?PqPedidoswebAsistenteIaCredencial
+    {
+        return PqPedidoswebAsistenteIaCredencial::query()
+            ->where('user_id', $user->id)
+            ->where('is_enabled', true)
+            ->orderBy('display_name')
+            ->orderBy('id_credencial')
+            ->first();
+    }
+
+    private function findCredencialForUser(User $user, int $credentialId): ?PqPedidoswebAsistenteIaCredencial
+    {
+        return PqPedidoswebAsistenteIaCredencial::query()
+            ->where('user_id', $user->id)
+            ->where('id_credencial', $credentialId)
             ->first();
     }
 

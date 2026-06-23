@@ -1,5 +1,8 @@
+import Button from 'devextreme-react/button';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
+import { SelectBoxDx } from '../../../shared/ui/controls/SelectBoxDx';
 import {
   chatAssistantSupportEmail,
   resolveChatAssistantProjectName,
@@ -9,6 +12,7 @@ import { ChatAssistantConversationPanel } from '../components/ChatAssistantConve
 import { ChatAssistantEmptyState } from '../components/ChatAssistantEmptyState';
 import { useChatAssistantConversation } from '../hooks/useChatAssistantConversation';
 import type { ChatAssistantMessage, ChatAssistantReply } from '../model/chatAssistantMessage';
+import type { MyChatAssistantConfiguration } from '../model/myChatAssistantConfiguration';
 import './ChatAssistantPage.css';
 
 export type ChatAssistantPageViewProps = {
@@ -20,6 +24,9 @@ export type ChatAssistantPageViewProps = {
   loadErrorKey?: string | null;
   submitErrorKey?: string | null;
   supportsVision?: boolean;
+  operationalConfigurations?: MyChatAssistantConfiguration[];
+  selectedCredentialId?: number | null;
+  onSelectCredential?: (credentialId: number | null) => void;
   onSubmitMessage?: (payload: ChatAssistantComposerSubmitPayload) => Promise<boolean>;
 };
 
@@ -32,10 +39,15 @@ export function ChatAssistantPageView({
   loadErrorKey = null,
   submitErrorKey = null,
   supportsVision = false,
+  operationalConfigurations = [],
+  selectedCredentialId = null,
+  onSelectCredential,
   onSubmitMessage,
 }: ChatAssistantPageViewProps) {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const projectName = useMemo(() => resolveChatAssistantProjectName(), []);
+  const showConfigurationSelector = operationalConfigurations.length > 1;
 
   const initialFallbackText = t('chatAssistant.messages.initialFallback', {
     projectName,
@@ -47,9 +59,42 @@ export function ChatAssistantPageView({
   return (
     <main className="chatAssistantPage" data-testid="chatAssistantPage">
       <header className="chatAssistantPage__header">
-        <h1>{t('chatAssistant.page.title')}</h1>
-        <p>{t('chatAssistant.page.intro')}</p>
+        <div className="chatAssistantPage__headerMain">
+          <h1>{t('chatAssistant.page.title')}</h1>
+          <p>{t('chatAssistant.page.intro')}</p>
+        </div>
+        <div className="chatAssistantPage__headerActions">
+          {isOperational && (
+            <Button
+              text={t('chatAssistant.page.preferencesCta')}
+              stylingMode="outlined"
+              type="default"
+              onClick={() => {
+                navigate('/preferences');
+              }}
+              elementAttr={{ 'data-testid': 'chatAssistantPreferencesButton' }}
+            />
+          )}
+        </div>
       </header>
+
+      {showConfigurationSelector && (
+        <label className="chatAssistantPage__configurationSelect">
+          <span>{t('chatAssistant.page.configurationLabel')}</span>
+          <SelectBoxDx
+            dataSource={operationalConfigurations}
+            displayExpr="displayName"
+            valueExpr="credentialId"
+            value={selectedCredentialId}
+            searchEnabled
+            inputAttr={{ 'data-testid': 'chatAssistantConfigurationSelect' }}
+            elementAttr={{ 'data-testid': 'chatAssistantConfigurationSelectBox' }}
+            onValueChanged={(event) => {
+              onSelectCredential?.((event.value as number | null) ?? null);
+            }}
+          />
+        </label>
+      )}
 
       {loadErrorKey ? (
         <p className="chatAssistantPage__error" role="alert">
@@ -96,12 +141,15 @@ export function ChatAssistantPageView({
 
 export function ChatAssistantPage() {
   const {
+    configurations,
     isLoading,
     isOperational,
     isSubmitting,
     lastReply,
     loadErrorKey,
     messages,
+    selectCredential,
+    selectedCredentialId,
     sendMessage,
     submitErrorKey,
     supportsVision,
@@ -115,6 +163,9 @@ export function ChatAssistantPage() {
       lastReply={lastReply}
       loadErrorKey={loadErrorKey}
       messages={messages}
+      operationalConfigurations={configurations}
+      selectedCredentialId={selectedCredentialId}
+      onSelectCredential={selectCredential}
       onSubmitMessage={sendMessage}
       submitErrorKey={submitErrorKey}
       supportsVision={supportsVision}

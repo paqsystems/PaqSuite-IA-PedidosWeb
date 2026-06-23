@@ -8,6 +8,8 @@ final class ChatAssistantConfigurationMapper
 {
     /**
      * @return array{
+     *     credentialId: int,
+     *     displayName: string,
      *     hasConfiguration: bool,
      *     hasApiKey: bool,
      *     apiKeyHint: string,
@@ -21,6 +23,8 @@ final class ChatAssistantConfigurationMapper
     public function emptyResult(): array
     {
         return [
+            'credentialId' => 0,
+            'displayName' => '',
             'hasConfiguration' => false,
             'hasApiKey' => false,
             'apiKeyHint' => '',
@@ -34,6 +38,8 @@ final class ChatAssistantConfigurationMapper
 
     /**
      * @return array{
+     *     credentialId: int,
+     *     displayName: string,
      *     hasConfiguration: bool,
      *     hasApiKey: bool,
      *     apiKeyHint: string,
@@ -49,6 +55,8 @@ final class ChatAssistantConfigurationMapper
         $encryptedApiKey = (string) $credencial->getRawOriginal('api_key_encrypted');
 
         return [
+            'credentialId' => (int) $credencial->id_credencial,
+            'displayName' => (string) ($credencial->display_name ?? ''),
             'hasConfiguration' => true,
             'hasApiKey' => $encryptedApiKey !== '',
             'apiKeyHint' => $this->buildApiKeyHint($encryptedApiKey),

@@ -1,32 +1,50 @@
 import Button from 'devextreme-react/button';
+import { Column } from 'devextreme-react/data-grid';
 import CheckBox from 'devextreme-react/check-box';
-import TextBox from 'devextreme-react/text-box';
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useChatAssistantSettings } from '../../chatAssistant/hooks/useChatAssistantSettings';
-import { SelectBoxDx } from '../../../shared/ui/controls/SelectBoxDx';
-import { ChatAssistantProviderFields } from './ChatAssistantProviderFields';
-import { ChatAssistantProviderHelpLink } from './ChatAssistantProviderHelpLink';
+import { confirmDelete } from '../../../shared/ui/abm';
+import { DataGridDx } from '../../../shared/ui/grids';
+import { useChatAssistantConfigurations } from '../../chatAssistant/hooks/useChatAssistantConfigurations';
+import type { MyChatAssistantConfiguration } from '../../chatAssistant/model/myChatAssistantConfiguration';
+import { findProviderCatalogItem } from '../../chatAssistant/model/providerCatalog';
+import { ChatAssistantConfigurationFormPopup } from './ChatAssistantConfigurationFormPopup';
 import './ChatAssistantSettingsSection.css';
+
+type ChatAssistantConfigurationGridRow = MyChatAssistantConfiguration & Record<string, unknown>;
 
 export function ChatAssistantSettingsSection() {
   const { t } = useTranslation();
   const {
     catalogItems,
-    configuration,
+    configurations,
+    editingConfiguration,
     formState,
+    isFormOpen,
     isLoading,
     isSaving,
-    isUpdatingStatus,
+    isDeleting,
     loadErrorKey,
     saveErrorKey,
-    statusErrorKey,
+    deleteErrorKey,
     saveSuccessVisible,
     selectedProvider,
-    providerInactive,
     setFormState,
+    openCreateForm,
+    openEditForm,
+    closeForm,
     saveConfiguration,
+    deleteConfiguration,
     toggleEnabled,
-  } = useChatAssistantSettings();
+  } = useChatAssistantConfigurations();
+
+  const gridRows = useMemo<ChatAssistantConfigurationGridRow[]>(
+    () => configurations.map((configuration) => ({ ...configuration })),
+    [configurations],
+  );
+
+  const resolveProviderLabel = (providerId: string) =>
+    findProviderCatalogItem(catalogItems, providerId)?.displayName ?? providerId;
 
   return (
     <section className="chatAssistantSettingsSection" data-testid="chatAssistantSettingsSection">
@@ -41,132 +59,102 @@ export function ChatAssistantSettingsSection() {
         </p>
       )}
 
-      {providerInactive && (
-        <p className="chatAssistantSettingsSection__warning" data-testid="chatAssistantProviderInactiveWarning">
-          {t('chatAssistant.settings.providerInactiveWarning')}
+      {deleteErrorKey && (
+        <p className="chatAssistantSettingsSection__error" data-testid="chatAssistantSettingsDeleteError">
+          {t(deleteErrorKey)}
         </p>
       )}
 
-      <label className="chatAssistantSettingsSection__field">
-        <span>{t('chatAssistant.settings.providerLabel')}</span>
-        <SelectBoxDx
-          dataSource={catalogItems}
-          displayExpr="displayName"
-          valueExpr="providerId"
-          value={formState.providerId}
-          isLoading={isLoading}
-          disabled={isLoading || catalogItems.length === 0}
-          searchEnabled
-          showClearButton
-          inputAttr={{ 'data-testid': 'chatAssistantConfigurationProviderSelect' }}
-          elementAttr={{ 'data-testid': 'chatAssistantProviderSelectBox' }}
-          onValueChanged={(event) => {
-            setFormState((current) => ({
-              ...current,
-              providerId: (event.value as string | null) ?? null,
-            }));
-          }}
-        />
-      </label>
-
-      <ChatAssistantProviderHelpLink provider={selectedProvider} />
-
-      <label className="chatAssistantSettingsSection__field">
-        <span>{t('chatAssistant.settings.modelIdLabel')}</span>
-        <TextBox
-          value={formState.modelId}
-          disabled={isLoading}
-          inputAttr={{ 'data-testid': 'chatAssistantConfigurationModelIdInput' }}
-          onValueChanged={(event) => {
-            setFormState((current) => ({
-              ...current,
-              modelId: String(event.value ?? ''),
-            }));
-          }}
-        />
-      </label>
-
-      <ChatAssistantProviderFields
-        provider={selectedProvider}
-        baseUrl={formState.baseUrl}
-        onBaseUrlChange={(baseUrl) => {
-          setFormState((current) => ({
-            ...current,
-            baseUrl,
-          }));
-        }}
-      />
-
-      <label className="chatAssistantSettingsSection__field">
-        <span>{t('chatAssistant.settings.apiKeyLabel')}</span>
-        <TextBox
-          mode="password"
-          value={formState.apiKey}
-          disabled={isLoading}
-          placeholder={
-            configuration.hasApiKey
-              ? configuration.apiKeyHint || t('chatAssistant.settings.apiKeyKeepExisting')
-              : t('chatAssistant.settings.apiKeyPlaceholder')
-          }
-          inputAttr={{ 'data-testid': 'chatAssistantConfigurationApiKeyInput' }}
-          onValueChanged={(event) => {
-            setFormState((current) => ({
-              ...current,
-              apiKey: String(event.value ?? ''),
-            }));
-          }}
-        />
-      </label>
-
-      {configuration.hasConfiguration && (
-        <div className="chatAssistantSettingsSection__status">
-          <CheckBox
-            value={configuration.isEnabled}
-            disabled={isLoading || isUpdatingStatus}
-            text={t('chatAssistant.settings.enabledLabel')}
-            elementAttr={{ 'data-testid': 'chatAssistantConfigurationStatusToggle' }}
-            onValueChanged={(event) => {
-              void toggleEnabled(Boolean(event.value));
-            }}
-          />
-          {configuration.supportsVision && (
-            <p className="chatAssistantSettingsSection__meta">
-              {t('chatAssistant.settings.supportsVisionHint')}
-            </p>
-          )}
-        </div>
-      )}
-
-      {saveErrorKey && (
-        <p className="chatAssistantSettingsSection__error" data-testid="chatAssistantSettingsSaveError">
-          {t(saveErrorKey)}
-        </p>
-      )}
-
-      {statusErrorKey && (
-        <p className="chatAssistantSettingsSection__error" data-testid="chatAssistantSettingsStatusError">
-          {t(statusErrorKey)}
-        </p>
-      )}
-
-      {saveSuccessVisible && (
+      {saveSuccessVisible && !isFormOpen && (
         <p className="chatAssistantSettingsSection__success" data-testid="chatAssistantSettingsSaveSuccess">
           {t('chatAssistant.settings.saveSuccess')}
         </p>
       )}
 
-      <div className="chatAssistantSettingsSection__actions">
-        <Button
-          type="default"
-          stylingMode="contained"
-          text={t('chatAssistant.settings.save')}
-          disabled={isLoading || isSaving}
-          elementAttr={{ 'data-testid': 'chatAssistantConfigurationSaveButton' }}
-          onClick={() => {
-            void saveConfiguration();
-          }}
+      <DataGridDx<ChatAssistantConfigurationGridRow>
+        proceso="pw_chat_assistant_config"
+        gridId="configurations"
+        dataSource={gridRows}
+        keyExpr="credentialId"
+        isLoading={isLoading}
+        emptyMessageKey="chatAssistant.settings.emptyList"
+        exportEnabled={false}
+        enableGrouping={false}
+        toolbarStart={
+          <Button
+            type="default"
+            stylingMode="contained"
+            text={t('chatAssistant.settings.addConfiguration')}
+            onClick={openCreateForm}
+            elementAttr={{ 'data-testid': 'chatAssistantConfigurationAddButton' }}
+          />
+        }
+        rowActions={[
+          {
+            actionKey: 'edit',
+            icon: 'edit',
+            hintKey: 'chatAssistant.settings.editConfiguration',
+            onClick: (row) => {
+              openEditForm(row);
+            },
+          },
+          {
+            actionKey: 'delete',
+            icon: 'trash',
+            hintKey: 'chatAssistant.settings.deleteConfiguration',
+            onClick: (row) => {
+              void (async () => {
+                const confirmed = await confirmDelete({
+                  recordLabel: row.displayName,
+                  t,
+                });
+
+                if (confirmed) {
+                  await deleteConfiguration(row.credentialId);
+                }
+              })();
+            },
+          },
+        ]}
+      >
+        <Column dataField="displayName" caption={t('chatAssistant.settings.displayNameLabel')} />
+        <Column
+          dataField="providerId"
+          caption={t('chatAssistant.settings.providerLabel')}
+          calculateCellValue={(row) => resolveProviderLabel(String(row.providerId ?? ''))}
         />
-      </div>
+        <Column dataField="modelId" caption={t('chatAssistant.settings.modelIdLabel')} />
+        <Column
+          dataField="isEnabled"
+          caption={t('chatAssistant.settings.enabledLabel')}
+          width={120}
+          cellRender={({ data }) => (
+            <CheckBox
+              value={Boolean(data.isEnabled)}
+              disabled={isDeleting}
+              elementAttr={{ 'data-testid': `chatAssistantConfigurationEnabled-${data.credentialId}` }}
+              onValueChanged={(event) => {
+                void toggleEnabled(data as MyChatAssistantConfiguration, Boolean(event.value));
+              }}
+            />
+          )}
+        />
+      </DataGridDx>
+
+      <ChatAssistantConfigurationFormPopup
+        visible={isFormOpen}
+        isSaving={isSaving}
+        saveErrorKey={saveErrorKey}
+        catalogItems={catalogItems}
+        editingConfiguration={editingConfiguration}
+        formState={formState}
+        selectedProvider={selectedProvider}
+        onClose={closeForm}
+        onSave={() => {
+          void saveConfiguration();
+        }}
+        onFormStateChange={setFormState}
+      />
     </section>
   );
 }

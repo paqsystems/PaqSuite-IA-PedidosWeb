@@ -7,14 +7,32 @@
   padding: 1.5rem 1rem 2rem;
 }
 
-.chatAssistantPage__header h1 {
+.chatAssistantPage__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.chatAssistantPage__headerMain h1 {
   font-size: 1.5rem;
   margin: 0 0 0.35rem;
 }
 
-.chatAssistantPage__header p {
+.chatAssistantPage__headerMain p {
   color: var(--pw-text-secondary, #4b5563);
   margin: 0;
+}
+
+.chatAssistantPage__headerActions {
+  flex-shrink: 0;
+}
+
+.chatAssistantPage__configurationSelect {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  max-width: 24rem;
 }
 
 .chatAssistantPage__loading,

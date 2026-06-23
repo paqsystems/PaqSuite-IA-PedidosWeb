@@ -18,6 +18,55 @@ final class ChatAssistantConfigurationTest extends TestCase
         $this->seedChatAssistantProviderCatalog();
     }
 
+    public function testListConfigurationsReturnsItems(): void
+    {
+        $user = $this->authenticatedUser();
+        Sanctum::actingAs($user);
+
+        $this->postJson('/api/v1/chat-assistant/me/configurations', [
+            'displayName' => 'Groq laboral',
+            'providerId' => 'groq',
+            'apiKey' => 'secret-groq-key',
+            'modelId' => 'llama-3.1-8b-instant',
+        ], $this->tenantHeaders())->assertOk();
+
+        $this->postJson('/api/v1/chat-assistant/me/configurations', [
+            'displayName' => 'Ollama local',
+            'providerId' => 'ollama',
+            'apiKey' => 'secret-ollama-key',
+            'modelId' => 'llama3.1',
+            'baseUrl' => 'http://localhost:11434',
+        ], $this->tenantHeaders())->assertOk();
+
+        $this->getJson('/api/v1/chat-assistant/me/configurations', $this->tenantHeaders())
+            ->assertOk()
+            ->assertJsonCount(2, 'resultado.items');
+    }
+
+    public function testDeleteConfigurationRemovesRecord(): void
+    {
+        $user = $this->authenticatedUser();
+        Sanctum::actingAs($user);
+
+        $createResponse = $this->postJson('/api/v1/chat-assistant/me/configurations', [
+            'displayName' => 'Groq laboral',
+            'providerId' => 'groq',
+            'apiKey' => 'secret-groq-key',
+            'modelId' => 'llama-3.1-8b-instant',
+        ], $this->tenantHeaders())->assertOk();
+
+        $credentialId = (int) $createResponse->json('resultado.credentialId');
+
+        $this->deleteJson("/api/v1/chat-assistant/me/configurations/{$credentialId}", [], $this->tenantHeaders())
+            ->assertOk()
+            ->assertJsonPath('respuesta', 'chatAssistant.configurationDeleted');
+
+        $this->assertDatabaseMissing('pq_pedidosweb_asistente_ia_credenciales', [
+            'id_credencial' => $credentialId,
+            'user_id' => $user->id,
+        ]);
+    }
+
     public function testShowConfigurationRequiresAuthentication(): void
     {
         $this->getJson('/api/v1/chat-assistant/me/configuration', [

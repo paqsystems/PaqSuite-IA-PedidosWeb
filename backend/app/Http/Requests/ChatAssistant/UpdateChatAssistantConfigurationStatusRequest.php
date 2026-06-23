@@ -18,6 +18,7 @@ final class UpdateChatAssistantConfigurationStatusRequest extends FormRequest
     {
         return [
             'isEnabled' => ['required', 'boolean'],
+            'credentialId' => ['nullable', 'integer', 'min:1'],
         ];
     }
 }

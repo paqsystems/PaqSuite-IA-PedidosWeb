@@ -1,4 +1,5 @@
 export type ValidateChatAssistantSaveInput = {
+  displayName: string;
   providerId: string;
   modelId: string;
   baseUrl: string;
@@ -10,6 +11,10 @@ export type ValidateChatAssistantSaveInput = {
 export function resolveChatAssistantSaveValidationErrorKey(
   input: ValidateChatAssistantSaveInput,
 ): string | null {
+  if (!input.displayName.trim()) {
+    return 'chatAssistant.settings.displayNameRequired';
+  }
+
   if (!input.providerId.trim()) {
     return 'chatAssistant.settings.providerRequired';
   }

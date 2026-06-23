@@ -79,6 +79,19 @@ Route::prefix('v1')->group(function (): void {
                 ->name('api.v1.users.me.preferences.theme');
             Route::get('/chat-assistant/providers', [ChatAssistantProviderCatalogController::class, 'index'])
                 ->name('api.v1.chat-assistant.providers');
+            Route::get('/chat-assistant/me/configurations', [ChatAssistantConfigurationController::class, 'index'])
+                ->name('api.v1.chat-assistant.me.configurations.index');
+            Route::post('/chat-assistant/me/configurations', [ChatAssistantConfigurationController::class, 'store'])
+                ->name('api.v1.chat-assistant.me.configurations.store');
+            Route::put('/chat-assistant/me/configurations/{credentialId}', [ChatAssistantConfigurationController::class, 'update'])
+                ->whereNumber('credentialId')
+                ->name('api.v1.chat-assistant.me.configurations.update');
+            Route::delete('/chat-assistant/me/configurations/{credentialId}', [ChatAssistantConfigurationController::class, 'destroy'])
+                ->whereNumber('credentialId')
+                ->name('api.v1.chat-assistant.me.configurations.destroy');
+            Route::patch('/chat-assistant/me/configurations/{credentialId}/status', [ChatAssistantConfigurationController::class, 'updateItemStatus'])
+                ->whereNumber('credentialId')
+                ->name('api.v1.chat-assistant.me.configurations.status');
             Route::get('/chat-assistant/me/configuration', [ChatAssistantConfigurationController::class, 'show'])
                 ->name('api.v1.chat-assistant.me.configuration.show');
             Route::put('/chat-assistant/me/configuration', [ChatAssistantConfigurationController::class, 'upsert'])

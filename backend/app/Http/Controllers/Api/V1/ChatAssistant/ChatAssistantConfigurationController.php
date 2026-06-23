@@ -20,8 +20,37 @@ final class ChatAssistantConfigurationController extends Controller
 
     /**
      * @OA\Get(
+     *     path="/api/v1/chat-assistant/me/configurations",
+     *     summary="Listar configuraciones personales del Chat Asistente IA",
+     *     tags={"ChatAssistant"},
+     *     security={{"sanctum":{}},{"tenant":{}}},
+     *     @OA\Response(response=200, description="Listado de configuraciones"),
+     *     @OA\Response(response=401, description="No autenticado")
+     * )
+     */
+    public function index(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        if ($user === null) {
+            return ApiResponse::error(AuthErrorCodes::unauthenticated, 'auth.unauthenticated', 401);
+        }
+
+        try {
+            return ApiResponse::success($this->configurationService->listConfigurations($user));
+        } catch (ChatAssistantConfigurationException $exception) {
+            return ApiResponse::error(
+                $exception->errorCode,
+                $exception->respuestaKey,
+                $exception->httpStatus,
+            );
+        }
+    }
+
+    /**
+     * @OA\Get(
      *     path="/api/v1/chat-assistant/me/configuration",
-     *     summary="Configuración personal del Chat Asistente IA",
+     *     summary="Configuración personal activa del Chat Asistente IA",
      *     tags={"ChatAssistant"},
      *     security={{"sanctum":{}},{"tenant":{}}},
      *     @OA\Response(
@@ -52,6 +81,26 @@ final class ChatAssistantConfigurationController extends Controller
     }
 
     /**
+     * @OA\Post(
+     *     path="/api/v1/chat-assistant/me/configurations",
+     *     summary="Crear configuración personal del Chat Asistente IA",
+     *     tags={"ChatAssistant"},
+     *     security={{"sanctum":{}},{"tenant":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(ref="#/components/schemas/UpsertChatAssistantConfigurationRequest")
+     *     ),
+     *     @OA\Response(response=200, description="Configuración creada"),
+     *     @OA\Response(response=401, description="No autenticado"),
+     *     @OA\Response(response=422, description="Validación fallida")
+     * )
+     */
+    public function store(UpsertChatAssistantConfigurationRequest $request): JsonResponse
+    {
+        return $this->persistConfiguration($request, null, true);
+    }
+
+    /**
      * @OA\Put(
      *     path="/api/v1/chat-assistant/me/configuration",
      *     summary="Guardar configuración personal del Chat Asistente IA",
@@ -72,6 +121,46 @@ final class ChatAssistantConfigurationController extends Controller
      */
     public function upsert(UpsertChatAssistantConfigurationRequest $request): JsonResponse
     {
+        $credentialId = $this->resolveCredentialIdFromPayload($request->validated());
+
+        return $this->persistConfiguration($request, $credentialId, false);
+    }
+
+    /**
+     * @OA\Put(
+     *     path="/api/v1/chat-assistant/me/configurations/{credentialId}",
+     *     summary="Actualizar configuración personal del Chat Asistente IA",
+     *     tags={"ChatAssistant"},
+     *     security={{"sanctum":{}},{"tenant":{}}},
+     *     @OA\Parameter(name="credentialId", in="path", required=true, @OA\Schema(type="integer")),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(ref="#/components/schemas/UpsertChatAssistantConfigurationRequest")
+     *     ),
+     *     @OA\Response(response=200, description="Configuración actualizada"),
+     *     @OA\Response(response=401, description="No autenticado"),
+     *     @OA\Response(response=422, description="Validación fallida")
+     * )
+     */
+    public function update(UpsertChatAssistantConfigurationRequest $request, int $credentialId): JsonResponse
+    {
+        return $this->persistConfiguration($request, $credentialId, false);
+    }
+
+    /**
+     * @OA\Delete(
+     *     path="/api/v1/chat-assistant/me/configurations/{credentialId}",
+     *     summary="Eliminar configuración personal del Chat Asistente IA",
+     *     tags={"ChatAssistant"},
+     *     security={{"sanctum":{}},{"tenant":{}}},
+     *     @OA\Parameter(name="credentialId", in="path", required=true, @OA\Schema(type="integer")),
+     *     @OA\Response(response=200, description="Configuración eliminada"),
+     *     @OA\Response(response=401, description="No autenticado"),
+     *     @OA\Response(response=422, description="No encontrada")
+     * )
+     */
+    public function destroy(Request $request, int $credentialId): JsonResponse
+    {
         $user = $request->user();
 
         if ($user === null) {
@@ -79,10 +168,9 @@ final class ChatAssistantConfigurationController extends Controller
         }
 
         try {
-            return ApiResponse::success(
-                $this->configurationService->upsertConfiguration($user, $request->validated()),
-                'chatAssistant.configurationSaved',
-            );
+            $this->configurationService->deleteConfiguration($user, $credentialId);
+
+            return ApiResponse::success([], 'chatAssistant.configurationDeleted');
         } catch (ChatAssistantConfigurationException $exception) {
             return ApiResponse::error(
                 $exception->errorCode,
@@ -119,11 +207,14 @@ final class ChatAssistantConfigurationController extends Controller
             return ApiResponse::error(AuthErrorCodes::unauthenticated, 'auth.unauthenticated', 401);
         }
 
+        $credentialId = $request->validated('credentialId');
+
         try {
             return ApiResponse::success(
                 $this->configurationService->updateStatus(
                     $user,
                     (bool) $request->validated('isEnabled'),
+                    $credentialId !== null ? (int) $credentialId : null,
                 ),
                 'chatAssistant.configurationStatusUpdated',
             );
@@ -134,5 +225,91 @@ final class ChatAssistantConfigurationController extends Controller
                 $exception->httpStatus,
             );
         }
+    }
+
+    /**
+     * @OA\Patch(
+     *     path="/api/v1/chat-assistant/me/configurations/{credentialId}/status",
+     *     summary="Habilitar o deshabilitar una configuración específica",
+     *     tags={"ChatAssistant"},
+     *     security={{"sanctum":{}},{"tenant":{}}},
+     *     @OA\Parameter(name="credentialId", in="path", required=true, @OA\Schema(type="integer")),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(ref="#/components/schemas/UpdateChatAssistantConfigurationStatusRequest")
+     *     ),
+     *     @OA\Response(response=200, description="Estado actualizado"),
+     *     @OA\Response(response=401, description="No autenticado"),
+     *     @OA\Response(response=422, description="Validación fallida")
+     * )
+     */
+    public function updateItemStatus(
+        UpdateChatAssistantConfigurationStatusRequest $request,
+        int $credentialId,
+    ): JsonResponse {
+        $user = $request->user();
+
+        if ($user === null) {
+            return ApiResponse::error(AuthErrorCodes::unauthenticated, 'auth.unauthenticated', 401);
+        }
+
+        try {
+            return ApiResponse::success(
+                $this->configurationService->updateStatus(
+                    $user,
+                    (bool) $request->validated('isEnabled'),
+                    $credentialId,
+                ),
+                'chatAssistant.configurationStatusUpdated',
+            );
+        } catch (ChatAssistantConfigurationException $exception) {
+            return ApiResponse::error(
+                $exception->errorCode,
+                $exception->respuestaKey,
+                $exception->httpStatus,
+            );
+        }
+    }
+
+    private function persistConfiguration(
+        UpsertChatAssistantConfigurationRequest $request,
+        ?int $credentialId,
+        bool $createNew,
+    ): JsonResponse {
+        $user = $request->user();
+
+        if ($user === null) {
+            return ApiResponse::error(AuthErrorCodes::unauthenticated, 'auth.unauthenticated', 401);
+        }
+
+        $payload = $request->validated();
+        unset($payload['credentialId']);
+
+        try {
+            return ApiResponse::success(
+                $this->configurationService->upsertConfiguration($user, $payload, $credentialId, $createNew),
+                'chatAssistant.configurationSaved',
+            );
+        } catch (ChatAssistantConfigurationException $exception) {
+            return ApiResponse::error(
+                $exception->errorCode,
+                $exception->respuestaKey,
+                $exception->httpStatus,
+            );
+        }
+    }
+
+    /**
+     * @param  array<string, mixed>  $payload
+     */
+    private function resolveCredentialIdFromPayload(array $payload): ?int
+    {
+        $credentialId = $payload['credentialId'] ?? null;
+
+        if ($credentialId === null || $credentialId === '') {
+            return null;
+        }
+
+        return (int) $credentialId;
     }
 }

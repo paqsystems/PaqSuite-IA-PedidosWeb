@@ -51,6 +51,8 @@ final class ChatAssistantProviderCatalogTest extends TestCase
         $this->assertTrue($ollama['supportsVision']);
         $this->assertTrue($ollama['requiresBaseUrl']);
         $this->assertSame('https://ollama.com/download', $ollama['supportUrl']);
+        $this->assertIsArray($ollama['suggestedModels']);
+        $this->assertContains('llama3.1', $ollama['suggestedModels']);
 
         $openAi = $items[1];
         $this->assertSame('openai', $openAi['providerId']);

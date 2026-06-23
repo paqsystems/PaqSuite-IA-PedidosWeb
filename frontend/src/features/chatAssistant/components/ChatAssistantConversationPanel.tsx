@@ -45,7 +45,6 @@ export function ChatAssistantConversationPanel({
             <ChatAssistantResponse
               reply={{
                 reply: message.content,
-                references: message.references ?? [],
                 requiresSupportFollowup: message.requiresSupportFollowup ?? false,
               }}
             />

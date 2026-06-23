@@ -13,6 +13,7 @@ final class PqPedidoswebAsistenteIaCredencial extends Model
 
     protected $fillable = [
         'user_id',
+        'display_name',
         'provider_id',
         'base_url',
         'api_key_encrypted',

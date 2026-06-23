@@ -49,6 +49,7 @@ final class ChatAssistantMessageController extends Controller
                     $user,
                     $request->normalizedMessage(),
                     $request->normalizedImages(),
+                    $request->normalizedCredentialId(),
                 ),
             );
         } catch (ChatAssistantMessageException $exception) {

@@ -27,6 +27,7 @@ describe('isChatAssistantConfigurationOperational', () => {
       isChatAssistantConfigurationOperational(
         {
           ...emptyMyChatAssistantConfiguration,
+          credentialId: 1,
           hasConfiguration: true,
           hasApiKey: true,
           isEnabled: true,

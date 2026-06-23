@@ -9,6 +9,7 @@ const sampleItems: ChatAssistantProviderCatalogItem[] = [
     supportsVision: true,
     requiresBaseUrl: true,
     supportUrl: 'https://ollama.com/download',
+    suggestedModels: ['llama3.1'],
   },
   {
     providerId: 'openai',
@@ -16,6 +17,7 @@ const sampleItems: ChatAssistantProviderCatalogItem[] = [
     supportsVision: true,
     requiresBaseUrl: false,
     supportUrl: 'https://platform.openai.com/api-keys',
+    suggestedModels: ['gpt-4o-mini'],
   },
 ];
 

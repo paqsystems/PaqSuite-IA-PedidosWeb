@@ -1,16 +1,17 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ApiClientError } from '../../../shared/http/client';
-import { getMyChatAssistantConfiguration } from '../api/getMyChatAssistantConfiguration';
+import { getMyChatAssistantConfigurations } from '../api/getMyChatAssistantConfigurations';
 import { getProviderCatalog } from '../api/getProviderCatalog';
 import { sendChatAssistantMessage } from '../api/sendChatAssistantMessage';
 import type { ChatAssistantComposerSubmitPayload } from '../components/ChatAssistantComposer';
-import {
-  emptyMyChatAssistantConfiguration,
-  type MyChatAssistantConfiguration,
-} from '../model/myChatAssistantConfiguration';
+import type { MyChatAssistantConfiguration } from '../model/myChatAssistantConfiguration';
 import type { ChatAssistantMessage, ChatAssistantReply } from '../model/chatAssistantMessage';
-import { isChatAssistantConfigurationOperational } from '../utils/resolveChatAssistantOperationalConfiguration';
+import {
+  readStoredCredentialId,
+  resolveSelectedOperationalConfiguration,
+  storeCredentialId,
+} from '../utils/resolveChatAssistantOperationalConfiguration';
 
 function createMessageId(): string {
   return `msg-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
@@ -18,9 +19,8 @@ function createMessageId(): string {
 
 export function useChatAssistantConversation() {
   const { t } = useTranslation();
-  const [configuration, setConfiguration] = useState<MyChatAssistantConfiguration>(
-    emptyMyChatAssistantConfiguration,
-  );
+  const [configurations, setConfigurations] = useState<MyChatAssistantConfiguration[]>([]);
+  const [selectedCredentialId, setSelectedCredentialId] = useState<number | null>(null);
   const [activeProviderIds, setActiveProviderIds] = useState<string[]>([]);
   const [messages, setMessages] = useState<ChatAssistantMessage[]>([]);
   const [lastReply, setLastReply] = useState<ChatAssistantReply | null>(null);
@@ -34,13 +34,22 @@ export function useChatAssistantConversation() {
     setLoadErrorKey(null);
 
     try {
-      const [catalog, currentConfiguration] = await Promise.all([
+      const [catalog, configurationList] = await Promise.all([
         getProviderCatalog(),
-        getMyChatAssistantConfiguration(),
+        getMyChatAssistantConfigurations(),
       ]);
 
       setActiveProviderIds(catalog.items.map((item) => item.providerId));
-      setConfiguration(currentConfiguration);
+      setConfigurations(configurationList.items);
+
+      const preferredCredentialId = readStoredCredentialId();
+      const selectedConfiguration = resolveSelectedOperationalConfiguration(
+        configurationList.items,
+        catalog.items.map((item) => item.providerId),
+        preferredCredentialId,
+      );
+
+      setSelectedCredentialId(selectedConfiguration?.credentialId ?? null);
     } catch {
       setLoadErrorKey('chatAssistant.page.loadFailed');
     } finally {
@@ -52,13 +61,45 @@ export function useChatAssistantConversation() {
     void loadState();
   }, [loadState]);
 
-  const isOperational = useMemo(
-    () => isChatAssistantConfigurationOperational(configuration, activeProviderIds),
-    [activeProviderIds, configuration],
+  const operationalConfigurations = useMemo(
+    () =>
+      configurations.filter(
+        (configuration) =>
+          configuration.isEnabled
+          && configuration.hasApiKey
+          && configuration.providerId.trim() !== ''
+          && activeProviderIds.includes(configuration.providerId),
+      ),
+    [activeProviderIds, configurations],
   );
+
+  const selectedConfiguration = useMemo(
+    () =>
+      resolveSelectedOperationalConfiguration(
+        configurations,
+        activeProviderIds,
+        selectedCredentialId,
+      ),
+    [activeProviderIds, configurations, selectedCredentialId],
+  );
+
+  const isOperational = operationalConfigurations.length > 0;
+
+  const selectCredential = useCallback((credentialId: number | null) => {
+    setSelectedCredentialId(credentialId);
+
+    if (credentialId !== null) {
+      storeCredentialId(credentialId);
+    }
+  }, []);
 
   const sendMessage = useCallback(
     async ({ message, images }: ChatAssistantComposerSubmitPayload): Promise<boolean> => {
+      if (!selectedConfiguration) {
+        setSubmitErrorKey('chatAssistant.configurationRequired');
+        return false;
+      }
+
       setIsSubmitting(true);
       setSubmitErrorKey(null);
 
@@ -78,6 +119,7 @@ export function useChatAssistantConversation() {
       try {
         const reply = await sendChatAssistantMessage({
           message,
+          credentialId: selectedConfiguration.credentialId,
           images: images.length > 0 ? images : undefined,
         });
 
@@ -88,7 +130,6 @@ export function useChatAssistantConversation() {
             id: createMessageId(),
             role: 'assistant',
             content: reply.reply,
-            references: reply.references,
             requiresSupportFollowup: reply.requiresSupportFollowup,
           },
         ]);
@@ -107,19 +148,22 @@ export function useChatAssistantConversation() {
         setIsSubmitting(false);
       }
     },
-    [t],
+    [selectedConfiguration, t],
   );
 
   return {
-    configuration,
+    configurations: operationalConfigurations,
+    selectedConfiguration,
+    selectedCredentialId,
     isLoading,
     isOperational,
     isSubmitting,
     lastReply,
     loadErrorKey,
     messages,
+    selectCredential,
     sendMessage,
     submitErrorKey,
-    supportsVision: configuration.supportsVision,
+    supportsVision: selectedConfiguration?.supportsVision ?? false,
   };
 }

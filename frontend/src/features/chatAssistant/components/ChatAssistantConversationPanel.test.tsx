@@ -39,7 +39,7 @@ describe('ChatAssistantConversationPanel', () => {
     view.unmount();
   });
 
-  it('shows document references on assistant responses', () => {
+  it('renders assistant responses without document references', () => {
     const view = renderPanel(
       <ChatAssistantConversationPanel
         messages={[
@@ -48,9 +48,6 @@ describe('ChatAssistantConversationPanel', () => {
             id: '2',
             role: 'assistant',
             content: 'Respuesta orientativa',
-            references: [
-              { title: 'Manual de carga', path: 'docs/99-manual-usuario/carga.md' },
-            ],
           },
         ]}
         lastReply={null}
@@ -60,8 +57,8 @@ describe('ChatAssistantConversationPanel', () => {
     );
 
     expect(view.container.querySelector('[data-testid="chatAssistantResponse"]')).not.toBeNull();
-    expect(view.container.querySelector('[data-testid="chatAssistantReferences"]')).not.toBeNull();
-    expect(view.container.textContent).toContain('Manual de carga');
+    expect(view.container.querySelector('[data-testid="chatAssistantReferences"]')).toBeNull();
+    expect(view.container.textContent).toContain('Respuesta orientativa');
     view.unmount();
   });
 
@@ -71,7 +68,6 @@ describe('ChatAssistantConversationPanel', () => {
         messages={[{ id: '1', role: 'assistant', content: 'Respuesta orientativa' }]}
         lastReply={{
           reply: 'Respuesta orientativa',
-          references: [],
           requiresSupportFollowup: true,
         }}
         initialFallbackText="Fallback inicial"
@@ -92,7 +88,6 @@ describe('ChatAssistantConversationPanel', () => {
         messages={[{ id: '1', role: 'assistant', content: 'Respuesta orientativa' }]}
         lastReply={{
           reply: 'Respuesta orientativa',
-          references: [],
           requiresSupportFollowup: false,
         }}
         initialFallbackText="Fallback inicial"

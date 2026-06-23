@@ -23,8 +23,9 @@ class ChatAssistantLlmGateway
         string $message,
         array $corpusMatches,
         array $normalizedImages,
+        ?int $credentialId = null,
     ): string {
-        $context = $this->credentialResolver->resolve($user);
+        $context = $this->credentialResolver->resolve($user, $credentialId);
         $systemPrompt = $this->promptBuilder->buildSystemPrompt($corpusMatches);
         $userPrompt = $this->promptBuilder->buildUserPrompt($message, $normalizedImages !== []);
 

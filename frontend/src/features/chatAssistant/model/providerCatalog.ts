@@ -4,6 +4,7 @@ export type ChatAssistantProviderCatalogItem = {
   supportsVision: boolean;
   requiresBaseUrl: boolean;
   supportUrl: string;
+  suggestedModels: string[];
 };
 
 export type ChatAssistantProviderCatalogResult = {
@@ -19,4 +20,14 @@ export function findProviderCatalogItem(
   }
 
   return items.find((item) => item.providerId === providerId) ?? null;
+}
+
+export function resolveProviderSuggestedModels(
+  provider: ChatAssistantProviderCatalogItem | null,
+): string[] {
+  if (!provider) {
+    return [];
+  }
+
+  return provider.suggestedModels ?? [];
 }

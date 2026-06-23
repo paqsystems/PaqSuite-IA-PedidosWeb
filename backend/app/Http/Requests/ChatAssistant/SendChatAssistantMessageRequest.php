@@ -32,6 +32,7 @@ final class SendChatAssistantMessageRequest extends FormRequest
     {
         return [
             'message' => ['nullable', 'string'],
+            'credentialId' => ['nullable', 'integer', 'min:1'],
             'images' => ['sometimes', 'array', 'max:'.ChatAssistantImageAttachmentValidator::MAX_IMAGES],
             'images.*.fileName' => ['required_with:images', 'string', 'max:255'],
             'images.*.mimeType' => ['required_with:images', 'string', 'max:100'],
@@ -87,6 +88,17 @@ final class SendChatAssistantMessageRequest extends FormRequest
     public function normalizedMessage(): string
     {
         return trim((string) $this->input('message', ''));
+    }
+
+    public function normalizedCredentialId(): ?int
+    {
+        $credentialId = $this->input('credentialId');
+
+        if ($credentialId === null || $credentialId === '') {
+            return null;
+        }
+
+        return (int) $credentialId;
     }
 
     /**

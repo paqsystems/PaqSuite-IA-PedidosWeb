@@ -3,8 +3,9 @@ import { resolveChatAssistantSaveValidationErrorKey } from './validateChatAssist
 
 describe('validateChatAssistantConfiguration', () => {
   it('exige baseUrl cuando el proveedor la requiere', () => {
-    expect(
+        expect(
       resolveChatAssistantSaveValidationErrorKey({
+        displayName: 'Mi OpenAI',
         providerId: 'ollama',
         modelId: 'llama3.1',
         baseUrl: '',
@@ -18,6 +19,7 @@ describe('validateChatAssistantConfiguration', () => {
   it('permite guardar sin baseUrl cuando no es requerida', () => {
     expect(
       resolveChatAssistantSaveValidationErrorKey({
+        displayName: 'Mi OpenAI',
         providerId: 'openai',
         modelId: 'gpt-4o-mini',
         baseUrl: '',
@@ -31,6 +33,7 @@ describe('validateChatAssistantConfiguration', () => {
   it('permite editar sin reingresar apiKey si ya existe', () => {
     expect(
       resolveChatAssistantSaveValidationErrorKey({
+        displayName: 'Mi OpenAI',
         providerId: 'openai',
         modelId: 'gpt-4o-mini',
         baseUrl: '',
