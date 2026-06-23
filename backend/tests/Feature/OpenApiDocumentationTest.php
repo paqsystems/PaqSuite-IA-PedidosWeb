@@ -46,6 +46,11 @@ final class OpenApiDocumentationTest extends TestCase
         $this->assertArrayHasKey('patch', $spec['paths']['/api/v1/users/me/preferences']);
         $this->assertArrayHasKey('/api/v1/users/me/preferences/theme', $spec['paths']);
         $this->assertArrayHasKey('patch', $spec['paths']['/api/v1/users/me/preferences/theme']);
+        $this->assertArrayHasKey('/api/v1/chat-assistant/providers', $spec['paths']);
+        $this->assertArrayHasKey('/api/v1/chat-assistant/me/configuration', $spec['paths']);
+        $this->assertArrayHasKey('put', $spec['paths']['/api/v1/chat-assistant/me/configuration']);
+        $this->assertArrayHasKey('/api/v1/chat-assistant/me/configuration/status', $spec['paths']);
+        $this->assertArrayHasKey('/api/v1/chat-assistant/messages', $spec['paths']);
     }
 
     public function testGeneratedSpecIncludesPedidosWebPaths(): void

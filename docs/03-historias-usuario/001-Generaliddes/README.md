@@ -36,19 +36,49 @@ Convención: **`HU-GEN-{SPEC}-{tema}.md`** derivadas de `docs/05-open-spec/001-G
 
 **SPEC:** [SPEC-001-02-acceso-y-seguridad.md](../../05-open-spec/001-Generaliddes/SPEC-001-02-acceso-y-seguridad.md)
 
-> ABM usuarios/roles en UI: **fuera de alcance**.
+> ABM usuarios/roles en UI MVP: **fuera de alcance**. Epic post-MVP: [SPEC-001-02-admin-mantenimiento-roles-permisos.md](../../05-open-spec/001-Generaliddes/SPEC-001-02-admin-mantenimiento-roles-permisos.md).
+
+## SPEC-001-02-admin — Mantenimiento roles y permisos (post-MVP)
+
+| HU | TR | Título | Prioridad |
+|----|-----|--------|-----------|
+| [HU-GEN-02-admin-roles](HU-GEN-02-admin-roles.md) | [TR-GEN-02-admin-roles](../../04-tareas/001-Generaliddes/TR-GEN-02-admin-roles.md) | ABM roles (`Pq_Rol`) | Should |
+| [HU-GEN-02-admin-rol-atributos](HU-GEN-02-admin-rol-atributos.md) | [TR-GEN-02-admin-rol-atributos](../../04-tareas/001-Generaliddes/TR-GEN-02-admin-rol-atributos.md) | Atributos de rol (`PQ_RolAtributo`) | Should |
+| [HU-GEN-02-admin-permisos](HU-GEN-02-admin-permisos.md) | [TR-GEN-02-admin-permisos](../../04-tareas/001-Generaliddes/TR-GEN-02-admin-permisos.md) | Permisos individual (`Pq_Permiso`) | Should |
+| [HU-GEN-02-admin-permisos-bulk](HU-GEN-02-admin-permisos-bulk.md) | [TR-GEN-02-admin-permisos-bulk](../../04-tareas/001-Generaliddes/TR-GEN-02-admin-permisos-bulk.md) | Asignación masiva permisos | Should |
+
+**SPEC:** [SPEC-001-02-admin-mantenimiento-roles-permisos.md](../../05-open-spec/001-Generaliddes/SPEC-001-02-admin-mantenimiento-roles-permisos.md) — **B1 (2026-06-18)** · **C (2026-06-19)** · **C1 formal (2026-06-19)** — [F-GEN-02-admin-cierre-c1](../../04-tareas/001-Generaliddes/F-GEN-02-admin-cierre-c1.md) · **D1 + F (2026-06-19)** — [F-GEN-02-admin-cierre-formal](../../04-tareas/001-Generaliddes/F-GEN-02-admin-cierre-formal.md) · **E (2026-06-19)** — [F-GEN-02-admin-cierre-e](../../04-tareas/001-Generaliddes/F-GEN-02-admin-cierre-e.md).
+
+**Orden sugerido de implementación:**
+
+```text
+1. HU-GEN-02-admin-roles
+2. HU-GEN-02-admin-rol-atributos
+3. HU-GEN-02-admin-permisos
+4. HU-GEN-02-admin-permisos-bulk
+```
 
 ## SPEC-001-10 — Chat Asistente IA
 
 | HU | TR | Título | Prioridad |
 |----|-----|--------|-----------|
-| [HU-GEN-10-configuracion-asistente-ia](HU-GEN-10-configuracion-asistente-ia.md) | — | Configuración personal del Chat Asistente IA | Should |
-| [HU-GEN-10-catalogo-proveedores-ia](HU-GEN-10-catalogo-proveedores-ia.md) | — | Catálogo inicial de proveedores IA | Should |
-| [HU-GEN-10-chat-documental](HU-GEN-10-chat-documental.md) | — | Chat documental del asistente IA | Should |
-| [HU-GEN-10-imagenes-asistente-ia](HU-GEN-10-imagenes-asistente-ia.md) | — | Adjuntos de imágenes en el chat | Should |
-| [HU-GEN-10-mensajes-asistente-ia](HU-GEN-10-mensajes-asistente-ia.md) | — | Mensajes editables del Chat Asistente IA | Should |
+| [HU-GEN-10-catalogo-proveedores-ia](HU-GEN-10-catalogo-proveedores-ia.md) | [TR-GEN-10-catalogo-proveedores-ia](../../04-tareas/001-Generaliddes/TR-GEN-10-catalogo-proveedores-ia.md) | Catálogo inicial de proveedores IA | Should |
+| [HU-GEN-10-configuracion-asistente-ia](HU-GEN-10-configuracion-asistente-ia.md) | [TR-GEN-10-configuracion-asistente-ia](../../04-tareas/001-Generaliddes/TR-GEN-10-configuracion-asistente-ia.md) | Configuración personal del Chat Asistente IA | Should |
+| [HU-GEN-10-mensajes-asistente-ia](HU-GEN-10-mensajes-asistente-ia.md) | [TR-GEN-10-mensajes-asistente-ia](../../04-tareas/001-Generaliddes/TR-GEN-10-mensajes-asistente-ia.md) | Mensajes editables del Chat Asistente IA | Should |
+| [HU-GEN-10-chat-documental](HU-GEN-10-chat-documental.md) | [TR-GEN-10-chat-documental](../../04-tareas/001-Generaliddes/TR-GEN-10-chat-documental.md) | Chat documental del asistente IA | Should |
+| [HU-GEN-10-imagenes-asistente-ia](HU-GEN-10-imagenes-asistente-ia.md) | [TR-GEN-10-imagenes-asistente-ia](../../04-tareas/001-Generaliddes/TR-GEN-10-imagenes-asistente-ia.md) | Adjuntos de imágenes en el chat | Should |
 
-**SPEC:** [SPEC-001-10-chat-asistente-ia.md](../../05-open-spec/001-Generaliddes/SPEC-001-10-chat-asistente-ia.md)
+**SPEC:** [SPEC-001-10-chat-asistente-ia.md](../../05-open-spec/001-Generaliddes/SPEC-001-10-chat-asistente-ia.md) — **B1 (2026-05-30):** 5 HU enriquecidas · **C + C1 (2026-06-21):** 5 TR generadas — [F-GEN-10-cierre-c1](../../04-tareas/001-Generaliddes/F-GEN-10-cierre-c1.md)
+
+**Orden D1:**
+
+```text
+1. TR-GEN-10-catalogo-proveedores-ia
+2. TR-GEN-10-configuracion-asistente-ia
+3. TR-GEN-10-mensajes-asistente-ia
+4. TR-GEN-10-chat-documental
+5. TR-GEN-10-imagenes-asistente-ia
+```
 
 ## SPEC-001-03 — UI transversal
 

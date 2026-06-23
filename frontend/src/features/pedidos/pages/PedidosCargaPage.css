@@ -347,3 +347,31 @@
   display: flex;
   justify-content: flex-end;
 }
+
+.pedidosCargaErroresGrabacionDialog {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  padding: 0.25rem;
+}
+
+.pedidosCargaErroresGrabacionDialog__intro {
+  margin: 0;
+  color: var(--dx-color-text-secondary, #5f6368);
+  font-size: 0.92rem;
+}
+
+.pedidosCargaErroresGrabacionDialog__list {
+  margin: 0;
+  padding-left: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  max-height: 16rem;
+  overflow-y: auto;
+}
+
+.pedidosCargaErroresGrabacionDialog__actions {
+  display: flex;
+  justify-content: flex-end;
+}

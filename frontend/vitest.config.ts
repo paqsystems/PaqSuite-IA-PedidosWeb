@@ -8,6 +8,7 @@ export default mergeConfig(
     plugins: [react()],
     test: {
       environment: 'jsdom',
+      setupFiles: ['./src/test/vitest.setup.ts'],
       include: ['src/**/*.test.ts', 'src/**/*.test.tsx', 'tests/unit/**/*.test.ts'],
     },
   }),

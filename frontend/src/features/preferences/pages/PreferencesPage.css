@@ -1,0 +1,23 @@
+.preferencesPage {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 1.25rem;
+}
+
+.preferencesPage__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.preferencesPage__headerMain h1 {
+  margin: 0 0 0.35rem;
+  font-size: 1.35rem;
+}
+
+.preferencesPage__headerMain p {
+  margin: 0;
+  color: var(--dx-color-text-secondary, #5f6368);
+}

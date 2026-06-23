@@ -1,5 +1,10 @@
 # Generalidades
 
+| Campo | Valor |
+|-------|--------|
+| **Versión documento** | 2026-06-22 (grillas, pivot, parámetros, chat IA, inactividad) |
+| **Guías complementarias PedidosWeb** | [PedidosWeb.md](./PedidosWeb.md) · [Validaciones](./PedidosWeb-validaciones-errores.md) · [Circuito](./PedidosWeb-circuito-estados.md) · [Chat IA](./Chat-Asistente-IA.md) |
+
 ## 1. Introducción
 
 Este manual describe el funcionamiento general de PedidosWeb desde la mirada de uso diario. Reúne en un solo documento la experiencia base del portal y las reglas visibles de acceso y seguridad.
@@ -9,7 +14,7 @@ Está pensado para dos públicos:
 - usuarios finales que necesitan saber cómo ingresar, navegar y resolver acciones habituales;
 - soporte funcional que necesita identificar el comportamiento esperado, interpretar bloqueos y orientar al usuario.
 
-El contenido cubre el uso general del portal en su modalidad monoempresa: ingreso al sistema, sesión de trabajo e **inactividad**, navegación principal, idioma, apariencia, ayuda global, cambio de contraseña, recuperación de acceso, **grillas de listados** (consultas y procesos tabulares), **vista pivot** en informes analíticos (cuando el tenant la tiene habilitada) y **consulta de parámetros** (solo lectura).
+El contenido cubre el uso general del portal en su modalidad monoempresa: ingreso al sistema, sesión de trabajo e **inactividad**, navegación principal, idioma, apariencia, ayuda global, **Chat Asistente IA**, cambio de contraseña, recuperación de acceso, **grillas de listados** (consultas y procesos tabulares), **vista pivot** en informes analíticos (cuando el tenant la tiene habilitada), **consulta de parámetros** (solo lectura) y **preferencias de usuario** (incluida configuración del asistente).
 
 ## 2. Alcance
 
@@ -25,7 +30,9 @@ Este documento incluye:
 - la recuperación de contraseña;
 - los comportamientos esperados ante bloqueos de acceso;
 - el uso estándar de **grillas y listados** (orden, filtros, columnas, agrupación, totalizadores, layouts, exportación y acciones por fila);
-- la **vista pivot** en informes que la admiten (alternar con grilla, diseños guardados y exportación).
+- la **vista pivot** en informes que la admiten (alternar con grilla, diseños guardados y exportación);
+- el **Chat Asistente IA** (nueva pestaña, configuración BYOK, consultas sobre manuales);
+- **Preferencias** del usuario (apariencia, idioma persistente, configuraciones del asistente).
 
 Este documento no incluye:
 
@@ -76,6 +83,14 @@ Es un formato guardado de una grilla (columnas visibles, orden, filtros, agrupac
 
 Es una presentación analítica alternativa a la grilla: permite arrastrar campos a filas, columnas y valores para agrupar y totalizar datos. Algunos informes comerciales ofrecen un conmutador **Grilla / Pivot** cuando la funcionalidad está habilitada en el tenant.
 
+### Chat Asistente IA
+
+Es la ayuda conversacional del portal. Se abre en **nueva pestaña** desde el menú del avatar. Responde sobre operatoria documentada (manuales de `99-manual-usuario` y guías de producto aprobadas). **No** ejecuta acciones ni consulta datos reales del ERP.
+
+### Preferencias de usuario
+
+Pantalla accesible desde el menú del avatar. Incluye idioma, apariencia y —si está habilitado— la sección **Asistente IA** para configurar proveedor, modelo y credencial (BYOK).
+
 ### Inactividad de sesión
 
 Es el cierre automático de la sesión tras un período sin interacción del usuario (duración configurable en parámetros ERP). Cada acción en el portal —navegar, escribir, pulsar botones o completar operaciones— renueva el contador.
@@ -92,7 +107,8 @@ El objetivo de estas generalidades es asegurar que el usuario pueda:
 - recuperar el acceso cuando olvida su contraseña;
 - cerrar sesión correctamente al finalizar su trabajo;
 - consultar y trabajar con listados tabulares usando una grilla homogénea en todos los procesos;
-- analizar informes con vista pivot cuando el tenant la tenga activa.
+- analizar informes con vista pivot cuando el tenant la tenga activa;
+- configurar y usar el **Chat Asistente IA** para consultas de ayuda documental.
 
 El resultado esperado es una experiencia ordenada, segura y estable, con criterios de uso consistentes para todas las pantallas del portal.
 
@@ -108,7 +124,9 @@ Este manual se utiliza:
 - cuando se perdió el acceso y debe iniciarse la recuperación;
 - cuando un proceso muestra datos en forma de **grilla o listado** y el usuario necesita ordenar, filtrar, personalizar la vista o exportar;
 - cuando se necesita consultar la **configuración de parámetros** del módulo (menú General, sección 18);
-- cuando un informe ofrece **vista pivot** y el usuario debe alternar entre grilla y análisis dinámico (sección 19).
+- cuando un informe ofrece **vista pivot** y el usuario debe alternar entre grilla y análisis dinámico (sección 19);
+- cuando necesita orientación sobre **cómo usar** el portal vía Chat Asistente IA (sección 20);
+- cuando debe configurar credenciales del asistente en **Preferencias**.
 
 Como condición previa, el usuario debe contar con una cuenta habilitada para operar en el portal.
 
@@ -224,7 +242,8 @@ Dentro del área principal, muchos procesos muestran una **grilla**: una tabla c
 - **Perfil:** acceso a información personal, si el producto lo habilita.
 - **Apariencia:** cambia el estilo visual del portal.
 - **Apertura en nueva pestaña:** ajusta cómo se abren los procesos, si la opción está disponible.
-- **Asistente IA:** abre la ayuda global en una nueva pestaña o ventana.
+- **Asistente IA:** abre el chat de ayuda en una nueva pestaña (ver sección 20).
+- **Preferencias:** idioma, apariencia y configuración del asistente IA.
 - **Cambiar contraseña:** permite actualizar la clave.
 - **Cerrar sesión:** finaliza el acceso actual.
 
@@ -466,11 +485,52 @@ Interpretación funcional:
 
 Acción recomendada para el usuario:
 
+- usar **Chat Asistente IA** si está habilitado (sección 20);
 - continuar operando en el portal y contactar soporte si necesita asistencia.
 
 Control sugerido para soporte:
 
 - verificar si la ayuda global está prevista para ese entorno o situación.
+
+### Sesión expirada por inactividad
+
+Causa probable:
+
+- superó el tiempo sin interacción definido en **Minutos de inactividad web** (`MinutosWeb`).
+
+Interpretación funcional:
+
+- la sesión cerró por seguridad; el trabajo no guardado en pantallas abiertas puede perderse.
+
+Acción recomendada para el usuario:
+
+- volver a ingresar;
+- si tenía un pedido en edición (-1), otro usuario podrá retomarlo tras expirar MinutosWeb o si usted puede volver a entrar y cancelar.
+
+Control sugerido para soporte:
+
+- confirmar valor de MinutosWeb en Consulta de parámetros;
+- orientar sobre grabar o cancelar antes de ausentarse.
+
+### Chat sin configuración válida
+
+Causa probable:
+
+- el usuario no completó proveedor, modelo o credencial en Preferencias.
+
+Acción recomendada:
+
+- seguir el CTA a Preferencias y crear una configuración **habilitada** (ver [Chat-Asistente-IA.md](./Chat-Asistente-IA.md)).
+
+### Error al enviar mensaje al chat
+
+Causa probable:
+
+- credencial inválida, endpoint incorrecto, proveedor caído o límite de caracteres superado.
+
+Acción recomendada:
+
+- revisar configuración BYOK; acortar mensaje si supera 2000 (texto) o 1000 (con imágenes) caracteres.
 
 ## 11. Comportamientos esperados del sistema
 
@@ -482,7 +542,7 @@ Control sugerido para soporte:
 - El cambio de contraseña actualiza la cuenta cuando los datos son correctos.
 - La recuperación de contraseña permite volver a acceder sin intervención manual cuando el usuario dispone del correo correspondiente.
 - El cierre de sesión devuelve al usuario a la pantalla de acceso y finaliza el uso actual del portal.
-- Tras un período de **inactividad** (según parámetro ERP *MinutosWeb*), la sesión expira y el usuario debe volver a ingresar; cada interacción renueva el contador.
+- La sesión **expira por inactividad** según parámetro ERP *MinutosWeb*; cada interacción renueva el contador. Un pedido en edición (-1) puede quedar bloqueado para otros hasta grabar, cancelar o expirar esa ventana.
 - Las grillas de listados ofrecen la misma experiencia transversal: filtros, orden, columnas, agrupación, totalizadores, layouts, exportación y acciones por fila según permisos.
 
 ## 12. Casos habituales
@@ -521,6 +581,8 @@ El usuario no recuerda su clave, solicita la recuperación, recibe el correo, de
 - El usuario no encuentra una columna porque la ocultó o aplicó un layout distinto.
 - El usuario agrupa o filtra y interpreta que «desaparecieron» registros.
 - El usuario espera exportar una grilla vacía o sin datos visibles.
+- El usuario espera que el **Chat Asistente IA** resuelva datos de su pedido o cambie parámetros (solo orienta con documentación).
+- El usuario no configuró el asistente y ve pantalla vacía con CTA a Preferencias.
 
 Qué debería revisar soporte en consultas repetidas:
 
@@ -818,7 +880,8 @@ Los puntos que usuario y soporte deben recordar son:
 - exportar y totalizar respetan lo visible en pantalla al momento de la acción;
 - el botón **+** de alta aparece solo en procesos ABM autorizados;
 - la **Consulta de parámetros** (menú General) es solo lectura: muestra descripción, valor y ayuda traducidos según idioma activo, sin clave técnica visible;
-- la **vista pivot** en informes requiere habilitación del tenant; consultas de cabecera de comprobantes usan solo grilla.
+- la **vista pivot** en informes requiere habilitación del tenant; consultas de cabecera de comprobantes usan solo grilla;
+- el **Chat Asistente IA** requiere configuración BYOK del usuario; no sustituye soporte ni acceso al ERP.
 
 ## 18. Consulta de parámetros (menú General)
 
@@ -941,3 +1004,66 @@ Sí, cuando el portal tiene traducción para ese campo del informe. Los valores 
 **¿Consulta de parámetros traduce descripción y ayuda?**
 
 Sí, según el idioma activo del usuario (§18.5). Los valores ERP se muestran con formato local (Sí/No, fechas).
+
+## 20. Chat Asistente IA
+
+Resumen transversal. Documento completo: [Chat-Asistente-IA.md](./Chat-Asistente-IA.md).
+
+### 20.1 Acceso
+
+1. Menú del avatar → **Chat Asistente IA**.
+2. Se abre en **nueva pestaña** del navegador.
+3. La pestaña de trabajo original sigue disponible.
+
+### 20.2 Configuración previa (BYOK)
+
+Cada usuario configura su proveedor de IA y credencial en **Preferencias** (sección Asistente IA). Sin configuración **habilitada**, el chat muestra estado vacío con enlace a Preferencias.
+
+| Dato | Notas |
+|------|-------|
+| Proveedor | Del catálogo del portal (OpenAI, Ollama, etc.) |
+| Modelo | Sugerido o personalizado |
+| Endpoint | Obligatorio para algunos proveedores (ej. Ollama local) |
+| API key | Credencial del usuario; costo en su cuenta externa |
+
+### 20.3 Qué puede preguntar
+
+- Cómo cargar pedidos o presupuestos, lookups obligatorios, importación Excel.
+- Por qué no puede editar, eliminar o grabar (orientación según manuales).
+- Uso de grillas, pivot, parámetros, sesión e inactividad.
+- Diferencia entre copiar y convertir comprobantes.
+
+Formule preguntas **concretas** (pantalla + acción + mensaje de error si lo hay).
+
+### 20.4 Qué no hace el chat
+
+- No graba ni modifica comprobantes.
+- No lee stock, clientes ni pedidos reales de su empresa.
+- No cambia parámetros ERP.
+- No garantiza respuesta si el tema no está en la documentación aprobada.
+
+### 20.5 Límites de mensaje
+
+| Tipo | Máximo |
+|------|--------|
+| Texto solo | 2.000 caracteres |
+| Texto con imágenes | 1.000 caracteres de texto |
+| Imágenes | Hasta 4 por mensaje (si el modelo soporta visión) |
+
+### 20.6 Corpus documental (Fase 1)
+
+El asistente prioriza `docs/99-manual-usuario/` y documentación operativa estable de `02-producto/PedidosWeb/`. Para validaciones y errores de grabación, el documento más completo es [PedidosWeb-validaciones-errores.md](./PedidosWeb-validaciones-errores.md).
+
+### 20.7 Preguntas frecuentes del chat
+
+**¿Por qué el chat me dio una respuesta vaga?**
+
+Reformule con más contexto o consulte directamente [PedidosWeb-validaciones-errores.md](./PedidosWeb-validaciones-errores.md) y [PedidosWeb-circuito-estados.md](./PedidosWeb-circuito-estados.md).
+
+**¿El chat conoce el valor de mis parámetros?**
+
+No en tiempo real. Use **General → Consulta de parámetros** para valores de su instalación.
+
+**¿Puedo usar Ollama sin costo de API externa?**
+
+Sí, si configura endpoint local y el servicio está disponible en su red.

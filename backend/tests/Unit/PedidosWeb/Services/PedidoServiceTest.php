@@ -5,6 +5,7 @@ namespace Tests\Unit\PedidosWeb\Services;
 use App\Contracts\PedidosWeb\PedidoDetalleRepositoryInterface;
 use App\Contracts\PedidosWeb\PedidoRepositoryInterface;
 use App\Exceptions\PedidosWebBusinessException;
+use App\Exceptions\PedidosWebBusinessValidationException;
 use App\Models\PqPedidoswebPedidoCabecera;
 use App\Models\User;
 use App\Services\Auth\CommercialProfileResolver;
@@ -20,11 +21,20 @@ use App\Services\PedidosWeb\PedidosWebParameterService;
 use App\Services\PedidosWeb\PedidosWebSchemaBootstrap;
 use App\Services\PedidosWeb\PresupuestoCierreService;
 use App\Services\Visibility\PedidosWebVisibilityGuard;
+use Illuminate\Support\Facades\Schema;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 final class PedidoServiceTest extends TestCase
 {
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        Schema::shouldReceive('hasTable')->andReturn(false);
+        Schema::shouldReceive('hasColumn')->andReturn(false);
+    }
+
     #[Test]
     public function eliminarPedidoPermiteBorrarEstadoCero(): void
     {
@@ -113,10 +123,10 @@ final class PedidoServiceTest extends TestCase
         $user = new \App\Models\User();
         $user->codigo = 'supervisor.mvp';
 
-        $this->expectException(PedidosWebBusinessException::class);
+        $this->expectException(PedidosWebBusinessValidationException::class);
         $service->grabarComprobante([
             'accionGrabacion' => 'pedido',
-            'cabecera' => ['cod_cliente' => 'CLI001'],
+            'cabecera' => $this->validCabeceraPayload(),
             'renglones' => [],
         ], $user);
     }
@@ -264,7 +274,7 @@ final class PedidoServiceTest extends TestCase
         $service->grabarComprobante([
             'accionGrabacion' => 'presupuesto',
             'cod_pedido_origen' => 'PED-ORIGEN-1',
-            'cabecera' => ['cod_cliente' => 'CLI001'],
+            'cabecera' => $this->validCabeceraPayload(),
             'renglones' => [['cod_articulo' => 'A1', 'cantidad' => 1, 'precio' => 100, 'precio_neto' => 100, 'importe_total' => 100]],
         ], $this->buildUser());
     }
@@ -278,7 +288,7 @@ final class PedidoServiceTest extends TestCase
         return [
             ...[
                 'accionGrabacion' => 'pedido',
-                'cabecera' => ['cod_cliente' => 'CLI001'],
+                'cabecera' => $this->validCabeceraPayload(),
                 'renglones' => [['cod_articulo' => 'A1', 'cantidad' => 1, 'precio' => 100, 'precio_neto' => 100, 'importe_total' => 100]],
             ],
             ...$extra,
@@ -348,7 +358,7 @@ final class PedidoServiceTest extends TestCase
         $detalleRepository = $this->createMock(PedidoDetalleRepositoryInterface::class);
         $service = $this->buildService($pedidoRepository, $detalleRepository, false);
 
-        $this->expectException(PedidosWebBusinessException::class);
+        $this->expectException(PedidosWebBusinessValidationException::class);
         $service->grabarComprobante([
             'accionGrabacion' => 'pedido',
             'cabecera' => $this->validCabeceraPayload(),

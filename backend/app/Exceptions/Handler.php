@@ -41,6 +41,7 @@ class Handler extends ExceptionHandler
         'newPasswordConfirmation',
         'password',
         'password_confirmation',
+        'apiKey',
         'token',
     ];
 
@@ -90,6 +91,43 @@ class Handler extends ExceptionHandler
                     $exception->errorCode(),
                     $exception->respuestaKey(),
                     $exception->httpStatus()
+                );
+            }
+
+            return null;
+        });
+
+        $this->renderable(function (PedidosWebBusinessValidationException $exception, $request) {
+            if ($request->is('api/*')) {
+                return ApiResponse::error(
+                    $exception->errorCode(),
+                    'business.validationFailed',
+                    $exception->httpStatus(),
+                    ['errores' => $exception->respuestaKeys()]
+                );
+            }
+
+            return null;
+        });
+
+        $this->renderable(function (ChatAssistantConfigurationException $exception, $request) {
+            if ($request->is('api/*')) {
+                return ApiResponse::error(
+                    $exception->errorCode,
+                    $exception->respuestaKey,
+                    $exception->httpStatus,
+                );
+            }
+
+            return null;
+        });
+
+        $this->renderable(function (ChatAssistantMessageException $exception, $request) {
+            if ($request->is('api/*')) {
+                return ApiResponse::error(
+                    $exception->errorCode,
+                    $exception->respuestaKey,
+                    $exception->httpStatus,
                 );
             }
 

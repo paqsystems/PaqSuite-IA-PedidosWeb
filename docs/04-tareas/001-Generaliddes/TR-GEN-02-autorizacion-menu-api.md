@@ -119,6 +119,21 @@ Construir arbol jerarquico con nodos incluidos (padres si tienen hijos visibles)
 
 **Veredicto C1:** **Apto para D.**
 
+### 3.4) TR-update — supersession multi-rol (C1 epic admin, 2026-06-19)
+
+| Campo | Valor |
+|-------|--------|
+| **Origen** | [F-GEN-02-admin-cierre-c1](F-GEN-02-admin-cierre-c1.md) · [TR-GEN-02-admin-roles](TR-GEN-02-admin-roles.md) T0 |
+| **Efecto** | La decision **D1-1** («N/A MVP — un Pq_Permiso por usuario») queda **superseded** al implementar el epic admin post-MVP. |
+
+**Nueva regla (T0 admin):**
+
+- Cargar **todas** las filas `Pq_Permiso` del usuario (`monoEmpresaId`).
+- Menu = union de procedimientos con `permiso_repo` **OR** cualquier rol con `acceso_total`.
+- Feature test obligatorio: usuario con 2 roles acotados → menu incluye union de ambos.
+
+**Sin cambio:** perfil comercial en login (`SessionContextBuilder` / `CommercialProfileResolver`) sigue reglas ERP; ver TR-GEN-02-admin-roles R-C1-ADM-07.
+
 ---
 
 ## 4) Impacto en Datos

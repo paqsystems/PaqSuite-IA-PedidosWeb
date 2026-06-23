@@ -1,8 +1,14 @@
 <?php
 
+use App\Http\Controllers\Api\V1\Admin\AdminPermisoController;
+use App\Http\Controllers\Api\V1\Admin\AdminRoleController;
+use App\Http\Controllers\Api\V1\Admin\AdminUsuarioLookupController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\GridLayoutController;
 use App\Http\Controllers\HealthController;
+use App\Http\Controllers\Api\V1\ChatAssistant\ChatAssistantConfigurationController;
+use App\Http\Controllers\Api\V1\ChatAssistant\ChatAssistantMessageController;
+use App\Http\Controllers\Api\V1\ChatAssistant\ChatAssistantProviderCatalogController;
 use App\Http\Controllers\Api\V1\Config\ParametrosController;
 use App\Http\Controllers\Api\V1\ExcelImport\ExcelImportHistoryController;
 use App\Http\Controllers\Api\V1\ExcelImport\ExcelImportLotController;
@@ -71,6 +77,29 @@ Route::prefix('v1')->group(function (): void {
                 ->name('api.v1.users.me.preferences.locale');
             Route::patch('/users/me/preferences/theme', [UserPreferencesController::class, 'updateTheme'])
                 ->name('api.v1.users.me.preferences.theme');
+            Route::get('/chat-assistant/providers', [ChatAssistantProviderCatalogController::class, 'index'])
+                ->name('api.v1.chat-assistant.providers');
+            Route::get('/chat-assistant/me/configurations', [ChatAssistantConfigurationController::class, 'index'])
+                ->name('api.v1.chat-assistant.me.configurations.index');
+            Route::post('/chat-assistant/me/configurations', [ChatAssistantConfigurationController::class, 'store'])
+                ->name('api.v1.chat-assistant.me.configurations.store');
+            Route::put('/chat-assistant/me/configurations/{credentialId}', [ChatAssistantConfigurationController::class, 'update'])
+                ->whereNumber('credentialId')
+                ->name('api.v1.chat-assistant.me.configurations.update');
+            Route::delete('/chat-assistant/me/configurations/{credentialId}', [ChatAssistantConfigurationController::class, 'destroy'])
+                ->whereNumber('credentialId')
+                ->name('api.v1.chat-assistant.me.configurations.destroy');
+            Route::patch('/chat-assistant/me/configurations/{credentialId}/status', [ChatAssistantConfigurationController::class, 'updateItemStatus'])
+                ->whereNumber('credentialId')
+                ->name('api.v1.chat-assistant.me.configurations.status');
+            Route::get('/chat-assistant/me/configuration', [ChatAssistantConfigurationController::class, 'show'])
+                ->name('api.v1.chat-assistant.me.configuration.show');
+            Route::put('/chat-assistant/me/configuration', [ChatAssistantConfigurationController::class, 'upsert'])
+                ->name('api.v1.chat-assistant.me.configuration.upsert');
+            Route::patch('/chat-assistant/me/configuration/status', [ChatAssistantConfigurationController::class, 'updateStatus'])
+                ->name('api.v1.chat-assistant.me.configuration.status');
+            Route::post('/chat-assistant/messages', [ChatAssistantMessageController::class, 'store'])
+                ->name('api.v1.chat-assistant.messages.store');
             Route::get('/config/parametros-carga', [ParametrosCargaController::class, 'show'])
                 ->name('api.v1.config.parametros-carga');
             Route::get('/config/parametros', [ParametrosController::class, 'index'])
@@ -173,6 +202,21 @@ Route::prefix('v1')->group(function (): void {
                 ->name('api.v1.dashboard.operativo');
             Route::get('/dashboard/resumen-mensual', [DashboardController::class, 'resumenMensual'])
                 ->name('api.v1.dashboard.resumen-mensual');
+
+            Route::middleware('admin.security.enabled')->prefix('admin')->group(function (): void {
+                Route::get('/roles', [AdminRoleController::class, 'index'])->name('api.v1.admin.roles.index');
+                Route::post('/roles', [AdminRoleController::class, 'store'])->name('api.v1.admin.roles.store');
+                Route::put('/roles/{id}', [AdminRoleController::class, 'update'])->name('api.v1.admin.roles.update');
+                Route::delete('/roles/{id}', [AdminRoleController::class, 'destroy'])->name('api.v1.admin.roles.destroy');
+                Route::get('/roles/{id}/atributos', [AdminRoleController::class, 'showAttributes'])->name('api.v1.admin.roles.atributos.show');
+                Route::put('/roles/{id}/atributos', [AdminRoleController::class, 'updateAttributes'])->name('api.v1.admin.roles.atributos.update');
+                Route::get('/permisos', [AdminPermisoController::class, 'index'])->name('api.v1.admin.permisos.index');
+                Route::post('/permisos', [AdminPermisoController::class, 'store'])->name('api.v1.admin.permisos.store');
+                Route::put('/permisos/{id}', [AdminPermisoController::class, 'update'])->name('api.v1.admin.permisos.update');
+                Route::delete('/permisos/{id}', [AdminPermisoController::class, 'destroy'])->name('api.v1.admin.permisos.destroy');
+                Route::post('/permisos/batch', [AdminPermisoController::class, 'batch'])->name('api.v1.admin.permisos.batch');
+                Route::get('/usuarios', [AdminUsuarioLookupController::class, 'index'])->name('api.v1.admin.usuarios.index');
+            });
         });
     });
 });

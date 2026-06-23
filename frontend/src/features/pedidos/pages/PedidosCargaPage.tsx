@@ -30,6 +30,7 @@ import { ComprobanteCabeceraForm } from '../components/ComprobanteCabeceraForm';
 import { ComprobanteLeyendasPie } from '../components/ComprobanteLeyendasPie';
 import TextArea from 'devextreme-react/text-area';
 import { PedidosCargaConfirmacionDialog } from '../components/PedidosCargaConfirmacionDialog';
+import { PedidosCargaErroresGrabacionDialog } from '../components/PedidosCargaErroresGrabacionDialog';
 import { PedidosCargaRenglonesGrid } from '../components/PedidosCargaRenglonesGrid';
 import {
   emptyComprobanteCabecera,
@@ -60,6 +61,7 @@ import {
   renglonesValidosParaGrabar,
   tieneRenglonesCargados,
 } from '../utils/renglonesCarga';
+import { resolveGrabacionErrorMessages } from '../utils/resolveGrabacionErrorMessages';
 import './PedidosCargaPage.css';
 
 const emptyCatalogos: CabeceraCatalogos = {
@@ -109,6 +111,8 @@ export function PedidosCargaPage() {
   const [confirmacionVisible, setConfirmacionVisible] = useState(false);
   const [mailAvisoVisible, setMailAvisoVisible] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [erroresGrabacionVisible, setErroresGrabacionVisible] = useState(false);
+  const [erroresGrabacionMessages, setErroresGrabacionMessages] = useState<string[]>([]);
   const [clienteSelectKey, setClienteSelectKey] = useState(0);
   const [clienteSortField, setClienteSortField] = useState<ClienteSortField>('razonSocial');
   const [autoOpenRenglonId, setAutoOpenRenglonId] = useState<number | null>(null);
@@ -520,22 +524,12 @@ export function PedidosCargaPage() {
     };
   }, [cabecera?.listaPrecios, readOnly]);
 
-  const handleCancelar = useCallback(async () => {
-    const codPedido = codPedidoEdicionRef.current;
-    if (edicionIniciadaRef.current && codPedido) {
-      try {
-        await cancelarEdicionPedido(codPedido);
-      } catch {
-        // Navegación prioritaria; el backend puede limpiar bloqueo por timeout.
-      }
-      edicionIniciadaRef.current = false;
-      codPedidoEdicionRef.current = null;
-    }
-
-    navigate(-1);
-  }, [navigate]);
-
   const resetParaNuevoComprobante = useCallback(async () => {
+    edicionIniciadaRef.current = false;
+    codPedidoEdicionRef.current = null;
+    ultimaAccionGrabacionRef.current = null;
+    listaPreciosAnteriorRef.current = null;
+
     setCodPedidoActual(null);
     setEstadoActual(null);
     setCodPedidoOrigen(null);
@@ -546,6 +540,14 @@ export function PedidosCargaPage() {
     setArticuloSeleccionadoData(null);
     setAutoOpenRenglonId(null);
     setSaveError(null);
+    setErroresGrabacionVisible(false);
+    setErroresGrabacionMessages([]);
+    setConfirmacionVisible(false);
+    setSuccessToastVisible(false);
+    setSuccessMessage('');
+    setMailAvisoVisible(false);
+    setMailToastVisible(false);
+    setPendingMailToast(false);
 
     if (isClienteProfile) {
       const codCliente = sessionContext.codCliente ?? selectedCliente ?? '';
@@ -573,6 +575,19 @@ export function PedidosCargaPage() {
     selectedCliente,
     sessionContext.codCliente,
   ]);
+
+  const handleCancelar = useCallback(async () => {
+    const codPedido = codPedidoEdicionRef.current;
+    if (edicionIniciadaRef.current && codPedido) {
+      try {
+        await cancelarEdicionPedido(codPedido);
+      } catch {
+        // Prioriza limpiar pantalla; el backend puede liberar bloqueo por timeout.
+      }
+    }
+
+    await resetParaNuevoComprobante();
+  }, [resetParaNuevoComprobante]);
 
   const handlePostGrabacion = useCallback(() => {
     const accionGrabacion = ultimaAccionGrabacionRef.current;
@@ -750,8 +765,15 @@ export function PedidosCargaPage() {
           setMailToastVisible(true);
         }, 500);
       }
-    } catch {
-      setSaveError(t('pedidos.carga.errorGrabacion'));
+    } catch (error) {
+      const messages = resolveGrabacionErrorMessages(error, t);
+      if (messages.length > 0) {
+        setErroresGrabacionMessages(messages);
+        setErroresGrabacionVisible(true);
+        setSaveError(null);
+      } else {
+        setSaveError(t('pedidos.carga.errorGrabacion'));
+      }
     } finally {
       setIsLoading(false);
     }
@@ -1112,6 +1134,14 @@ export function PedidosCargaPage() {
         onClose={() => {
           setConfirmacionVisible(false);
           handlePostGrabacion();
+        }}
+      />
+
+      <PedidosCargaErroresGrabacionDialog
+        visible={erroresGrabacionVisible}
+        messages={erroresGrabacionMessages}
+        onClose={() => {
+          setErroresGrabacionVisible(false);
         }}
       />
 

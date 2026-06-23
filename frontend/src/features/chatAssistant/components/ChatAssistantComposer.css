@@ -1,0 +1,28 @@
+.chatAssistantComposer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.chatAssistantComposer__footer {
+  align-items: flex-start;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.chatAssistantComposer__counter {
+  color: var(--pw-text-secondary, #6b7280);
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+.chatAssistantComposer__counter--error {
+  color: var(--pw-text-danger, #b91c1c);
+}
+
+.chatAssistantComposer__limitError {
+  color: var(--pw-text-danger, #b91c1c);
+  font-size: 0.85rem;
+  margin: 0;
+}

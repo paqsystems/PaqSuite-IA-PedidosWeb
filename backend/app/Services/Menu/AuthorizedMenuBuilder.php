@@ -2,18 +2,16 @@
 
 namespace App\Services\Menu;
 
-use App\Exceptions\AuthFlowException;
 use App\Models\PqMenu;
-use App\Models\PqPermiso;
-use App\Models\PqRolAtributo;
 use App\Models\User;
-use App\Support\AuthErrorCodes;
+use App\Services\Security\UserRoleUnionService;
 use Illuminate\Support\Collection;
 
 final class AuthorizedMenuBuilder
 {
     public function __construct(
         private readonly MenuNodeTypeResolver $menuNodeTypeResolver,
+        private readonly UserRoleUnionService $userRoleUnionService,
     ) {}
 
     /**
@@ -21,50 +19,68 @@ final class AuthorizedMenuBuilder
      */
     public function buildForUser(User $user): array
     {
-        $permiso = PqPermiso::query()
-            ->with('rol')
-            ->where('id_usuario', $user->id)
-            ->where('id_empresa', (int) config('paqsuite_seed.monoEmpresaId'))
-            ->first();
+        $union = $this->userRoleUnionService->resolveForUser($user);
 
-        if ($permiso === null || $permiso->rol === null) {
-            throw new AuthFlowException(
-                AuthErrorCodes::noPermission,
-                'auth.noPermission',
-                403
-            );
-        }
-
-        $rol = $permiso->rol;
         $enabledMenus = PqMenu::query()
             ->where('enabled', true)
             ->orderBy('orden')
             ->orderBy('id')
             ->get();
 
-        $allowedProcedimientos = $this->resolveAllowedProcedimientos($rol->id, (bool) $rol->acceso_total);
+        if ($union->hasAccesoTotal()) {
+            $authorizedMenus = $enabledMenus;
+        } else {
+            $allowedProcedimientos = $union->getRepoProcedimientos();
 
-        $authorizedMenus = $enabledMenus->filter(
-            static fn (PqMenu $menu): bool => $rol->acceso_total
-                || $allowedProcedimientos->contains($menu->procedimiento)
-        );
+            $authorizedMenus = $enabledMenus->filter(
+                static fn (PqMenu $menu): bool => $allowedProcedimientos->contains($menu->procedimiento)
+            );
+
+            $authorizedMenus = $this->includeMenuAncestors($authorizedMenus, $enabledMenus);
+        }
 
         return $this->buildTree($authorizedMenus);
     }
 
     /**
-     * @return Collection<int, string>
+     * Incluye nodos padre (p. ej. grp_*) cuando al menos un hijo está autorizado.
+     *
+     * @param  Collection<int, PqMenu>  $authorizedMenus
+     * @param  Collection<int, PqMenu>  $enabledMenus
+     * @return Collection<int, PqMenu>
      */
-    private function resolveAllowedProcedimientos(int $rolId, bool $accesoTotal): Collection
+    private function includeMenuAncestors(Collection $authorizedMenus, Collection $enabledMenus): Collection
     {
-        if ($accesoTotal) {
-            return collect();
+        if ($authorizedMenus->isEmpty()) {
+            return $authorizedMenus;
         }
 
-        return PqRolAtributo::query()
-            ->where('id_rol', $rolId)
-            ->where('permiso_repo', true)
-            ->pluck('procedimiento');
+        $enabledById = $enabledMenus->keyBy(static fn (PqMenu $menu): int => (int) $menu->id);
+        $includedIds = [];
+
+        foreach ($authorizedMenus as $menu) {
+            $includedIds[(int) $menu->id] = true;
+        }
+
+        foreach ($authorizedMenus as $menu) {
+            $parentId = (int) $menu->idparent;
+
+            while ($parentId !== 0 && ! isset($includedIds[$parentId])) {
+                /** @var PqMenu|null $parent */
+                $parent = $enabledById->get($parentId);
+
+                if ($parent === null) {
+                    break;
+                }
+
+                $includedIds[(int) $parent->id] = true;
+                $parentId = (int) $parent->idparent;
+            }
+        }
+
+        return $enabledMenus->filter(
+            static fn (PqMenu $menu): bool => isset($includedIds[(int) $menu->id])
+        );
     }
 
     /**

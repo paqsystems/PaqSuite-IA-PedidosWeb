@@ -2,9 +2,10 @@
 
 | Campo | Valor |
 |-------|--------|
-| **Versión documento** | MVP Fase 1 — 2026-06-19 (CC PQ #7–#8: validaciones grabación, layout carga, Excel, precarga artículos) |
+| **Versión documento** | MVP Fase 1 — 2026-06-22 (revisión ampliada: circuito, validaciones, renglones, parámetros, chat) |
 | **Ámbito** | Módulo comercial PedidosWeb |
-| **Manual transversal** | [Generalidades.md](./Generalidades.md) (login, sesión, menú, grillas, idioma) |
+| **Manual transversal** | [Generalidades.md](./Generalidades.md) (login, sesión, menú, grillas, idioma, chat IA) |
+| **Guías complementarias** | [Circuito y estados](./PedidosWeb-circuito-estados.md) · [Validaciones y errores](./PedidosWeb-validaciones-errores.md) · [Chat Asistente IA](./Chat-Asistente-IA.md) |
 | **Público** | Usuarios finales (vendedor, supervisor, cliente) y soporte funcional/técnico |
 
 ---
@@ -19,7 +20,15 @@ Está pensado como **documento de consulta y referencia** para:
 - soporte funcional y técnico que debe orientar sobre flujos, estados, permisos y validaciones;
 - la generación del **asistente conversacional (chatbot)** del módulo, que tomará este manual como base documental.
 
-Para login, navegación general, idioma, apariencia, **expiración de sesión por inactividad**, uso estándar de **grillas**, **vista pivot** y **consulta de parámetros**, consultar primero [Generalidades.md](./Generalidades.md).
+Para login, navegación general, idioma, apariencia, **expiración de sesión por inactividad**, uso estándar de **grillas**, **vista pivot**, **consulta de parámetros** y **Chat Asistente IA**, consultar primero [Generalidades.md](./Generalidades.md).
+
+Este manual se complementa con documentos de **referencia rápida** pensados para soporte y para el asistente conversacional:
+
+| Documento | Cuándo consultarlo |
+|-----------|-------------------|
+| [PedidosWeb-circuito-estados.md](./PedidosWeb-circuito-estados.md) | Estados, conversiones, bloqueo -1, cierre de presupuestos |
+| [PedidosWeb-validaciones-errores.md](./PedidosWeb-validaciones-errores.md) | Catálogo completo de validaciones, mensajes y causas al grabar/importar |
+| [Chat-Asistente-IA.md](./Chat-Asistente-IA.md) | Configuración BYOK, límites y alcance del chat de ayuda |
 
 ---
 
@@ -89,6 +98,8 @@ Define qué ve y qué puede hacer el usuario:
 - **Cliente:** cliente fijo de sesión; no elige otro cliente en carga.
 
 Los permisos concretos (modificar precios, bonificaciones, etc.) dependen de parámetros ERP y del rol asignado.
+
+**Matriz resumida de estados y conversiones:** ver [PedidosWeb-circuito-estados.md](./PedidosWeb-circuito-estados.md).
 
 ### Visibilidad de datos
 
@@ -227,6 +238,22 @@ Al cambiar la lista de precios en cabecera, el sistema recalcula precios de los 
 - Si al filtrar queda **un solo artículo**, se selecciona automáticamente.
 - No aparecen artículos marcados como **BASE** en el catálogo ERP.
 
+**Significado de los números (Disp.)**
+
+Formato habitual en el combobox:
+
+| Caso | Ejemplo visual |
+|------|----------------|
+| Sin artículo base | `ART01 - Descripción — Disp. 120,00` |
+| Con artículo base | `ART01 - Descripción — Disp. 120,00 (450,00)` |
+
+| Número | Qué representa |
+|--------|----------------|
+| **Primero** (tras «Disp.») | **Disponible neto del artículo**: stock ERP − comprometido ERP − cantidades en **pedidos web ingresados** (estado 0) no descargados de ese artículo. |
+| **Segundo** (entre paréntesis, si existe) | **Disponible neto del artículo base**: agrega stock y comprometido ERP de **todas las presentaciones** con la misma base, y resta los pedidos web ingresados de esas presentaciones. Solo se muestra si el artículo tiene código base en el maestro ERP. |
+
+**Importante:** no son «stock» y «comprometido» por separado; ambos valores son **disponible neto** listo para operatoria de venta. Si el artículo no tiene base, verá un solo número.
+
 **Diferencia con Consulta de stock (§9.4):** el informe **Stock** permite análisis pivot y filtros amplios en servidor; el listbox de carga usa un catálogo precargado en memoria, optimizado para operatoria de alta.
 
 ### 6.8 Editar un comprobante existente
@@ -330,6 +357,55 @@ Cuando el tenant tiene habilitada la importación Excel en carga, aparece una **
 3. Importar el archivo. Si **cualquier fila** tiene error de validación, **no se procesa nada** (sin ingreso parcial).
 4. Tras validar, el sistema **selecciona el cliente** de la primera fila, **inicializa la cabecera** desde el maestro (incluido el **vendedor del cliente**) y vuelca los renglones importados con los mismos cálculos que la carga manual (bonificación neta, precio neto, importes).
 5. Revisar cabecera, vendedor, lookups y totales antes de **Grabar pedido** o **Grabar presupuesto**.
+6. La importación **inicializa** la pantalla de carga; **no graba** el comprobante. Puede **seguir editando** cabecera, modificar renglones importados o **agregar más líneas** antes de grabar.
+
+**Formato de la planilla (preguntas frecuentes)**
+
+| Pregunta | Respuesta |
+|----------|-----------|
+| ¿Puede tener **más columnas** que la plantilla modelo? | **Sí.** Columnas adicionales con otros títulos se ignoran; no invalidan el archivo. |
+| ¿Se puede **cambiar el orden** de las columnas de la plantilla? | **Sí.** En cualquier posición, incluso **intercaladas** entre columnas de la plantilla. El sistema identifica cada columna por su **título** (fila 1), no por la posición. |
+| ¿Se pueden **quitar** columnas de la plantilla? | **No.** Deben permanecer **todas** las columnas definidas en la plantilla modelo descargada. Las que su perfil no puede editar deben ir **vacías** (el sistema completa desde el maestro). |
+| ¿Se pueden **cambiar los nombres** de las columnas? | **No.** Los títulos deben coincidir con los de la plantilla (según idioma al descargarla o equivalente en otro idioma soportado del portal). |
+| ¿Los títulos deben estar en la **primera fila**? | **Sí.** Fila 1 = encabezados; los datos de cada renglón empiezan en la **fila 2**. |
+| ¿Se pueden dejar **filas en blanco**? | **No.** No deje filas vacías entre renglones; cada fila de datos debe tener al menos artículo y cantidad válidos. |
+| ¿Qué pasa si la **cabecera difiere** entre filas (cliente, lista, transporte, etc.)? | **Error de inconsistencia** y se **cancela toda la importación** (sin ingreso parcial). Los datos de cabecera deben ser **idénticos en todas las filas**; solo pueden variar artículo, cantidad, precio lista y bonificación de renglón. |
+| ¿Tras importar se **graba** automáticamente o se puede **seguir editando**? | El Excel **inicializa** cabecera y renglones en la pantalla de carga. **No graba** el comprobante. Puede **editar**, **cambiar** datos o **agregar más renglones** antes de pulsar Grabar pedido o Grabar presupuesto. |
+
+**Errores de importación:** catálogo completo en [PedidosWeb-validaciones-errores.md §8](./PedidosWeb-validaciones-errores.md#8-importación-excel--errores-por-fila-y-por-lote).
+
+### 6.15 Renglones — grilla, popup y reglas
+
+| Tema | Comportamiento |
+|------|----------------|
+| **Agregar artículo** | Elegir en combobox → **Agregar artículo** → se abre popup del renglón nuevo para completar cantidad |
+| **Artículo duplicado** | No se permite el mismo código dos veces; mensaje en pantalla antes de agregar |
+| **Editar / quitar** | Íconos en grilla de renglones; popup muestra importes calculados |
+| **Precio neto unitario** | Solo lectura en grilla; precio lista − bonif. renglón − bonif. neta cabecera |
+| **Popup importes** | Bruto, neto, IVA y neto con IVA (2×2); IVA según % del artículo |
+| **Bonificación renglón** | Editable según `ModificaBonArtV/S`; rango habitual 0–100 |
+| **Descuento por cantidad** | Al cambiar cantidad, el sistema puede aplicar descuento del maestro `descuentocantidad` (mayor tramo ≤ cantidad ingresada), **independiente** del permiso de bonificación manual |
+| **Bonificación inicial** | Al agregar, parte de la bonificación del artículo en maestro |
+| **Stock** | Disponible informativo; **no bloquea** grabación |
+
+Al cambiar **lista de precios** o **bonificaciones de cabecera**, se recalculan precios e importes de todos los renglones ya cargados.
+
+### 6.16 Parámetros ERP que más afectan la carga
+
+Valores en **General → Consulta de parámetros** (solo lectura). Detalle de mensajes en [validaciones y errores](./PedidosWeb-validaciones-errores.md).
+
+| Parámetro (nombre en consulta) | Efecto en operatoria |
+|--------------------------------|----------------------|
+| Perfil de pedidos por defecto | Perfil inicial en alta nueva |
+| Inicializar leyenda N desde cliente | Copia leyendas 1–5 del maestro al elegir cliente |
+| Admitir artículos con precio cero / sin precio | Relaja o endurece validación de precios al grabar |
+| Solo niveles 0 y 100 | Restringe campo nivel de cabecera |
+| Modifica precio / bonif. / lista (V y S) | Habilita o bloquea cambios comerciales y grabación si se alteraron |
+| Impide modificar / eliminar pedidos | Bloqueo global de edición o baja en portal |
+| Minutos de inactividad web | Sesión y ventana de bloqueo -1 en edición |
+| Carga recurrente post grabación | Tras grabar, limpia pantalla o vuelve al listado |
+| Motivo de cierre exitoso | Usado al convertir presupuesto → pedido |
+| Incluir detalle en mail | Tabla de renglones en correo de notificación |
 
 ---
 
@@ -345,9 +421,22 @@ Elementos comunes:
 
 ### 7.1 Pedidos ingresados
 
+Ruta: **Pedidos → Pedidos ingresados**.
+
 Pedidos en estado **ingresado** y relacionados según reglas del proceso (incluye en modificación cuando aplica).
 
 **Acciones habituales** (según permisos): ver, editar, eliminar (solo ingresados), copiar, convertir a presupuesto.
+
+**Convertir pedido a presupuesto**
+
+Solo pedidos en estado **ingresado (0)** que aún no fueron descargados ni pasaron a pendiente.
+
+1. En **Pedidos → Pedidos ingresados**, localice el pedido que desea convertir.
+2. Pulse **Editar** en la fila del pedido (según permisos y parámetros ERP; ver abajo).
+3. En la pantalla de carga, revise cabecera y renglones si lo desea.
+4. Pulse **Grabar presupuesto** en la toolbar para generar un presupuesto **activo (99)**. El pedido origen deja de estar disponible como ingresado.
+
+También puede usar la acción **Convertir a presupuesto** directamente desde la grilla, sin pasar por edición previa.
 
 #### Por qué no veo Editar o Eliminar
 
@@ -370,9 +459,18 @@ Pedidos en cartera **pendiente** (estado 1). Consulta de seguimiento; **sin edic
 
 ### 7.3 Presupuestos ingresados
 
+Ruta: **Pedidos → Presupuestos ingresados**.
+
 Presupuestos **activos (99)** y **cerrados (98)** en procesos separados o pestañas según menú.
 
 **Acciones habituales:** ver, editar (activos), copiar, convertir a pedido, **cerrar presupuesto** (con motivo de cierre).
+
+**Convertir presupuesto a pedido**
+
+1. En **Pedidos → Presupuestos ingresados**, localice el presupuesto **activo (99)** que desea convertir.
+2. En la fila del presupuesto, use la acción **Convertir a pedido** (según permisos).
+3. Se abre la pantalla de **carga** con los datos del presupuesto; revise cabecera y renglones.
+4. Pulse **Grabar pedido** para generar el pedido nuevo. El presupuesto origen sigue su ciclo (puede cerrarse aparte; ver §10).
 
 ---
 
@@ -496,49 +594,79 @@ Si una acción no aparece en la grilla, el usuario **no tiene permiso**, el **es
 
 ## 14. Validaciones habituales en carga
 
+Resumen operativo; **catálogo exhaustivo** en [PedidosWeb-validaciones-errores.md](./PedidosWeb-validaciones-errores.md).
+
+### Antes de grabar (cliente)
+
 - Cumplir requisitos de cabecera y renglones (§6.12).
 - Verificar que el **vendedor** de cabecera corresponda al cliente (especialmente tras importar Excel — §6.14).
+- Definir **lista de precios** antes de agregar artículos (combobox de artículos deshabilitado sin lista válida).
+
+### Renglones y artículos
+
 - No duplicar el mismo **código de artículo** en un comprobante.
+- Cantidad **mayor a cero** en cada línea activa.
+- Artículos **BASE** no se ofrecen en la búsqueda de carga ni en Excel.
+- Con parámetros de precio cero inactivos, no se admiten renglones sin precio o con precio cero.
+
+### Cabecera y permisos
+
 - Al **cambiar cliente** con renglones cargados, el sistema pide confirmación (se pierden las líneas).
-- Bonificaciones y precios pueden estar **deshabilitados** según permisos ERP.
-- Artículos **BASE** no se ofrecen en la búsqueda de carga.
+- Bonificaciones, precios y lista pueden estar **deshabilitados** según perfil (cliente nunca modifica precio/bonif./lista).
 - Con *Nivel extremo* activo, el nivel solo admite **0** o **100**.
-- Con parámetros de precio cero inactivos, no se admiten renglones sin precio.
+- Grabar con precio o bonificación **modificados sin permiso** falla en servidor aunque la pantalla lo permitiera temporalmente.
+
+### Edición concurrente
+
+- Pedido en **-1** bloqueado por otro usuario dentro de **MinutosWeb** → error *edición en curso* (ver [circuito §5](./PedidosWeb-circuito-estados.md#5-bloqueo-de-edición-estado--1-y-minutosweb)).
 
 ---
 
 ## 15. Mensajes de error y advertencia
 
-Los textos exactos dependen del **idioma activo**. Interpretación funcional habitual:
+Los textos exactos dependen del **idioma activo**. Al grabar, puede aparecer un **diálogo con lista** de errores. Tabla ampliada en [PedidosWeb-validaciones-errores.md](./PedidosWeb-validaciones-errores.md).
 
 | Situación | Acción sugerida |
 |-----------|-----------------|
-| No permite grabar | Completar lookups obligatorios (§6.12); agregar renglones; verificar vendedor del cliente; revisar parámetros *Nivel extremo* y precio cero |
-| Importación Excel rechazada | Corregir todas las filas con error en la plantilla; no hay ingreso parcial; ver §6.14 |
-| Vendedor distinto al esperado tras Excel | Es el vendedor del **cliente** en ERP, no necesariamente el usuario logueado — §6.14 |
-| Grilla vacía en consulta | Revisar filtros; pulsar **Actualizar**; ampliar criterios |
-| No puedo editar un pedido | Revisar §7.1 y §13: parámetro *Impide modificar pedidos*, permiso de menú, estado del pedido o bloqueo en edición (-1) |
-| No puedo eliminar un pedido | Revisar §7.1 y §13: parámetro *Impide eliminar pedidos*, permiso de baja o estado distinto de ingresado (0) |
-| Leyendas vacías pese a tenerlas en el cliente | Revisar §6.13: parámetro *Inicializar leyenda N*, texto en maestro cliente y que sea carga nueva |
-| Mail no enviado tras grabar | Fallo de correo; la grabación sí se realizó — revisar parámetros mail en ERP |
-| Totales distintos al esperado | Verificar bonificación neta de cabecera y % IVA en renglones |
-| Dashboard sin datos | Verificar visibilidad de cartera y mes en curso |
+| No permite grabar (lista de errores) | Corregir cada ítem del diálogo; revisar §6.12 y [validaciones §11](./PedidosWeb-validaciones-errores.md#11-tabla-rápida-no-puedo-grabar--revisar-en-orden) |
+| Debe seleccionar cliente / perfil / transporte / etc. | Completar lookups obligatorios de cabecera |
+| Hay artículos con precio cero o sin precio | Cambiar artículo o lista; revisar parámetros *Admitir artículos con precio cero* y *sin precio* |
+| No tiene permiso para modificar precios/bonificaciones/lista | Revertir cambios comerciales o solicitar habilitación ERP |
+| Importación Excel rechazada | Corregir **todas** las filas; sin ingreso parcial — §6.14 y [validaciones §8](./PedidosWeb-validaciones-errores.md#8-importación-excel--errores-por-fila-y-por-lote) |
+| Vendedor distinto al esperado tras Excel | Es el vendedor del **cliente** en ERP — §6.14 |
+| Edición en curso | Otro usuario edita el pedido; esperar o contactarlo — [circuito §5](./PedidosWeb-circuito-estados.md#5-bloqueo-de-edición-estado--1-y-minutosweb) |
+| Estado no editable | Comprobante en estado que no admite edición (pendiente, cerrado, presupuesto 98) |
+| Grilla vacía en consulta | Revisar filtros; pulsar **Actualizar**; ampliar criterios; verificar cartera |
+| No puedo editar un pedido | §7.1, §13 y [validaciones §12](./PedidosWeb-validaciones-errores.md#12-tabla-rápida-no-puedo-editar--eliminar--revisar-en-orden) |
+| No puedo eliminar un pedido | Solo estado **0**; parámetro *Impide eliminar*; permiso de baja |
+| Leyendas vacías pese a tenerlas en el cliente | §6.13: parámetro *Inicializar leyenda N*, texto en maestro y carga nueva |
+| Mail no enviado tras grabar | Fallo de correo; **la grabación sí se realizó** — parámetros mail en ERP |
+| Totales distintos al esperado | Bonificación neta de cabecera, bonif. de renglón y % IVA |
+| Dashboard sin datos | Visibilidad de cartera; pedidos en -1 pueden excluirse de ingresados |
+| Cliente no existe o no disponible | Fuera de cartera o inhabilitado |
+| Motivo de cierre inválido al convertir presupuesto | Revisar *Motivo de cierre exitoso* y catálogo ERP |
 
-Para acceso, sesión o permisos generales: [Generalidades §10](./Generalidades.md).
+Para acceso, sesión, permisos generales o chat IA: [Generalidades.md](./Generalidades.md) y [Chat-Asistente-IA.md](./Chat-Asistente-IA.md).
 
 ---
 
 ## 16. Problemas frecuentes
 
 - Confundir **presupuesto** con **pedido** al grabar (usar el botón correcto en la toolbar).
+- Usar **Copiar** cuando la intención es **Convertir** tipo de comprobante — ver [circuito §4](./PedidosWeb-circuito-estados.md#4-matriz-de-grabación-pedido-vs-presupuesto).
 - Editar cabecera esperando cambiar **cliente** sin perder renglones (el sistema advierte antes).
-- Buscar un artículo con stock **cero** en carga: el listbox muestra disponible según reglas de producto; use **Actualizar artículos** o el informe **Stock** si necesita datos más recientes.
+- Grabar con botones deshabilitados porque la **cabecera aún carga** tras elegir cliente (esperar fin de carga).
+- Buscar un artículo con stock **cero** en carga: el listbox muestra disponible informativo; **no impide** grabar.
 - No ver el conmutador **Grilla / Pivot** en un informe (pivot puede no estar habilitado en el tenant; §9).
 - Fecha de comprobante distinta a la esperada en consultas (verificar zona/fecha de grabación con soporte si persiste).
 - No ver **Detalle de pedidos** en menú (requiere permiso; contactar administrador).
 - Tener permiso de menú pero **no ver Editar/Eliminar**: revisar *Impide modificar/eliminar pedidos* en Consulta de parámetros (§13).
 - Intentar importar Excel **después** de haber elegido cliente manualmente (vendedor/supervisor): el botón queda deshabilitado — importar al inicio o en pantalla limpia (§6.14).
 - Esperar leyendas del cliente en **edición** de un comprobante ya grabado (solo se inicializan desde cliente en **alta nueva**; §6.13).
+- Creer que el pedido **desapareció** tras grabar presupuesto (conversión **elimina** el pedido ingresado origen).
+- Esperar que el presupuesto **se borre** al convertir a pedido (pasa a **cerrado 98**, no se elimina).
+- Dos usuarios editando el mismo pedido: el segundo recibe **edición en curso** hasta liberar bloqueo -1.
+- Chat asistente con respuestas pobres: formular preguntas con pantalla y mensaje de error; consultar [Chat-Asistente-IA.md](./Chat-Asistente-IA.md) y manuales complementarios.
 
 ---
 
@@ -581,6 +709,27 @@ Sí, desde **Detalle de pedidos** con Exportar Excel (si hay datos visibles).
 
 Parámetros ERP o rol pueden inhibir modificación de bonificaciones.
 
+### ¿Cómo paso un presupuesto a pedido?
+
+Para convertir un presupuesto activo en pedido:
+
+1. Acceda a **Pedidos → Presupuestos ingresados**.
+2. Busque el presupuesto que desea convertir (debe estar **activo**, estado 99).
+3. Utilice la acción **Convertir a pedido** en la fila del presupuesto.
+4. En la pantalla de carga que se abre, revise los datos y pulse **Grabar pedido**.
+
+No use la acción **Copiar** para este fin: copia crea un comprobante nuevo del mismo tipo; la conversión es la acción **Convertir a pedido**. Detalle en §7.3.
+
+### ¿Puedo pasar un pedido a presupuesto?
+
+Sí, si el pedido está en estado **ingresado (0)** y no fue descargado:
+
+1. Acceda a **Pedidos → Pedidos ingresados**.
+2. **Edite** el pedido que desea convertir.
+3. En la pantalla de carga, pulse **Grabar presupuesto**.
+
+También puede usar **Convertir a presupuesto** desde la grilla sin editar antes. Detalle en §7.1.
+
 ### ¿La conversión presupuesto → pedido borra el presupuesto?
 
 Genera un **pedido nuevo**; el presupuesto origen sigue su ciclo (puede cerrarse aparte).
@@ -599,15 +748,64 @@ En **carga nueva**, cada leyenda solo se copia del maestro cliente si el paráme
 
 ### ¿Cómo importo un pedido desde Excel?
 
-En **Carga**, modo **nuevo**, usar la barra superior de importación (si el tenant la habilitó). Descargar plantilla, completar filas e importar **antes** de elegir cliente manualmente si es vendedor/supervisor. Ver §6.14.
+En **Carga**, modo **nuevo**, usar la barra superior de importación (si el tenant la habilitó). Descargar plantilla, completar filas e importar **antes** de elegir cliente manualmente si es vendedor/supervisor. Ver §6.14 (incluye formato de planilla: columnas, filas, cabecera y edición posterior).
+
+### ¿Puedo quitar columnas de la plantilla Excel?
+
+**No.** Deben permanecer todas las columnas del modelo descargado. Las que su perfil no puede editar van **vacías**. Ver §6.14.
+
+### ¿Puedo dejar filas en blanco en el Excel?
+
+**No.** No deje filas vacías entre renglones. Ver §6.14.
+
+### ¿El Excel graba el pedido automáticamente?
+
+**No.** Inicializa cabecera y renglones en carga; puede editarlos y agregar líneas antes de **Grabar pedido** o **Grabar presupuesto**. Ver §6.14.
 
 ### ¿Por qué el combobox de artículos está deshabilitado o muestra disponibilidad desactualizada?
 
 El combobox se habilita cuando la cabecera tiene **lista de precios válida**. El catálogo se precarga al **ingresar** a la pantalla; use el icono **Actualizar artículos** para refrescar desde el servidor. Para análisis ampliado use **Informes → Stock** (§9.4). Ver §6.7.
 
+### ¿Qué significan los dos números en la lista de artículos en carga?
+
+En el combobox de **Carga de pedidos**, junto al código y la descripción aparece **Disp.** con uno o dos números:
+
+1. **Primer número:** disponible **neto** del artículo (stock ERP − comprometido ERP − pedidos web ingresados no descargados de ese artículo).
+2. **Segundo número (entre paréntesis):** disponible neto del **artículo base**, solo si el artículo tiene base en el maestro. Agrega todas las presentaciones con esa base y aplica la misma regla de descuentos.
+
+No representan stock y comprometido por separado. Si no hay artículo base, solo verá el primer número. Detalle en §6.7.
+
 ### ¿Cómo uso la vista pivot en informes?
 
 Abrir un informe habilitado (deuda, cheques, stock, detalle de pedidos o historial), pulsar **Pivot** en el conmutador superior y arrastrar campos desde el panel lateral. Requiere que el tenant tenga pivots activos. Detalle en [Generalidades §19](./Generalidades.md).
+
+### ¿El stock en carga impide grabar si es cero?
+
+No. El disponible mostrado es **informativo**. Puede grabar igual salvo otras validaciones (precio, permisos, cabecera).
+
+### ¿Qué pasa si grabo presupuesto desde un pedido ingresado?
+
+Se crea un presupuesto **activo (99)** nuevo y el pedido ingresado origen **deja de existir** en el portal. Ver [circuito §4](./PedidosWeb-circuito-estados.md#4-matriz-de-grabación-pedido-vs-presupuesto).
+
+### ¿Qué pasa si grabo pedido desde un presupuesto activo?
+
+Se crea pedido **ingresado (0)** y el presupuesto pasa a **cerrado (98)** con cierre por conversión. Ver [circuito §6](./PedidosWeb-circuito-estados.md#6-cierre-de-presupuestos).
+
+### ¿Por qué otro usuario no puede editar mi pedido?
+
+Está en estado **-1** por su sesión de edición. Debe **grabar**, **cancelar** o esperar **MinutosWeb** sin actividad.
+
+### ¿Puedo eliminar un presupuesto?
+
+No desde el portal. Los presupuestos se **cierran** (estado 98), no se eliminan como los pedidos ingresados.
+
+### ¿Dónde está el listado completo de mensajes al grabar?
+
+En [PedidosWeb-validaciones-errores.md](./PedidosWeb-validaciones-errores.md).
+
+### ¿El chat asistente puede ver mi comprobante abierto?
+
+No. Orienta según documentación. Ver [Chat-Asistente-IA.md](./Chat-Asistente-IA.md).
 
 ---
 
@@ -628,6 +826,9 @@ Grillas, pivot, idioma y acceso se rigen por [Generalidades.md](./Generalidades.
 
 | Tema | Documento |
 |------|-----------|
+| Circuito y estados | [PedidosWeb-circuito-estados.md](./PedidosWeb-circuito-estados.md) |
+| Validaciones y errores | [PedidosWeb-validaciones-errores.md](./PedidosWeb-validaciones-errores.md) |
+| Chat Asistente IA | [Chat-Asistente-IA.md](./Chat-Asistente-IA.md) |
 | Carga UI | [pantalla-carga-comprobante-ui.md](../02-producto/PedidosWeb/pantalla-carga-comprobante-ui.md) |
 | Consultas cabecera | [consulta-comprobantes-cabecera.md](../02-producto/PedidosWeb/consulta-comprobantes-cabecera.md) |
 | Detalle pedidos | [consulta-detalle-pedidos.md](../02-producto/PedidosWeb/consulta-detalle-pedidos.md) |

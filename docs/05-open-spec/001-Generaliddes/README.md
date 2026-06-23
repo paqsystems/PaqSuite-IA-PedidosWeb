@@ -9,10 +9,11 @@ Este bloque define las **especificaciones de configuración inicial** para Pedid
 | SPEC | Estado A1 | HU MVP | Notas |
 |------|-----------|--------|--------|
 | 001-01 … 001-05 | Apto con observaciones | Sí (01–02 generadas; 03–05 pendientes) | Parches A1 + decisiones en producto §8.1, §7, §5 |
+| 001-02-admin | **D1 + F + E cerrado** (2026-06-19) | **No** en MVP portal | 4 HU + 4 TR; activación vía `ADMIN_SECURITY_UI_ENABLED` |
 | 001-06, 001-09 | Documental | **No** en MVP portal | Preparación; sin HU en primer release |
 | 001-07 | **C1 cerrado** (2026-06-16) | **No** en MVP portal | 4 HU + 4 TR; epic importar Excel posterior |
 | 001-08 | **D1 + F cerrado** (2026-06-11) | **No** en MVP portal | 4 HU + 4 TR implementadas; activación vía flags |
-| 001-10 | Pendiente | No todavía | Chat Asistente IA en nueva pestaña con `BYOK`, proveedores y mensajes editables |
+| 001-10 | **C1 cerrado** (2026-06-21) | **No** en MVP portal | 5 HU + 5 TR; epic Chat Asistente IA posterior — [F-GEN-10-cierre-c1](../../04-tareas/001-Generaliddes/F-GEN-10-cierre-c1.md) |
 
 **Fuente de producto compartida:** `docs/02-producto/PedidosWeb/PedidosWeb_Definicion_Conceptual_Final_OpenSpec.md`
 
@@ -30,6 +31,7 @@ Este bloque define las **especificaciones de configuración inicial** para Pedid
 
 1. `SPEC-001-01-experiencia-base.md`
 2. `SPEC-001-02-acceso-y-seguridad.md`
+2b. `SPEC-001-02-admin-mantenimiento-roles-permisos.md` — post-MVP; ABM roles/permisos/atributos
 3. `SPEC-001-03-ui-transversal.md`
 4. `SPEC-001-04-configuracion-global.md`
 5. `SPEC-001-05-variantes-y-alcance.md`

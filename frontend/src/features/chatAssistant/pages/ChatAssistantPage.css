@@ -1,0 +1,60 @@
+.chatAssistantPage {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  margin: 0 auto;
+  max-width: 52rem;
+  padding: 1.5rem 1rem 2rem;
+}
+
+.chatAssistantPage__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.chatAssistantPage__headerMain h1 {
+  font-size: 1.5rem;
+  margin: 0 0 0.35rem;
+}
+
+.chatAssistantPage__headerMain p {
+  color: var(--pw-text-secondary, #4b5563);
+  margin: 0;
+}
+
+.chatAssistantPage__headerActions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  flex-shrink: 0;
+  gap: 0.5rem;
+  max-width: 15rem;
+}
+
+.chatAssistantPage__setupHint {
+  color: var(--pw-text-info, #1d4ed8);
+  font-size: 0.8125rem;
+  font-style: italic;
+  font-weight: 500;
+  line-height: 1.45;
+  margin: 0;
+  text-align: right;
+}
+
+.chatAssistantPage__configurationSelect {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  max-width: 24rem;
+}
+
+.chatAssistantPage__loading,
+.chatAssistantPage__error {
+  margin: 0;
+}
+
+.chatAssistantPage__error {
+  color: var(--pw-text-danger, #b91c1c);
+}

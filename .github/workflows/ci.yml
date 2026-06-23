@@ -83,4 +83,6 @@ jobs:
         run: npm run build
 
       - name: Unit tests
+        env:
+          VITE_DEVEXTREME_LICENSE: ${{ secrets.VITE_DEVEXTREME_LICENSE }}
         run: npm run test
