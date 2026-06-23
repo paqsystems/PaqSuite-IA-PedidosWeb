@@ -237,7 +237,8 @@ export function PedidosCargaPage() {
       return articulosCatalogoLoadRef.current;
     }
 
-    const loadPromise = (async () => {
+    let loadPromise!: Promise<void>;
+    loadPromise = (async () => {
       setArticulosLoading(true);
 
       try {
