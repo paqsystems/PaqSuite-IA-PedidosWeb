@@ -9,7 +9,8 @@ use Illuminate\Support\Facades\Schema;
 /**
  * Lookup de artículos para carga de comprobante — una sola consulta SQL.
  *
- * Stock/disponible: CTEs lineales (misma lógica que articulos_stock_aws.sql).
+ * Stock/disponible: join directo a pq_pedidosweb_stock (presentación y fila del código base).
+ * La fila base (cod_articulo = articulos.base) la carga el ERP con stock/comprometido agregados.
  *
  * @see docs/02-producto/PedidosWeb/pantalla-carga-comprobante-ui.md §3
  */
@@ -119,30 +120,15 @@ pedidos_ingresados AS (
 ),
 pedidos_ingresados_base AS (
     SELECT
-        a3.[base] AS cod_base,
-        SUM(d2.cantidad) AS comprometido_base_web
-    FROM pq_pedidosweb_pedidosdetalle AS d2
-    INNER JOIN pq_pedidosweb_pedidoscabecera AS c2 ON d2.cod_pedido = c2.cod_pedido
-    INNER JOIN pq_pedidosweb_articulos AS a3 ON d2.cod_articulo = a3.codigo
-    WHERE c2.[estado] = 0
-      AND NULLIF(LTRIM(RTRIM(CAST(a3.[base] AS NVARCHAR(50)))), '') IS NOT NULL
-    GROUP BY a3.[base]
+        LTRIM(RTRIM(CAST(a.[base] AS NVARCHAR(50)))) AS cod_base,
+        SUM(piw.comprometido_web) AS comprometido_base_web
+    FROM pedidos_ingresados AS piw
+    INNER JOIN pq_pedidosweb_articulos AS a ON a.codigo = piw.cod_articulo
+    WHERE NULLIF(LTRIM(RTRIM(CAST(a.[base] AS NVARCHAR(50)))), '') IS NOT NULL
+    GROUP BY LTRIM(RTRIM(CAST(a.[base] AS NVARCHAR(50))))
 )
 SQL;
         }
-
-        $ctes[] = <<<'SQL'
-stock_por_base AS (
-    SELECT
-        a2.[base] AS cod_base,
-        SUM(s2.stock) AS stock_base,
-        SUM(s2.comprometido) AS comprometido_base
-    FROM pq_pedidosweb_stock AS s2
-    INNER JOIN pq_pedidosweb_articulos AS a2 ON s2.cod_articulo = a2.codigo
-    WHERE NULLIF(LTRIM(RTRIM(CAST(a2.[base] AS NVARCHAR(50)))), '') IS NOT NULL
-    GROUP BY a2.[base]
-)
-SQL;
 
         $comprometidoWebExpr = $hasPedidosTables ? 'ISNULL(piw.comprometido_web, 0)' : '0';
         $comprometidoBaseWebExpr = $hasPedidosTables ? 'ISNULL(pib.comprometido_base_web, 0)' : '0';
@@ -150,11 +136,13 @@ SQL;
 
         $joins = [
             'LEFT JOIN pq_pedidosweb_stock AS s ON s.cod_articulo = a.codigo',
-            'LEFT JOIN stock_por_base AS [bs] ON [bs].cod_base = a.[base] AND '.self::BASE_NOT_EMPTY_SQL,
+            'LEFT JOIN pq_pedidosweb_stock AS s_base ON s_base.cod_articulo = '.self::BASE_TRIM_SQL
+                .' AND '.self::BASE_NOT_EMPTY_SQL,
         ];
         if ($hasPedidosTables) {
             $joins[] = 'LEFT JOIN pedidos_ingresados AS piw ON piw.cod_articulo = a.codigo';
-            $joins[] = 'LEFT JOIN pedidos_ingresados_base AS pib ON pib.cod_base = a.[base] AND '.self::BASE_NOT_EMPTY_SQL;
+            $joins[] = 'LEFT JOIN pedidos_ingresados_base AS pib ON pib.cod_base = '.self::BASE_TRIM_SQL
+                .' AND '.self::BASE_NOT_EMPTY_SQL;
         }
         if ($codLista > 0 && $hasListaPreciosTable) {
             $joins[] = 'LEFT JOIN pq_pedidosweb_listaprecios_articulos AS lp ON lp.cod_articulo = a.codigo AND lp.cod_lista = ?';
@@ -162,10 +150,10 @@ SQL;
 
         $disponibleExpr = "(ISNULL(s.stock, 0) - ISNULL(s.comprometido, 0) - {$comprometidoWebExpr})";
         $disponibleBaseExpr = 'CASE WHEN '.self::BASE_NOT_EMPTY_SQL
-            ." THEN (ISNULL(bs.stock_base, 0) - ISNULL(bs.comprometido_base, 0) - {$comprometidoBaseWebExpr})"
+            ." THEN (ISNULL(s_base.stock, 0) - ISNULL(s_base.comprometido, 0) - {$comprometidoBaseWebExpr})"
             .' ELSE NULL END';
 
-        $sql = 'WITH '.implode(",\n", $ctes)."\n"
+        $sql = ($ctes !== [] ? 'WITH '.implode(",\n", $ctes)."\n" : '')
             ."SELECT TOP ({$pageSize})\n"
             ."    a.codigo,\n"
             ."    a.descripcion,\n"

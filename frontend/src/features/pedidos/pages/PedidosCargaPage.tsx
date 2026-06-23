@@ -82,6 +82,7 @@ export function PedidosCargaPage() {
   const ultimaAccionGrabacionRef = useRef<'pedido' | 'presupuesto' | null>(null);
   const isHydratingComprobanteRef = useRef(false);
   const hydratingFromExcelImportRef = useRef(false);
+  const articulosCatalogoLoadRef = useRef<Promise<void> | null>(null);
 
   const [clientes, setClientes] = useState<ClienteOption[]>([]);
   const [clientesLoading, setClientesLoading] = useState(false);
@@ -231,17 +232,29 @@ export function PedidosCargaPage() {
     }
   }, []);
 
-  const loadArticulosCatalogo = useCallback(async () => {
-    setArticulosLoading(true);
-
-    try {
-      const data = await fetchArticulosCatalogoCarga();
-      setArticulos(data);
-    } catch {
-      setArticulos([]);
-    } finally {
-      setArticulosLoading(false);
+  const loadArticulosCatalogo = useCallback(async (options?: { force?: boolean }) => {
+    if (!options?.force && articulosCatalogoLoadRef.current) {
+      return articulosCatalogoLoadRef.current;
     }
+
+    const loadPromise = (async () => {
+      setArticulosLoading(true);
+
+      try {
+        const data = await fetchArticulosCatalogoCarga();
+        setArticulos(data);
+      } catch {
+        setArticulos([]);
+      } finally {
+        if (articulosCatalogoLoadRef.current === loadPromise) {
+          setArticulosLoading(false);
+          articulosCatalogoLoadRef.current = null;
+        }
+      }
+    })();
+
+    articulosCatalogoLoadRef.current = loadPromise;
+    return loadPromise;
   }, []);
 
   useEffect(() => {
@@ -334,18 +347,6 @@ export function PedidosCargaPage() {
   useEffect(() => {
     void loadArticulosCatalogo();
   }, [loadArticulosCatalogo]);
-
-  useEffect(() => {
-    if (!selectedCliente || comprobanteId || modo !== 'nuevo') {
-      return;
-    }
-
-    if (hydratingFromExcelImportRef.current) {
-      return;
-    }
-
-    void loadCabeceraForCliente(selectedCliente);
-  }, [comprobanteId, loadCabeceraForCliente, modo, selectedCliente]);
 
   useEffect(() => {
     if (!comprobanteId) {
@@ -1034,7 +1035,7 @@ export function PedidosCargaPage() {
                       hint={t('grid.refresh')}
                       disabled={articulosLoading}
                       onClick={() => {
-                        void loadArticulosCatalogo();
+                        void loadArticulosCatalogo({ force: true });
                       }}
                     />
                   </div>
