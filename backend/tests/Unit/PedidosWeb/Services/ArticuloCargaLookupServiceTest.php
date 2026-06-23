@@ -29,8 +29,8 @@ final class ArticuloCargaLookupServiceTest extends TestCase
         $sql = strtolower($this->findBuscarSql($queries));
 
         $this->assertStringContainsString('pq_pedidosweb_articulos', $sql);
-        $this->assertStringContainsString('stock_base', $sql);
-        $this->assertStringContainsString(' as [bs]', $sql);
+        $this->assertStringContainsString('s_base', $sql);
+        $this->assertStringNotContainsString('stock_por_base', $sql);
         $this->assertStringNotContainsString('where [s].[cod_articulo] in', $sql);
     }
 
@@ -90,7 +90,7 @@ final class ArticuloCargaLookupServiceTest extends TestCase
         }
 
         DB::table('pq_pedidosweb_articulos')->whereIn('codigo', ['ART-P1', 'ART-P2'])->delete();
-        DB::table('pq_pedidosweb_stock')->whereIn('cod_articulo', ['ART-P1', 'ART-P2'])->delete();
+        DB::table('pq_pedidosweb_stock')->whereIn('cod_articulo', ['ART-P1', 'ART-P2', 'BASE01'])->delete();
         DB::table('pq_pedidosweb_pedidosdetalle')->where('cod_pedido', 'PED-LOOKUP-01')->delete();
         DB::table('pq_pedidosweb_pedidoscabecera')->where('cod_pedido', 'PED-LOOKUP-01')->delete();
 
@@ -111,6 +111,7 @@ final class ArticuloCargaLookupServiceTest extends TestCase
             [
                 ['cod_articulo' => 'ART-P1', 'stock' => 50, 'comprometido' => 5],
                 ['cod_articulo' => 'ART-P2', 'stock' => 100, 'comprometido' => 15],
+                ['cod_articulo' => 'BASE01', 'stock' => 150, 'comprometido' => 20],
             ] as $stock
         ) {
             DB::table('pq_pedidosweb_stock')->insert($stock);
@@ -158,7 +159,7 @@ final class ArticuloCargaLookupServiceTest extends TestCase
             $sql = strtolower($query['query']);
             if (
                 str_contains($sql, 'pq_pedidosweb_articulos')
-                && (str_contains($sql, 'stock_por_base') || str_contains($sql, ' as [bs]'))
+                && str_contains($sql, 's_base')
             ) {
                 return $query['query'];
             }
