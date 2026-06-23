@@ -54,9 +54,10 @@ Controles: **DevExtreme** (`SelectBox`, `NumberBox`, `DataGrid`, `Popup`, `Butto
 | Regla | Detalle |
 |-------|---------|
 | Control | `SelectBoxDx` (`data-testid`: `articulo-select`) |
-| API | `GET /api/v1/articulos?q=&lista_precios={cod_lista}&page_size=10000` (join `pq_pedidosweb_stock`; disponible = stock − comprometido − pedidos web ingresados) |
-| Carga de datos | **Al montar** la pantalla: **una** precarga del catálogo (`fetchArticulosCatalogoCarga`, hasta **10 000** ítems); array en memoria; **no** se repite al cambiar cliente |
-| Actualizar catálogo | Botón icono **refresh** (`data-testid`: `articulosRefresh`) junto al combobox; reconsulta API y reemplaza el array en memoria |
+| API stock | `GET /api/v1/articulos?q=&page_size=10000` — join `pq_pedidosweb_stock`; disponible = stock − comprometido − pedidos web ingresados (**sin** `lista_precios`) |
+| API precios | `GET /api/v1/articulos?q=&lista_precios={cod_lista}&page_size=10000&solo_catalogo=1` — precio, bonificación e IVA por lista (**sin** recalcular stock) |
+| Carga de datos | **Al montar:** precarga **stock/disponible** (`fetchArticulosStockCatalogoCarga`, hasta **10 000** ítems). **Tras lista de precios válida en cabecera:** consulta de **precios** (`fetchArticulosPreciosCatalogoCarga`); merge en cliente (`mergeArticulosStockPrecios`). Stock **no** se repite al cambiar cliente; precios **sí** se recargan al cambiar lista |
+| Actualizar catálogo | Botón icono **refresh** (`data-testid`: `articulosRefresh`) junto al combobox; reconsulta solo **stock** y reemplaza el array en memoria |
 | Búsqueda | **Local** DevExtreme (`searchEnabled`, `searchExpr`: `codArticulo`, `descripcion`, `searchMode`: `contains`); sin consultas API al tipear |
 | Auto-match | Si el filtro local deja un único ítem, selección automática |
 | Lista precios | Sin `listaPrecios` válida en cabecera el combobox queda deshabilitado (sin `DataSource`); al cambiar lista → `actualizarPreciosRenglonesPorLista` (batch `codigos`) |
@@ -64,7 +65,7 @@ Controles: **DevExtreme** (`SelectBox`, `NumberBox`, `DataGrid`, `Popup`, `Butto
 | Estado carga | Hint i18n `selectBox.loading` durante precarga inicial |
 | Exclusión BASE | No listar artículos con `pq_pedidosweb_articulos.usa_esc = 'B'` (solo lookup/browse; refresh por `codigos` no aplica este filtro) |
 | Formato ítem | Ver §3.1 |
-| Precio al agregar | Campo `precio` de la respuesta (lista activa en cabecera) |
+| Precio al agregar | Campo `precio` del ítem mergeado en memoria (lista activa en cabecera); **sin** fetch puntual por código al pulsar Agregar |
 | `porc_iva` | Normalizar a escala 0–100 con `normalizarPorcIvaAlmacenado` (0.21 → 21) |
 
 ### 3.1 Texto del ítem (disponible en listbox)

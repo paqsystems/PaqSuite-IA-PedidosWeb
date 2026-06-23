@@ -104,3 +104,4 @@ Fuente de verdad UI: [pantalla-carga-comprobante-ui.md](../../02-producto/Pedido
 | 09/06/2026 | CC PQ #5 | Listbox carga: disponible sin `comprometido_web` |
 | 11/06/2026 | Parte I CC #5 | Unificación `SPEC-101-10-pantalla-carga-update` (CC #5) |
 | 17/06/2026 | CC PQ #6 | Disponible base listbox: agregado SUM por `base`; fórmula alineada con consulta stock §5 |
+| 23/06/2026 | perf carga | Precarga stock al montar; precios por lista (`solo_catalogo`); merge cliente — ver `pantalla-carga-comprobante-ui.md` §3 |

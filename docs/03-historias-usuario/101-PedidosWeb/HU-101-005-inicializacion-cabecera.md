@@ -6,7 +6,7 @@
 | **SPEC origen** | [SPEC-101-10-pantalla-carga](../../05-open-spec/101-PedidosWeb/SPEC-101-10-pantalla-carga.md) |
 | **Prioridad** | Must |
 | **Estado** | Finalizado |
-| **Última actualización** | 2026-06-17 (CC PQ #6 — disponible base agregado) |
+| **Última actualización** | 2026-06-23 (precarga stock al montar + precios por lista) |
 | **B1** | Enriquecida (2026-06-01) |
 | **Dependencias** | HU-101-004; contexto SPEC-001-04 (parámetros §10.6 producto) |
 
@@ -29,7 +29,7 @@ Al seleccionar cliente, precargar según producto §10.4: vendedor, condición d
 5. **Cliente:** no modifica bonificaciones de cabecera ni lista de precios salvo parámetros explícitos para **C** (producto: cliente no modifica precio/lista/descuento artículo en renglón).
 6. **CC PQ 04/06/2026:** Tercera bonificación admite **-99,99 a 99,99**; al cambiar lista de precios o bonificaciones con renglones → recalcular precios e importes del detalle; grilla muestra columna **Precio neto unitario** (solo lectura).
 7. **CC PQ #3:** Lista de **clientes:** patrón transversal cargando + bloqueo + auto-match único; cache de catálogo por sesión.
-8. **CC PQ #3 (artículos):** Tras lista de precios en cabecera, **precarga local** del catálogo (hasta 10 000 ítems); búsqueda DevExtreme **local** por `codArticulo` y `descripcion`; display **`{codigo} - {descripcion} — Disp. X (Y)`**.
+8. **CC PQ #3 (artículos):** Al montar pantalla, precarga **stock/disponible** (hasta 10 000 ítems); tras lista de precios en cabecera, consulta **precios** por lista (`solo_catalogo`) y merge en cliente; búsqueda DevExtreme **local** por `codArticulo` y `descripcion`; display **`{codigo} - {descripcion} — Disp. X (Y)`**.
 9. **CC PQ #3:** Al cambiar **lista de precios** con renglones → recálculo batch de precios (API `codigos` CSV).
 10. **CC PQ #5 / #6 (listbox artículos):** `disponibleNeto = stock − comprometido − comprometido_web` (pedidos ingresados `estado = 0`). Si `articulos.base` ≠ vacío: `disponibleNetoBase = SUM(stock) − SUM(comprometido) − comprometido_base_web` sobre **todas** las presentaciones con la misma `base` ([consulta-stock.md](../../02-producto/PedidosWeb/consulta-stock.md) §5). Entre paréntesis en el ítem: solo `disponibleNetoBase`.
 

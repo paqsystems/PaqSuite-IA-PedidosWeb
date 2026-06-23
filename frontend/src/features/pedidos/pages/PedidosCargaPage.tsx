@@ -13,8 +13,8 @@ import { ExcelImportHostToolbar } from '../../excelImport/components/ExcelImport
 import type { ExcelImportHostResult } from '../../excelImport/types/excelImportHostTypes';
 import {
   cancelarEdicionPedido,
-  fetchArticulosCatalogoCarga,
-  fetchArticuloCargaByCodigo,
+  fetchArticulosPreciosCatalogoCarga,
+  fetchArticulosStockCatalogoCarga,
   fetchCabeceraInicial,
   fetchClientes,
   fetchComprobante,
@@ -45,6 +45,7 @@ import {
   ordenarClientes,
 } from '../utils/cargaCatalogos';
 import { actualizarPreciosRenglonesPorLista } from '../utils/actualizarPreciosRenglones';
+import { mergeArticulosStockPrecios } from '../utils/mergeArticulosStockPrecios';
 import { EXCEL_PROCESO_PEDIDO_INDIVIDUAL } from '../constants/excelImportCarga';
 import {
   isPedidosCargaExcelImportDisabled,
@@ -82,7 +83,9 @@ export function PedidosCargaPage() {
   const ultimaAccionGrabacionRef = useRef<'pedido' | 'presupuesto' | null>(null);
   const isHydratingComprobanteRef = useRef(false);
   const hydratingFromExcelImportRef = useRef(false);
-  const articulosCatalogoLoadRef = useRef<Promise<void> | null>(null);
+  const articulosStockLoadRef = useRef<Promise<void> | null>(null);
+  const articulosPreciosLoadRef = useRef<Promise<void> | null>(null);
+  const articulosListaPreciosRef = useRef<number | null>(null);
 
   const [clientes, setClientes] = useState<ClienteOption[]>([]);
   const [clientesLoading, setClientesLoading] = useState(false);
@@ -92,8 +95,10 @@ export function PedidosCargaPage() {
   const [parametrosCarga, setParametrosCarga] = useState<ParametrosCarga | null>(null);
   const [articuloSeleccionado, setArticuloSeleccionado] = useState<string | null>(null);
   const [articuloSeleccionadoData, setArticuloSeleccionadoData] = useState<ArticuloOption | null>(null);
-  const [articulos, setArticulos] = useState<ArticuloOption[]>([]);
-  const [articulosLoading, setArticulosLoading] = useState(false);
+  const [articulosStock, setArticulosStock] = useState<ArticuloOption[]>([]);
+  const [articulosPrecios, setArticulosPrecios] = useState<ArticuloOption[]>([]);
+  const [articulosStockLoading, setArticulosStockLoading] = useState(false);
+  const [articulosPreciosLoading, setArticulosPreciosLoading] = useState(false);
   const [codPedidoActual, setCodPedidoActual] = useState<string | null>(null);
   const [estadoActual, setEstadoActual] = useState<number | null>(null);
   const [codPedidoOrigen, setCodPedidoOrigen] = useState<string | null>(null);
@@ -153,9 +158,11 @@ export function PedidosCargaPage() {
   );
 
   const articulosOrdenados = useMemo(
-    () => ordenarArticulosPorDescripcion(articulos),
-    [articulos],
+    () => ordenarArticulosPorDescripcion(mergeArticulosStockPrecios(articulosStock, articulosPrecios)),
+    [articulosPrecios, articulosStock],
   );
+
+  const articulosLoading = articulosStockLoading || articulosPreciosLoading;
 
   const clienteSortOptions = useMemo(
     () =>
@@ -232,29 +239,78 @@ export function PedidosCargaPage() {
     }
   }, []);
 
-  const loadArticulosCatalogo = useCallback(async (options?: { force?: boolean }) => {
-    if (!options?.force && articulosCatalogoLoadRef.current) {
-      return articulosCatalogoLoadRef.current;
+  const loadArticulosStock = useCallback(async (options?: { force?: boolean }) => {
+    if (!options?.force && articulosStockLoadRef.current) {
+      return articulosStockLoadRef.current;
     }
 
     let loadPromise!: Promise<void>;
     loadPromise = (async () => {
-      setArticulosLoading(true);
+      setArticulosStockLoading(true);
 
       try {
-        const data = await fetchArticulosCatalogoCarga();
-        setArticulos(data);
+        const data = await fetchArticulosStockCatalogoCarga();
+        if (articulosStockLoadRef.current === loadPromise) {
+          setArticulosStock(data);
+        }
       } catch {
-        setArticulos([]);
+        if (articulosStockLoadRef.current === loadPromise) {
+          setArticulosStock([]);
+        }
       } finally {
-        if (articulosCatalogoLoadRef.current === loadPromise) {
-          setArticulosLoading(false);
-          articulosCatalogoLoadRef.current = null;
+        if (articulosStockLoadRef.current === loadPromise) {
+          setArticulosStockLoading(false);
+          articulosStockLoadRef.current = null;
         }
       }
     })();
 
-    articulosCatalogoLoadRef.current = loadPromise;
+    articulosStockLoadRef.current = loadPromise;
+    return loadPromise;
+  }, []);
+
+  const loadArticulosPrecios = useCallback(async (options?: { force?: boolean; listaPrecios?: number | null }) => {
+    const codListaNum =
+      options?.listaPrecios !== undefined && options.listaPrecios !== null
+        ? Number(options.listaPrecios)
+        : null;
+
+    if (codListaNum === null || Number.isNaN(codListaNum) || codListaNum <= 0) {
+      return;
+    }
+
+    if (
+      !options?.force &&
+      articulosPreciosLoadRef.current &&
+      articulosListaPreciosRef.current === codListaNum
+    ) {
+      return articulosPreciosLoadRef.current;
+    }
+
+    let loadPromise!: Promise<void>;
+    loadPromise = (async () => {
+      setArticulosPreciosLoading(true);
+
+      try {
+        const data = await fetchArticulosPreciosCatalogoCarga(codListaNum);
+        if (articulosPreciosLoadRef.current === loadPromise) {
+          setArticulosPrecios(data);
+          articulosListaPreciosRef.current = codListaNum;
+        }
+      } catch {
+        if (articulosPreciosLoadRef.current === loadPromise) {
+          setArticulosPrecios([]);
+          articulosListaPreciosRef.current = null;
+        }
+      } finally {
+        if (articulosPreciosLoadRef.current === loadPromise) {
+          setArticulosPreciosLoading(false);
+          articulosPreciosLoadRef.current = null;
+        }
+      }
+    })();
+
+    articulosPreciosLoadRef.current = loadPromise;
     return loadPromise;
   }, []);
 
@@ -346,8 +402,21 @@ export function PedidosCargaPage() {
   }, [comprobanteId, isClienteProfile, loadCabeceraForCliente, modo, sessionContext.codCliente]);
 
   useEffect(() => {
-    void loadArticulosCatalogo();
-  }, [loadArticulosCatalogo]);
+    void loadArticulosStock();
+  }, [loadArticulosStock]);
+
+  useEffect(() => {
+    const codListaRaw = cabecera?.listaPrecios ?? null;
+    const codLista = codListaRaw !== null ? Number(codListaRaw) : null;
+
+    if (codLista === null || Number.isNaN(codLista) || codLista <= 0 || readOnly) {
+      setArticulosPrecios([]);
+      articulosListaPreciosRef.current = null;
+      return;
+    }
+
+    void loadArticulosPrecios({ listaPrecios: codLista });
+  }, [cabecera?.listaPrecios, loadArticulosPrecios, readOnly]);
 
   useEffect(() => {
     if (!comprobanteId) {
@@ -611,24 +680,12 @@ export function PedidosCargaPage() {
     navigate(destino);
   }, [navigate, parametrosCarga?.cargaRecurrente, resetParaNuevoComprobante]);
 
-  const handleAgregarArticulo = useCallback(async () => {
+  const handleAgregarArticulo = useCallback(() => {
     if (readOnly || !articuloSeleccionado || !articuloSeleccionadoData || !cabecera) {
       return;
     }
 
-    let articulo = articuloSeleccionadoData;
-    const codLista = Number(cabecera.listaPrecios);
-    if (!Number.isNaN(codLista) && codLista > 0) {
-      try {
-        const fetched = await fetchArticuloCargaByCodigo(articulo.codArticulo, codLista);
-        if (fetched) {
-          articulo = fetched;
-        }
-      } catch {
-        // Mantiene datos del ítem seleccionado si falla la consulta puntual.
-      }
-    }
-
+    const articulo = articuloSeleccionadoData;
     const renglonesActivos = renglonesValidosParaGrabar(renglones);
     const yaExiste = renglonesActivos.some((renglon) => renglon.codArticulo === articulo.codArticulo);
     if (yaExiste) {
@@ -1003,7 +1060,7 @@ export function PedidosCargaPage() {
             {!readOnly ? (
               <section className="pedidosCargaPage__panel" data-testid="form-articulo-carga">
                 <h3 className="pedidosCargaPage__panelTitle">{t('pedidos.carga.articulosTitle')}</h3>
-                {articulosLoading && articulos.length === 0 ? (
+                {articulosStockLoading && articulosStock.length === 0 ? (
                   <p data-testid="articulos-cargando">{t('pedidos.carga.articulosCargando')}</p>
                 ) : null}
                 <div className="pedidosCargaPage__articuloRow">
@@ -1019,7 +1076,7 @@ export function PedidosCargaPage() {
                     searchMode="contains"
                     isLoading={articulosLoading}
                     autoSelectSingleMatch={true}
-                    disabled={!listaPreciosArticulosValida || articulosLoading}
+                    disabled={!listaPreciosArticulosValida || articulosStockLoading || articulosStock.length === 0}
                     onValueChanged={(event) => {
                       setArticuloSeleccionado((event.value as string | null) ?? null);
                       setArticuloSeleccionadoData(
@@ -1034,9 +1091,9 @@ export function PedidosCargaPage() {
                       icon="refresh"
                       stylingMode="outlined"
                       hint={t('grid.refresh')}
-                      disabled={articulosLoading}
+                      disabled={articulosStockLoading}
                       onClick={() => {
-                        void loadArticulosCatalogo({ force: true });
+                        void loadArticulosStock({ force: true });
                       }}
                     />
                   </div>
@@ -1044,9 +1101,9 @@ export function PedidosCargaPage() {
                     <Button
                       text={t('pedidos.carga.agregarArticulo')}
                       stylingMode="outlined"
-                      disabled={!articuloSeleccionado}
+                      disabled={!articuloSeleccionado || articulosPreciosLoading}
                       onClick={() => {
-                        void handleAgregarArticulo();
+                        handleAgregarArticulo();
                       }}
                     />
                   </div>

@@ -231,9 +231,10 @@ Al cambiar la lista de precios en cabecera, el sistema recalcula precios de los 
 
 ### 6.7 Búsqueda de artículos
 
-- Al **ingresar** a la pantalla de carga, el sistema **precarga una sola vez** el catálogo de artículos (hasta el límite configurado por página). Mientras dura esa carga puede verse el mensaje **Cargando…** sobre el combobox.
-- El combobox de artículos permanece **deshabilitado** hasta que la cabecera tenga una **lista de precios válida**; la búsqueda dentro del listado precargado es **local** (código o descripción).
-- Icono **Actualizar** (↻) junto al combobox: vuelve a consultar el catálogo al servidor si el usuario desea refrescar disponibilidades.
+- Al **ingresar** a la pantalla de carga, el sistema **precarga en segundo plano** el catálogo con **stock y disponible** (hasta el límite configurado por página). Mientras dura esa carga puede verse el mensaje **Cargando…** sobre el combobox.
+- Cuando la cabecera tiene una **lista de precios válida**, el sistema completa en memoria los **precios** de ese catálogo (consulta separada, más liviana). El botón **Agregar artículo** permanece deshabilitado mientras cargan esos precios.
+- El combobox de artículos permanece **deshabilitado** hasta que termine la precarga de stock **y** la cabecera tenga lista de precios válida; la búsqueda dentro del listado es **local** (código o descripción).
+- Icono **Actualizar** (↻) junto al combobox: vuelve a consultar **stock/disponible** al servidor si el usuario desea refrescar disponibilidades.
 - Cada ítem se muestra con **código, descripción y disponible** (y disponible del artículo base entre paréntesis cuando aplica).
 - Si al filtrar queda **un solo artículo**, se selecciona automáticamente.
 - No aparecen artículos marcados como **BASE** en el catálogo ERP.

@@ -295,6 +295,16 @@ export async function fetchArticulosCatalogoCarga(
   return searchArticulos('', listaPrecios ?? null, articulosCargaCatalogPageSize);
 }
 
+/** Catálogo con stock/disponible (sin lista de precios). Carga inicial de la pantalla. */
+export async function fetchArticulosStockCatalogoCarga(): Promise<ArticuloOption[]> {
+  return searchArticulos('', null, articulosCargaCatalogPageSize, false);
+}
+
+/** Precios (y bonif/IVA) por lista, sin recalcular stock — `solo_catalogo`. */
+export async function fetchArticulosPreciosCatalogoCarga(listaPrecios: number): Promise<ArticuloOption[]> {
+  return searchArticulos('', listaPrecios, articulosCargaCatalogPageSize, true);
+}
+
 export async function searchArticulos(
   query = '',
   listaPrecios?: number | null,
