@@ -276,14 +276,15 @@ export async function fetchPreciosArticulosPorLista(
     return [];
   }
 
-  const params = new URLSearchParams();
-  params.set('codigos', codigosUnicos.join(','));
-  params.set('lista_precios', String(codLista));
-  params.set('page_size', String(Math.min(1000, codigosUnicos.length)));
+  const items = await searchArticulos(
+    '',
+    listaPrecios,
+    Math.min(1000, codigosUnicos.length),
+    true,
+    codigosUnicos,
+  );
 
-  const response = await apiRequest<{ items?: ArticuloOption[] }>(`/articulos?${params.toString()}`);
-
-  return (response.resultado.items ?? []).map((articulo) => ({
+  return items.map((articulo) => ({
     codArticulo: articulo.codArticulo,
     precio: articulo.precio ?? 0,
   }));
@@ -352,7 +353,7 @@ export async function fetchArticuloCargaByCodigo(
     return null;
   }
 
-  const items = await searchArticulos('', listaPrecios, 1, false, [codigo]);
+  const items = await searchArticulos('', listaPrecios, 1, true, [codigo]);
 
   return items.find((item) => item.codArticulo === codigo) ?? items[0] ?? null;
 }

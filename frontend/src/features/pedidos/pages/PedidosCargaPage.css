@@ -375,3 +375,26 @@
   display: flex;
   justify-content: flex-end;
 }
+
+.pedidosCargaArticulosStockLoadPanel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.5rem 0.25rem 0.25rem;
+  text-align: center;
+}
+
+.pedidosCargaArticulosStockLoadPanel__message {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--dx-color-text, #333);
+}
+
+.pedidosCargaArticulosStockLoadPanel__hint {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--dx-color-text-secondary, #5f6368);
+  line-height: 1.4;
+}
