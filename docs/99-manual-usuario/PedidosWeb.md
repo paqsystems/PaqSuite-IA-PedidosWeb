@@ -231,7 +231,7 @@ Al cambiar la lista de precios en cabecera, el sistema recalcula precios de los 
 
 ### 6.7 Búsqueda de artículos
 
-- Al **ingresar** a la pantalla de carga, el sistema **precarga en segundo plano** el catálogo con **stock y disponible** (hasta el límite configurado por página). Mientras dura esa carga puede verse el mensaje **Cargando…** sobre el combobox.
+- Al **ingresar** a la pantalla de carga, el sistema **precarga en segundo plano** el catálogo con **stock y disponible** (hasta el límite configurado por página). Mientras dura esa carga inicial aparece un **cuadro modal** con el mensaje de carga; el selector de **cliente** permanece deshabilitado hasta que termine.
 - Cuando la cabecera tiene una **lista de precios válida**, el sistema completa en memoria los **precios** de ese catálogo (consulta separada, más liviana). El botón **Agregar artículo** permanece deshabilitado mientras cargan esos precios.
 - El combobox de artículos permanece **deshabilitado** hasta que termine la precarga de stock **y** la cabecera tenga lista de precios válida; la búsqueda dentro del listado es **local** (código o descripción).
 - Icono **Actualizar** (↻) junto al combobox: vuelve a consultar **stock/disponible** al servidor si el usuario desea refrescar disponibilidades.
