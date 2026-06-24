@@ -5,6 +5,7 @@ namespace App\Services\Pivots;
 use App\Models\PqPivotConfig;
 use App\Models\PqPivotConfigLastUsed;
 use App\Models\User;
+use App\Support\SqlServerIsolation;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -130,7 +131,7 @@ final class PivotConfigService
 
     public function deleteConfig(PqPivotConfig $config, User $user): void
     {
-        DB::transaction(function () use ($config, $user): void {
+        SqlServerIsolation::transaction(function () use ($config, $user): void {
             PqPivotConfigLastUsed::query()
                 ->where('user_id', $user->id)
                 ->where('consulta_id', $config->consulta_id)

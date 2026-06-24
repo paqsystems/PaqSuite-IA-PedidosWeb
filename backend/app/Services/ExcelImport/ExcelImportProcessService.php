@@ -8,6 +8,7 @@ use App\Models\PqExcelImportacionFila;
 use App\Models\PqExcelImportacionNotificacion;
 use App\Services\ExcelImport\Dto\ExcelImportLotContext;
 use App\Support\ExcelImportErrorCodes;
+use App\Support\SqlServerIsolation;
 use Illuminate\Support\Facades\DB;
 
 final class ExcelImportProcessService
@@ -118,7 +119,7 @@ final class ExcelImportProcessService
             }
 
             try {
-                DB::transaction(function () use ($handler, $datos, $ctx, $fila): void {
+                SqlServerIsolation::transaction(function () use ($handler, $datos, $ctx, $fila): void {
                     $enriched = array_key_exists('precio', $datos)
                         ? $datos
                         : $handler->processRow($datos, $ctx);

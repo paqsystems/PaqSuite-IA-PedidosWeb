@@ -3,6 +3,7 @@
 namespace App\Services\PedidosWeb;
 
 use App\Models\PqPedidoswebArticulo;
+use App\Support\SqlServerReadHint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
@@ -108,13 +109,16 @@ final class ArticuloCargaLookupService
     ): array {
         $ctes = [];
         if ($hasPedidosTables) {
-            $ctes[] = <<<'SQL'
+            $pd = SqlServerReadHint::fromAs('pq_pedidosweb_pedidosdetalle', 'pd');
+            $pc = SqlServerReadHint::fromAs('pq_pedidosweb_pedidoscabecera', 'pc');
+            $aCte = SqlServerReadHint::fromAs('pq_pedidosweb_articulos', 'a');
+            $ctes[] = <<<SQL
 pedidos_ingresados AS (
     SELECT
         pd.cod_articulo,
         SUM(pd.cantidad) AS comprometido_web
-    FROM pq_pedidosweb_pedidosdetalle AS pd
-    INNER JOIN pq_pedidosweb_pedidoscabecera AS pc ON pd.cod_pedido = pc.cod_pedido
+    FROM {$pd}
+    INNER JOIN {$pc} ON pd.cod_pedido = pc.cod_pedido
     WHERE pc.[estado] = 0
     GROUP BY pd.cod_articulo
 ),
@@ -123,7 +127,7 @@ pedidos_ingresados_base AS (
         LTRIM(RTRIM(CAST(a.[base] AS NVARCHAR(50)))) AS cod_base,
         SUM(piw.comprometido_web) AS comprometido_base_web
     FROM pedidos_ingresados AS piw
-    INNER JOIN pq_pedidosweb_articulos AS a ON a.codigo = piw.cod_articulo
+    INNER JOIN {$aCte} ON a.codigo = piw.cod_articulo
     WHERE NULLIF(LTRIM(RTRIM(CAST(a.[base] AS NVARCHAR(50)))), '') IS NOT NULL
     GROUP BY LTRIM(RTRIM(CAST(a.[base] AS NVARCHAR(50))))
 )
@@ -134,9 +138,13 @@ SQL;
         $comprometidoBaseWebExpr = $hasPedidosTables ? 'ISNULL(pib.comprometido_base_web, 0)' : '0';
         $precioExpr = $codLista > 0 && $hasListaPreciosTable ? 'ISNULL(lp.precio, 0)' : '0';
 
+        $articulos = SqlServerReadHint::fromAs('pq_pedidosweb_articulos', 'a');
+        $stock = SqlServerReadHint::fromAs('pq_pedidosweb_stock', 's');
+        $stockBase = SqlServerReadHint::fromAs('pq_pedidosweb_stock', 's_base');
+
         $joins = [
-            'LEFT JOIN pq_pedidosweb_stock AS s ON s.cod_articulo = a.codigo',
-            'LEFT JOIN pq_pedidosweb_stock AS s_base ON s_base.cod_articulo = '.self::BASE_TRIM_SQL
+            "LEFT JOIN {$stock} ON s.cod_articulo = a.codigo",
+            'LEFT JOIN '.$stockBase.' ON s_base.cod_articulo = '.self::BASE_TRIM_SQL
                 .' AND '.self::BASE_NOT_EMPTY_SQL,
         ];
         if ($hasPedidosTables) {
@@ -145,7 +153,8 @@ SQL;
                 .' AND '.self::BASE_NOT_EMPTY_SQL;
         }
         if ($codLista > 0 && $hasListaPreciosTable) {
-            $joins[] = 'LEFT JOIN pq_pedidosweb_listaprecios_articulos AS lp ON lp.cod_articulo = a.codigo AND lp.cod_lista = ?';
+            $listaPrecios = SqlServerReadHint::fromAs('pq_pedidosweb_listaprecios_articulos', 'lp');
+            $joins[] = "LEFT JOIN {$listaPrecios} ON lp.cod_articulo = a.codigo AND lp.cod_lista = ?";
         }
 
         $disponibleExpr = "(ISNULL(s.stock, 0) - ISNULL(s.comprometido, 0) - {$comprometidoWebExpr})";
@@ -162,7 +171,7 @@ SQL;
             ."    {$precioExpr} AS precio,\n"
             ."    {$disponibleExpr} AS disponible_neto,\n"
             ."    {$disponibleBaseExpr} AS disponible_neto_base\n"
-            ."FROM pq_pedidosweb_articulos AS a\n"
+            ."FROM {$articulos}\n"
             .implode("\n", $joins)."\n"
             .'WHERE 1=1';
 
@@ -197,8 +206,10 @@ SQL;
         ?string $q,
     ): array {
         $precioExpr = $codLista > 0 && $hasListaPreciosTable ? 'ISNULL(lp.precio, 0)' : '0';
+        $articulos = SqlServerReadHint::fromAs('pq_pedidosweb_articulos', 'a');
         $joinLista = $codLista > 0 && $hasListaPreciosTable
-            ? 'LEFT JOIN pq_pedidosweb_listaprecios_articulos AS lp ON lp.cod_articulo = a.codigo AND lp.cod_lista = ?'
+            ? 'LEFT JOIN '.SqlServerReadHint::fromAs('pq_pedidosweb_listaprecios_articulos', 'lp')
+                .' ON lp.cod_articulo = a.codigo AND lp.cod_lista = ?'
             : '';
 
         $sql = "SELECT TOP ({$pageSize})\n"
@@ -209,7 +220,7 @@ SQL;
             ."    {$precioExpr} AS precio,\n"
             ."    CAST(0 AS DECIMAL(18, 4)) AS disponible_neto,\n"
             .'    CAST(NULL AS DECIMAL(18, 4)) AS disponible_neto_base'."\n"
-            ."FROM pq_pedidosweb_articulos AS a\n"
+            ."FROM {$articulos}\n"
             .$joinLista."\n"
             .'WHERE 1=1';
 
@@ -250,9 +261,10 @@ SQL;
         } else {
             $sql .= "\nAND (a.usa_esc IS NULL OR UPPER(LTRIM(RTRIM(CAST(a.usa_esc AS NVARCHAR(20))))) <> ?)";
             $bindings[] = PqPedidoswebArticulo::MARCA_USA_ESC_BASE;
+            $presentacion = SqlServerReadHint::fromAs('pq_pedidosweb_articulos', 'pw_art_presentacion');
             $sql .= "\nAND NOT EXISTS (
     SELECT 1
-    FROM pq_pedidosweb_articulos AS pw_art_presentacion
+    FROM {$presentacion}
     WHERE NULLIF(LTRIM(RTRIM(CAST(pw_art_presentacion.[base] AS NVARCHAR(50)))), '') IS NOT NULL
       AND LTRIM(RTRIM(CAST(pw_art_presentacion.[base] AS NVARCHAR(50)))) = LTRIM(RTRIM(CAST(a.codigo AS NVARCHAR(50))))
       AND LTRIM(RTRIM(CAST(pw_art_presentacion.codigo AS NVARCHAR(50)))) <> LTRIM(RTRIM(CAST(a.codigo AS NVARCHAR(50))))

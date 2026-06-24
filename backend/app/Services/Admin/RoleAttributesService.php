@@ -6,6 +6,7 @@ use App\Exceptions\AuthFlowException;
 use App\Models\PqMenu;
 use App\Models\PqRolAtributo;
 use App\Support\AuthErrorCodes;
+use App\Support\SqlServerIsolation;
 use Illuminate\Support\Facades\DB;
 
 final class RoleAttributesService
@@ -84,7 +85,7 @@ final class RoleAttributesService
         $actualizados = 0;
         $eliminados = 0;
 
-        DB::transaction(function () use ($items, $rol, $eligibleLookup, &$actualizados, &$eliminados): void {
+        SqlServerIsolation::transaction(function () use ($items, $rol, $eligibleLookup, &$actualizados, &$eliminados): void {
             foreach ($items as $item) {
                 $procedimiento = (string) ($item['procedimiento'] ?? '');
 

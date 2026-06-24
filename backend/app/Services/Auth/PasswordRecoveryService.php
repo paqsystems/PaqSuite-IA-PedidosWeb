@@ -8,6 +8,7 @@ use App\Models\PqPedidoswebLogin;
 use App\Models\User;
 use App\Support\AuthErrorCodes;
 use App\Support\LocaleNormalizer;
+use App\Support\SqlServerIsolation;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -98,7 +99,7 @@ final class PasswordRecoveryService
             );
         }
 
-        DB::transaction(function () use ($tokenRecord, $user, $newPassword): void {
+        SqlServerIsolation::transaction(function () use ($tokenRecord, $user, $newPassword): void {
             $passwordHash = Hash::make($newPassword);
 
             $this->passwordResetTokens()

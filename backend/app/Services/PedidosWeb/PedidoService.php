@@ -8,6 +8,7 @@ use App\Exceptions\PedidosWebBusinessException;
 use App\Exceptions\PedidosWebBusinessValidationException;
 use App\Models\PqPedidoswebPedidoCabecera;
 use App\Models\User;
+use App\Support\SqlServerIsolation;
 use App\Services\Auth\CommercialProfileResolver;
 use App\Services\Visibility\PedidosWebVisibilityGuard;
 use Illuminate\Support\Facades\DB;
@@ -57,7 +58,7 @@ final class PedidoService
         $mailEnviado = false;
 
         /** @var array<string, mixed> $result */
-        $result = DB::transaction(function () use (
+        $result = SqlServerIsolation::transaction(function () use (
             $accionGrabacion,
             $cabeceraPayload,
             $calculo,
@@ -151,7 +152,7 @@ final class PedidoService
             throw new PedidosWebBusinessException(2000, 'business.onlyEstadoCeroDelete', 422);
         }
 
-        DB::transaction(function () use ($codPedido): void {
+        SqlServerIsolation::transaction(function () use ($codPedido): void {
             $this->pedidoDetalleRepository->deleteByCodPedido($codPedido);
             $this->pedidoRepository->deleteFisicoCabecera($codPedido);
         });
