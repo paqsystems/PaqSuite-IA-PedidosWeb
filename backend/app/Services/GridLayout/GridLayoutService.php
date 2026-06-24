@@ -5,6 +5,7 @@ namespace App\Services\GridLayout;
 use App\Models\PqGridLayout;
 use App\Models\PqGridLayoutLastUsed;
 use App\Models\User;
+use App\Support\SqlServerIsolation;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -113,7 +114,7 @@ final class GridLayoutService
 
     public function deleteLayout(PqGridLayout $layout, User $user): void
     {
-        DB::transaction(function () use ($layout, $user): void {
+        SqlServerIsolation::transaction(function () use ($layout, $user): void {
             PqGridLayoutLastUsed::query()
                 ->where('user_id', $user->id)
                 ->where('proceso', $layout->proceso)

@@ -29,6 +29,7 @@ final class ArticuloCargaLookupServiceTest extends TestCase
         $sql = strtolower($this->findBuscarSql($queries));
 
         $this->assertStringContainsString('pq_pedidosweb_articulos', $sql);
+        $this->assertStringContainsString('with (nolock)', $sql);
         $this->assertStringContainsString('s_base', $sql);
         $this->assertStringNotContainsString('stock_por_base', $sql);
         $this->assertStringNotContainsString('where [s].[cod_articulo] in', $sql);
@@ -91,6 +92,7 @@ final class ArticuloCargaLookupServiceTest extends TestCase
 
         DB::table('pq_pedidosweb_articulos')->whereIn('codigo', ['ART-P1', 'ART-P2'])->delete();
         DB::table('pq_pedidosweb_stock')->whereIn('cod_articulo', ['ART-P1', 'ART-P2', 'BASE01'])->delete();
+        DB::table('pq_pedidosweb_pedidosdetalle')->whereIn('cod_articulo', ['ART-P1', 'ART-P2'])->delete();
         DB::table('pq_pedidosweb_pedidosdetalle')->where('cod_pedido', 'PED-LOOKUP-01')->delete();
         DB::table('pq_pedidosweb_pedidoscabecera')->where('cod_pedido', 'PED-LOOKUP-01')->delete();
 

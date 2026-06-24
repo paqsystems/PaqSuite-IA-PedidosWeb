@@ -14,6 +14,7 @@ use App\Services\ExcelImport\Contracts\ExcelImportLotAwareHandler;
 use App\Services\ExcelImport\Dto\ExcelImportLotContext;
 use App\Services\ExcelImport\Dto\ExcelRowError;
 use App\Support\ExcelImportErrorCodes;
+use App\Support\SqlServerIsolation;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\DB;
@@ -172,7 +173,7 @@ final class ExcelImportLotService
             $parsed['conError'] = $conError;
         }
 
-        DB::transaction(function () use ($importacion, $parsed, $handler, $ctx): void {
+        SqlServerIsolation::transaction(function () use ($importacion, $parsed, $handler, $ctx): void {
             if ($parsed['structuralError'] !== null) {
                 $importacion->update([
                     'estado_importacion' => 'con_error_estructura',

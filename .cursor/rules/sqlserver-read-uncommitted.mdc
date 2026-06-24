@@ -1,0 +1,14 @@
+---
+description: SQL Server — lecturas sin bloqueo en BD ERP compartida
+globs:
+  - backend/**/*.php
+  - backend/config/database.php
+---
+
+# SQL Server — lecturas sin bloqueo
+
+- Conexión `sqlsrv`: `isolation_level` = `READ UNCOMMITTED` y `appname` = `PedidosWeb` en `config/database.php`.
+- SQL crudo: `SqlServerReadHint::fromAs('tabla', 'alias')` → `WITH (NOLOCK)`.
+- Escrituras: `SqlServerIsolation::transaction()` (restaura `READ COMMITTED` dentro del closure). No usar `DB::transaction()` directo en servicios que escriben.
+- Prohibido `NOLOCK` / `READ UNCOMMITTED` en flujos que requieran consistencia fuerte con `lockForUpdate()`.
+- Trade-off aceptado: stock/disponible informativo en listbox puede leer datos no confirmados.

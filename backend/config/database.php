@@ -91,6 +91,10 @@ return [
             'prefix_indexes' => true,
             'encrypt' => env('DB_ENCRYPT', 'yes'),
             'trust_server_certificate' => env('DB_TRUST_SERVER_CERTIFICATE', 'true'),
+            // Visible en sys.dm_exec_sessions.program_name (SSMS) para distinguir PedidosWeb del ERP .NET
+            'appname' => env('DB_APP_NAME', 'PedidosWeb'),
+            // Lecturas sin bloqueo en BD ERP compartida; escrituras restauran READ COMMITTED vía SqlServerIsolation::transaction
+            'isolation_level' => env('DB_ISOLATION_LEVEL', 'READ UNCOMMITTED'),
         ],
 
     ],

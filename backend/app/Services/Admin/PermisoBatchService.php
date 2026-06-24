@@ -6,6 +6,7 @@ use App\Exceptions\AuthFlowException;
 use App\Models\PqPermiso;
 use App\Models\User;
 use App\Support\AuthErrorCodes;
+use App\Support\SqlServerIsolation;
 use Illuminate\Support\Facades\DB;
 
 final class PermisoBatchService
@@ -80,7 +81,7 @@ final class PermisoBatchService
         $omitidos = 0;
         $monoEmpresaId = (int) config('paqsuite_seed.monoEmpresaId');
 
-        DB::transaction(function () use ($pairFactory, $secondaryIds, $monoEmpresaId, &$creados, &$omitidos): void {
+        SqlServerIsolation::transaction(function () use ($pairFactory, $secondaryIds, $monoEmpresaId, &$creados, &$omitidos): void {
             foreach ($secondaryIds as $secondaryId) {
                 $pair = $pairFactory($secondaryId);
 
