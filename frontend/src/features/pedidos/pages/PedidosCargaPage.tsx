@@ -29,6 +29,7 @@ import {
 import { ComprobanteCabeceraForm } from '../components/ComprobanteCabeceraForm';
 import { ComprobanteLeyendasPie } from '../components/ComprobanteLeyendasPie';
 import TextArea from 'devextreme-react/text-area';
+import { PedidosCargaArticulosStockLoadPanel } from '../components/PedidosCargaArticulosStockLoadPanel';
 import { PedidosCargaConfirmacionDialog } from '../components/PedidosCargaConfirmacionDialog';
 import { PedidosCargaErroresGrabacionDialog } from '../components/PedidosCargaErroresGrabacionDialog';
 import { PedidosCargaRenglonesGrid } from '../components/PedidosCargaRenglonesGrid';
@@ -94,11 +95,11 @@ export function PedidosCargaPage() {
   const [catalogos, setCatalogos] = useState<CabeceraCatalogos>(emptyCatalogos);
   const [parametrosCarga, setParametrosCarga] = useState<ParametrosCarga | null>(null);
   const [articuloSeleccionado, setArticuloSeleccionado] = useState<string | null>(null);
-  const [articuloSeleccionadoData, setArticuloSeleccionadoData] = useState<ArticuloOption | null>(null);
   const [articulosStock, setArticulosStock] = useState<ArticuloOption[]>([]);
   const [articulosPrecios, setArticulosPrecios] = useState<ArticuloOption[]>([]);
   const [articulosStockLoading, setArticulosStockLoading] = useState(false);
   const [articulosPreciosLoading, setArticulosPreciosLoading] = useState(false);
+  const [articulosPreciosListaCargada, setArticulosPreciosListaCargada] = useState<number | null>(null);
   const [codPedidoActual, setCodPedidoActual] = useState<string | null>(null);
   const [estadoActual, setEstadoActual] = useState<number | null>(null);
   const [codPedidoOrigen, setCodPedidoOrigen] = useState<string | null>(null);
@@ -162,7 +163,39 @@ export function PedidosCargaPage() {
     [articulosPrecios, articulosStock],
   );
 
-  const articulosLoading = articulosStockLoading || articulosPreciosLoading;
+  const articuloSeleccionadoData = useMemo(() => {
+    if (!articuloSeleccionado) {
+      return null;
+    }
+
+    return articulosOrdenados.find((item) => item.codArticulo === articuloSeleccionado) ?? null;
+  }, [articuloSeleccionado, articulosOrdenados]);
+
+  const articulosStockPrecargaPendiente = articulosStockLoading && articulosStock.length === 0;
+
+  const listaPreciosArticulosValida = useMemo(() => {
+    const codLista = Number(cabecera?.listaPrecios);
+    return (
+      cabecera?.listaPrecios !== null &&
+      cabecera?.listaPrecios !== undefined &&
+      !Number.isNaN(codLista) &&
+      codLista > 0
+    );
+  }, [cabecera?.listaPrecios]);
+
+  const articulosPreciosListos = useMemo(() => {
+    if (!listaPreciosArticulosValida) {
+      return false;
+    }
+
+    const codLista = Number(cabecera?.listaPrecios);
+    return !articulosPreciosLoading && articulosPreciosListaCargada === codLista;
+  }, [
+    articulosPreciosListaCargada,
+    articulosPreciosLoading,
+    cabecera?.listaPrecios,
+    listaPreciosArticulosValida,
+  ]);
 
   const clienteSortOptions = useMemo(
     () =>
@@ -290,17 +323,20 @@ export function PedidosCargaPage() {
     let loadPromise!: Promise<void>;
     loadPromise = (async () => {
       setArticulosPreciosLoading(true);
+      setArticulosPreciosListaCargada(null);
 
       try {
         const data = await fetchArticulosPreciosCatalogoCarga(codListaNum);
         if (articulosPreciosLoadRef.current === loadPromise) {
           setArticulosPrecios(data);
           articulosListaPreciosRef.current = codListaNum;
+          setArticulosPreciosListaCargada(codListaNum);
         }
       } catch {
         if (articulosPreciosLoadRef.current === loadPromise) {
           setArticulosPrecios([]);
           articulosListaPreciosRef.current = null;
+          setArticulosPreciosListaCargada(null);
         }
       } finally {
         if (articulosPreciosLoadRef.current === loadPromise) {
@@ -411,6 +447,7 @@ export function PedidosCargaPage() {
 
     if (codLista === null || Number.isNaN(codLista) || codLista <= 0 || readOnly) {
       setArticulosPrecios([]);
+      setArticulosPreciosListaCargada(null);
       articulosListaPreciosRef.current = null;
       return;
     }
@@ -543,7 +580,9 @@ export function PedidosCargaPage() {
         setCabecera(null);
         setCatalogos(emptyCatalogos);
         setArticuloSeleccionado(null);
-        setArticuloSeleccionadoData(null);
+        setArticulosPrecios([]);
+        setArticulosPreciosListaCargada(null);
+        articulosListaPreciosRef.current = null;
         setRenglones([createEmptyRenglon(1)]);
         return;
       }
@@ -551,7 +590,9 @@ export function PedidosCargaPage() {
       setSelectedCliente(codCliente);
       setRenglones([createEmptyRenglon(1)]);
       setArticuloSeleccionado(null);
-      setArticuloSeleccionadoData(null);
+      setArticulosPrecios([]);
+      setArticulosPreciosListaCargada(null);
+      articulosListaPreciosRef.current = null;
       await loadCabeceraForCliente(codCliente);
     },
     [loadCabeceraForCliente],
@@ -608,7 +649,6 @@ export function PedidosCargaPage() {
     setCodComprobanteOrigenCopia(null);
     setRenglones([createEmptyRenglon(1)]);
     setArticuloSeleccionado(null);
-    setArticuloSeleccionadoData(null);
     setAutoOpenRenglonId(null);
     setSaveError(null);
     setErroresGrabacionVisible(false);
@@ -708,18 +748,7 @@ export function PedidosCargaPage() {
     setRenglones([...sinVacios, nuevoRenglon]);
     setAutoOpenRenglonId(nuevoRenglon.renglon);
     setArticuloSeleccionado(null);
-    setArticuloSeleccionadoData(null);
   }, [articuloSeleccionado, articuloSeleccionadoData, cabecera, readOnly, renglones, t]);
-
-  const listaPreciosArticulosValida = useMemo(() => {
-    const codLista = Number(cabecera?.listaPrecios);
-    return (
-      cabecera?.listaPrecios !== null &&
-      cabecera?.listaPrecios !== undefined &&
-      !Number.isNaN(codLista) &&
-      codLista > 0
-    );
-  }, [cabecera?.listaPrecios]);
 
   const bonificacionNetaCabecera = useMemo(() => {
     if (!cabecera) {
@@ -870,7 +899,6 @@ export function PedidosCargaPage() {
         setCabecera(mergedCabecera);
         setRenglones(importedRenglones);
         setArticuloSeleccionado(null);
-        setArticuloSeleccionadoData(null);
         setAutoOpenRenglonId(null);
         setSuccessMessage(t('pedidos.carga.excelImport.importSuccess'));
         setSuccessToastVisible(true);
@@ -978,6 +1006,7 @@ export function PedidosCargaPage() {
                 valueExpr="value"
                 displayExpr="label"
                 value={clienteSortField}
+                disabled={articulosStockPrecargaPendiente}
                 onValueChanged={(event) => {
                   if (!isDevExtremeUserChange(event)) {
                     return;
@@ -998,8 +1027,9 @@ export function PedidosCargaPage() {
                 searchExpr={['codCliente', 'razonSocial', 'nombreFantasia', 'nombre']}
                 value={selectedCliente}
                 readOnly={readOnly}
+                disabled={articulosStockPrecargaPendiente}
                 isLoading={clientesLoading}
-                autoSelectSingleMatch={!readOnly}
+                autoSelectSingleMatch={!readOnly && !articulosStockPrecargaPendiente}
                 onValueChanged={(event) => {
                   if (isHydratingComprobanteRef.current || !isDevExtremeUserChange(event)) {
                     return;
@@ -1060,9 +1090,6 @@ export function PedidosCargaPage() {
             {!readOnly ? (
               <section className="pedidosCargaPage__panel" data-testid="form-articulo-carga">
                 <h3 className="pedidosCargaPage__panelTitle">{t('pedidos.carga.articulosTitle')}</h3>
-                {articulosStockLoading && articulosStock.length === 0 ? (
-                  <p data-testid="articulos-cargando">{t('pedidos.carga.articulosCargando')}</p>
-                ) : null}
                 <div className="pedidosCargaPage__articuloRow">
                   <SelectBoxDx
                     dataSource={articulosOrdenados}
@@ -1074,14 +1101,16 @@ export function PedidosCargaPage() {
                     searchEnabled={true}
                     searchExpr={['codArticulo', 'descripcion']}
                     searchMode="contains"
-                    isLoading={articulosLoading}
-                    autoSelectSingleMatch={true}
-                    disabled={!listaPreciosArticulosValida || articulosStockLoading || articulosStock.length === 0}
+                    isLoading={articulosStockLoading}
+                    autoSelectSingleMatch={articulosPreciosListos}
+                    disabled={
+                      !listaPreciosArticulosValida ||
+                      articulosStockLoading ||
+                      articulosStock.length === 0 ||
+                      !articulosPreciosListos
+                    }
                     onValueChanged={(event) => {
                       setArticuloSeleccionado((event.value as string | null) ?? null);
-                      setArticuloSeleccionadoData(
-                        (event.component.option('selectedItem') as ArticuloOption | null) ?? null,
-                      );
                     }}
                     placeholder={t('pedidos.carga.articuloPlaceholder')}
                     inputAttr={{ 'data-testid': 'articulo-select' }}
@@ -1101,7 +1130,7 @@ export function PedidosCargaPage() {
                     <Button
                       text={t('pedidos.carga.agregarArticulo')}
                       stylingMode="outlined"
-                      disabled={!articuloSeleccionado || articulosPreciosLoading}
+                      disabled={!articuloSeleccionado || !articuloSeleccionadoData || articulosPreciosLoading}
                       onClick={() => {
                         handleAgregarArticulo();
                       }}
@@ -1186,6 +1215,8 @@ export function PedidosCargaPage() {
           </section>
         </div>
       </div>
+
+      <PedidosCargaArticulosStockLoadPanel visible={articulosStockPrecargaPendiente} />
 
       <PedidosCargaConfirmacionDialog
         visible={confirmacionVisible}
