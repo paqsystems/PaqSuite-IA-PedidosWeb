@@ -16,6 +16,15 @@ export const mobileV2AllowedRoutePrefixes = [
   '/integracion/logs',
 ] as const;
 
+/** Rutas adicionales v3 (`v1.2.2-mobile`). */
+export const mobileV3AdditionalRoutePrefixes = ['/pedidos/carga'] as const;
+
+/** Rutas MVP PedidosWeb habilitadas en native v3 (`v1.2.2-mobile`). */
+export const mobileV3AllowedRoutePrefixes = [
+  ...mobileV2AllowedRoutePrefixes,
+  ...mobileV3AdditionalRoutePrefixes,
+] as const;
+
 /** Rutas transversales permitidas en shell native (fuera del menú MVP). */
 export const mobileTransversalRoutes = ['/change-password', '/preferences'] as const;
 
@@ -27,6 +36,14 @@ export function isPedidosWebRouteAllowedOnMobileV2(routePath: string): boolean {
   return mobileV2AllowedRoutePrefixes.some((allowedRoute) => routePath.startsWith(allowedRoute));
 }
 
+export function isPedidosWebRouteAllowedOnMobileV3(routePath: string): boolean {
+  if (!routePath) {
+    return false;
+  }
+
+  return mobileV3AllowedRoutePrefixes.some((allowedRoute) => routePath.startsWith(allowedRoute));
+}
+
 export function isRouteAllowedOnMobileApp(routePath: string): boolean {
   if (mobileTransversalRoutes.some((route) => routePath.startsWith(route))) {
     return true;
@@ -36,13 +53,13 @@ export function isRouteAllowedOnMobileApp(routePath: string): boolean {
     return false;
   }
 
-  return isPedidosWebRouteAllowedOnMobileV2(routePath);
+  return isPedidosWebRouteAllowedOnMobileV3(routePath);
 }
 
-function filterMenuNodeForMobileV2(item: MenuNode): MenuNode | null {
+function filterMenuNodeForMobileV3(item: MenuNode): MenuNode | null {
   if (item.nodeType === 'group') {
     const children = item.children
-      .map((child) => filterMenuNodeForMobileV2(child))
+      .map((child) => filterMenuNodeForMobileV3(child))
       .filter((child): child is MenuNode => child !== null);
 
     if (children.length === 0) {
@@ -55,7 +72,7 @@ function filterMenuNodeForMobileV2(item: MenuNode): MenuNode | null {
     };
   }
 
-  if (!item.routePath || !isPedidosWebRouteAllowedOnMobileV2(item.routePath)) {
+  if (!item.routePath || !isPedidosWebRouteAllowedOnMobileV3(item.routePath)) {
     return null;
   }
 
@@ -66,20 +83,25 @@ function filterMenuNodeForMobileV2(item: MenuNode): MenuNode | null {
   return item;
 }
 
-export function filterMenuTreeForMobileV2(items: MenuNode[]): MenuNode[] {
+export function filterMenuTreeForMobileV3(items: MenuNode[]): MenuNode[] {
   return items
-    .map((item) => filterMenuNodeForMobileV2(item))
+    .map((item) => filterMenuNodeForMobileV3(item))
     .filter((item): item is MenuNode => item !== null);
 }
 
-export function getMobileDefaultRoute(): string {
-  return mobileV2AllowedRoutePrefixes[0];
+/** @deprecated Usar filterMenuTreeForMobileV3 */
+export function filterMenuTreeForMobileV2(items: MenuNode[]): MenuNode[] {
+  return filterMenuTreeForMobileV3(items);
 }
 
-/** @deprecated Usar filterMenuTreeForMobileV2 */
+export function getMobileDefaultRoute(): string {
+  return mobileV3AllowedRoutePrefixes[0];
+}
+
+/** @deprecated Usar mobileV3AllowedRoutePrefixes */
 export const mobileV1AllowedRoutes = ['/consultas/stock'] as const;
 
-/** @deprecated Usar filterMenuTreeForMobileV2 */
+/** @deprecated Usar filterMenuTreeForMobileV3 */
 export function filterMenuTreeForMobileV1(items: MenuNode[]): MenuNode[] {
-  return filterMenuTreeForMobileV2(items);
+  return filterMenuTreeForMobileV3(items);
 }

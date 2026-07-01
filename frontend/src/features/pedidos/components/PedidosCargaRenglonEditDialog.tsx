@@ -13,6 +13,7 @@ import {
   calcularImporteNetoRenglon,
   formatImporteMoneda,
 } from '../utils/renglonesCarga';
+import '../pages/PedidosCargaPage.css';
 
 type PedidosCargaRenglonEditDialogProps = {
   visible: boolean;
@@ -85,9 +86,9 @@ export function PedidosCargaRenglonEditDialog({
       onHiding={onClose}
       dragEnabled={false}
       showCloseButton={true}
-      width={520}
       height="auto"
       title={t('pedidos.carga.renglon.editarTitulo')}
+      wrapperAttr={{ class: 'pedidosCargaRenglonEditPopup' }}
       elementAttr={{ 'data-testid': 'dialog-editar-renglon' }}
     >
       <div className="pedidosCargaRenglonEditDialog">

@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import {
-  filterMenuTreeForMobileV2,
+  filterMenuTreeForMobileV3,
   isPedidosWebRouteAllowedOnMobileV2,
+  isPedidosWebRouteAllowedOnMobileV3,
   isRouteAllowedOnMobileApp,
-  mobileV2AllowedRoutePrefixes,
+  mobileV3AllowedRoutePrefixes,
 } from './pedidosWebMobilePolicy';
 import type { MenuNode } from '../menu/menuApi';
 
@@ -19,17 +20,21 @@ function buildMenuNode(partial: Partial<MenuNode> & Pick<MenuNode, 'id' | 'nodeT
   };
 }
 
-describe('pedidosWebMobilePolicy v2', () => {
-  it('permite rutas MVP consultas y listados', () => {
-    expect(isPedidosWebRouteAllowedOnMobileV2('/consultas/stock')).toBe(true);
-    expect(isPedidosWebRouteAllowedOnMobileV2('/consultas/deuda')).toBe(true);
-    expect(isPedidosWebRouteAllowedOnMobileV2('/pedidos/ingresados')).toBe(true);
-    expect(isPedidosWebRouteAllowedOnMobileV2('/general/parametros')).toBe(true);
-    expect(isPedidosWebRouteAllowedOnMobileV2('/integracion/logs')).toBe(true);
+describe('pedidosWebMobilePolicy v3', () => {
+  it('permite rutas MVP consultas, listados y carga', () => {
+    expect(isPedidosWebRouteAllowedOnMobileV3('/consultas/stock')).toBe(true);
+    expect(isPedidosWebRouteAllowedOnMobileV3('/pedidos/ingresados')).toBe(true);
+    expect(isPedidosWebRouteAllowedOnMobileV3('/pedidos/carga')).toBe(true);
+    expect(isPedidosWebRouteAllowedOnMobileV3('/pedidos/carga?modo=nuevo')).toBe(true);
   });
 
-  it('bloquea carga y dashboard en native app', () => {
-    expect(isRouteAllowedOnMobileApp('/pedidos/carga')).toBe(false);
+  it('mantiene prefijos v2 sin carga', () => {
+    expect(isPedidosWebRouteAllowedOnMobileV2('/pedidos/carga')).toBe(false);
+    expect(isPedidosWebRouteAllowedOnMobileV2('/consultas/stock')).toBe(true);
+  });
+
+  it('permite carga en native app guard', () => {
+    expect(isRouteAllowedOnMobileApp('/pedidos/carga')).toBe(true);
     expect(isRouteAllowedOnMobileApp('/dashboard')).toBe(false);
     expect(isRouteAllowedOnMobileApp('/admin/roles')).toBe(false);
   });
@@ -39,7 +44,7 @@ describe('pedidosWebMobilePolicy v2', () => {
     expect(isRouteAllowedOnMobileApp('/preferences')).toBe(true);
   });
 
-  it('filtra menú dejando solo rutas v2', () => {
+  it('filtra menú dejando rutas v3 incluyendo carga', () => {
     const menu: MenuNode[] = [
       buildMenuNode({
         id: 1,
@@ -61,14 +66,17 @@ describe('pedidosWebMobilePolicy v2', () => {
       }),
     ];
 
-    const filtered = filterMenuTreeForMobileV2(menu);
+    const filtered = filterMenuTreeForMobileV3(menu);
     expect(filtered).toHaveLength(1);
-    expect(filtered[0]?.children).toHaveLength(1);
-    expect(filtered[0]?.children[0]?.routePath).toBe('/consultas/stock');
+    expect(filtered[0]?.children).toHaveLength(2);
+    expect(filtered[0]?.children.map((child) => child.routePath)).toEqual([
+      '/consultas/stock',
+      '/pedidos/carga',
+    ]);
   });
 
-  it('expone prefijos v2 alineados al SPEC', () => {
-    expect(mobileV2AllowedRoutePrefixes).toContain('/consultas/historial');
-    expect(mobileV2AllowedRoutePrefixes).toContain('/presupuestos/tratativas');
+  it('expone prefijos v3 alineados al SPEC', () => {
+    expect(mobileV3AllowedRoutePrefixes).toContain('/pedidos/carga');
+    expect(mobileV3AllowedRoutePrefixes).toContain('/consultas/historial');
   });
 });

@@ -7,6 +7,7 @@ import SelectBox from 'devextreme-react/select-box';
 import { SelectBoxDx } from '../../../shared/ui/controls/SelectBoxDx';
 import Toast from 'devextreme-react/toast';
 import { isDevExtremeUserChange } from '../../../shared/ui/devextremeUserChange';
+import { isNativeApp } from '../../../shared/platform/isNativeApp';
 import { useRequiredSessionContext } from '../../auth/AuthProvider';
 import { fetchPublicConfig } from '../../config/api/publicConfigApi';
 import { ExcelImportHostToolbar } from '../../excelImport/components/ExcelImportHostToolbar';
@@ -64,6 +65,7 @@ import {
   tieneRenglonesCargados,
 } from '../utils/renglonesCarga';
 import { resolveGrabacionErrorMessages } from '../utils/resolveGrabacionErrorMessages';
+import { PedidosCargaMobilePage } from './PedidosCargaMobilePage';
 import './PedidosCargaPage.css';
 
 const emptyCatalogos: CabeceraCatalogos = {
@@ -75,6 +77,14 @@ const emptyCatalogos: CabeceraCatalogos = {
 };
 
 export function PedidosCargaPage() {
+  if (isNativeApp()) {
+    return <PedidosCargaMobilePage />;
+  }
+
+  return <PedidosCargaWebPage />;
+}
+
+function PedidosCargaWebPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const sessionContext = useRequiredSessionContext();

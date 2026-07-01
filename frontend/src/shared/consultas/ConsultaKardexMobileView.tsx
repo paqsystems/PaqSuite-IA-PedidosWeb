@@ -31,6 +31,9 @@ type ConsultaKardexMobileViewBaseProps<TItem> = {
   detailTitle: (item: TItem) => string;
   detailFields: ConsultaDetailField<TItem>[];
   metaLabelKey?: string;
+  renderDetailFooter?: (item: TItem, onClose: () => void) => ReactNode;
+  renderCardActions?: (item: TItem) => ReactNode;
+  refreshToken?: number;
 };
 
 type ServerModeProps<TItem> = ConsultaKardexMobileViewBaseProps<TItem> & {
@@ -142,7 +145,7 @@ export function ConsultaKardexMobileView<TItem>(
     }
 
     void loadClientData();
-  }, [appliedQuery, loadClientData, loadServerPage, props.mode]);
+  }, [appliedQuery, loadClientData, loadServerPage, props.mode, props.refreshToken]);
 
   useEffect(() => {
     if (props.mode !== 'client') {
@@ -258,6 +261,7 @@ export function ConsultaKardexMobileView<TItem>(
         onItemClick={(item) => {
           setSelectedItem(item);
         }}
+        renderCardActions={props.renderCardActions}
         renderCard={props.renderCard}
       />
 
@@ -266,6 +270,13 @@ export function ConsultaKardexMobileView<TItem>(
         title={selectedItem ? props.detailTitle(selectedItem) : ''}
         fields={props.detailFields}
         testId={props.detailPopupTestId}
+        footer={
+          selectedItem && props.renderDetailFooter
+            ? props.renderDetailFooter(selectedItem, () => {
+                setSelectedItem(null);
+              })
+            : undefined
+        }
         onClose={() => {
           setSelectedItem(null);
         }}

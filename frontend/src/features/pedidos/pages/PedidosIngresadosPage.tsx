@@ -1,6 +1,7 @@
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { isNativeApp } from '../../../shared/platform/isNativeApp';
 import { ComprobanteListadoMobileView } from '../../consultas/components/ComprobanteListadoMobileView';
+import { usePedidosIngresadosMobileRowActions } from '../../consultas/hooks/useComprobanteMobileRowActions';
 import { fetchPedidosIngresados } from '../../consultas/api/consultaApi';
 import { PedidosIngresadosWebView } from './PedidosIngresadosWebView';
 
@@ -13,7 +14,13 @@ export function PedidosIngresadosPage() {
 }
 
 function PedidosIngresadosMobileView() {
+  const [refreshToken, setRefreshToken] = useState(0);
   const loadData = useCallback(() => fetchPedidosIngresados(), []);
+  const rowActions = usePedidosIngresadosMobileRowActions({
+    onChanged: () => {
+      setRefreshToken((value) => value + 1);
+    },
+  });
 
   return (
     <ComprobanteListadoMobileView
@@ -21,6 +28,8 @@ function PedidosIngresadosMobileView() {
       pageTitleKey="pages.pedidosIngresados"
       listTestId="pedidosIngresadosKardexList"
       loadData={loadData}
+      rowActions={rowActions}
+      refreshToken={refreshToken}
     />
   );
 }

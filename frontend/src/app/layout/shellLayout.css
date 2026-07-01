@@ -18,7 +18,9 @@
   --shell-footer-strong-text-color: var(--app-shell-footer-strong-text-color, #ffffff);
   --shell-overlay-color: var(--app-shell-overlay-color, rgba(15, 23, 42, 0.35));
   --shell-danger-color: var(--app-shell-danger-color, #b91c1c);
+  height: 100%;
   min-height: 100vh;
+  overflow: hidden;
   display: grid;
   grid-template-rows: var(--shell-header-height) 1fr var(--shell-footer-height);
   grid-template-columns: var(--shell-sidebar-width) 1fr;

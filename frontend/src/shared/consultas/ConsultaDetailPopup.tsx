@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import Popup from 'devextreme-react/popup';
 import './consultaDetailPopup.css';
@@ -14,6 +15,7 @@ type ConsultaDetailPopupProps<TItem> = {
   fields: ConsultaDetailField<TItem>[];
   onClose: () => void;
   testId?: string;
+  footer?: ReactNode;
 };
 
 export function ConsultaDetailPopup<TItem>({
@@ -22,6 +24,7 @@ export function ConsultaDetailPopup<TItem>({
   fields,
   onClose,
   testId = 'consultaDetailPopup',
+  footer,
 }: ConsultaDetailPopupProps<TItem>) {
   const { t } = useTranslation();
 
@@ -38,16 +41,19 @@ export function ConsultaDetailPopup<TItem>({
       elementAttr={{ 'data-testid': testId }}
     >
       {item && (
-        <dl className="consultaDetailPopup">
-          {fields
-            .filter((field) => field.visible?.(item) ?? true)
-            .map((field) => (
-              <div key={field.labelKey}>
-                <dt>{t(field.labelKey)}</dt>
-                <dd>{field.getValue(item)}</dd>
-              </div>
-            ))}
-        </dl>
+        <>
+          <dl className="consultaDetailPopup">
+            {fields
+              .filter((field) => field.visible?.(item) ?? true)
+              .map((field) => (
+                <div key={field.labelKey}>
+                  <dt>{t(field.labelKey)}</dt>
+                  <dd>{field.getValue(item)}</dd>
+                </div>
+              ))}
+          </dl>
+          {footer ? <div className="consultaDetailPopup__footer">{footer}</div> : null}
+        </>
       )}
     </Popup>
   );

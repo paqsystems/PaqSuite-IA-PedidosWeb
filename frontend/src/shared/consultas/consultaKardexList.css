@@ -20,6 +20,35 @@
   cursor: pointer;
 }
 
+.consultaKardexList__itemShell {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  border-bottom: 1px solid var(--pw-border-color, #e8e8e8);
+}
+
+.consultaKardexList__itemShell:last-child {
+  border-bottom: 0;
+}
+
+.consultaKardexCard__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.15rem;
+  padding: 0 0.5rem 0.65rem;
+  border-top: 1px solid var(--pw-border-color, #ececec);
+}
+
+.consultaKardexCard__actions .dx-button {
+  min-width: 2.5rem;
+  min-height: 2.5rem;
+}
+
+.consultaKardexCard__actionWrap {
+  display: inline-flex;
+}
+
 .consultaKardexCard {
   display: flex;
   flex-direction: column;

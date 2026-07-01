@@ -8,6 +8,7 @@ export type ConsultaKardexListProps<TItem> = {
   keyExpr: keyof TItem | ((item: TItem) => string);
   renderCard: (item: TItem) => ReactNode;
   onItemClick: (item: TItem) => void;
+  renderCardActions?: (item: TItem) => ReactNode;
   isLoading: boolean;
   hasMore: boolean;
   onLoadMore: () => void;
@@ -33,6 +34,7 @@ export function ConsultaKardexList<TItem>({
   keyExpr,
   renderCard,
   onItemClick,
+  renderCardActions,
   isLoading,
   hasMore,
   onLoadMore,
@@ -75,15 +77,18 @@ export function ConsultaKardexList<TItem>({
 
               return (
                 <li key={itemKey} className="consultaKardexList__item">
-                  <button
-                    type="button"
-                    className="consultaKardexList__cardButton"
-                    onClick={() => {
-                      onItemClick(item);
-                    }}
-                  >
-                    {renderCard(item)}
-                  </button>
+                  <div className="consultaKardexList__itemShell">
+                    <button
+                      type="button"
+                      className="consultaKardexList__cardButton"
+                      onClick={() => {
+                        onItemClick(item);
+                      }}
+                    >
+                      {renderCard(item)}
+                    </button>
+                    {renderCardActions ? renderCardActions(item) : null}
+                  </div>
                 </li>
               );
             })}
@@ -102,15 +107,18 @@ export function ConsultaKardexList<TItem>({
           noDataText={emptyMessage ? String(emptyMessage) : undefined}
           elementAttr={{ 'data-testid': listTestId }}
           itemRender={(item: TItem) => (
-            <button
-              type="button"
-              className="consultaKardexList__cardButton"
-              onClick={() => {
-                onItemClick(item);
-              }}
-            >
-              {renderCard(item)}
-            </button>
+            <div className="consultaKardexList__itemShell">
+              <button
+                type="button"
+                className="consultaKardexList__cardButton"
+                onClick={() => {
+                  onItemClick(item);
+                }}
+              >
+                {renderCard(item)}
+              </button>
+              {renderCardActions ? renderCardActions(item) : null}
+            </div>
           )}
         />
       )}
