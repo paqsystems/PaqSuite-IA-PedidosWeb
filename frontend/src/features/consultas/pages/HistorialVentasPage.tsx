@@ -3,6 +3,8 @@ import { ConsultaGrillaPivotShell } from '../../../shared/pivot';
 import { useTranslation } from 'react-i18next';
 import Popup from 'devextreme-react/popup';
 import { Column } from 'devextreme-react/data-grid';
+import { isNativeApp } from '../../../shared/platform/isNativeApp';
+import { ConsultaKardexMobileView } from '../../../shared/consultas/ConsultaKardexMobileView';
 import { useGridLayouts } from '../../gridLayouts/hooks/useGridLayouts';
 import { DataGridDx, type DataGridDxHandle, type DataGridRowAction } from '../../../shared/ui/grids';
 import { GridRefreshButton } from '../components/GridRefreshButton';
@@ -13,6 +15,7 @@ import {
   type HistorialVentasRow,
 } from '../api/consultaApi';
 import { formatConsultaFechaProceso } from '../utils/formatConsultaFechaProceso';
+import { getHistorialDetailFields, renderHistorialCard } from '../components/consultaMobileRenderers';
 
 const proceso = 'pw_historialventas';
 const gridId = 'pw_historialventas';
@@ -59,6 +62,32 @@ function historialColumns(t: (key: string) => string) {
 }
 
 export function HistorialVentasPage() {
+  if (isNativeApp()) {
+    return <HistorialVentasMobileView />;
+  }
+
+  return <HistorialVentasWebView />;
+}
+
+function HistorialVentasMobileView() {
+  const loadData = useCallback(() => fetchHistorialVentas(), []);
+
+  return (
+    <ConsultaKardexMobileView
+      mode="client"
+      pageTestId="page-consulta-historial-mobile"
+      pageTitleKey="pages.consultaHistorial"
+      listTestId="historialKardexList"
+      keyExpr="id"
+      loadData={loadData}
+      detailTitle={(item) => `${item.tipo} ${item.numero}`}
+      detailFields={getHistorialDetailFields()}
+      renderCard={renderHistorialCard}
+    />
+  );
+}
+
+function HistorialVentasWebView() {
   const { t, i18n } = useTranslation();
   const gridRef = useRef<DataGridDxHandle>(null);
   const { toolbar: layoutToolbar, saveAsDialog } = useGridLayouts({

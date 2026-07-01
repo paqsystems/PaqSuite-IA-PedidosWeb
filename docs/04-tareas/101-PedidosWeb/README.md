@@ -105,7 +105,9 @@ npx playwright test tests/e2e/pedidosweb/mvp-section9.spec.ts
 | **Parte B** | **Cerrada** (2026-06-30) — [F-101-17-cierre-b1.md](F-101-17-cierre-b1.md) |
 | **Parte C v1** | **Cerrada** (2026-06-30) — [F-101-17-cierre-c1.md](F-101-17-cierre-c1.md) |
 | **Parte D v1** | **Cerrada** (2026-06-30) — [D-VERIFICACION-101-17-mobile-v1.md](D-VERIFICACION-101-17-mobile-v1.md), [F-101-17-cierre-formal.md](F-101-17-cierre-formal.md) |
-| **Tag release** | `v1.2.0-mobile` — pendiente smoke dispositivo |
+| **Parte C v2** | **Cerrada** (2026-06-30) — [F-101-17-cierre-c1-v2.md](F-101-17-cierre-c1-v2.md) |
+| **Parte D/F v2** | **Cerrada** (2026-06-30) — [D-VERIFICACION-101-17-mobile-v2.md](D-VERIFICACION-101-17-mobile-v2.md), [F-101-17-cierre-formal-v2.md](F-101-17-cierre-formal-v2.md) |
+| **Tag release** | v1 `v1.2.0-mobile` · v2 `v1.2.1-mobile` — pendiente smoke iOS |
 | **Releases** | v1 `v1.2.0-mobile` · v2 `v1.2.1-mobile` · v3 `v1.2.2-mobile` |
 
 | TR v1 | HU |
@@ -113,6 +115,8 @@ npx playwright test tests/e2e/pedidosweb/mvp-section9.spec.ts
 | [TR-SPEC-101-17-mobile-v1-scaffold](TR-SPEC-101-17-mobile-v1-scaffold.md) | HU-101-031 |
 | [TR-SPEC-101-17-mobile-v1-login-tenant](TR-SPEC-101-17-mobile-v1-login-tenant.md) | HU-101-032 |
 | [TR-SPEC-101-17-mobile-v1-stock-kardex](TR-SPEC-101-17-mobile-v1-stock-kardex.md) | HU-101-033 |
+| [TR-SPEC-101-17-mobile-v2-consultas](TR-SPEC-101-17-mobile-v2-consultas.md) | HU-101-034 |
+| [TR-SPEC-101-17-mobile-v2-listados](TR-SPEC-101-17-mobile-v2-listados.md) | HU-101-035 |
 
 **Orden D v1:**
 
@@ -122,4 +126,4 @@ npx playwright test tests/e2e/pedidosweb/mvp-section9.spec.ts
 3. TR-SPEC-101-17-mobile-v1-stock-kardex + TR-GEN-11-mobile-shell
 ```
 
-**Post v1:** TR v2 (034–035) → `v1.2.1-mobile`; TR v3 (036) → `v1.2.2-mobile`.
+**Post v1:** TR v2 (034–035) → `v1.2.1-mobile` **cerrado F 2026-06-30**; TR v3 (036) → `v1.2.2-mobile`.

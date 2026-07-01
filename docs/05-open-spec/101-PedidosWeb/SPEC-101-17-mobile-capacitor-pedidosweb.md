@@ -327,6 +327,29 @@ Verificación: [D-VERIFICACION-101-17-mobile-v1](../../04-tareas/101-PedidosWeb/
 
 **Veredicto D1/F v1:** **Implementado** — [F-101-17-cierre-formal](../../04-tareas/101-PedidosWeb/F-101-17-cierre-formal.md). Smoke **Android emulador OK**; tag `v1.2.0-mobile` tras smoke iOS.
 
+## Parte C — cierre v2 (2026-06-30)
+
+| TR | HU | Release | Estado C1 |
+|----|-----|---------|-----------|
+| [TR-SPEC-101-17-mobile-v2-consultas](../../04-tareas/101-PedidosWeb/TR-SPEC-101-17-mobile-v2-consultas.md) | HU-101-034 | `v1.2.1-mobile` | **Apto** |
+| [TR-SPEC-101-17-mobile-v2-listados](../../04-tareas/101-PedidosWeb/TR-SPEC-101-17-mobile-v2-listados.md) | HU-101-035 | `v1.2.1-mobile` | **Apto** |
+
+Cierre C1: [F-101-17-cierre-c1-v2](../../04-tareas/101-PedidosWeb/F-101-17-cierre-c1-v2.md).
+
+**Veredicto C1 v2:** **Apto** — autoriza Parte D `v1.2.1-mobile`.
+
+## Parte D / F — cierre v2 (2026-06-30)
+
+| TR | HU | Estado |
+|----|-----|--------|
+| TR v2 consultas | HU-101-034 | **Implementado** |
+| TR v2 listados | HU-101-035 | **Implementado** |
+
+Verificación F1: [D-VERIFICACION-101-17-mobile-v2](../../04-tareas/101-PedidosWeb/D-VERIFICACION-101-17-mobile-v2.md).  
+Cierre F: [F-101-17-cierre-formal-v2](../../04-tareas/101-PedidosWeb/F-101-17-cierre-formal-v2.md).
+
+**Veredicto D2/F v2:** **Implementado** — smoke Android OK; tag `v1.2.1-mobile` tras smoke iOS. Siguiente: **v3** carga mobile (HU-101-036).
+
 ## Referencias producto
 
 - `docs/02-producto/PedidosWeb/consulta-stock.md`

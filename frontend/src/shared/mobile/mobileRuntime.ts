@@ -18,7 +18,11 @@ let cachedTenant: string | null = null;
 
 /** Barras normales en URL; en Windows a veces se pegan backslashes por error. */
 export function normalizeApiBaseUrl(apiBaseUrl: string): string {
-  return apiBaseUrl.trim().replace(/\\/g, '/').replace(/\/+$/, '');
+  return apiBaseUrl
+    .trim()
+    .replace(/\\/g, '/')
+    .replace(/^(https?):\/(?!\/)/, '$1://')
+    .replace(/\/+$/, '');
 }
 
 function resolveApiBaseUrl(apiOverride: string | null): string {

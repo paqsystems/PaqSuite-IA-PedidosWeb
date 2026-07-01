@@ -3,7 +3,7 @@ import { Outlet, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth, useRequiredSessionContext } from '../../features/auth/AuthProvider';
 import { MobileRouteGuard } from '../../features/mobile/MobileRouteGuard';
-import { filterMenuTreeForMobileV1 } from '../../features/mobile/pedidosWebMobilePolicy';
+import { filterMenuTreeForMobileV2 } from '../../features/mobile/pedidosWebMobilePolicy';
 import { useUserMenu } from '../../features/menu/useUserMenu';
 import { useMenuPresentation } from '../../features/menu/hooks/useMenuPresentation';
 import { useUserPreferences } from '../../features/preferences/useUserPreferences';
@@ -22,7 +22,7 @@ export function ShellLayout() {
   const nativeApp = isNativeApp();
   const { menuItems, isLoading, errorKey } = useUserMenu(true);
   const filteredMenuItems = useMemo(
-    () => (nativeApp ? filterMenuTreeForMobileV1(menuItems) : menuItems),
+    () => (nativeApp ? filterMenuTreeForMobileV2(menuItems) : menuItems),
     [menuItems, nativeApp],
   );
   const menuPresentation = useMenuPresentation(sessionContext.user.id);

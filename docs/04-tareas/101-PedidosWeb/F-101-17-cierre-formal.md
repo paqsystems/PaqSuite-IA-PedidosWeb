@@ -73,4 +73,4 @@ Implementación D1 completa. **Smoke Android emulador validado** (login, stock k
 
 ## Veredicto
 
-**F formal cerrado** — SPEC-101-17 v1 implementado y verificado en Android emulador. Siguiente hito operativo: smoke iOS → tag `v1.2.0-mobile` → Parte C v2 (HU-101-034…035).
+**F formal v2 cerrado** — SPEC-101-17 v1 implementado y verificado en Android emulador. Siguiente hito: smoke iOS → tags `v1.2.0-mobile` / `v1.2.1-mobile` → [F-101-17-cierre-formal-v2](F-101-17-cierre-formal-v2.md) v3 (HU-101-036).

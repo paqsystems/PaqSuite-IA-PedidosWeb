@@ -70,6 +70,7 @@
   color: var(--pw-text-muted, #5f6368);
 }
 
+.consultaMobilePage,
 .stockMobilePage {
   display: flex;
   flex-direction: column;
@@ -80,18 +81,21 @@
   box-sizing: border-box;
 }
 
+.consultaMobilePage__header,
 .stockMobilePage__header {
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
 }
 
+.consultaMobilePage__meta,
 .stockMobilePage__meta {
   margin: 0;
   font-size: 0.875rem;
   color: var(--pw-text-muted, #5f6368);
 }
 
+.consultaMobilePage__filterRow,
 .stockMobilePage__filterRow {
   display: flex;
   align-items: flex-end;
@@ -100,6 +104,7 @@
   min-width: 0;
 }
 
+.consultaMobilePage__filter,
 .stockMobilePage__filter {
   display: flex;
   flex-direction: column;
@@ -108,15 +113,18 @@
   min-width: 0;
 }
 
+.consultaMobilePage__filter .dx-texteditor,
 .stockMobilePage__filter .dx-texteditor {
   width: 100% !important;
   max-width: 100%;
 }
 
+.consultaMobilePage__refresh,
 .stockMobilePage__refresh {
   flex-shrink: 0;
 }
 
+.consultaMobilePage__resultSummary,
 .stockMobilePage__resultSummary {
   margin: 0;
   font-size: 0.875rem;
@@ -128,6 +136,7 @@
   max-width: 100%;
 }
 
+.consultaMobilePage__error,
 .stockMobilePage__error {
   margin: 0;
   color: var(--pw-danger, #b42318);

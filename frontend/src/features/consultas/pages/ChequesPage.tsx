@@ -1,8 +1,11 @@
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Column } from 'devextreme-react/data-grid';
+import { isNativeApp } from '../../../shared/platform/isNativeApp';
+import { ConsultaKardexMobileView } from '../../../shared/consultas/ConsultaKardexMobileView';
 import { ConsultaInformePivotPage } from '../components/ConsultaInformePivotPage';
 import { fetchCheques, type ChequeConsultaRow } from '../api/consultaApi';
+import { getChequeDetailFields, renderChequeCard } from '../components/consultaMobileRenderers';
 
 const proceso = 'pw_cheques';
 const gridId = 'pw_cheques';
@@ -11,6 +14,22 @@ const pivotConsultaId = 'CONSULTA_CHEQUES';
 export function ChequesPage() {
   const { t } = useTranslation();
   const loadData = useCallback(() => fetchCheques(), []);
+
+  if (isNativeApp()) {
+    return (
+      <ConsultaKardexMobileView
+        mode="client"
+        pageTestId="page-consulta-cheques-mobile"
+        pageTitleKey="pages.consultaCheques"
+        listTestId="chequesKardexList"
+        keyExpr="id"
+        loadData={loadData}
+        detailTitle={(item) => item.numero}
+        detailFields={getChequeDetailFields()}
+        renderCard={(item) => renderChequeCard(item, t)}
+      />
+    );
+  }
 
   return (
     <ConsultaInformePivotPage<ChequeConsultaRow>

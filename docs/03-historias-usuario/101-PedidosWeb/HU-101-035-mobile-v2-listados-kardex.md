@@ -7,7 +7,7 @@
 | **Épica** | 101 — PedidosWeb / Mobile |
 | **Prioridad** | Should → Must (release `v1.2.1-mobile`) |
 | **Release** | `v1.2.1-mobile` |
-| **Estado** | **Especificado** |
+| **Estado** | **Especificado** — smoke Android emulador OK (F v2 2026-06-30) |
 | **B1** | Enriquecida (2026-06-30) |
 | **Dependencias** | HU-101-034; HU-101-015, 016, 017, 014 (consultas listado) |
 
@@ -35,9 +35,9 @@ Acciones reducidas vs web (TR define: ver detalle; copiar/editar solo si UX mobi
 
 ## Criterios de aceptación
 
-- [ ] **CA-01:** Listados en kardex con paginación.
-- [ ] **CA-02:** Permisos y visibilidad por perfil igual web.
-- [ ] **CA-03:** Tap → detalle o navegación acordada en TR.
+- [x] **CA-01:** Listados en kardex con paginación (cliente).
+- [x] **CA-02:** Permisos y visibilidad por perfil igual web.
+- [x] **CA-03:** Tap → detalle popup read-only (acciones comprobante en v3).
 
 ## Veredicto B1
 

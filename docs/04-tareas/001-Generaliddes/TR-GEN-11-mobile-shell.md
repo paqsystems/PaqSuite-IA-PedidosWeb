@@ -141,6 +141,15 @@ Ajustar prefijos según rutas reales en `pedidosWebRoutes.tsx` / menú seed.
 | Safe area | `viewport-fit=cover`; `StatusBar.setOverlaysWebView({ overlay: false })`; `--shell-status-bar-inset: max(env(safe-area-inset-top), 28px)` |
 | Header | `z-index: 30`; `LocaleSelector` modo `compact` |
 
+### UX native v2 (`v1.2.1-mobile` — 2026-06-30)
+
+| Tema | Implementación |
+|------|----------------|
+| Rutas MVP | `mobileV2AllowedRoutePrefixes` en `pedidosWebMobilePolicy.ts` |
+| Menú | `filterMenuTreeForMobileV2` — ítems según permiso web |
+| Guard | `isRouteAllowedOnMobileApp` — bloquea `/pedidos/carga`, dashboard, admin, excel |
+| Redirect bloqueado | `getMobileDefaultRoute()` → `/consultas/stock` |
+
 ---
 
 ## 4) Impacto en datos

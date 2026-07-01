@@ -17,13 +17,13 @@
 
 Transversal: [F-GEN-11-cierre-c1](../001-Generaliddes/F-GEN-11-cierre-c1.md).
 
-## TR v2/v3 (post v1)
+## TR v2/v3
 
-| HU | Release | TR (pendiente Parte C futura) |
-|----|---------|-------------------------------|
-| HU-101-034 | `v1.2.1-mobile` | TR-SPEC-101-17-mobile-v2-consultas |
-| HU-101-035 | `v1.2.1-mobile` | TR-SPEC-101-17-mobile-v2-listados |
-| HU-101-036 | `v1.2.2-mobile` | TR-SPEC-101-17-mobile-v3-carga |
+| HU | Release | TR | Estado |
+|----|---------|-----|--------|
+| HU-101-034 | `v1.2.1-mobile` | [TR-SPEC-101-17-mobile-v2-consultas](TR-SPEC-101-17-mobile-v2-consultas.md) | **F cerrado** |
+| HU-101-035 | `v1.2.1-mobile` | [TR-SPEC-101-17-mobile-v2-listados](TR-SPEC-101-17-mobile-v2-listados.md) | **F cerrado** |
+| HU-101-036 | `v1.2.2-mobile` | TR-SPEC-101-17-mobile-v3-carga | Pendiente |
 
 ## Smoke mínimo pre-tag `v1.2.0-mobile`
 

@@ -7,7 +7,7 @@
 | **Épica** | 101 — PedidosWeb / Mobile |
 | **Prioridad** | Should → Must (release `v1.2.1-mobile`) |
 | **Release** | `v1.2.1-mobile` |
-| **Estado** | **Especificado** |
+| **Estado** | **Especificado** — smoke Android emulador OK (F v2 2026-06-30) |
 | **B1** | Enriquecida (2026-06-30) |
 | **Dependencias** | HU-101-033; HU-101-015…018, 021…023, 028 (API web) |
 
@@ -38,10 +38,10 @@ Misma API SPEC-101-07; filtros colapsables; detalle al tap; sin pivot.
 
 ## Criterios de aceptación
 
-- [ ] **CA-01:** Cada consulta listada accesible desde menú mobile v2 si permiso.
-- [ ] **CA-02:** Todas usan kardex, no DataGrid.
-- [ ] **CA-03:** Sin rutas pivot en native.
-- [ ] **CA-04:** Smoke por consulta crítica documentado.
+- [x] **CA-01:** Cada consulta listada accesible desde menú mobile v2 si permiso (Android emulador).
+- [x] **CA-02:** Todas usan kardex, no DataGrid.
+- [x] **CA-03:** Sin rutas pivot en native.
+- [x] **CA-04:** Smoke por consulta crítica documentado ([D-VERIFICACION v2](../../04-tareas/101-PedidosWeb/D-VERIFICACION-101-17-mobile-v2.md)).
 
 ## Veredicto B1
 

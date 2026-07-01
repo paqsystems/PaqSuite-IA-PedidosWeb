@@ -1,8 +1,11 @@
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Column } from 'devextreme-react/data-grid';
+import { isNativeApp } from '../../../shared/platform/isNativeApp';
+import { ConsultaKardexMobileView } from '../../../shared/consultas/ConsultaKardexMobileView';
 import { ConsultaInformePivotPage } from '../components/ConsultaInformePivotPage';
 import { fetchDeuda, type DeudaConsultaRow } from '../api/consultaApi';
+import { getDeudaDetailFields, renderDeudaCard } from '../components/consultaMobileRenderers';
 
 const proceso = 'pw_deuda';
 const gridId = 'pw_deuda';
@@ -11,6 +14,22 @@ const pivotConsultaId = 'CONSULTA_DEUDA';
 export function DeudaPage() {
   const { t } = useTranslation();
   const loadData = useCallback(() => fetchDeuda(), []);
+
+  if (isNativeApp()) {
+    return (
+      <ConsultaKardexMobileView
+        mode="client"
+        pageTestId="page-consulta-deuda-mobile"
+        pageTitleKey="pages.consultaDeuda"
+        listTestId="deudaKardexList"
+        keyExpr="id"
+        loadData={loadData}
+        detailTitle={(item) => item.razonSocial}
+        detailFields={getDeudaDetailFields()}
+        renderCard={(item) => renderDeudaCard(item, t)}
+      />
+    );
+  }
 
   return (
     <ConsultaInformePivotPage<DeudaConsultaRow>
