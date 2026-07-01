@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import TreeView from 'devextreme-react/tree-view';
 import type dxTreeView from 'devextreme/ui/tree_view';
+import { isNativeApp } from '../../../shared/platform/isNativeApp';
 import type { MenuNode } from '../menuApi';
 import type { MenuDisplayMode } from '../utils/menuPresentationStorage';
 import {
@@ -25,6 +26,7 @@ type MenuSidebarTreeProps = {
   menuTreeExpanded: boolean;
   menuDisplayMode: MenuDisplayMode;
   openInNewTab: boolean;
+  onAfterItemNavigate?: () => void;
 };
 
 function resolveMenuLabel(
@@ -63,6 +65,7 @@ export function MenuSidebarTree({
   menuTreeExpanded,
   menuDisplayMode,
   openInNewTab,
+  onAfterItemNavigate,
 }: MenuSidebarTreeProps) {
   const navigate = useNavigate();
   const location = useLocation();
@@ -133,12 +136,16 @@ export function MenuSidebarTree({
       return;
     }
 
-    if (openInNewTab) {
+    if (openInNewTab && !isNativeApp()) {
       window.open(itemData.routePath, '_blank', 'noopener,noreferrer');
       return;
     }
 
     navigate(itemData.routePath);
+
+    if (isNativeApp()) {
+      onAfterItemNavigate?.();
+    }
   }
 
   return (

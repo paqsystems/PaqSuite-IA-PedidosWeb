@@ -82,6 +82,10 @@
   background: linear-gradient(90deg, #009246 0 33%, #ffffff 33% 66%, #ce2b37 66% 100%);
 }
 
+.localeSelector--compact .localeSelector__control {
+  min-width: 0;
+}
+
 .shellHeader .localeSelector {
   color: var(--app-shell-muted-text-color, #475569);
 }

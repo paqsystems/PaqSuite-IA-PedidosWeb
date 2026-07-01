@@ -10,6 +10,7 @@ type ShellSidebarProps = {
   menuTreeExpanded: boolean;
   menuDisplayMode: MenuDisplayMode;
   openInNewTab: boolean;
+  onAfterItemNavigate?: () => void;
 };
 
 export function ShellSidebar({
@@ -20,6 +21,7 @@ export function ShellSidebar({
   menuTreeExpanded,
   menuDisplayMode,
   openInNewTab,
+  onAfterItemNavigate,
 }: ShellSidebarProps) {
   if (isCollapsed) {
     return (
@@ -41,6 +43,7 @@ export function ShellSidebar({
         menuTreeExpanded={menuTreeExpanded}
         menuDisplayMode={menuDisplayMode}
         openInNewTab={openInNewTab}
+        onAfterItemNavigate={onAfterItemNavigate}
       />
     </aside>
   );

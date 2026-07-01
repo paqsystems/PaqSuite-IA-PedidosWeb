@@ -22,7 +22,9 @@ export function getStoredSessionContext(): SessionContext | null {
   }
 }
 
-export function persistAuthSession(token: string, sessionContext: SessionContext): void {
+import { clearActiveTenant } from '../../shared/mobile/mobileRuntime';
+
+export async function persistAuthSession(token: string, sessionContext: SessionContext): Promise<void> {
   const { token: _ignoredToken, ...contextWithoutToken } = sessionContext;
 
   localStorage.setItem(tokenStorageKey, token);
@@ -30,9 +32,10 @@ export function persistAuthSession(token: string, sessionContext: SessionContext
   sessionStorage.removeItem(expiredReasonStorageKey);
 }
 
-export function clearAuthSession(): void {
+export async function clearAuthSession(): Promise<void> {
   localStorage.removeItem(tokenStorageKey);
   localStorage.removeItem(sessionStorageKey);
+  await clearActiveTenant();
 }
 
 export function updateStoredSessionContext(sessionContext: SessionContext): void {

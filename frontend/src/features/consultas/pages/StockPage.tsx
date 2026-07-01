@@ -1,7 +1,9 @@
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Column } from 'devextreme-react/data-grid';
+import { isNativeApp } from '../../../shared/platform/isNativeApp';
 import { ConsultaInformePivotPage } from '../components/ConsultaInformePivotPage';
+import { StockMobileView } from '../components/StockMobileView';
 import { fetchStock, type StockConsultaRow } from '../api/consultaApi';
 
 const proceso = 'pw_stock';
@@ -11,6 +13,10 @@ const pivotConsultaId = 'CONSULTA_STOCK';
 export function StockPage() {
   const { t } = useTranslation();
   const loadData = useCallback(() => fetchStock(), []);
+
+  if (isNativeApp()) {
+    return <StockMobileView />;
+  }
 
   return (
     <ConsultaInformePivotPage<StockConsultaRow>

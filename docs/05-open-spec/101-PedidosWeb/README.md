@@ -33,6 +33,25 @@
 | 14 | [SPEC-101-14-dashboard.md](SPEC-101-14-dashboard.md) | Must |
 | 15 | [SPEC-101-15-tests-hardening.md](SPEC-101-15-tests-hardening.md) | Must |
 | 16 | [SPEC-101-16-importacion-pedido-individual-excel.md](SPEC-101-16-importacion-pedido-individual-excel.md) | **Should** — A1+B1+C+C1 cerrados; listo D1 |
+| 17 | [SPEC-101-17-mobile-capacitor-pedidosweb.md](SPEC-101-17-mobile-capacitor-pedidosweb.md) | **Must** — **A1 + B1 + C1 v1 cerrados** (2026-06-30); **autorizada Parte D** `v1.2.0-mobile` |
+
+## Épica mobile (`v1.2.0-mobile`)
+
+| Campo | Valor |
+|-------|--------|
+| **A1** | **Apto con observaciones** (2026-06-30) |
+| **B1** | **Cerrado** — [F-101-17-cierre-b1](../../04-tareas/101-PedidosWeb/F-101-17-cierre-b1.md) |
+| **C1 v1** | **Apto** — [F-101-17-cierre-c1](../../04-tareas/101-PedidosWeb/F-101-17-cierre-c1.md) |
+| **TR v1** | TR-101-17-mobile-v1-scaffold, login-tenant, stock-kardex |
+| **HU v2/v3** | HU-101-034 … HU-101-036 (TR pendiente) |
+
+| Fase | Tag | Contenido |
+|------|-----|-----------|
+| v1 | `v1.2.0-mobile` | Capacitor Android+iOS, login tenant, consulta **stock** kardex |
+| v2 | `v1.2.1-mobile` | Todos listados y consultas kardex |
+| v3 | `v1.2.2-mobile` | Carga pedidos mobile |
+
+Transversal: [SPEC-001-11](../001-Generaliddes/SPEC-001-11-mobile-capacitor.md) · Patrón login: [`04-patron-login-tenant-mobile-mono.md`](../../_base/01-mobile/04-patron-login-tenant-mobile-mono.md)
 
 ## Dependencias transversales pendientes
 

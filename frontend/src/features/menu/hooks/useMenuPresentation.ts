@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { isNativeApp } from '../../../shared/platform/isNativeApp';
 import {
   defaultMenuPresentationState,
   readMenuPresentationState,
@@ -7,12 +8,26 @@ import {
   writeMenuPresentationState,
 } from '../utils/menuPresentationStorage';
 
+function resolveInitialMenuState(userId: number | null): MenuPresentationState {
+  if (userId === null) {
+    return {
+      ...defaultMenuPresentationState,
+      sidebarVisible: !isNativeApp(),
+    };
+  }
+
+  return readMenuPresentationState(userId);
+}
+
 export function useMenuPresentation(userId: number | null) {
-  const [state, setState] = useState<MenuPresentationState>(defaultMenuPresentationState);
+  const [state, setState] = useState<MenuPresentationState>(() => resolveInitialMenuState(userId));
 
   useEffect(() => {
     if (userId === null) {
-      setState(defaultMenuPresentationState);
+      setState({
+        ...defaultMenuPresentationState,
+        sidebarVisible: !isNativeApp(),
+      });
       return;
     }
 
@@ -20,45 +35,65 @@ export function useMenuPresentation(userId: number | null) {
   }, [userId]);
 
   const persistState = useCallback(
-    (nextState: MenuPresentationState) => {
-      setState(nextState);
+    (updater: MenuPresentationState | ((current: MenuPresentationState) => MenuPresentationState)) => {
+      setState((current) => {
+        const nextState = typeof updater === 'function' ? updater(current) : updater;
 
-      if (userId !== null) {
-        writeMenuPresentationState(userId, nextState);
-      }
+        if (userId !== null) {
+          writeMenuPresentationState(userId, nextState);
+        }
+
+        return nextState;
+      });
     },
     [userId],
   );
 
   const toggleSidebarVisible = useCallback(() => {
-    persistState({
-      ...state,
-      sidebarVisible: !state.sidebarVisible,
+    persistState((current) => ({
+      ...current,
+      sidebarVisible: !current.sidebarVisible,
+    }));
+  }, [persistState]);
+
+  const closeSidebarVisible = useCallback(() => {
+    persistState((current) => {
+      if (!current.sidebarVisible) {
+        return current;
+      }
+
+      return {
+        ...current,
+        sidebarVisible: false,
+      };
     });
-  }, [persistState, state]);
+  }, [persistState]);
 
   const toggleMenuTreeExpanded = useCallback(() => {
-    persistState({
-      ...state,
-      menuTreeExpanded: !state.menuTreeExpanded,
-    });
-  }, [persistState, state]);
+    persistState((current) => ({
+      ...current,
+      menuTreeExpanded: !current.menuTreeExpanded,
+    }));
+  }, [persistState]);
 
   const toggleMenuDisplayMode = useCallback(() => {
-    const nextMode: MenuDisplayMode =
-      state.menuDisplayMode === 'allBranches' ? 'operationalOnly' : 'allBranches';
+    persistState((current) => {
+      const nextMode: MenuDisplayMode =
+        current.menuDisplayMode === 'allBranches' ? 'operationalOnly' : 'allBranches';
 
-    persistState({
-      ...state,
-      menuDisplayMode: nextMode,
+      return {
+        ...current,
+        menuDisplayMode: nextMode,
+      };
     });
-  }, [persistState, state]);
+  }, [persistState]);
 
   return {
     sidebarVisible: state.sidebarVisible,
     menuTreeExpanded: state.menuTreeExpanded,
     menuDisplayMode: state.menuDisplayMode,
     toggleSidebarVisible,
+    closeSidebarVisible,
     toggleMenuTreeExpanded,
     toggleMenuDisplayMode,
   };

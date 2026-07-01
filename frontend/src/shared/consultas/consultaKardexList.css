@@ -1,0 +1,134 @@
+.consultaKardexList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: 100%;
+  min-width: 0;
+}
+
+.consultaKardexList__toolbar {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.consultaKardexList__cardButton {
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.consultaKardexCard {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.75rem 0.25rem;
+}
+
+.consultaKardexCard__title {
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.consultaKardexCard__subtitle {
+  color: var(--pw-text-muted, #5f6368);
+  overflow-wrap: anywhere;
+}
+
+.consultaKardexCard__metrics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  font-size: 0.875rem;
+}
+
+.consultaKardexList__loadMore {
+  display: flex;
+  justify-content: center;
+  padding-bottom: 1rem;
+}
+
+.consultaKardexList__items {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+}
+
+.consultaKardexList__item {
+  border-bottom: 1px solid var(--shell-border-color, #d9dee7);
+}
+
+.consultaKardexList__item:last-child {
+  border-bottom: none;
+}
+
+.consultaKardexList__empty {
+  margin: 0;
+  color: var(--pw-text-muted, #5f6368);
+}
+
+.stockMobilePage {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.stockMobilePage__header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.stockMobilePage__meta {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--pw-text-muted, #5f6368);
+}
+
+.stockMobilePage__filterRow {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.5rem;
+  width: 100%;
+  min-width: 0;
+}
+
+.stockMobilePage__filter {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.stockMobilePage__filter .dx-texteditor {
+  width: 100% !important;
+  max-width: 100%;
+}
+
+.stockMobilePage__refresh {
+  flex-shrink: 0;
+}
+
+.stockMobilePage__resultSummary {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--pw-text-muted, #5f6368);
+}
+
+.consultaKardexList .dx-list {
+  width: 100%;
+  max-width: 100%;
+}
+
+.stockMobilePage__error {
+  margin: 0;
+  color: var(--pw-danger, #b42318);
+}

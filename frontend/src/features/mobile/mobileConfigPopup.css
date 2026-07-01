@@ -1,0 +1,32 @@
+.mobileConfigPopup {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 0.25rem 0;
+}
+
+.mobileConfigPopup__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.mobileConfigPopup__label {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.mobileConfigPopup__message {
+  margin: 0;
+  font-size: 0.875rem;
+}
+
+.mobileConfigPopup__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+.mobileConfigButton {
+  min-width: 2.5rem;
+}

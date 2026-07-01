@@ -1,3 +1,5 @@
+import { isNativeApp } from '../../../shared/platform/isNativeApp';
+
 export const menuAppId = 'pedidosweb';
 
 export type MenuDisplayMode = 'allBranches' | 'operationalOnly';
@@ -37,9 +39,13 @@ export function readMenuPresentationState(userId: number): MenuPresentationState
   );
 
   return {
-    sidebarVisible: sidebarVisibleRaw === null ? true : sidebarVisibleRaw === 'true',
+    sidebarVisible:
+      sidebarVisibleRaw === null ? !isNativeApp() : sidebarVisibleRaw === 'true',
     menuTreeExpanded: menuTreeExpandedRaw === null ? true : menuTreeExpandedRaw === 'true',
-    menuDisplayMode: menuDisplayModeRaw === 'operationalOnly' ? 'operationalOnly' : 'allBranches',
+    menuDisplayMode:
+      menuDisplayModeRaw === 'operationalOnly' || (menuDisplayModeRaw === null && isNativeApp())
+        ? 'operationalOnly'
+        : 'allBranches',
   };
 }
 

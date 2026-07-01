@@ -531,6 +531,48 @@ export function fetchStock() {
   return fetchConsultaMapped<ApiStockItem, StockConsultaRow>('/consultas/stock', mapStockItem);
 }
 
+export type StockPageResult = ConsultaResult<StockConsultaRow> & {
+  page: number;
+  pageSize: number;
+  total: number;
+  totalPages: number;
+};
+
+export async function fetchStockPage(params: {
+  page?: number;
+  pageSize?: number;
+  q?: string;
+} = {}): Promise<StockPageResult> {
+  const searchParams = new URLSearchParams();
+
+  if (params.page !== undefined) {
+    searchParams.set('page', String(params.page));
+  }
+
+  if (params.pageSize !== undefined) {
+    searchParams.set('page_size', String(params.pageSize));
+  }
+
+  if (params.q) {
+    searchParams.set('q', params.q);
+  }
+
+  const queryString = searchParams.toString();
+  const path = queryString.length > 0 ? `/consultas/stock?${queryString}` : '/consultas/stock';
+  const response = await apiRequest<ConsultaPayload<ApiStockItem>>(path);
+  const payload = response.resultado;
+  const items = payload.items ?? [];
+
+  return {
+    items: items.map(mapStockItem),
+    meta: extractMeta(payload),
+    page: payload.page ?? 1,
+    pageSize: payload.page_size ?? items.length,
+    total: payload.total ?? items.length,
+    totalPages: payload.total_pages ?? 1,
+  };
+}
+
 export function fetchDeuda() {
   return fetchConsultaMapped<ApiDeudaItem, DeudaConsultaRow>('/consultas/deuda', mapDeudaItem);
 }

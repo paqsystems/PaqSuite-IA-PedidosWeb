@@ -204,3 +204,17 @@ Tareas técnicas (parte C) derivadas de **SPEC-001-01** y **SPEC-001-02**.
 | [TR-GEN-10-imagenes-asistente-ia](TR-GEN-10-imagenes-asistente-ia.md) | [HU-GEN-10-imagenes-asistente-ia](../../03-historias-usuario/001-Generaliddes/HU-GEN-10-imagenes-asistente-ia.md) | Should |
 
 **SPEC:** [SPEC-001-10-chat-asistente-ia.md](../../05-open-spec/001-Generaliddes/SPEC-001-10-chat-asistente-ia.md)
+
+## SPEC-001-11 — Mobile Capacitor
+
+**B1 (2026-06-30):** 4 HU enriquecidas — [F-GEN-11-cierre-b1](F-GEN-11-cierre-b1.md).  
+**C1 (2026-06-30):** 3 TR v1 — [F-GEN-11-cierre-c1](F-GEN-11-cierre-c1.md); **autorizada Parte D**.  
+**D1 + F (2026-06-30):** implementado — [F-GEN-11-cierre-formal](F-GEN-11-cierre-formal.md); verificación [D-VERIFICACION-101-17-mobile-v1](../101-PedidosWeb/D-VERIFICACION-101-17-mobile-v1.md).
+
+| TR | HU | Prioridad |
+|----|-----|-----------|
+| [TR-GEN-11-mobile-capacitor-scaffold](TR-GEN-11-mobile-capacitor-scaffold.md) | [HU-GEN-11-mobile-capacitor-scaffold](../../03-historias-usuario/001-Generaliddes/HU-GEN-11-mobile-capacitor-scaffold.md) | Must |
+| [TR-GEN-11-mobile-login-tenant](TR-GEN-11-mobile-login-tenant.md) | [HU-GEN-11-mobile-login-tenant](../../03-historias-usuario/001-Generaliddes/HU-GEN-11-mobile-login-tenant.md) + config-api | Must |
+| [TR-GEN-11-mobile-shell](TR-GEN-11-mobile-shell.md) | [HU-GEN-11-mobile-shell-exclusiones](../../03-historias-usuario/001-Generaliddes/HU-GEN-11-mobile-shell-exclusiones.md) | Must |
+
+**SPEC:** [SPEC-001-11-mobile-capacitor.md](../../05-open-spec/001-Generaliddes/SPEC-001-11-mobile-capacitor.md)

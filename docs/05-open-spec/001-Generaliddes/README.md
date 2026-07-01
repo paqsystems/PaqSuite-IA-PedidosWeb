@@ -14,6 +14,7 @@ Este bloque define las **especificaciones de configuración inicial** para Pedid
 | 001-07 | **C1 cerrado** (2026-06-16) | **No** en MVP portal | 4 HU + 4 TR; epic importar Excel posterior |
 | 001-08 | **D1 + F cerrado** (2026-06-11) | **No** en MVP portal | 4 HU + 4 TR implementadas; activación vía flags |
 | 001-10 | **C1 cerrado** (2026-06-21) | **No** en MVP portal | 5 HU + 5 TR; epic Chat Asistente IA posterior — [F-GEN-10-cierre-c1](../../04-tareas/001-Generaliddes/F-GEN-10-cierre-c1.md) |
+| 001-11 | **A1 + B1 + C1 cerrados** (2026-06-30) | **No** en MVP portal web | Mobile Capacitor — v1 `v1.2.0-mobile` — **autorizada Parte D** — [F-GEN-11-cierre-c1](../../04-tareas/001-Generaliddes/F-GEN-11-cierre-c1.md) |
 
 **Fuente de producto compartida:** `docs/02-producto/PedidosWeb/PedidosWeb_Definicion_Conceptual_Final_OpenSpec.md`
 
@@ -40,6 +41,7 @@ Este bloque define las **especificaciones de configuración inicial** para Pedid
 8. `SPEC-001-08-pivots.md` — D1 implementado (fuera MVP portal)
 9. `SPEC-001-09-tareas-programadas.md` — documental
 10. `SPEC-001-10-chat-asistente-ia.md`
+11. [`SPEC-001-11-mobile-capacitor.md`](SPEC-001-11-mobile-capacitor.md) — Capacitor MONO; release `v1.2.0-mobile`; login tenant-first
 
 ## Regla de alcance
 

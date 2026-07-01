@@ -4,11 +4,12 @@ import { useAuth } from '../../features/auth/AuthProvider';
 import { ForgotPasswordPage } from '../../features/auth/ForgotPasswordPage';
 import { LoginPage } from '../../features/auth/LoginPage';
 import { ResetPasswordPage } from '../../features/auth/ResetPasswordPage';
-import { authenticatedHomePath, protectedRouteElements } from './protectedRoutes';
-
+import { protectedRouteElements } from './protectedRoutes';
+import { getAuthenticatedHomePath } from '../../features/mobile/mobileNavigation';
 function LoginRoute() {
   const { t } = useTranslation();
   const { isAuthenticated, isBootstrapping, sessionContext, setSessionContext } = useAuth();
+  const homePath = getAuthenticatedHomePath();
 
   if (isBootstrapping) {
     return (
@@ -23,7 +24,7 @@ function LoginRoute() {
       return <Navigate to="/change-password" replace />;
     }
 
-    return <Navigate to={authenticatedHomePath} replace />;
+    return <Navigate to={homePath} replace />;
   }
 
   return (
@@ -38,6 +39,7 @@ function LoginRoute() {
 function RootRedirect() {
   const { t } = useTranslation();
   const { isAuthenticated, isBootstrapping, sessionContext } = useAuth();
+  const homePath = getAuthenticatedHomePath();
 
   if (isBootstrapping) {
     return (
@@ -55,7 +57,7 @@ function RootRedirect() {
     return <Navigate to="/change-password" replace />;
   }
 
-  return <Navigate to={authenticatedHomePath} replace />;
+  return <Navigate to={homePath} replace />;
 }
 
 export function AppRoutes() {

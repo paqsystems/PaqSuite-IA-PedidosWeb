@@ -5,6 +5,7 @@ Convención: **`HU-101-NNN-tema.md`** derivadas de [PedidosWeb_SPEC_MVP.md](../.
 **A1 (2026-06-01):** Cerrado en SPEC madre §14.  
 **B1 (2026-06-01):** 27 HU enriquecidas en esta carpeta.  
 **B1 (2026-06-17):** SPEC-101-16 — HU-101-029 y HU-101-030 **B1 cerrado** ([F-101-16-cierre-b1](../../04-tareas/101-PedidosWeb/F-101-16-cierre-b1.md)); estado **Especificado**.  
+**B1 (2026-06-30):** SPEC-101-17 — HU-101-031…036 **B1 cerrado** ([F-101-17-cierre-b1](../../04-tareas/101-PedidosWeb/F-101-17-cierre-b1.md)); estado **Especificado**.  
 **C (2026-06-17):** TR-16a y TR-16b generadas.  
 **C1 (2026-06-17):** Revisión C1 **Apto** — [F-101-16-cierre-c1](../../04-tareas/101-PedidosWeb/F-101-16-cierre-c1.md); listo **D1**.
 
@@ -43,6 +44,19 @@ Convención: **`HU-101-NNN-tema.md`** derivadas de [PedidosWeb_SPEC_MVP.md](../.
 | [HU-101-029](HU-101-029-proceso-excel-pedido-individual.md) | **Should** | 101-16 | Proceso Excel `PEDIDO_INDIVIDUAL` — **B1 cerrado** |
 | [HU-101-030](HU-101-030-importacion-excel-pantalla-carga.md) | **Should** | 101-16 | Import Excel en pantalla de carga — **B1 cerrado** |
 
+## SPEC-101-17 — Mobile Capacitor
+
+| HU | Release | TR v1 | Prioridad | Título |
+|----|---------|-------|-----------|--------|
+| [HU-101-031](HU-101-031-mobile-v1-scaffold.md) | `v1.2.0-mobile` | [TR-SPEC-101-17-mobile-v1-scaffold](../../04-tareas/101-PedidosWeb/TR-SPEC-101-17-mobile-v1-scaffold.md) | Must | Scaffold Capacitor PedidosWeb |
+| [HU-101-032](HU-101-032-mobile-login-tenant.md) | `v1.2.0-mobile` | [TR-SPEC-101-17-mobile-v1-login-tenant](../../04-tareas/101-PedidosWeb/TR-SPEC-101-17-mobile-v1-login-tenant.md) | Must | Login tenant + usuario + contraseña |
+| [HU-101-033](HU-101-033-mobile-consulta-stock-kardex.md) | `v1.2.0-mobile` | [TR-SPEC-101-17-mobile-v1-stock-kardex](../../04-tareas/101-PedidosWeb/TR-SPEC-101-17-mobile-v1-stock-kardex.md) | Must | Consulta stock kardex |
+| [HU-101-034](HU-101-034-mobile-v2-consultas-kardex.md) | `v1.2.1-mobile` | (pendiente) | Must | Consultas kardex (v2) |
+| [HU-101-035](HU-101-035-mobile-v2-listados-kardex.md) | `v1.2.1-mobile` | (pendiente) | Must | Listados kardex (v2) |
+| [HU-101-036](HU-101-036-mobile-v3-carga-pedidos.md) | `v1.2.2-mobile` | (pendiente) | Must | Carga pedidos UX mobile (v3) |
+
+**SPEC:** [SPEC-101-17-mobile-capacitor-pedidosweb.md](../../05-open-spec/101-PedidosWeb/SPEC-101-17-mobile-capacitor-pedidosweb.md) — **C1 v1 (2026-06-30):** [F-101-17-cierre-c1](../../04-tareas/101-PedidosWeb/F-101-17-cierre-c1.md). Transversal: [HU-GEN-11-*](../001-Generaliddes/README.md#spec-001-11--mobile-capacitor).
+
 ## Dependencias transversales
 
 - **GEN-01 / GEN-03:** shell, grillas, layouts, export Excel.
@@ -55,6 +69,10 @@ Convención: **`HU-101-NNN-tema.md`** derivadas de [PedidosWeb_SPEC_MVP.md](../.
 Parte **C (SPEC-101-16):** **cerrada** — [TR-16a](../../04-tareas/101-PedidosWeb/TR-SPEC-101-16-proceso-excel-pedido-individual.md), [TR-16b](../../04-tareas/101-PedidosWeb/TR-SPEC-101-16-importacion-excel-pantalla-carga.md).
 
 Parte **D1 (SPEC-101-16):** implementar TR en orden 16a → 16b ([F-101-16-cierre-c1](../../04-tareas/101-PedidosWeb/F-101-16-cierre-c1.md) — C1 **Apto**).
+
+Parte **C (SPEC-101-17 mobile v1):** **cerrada** — [F-101-17-cierre-c1](../../04-tareas/101-PedidosWeb/F-101-17-cierre-c1.md) — C1 **Apto**; listo **D1** v1.
+
+Parte **D1 (SPEC-101-17 mobile v1):** implementar TR en orden scaffold → login → stock kardex (coordinado con TR-GEN-11-*).
 
 Parte **C/D/F (MVP):** cerradas (2026-06-01 / 2026-06-03) — [TR por slice](../../04-tareas/101-PedidosWeb/README.md), [D-VERIFICACION-101](../../04-tareas/101-PedidosWeb/D-VERIFICACION-101.md), [F-101-PedidosWeb-cierre-formal](../../04-tareas/101-PedidosWeb/F-101-PedidosWeb-cierre-formal.md).
 

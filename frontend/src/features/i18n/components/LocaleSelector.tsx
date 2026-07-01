@@ -9,6 +9,7 @@ type LocaleSelectorProps = {
   onChange: (locale: string) => void;
   testId: string;
   disabled?: boolean;
+  compact?: boolean;
 };
 
 function localeFlagBackground(localeCode: SupportedLocale): string {
@@ -28,7 +29,7 @@ function localeFlagBackground(localeCode: SupportedLocale): string {
   }
 }
 
-export function LocaleSelector({ value, onChange, testId, disabled = false }: LocaleSelectorProps) {
+export function LocaleSelector({ value, onChange, testId, disabled = false, compact = false }: LocaleSelectorProps) {
   const { t } = useTranslation();
   const locales = supportedLocales.map((localeCode) => ({
     code: localeCode,
@@ -41,11 +42,11 @@ export function LocaleSelector({ value, onChange, testId, disabled = false }: Lo
 
   return (
     <div
-      className="localeSelector"
+      className={`localeSelector${compact ? ' localeSelector--compact' : ''}`}
       data-testid={testId}
       style={{ '--locale-flag-background': localeFlagBackground(normalizedValue) } as CSSProperties}
     >
-      <span className="localeSelector__label">{t('localeSelector.label')}</span>
+      {!compact && <span className="localeSelector__label">{t('localeSelector.label')}</span>}
       <SelectBox
         className="localeSelector__control"
         dataSource={locales}
@@ -53,7 +54,7 @@ export function LocaleSelector({ value, onChange, testId, disabled = false }: Lo
         displayExpr="label"
         value={normalizedValue}
         disabled={disabled}
-        width={180}
+        width={compact ? 132 : 180}
         stylingMode="outlined"
         inputAttr={{
           'aria-label': t('localeSelector.label'),

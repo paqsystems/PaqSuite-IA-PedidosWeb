@@ -41,9 +41,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
       setExpiredReasonKey(null);
     }
 
-    clearAuthSession();
-    setSessionContext(null);
-    setIsBootstrapping(false);
+    void clearAuthSession().finally(() => {
+      setSessionContext(null);
+      setIsBootstrapping(false);
+    });
   }, []);
 
   const clearExpiredReason = useCallback(() => {
