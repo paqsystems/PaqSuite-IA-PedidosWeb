@@ -7,7 +7,7 @@
 | **Épica** | 101 — PedidosWeb / Mobile |
 | **Prioridad** | Must (release `v1.2.2-mobile`) |
 | **Release** | `v1.2.2-mobile` |
-| **Estado** | **Especificado** |
+| **Estado** | **Implementado (F v3)** |
 | **B1** | Enriquecida (2026-06-30) |
 | **Dependencias** | HU-101-035; HU-101-004…010 (carga web); [SPEC-101-10](../../05-open-spec/101-PedidosWeb/SPEC-101-10-pantalla-carga.md) |
 
@@ -39,10 +39,10 @@ para **operar en campo sin la pantalla desktop de 1300+ líneas**.
 
 ## Criterios de aceptación
 
-- [ ] **CA-01:** Crear pedido nuevo mobile smoke E2E.
-- [ ] **CA-02:** Crear presupuesto mobile smoke.
-- [ ] **CA-03:** Perfiles C/V/S según reglas web.
-- [ ] **CA-04:** Tag release `v1.2.2-mobile`.
+- [x] **CA-01:** Crear pedido nuevo mobile smoke E2E.
+- [ ] **CA-02:** Crear presupuesto mobile smoke (pendiente formal).
+- [x] **CA-03:** Perfiles C/V/S según reglas web.
+- [ ] **CA-04:** Tag release `v1.2.2-mobile` (tras smoke iOS + físico).
 
 ## Veredicto B1
 

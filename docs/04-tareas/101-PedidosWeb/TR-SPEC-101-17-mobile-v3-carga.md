@@ -6,8 +6,10 @@
 | **SPEC** | [SPEC-101-17-mobile-capacitor-pedidosweb](../../05-open-spec/101-PedidosWeb/SPEC-101-17-mobile-capacitor-pedidosweb.md) |
 | **Release** | `v1.2.2-mobile` |
 | **Dependencias** | TR-SPEC-101-17-mobile-v2-*; SPEC-101-10; API `comprobanteApi` |
-| **Estado** | **D1 en curso** |
+| **Estado** | **F** |
 | **Última actualización** | 2026-07-01 |
+| **Cierre F** | [F-101-17-cierre-formal-v3](F-101-17-cierre-formal-v3.md) |
+| **Verificación F1** | [D-VERIFICACION-101-17-mobile-v3](D-VERIFICACION-101-17-mobile-v3.md) |
 
 ---
 
@@ -18,13 +20,13 @@ Pantalla mobile dedicada `/pedidos/carga` — **wizard por pasos** (no wrapper `
 | Paso | Contenido |
 |------|-----------|
 | 1 Cliente | `SelectBox` clientes (vendedor/supervisor); cliente fijo perfil `C` |
-| 2 Cabecera | Lista precios, condición venta, observaciones; vendedor/dirección solo lectura |
+| 2 Cabecera | `ComprobanteCabeceraForm` + leyendas pie + observaciones (reutiliza web; layout mobile) |
 | 3 Artículos | Tarjetas renglón; agregar con `SelectBox`; editar en `Popup` (reutiliza `PedidosCargaRenglonEditDialog`) |
 | 4 Confirmar | Totales; `Grabar pedido` / `Grabar presupuesto` / `Cancelar` |
 
 **Modos URL:** `modo=nuevo|ver|editar|copia|convertir` + `codComprobante` (igual web).
 
-**Acciones listados v3:** iconos en tarjeta kardex (ver / editar / copiar / eliminar / convertir según `puede*`); popup detalle solo lectura al tap en cuerpo de tarjeta.
+**Acciones listados v3:** iconos en tarjeta kardex (ver / editar / copiar / eliminar / convertir según `puede*`) con tooltip táctil; popup detalle solo lectura al tap en cuerpo de tarjeta.
 
 **Fuera de scope v3:**
 
@@ -41,7 +43,9 @@ Pantalla mobile dedicada `/pedidos/carga` — **wizard por pasos** (no wrapper `
 | `PedidosCargaMobilePage` | Wizard + orquestación |
 | `usePedidosCargaMobile` | Estado, API, grabación (subset desktop) |
 | `pedidosWebMobilePolicy` | Ruta `/pedidos/carga` en native |
-| `ComprobanteListadoMobileView` | Acciones comprobante en detalle |
+| `ComprobanteCardMobileActions` | Iconos + tooltips en tarjeta kardex |
+| `useComprobanteMobileRowActions` | Acciones por listado (ingresados, pendientes, presupuestos) |
+| `ComprobanteListadoMobileView` | Orquesta kardex + `renderCardActions` |
 | Reutilizados | `PedidosCargaRenglonEditDialog`, `PedidosCargaConfirmacionDialog`, `PedidosCargaErroresGrabacionDialog`, `PedidosCargaArticulosStockLoadPanel` |
 
 ---
@@ -75,9 +79,10 @@ Pantalla mobile dedicada `/pedidos/carga` — **wizard por pasos** (no wrapper `
 | Paso artículos | `carga-mobile-step-articulos` |
 | Paso confirmar | `carga-mobile-step-confirmar` |
 | Nav anterior/siguiente | `carga-mobile-btn-prev`, `carga-mobile-btn-next` |
+| Acciones tarjeta listado | `comprobante-card-actions`, `gridAction-{ver,editar,...}` |
 
 ---
 
 ## 6) Veredicto
 
-**C1:** Apto — pendiente cierre formal tras D2 smoke Android/iOS.
+**F:** Cerrado — [F-101-17-cierre-formal-v3](F-101-17-cierre-formal-v3.md). Tag `v1.2.2-mobile` pendiente smoke iOS y dispositivo físico.

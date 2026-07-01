@@ -350,6 +350,17 @@ Cierre F: [F-101-17-cierre-formal-v2](../../04-tareas/101-PedidosWeb/F-101-17-ci
 
 **Veredicto D2/F v2:** **Implementado** — smoke Android OK; tag `v1.2.1-mobile` tras smoke iOS. Siguiente: **v3** carga mobile (HU-101-036).
 
+## Parte D / F — cierre v3 (2026-07-01)
+
+| TR | HU | Estado |
+|----|-----|--------|
+| [TR-SPEC-101-17-mobile-v3-carga](../../04-tareas/101-PedidosWeb/TR-SPEC-101-17-mobile-v3-carga.md) | HU-101-036 | **Implementado (F)** |
+
+Verificación F1: [D-VERIFICACION-101-17-mobile-v3](../../04-tareas/101-PedidosWeb/D-VERIFICACION-101-17-mobile-v3.md).  
+Cierre F: [F-101-17-cierre-formal-v3](../../04-tareas/101-PedidosWeb/F-101-17-cierre-formal-v3.md).
+
+**Veredicto D2/F v3:** **Implementado** — smoke Android emulador OK (carga + listados acciones); tag `v1.2.2-mobile` tras smoke iOS y dispositivo físico.
+
 ## Referencias producto
 
 - `docs/02-producto/PedidosWeb/consulta-stock.md`
