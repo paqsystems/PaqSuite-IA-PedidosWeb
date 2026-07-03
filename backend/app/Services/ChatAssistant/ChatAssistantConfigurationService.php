@@ -240,7 +240,7 @@ final class ChatAssistantConfigurationService
 
     private function assertTableAvailable(): void
     {
-        if (! Schema::hasTable('pq_pedidosweb_asistente_ia_credenciales')) {
+        if (! Schema::hasTable('pq_asistente_ia_credenciales')) {
             throw new ChatAssistantConfigurationException(
                 ChatAssistantConfigurationErrorCodes::configurationUnavailable,
                 'chatAssistant.configurationUnavailable',
@@ -281,7 +281,7 @@ final class ChatAssistantConfigurationService
 
     private function findActiveProvider(string $providerId): ?PqPedidoswebAsistenteIaProveedor
     {
-        if (! Schema::hasTable('pq_pedidosweb_asistente_ia_proveedores')) {
+        if (! Schema::hasTable('pq_asistente_ia_proveedores')) {
             return null;
         }
 

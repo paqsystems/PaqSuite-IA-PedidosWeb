@@ -215,7 +215,7 @@ Campos:
 | Campo | Descripción |
 |---|---|
 | codigo | Código artículo |
-| descripcion | Descripción |
+| descripcion | Descripción (`varchar(60)`) |
 | bonificacion | Bonificación por defecto |
 | usa_esc | Usa escala |
 | base | Código base para presentaciones |
@@ -597,9 +597,9 @@ Opcional para dashboard de artículos CORE si no se trae desde ERP.
 | activo | bit | Activo |
 | observacion | varchar(255) null | Nota |
 
-### 7.7 pq_pedidosweb_asistente_ia_proveedores
+### 7.7 pq_asistente_ia_proveedores
 
-Tabla recomendada para mantener el catálogo funcional de proveedores LLM habilitables por el producto.
+Tabla transversal PaqSuite (antes `pq_pedidosweb_asistente_ia_proveedores`) para el catálogo funcional de proveedores LLM habilitables por el producto.
 
 Objetivo:
 
@@ -633,9 +633,9 @@ Seed inicial recomendado:
 - `groq`
 - `mistral`
 
-### 7.8 pq_pedidosweb_asistente_ia_credenciales
+### 7.8 pq_asistente_ia_credenciales
 
-Tabla recomendada para persistir, de forma separada de `users`, la configuración sensible del asistente IA por usuario.
+Tabla transversal PaqSuite (antes `pq_pedidosweb_asistente_ia_credenciales`) para persistir, de forma separada de `users`, la configuración sensible del asistente IA por usuario.
 
 Objetivo:
 
@@ -660,7 +660,7 @@ Objetivo:
 Reglas iniciales recomendadas:
 
 - una configuración activa por usuario en la primera versión;
-- referencia a un `providerId` existente en `pq_pedidosweb_asistente_ia_proveedores`;
+- referencia a un `providerId` existente en `pq_asistente_ia_proveedores`;
 - la credencial no se guarda nunca en texto plano;
 - el backend cifra antes de persistir;
 - el backend descifra solo al momento de invocar al proveedor;

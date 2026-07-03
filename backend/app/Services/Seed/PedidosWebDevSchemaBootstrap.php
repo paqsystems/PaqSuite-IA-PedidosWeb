@@ -226,7 +226,7 @@ SQL);
         $this->createIfMissing('pq_pedidosweb_articulos', <<<'SQL'
 CREATE TABLE pq_pedidosweb_articulos (
     codigo nvarchar(50) NOT NULL PRIMARY KEY,
-    descripcion nvarchar(255) NULL,
+    descripcion varchar(60) NULL,
     bonificacion decimal(18,4) NULL,
     usa_esc bit NOT NULL CONSTRAINT DF_pw_art_esc DEFAULT (0),
     base nvarchar(50) NULL,

@@ -61,7 +61,7 @@ final class ChatAssistantConfigurationTest extends TestCase
             ->assertOk()
             ->assertJsonPath('respuesta', 'chatAssistant.configurationDeleted');
 
-        $this->assertDatabaseMissing('pq_pedidosweb_asistente_ia_credenciales', [
+        $this->assertDatabaseMissing('pq_asistente_ia_credenciales', [
             'id_credencial' => $credentialId,
             'user_id' => $user->id,
         ]);

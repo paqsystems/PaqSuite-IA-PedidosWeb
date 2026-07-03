@@ -161,9 +161,17 @@ Ejecutar en el **cliente SQL** conectado a RDS (SSMS, Azure Data Studio, DBeaver
 
 Ejecutar el script SQL de creación + seed de proveedores documentado en conversación operativa, o las migraciones:
 
-- `2026_06_21_100000_create_pq_pedidosweb_asistente_ia_proveedores_table`
-- `2026_06_21_110000_create_pq_pedidosweb_asistente_ia_credenciales_table`
+- `2026_06_21_100000_create_pq_pedidosweb_asistente_ia_proveedores_table` → crea `pq_asistente_ia_proveedores`
+- `2026_06_21_110000_create_pq_pedidosweb_asistente_ia_credenciales_table` → crea `pq_asistente_ia_credenciales`
 - `2026_06_22_100000_extend_chat_assistant_credentials_for_multiple`
+- `2026_07_03_100001_rename_pq_asistente_ia_tables_transversal` (solo tenants con nombres legacy)
+
+SQL manual alternativo: `backend/scripts/sql/rename-pq-asistente-ia-tables-transversal.sql`
+
+### Artículos ERP (`pq_pedidosweb_articulos`)
+
+- `2026_07_03_100000_alter_pq_pedidosweb_articulos_descripcion_varchar60` — `descripcion` VARCHAR(60)
+- SQL manual: `backend/scripts/sql/alter-pq-pedidosweb-articulos-descripcion-varchar60.sql`
 
 ### Tablas que crea cada bloque
 
@@ -253,7 +261,7 @@ WHERE id_proceso = (SELECT id FROM pq_excel_procesos WHERE codigo_proceso = 'PED
 -- Esperado: 23 campos
 
 -- Chat IA
-SELECT COUNT(*) AS proveedores FROM pq_pedidosweb_asistente_ia_proveedores;
+SELECT COUNT(*) AS proveedores FROM pq_asistente_ia_proveedores;
 -- Esperado: 8 proveedores activos en catálogo
 ```
 
@@ -265,7 +273,7 @@ SELECT COUNT(*) AS proveedores FROM pq_pedidosweb_asistente_ia_proveedores;
 
 1. En DevTools → Network → filtrar **XHR/Fetch** por `chat-assistant`.
 2. Las requests deben ir a **`backankas.on-forge.com/api/v1/...`**, no a `vercel.app`.
-3. Si falta tabla `pq_pedidosweb_asistente_ia_credenciales` → 503 → aplicar migraciones o SQL del chat.
+3. Si falta tabla `pq_asistente_ia_credenciales` → 503 → aplicar migraciones o SQL del chat.
 4. Cargar catálogo de proveedores (seed o SQL).
 
 ### Requests que muestran `vercel.app` y tipo `html`

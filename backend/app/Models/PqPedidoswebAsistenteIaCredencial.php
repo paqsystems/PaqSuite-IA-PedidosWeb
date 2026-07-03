@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 final class PqPedidoswebAsistenteIaCredencial extends Model
 {
-    protected $table = 'pq_pedidosweb_asistente_ia_credenciales';
+    protected $table = 'pq_asistente_ia_credenciales';
 
     protected $primaryKey = 'id_credencial';
 

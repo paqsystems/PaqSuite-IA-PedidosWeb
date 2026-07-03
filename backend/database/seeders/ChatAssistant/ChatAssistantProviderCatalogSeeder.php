@@ -138,12 +138,12 @@ final class ChatAssistantProviderCatalogSeeder extends Seeder
 
     public function run(): void
     {
-        if (! Schema::hasTable('pq_pedidosweb_asistente_ia_proveedores')) {
+        if (! Schema::hasTable('pq_asistente_ia_proveedores')) {
             return;
         }
 
         foreach (self::catalogRows() as $row) {
-            DB::table('pq_pedidosweb_asistente_ia_proveedores')->updateOrInsert(
+            DB::table('pq_asistente_ia_proveedores')->updateOrInsert(
                 ['provider_id' => $row['provider_id']],
                 [
                     'nombre_visible' => $row['nombre_visible'],

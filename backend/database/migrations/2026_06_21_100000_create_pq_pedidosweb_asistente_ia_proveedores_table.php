@@ -23,12 +23,12 @@ return new class extends Migration
 
     private function upSqlServer(): void
     {
-        if (Schema::hasTable('pq_pedidosweb_asistente_ia_proveedores')) {
+        if (Schema::hasTable('pq_asistente_ia_proveedores')) {
             return;
         }
 
         DB::statement(<<<'SQL'
-CREATE TABLE [pq_pedidosweb_asistente_ia_proveedores] (
+CREATE TABLE [pq_asistente_ia_proveedores] (
     [id_proveedor] INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
     [provider_id] NVARCHAR(50) NOT NULL,
     [nombre_visible] NVARCHAR(80) NOT NULL,
@@ -43,18 +43,18 @@ CREATE TABLE [pq_pedidosweb_asistente_ia_proveedores] (
 );
 SQL);
         DB::statement(<<<'SQL'
-CREATE UNIQUE INDEX [UX_pq_pedidosweb_asistente_ia_proveedores_provider_id]
-    ON [pq_pedidosweb_asistente_ia_proveedores] ([provider_id]);
+CREATE UNIQUE INDEX [UX_pq_asistente_ia_proveedores_provider_id]
+    ON [pq_asistente_ia_proveedores] ([provider_id]);
 SQL);
     }
 
     private function upGeneric(): void
     {
-        if (Schema::hasTable('pq_pedidosweb_asistente_ia_proveedores')) {
+        if (Schema::hasTable('pq_asistente_ia_proveedores')) {
             return;
         }
 
-        Schema::create('pq_pedidosweb_asistente_ia_proveedores', function (Blueprint $table): void {
+        Schema::create('pq_asistente_ia_proveedores', function (Blueprint $table): void {
             $table->id('id_proveedor');
             $table->string('provider_id', 50)->unique();
             $table->string('nombre_visible', 80);
@@ -71,6 +71,6 @@ SQL);
 
     public function down(): void
     {
-        Schema::dropIfExists('pq_pedidosweb_asistente_ia_proveedores');
+        Schema::dropIfExists('pq_asistente_ia_proveedores');
     }
 };
