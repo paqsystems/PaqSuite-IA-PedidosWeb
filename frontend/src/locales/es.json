@@ -646,6 +646,8 @@
   "pedidos.carga.erroresGrabacionCerrar": "Entendido",
   "pedidos.carga.erroresGrabacionIntro": "Corrija los siguientes puntos antes de volver a grabar:",
   "pedidos.carga.erroresGrabacionTitulo": "No se pudo grabar",
+  "pedidos.carga.erroresCopiaTitulo": "No se pudo copiar el comprobante",
+  "pedidos.carga.erroresCopiaIntro": "La copia no pudo completarse por el siguiente motivo:",
   "pedidos.carga.excelImport.importNoChanges": "La importacion no modifico el comprobante.",
   "pedidos.carga.excelImport.importSuccess": "Planilla importada correctamente.",
   "pedidos.carga.excelImport.toolbarHint": "Importe una planilla Excel para precargar cabecera y renglones.",
@@ -868,5 +870,11 @@
   "business.validationFailed": "Revise los errores indicados antes de grabar.",
   "business.vendedorInvalido": "El vendedor no es válido.",
   "business.vendedorRequerido": "Debe indicar un vendedor.",
+  "business.invalidMotivoCierre": "No hay un motivo de cierre válido configurado para presupuestos. Contacte al administrador.",
+  "business.presupuestoOrigenInvalido": "El presupuesto de origen no existe o ya no está activo.",
+  "business.pedidoOrigenInvalido": "El pedido de origen no existe o no está en estado ingresado.",
+  "business.modificacionDeshabilitada": "La modificación de comprobantes está deshabilitada en este entorno.",
+  "business.notFound": "El comprobante solicitado no existe o no está disponible.",
+  "business.estadoNoEditable": "El comprobante no se puede editar en su estado actual.",
   "validation.failed": "Revise los datos ingresados."
 }

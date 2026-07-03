@@ -7,13 +7,22 @@ use Illuminate\Support\Facades\Schema;
 
 final class PedidosWebSchemaBootstrap
 {
+    private static bool $mvpSchemaEnsured = false;
+
     public function ensureMvpSchema(): void
     {
+        if (self::$mvpSchemaEnsured) {
+            return;
+        }
+
         $this->ensureCabeceraColumns();
+        $this->ensureDetalleColumns();
         $this->ensureClienteColumns();
         $this->ensureMvpTables();
         $this->ensureMotivosCierreSeed();
         $this->ensureArticulosFeatureFixtures();
+
+        self::$mvpSchemaEnsured = true;
     }
 
     /**
@@ -168,6 +177,32 @@ final class PedidosWebSchemaBootstrap
         );
     }
 
+    private function ensureDetalleColumns(): void
+    {
+        $table = 'pq_pedidosweb_pedidosdetalle';
+
+        if (! Schema::hasTable($table)) {
+            return;
+        }
+
+        $columns = [
+            'descripcion_articulo' => 'nvarchar(100) NULL',
+            'porc_bonif' => 'decimal(18, 4) NULL',
+            'precio_neto' => 'decimal(18, 4) NULL',
+            'precio_bruto' => 'decimal(18, 4) NULL',
+            'iva' => 'decimal(18, 2) NULL',
+            'importe_lista' => 'decimal(18, 2) NULL',
+            'importe_neto' => 'decimal(18, 2) NULL',
+            'importe_total' => 'decimal(18, 2) NULL',
+            'descuento_origen' => 'nvarchar(20) NULL',
+            'precio_origen' => 'nvarchar(20) NULL',
+        ];
+
+        foreach ($columns as $column => $definition) {
+            $this->addColumnIfMissing($table, $column, $definition);
+        }
+    }
+
     private function ensureCabeceraColumns(): void
     {
         $table = 'pq_pedidosweb_pedidoscabecera';
@@ -206,8 +241,7 @@ final class PedidosWebSchemaBootstrap
 
     private function ensureMvpTables(): void
     {
-        if (! Schema::hasTable('pq_pedidosweb_motivos_cierre')) {
-            DB::statement(<<<'SQL'
+        $this->createTableIfMissing('pq_pedidosweb_motivos_cierre', <<<'SQL'
 CREATE TABLE pq_pedidosweb_motivos_cierre (
     id_motivo int IDENTITY(1,1) NOT NULL PRIMARY KEY,
     tipo_cierre varchar(20) NOT NULL,
@@ -215,10 +249,8 @@ CREATE TABLE pq_pedidosweb_motivos_cierre (
     activo bit NOT NULL CONSTRAINT DF_pq_pw_motivos_cierre_activo DEFAULT (1)
 )
 SQL);
-        }
 
-        if (! Schema::hasTable('pq_pedidosweb_logs_integracion')) {
-            DB::statement(<<<'SQL'
+        $this->createTableIfMissing('pq_pedidosweb_logs_integracion', <<<'SQL'
 CREATE TABLE pq_pedidosweb_logs_integracion (
     id_log bigint IDENTITY(1,1) NOT NULL PRIMARY KEY,
     fecha datetime NOT NULL,
@@ -230,20 +262,16 @@ CREATE TABLE pq_pedidosweb_logs_integracion (
     procesado bit NOT NULL CONSTRAINT DF_pq_pw_logs_integracion_procesado DEFAULT (0)
 )
 SQL);
-        }
 
-        if (! Schema::hasTable('pq_pedidosweb_tratativas_resultados')) {
-            DB::statement(<<<'SQL'
+        $this->createTableIfMissing('pq_pedidosweb_tratativas_resultados', <<<'SQL'
 CREATE TABLE pq_pedidosweb_tratativas_resultados (
     id_resultado int IDENTITY(1,1) NOT NULL PRIMARY KEY,
     descripcion varchar(80) NOT NULL,
     activo bit NOT NULL CONSTRAINT DF_pq_pw_trat_resultados_activo DEFAULT (1)
 )
 SQL);
-        }
 
-        if (! Schema::hasTable('pq_pedidosweb_tratativas')) {
-            DB::statement(<<<'SQL'
+        $this->createTableIfMissing('pq_pedidosweb_tratativas', <<<'SQL'
 CREATE TABLE pq_pedidosweb_tratativas (
     id_tratativa bigint IDENTITY(1,1) NOT NULL PRIMARY KEY,
     cod_pedido nvarchar(50) NOT NULL,
@@ -257,10 +285,8 @@ CREATE TABLE pq_pedidosweb_tratativas (
     updated_at datetime NULL
 )
 SQL);
-        }
 
-        if (! Schema::hasTable('pq_pedidosweb_presupuestos_cierres')) {
-            DB::statement(<<<'SQL'
+        $this->createTableIfMissing('pq_pedidosweb_presupuestos_cierres', <<<'SQL'
 CREATE TABLE pq_pedidosweb_presupuestos_cierres (
     id_cierre bigint IDENTITY(1,1) NOT NULL PRIMARY KEY,
     cod_presupuesto nvarchar(50) NOT NULL,
@@ -272,7 +298,15 @@ CREATE TABLE pq_pedidosweb_presupuestos_cierres (
     observacion nvarchar(max) NULL
 )
 SQL);
+    }
+
+    private function createTableIfMissing(string $tableName, string $createSql): void
+    {
+        if (Schema::hasTable($tableName)) {
+            return;
         }
+
+        DB::statement("IF OBJECT_ID(N'{$tableName}', N'U') IS NULL BEGIN {$createSql} END");
     }
 
     private function ensureMotivosCierreSeed(): void

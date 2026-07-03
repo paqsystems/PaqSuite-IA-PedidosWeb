@@ -3,6 +3,8 @@
   "parametros.pedidosWeb.ArticulosPrecioCero.tooltip": "Si activé, le portail autorise le chargement de lignes dont le prix dans la liste sélectionnée est zéro. Si désactivé, le système rejette ou avertit selon les validations de saisie.",
   "parametros.pedidosWeb.ArticulosSinPrecio.caption": "Autoriser les articles sans prix en liste",
   "parametros.pedidosWeb.ArticulosSinPrecio.tooltip": "Si activé, autorise le chargement d'articles sans prix défini dans la liste de prix active. Si désactivé, la saisie exige un prix valide en liste.",
+  "parametros.pedidosWeb.ActualizarPrecioCopia.caption": "Mettre à jour les prix lors de la copie",
+  "parametros.pedidosWeb.ActualizarPrecioCopia.tooltip": "Si activé, la copie d'une commande ou d'un devis résout les prix des lignes depuis la liste de prix active du document source. Si désactivé, les prix du détail source sont conservés et validés selon les paramètres d'articles à prix zéro ou sans prix.",
   "parametros.pedidosWeb.CargaRecurrente.caption": "Saisie récurrente après enregistrement",
   "parametros.pedidosWeb.CargaRecurrente.tooltip": "Définit le comportement après enregistrement d'une commande ou d'un devis : si activé, le flux revient à une nouvelle saisie ; si désactivé, retour à la liste ou à l'écran précédent selon l'implémentation du portail.",
   "parametros.pedidosWeb.ClienteLeyenda1.caption": "Initialiser légende 1 depuis le client",

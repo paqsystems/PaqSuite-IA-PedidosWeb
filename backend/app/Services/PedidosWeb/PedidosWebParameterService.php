@@ -36,6 +36,11 @@ final class PedidosWebParameterService
         return $this->getBool('CargaRecurrente', true);
     }
 
+    public function getActualizarPrecioCopia(): bool
+    {
+        return $this->getBool('ActualizarPrecioCopia', false);
+    }
+
     public function getDetallePorMail(): bool
     {
         return $this->getBool('DetallePorMail', true);
@@ -106,14 +111,12 @@ final class PedidosWebParameterService
 
     public function getArticuloPrecioCero(): bool
     {
-        return $this->getBool('ArticulosPrecioCero', false)
-            || $this->getBool('Articulopreciocero', false);
+        return $this->getBoolConAliasCanonico('ArticulosPrecioCero', 'Articulopreciocero', false);
     }
 
     public function getArticulosSinPrecio(): bool
     {
-        return $this->getBool('ArticulosSinPrecio', false)
-            || $this->getBool('Articulossinprecio', false);
+        return $this->getBoolConAliasCanonico('ArticulosSinPrecio', 'Articulossinprecio', false);
     }
 
     /**
@@ -188,6 +191,28 @@ final class PedidosWebParameterService
             return $this->boolFromConfigDefault($key, $defaultValue);
         }
 
+        return $this->boolFromRow($row, $defaultValue);
+    }
+
+    private function getBoolConAliasCanonico(string $canonicalKey, string $legacyKey, bool $defaultValue): bool
+    {
+        if ($this->canReadFromErp()) {
+            $index = $this->parametrosIndexados();
+
+            if (isset($index[$canonicalKey])) {
+                return $this->boolFromRow($index[$canonicalKey], $defaultValue);
+            }
+
+            if (isset($index[$legacyKey])) {
+                return $this->boolFromRow($index[$legacyKey], $defaultValue);
+            }
+        }
+
+        return $this->boolFromConfigDefault($canonicalKey, $defaultValue);
+    }
+
+    private function boolFromRow(PqParametrosGral $row, bool $defaultValue): bool
+    {
         $tipoValor = ParametrosGralTipoValor::fromRow($row);
 
         return match ($tipoValor) {

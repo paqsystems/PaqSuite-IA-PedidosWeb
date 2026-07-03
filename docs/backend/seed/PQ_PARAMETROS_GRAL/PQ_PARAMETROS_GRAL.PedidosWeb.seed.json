@@ -27,6 +27,19 @@
   },
   {
     "programa": "PedidosWeb",
+    "clave": "ActualizarPrecioCopia",
+    "caption": "Actualizar precios al copiar comprobante",
+    "tooltip": "Si está activo, al copiar un pedido o presupuesto los precios de los renglones se resuelven desde la lista de precios vigente del comprobante origen. Si está inactivo, se conservan los precios del detalle origen, validando según los parámetros de artículos con precio cero o sin precio.",
+    "tipoValor": "B",
+    "valorString": null,
+    "valorText": null,
+    "valorInt": null,
+    "valorDateTime": null,
+    "valorBool": false,
+    "valorDecimal": null
+  },
+  {
+    "programa": "PedidosWeb",
     "clave": "CargaRecurrente",
     "caption": "Carga recurrente post grabación",
     "tooltip": "Define el comportamiento tras grabar un pedido o presupuesto: si está activo, el flujo vuelve a una nueva carga; si está inactivo, regresa al listado o pantalla anterior según la implementación del portal.",

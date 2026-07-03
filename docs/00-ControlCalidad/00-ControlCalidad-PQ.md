@@ -46,6 +46,7 @@ Este archivo **no sustituye** SPEC, HU ni TR: es la **entrada** del circuito de 
 
 | # | Fecha | Estado | Resumen |
 |---|-------|--------|---------|
+| 9 | 02/07/2026 | Finalizado (Parte I 02/07/2026) | `ActualizarPrecioCopia` al copiar — D+E+F+I OK; copia paramétrica + modal error |
 | 8 | 19/06/2026 | Finalizado (Parte I) | Precarga artículos al ingresar, refresh catálogo, vendedor cliente al importar Excel |
 | 7 | 15/06/2026 | Finalizado (Parte I) | i18n parámetros/pivot, perfil CodPerfilPedidos, validaciones grabación, layout carga |
 | 6 | 17/06/2026 | Finalizado (Parte I) | Listbox artículos: disponible base = SUM por `base` (no stock código base); alineado consulta stock §5 |
@@ -54,6 +55,85 @@ Este archivo **no sustituye** SPEC, HU ni TR: es la **entrada** del circuito de 
 | 1 | 04/06/2026 | Finalizado (Parte I) | 10 familias HU — CC PQ; updates unificados 09/06/2026 |
 | 2 | 05/06/2026 | Finalizado (Parte I) | GEN-03 layouts/export Excel formateado — CC PQ #2; unificado 09/06/2026 |
 | 3 | 09/06/2026 | Finalizado (Parte I) | Cartel cargando, layouts totales, performance carga, parámetros — unificado 09/06/2026 |
+
+---
+
+## Control de Calidad #9
+
+### Referencia del control
+
+| Campo | Valor |
+|-------|--------|
+| **Fecha** | 02/07/2026 |
+| **Responsable** | Pablo Quarracino (PQ) |
+| **Estado** | Finalizado (Parte I 02/07/2026) |
+| **Entorno probado** | Local — Ankas_del_sur; PHPUnit + Vitest CC #9; **QA manual PQ** (modal copia rechazada) |
+| **Build / rama** | `v1.1.0-paq` working tree @ `29d2ce3` + fixes sesión F |
+
+### Hallazgos
+
+Al **copiar** un presupuesto o pedido (ingresado o pendiente) para generar un comprobante nuevo, el portal debe poder **conservar los precios del origen** o **actualizarlos según la lista de precios vigente**, según un parámetro general configurable en el ERP.
+
+**Comportamiento vigente a corregir:** `ComprobanteCopiaService::copiarBorrador` precarga siempre `precio` y demás importes del detalle del comprobante origen (`POST /api/v1/comprobantes/copiar` → pantalla carga modo copia). No existe parámetro `ActualizarPrecioCopia` ni recálculo desde `pq_pedidosweb_listaprecios_articulos`.
+
+**Orígenes de copia en alcance:** pedidos ingresados (estado 0), pedidos pendientes (estado 1) y presupuestos activos (estado 99) — acción **Copiar** en consultas / `HU-101-026`.
+
+### Errores encontrados - Mejoras solicitadas
+
+#### HU-GEN-04-consulta-parametros · SPEC-001-04-configuracion-global
+
+Incorporar nuevo parámetro general **`ActualizarPrecioCopia`** en `PQ_parametros_gral` (programa `PedidosWeb`):
+
+| Campo | Valor |
+|-------|--------|
+| **Clave** | `ActualizarPrecioCopia` |
+| **Tipo** | `B` (booleano) |
+| **Default sugerido** | `false` — conservar precios del comprobante origen |
+| **Administración** | ERP / herramientas internas (sin ABM web en MVP; alineado SPEC-001-04) |
+
+**Semántica:**
+
+- `false`: al copiar, conservar precios e importes del comprobante origen.
+- `true`: al copiar, actualizar precios según la **lista de precios** de la cabecera copiada, leyendo `pq_pedidosweb_listaprecios_articulos`, y recalcular todos los importes del detalle (precio neto, IVA, totales).
+
+Documentar en producto §10.6, seed `PQ_PARAMETROS_GRAL.PedidosWeb.seed.json` y `consulta-parametros.md`.
+
+*Procesado* → [SPEC-001-04-configuracion-global](../05-open-spec/001-Generaliddes/SPEC-001-04-configuracion-global.md) · [HU-GEN-04-consulta-parametros](../03-historias-usuario/001-Generaliddes/HU-GEN-04-consulta-parametros.md) · [TR-GEN-04-consulta-parametros](../04-tareas/001-Generaliddes/TR-GEN-04-consulta-parametros.md) — Parte G + **C1** 02/07/2026 · **Parte F** 02/07/2026 · **Parte I** 02/07/2026
+
+#### HU-101-026-copiar-comprobante
+
+Al ejecutar **Copiar** (`POST /api/v1/comprobantes/copiar` → borrador en pantalla de carga):
+
+a) Leer parámetro **`ActualizarPrecioCopia`** en runtime (vía `PedidosWebParameterService` / `PQ_parametros_gral`).
+
+b) Si **`ActualizarPrecioCopia = false`**: mantener precios del detalle origen; **validar** contra parámetros ERP **vigentes** (`Articulopreciocero`, `Articulossinprecio`). Si no se admiten precios cero y el origen tiene renglones con `precio ≤ 0` → **rechazar la copia** (los parámetros pueden haber cambiado desde el pedido original).
+
+c) Si **`ActualizarPrecioCopia = true`**:
+
+- Para cada renglón copiado, obtener precio desde `pq_pedidosweb_listaprecios_articulos` usando `lista_precios` de la cabecera y `cod_articulo` del renglón.
+- Si falta precio en lista o es cero: respetar `Articulopreciocero` y `Articulossinprecio` — si **no** se admiten → **rechazar la copia** (informar al usuario; no abrir carga).
+- Recalcular importes con la misma lógica de `CalculoTotalesService` (bonificación cabecera, IVA, neto, total por renglón).
+
+d) Aplica a copia desde **pedidos ingresados**, **pedidos pendientes** y **presupuestos activos**; no altera conversión presupuesto→pedido ni edición directa de comprobantes.
+
+e) Tras precargar el borrador, el usuario puede seguir editando antes de grabar (`POST /api/v1/comprobantes/grabar`).
+
+*Procesado* → [SPEC-101-04-services-pedidos](../05-open-spec/101-PedidosWeb/SPEC-101-04-services-pedidos.md) · [HU-101-026-copiar-comprobante](../03-historias-usuario/101-PedidosWeb/HU-101-026-copiar-comprobante.md) · [TR-SPEC-101-04-services-pedidos](../04-tareas/101-PedidosWeb/TR-SPEC-101-04-services-pedidos.md) — Parte G + **C1** 02/07/2026 · **Parte F** [F-CC-PQ-9-cierre-formal](../04-tareas/101-PedidosWeb/F-CC-PQ-9-cierre-formal.md) 02/07/2026 · **Parte I** [I-CC-PQ-9-cierre-formal](../04-tareas/101-PedidosWeb/I-CC-PQ-9-cierre-formal.md) 02/07/2026
+
+### Verificación Parte F (02/07/2026)
+
+| Parte | Documento | Veredicto |
+|-------|-----------|-----------|
+| E | [E-CC-PQ-9-tests](../04-tareas/101-PedidosWeb/E-CC-PQ-9-tests.md) | Aprobado — 20 PHPUnit + 3 Vitest |
+| F | [F-CC-PQ-9-cierre-formal](../04-tareas/101-PedidosWeb/F-CC-PQ-9-cierre-formal.md) | **Aprobado** (QA manual PQ: modal copia rechazada, validación precios lista) |
+
+**Fixes sesión F (post-D):** validación granular `ArticulosPrecioCero` / `ArticulosSinPrecio` en rama lista; preferencia claves canónicas ERP; modal error copia (web + mobile); INSERT parámetro en tenant dev.
+
+### Verificación Parte I (02/07/2026)
+
+| Parte | Documento | Veredicto |
+|-------|-----------|-----------|
+| I | [I-CC-PQ-9-cierre-formal](../04-tareas/101-PedidosWeb/I-CC-PQ-9-cierre-formal.md) | **Aprobado** — updates unificados en SPEC/HU/TR base; manual §6.9; archivos `*-update` eliminados |
 
 ---
 

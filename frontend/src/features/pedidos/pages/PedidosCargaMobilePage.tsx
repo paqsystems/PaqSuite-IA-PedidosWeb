@@ -298,9 +298,22 @@ export function PedidosCargaMobilePage() {
       <PedidosCargaErroresGrabacionDialog
         visible={carga.erroresGrabacionVisible}
         messages={carga.erroresGrabacionMessages}
-        onClose={() => {
-          carga.setErroresGrabacionVisible(false);
-        }}
+        titleKey={
+          carga.erroresDialogContext === 'copia'
+            ? 'pedidos.carga.erroresCopiaTitulo'
+            : 'pedidos.carga.erroresGrabacionTitulo'
+        }
+        introKey={
+          carga.erroresDialogContext === 'copia'
+            ? 'pedidos.carga.erroresCopiaIntro'
+            : 'pedidos.carga.erroresGrabacionIntro'
+        }
+        testId={
+          carga.erroresDialogContext === 'copia'
+            ? 'dialog-errores-copia'
+            : 'dialog-errores-grabacion'
+        }
+        onClose={carga.handleErroresDialogClose}
       />
     </section>
   );

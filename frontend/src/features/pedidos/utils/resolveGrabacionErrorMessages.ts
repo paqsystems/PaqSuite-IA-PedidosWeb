@@ -29,6 +29,21 @@ export function resolveGrabacionErrorMessages(error: unknown, t: TFunction): str
     if (error.respuestaKey && error.respuestaKey !== 'request.failed') {
       return [translateGrabacionErrorKey(error.respuestaKey, t)];
     }
+
+    if (typeof resultado === 'string' && resultado.trim() !== '') {
+      return [resultado];
+    }
+
+    if (resultado && typeof resultado === 'object' && 'message' in resultado) {
+      const message = (resultado as { message?: unknown }).message;
+      if (typeof message === 'string' && message.trim() !== '') {
+        return [message];
+      }
+    }
+  }
+
+  if (error instanceof Error && error.message.trim() !== '' && error.message !== 'request.failed') {
+    return [error.message];
   }
 
   return [];
@@ -39,6 +54,13 @@ function translateGrabacionErrorKey(key: string, t: TFunction): string {
 
   if (translated !== '' && translated !== key) {
     return translated;
+  }
+
+  if (key.startsWith('business.')) {
+    return key
+      .slice('business.'.length)
+      .replace(/([A-Z])/g, ' $1')
+      .replace(/^./, (char) => char.toUpperCase());
   }
 
   return key;

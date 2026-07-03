@@ -206,6 +206,38 @@ export async function fetchComprobante(comprobanteId: string): Promise<Comproban
   throw new Error('comprobante.notFound');
 }
 
+export async function copiarComprobante(
+  codComprobanteOrigen: string,
+  tipoDestino: 'pedido' | 'presupuesto',
+): Promise<{
+  cabecera: ComprobanteCabecera;
+  renglones: ComprobanteRenglon[];
+  codComprobanteOrigen: string;
+  tipoComprobante: 'pedido' | 'presupuesto';
+}> {
+  const response = await apiRequest<{
+    borrador: {
+      cabecera: Record<string, unknown>;
+      renglones: ApiComprobanteDetalleRow[];
+      tipoComprobante: 'pedido' | 'presupuesto';
+      codComprobanteOrigen: string;
+    };
+  }>('/comprobantes/copiar', {
+    method: 'POST',
+    body: JSON.stringify({ codComprobanteOrigen, tipoDestino }),
+  });
+
+  const { borrador } = response.resultado;
+  const codCliente = String(borrador.cabecera.cod_cliente ?? '');
+
+  return {
+    cabecera: mapCabeceraFromApi(borrador.cabecera, codCliente),
+    renglones: borrador.renglones.map(mapRenglonFromApi),
+    codComprobanteOrigen: borrador.codComprobanteOrigen,
+    tipoComprobante: borrador.tipoComprobante,
+  };
+}
+
 export async function grabarComprobante(
   payload: GrabarComprobantePayload,
 ): Promise<{ resultado: GrabarComprobanteResult }> {

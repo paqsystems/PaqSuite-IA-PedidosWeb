@@ -6,12 +6,18 @@ type PedidosCargaErroresGrabacionDialogProps = {
   visible: boolean;
   messages: string[];
   onClose: () => void;
+  titleKey?: string;
+  introKey?: string;
+  testId?: string;
 };
 
 export function PedidosCargaErroresGrabacionDialog({
   visible,
   messages,
   onClose,
+  titleKey = 'pedidos.carga.erroresGrabacionTitulo',
+  introKey = 'pedidos.carga.erroresGrabacionIntro',
+  testId = 'dialog-errores-grabacion',
 }: PedidosCargaErroresGrabacionDialogProps) {
   const { t } = useTranslation();
 
@@ -23,12 +29,12 @@ export function PedidosCargaErroresGrabacionDialog({
       showCloseButton={true}
       width={520}
       height="auto"
-      title={t('pedidos.carga.erroresGrabacionTitulo')}
-      elementAttr={{ 'data-testid': 'dialog-errores-grabacion' }}
+      title={t(titleKey)}
+      elementAttr={{ 'data-testid': testId }}
     >
       <div className="pedidosCargaErroresGrabacionDialog">
         <p className="pedidosCargaErroresGrabacionDialog__intro">
-          {t('pedidos.carga.erroresGrabacionIntro')}
+          {t(introKey)}
         </p>
         <ul
           className="pedidosCargaErroresGrabacionDialog__list"

@@ -7,8 +7,8 @@
 | **Épica** | 101-PedidosWeb |
 | **Prioridad** | Must |
 | **Dependencias** | [TR-SPEC-101-02-modelos](TR-SPEC-101-02-modelos.md), [TR-SPEC-101-03-repositories](TR-SPEC-101-03-repositories.md); lectura parámetros [SPEC-001-04](../../05-open-spec/001-Generaliddes/SPEC-001-04-configuracion-global.md) (defaults temporales documentados); visibilidad [SPEC-101-06](../../05-open-spec/101-PedidosWeb/SPEC-101-06-seguridad-visibilidad.md) / TR-GEN-02-visibilidad |
-| **Estado** | Finalizado |
-| **Última actualización** | 2026-06-02 |
+| **Estado** | Finalizado (Parte I — CC PQ #9) |
+| **Última actualización** | 2026-07-02 (Parte I — CC PQ #9) |
 
 **Origen:** [SPEC-101-04](../../05-open-spec/101-PedidosWeb/SPEC-101-04-services-pedidos.md), [PedidosWeb_SPEC_MVP.md](../../05-open-spec/101-PedidosWeb/PedidosWeb_SPEC_MVP.md) §5, §5.1, §5.3, §12  
 **Referencia SPEC:** [SPEC-101-04-services-pedidos](../../05-open-spec/101-PedidosWeb/SPEC-101-04-services-pedidos.md)  
@@ -67,7 +67,7 @@ para **garantizar coherencia con el ERP, trazabilidad y ausencia de DELETE en pr
 - **AC-08**: `touchActividadEdicion` actualiza solo `fechahora_ultima_actividad`.
 - **AC-09**: `cerrarPresupuestoRechazo` exige `id_motivo` negativo activo; cabecera **98** + fila `presupuestos_cierres`.
 - **AC-10**: Conversión exitosa usa **`CodMotivoCierreExitoso`**; si parámetro inválido → error **2000** sin cerrar en 98.
-- **AC-11**: `copiarComprobante` genera nuevo código y precarga datos; grabación posterior usa flujo normal.
+- **AC-11**: `copiarComprobante` genera borrador precargado (sin persistir); grabación posterior usa flujo normal. Con `ActualizarPrecioCopia = true` actualiza precios desde lista y recalcula importes; con `false` conserva precios origen validando parámetros vigentes; rechazo 422 si precios inválidos.
 - **AC-12**: Totales/IVA en BD coinciden con cálculo service (tests unitarios con fixtures).
 - **AC-13**: Cobertura líneas `app/Services/PedidosWeb/**` ≥ **70 %** (SPEC MVP §12.2).
 - **AC-14**: Parámetros leídos vía servicio de configuración SPEC-001-04; defaults documentados si ausentes en tenant test.
@@ -164,7 +164,13 @@ Fuente: producto §10.1, [SPEC-101-10](../../05-open-spec/101-PedidosWeb/SPEC-10
 
 ### 3.5 Copia, totales, auditoría
 
-**RN-15**: Copia: nuevo `cod_pedido`, nuevo `nro_visible`, `origen_comprobante='copia'` (o convención acordada), referencia opcional al GUID origen.
+**RN-15**: Copia: borrador sin persistir; nuevo `cod_pedido`/`nro_visible` solo al grabar; referencia opcional al GUID origen. Precios según `ActualizarPrecioCopia` (CC PQ #9):
+
+- `false`: precios del detalle origen; validar `ArticulosPrecioCero` / `ArticulosSinPrecio` vigentes.
+- `true`: lookup `pq_pedidosweb_listaprecios_articulos`; validación granular (sin fila → `ArticulosSinPrecio`; precio 0 → `ArticulosPrecioCero`); recálculo con `CalculoTotalesService`.
+- Rechazo: `PedidosWebBusinessException(2000, 'business.precioCeroNoPermitido', 422)`; FE modal copia (`PedidosCargaErroresGrabacionDialog`).
+
+**RN-15b**: Claves ERP canónicas `ArticulosPrecioCero` / `ArticulosSinPrecio` prevalecen sobre legacy `Articulopreciocero` / `Articulossinprecio`.
 
 **RN-16**: IVA persistido en renglón y cabecera; redondeo documentado en tests (AMB-M07).
 
@@ -350,3 +356,15 @@ Gate: `app/Services/PedidosWeb/**` ≥ 70 % líneas antes de cerrar slice.
 ### Docs
 
 - Enlace a TR-SPEC-101-05 para contratos HTTP
+
+## Historial CC PQ #9 (02/07/2026) — Parte I 02/07/2026
+
+Copia paramétrica `ActualizarPrecioCopia` en `ComprobanteCopiaService` + FE `copiarComprobante` + modal error copia.
+
+| ID | Tarea | Evidencia |
+|----|-------|-----------|
+| T1 | Backend rama paramétrica + validación precios | `ComprobanteCopiaService.php`, `PedidosWebParameterService.php` |
+| T2 | FE hidratación `modo=copia` + modal 422 | `PedidosCargaPage.tsx`, `usePedidosCargaMobile.ts` |
+| T3 | Tests | `ComprobanteCopiaServiceTest.php` (16 casos) |
+
+Unificación delta CC PQ #9 (archivo `*-update` eliminado en Parte I). Evidencia: [F-CC-PQ-9-cierre-formal](F-CC-PQ-9-cierre-formal.md).

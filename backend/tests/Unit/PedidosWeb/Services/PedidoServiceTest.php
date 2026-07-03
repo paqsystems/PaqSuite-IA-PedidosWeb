@@ -325,10 +325,15 @@ final class PedidoServiceTest extends TestCase
 
         $parameterService = new PedidosWebParameterService();
         $visibilityGuard ??= $this->createPermissiveVisibilityGuard();
-        $copiaService = new ComprobanteCopiaService($pedidoRepository);
-        $cierreService = new PresupuestoCierreService($pedidoRepository, $parameterService, $visibilityGuard);
-        $mailService = new ComprobanteMailService($parameterService, new LogIntegracionService());
+        $copiaService = new ComprobanteCopiaService(
+            $pedidoRepository,
+            $parameterService,
+            new CalculoTotalesService(),
+            $this->createMock(\App\Contracts\PedidosWeb\ArticuloRepositoryInterface::class),
+        );
         $schemaBootstrap = new PedidosWebSchemaBootstrap();
+        $cierreService = new PresupuestoCierreService($pedidoRepository, $parameterService, $visibilityGuard, $schemaBootstrap);
+        $mailService = new ComprobanteMailService($parameterService, new LogIntegracionService());
 
         $cabeceraInicialService = new CabeceraInicialService($visibilityGuard, $parameterService);
         $comprobanteGrabacionValidator = new ComprobanteGrabacionValidator($parameterService);

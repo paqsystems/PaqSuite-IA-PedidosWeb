@@ -646,6 +646,8 @@
   "pedidos.carga.erroresGrabacionCerrar": "OK",
   "pedidos.carga.erroresGrabacionIntro": "Fix the following issues before saving again:",
   "pedidos.carga.erroresGrabacionTitulo": "Could not save",
+  "pedidos.carga.erroresCopiaTitulo": "Could not copy the document",
+  "pedidos.carga.erroresCopiaIntro": "The copy could not be completed for the following reason:",
   "pedidos.carga.excelImport.importNoChanges": "Import did not change the form.",
   "pedidos.carga.excelImport.importSuccess": "Spreadsheet imported successfully.",
   "pedidos.carga.excelImport.toolbarHint": "Import a spreadsheet to preload header and line items.",

@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useRequiredSessionContext } from '../../auth/AuthProvider';
 import {
   cancelarEdicionPedido,
+  copiarComprobante,
   fetchArticulosPreciosCatalogoCarga,
   fetchArticulosStockCatalogoCarga,
   fetchCabeceraInicial,
@@ -96,6 +97,7 @@ export function usePedidosCargaMobile() {
   const [confirmacionVisible, setConfirmacionVisible] = useState(false);
   const [erroresGrabacionVisible, setErroresGrabacionVisible] = useState(false);
   const [erroresGrabacionMessages, setErroresGrabacionMessages] = useState<string[]>([]);
+  const [erroresDialogContext, setErroresDialogContext] = useState<'grabacion' | 'copia'>('grabacion');
   const [autoOpenRenglonId, setAutoOpenRenglonId] = useState<number | null>(null);
   const [renglonEnEdicion, setRenglonEnEdicion] = useState<ComprobanteRenglon | null>(null);
   const [editDialogVisible, setEditDialogVisible] = useState(false);
@@ -349,6 +351,33 @@ export function usePedidosCargaMobile() {
       isHydratingComprobanteRef.current = true;
 
       try {
+        if (modo === 'copia') {
+          const tipoDestino =
+            searchParams.get('tipoOrigen') === 'presupuesto' ? 'presupuesto' : 'pedido';
+          const copia = await copiarComprobante(comprobanteId, tipoDestino);
+          if (!mounted) {
+            return;
+          }
+
+          const { catalogos: catalogosInicial } = await fetchCabeceraInicial(copia.cabecera.codCliente);
+          if (!mounted) {
+            return;
+          }
+
+          setCodPedidoActual(null);
+          setEstadoActual(tipoDestino === 'presupuesto' ? 99 : 0);
+          setCodPedidoOrigen(null);
+          setCodPresupuestoOrigen(null);
+          setSelectedCliente(copia.cabecera.codCliente ?? sessionContext.codCliente ?? null);
+          setCabecera(copia.cabecera);
+          setCatalogos(catalogosInicial);
+          setRenglones(
+            copia.renglones.length > 0 ? copia.renglones : [createEmptyRenglon(1)],
+          );
+          setStep(copia.cabecera.codCliente ? 'articulos' : 'cliente');
+          return;
+        }
+
         const comprobante = await fetchComprobante(comprobanteId);
         if (!mounted) {
           return;
@@ -379,9 +408,19 @@ export function usePedidosCargaMobile() {
             setEstadoActual(-1);
           }
         }
-      } catch {
+      } catch (error) {
         if (mounted) {
-          setSaveError(t('pedidos.carga.errorCargaComprobante'));
+          if (modo === 'copia') {
+            const messages = resolveGrabacionErrorMessages(error, t);
+            setErroresDialogContext('copia');
+            setErroresGrabacionMessages(
+              messages.length > 0 ? messages : [t('pedidos.carga.errorCargaComprobante')],
+            );
+            setErroresGrabacionVisible(true);
+            setSaveError(null);
+          } else {
+            setSaveError(t('pedidos.carga.errorCargaComprobante'));
+          }
         }
       } finally {
         if (mounted) {
@@ -396,7 +435,7 @@ export function usePedidosCargaMobile() {
     return () => {
       mounted = false;
     };
-  }, [comprobanteId, modo, sessionContext.codCliente, t]);
+  }, [comprobanteId, modo, searchParams, sessionContext.codCliente, t]);
 
   useEffect(
     () => () => {
@@ -596,6 +635,13 @@ export function usePedidosCargaMobile() {
     await resetParaNuevoComprobante();
   }, [resetParaNuevoComprobante]);
 
+  const handleErroresDialogClose = useCallback(() => {
+    setErroresGrabacionVisible(false);
+    if (erroresDialogContext === 'copia') {
+      navigate(-1);
+    }
+  }, [erroresDialogContext, navigate]);
+
   const handlePostGrabacion = useCallback(() => {
     const accionGrabacion = ultimaAccionGrabacionRef.current;
     ultimaAccionGrabacionRef.current = null;
@@ -693,8 +739,10 @@ export function usePedidosCargaMobile() {
       } catch (error) {
         const messages = resolveGrabacionErrorMessages(error, t);
         if (messages.length > 0) {
+          setErroresDialogContext('grabacion');
           setErroresGrabacionMessages(messages);
           setErroresGrabacionVisible(true);
+          setSaveError(null);
         } else {
           setSaveError(t('pedidos.carga.errorGrabacion'));
         }
@@ -797,6 +845,8 @@ export function usePedidosCargaMobile() {
     erroresGrabacionVisible,
     setErroresGrabacionVisible,
     erroresGrabacionMessages,
+    erroresDialogContext,
+    handleErroresDialogClose,
     tipoComprobanteLabel,
     showGrabarPedido,
     showGrabarPresupuesto,

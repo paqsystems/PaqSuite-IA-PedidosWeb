@@ -8,8 +8,8 @@
 | **Épica** | 001 — Generalidades / Configuración global |
 | **Prioridad** | Should |
 | **Dependencias** | TR-GEN-02-autorizacion-menu-api; TR-GEN-03-grillas-listados; `PQ_parametros_gral` + seed PedidosWeb |
-| **Estado** | Finalizado |
-| **Última actualización** | 2026-06-09 (Parte I — CC PQ #3); C1/F 2026-06-03 |
+| **Estado** | Finalizado (Parte I — CC PQ #9) |
+| **Última actualización** | 2026-07-02 (Parte I — CC PQ #9) |
 
 **Origen:** [HU-GEN-04-consulta-parametros](../../03-historias-usuario/001-Generaliddes/HU-GEN-04-consulta-parametros.md)  
 **Referencia SPEC:** [SPEC-001-04-configuracion-global](../../05-open-spec/001-Generaliddes/SPEC-001-04-configuracion-global.md)  
@@ -343,3 +343,15 @@ Alineación visual columna Valor en consulta de parámetros.
 |----|-------|-----------|
 | T1 | `alignment="center"` columna Valor (título + celdas) | `ParametrosConsultaPage.tsx` |
 | T2 | Vitest columnas | `ParametrosConsultaPage.test.tsx` |
+
+## Historial CC PQ #9 (02/07/2026) — Parte I 02/07/2026
+
+Alta parámetro `ActualizarPrecioCopia` en seed JSON (58 claves), i18n fallback 5 locales y script SQL caption/tooltip. Sin cambio de contrato API ni UI salvo fila dinámica en listado.
+
+| ID | Tarea | Evidencia |
+|----|-------|-----------|
+| T1 | Entrada seed + producto §10.6 | `PQ_PARAMETROS_GRAL.PedidosWeb.seed.json` |
+| T2 | i18n `parametros.pedidosWeb.ActualizarPrecioCopia.*` | `pedidosWeb.{es,en,pt,fr,it}.json` |
+| T3 | Vitest caption | `resolveParametroConsultaTexts.test.ts` |
+
+Unificación delta CC PQ #9 (archivo `*-update` eliminado en Parte I). Evidencia: [F-CC-PQ-9-cierre-formal](../../101-PedidosWeb/F-CC-PQ-9-cierre-formal.md).

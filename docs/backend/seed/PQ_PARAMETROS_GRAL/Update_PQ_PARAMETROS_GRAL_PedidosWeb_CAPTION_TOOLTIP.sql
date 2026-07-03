@@ -25,6 +25,13 @@ UPDATE dbo.PQ_PARAMETROS_GRAL
 IF @@ROWCOUNT = 0 PRINT N'AVISO: sin fila para ' + N'ArticulosSinPrecio';
 
 UPDATE dbo.PQ_PARAMETROS_GRAL
+   SET [CAPTION] = N'Actualizar precios al copiar comprobante',
+       [TOOLTIP] = N'Si está activo, al copiar un pedido o presupuesto los precios de los renglones se resuelven desde la lista de precios vigente del comprobante origen. Si está inactivo, se conservan los precios del detalle origen, validando según los parámetros de artículos con precio cero o sin precio.'
+ WHERE [Programa] = N'PedidosWeb'
+   AND [Clave] = N'ActualizarPrecioCopia';
+IF @@ROWCOUNT = 0 PRINT N'AVISO: sin fila para ' + N'ActualizarPrecioCopia';
+
+UPDATE dbo.PQ_PARAMETROS_GRAL
    SET [CAPTION] = N'Carga recurrente post grabación',
        [TOOLTIP] = N'Define el comportamiento tras grabar un pedido o presupuesto: si está activo, el flujo vuelve a una nueva carga; si está inactivo, regresa al listado o pantalla anterior según la implementación del portal.'
  WHERE [Programa] = N'PedidosWeb'

@@ -6,7 +6,9 @@ use App\Contracts\PedidosWeb\PedidoDetalleRepositoryInterface;
 use App\Contracts\PedidosWeb\PedidoRepositoryInterface;
 use App\Exceptions\PedidosWebBusinessException;
 use App\Exceptions\PedidosWebBusinessValidationException;
+use App\Models\PqPedidoswebArticulo;
 use App\Models\PqPedidoswebPedidoCabecera;
+use App\Models\PqPedidoswebPedidoDetalle;
 use App\Models\User;
 use App\Support\SqlServerIsolation;
 use App\Services\Auth\CommercialProfileResolver;
@@ -37,6 +39,8 @@ final class PedidoService
      */
     public function grabarComprobante(array $payload, User $user): array
     {
+        $this->ensureClientSchema();
+
         $accionGrabacion = (string) ($payload['accionGrabacion'] ?? '');
         $cabeceraPayload = (array) ($payload['cabecera'] ?? []);
         $renglonesPayload = (array) ($payload['renglones'] ?? []);
@@ -261,6 +265,8 @@ final class PedidoService
      */
     public function getComprobante(string $codPedido, User $user): array
     {
+        $this->ensureClientSchema();
+
         $this->pedidosWebVisibilityGuard->ensureComprobanteVisible($user, $codPedido);
         $pedido = $this->pedidoRepository->findWithDetalle($codPedido);
 
@@ -270,6 +276,7 @@ final class PedidoService
 
         $pedido->loadMissing(['cliente', 'cliente.vendedor', 'vendedor', 'listaPrecios', 'condicionVenta', 'transporte']);
         $cliente = $pedido->cliente;
+        $descripcionesPorCodigo = $this->resolveDescripcionesArticulos($pedido->detalles);
 
         return [
             'cabecera' => [
@@ -288,10 +295,13 @@ final class PedidoService
                 ? $this->cabeceraInicialService->catalogosForCliente((string) $pedido->cod_cliente)
                 : [],
             'detalle' => $pedido->detalles
-                ->map(static fn ($row): array => [
+                ->map(fn ($row): array => [
                     'renglon' => (int) $row->renglon,
                     'cod_articulo' => (string) $row->cod_articulo,
-                    'descripcion_articulo' => (string) ($row->descripcion_articulo ?? ''),
+                    'descripcion_articulo' => $this->resolveDescripcionArticuloDetalle(
+                        $row,
+                        $descripcionesPorCodigo,
+                    ),
                     'cantidad' => (float) $row->cantidad,
                     'porc_bonif' => (float) $row->porc_bonif,
                     'precio' => (float) $row->precio,
@@ -690,5 +700,53 @@ final class PedidoService
         }
 
         return 'vendedor';
+    }
+
+    private function ensureClientSchema(): void
+    {
+        $this->schemaBootstrap->ensureMvpSchema();
+    }
+
+    /**
+     * @param  iterable<int, PqPedidoswebPedidoDetalle>  $detalles
+     * @return array<string, string>
+     */
+    private function resolveDescripcionesArticulos(iterable $detalles): array
+    {
+        $codigos = [];
+
+        foreach ($detalles as $detalle) {
+            $codigo = trim((string) $detalle->cod_articulo);
+
+            if ($codigo !== '') {
+                $codigos[$codigo] = $codigo;
+            }
+        }
+
+        if ($codigos === []) {
+            return [];
+        }
+
+        return PqPedidoswebArticulo::query()
+            ->whereIn('codigo', array_values($codigos))
+            ->pluck('descripcion', 'codigo')
+            ->map(static fn (mixed $descripcion): string => trim((string) $descripcion))
+            ->all();
+    }
+
+    /**
+     * @param  array<string, string>  $descripcionesPorCodigo
+     */
+    private function resolveDescripcionArticuloDetalle(
+        PqPedidoswebPedidoDetalle $detalle,
+        array $descripcionesPorCodigo,
+    ): string {
+        if (filled($detalle->descripcion_articulo)) {
+            return trim((string) $detalle->descripcion_articulo);
+        }
+
+        $codArticulo = trim((string) $detalle->cod_articulo);
+
+        return $descripcionesPorCodigo[$codArticulo] ?? '';
     }
 }

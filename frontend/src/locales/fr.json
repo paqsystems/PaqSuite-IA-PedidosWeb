@@ -646,6 +646,8 @@
   "pedidos.carga.erroresGrabacionCerrar": "Compris",
   "pedidos.carga.erroresGrabacionIntro": "Corrigez les points suivants avant d'enregistrer à nouveau :",
   "pedidos.carga.erroresGrabacionTitulo": "Enregistrement impossible",
+  "pedidos.carga.erroresCopiaTitulo": "Impossible de copier le document",
+  "pedidos.carga.erroresCopiaIntro": "La copie n'a pas pu être effectuée pour la raison suivante :",
   "pedidos.carga.excelImport.importNoChanges": "L importation n a pas modifie le formulaire.",
   "pedidos.carga.excelImport.importSuccess": "Feuille importee avec succes.",
   "pedidos.carga.excelImport.toolbarHint": "Importez une feuille pour precharger entete et lignes.",

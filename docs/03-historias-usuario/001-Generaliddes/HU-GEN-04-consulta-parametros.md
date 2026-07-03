@@ -8,8 +8,8 @@
 | **MONO** | [parametros-generales.md](../../00-contexto/_mono/04-configuracion-global/parametros-generales.md) (HU-007 — variante solo lectura) |
 | **Épica** | 001 — Generalidades / Configuración global |
 | **Prioridad** | Should |
-| **Estado** | Finalizado |
-| **Última actualización** | 2026-06-09 (Parte I — CC PQ #3) |
+| **Estado** | Finalizado (Parte I — CC PQ #9) |
+| **Última actualización** | 2026-07-02 (Parte I — CC PQ #9) |
 | **D1** | Implementado (2026-06-03) |
 | **TR relacionada** | [TR-GEN-04-consulta-parametros](../../04-tareas/001-Generaliddes/TR-GEN-04-consulta-parametros.md) |
 | **Dependencias** | HU-GEN-03-grillas-listados; tabla `PQ_parametros_gral`; seed [PQ_PARAMETROS_GRAL.PedidosWeb.seed.json](../../backend/seed/PQ_PARAMETROS_GRAL/PQ_PARAMETROS_GRAL.PedidosWeb.seed.json) |
@@ -19,7 +19,7 @@
 | Criterio / entregable SPEC | Cobertura en esta HU |
 |----------------------------|----------------------|
 | Lectura parámetros MVP (sin ABM web) | RN-01, RN-02, CA-03 |
-| Inventario §10.6 + seed 57 claves | RN-03 |
+| Inventario §10.6 + seed 58 claves | RN-03 |
 | Tipos `tipo_valor` BASE | RN-04 |
 | Marco MONO HU-007 (presentación listado) | RN-05, CA-01 |
 
@@ -61,6 +61,7 @@ Fuente de verdad: **[consulta-parametros.md](../../02-producto/PedidosWeb/consul
 5. **CAPTION / TOOLTIP:** desde BD; fallback seed JSON / i18n `parametrosGral.items.PedidosWeb.{clave}.*` si aplica.
 6. **Permiso:** `Permiso_Repo` sobre `pw_consultaparametros` (misma familia que consultas comerciales).
 7. Servicios runtime existentes (`PedidosWebParameterService`) **no** se reemplazan; esta pantalla no altera su lectura.
+8. **RN-P01 (CC PQ #9):** Parámetro `ActualizarPrecioCopia` (`tipo_valor = B`) visible en listado con caption «Actualizar precios al copiar comprobante», valor Sí/No y tooltip; sin edición web.
 
 ## Decisiones cerradas (producto / B1)
 
@@ -68,7 +69,7 @@ Fuente de verdad: **[consulta-parametros.md](../../02-producto/PedidosWeb/consul
 |------|----------|
 | Ubicación menú | Grupo **`grp_general`**; ítem **último** del grupo |
 | Ruta / procedimiento | `/general/parametros` · `pw_consultaparametros` |
-| Alcance datos | Solo **`Programa = 'PedidosWeb'`** (57 claves seed) |
+| Alcance datos | Solo **`Programa = 'PedidosWeb'`** (58 claves seed) |
 | Edición | **Prohibida** en UI y API de esta HU |
 | Permiso | **`Permiso_Repo`** en `pw_consultaparametros` |
 | Referencia técnica | Reutilizar `ParametrosGralTipoValor` + modelo `PqParametrosGral`; no duplicar mapeo |
@@ -145,3 +146,7 @@ Feature: Consulta de parámetros PedidosWeb (solo lectura)
 ## Veredicto F
 
 **Finalizado** — QA manual + F1 + F (2026-06-03). Ver [F-GEN-04-consulta-parametros-cierre](../../04-tareas/001-Generaliddes/F-GEN-04-consulta-parametros-cierre.md).
+
+## Historial CC PQ #9 (02/07/2026) — Parte I 02/07/2026
+
+Alta parámetro `ActualizarPrecioCopia` en consulta solo lectura (58 claves seed). Unificación delta CC PQ #9 (archivo `*-update` eliminado en Parte I). Evidencia: [F-CC-PQ-9-cierre-formal](../../04-tareas/101-PedidosWeb/F-CC-PQ-9-cierre-formal.md).

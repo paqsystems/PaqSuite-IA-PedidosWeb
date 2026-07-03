@@ -646,6 +646,8 @@
   "pedidos.carga.erroresGrabacionCerrar": "Entendi",
   "pedidos.carga.erroresGrabacionIntro": "Corrija os seguintes pontos antes de gravar novamente:",
   "pedidos.carga.erroresGrabacionTitulo": "Não foi possível gravar",
+  "pedidos.carga.erroresCopiaTitulo": "Não foi possível copiar o documento",
+  "pedidos.carga.erroresCopiaIntro": "A cópia não pôde ser concluída pelo seguinte motivo:",
   "pedidos.carga.excelImport.importNoChanges": "A importacao nao alterou o formulario.",
   "pedidos.carga.excelImport.importSuccess": "Planilha importada com sucesso.",
   "pedidos.carga.excelImport.toolbarHint": "Importe uma planilha para precarregar cabecalho e linhas.",

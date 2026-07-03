@@ -3,6 +3,8 @@
   "parametros.pedidosWeb.ArticulosPrecioCero.tooltip": "Se ativo, o portal permite carregar linhas cujo preço na lista selecionada é zero. Se inativo, o sistema rejeita ou avisa conforme validações de carga.",
   "parametros.pedidosWeb.ArticulosSinPrecio.caption": "Permitir artigos sem preço na lista",
   "parametros.pedidosWeb.ArticulosSinPrecio.tooltip": "Se ativo, permite carregar artigos sem preço definido na lista de preços vigente. Se inativo, a carga exige preço válido na lista.",
+  "parametros.pedidosWeb.ActualizarPrecioCopia.caption": "Atualizar preços ao copiar comprovante",
+  "parametros.pedidosWeb.ActualizarPrecioCopia.tooltip": "Se ativo, ao copiar um pedido ou orçamento os preços dos itens são resolvidos pela lista de preços vigente do comprovante de origem. Se inativo, conserva os preços do detalhe de origem, validando conforme os parâmetros de artigos com preço zero ou sem preço.",
   "parametros.pedidosWeb.CargaRecurrente.caption": "Carga recorrente após gravação",
   "parametros.pedidosWeb.CargaRecurrente.tooltip": "Define o comportamento após gravar pedido ou orçamento: se ativo, o fluxo volta a uma nova carga; se inativo, retorna à listagem ou tela anterior conforme implementação do portal.",
   "parametros.pedidosWeb.ClienteLeyenda1.caption": "Inicializar legenda 1 do cliente",

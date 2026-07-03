@@ -4,8 +4,9 @@
 |-------|--------|
 | **HU relacionadas** | [HU-GEN-04-consulta-parametros](../../03-historias-usuario/001-Generaliddes/HU-GEN-04-consulta-parametros.md), lectura runtime (servicios existentes) |
 | **TR relacionada** | [TR-GEN-04-consulta-parametros](../../04-tareas/001-Generaliddes/TR-GEN-04-consulta-parametros.md) (**C1** 2026-06-03) |
-| **Estado** | En revisión |
+| **Estado** | Especificado |
 | **Revisión A1** | Apto con observaciones (2026-05-28) |
+| **Última actualización** | 2026-07-02 (Parte I — CC PQ #9) |
 
 ## Objetivo
 
@@ -54,9 +55,10 @@ Implementable en MVP (lectura y uso de parámetros; **sin** ABM web de parámetr
 | `mailCCO` | CCO global opcional en envíos |
 | `CargaRecurrente` | Flujo post-grabación pedido/presupuesto |
 | `CodMotivoCierreExitoso` | Conversión presupuesto → pedido: `id_motivo` en `pq_pedidosweb_motivos_cierre` (tipo **positivo**, activo). Ver HU-101-013. |
+| `ActualizarPrecioCopia` | Copiar comprobante (HU-101-026): conservar precios origen (`false`, default) o actualizar desde lista (`true`). Ver SPEC-101-04 / CC PQ #9. |
 | Resto §10.6 | Módulos según HU de negocio |
 
-Inventario completo con **`CAPTION`**, **`TOOLTIP`** y `tipo_valor`: [`docs/backend/seed/PQ_PARAMETROS_GRAL/PQ_PARAMETROS_GRAL.PedidosWeb.seed.json`](../../backend/seed/PQ_PARAMETROS_GRAL/PQ_PARAMETROS_GRAL.PedidosWeb.seed.json) (57 claves, producto §10.6 + ampliaciones MVP).
+Inventario completo con **`CAPTION`**, **`TOOLTIP`** y `tipo_valor`: [`docs/backend/seed/PQ_PARAMETROS_GRAL/PQ_PARAMETROS_GRAL.PedidosWeb.seed.json`](../../backend/seed/PQ_PARAMETROS_GRAL/PQ_PARAMETROS_GRAL.PedidosWeb.seed.json) (58 claves, producto §10.6 + ampliaciones MVP).
 
 ## Fuera de alcance
 
@@ -93,3 +95,5 @@ Inventario completo con **`CAPTION`**, **`TOOLTIP`** y `tipo_valor`: [`docs/back
 |-------|--------|---------|
 | 09/06/2026 | CC PQ #3 | Columna Valor centrada en consulta parámetros |
 | 09/06/2026 | Parte I | Unificación `SPEC-001-04-configuracion-global-update` |
+| 02/07/2026 | CC PQ #9 | Alta parámetro `ActualizarPrecioCopia` (copia paramétrica) |
+| 02/07/2026 | Parte I | Unificación `SPEC-001-04-configuracion-global-update` (CC PQ #9) |

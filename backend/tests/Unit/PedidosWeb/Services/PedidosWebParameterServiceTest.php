@@ -55,4 +55,53 @@ final class PedidosWebParameterServiceTest extends TestCase
             'modificaListaPrec' => true,
         ], $service->resolveModificaFlags('supervisor'));
     }
+
+    #[Test]
+    public function getActualizarPrecioCopiaDefaultFalse(): void
+    {
+        config()->set('paqsuite_pedidosweb.readFromErp', false);
+        config()->set('paqsuite_pedidosweb.defaults.ActualizarPrecioCopia', 0);
+
+        $service = new PedidosWebParameterService();
+
+        $this->assertFalse($service->getActualizarPrecioCopia());
+    }
+
+    #[Test]
+    public function getActualizarPrecioCopiaLeeConfigCuandoErpDeshabilitado(): void
+    {
+        config()->set('paqsuite_pedidosweb.readFromErp', false);
+        config()->set('paqsuite_pedidosweb.defaults.ActualizarPrecioCopia', 1);
+
+        $service = new PedidosWebParameterService();
+
+        $this->assertTrue($service->getActualizarPrecioCopia());
+    }
+
+    #[Test]
+    public function getArticulosSinPrecioPrefiereClaveCanonicaSobreLegacy(): void
+    {
+        config()->set('paqsuite_pedidosweb.readFromErp', true);
+
+        $canonical = new \App\Models\PqParametrosGral();
+        $canonical->Clave = 'ArticulosSinPrecio';
+        $canonical->tipo_valor = 'B';
+        $canonical->Valor_Bool = false;
+
+        $legacy = new \App\Models\PqParametrosGral();
+        $legacy->Clave = 'Articulossinprecio';
+        $legacy->tipo_valor = 'B';
+        $legacy->Valor_Bool = true;
+
+        $service = new PedidosWebParameterService();
+        $reflection = new \ReflectionClass($service);
+        $property = $reflection->getProperty('parametrosPorClave');
+        $property->setAccessible(true);
+        $property->setValue($service, [
+            'ArticulosSinPrecio' => $canonical,
+            'Articulossinprecio' => $legacy,
+        ]);
+
+        $this->assertFalse($service->getArticulosSinPrecio());
+    }
 }
