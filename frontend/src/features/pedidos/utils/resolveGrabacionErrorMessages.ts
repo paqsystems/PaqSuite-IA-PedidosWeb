@@ -8,16 +8,22 @@ type GrabacionErrorResultado = {
 
 export function resolveGrabacionErrorMessages(error: unknown, t: TFunction): string[] {
   if (error instanceof ApiClientError) {
-    const resultado = error.resultado as GrabacionErrorResultado | undefined;
+    const resultado = error.resultado;
 
-    if (Array.isArray(resultado?.errores) && resultado.errores.length > 0) {
-      return resultado.errores
+    if (typeof resultado === 'string' && resultado.trim() !== '') {
+      return [resultado];
+    }
+
+    const grabacionResultado = resultado as GrabacionErrorResultado | undefined;
+
+    if (Array.isArray(grabacionResultado?.errores) && grabacionResultado.errores.length > 0) {
+      return grabacionResultado.errores
         .filter((item): item is string => typeof item === 'string' && item.trim() !== '')
         .map((key) => translateGrabacionErrorKey(key, t));
     }
 
-    if (resultado?.fields) {
-      const fieldMessages = Object.values(resultado.fields)
+    if (grabacionResultado?.fields) {
+      const fieldMessages = Object.values(grabacionResultado.fields)
         .flat()
         .filter((message): message is string => typeof message === 'string' && message.trim() !== '');
 
@@ -30,12 +36,8 @@ export function resolveGrabacionErrorMessages(error: unknown, t: TFunction): str
       return [translateGrabacionErrorKey(error.respuestaKey, t)];
     }
 
-    if (typeof resultado === 'string' && resultado.trim() !== '') {
-      return [resultado];
-    }
-
-    if (resultado && typeof resultado === 'object' && 'message' in resultado) {
-      const message = (resultado as { message?: unknown }).message;
+    if (grabacionResultado && typeof grabacionResultado === 'object' && 'message' in grabacionResultado) {
+      const message = (grabacionResultado as { message?: unknown }).message;
       if (typeof message === 'string' && message.trim() !== '') {
         return [message];
       }

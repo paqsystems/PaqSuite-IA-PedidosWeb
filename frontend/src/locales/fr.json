@@ -870,5 +870,11 @@
   "business.validationFailed": "Corrigez les erreurs indiquées avant d'enregistrer.",
   "business.vendedorInvalido": "Le vendeur n'est pas valide.",
   "business.vendedorRequerido": "Un vendeur est requis.",
+  "business.invalidMotivoCierre": "Aucun motif de clôture valide n'est configuré pour les devis. Contactez l'administrateur.",
+  "business.presupuestoOrigenInvalido": "Le devis d'origine n'existe pas ou n'est plus actif.",
+  "business.pedidoOrigenInvalido": "La commande d'origine n'existe pas ou n'est pas à l'état saisi.",
+  "business.modificacionDeshabilitada": "La modification des documents est désactivée dans cet environnement.",
+  "business.notFound": "Le document demandé n'existe pas ou n'est pas disponible.",
+  "business.estadoNoEditable": "Le document ne peut pas être modifié dans son état actuel.",
   "validation.failed": "Veuillez vérifier les données saisies."
 }

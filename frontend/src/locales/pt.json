@@ -870,5 +870,11 @@
   "business.validationFailed": "Revise os erros indicados antes de gravar.",
   "business.vendedorInvalido": "O vendedor não é válido.",
   "business.vendedorRequerido": "Informe um vendedor.",
+  "business.invalidMotivoCierre": "Não há um motivo de encerramento válido configurado para orçamentos. Contacte o administrador.",
+  "business.presupuestoOrigenInvalido": "O orçamento de origem não existe ou já não está ativo.",
+  "business.pedidoOrigenInvalido": "O pedido de origem não existe ou não está no estado registrado.",
+  "business.modificacionDeshabilitada": "A modificação de comprovantes está desabilitada neste ambiente.",
+  "business.notFound": "O comprovante solicitado não existe ou não está disponível.",
+  "business.estadoNoEditable": "O comprovante não pode ser editado no estado atual.",
   "validation.failed": "Revise os dados informados."
 }

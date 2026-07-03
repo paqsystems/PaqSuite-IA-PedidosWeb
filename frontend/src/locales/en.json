@@ -870,5 +870,11 @@
   "business.validationFailed": "Review the listed errors before saving.",
   "business.vendedorInvalido": "The salesperson is invalid.",
   "business.vendedorRequerido": "A salesperson is required.",
+  "business.invalidMotivoCierre": "No valid closing reason is configured for quotes. Contact your administrator.",
+  "business.presupuestoOrigenInvalido": "The source quote does not exist or is no longer active.",
+  "business.pedidoOrigenInvalido": "The source order does not exist or is not in entered status.",
+  "business.modificacionDeshabilitada": "Document editing is disabled in this environment.",
+  "business.notFound": "The requested document does not exist or is unavailable.",
+  "business.estadoNoEditable": "The document cannot be edited in its current status.",
   "validation.failed": "Please review the entered data."
 }

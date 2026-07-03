@@ -870,5 +870,11 @@
   "business.validationFailed": "Correggi gli errori indicati prima di salvare.",
   "business.vendedorInvalido": "Il venditore non è valido.",
   "business.vendedorRequerido": "Indica un venditore.",
+  "business.invalidMotivoCierre": "Non è configurato un motivo di chiusura valido per i preventivi. Contatta l'amministratore.",
+  "business.presupuestoOrigenInvalido": "Il preventivo di origine non esiste o non è più attivo.",
+  "business.pedidoOrigenInvalido": "L'ordine di origine non esiste o non è in stato inserito.",
+  "business.modificacionDeshabilitada": "La modifica dei documenti è disabilitata in questo ambiente.",
+  "business.notFound": "Il documento richiesto non esiste o non è disponibile.",
+  "business.estadoNoEditable": "Il documento non può essere modificato nel suo stato attuale.",
   "validation.failed": "Controlla i dati inseriti."
 }
