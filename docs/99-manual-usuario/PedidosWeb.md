@@ -183,6 +183,7 @@ Pantalla única para **alta**, **edición**, **consulta** (solo lectura), **copi
 | **Artículos** | Búsqueda, actualizar catálogo y agregar renglones |
 | **Grilla renglones** | Líneas del comprobante con importes y precio neto unitario |
 | **Totales** | Subtotal, IVA, total |
+| **Asistente IA de carga** (opcional) | Panel colapsable al pie: instrucciones por texto/voz/imagen para cliente, cabecera, renglones, consultas y grabar (§6.17). Requiere configuración LLM en Preferencias → Asistente IA |
 
 El diseño organiza cabecera, leyendas y grilla en columnas para facilitar la carga sin desplazarse entre bloques alejados.
 
@@ -456,6 +457,21 @@ Valores en **General → Consulta de parámetros** (solo lectura). Detalle de me
 | Carga recurrente post grabación | Tras grabar, limpia pantalla o vuelve al listado |
 | Motivo de cierre exitoso | Usado al convertir presupuesto → pedido |
 | Incluir detalle en mail | Tabla de renglones en correo de notificación |
+
+### 6.17 Asistente IA en la carga
+
+Al pie del formulario hay un panel **colapsable** (Asistente IA) para operar el comprobante por **texto**, **voz** (micrófono) o **imagen**, con la misma configuración LLM de Preferencias → Asistente IA.
+
+**Puede:** elegir/cambiar cliente; ajustar cabecera (bonificaciones, transporte, condición, lista, fecha/dirección entrega, leyendas, etc.); agregar, modificar o eliminar renglones; consultar stock/deuda/cheques/historial del cliente en curso; grabar pedido o presupuesto.
+
+**Notas de uso al modificar/eliminar renglones**
+
+- Busca en el **detalle del comprobante**, no en el maestro de artículos.
+- Ponga la descripción entre comillas (`"almendra tostada"`) o al final (`cambiar cantidad a 150 del artículo almendra`).
+- Si hay varios renglones coincidentes, elija el número de la lista (código, cantidad, precio, bonif.).
+- Sin configuración LLM, el panel indica ir a Preferencias.
+
+Detalle funcional: [asistente-ia-carga-pedidos-presupuestos.md](../02-producto/PedidosWeb/asistente-ia-carga-pedidos-presupuestos.md). El chat documental del menú avatar **no** muta el comprobante (§18 FAQ).
 
 ---
 
@@ -889,7 +905,10 @@ En [PedidosWeb-validaciones-errores.md](./PedidosWeb-validaciones-errores.md).
 
 ### ¿El chat asistente puede ver mi comprobante abierto?
 
-No. Orienta según documentación. Ver [Chat-Asistente-IA.md](./Chat-Asistente-IA.md).
+Depende de cuál use:
+
+- **Chat documental** (menú avatar): no ve ni modifica el comprobante. Ver [Chat-Asistente-IA.md](./Chat-Asistente-IA.md).
+- **Asistente IA al pie de la carga** (§6.17): sí opera sobre el borrador abierto (cliente, cabecera, renglones, consultas y grabar), con las mismas reglas y permisos de la pantalla.
 
 ---
 

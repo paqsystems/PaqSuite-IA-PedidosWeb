@@ -138,27 +138,40 @@ final class PedidosWebParameterService
      *     modificaPrecio: bool,
      *     modificaBonArt: bool,
      *     modificaBonCli: bool,
-     *     modificaListaPrec: bool
+     *     modificaListaPrec: bool,
+     *     modificaCondVta: bool,
+     *     modificaDirEntr: bool,
+     *     modificaExpreso: bool
      * }
      */
     public function resolveModificaFlags(string $functionalProfile): array
     {
+        $suffix = match ($functionalProfile) {
+            'cliente' => 'C',
+            'supervisor' => 'S',
+            default => 'V',
+        };
+
         if ($functionalProfile === 'cliente') {
             return [
                 'modificaPrecio' => false,
                 'modificaBonArt' => false,
                 'modificaBonCli' => false,
                 'modificaListaPrec' => false,
+                'modificaCondVta' => $this->getBool("ModificaCondVta{$suffix}", false),
+                'modificaDirEntr' => $this->getBool("ModificaDirEntr{$suffix}", true),
+                'modificaExpreso' => $this->getBool("ModificaExpreso{$suffix}", true),
             ];
         }
-
-        $suffix = $functionalProfile === 'supervisor' ? 'S' : 'V';
 
         return [
             'modificaPrecio' => $this->getBool("ModificaPrecio{$suffix}", true),
             'modificaBonArt' => $this->getBool("ModificaBonArt{$suffix}", true),
             'modificaBonCli' => $this->getBool("ModificaBonCli{$suffix}", true),
             'modificaListaPrec' => $this->getBool("ModificaListaPrec{$suffix}", true),
+            'modificaCondVta' => $this->getBool("ModificaCondVta{$suffix}", true),
+            'modificaDirEntr' => $this->getBool("ModificaDirEntr{$suffix}", true),
+            'modificaExpreso' => $this->getBool("ModificaExpreso{$suffix}", true),
         ];
     }
 

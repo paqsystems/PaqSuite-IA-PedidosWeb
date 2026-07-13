@@ -30,6 +30,19 @@
 | 15 | [TR-SPEC-101-15-tests-hardening.md](TR-SPEC-101-15-tests-hardening.md) | Must | E2E §9 madre |
 | 16a | [TR-SPEC-101-16-proceso-excel-pedido-individual.md](TR-SPEC-101-16-proceso-excel-pedido-individual.md) | **Should** | 029 |
 | 16b | [TR-SPEC-101-16-importacion-excel-pantalla-carga.md](TR-SPEC-101-16-importacion-excel-pantalla-carga.md) | **Should** | 030 |
+| 18 | [TR-SPEC-101-18-asistente-carga-ia-shell.md](TR-SPEC-101-18-asistente-carga-ia-shell.md) | **Should** | 037, 038 |
+| 19 | [TR-SPEC-101-19-asistente-carga-ia-mutaciones.md](TR-SPEC-101-19-asistente-carga-ia-mutaciones.md) | **Should** | 039, 040 |
+| 20 | [TR-SPEC-101-20-asistente-carga-ia-consultas.md](TR-SPEC-101-20-asistente-carga-ia-consultas.md) | **Should** | 041, 042 |
+
+## Slice SPEC-101-18/19/20 (Asistente IA en carga)
+
+| Campo | Valor |
+|-------|--------|
+| **SPEC** | 101-18 · 101-19 · 101-20 |
+| **Parte C1** | **Apto** (2026-07-13) — [F-101-18-20-cierre-c1](F-101-18-20-cierre-c1-asistente-carga-ia.md) |
+| **Parte F1** | **Aprobado con observaciones** (2026-07-13) — [D-VERIFICACION-101-18-20](D-VERIFICACION-101-18-20-asistente-carga-ia.md) |
+| **Parte F** | **Cerrada** (2026-07-13) — [F-101-18-20-cierre-formal](F-101-18-20-cierre-formal.md) |
+| **Orden D1** | 18 → 19 → 20 |
 
 ## Slice SPEC-101-16 (post-MVP)
 

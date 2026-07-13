@@ -12,6 +12,874 @@
         }
     ],
     "paths": {
+        "/api/v1/chat-assistant/me/configurations": {
+            "get": {
+                "tags": [
+                    "ChatAssistant"
+                ],
+                "summary": "Listar configuraciones personales del Chat Asistente IA",
+                "operationId": "1dbff82df49c30dcb2bb3fae27910dbe",
+                "responses": {
+                    "200": {
+                        "description": "Listado de configuraciones"
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "ChatAssistant"
+                ],
+                "summary": "Crear configuración personal del Chat Asistente IA",
+                "operationId": "3ab6d1285629b22cbb580493459b3692",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpsertChatAssistantConfigurationRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Configuración creada"
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "422": {
+                        "description": "Validación fallida"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/chat-assistant/me/configuration": {
+            "get": {
+                "tags": [
+                    "ChatAssistant"
+                ],
+                "summary": "Configuración personal activa del Chat Asistente IA",
+                "operationId": "eb964073b22e5a8a04a03e5804d11e72",
+                "responses": {
+                    "200": {
+                        "description": "Configuración actual o estado vacío",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelopeChatAssistantConfiguration"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "ChatAssistant"
+                ],
+                "summary": "Guardar configuración personal del Chat Asistente IA",
+                "operationId": "a1fb5ff2b212b42245e9dc331e1ca1c1",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpsertChatAssistantConfigurationRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Configuración guardada",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelopeChatAssistantConfigurationSaved"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "422": {
+                        "description": "Validación fallida"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/chat-assistant/me/configurations/{credentialId}": {
+            "put": {
+                "tags": [
+                    "ChatAssistant"
+                ],
+                "summary": "Actualizar configuración personal del Chat Asistente IA",
+                "operationId": "d5410548928597ac59d1d202cd82b762",
+                "parameters": [
+                    {
+                        "name": "credentialId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpsertChatAssistantConfigurationRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Configuración actualizada"
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "422": {
+                        "description": "Validación fallida"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "ChatAssistant"
+                ],
+                "summary": "Eliminar configuración personal del Chat Asistente IA",
+                "operationId": "a0794b710a880edd15beac0573bd1271",
+                "parameters": [
+                    {
+                        "name": "credentialId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Configuración eliminada"
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "422": {
+                        "description": "No encontrada"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/chat-assistant/me/configuration/status": {
+            "patch": {
+                "tags": [
+                    "ChatAssistant"
+                ],
+                "summary": "Habilitar o deshabilitar la configuración del Chat Asistente IA",
+                "operationId": "102c5c277b29317aa26d30d3e364f415",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateChatAssistantConfigurationStatusRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Estado actualizado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelopeChatAssistantConfiguration"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "422": {
+                        "description": "Validación fallida"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/chat-assistant/me/configurations/{credentialId}/status": {
+            "patch": {
+                "tags": [
+                    "ChatAssistant"
+                ],
+                "summary": "Habilitar o deshabilitar una configuración específica",
+                "operationId": "6ff063bda2941e0d0ecd195b0f72fea9",
+                "parameters": [
+                    {
+                        "name": "credentialId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateChatAssistantConfigurationStatusRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Estado actualizado"
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "422": {
+                        "description": "Validación fallida"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/chat-assistant/messages": {
+            "post": {
+                "tags": [
+                    "ChatAssistant"
+                ],
+                "summary": "Enviar consulta al Chat Asistente IA",
+                "operationId": "d3664ad126e06dc4cff981f89efaa9c4",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SendChatAssistantMessageRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Respuesta orientativa del asistente",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelopeChatAssistantMessageReply"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "422": {
+                        "description": "Validación fallida o configuración no operativa"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/chat-assistant/providers": {
+            "get": {
+                "tags": [
+                    "ChatAssistant"
+                ],
+                "summary": "Catálogo de proveedores IA activos",
+                "operationId": "da995f00b52f075ca6898eb621aec773",
+                "responses": {
+                    "200": {
+                        "description": "Catálogo de proveedores",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelopeChatAssistantProviderCatalog"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/excel-import/historial": {
+            "get": {
+                "tags": [
+                    "ExcelImport"
+                ],
+                "summary": "Historial de importaciones Excel",
+                "operationId": "4ff3dd1ce4457cc4e8b10831b32ced58",
+                "responses": {
+                    "200": {
+                        "description": "Listado paginado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelope"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "403": {
+                        "description": "Sin permiso o epica deshabilitada"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/excel-import/procesos/{codigoProceso}/archivo/hojas": {
+            "post": {
+                "tags": [
+                    "ExcelImport"
+                ],
+                "summary": "Listar hojas de un archivo Excel",
+                "operationId": "9d4620b5be81f6c6d2c6be1032b447e9",
+                "parameters": [
+                    {
+                        "name": "codigoProceso",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Hojas detectadas",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelope"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "422": {
+                        "description": "Archivo invalido"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/excel-import/procesos/{codigoProceso}/lotes": {
+            "post": {
+                "tags": [
+                    "ExcelImport"
+                ],
+                "summary": "Crear lote de importacion Excel",
+                "operationId": "7df18a0faea0fa296c532c345f3b7f94",
+                "parameters": [
+                    {
+                        "name": "codigoProceso",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Lote creado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelope"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "422": {
+                        "description": "Validacion o regla de negocio"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/excel-import/lotes/{guidImportacion}": {
+            "get": {
+                "tags": [
+                    "ExcelImport"
+                ],
+                "summary": "Detalle de lote de importacion",
+                "operationId": "9729c4b70c618970940f17f401d28fda",
+                "parameters": [
+                    {
+                        "name": "guidImportacion",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detalle del lote",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelope"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "404": {
+                        "description": "Lote inexistente"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/excel-import/lotes/{guidImportacion}/cancelar": {
+            "post": {
+                "tags": [
+                    "ExcelImport"
+                ],
+                "summary": "Cancelar lote de importacion",
+                "operationId": "89c1145762147d7f86b3c0f44278f57e",
+                "parameters": [
+                    {
+                        "name": "guidImportacion",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Lote cancelado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelope"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "422": {
+                        "description": "No cancelable"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/excel-import/procesos/{codigoProceso}": {
+            "get": {
+                "tags": [
+                    "ExcelImport"
+                ],
+                "operationId": "8fa1d60ccf5315abecf390f606e8fc2f",
+                "parameters": [
+                    {
+                        "name": "codigoProceso",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Metadata del proceso"
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "403": {
+                        "description": "Sin permiso"
+                    },
+                    "404": {
+                        "description": "Proceso no encontrado"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/excel-import/procesos/{codigoProceso}/plantilla": {
+            "get": {
+                "tags": [
+                    "ExcelImport"
+                ],
+                "operationId": "7c863cc2970c9bc278016afbfdb2abe0",
+                "parameters": [
+                    {
+                        "name": "codigoProceso",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Archivo xlsx"
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "403": {
+                        "description": "Sin permiso"
+                    },
+                    "404": {
+                        "description": "Plantilla no disponible"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/pedidos/carga/asistente/turn": {
+            "post": {
+                "tags": [
+                    "PedidosWeb"
+                ],
+                "summary": "Turno del Asistente IA en carga de pedidos/presupuestos",
+                "description": "Orquesta un turno conversacional sobre el borrador de carga (draftContext). Reusa BYOK del Chat Asistente IA; no usa corpus documental. Sin LLM configurado → error con configurationRequired.",
+                "operationId": "pedidosCargaAsistenteTurn",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CargaAsistenteTurnRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Turno procesado (replyText + actions + pendingChoice)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelopeCargaAsistenteTurn"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Tenant invalido"
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "403": {
+                        "description": "Sin permiso de carga"
+                    },
+                    "422": {
+                        "description": "Validación o configuración LLM no operativa (resultado.configurationRequired=true)"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/pivots/consultas/{consultaId}/metadata": {
+            "get": {
+                "tags": [
+                    "Pivots"
+                ],
+                "operationId": "8a7f769764b332351e8f740a34664a4c",
+                "parameters": [
+                    {
+                        "name": "consultaId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Metadata efectiva"
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "403": {
+                        "description": "Sin permiso"
+                    },
+                    "404": {
+                        "description": "Consulta no encontrada"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/pivots/consultas/{consultaId}/data": {
+            "post": {
+                "tags": [
+                    "Pivots"
+                ],
+                "operationId": "51a4e6159a144540d65bf5716ab12350",
+                "parameters": [
+                    {
+                        "name": "consultaId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Dataset plano"
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "422": {
+                        "description": "Filtro obligatorio o volumen excedido"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/pivots/consultas/{consultaId}/validate-structure": {
+            "post": {
+                "tags": [
+                    "Pivots"
+                ],
+                "operationId": "a1ffa2fed9b42d91ba36d8f9106c0037",
+                "parameters": [
+                    {
+                        "name": "consultaId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Estructura válida"
+                    },
+                    "422": {
+                        "description": "Estructura inválida"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
         "/api/v1/auth/login": {
             "post": {
                 "tags": [
@@ -2942,6 +3810,448 @@
                         "$ref": "#/components/schemas/ApiEnvelope"
                     }
                 ]
+            },
+            "ChatAssistantProviderCatalogItem": {
+                "properties": {
+                    "providerId": {
+                        "type": "string",
+                        "example": "ollama"
+                    },
+                    "displayName": {
+                        "type": "string",
+                        "example": "Ollama"
+                    },
+                    "supportsVision": {
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "requiresBaseUrl": {
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "supportUrl": {
+                        "type": "string",
+                        "example": "https://ollama.com/download"
+                    }
+                },
+                "type": "object"
+            },
+            "ChatAssistantProviderCatalogResultado": {
+                "properties": {
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ChatAssistantProviderCatalogItem"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "ApiEnvelopeChatAssistantProviderCatalog": {
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/ApiEnvelope"
+                    },
+                    {
+                        "properties": {
+                            "resultado": {
+                                "$ref": "#/components/schemas/ChatAssistantProviderCatalogResultado"
+                            }
+                        },
+                        "type": "object"
+                    }
+                ]
+            },
+            "ChatAssistantConfigurationResultado": {
+                "properties": {
+                    "hasConfiguration": {
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "hasApiKey": {
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "apiKeyHint": {
+                        "type": "string",
+                        "example": "••••••••"
+                    },
+                    "providerId": {
+                        "type": "string",
+                        "example": "ollama"
+                    },
+                    "modelId": {
+                        "type": "string",
+                        "example": "llama3.1"
+                    },
+                    "baseUrl": {
+                        "type": "string",
+                        "example": "http://localhost:11434"
+                    },
+                    "supportsVision": {
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "isEnabled": {
+                        "type": "boolean",
+                        "example": true
+                    }
+                },
+                "type": "object"
+            },
+            "UpsertChatAssistantConfigurationRequest": {
+                "required": [
+                    "providerId",
+                    "modelId"
+                ],
+                "properties": {
+                    "providerId": {
+                        "type": "string",
+                        "example": "ollama"
+                    },
+                    "apiKey": {
+                        "type": "string",
+                        "example": "secret-value"
+                    },
+                    "modelId": {
+                        "type": "string",
+                        "example": "llama3.1"
+                    },
+                    "baseUrl": {
+                        "type": "string",
+                        "example": "http://localhost:11434"
+                    }
+                },
+                "type": "object"
+            },
+            "UpdateChatAssistantConfigurationStatusRequest": {
+                "required": [
+                    "isEnabled"
+                ],
+                "properties": {
+                    "isEnabled": {
+                        "type": "boolean",
+                        "example": false
+                    }
+                },
+                "type": "object"
+            },
+            "ApiEnvelopeChatAssistantConfiguration": {
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/ApiEnvelope"
+                    },
+                    {
+                        "properties": {
+                            "resultado": {
+                                "$ref": "#/components/schemas/ChatAssistantConfigurationResultado"
+                            }
+                        },
+                        "type": "object"
+                    }
+                ]
+            },
+            "ApiEnvelopeChatAssistantConfigurationSaved": {
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/ApiEnvelope"
+                    },
+                    {
+                        "properties": {
+                            "respuesta": {
+                                "type": "string",
+                                "example": "chatAssistant.configurationSaved"
+                            },
+                            "resultado": {
+                                "$ref": "#/components/schemas/ChatAssistantConfigurationResultado"
+                            }
+                        },
+                        "type": "object"
+                    }
+                ]
+            },
+            "SendChatAssistantMessageRequest": {
+                "properties": {
+                    "message": {
+                        "type": "string",
+                        "example": "Necesito ayuda con esta pantalla"
+                    },
+                    "images": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ChatAssistantImageAttachmentRequest"
+                        },
+                        "maxItems": 4
+                    }
+                },
+                "type": "object"
+            },
+            "ChatAssistantImageAttachmentRequest": {
+                "required": [
+                    "fileName",
+                    "mimeType",
+                    "contentBase64"
+                ],
+                "properties": {
+                    "fileName": {
+                        "type": "string",
+                        "example": "captura.png"
+                    },
+                    "mimeType": {
+                        "type": "string",
+                        "example": "image/png"
+                    },
+                    "contentBase64": {
+                        "type": "string",
+                        "example": "iVBORw0KGgo="
+                    }
+                },
+                "type": "object"
+            },
+            "ChatAssistantDocumentReference": {
+                "properties": {
+                    "title": {
+                        "type": "string",
+                        "example": "Manual de usuario"
+                    },
+                    "path": {
+                        "type": "string",
+                        "example": "99-manual-usuario/PedidosWeb.md"
+                    }
+                },
+                "type": "object"
+            },
+            "ChatAssistantMessageReplyResultado": {
+                "properties": {
+                    "reply": {
+                        "type": "string",
+                        "example": "Texto orientativo de la respuesta"
+                    },
+                    "references": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ChatAssistantDocumentReference"
+                        }
+                    },
+                    "requiresSupportFollowup": {
+                        "type": "boolean",
+                        "example": false
+                    }
+                },
+                "type": "object"
+            },
+            "ApiEnvelopeChatAssistantMessageReply": {
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/ApiEnvelope"
+                    },
+                    {
+                        "properties": {
+                            "resultado": {
+                                "$ref": "#/components/schemas/ChatAssistantMessageReplyResultado"
+                            }
+                        },
+                        "type": "object"
+                    }
+                ]
+            },
+            "CargaAsistenteDraftRenglon": {
+                "properties": {
+                    "renglon": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "codArticulo": {
+                        "type": "string",
+                        "example": "ATS 0500"
+                    },
+                    "descripcion": {
+                        "type": "string",
+                        "example": "ALMENDRA TOSTADA"
+                    },
+                    "cantidad": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 10
+                    },
+                    "precio": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 123.5,
+                        "nullable": true
+                    },
+                    "porcBonif": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 3,
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "CargaAsistenteDraftContext": {
+                "properties": {
+                    "modo": {
+                        "description": "nuevo|edicion|soloLectura",
+                        "type": "string",
+                        "example": "nuevo"
+                    },
+                    "perfilUsuario": {
+                        "type": "string",
+                        "enum": [
+                            "V",
+                            "S",
+                            "C"
+                        ],
+                        "example": "V"
+                    },
+                    "codCliente": {
+                        "type": "string",
+                        "example": "C001",
+                        "nullable": true
+                    },
+                    "cabecera": {
+                        "type": "object"
+                    },
+                    "renglones": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/CargaAsistenteDraftRenglon"
+                        }
+                    },
+                    "readOnly": {
+                        "type": "boolean",
+                        "example": false
+                    },
+                    "codLista": {
+                        "type": "integer",
+                        "example": 1
+                    }
+                },
+                "type": "object"
+            },
+            "CargaAsistenteTurnRequest": {
+                "required": [
+                    "modality",
+                    "draftContext"
+                ],
+                "properties": {
+                    "message": {
+                        "description": "Obligatorio si no hay images",
+                        "type": "string",
+                        "example": "Elimina el articulo arroz"
+                    },
+                    "modality": {
+                        "type": "string",
+                        "enum": [
+                            "texto",
+                            "audio",
+                            "imagen"
+                        ],
+                        "example": "texto"
+                    },
+                    "credentialId": {
+                        "type": "integer",
+                        "example": 1,
+                        "nullable": true
+                    },
+                    "pendingChoice": {
+                        "description": "Eco del turno anterior (lista numerada / confirm)",
+                        "type": "object",
+                        "nullable": true
+                    },
+                    "draftContext": {
+                        "$ref": "#/components/schemas/CargaAsistenteDraftContext"
+                    },
+                    "images": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ChatAssistantImageAttachmentRequest"
+                        },
+                        "maxItems": 4
+                    }
+                },
+                "type": "object"
+            },
+            "CargaAsistenteActionItem": {
+                "required": [
+                    "action",
+                    "payload",
+                    "resultado"
+                ],
+                "properties": {
+                    "action": {
+                        "description": "noop|needsChoice|needsRefine|needsConfirm|selectCliente|clearDraftForClienteChange|setCabeceraField|setCabeceraFields|setCampoLibre|addRenglon|updateRenglon|removeRenglon|grabarPedido|grabarPresupuesto|showConsulta|applyImageExtract|denied|validationError|…",
+                        "type": "string",
+                        "example": "removeRenglon"
+                    },
+                    "payload": {
+                        "type": "object"
+                    },
+                    "resultado": {
+                        "description": "ok|needsChoice|needsRefine|needsConfirm|denied|validationError",
+                        "type": "string",
+                        "example": "ok"
+                    }
+                },
+                "type": "object"
+            },
+            "CargaAsistenteTurnResultado": {
+                "required": [
+                    "replyText",
+                    "actions",
+                    "configurationRequired"
+                ],
+                "properties": {
+                    "replyText": {
+                        "description": "Clave i18n o texto; el panel resuelve claves pedidos.carga.asistente.*",
+                        "type": "string",
+                        "example": "pedidos.carga.asistente.elegirRenglon"
+                    },
+                    "actions": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/CargaAsistenteActionItem"
+                        }
+                    },
+                    "pendingChoice": {
+                        "type": "object",
+                        "nullable": true
+                    },
+                    "configurationRequired": {
+                        "type": "boolean",
+                        "example": false
+                    }
+                },
+                "type": "object"
+            },
+            "ApiEnvelopeCargaAsistenteTurn": {
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/ApiEnvelope"
+                    },
+                    {
+                        "properties": {
+                            "resultado": {
+                                "$ref": "#/components/schemas/CargaAsistenteTurnResultado"
+                            }
+                        },
+                        "type": "object"
+                    }
+                ]
+            },
+            "CargaAsistenteConfigurationRequiredResultado": {
+                "properties": {
+                    "configurationRequired": {
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "preferencesPath": {
+                        "type": "string",
+                        "example": "/preferences"
+                    }
+                },
+                "type": "object"
             }
         },
         "securitySchemes": {
@@ -2961,8 +4271,20 @@
     },
     "tags": [
         {
+            "name": "ExcelImport",
+            "description": "Importación Excel — staging y procesamiento"
+        },
+        {
+            "name": "Pivots",
+            "description": "Motor metadata y dataset pivotable"
+        },
+        {
             "name": "PedidosWeb",
             "description": "Carga, consultas, dashboard operativo e integración"
+        },
+        {
+            "name": "ChatAssistant",
+            "description": "ChatAssistant"
         },
         {
             "name": "Auth",

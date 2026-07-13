@@ -6,6 +6,7 @@ Convención: **`HU-101-NNN-tema.md`** derivadas de [PedidosWeb_SPEC_MVP.md](../.
 **B1 (2026-06-01):** 27 HU enriquecidas en esta carpeta.  
 **B1 (2026-06-17):** SPEC-101-16 — HU-101-029 y HU-101-030 **B1 cerrado** ([F-101-16-cierre-b1](../../04-tareas/101-PedidosWeb/F-101-16-cierre-b1.md)); estado **Especificado**.  
 **B1 (2026-06-30):** SPEC-101-17 — HU-101-031…036 **B1 cerrado** ([F-101-17-cierre-b1](../../04-tareas/101-PedidosWeb/F-101-17-cierre-b1.md)); estado **Especificado**.  
+**B1 (2026-07-13):** SPEC-101-18/19/20 — HU-101-037…042 **B1 cerrado** ([F-101-18-20-cierre-b1](../../04-tareas/101-PedidosWeb/F-101-18-20-cierre-b1-asistente-carga-ia.md)); estado **Especificado**.  
 **C (2026-06-17):** TR-16a y TR-16b generadas.  
 **C1 (2026-06-17):** Revisión C1 **Apto** — [F-101-16-cierre-c1](../../04-tareas/101-PedidosWeb/F-101-16-cierre-c1.md); listo **D1**.
 
@@ -57,6 +58,25 @@ Convención: **`HU-101-NNN-tema.md`** derivadas de [PedidosWeb_SPEC_MVP.md](../.
 
 **SPEC:** [SPEC-101-17-mobile-capacitor-pedidosweb.md](../../05-open-spec/101-PedidosWeb/SPEC-101-17-mobile-capacitor-pedidosweb.md) — **C1 v1 (2026-06-30):** [F-101-17-cierre-c1](../../04-tareas/101-PedidosWeb/F-101-17-cierre-c1.md). Transversal: [HU-GEN-11-*](../001-Generaliddes/README.md#spec-001-11--mobile-capacitor).
 
+## SPEC-101-18 / 19 / 20 — Asistente IA en carga
+
+| HU | SPEC | Prioridad | Título |
+|----|------|-----------|--------|
+| [HU-101-037](HU-101-037-asistente-carga-ia-panel-gate.md) | 18 | Should | Panel, gate BYOK, orquestación |
+| [HU-101-038](HU-101-038-asistente-carga-ia-audio-imagen.md) | 18 | Should | Audio Web Speech + imagen entrada |
+| [HU-101-039](HU-101-039-asistente-carga-ia-cliente-cabecera.md) | 19 | Should | Cliente, cabecera, cambio cliente |
+| [HU-101-040](HU-101-040-asistente-carga-ia-articulos-grabar.md) | 19 | Should | Artículos, grabar, apply imagen |
+| [HU-101-041](HU-101-041-asistente-carga-ia-consulta-stock.md) | 20 | Should | Consulta stock |
+| [HU-101-042](HU-101-042-asistente-carga-ia-consultas-cliente.md) | 20 | Should | Deuda, cheques, historial |
+
+**A1:** [F-101-18-20-cierre-a1](../../04-tareas/101-PedidosWeb/F-101-18-20-cierre-a1-asistente-carga-ia.md) · **B1:** [F-101-18-20-cierre-b1](../../04-tareas/101-PedidosWeb/F-101-18-20-cierre-b1-asistente-carga-ia.md) · **C1:** [F-101-18-20-cierre-c1](../../04-tareas/101-PedidosWeb/F-101-18-20-cierre-c1-asistente-carga-ia.md) — listo **D1**.
+
+| TR | HU | Título |
+|----|-----|--------|
+| [TR-SPEC-101-18](../../04-tareas/101-PedidosWeb/TR-SPEC-101-18-asistente-carga-ia-shell.md) | 037, 038 | Shell, gate, audio, imagen |
+| [TR-SPEC-101-19](../../04-tareas/101-PedidosWeb/TR-SPEC-101-19-asistente-carga-ia-mutaciones.md) | 039, 040 | Mutaciones A–D, I, J, K |
+| [TR-SPEC-101-20](../../04-tareas/101-PedidosWeb/TR-SPEC-101-20-asistente-carga-ia-consultas.md) | 041, 042 | Consultas E–H |
+
 ## Dependencias transversales
 
 - **GEN-01 / GEN-03:** shell, grillas, layouts, export Excel.
@@ -73,6 +93,12 @@ Parte **D1 (SPEC-101-16):** implementar TR en orden 16a → 16b ([F-101-16-cierr
 Parte **C (SPEC-101-17 mobile v1):** **cerrada** — [F-101-17-cierre-c1](../../04-tareas/101-PedidosWeb/F-101-17-cierre-c1.md) — C1 **Apto**; listo **D1** v1.
 
 Parte **D1 (SPEC-101-17 mobile v1):** implementar TR en orden scaffold → login → stock kardex (coordinado con TR-GEN-11-*).
+
+Parte **B1 (SPEC-101-18/19/20 asistente carga):** **cerrada** — HU-101-037…042 ([F-101-18-20-cierre-b1](../../04-tareas/101-PedidosWeb/F-101-18-20-cierre-b1-asistente-carga-ia.md)).
+
+Parte **C1 (SPEC-101-18/19/20):** **Apto** — [F-101-18-20-cierre-c1](../../04-tareas/101-PedidosWeb/F-101-18-20-cierre-c1-asistente-carga-ia.md).
+
+Parte **D1 (SPEC-101-18/19/20):** plan [D1-PLAN-101-18-20](../../04-tareas/101-PedidosWeb/D1-PLAN-101-18-20-asistente-carga-ia.md) — pendiente confirmación para Parte D.
 
 Parte **C/D/F (MVP):** cerradas (2026-06-01 / 2026-06-03) — [TR por slice](../../04-tareas/101-PedidosWeb/README.md), [D-VERIFICACION-101](../../04-tareas/101-PedidosWeb/D-VERIFICACION-101.md), [F-101-PedidosWeb-cierre-formal](../../04-tareas/101-PedidosWeb/F-101-PedidosWeb-cierre-formal.md).
 

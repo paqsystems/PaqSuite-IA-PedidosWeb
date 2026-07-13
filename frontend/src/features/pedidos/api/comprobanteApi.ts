@@ -46,6 +46,9 @@ export type ParametrosCarga = {
   modificaBonArt: boolean;
   modificaBonCli: boolean;
   modificaListaPrec: boolean;
+  modificaCondVta: boolean;
+  modificaDirEntr: boolean;
+  modificaExpreso: boolean;
   clienteLeyenda1: boolean;
   clienteLeyenda2: boolean;
   clienteLeyenda3: boolean;

@@ -66,6 +66,13 @@ import {
   tieneRenglonesCargados,
 } from '../utils/renglonesCarga';
 import { resolveGrabacionErrorMessages } from '../utils/resolveGrabacionErrorMessages';
+import { CargaAsistenteIaPanel } from '../cargaAsistenteIa/components/CargaAsistenteIaPanel';
+import {
+  buildCargaAsistenteDraftContext,
+  mapFunctionalProfileToPerfilUsuario,
+} from '../cargaAsistenteIa/utils/buildCargaAsistenteDraftContext';
+import type { CargaAsistenteAddRenglonPayload } from '../cargaAsistenteIa/utils/applyCargaAsistenteActions';
+import { patchAsistenteCabecera } from '../cargaAsistenteIa/utils/patchAsistenteCabecera';
 import { PedidosCargaMobilePage } from './PedidosCargaMobilePage';
 import './PedidosCargaPage.css';
 
@@ -798,6 +805,121 @@ function PedidosCargaWebPage() {
     setArticuloSeleccionado(null);
   }, [articuloSeleccionado, articuloSeleccionadoData, cabecera, readOnly, renglones, t]);
 
+  const buildAsistenteDraftContext = useCallback(
+    () =>
+      buildCargaAsistenteDraftContext({
+        selectedCliente,
+        cabecera,
+        renglones,
+        readOnly,
+        modo,
+        perfilUsuario: mapFunctionalProfileToPerfilUsuario(sessionContext.functionalProfile),
+      }),
+    [cabecera, modo, readOnly, renglones, selectedCliente, sessionContext.functionalProfile],
+  );
+
+  const handleAsistenteAddRenglon = useCallback((payload: CargaAsistenteAddRenglonPayload) => {
+    setRenglones((current) => {
+      const sinVacios = renglonesValidosParaGrabar(current);
+      const nuevoRenglon: ComprobanteRenglon = {
+        renglon: nextRenglonNumber(sinVacios),
+        codArticulo: payload.codArticulo,
+        descripcionArticulo: payload.descripcion ?? '',
+        cantidad: payload.cantidad,
+        precio: payload.precio ?? 0,
+        porcBonif: payload.porcBonif ?? 0,
+        porcIva: 21,
+      };
+
+      return [...sinVacios, nuevoRenglon];
+    });
+  }, []);
+
+  const handleAsistenteUpdateRenglon = useCallback(
+    (payload: { renglon: number; cantidad?: number; precio?: number; porcBonif?: number }) => {
+      setRenglones((current) =>
+        current.map((row) => {
+          if (row.renglon !== payload.renglon) {
+            return row;
+          }
+
+          return {
+            ...row,
+            cantidad: payload.cantidad !== undefined ? payload.cantidad : row.cantidad,
+            precio: payload.precio !== undefined ? payload.precio : row.precio,
+            porcBonif: payload.porcBonif !== undefined ? payload.porcBonif : row.porcBonif,
+          };
+        }),
+      );
+    },
+    [],
+  );
+
+  const handleAsistenteRemoveRenglon = useCallback((renglon: number) => {
+    setRenglones((current) => current.filter((row) => row.renglon !== renglon));
+  }, []);
+
+  const handleAsistenteUpdateCabeceraField = useCallback((field: string, value: unknown) => {
+    setCabecera((current) => {
+      if (!current) {
+        return current;
+      }
+
+      return patchAsistenteCabecera(current, { [field]: value });
+    });
+  }, []);
+
+  const handleAsistentePatchCabeceraFields = useCallback((fields: Record<string, unknown>) => {
+    setCabecera((current) => {
+      if (!current) {
+        return current;
+      }
+
+      return patchAsistenteCabecera(current, fields);
+    });
+  }, []);
+
+  const handleAsistenteApplyImageExtract = useCallback((payload: Record<string, unknown>) => {
+    const renglonesValidos = Array.isArray(payload.renglonesValidos)
+      ? payload.renglonesValidos
+      : [];
+
+    if (renglonesValidos.length === 0) {
+      return;
+    }
+
+    setRenglones((current) => {
+      let next = renglonesValidosParaGrabar(current);
+
+      for (const item of renglonesValidos) {
+        if (!item || typeof item !== 'object') {
+          continue;
+        }
+
+        const row = item as Record<string, unknown>;
+        const codArticulo = String(row.codArticulo ?? '').trim();
+        if (codArticulo === '') {
+          continue;
+        }
+
+        next = [
+          ...next,
+          {
+            renglon: nextRenglonNumber(next),
+            codArticulo,
+            descripcionArticulo: String(row.descripcion ?? ''),
+            cantidad: Number(row.cantidad) > 0 ? Number(row.cantidad) : 1,
+            precio: row.precio !== undefined ? Number(row.precio) : 0,
+            porcBonif: row.porcBonif !== undefined ? Number(row.porcBonif) : 0,
+            porcIva: 21,
+          },
+        ];
+      }
+
+      return next.length > 0 ? next : [createEmptyRenglon(1)];
+    });
+  }, []);
+
   const bonificacionNetaCabecera = useMemo(() => {
     if (!cabecera) {
       return 0;
@@ -1263,6 +1385,29 @@ function PedidosCargaWebPage() {
             </div>
           </section>
         </div>
+
+        <CargaAsistenteIaPanel
+          buildDraftContext={buildAsistenteDraftContext}
+          readOnly={readOnly}
+          onSelectCliente={async (codCliente) => {
+            await handleClienteChange(codCliente);
+          }}
+          onClearDraft={() => {
+            void handleClienteChange(null);
+          }}
+          onAddRenglon={handleAsistenteAddRenglon}
+          onUpdateRenglon={handleAsistenteUpdateRenglon}
+          onRemoveRenglon={handleAsistenteRemoveRenglon}
+          onUpdateCabeceraField={handleAsistenteUpdateCabeceraField}
+          onPatchCabeceraFields={handleAsistentePatchCabeceraFields}
+          onGrabarPedido={() => {
+            void saveComprobante('pedido');
+          }}
+          onGrabarPresupuesto={() => {
+            void saveComprobante('presupuesto');
+          }}
+          onApplyImageExtract={handleAsistenteApplyImageExtract}
+        />
       </div>
 
       <PedidosCargaArticulosStockLoadPanel visible={articulosStockPrecargaPendiente} />

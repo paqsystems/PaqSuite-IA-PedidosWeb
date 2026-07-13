@@ -17,6 +17,7 @@ use App\Http\Controllers\Api\V1\ExcelImport\ExcelImportStagingController;
 use App\Http\Controllers\Api\V1\Pivots\PivotConfigController;
 use App\Http\Controllers\Api\V1\Pivots\PivotController;
 use App\Http\Controllers\Api\V1\PedidosWeb\ArticuloController;
+use App\Http\Controllers\Api\V1\PedidosWeb\CargaAsistenteTurnController;
 use App\Http\Controllers\Api\V1\PedidosWeb\ClienteCabeceraController;
 use App\Http\Controllers\Api\V1\PedidosWeb\ComprobanteController;
 use App\Http\Controllers\Api\V1\PedidosWeb\ConsultaController;
@@ -100,6 +101,8 @@ Route::prefix('v1')->group(function (): void {
                 ->name('api.v1.chat-assistant.me.configuration.status');
             Route::post('/chat-assistant/messages', [ChatAssistantMessageController::class, 'store'])
                 ->name('api.v1.chat-assistant.messages.store');
+            Route::post('/pedidos/carga/asistente/turn', [CargaAsistenteTurnController::class, 'store'])
+                ->name('api.v1.pedidos.carga.asistente.turn');
             Route::get('/config/parametros-carga', [ParametrosCargaController::class, 'show'])
                 ->name('api.v1.config.parametros-carga');
             Route::get('/config/parametros', [ParametrosController::class, 'index'])

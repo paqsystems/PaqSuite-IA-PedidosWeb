@@ -34,6 +34,9 @@ final class PedidosWebParameterServiceTest extends TestCase
             'modificaBonArt' => false,
             'modificaBonCli' => false,
             'modificaListaPrec' => false,
+            'modificaCondVta' => false,
+            'modificaDirEntr' => true,
+            'modificaExpreso' => true,
         ], $service->resolveModificaFlags('cliente'));
     }
 
@@ -45,6 +48,9 @@ final class PedidosWebParameterServiceTest extends TestCase
         config()->set('paqsuite_pedidosweb.defaults.ModificaBonArtS', 1);
         config()->set('paqsuite_pedidosweb.defaults.ModificaBonCliS', 0);
         config()->set('paqsuite_pedidosweb.defaults.ModificaListaPrecS', 1);
+        config()->set('paqsuite_pedidosweb.defaults.ModificaCondVtaS', 0);
+        config()->set('paqsuite_pedidosweb.defaults.ModificaDirEntrS', 1);
+        config()->set('paqsuite_pedidosweb.defaults.ModificaExpresoS', 0);
 
         $service = new PedidosWebParameterService();
 
@@ -53,6 +59,9 @@ final class PedidosWebParameterServiceTest extends TestCase
             'modificaBonArt' => true,
             'modificaBonCli' => false,
             'modificaListaPrec' => true,
+            'modificaCondVta' => false,
+            'modificaDirEntr' => true,
+            'modificaExpreso' => false,
         ], $service->resolveModificaFlags('supervisor'));
     }
 

@@ -2,9 +2,15 @@
 
 | Campo | Valor |
 |-------|--------|
-| **Estado** | Borrador de definición (pre-SPEC / pre-HU) |
+| **Estado** | Definición de producto + OpenSpec **A1+B1+C1** + post-smoke (2026-07-13) |
 | **Ámbito** | PedidosWeb — pantalla de carga (`/pedidos/carga`) + canal conversacional operativo |
-| **Última actualización** | 2026-07-12 (UX pie de formulario, audio, BYOK, stock exacto, K en MVP) |
+| **Última actualización** | 2026-07-13 (post-smoke: panel 270px, consultas F/G UX, cabecera C, mutar renglones detalle) |
+| **OpenSpec** | [SPEC-101-18](../../05-open-spec/101-PedidosWeb/SPEC-101-18-asistente-carga-ia-shell.md) · [SPEC-101-19](../../05-open-spec/101-PedidosWeb/SPEC-101-19-asistente-carga-ia-mutaciones.md) · [SPEC-101-20](../../05-open-spec/101-PedidosWeb/SPEC-101-20-asistente-carga-ia-consultas.md) |
+| **Cierre A1** | [F-101-18-20-cierre-a1](../../04-tareas/101-PedidosWeb/F-101-18-20-cierre-a1-asistente-carga-ia.md) |
+| **Cierre B1** | [F-101-18-20-cierre-b1](../../04-tareas/101-PedidosWeb/F-101-18-20-cierre-b1-asistente-carga-ia.md) |
+| **Cierre C1** | [F-101-18-20-cierre-c1](../../04-tareas/101-PedidosWeb/F-101-18-20-cierre-c1-asistente-carga-ia.md) |
+| **TR** | [TR-18](../../04-tareas/101-PedidosWeb/TR-SPEC-101-18-asistente-carga-ia-shell.md) · [TR-19](../../04-tareas/101-PedidosWeb/TR-SPEC-101-19-asistente-carga-ia-mutaciones.md) · [TR-20](../../04-tareas/101-PedidosWeb/TR-SPEC-101-20-asistente-carga-ia-consultas.md) |
+| **HU** | [037](../../03-historias-usuario/101-PedidosWeb/HU-101-037-asistente-carga-ia-panel-gate.md) · [038](../../03-historias-usuario/101-PedidosWeb/HU-101-038-asistente-carga-ia-audio-imagen.md) · [039](../../03-historias-usuario/101-PedidosWeb/HU-101-039-asistente-carga-ia-cliente-cabecera.md) · [040](../../03-historias-usuario/101-PedidosWeb/HU-101-040-asistente-carga-ia-articulos-grabar.md) · [041](../../03-historias-usuario/101-PedidosWeb/HU-101-041-asistente-carga-ia-consulta-stock.md) · [042](../../03-historias-usuario/101-PedidosWeb/HU-101-042-asistente-carga-ia-consultas-cliente.md) |
 | **Dependencias UI** | [pantalla-carga-comprobante-ui.md](./pantalla-carga-comprobante-ui.md) |
 | **Consultas relacionadas** | [consulta-stock.md](./consulta-stock.md) · [consulta-deuda.md](./consulta-deuda.md) · [consulta-cheques.md](./consulta-cheques.md) · [consulta-historial-ventas.md](./consulta-historial-ventas.md) |
 | **Chat documental (distinto)** | Manual [Chat-Asistente-IA.md](../../99-manual-usuario/Chat-Asistente-IA.md) — ayuda por documentación; **no** opera sobre la carga |
@@ -43,7 +49,7 @@ Hoy la carga exige navegar combobox, popups y grillas. Operadores comerciales (s
 |----|-----------|
 | A | Selección de cliente por código o nombre + lista numerada si hay varios |
 | B | Completar / cambiar datos de cabecera con control de permisos |
-| C | Campos libres de cabecera (nivel, observaciones, leyendas 1–5) por atributo + valor |
+| C | Campos libres de cabecera (nivel, observaciones, leyendas 1–5, bonif. 1–3, expreso, dirección expreso) por atributo + valor |
 | D | Selección de artículos (código/descripción), cantidad, precio/descuento si hay permiso |
 | E | Consulta de stock por descripción — **mapping exacto** [consulta-stock.md](./consulta-stock.md); máx. **10** filas o pedir refinar |
 | F | Deuda del cliente en proceso |
@@ -89,7 +95,7 @@ Hoy la carga exige navegar combobox, popups y grillas. Operadores comerciales (s
 | Aspecto | Criterio |
 |---------|----------|
 | Por qué al pie | El operador ve cabecera + renglones arriba y conversa abajo sin perder contexto; no abre otra pestaña como el chat documental |
-| Layout web | Bloque colapsable/expandible (`data-testid` estable, p. ej. `cargaAsistenteIaPanel`) con altura máxima y scroll interno del hilo, para no empujar la grilla fuera de vista en pantallas chicas |
+| Layout web | Bloque colapsable/expandible (`data-testid` estable, p. ej. `cargaAsistenteIaPanel`); hilo expandido con **mín. 270px** (hasta 33vh) y scroll interno |
 | Toolbar del panel | Campo de texto, botón enviar, **micrófono** (audio L), **adjuntar imagen** (K), **ruedita** (Preferencias M) |
 | Mobile / native | Misma idea al pie de la vista de carga; si el viewport es muy bajo, el panel puede abrirse como sheet/drawer anclado abajo, sin salir del flujo de carga |
 | Modo Ver / solo lectura | El panel puede permitir consultas E–H; acciones de mutación (A–D, J) deshabilitadas o rechazadas con el mismo criterio que la UI |
@@ -179,6 +185,15 @@ Campos con catálogo o lookup (ejemplos): perfil de pedido, condición de venta,
 | Nivel | Respetar `NivelExtremo` (solo 0/100 si aplica) |
 | Observaciones | Texto libre de cabecera |
 | Leyenda 1 … Leyenda 5 | Texto libre; el usuario indica **atributo + valor** |
+| Bonificación 1 / 2 / 3 | Numérico; aplica directo en cabecera. Requiere `ModificaBonCli*` (perfil **C** nunca). Bonif. 3 rango −99.99…99.99 |
+| Expreso | Texto libre (`expreso`); permiso `ModificaExpreso*` |
+| Dirección expreso | Texto libre (`expresoDire`); permiso `ModificaExpreso*` |
+| Transporte | Lookup catálogo `codTranspor` (código/descripción); ambigüedad → lista numerada |
+| Condición de venta | Lookup catálogo `codCondvta`; permiso `ModificaCondVta*` |
+| Perfil | Lookup catálogo `codPerfil` (solo lectura bloquea) |
+| Lista de precios | Lookup + set moneda/IVA; permiso `ModificaListaPrec*` (perfil **C** nunca) |
+| Fecha de entrega | Fecha libre (`YYYY-MM-DD` / `d/m/Y`); solo lectura bloquea |
+| Dirección de entrega | Lookup direcciones del cliente (`idDe`); permiso `ModificaDirEntr*`; requiere cliente |
 
 ### Forma de pedido al asistente
 
@@ -187,8 +202,17 @@ No se exige elegir de lista. Ejemplos:
 - “Nivel 100”
 - “Observaciones: entregar por calle lateral”
 - “Leyenda 2: Facturar a nombre de…”
+- “Bonificación 1 5” / “Bonif 2: 3%” / “Bonificación 3 -2”
+- “Expreso Andreani”
+- “Dirección expreso Calle Falsa 123”
+- “Transporte Pablo” (lookup catálogo; 1 match aplica; 2–10 lista numerada; >10 refinar)
+- “Condición de venta 30 días”
+- “Perfil STANDARD”
+- “Lista de precios 2”
+- “Fecha de entrega 15/07/2026”
+- “Dirección de entrega Mitre”
 
-El asistente confirma el valor aplicado. Si el campo está deshabilitado por modo solo lectura / Ver, rechazar.
+El asistente confirma el valor aplicado. Si el campo está deshabilitado por modo solo lectura / Ver, o sin permiso de bonificación de cabecera, rechazar.
 
 ---
 
@@ -197,17 +221,49 @@ El asistente confirma el valor aplicado. Si el campo está deshabilitado por mod
 ### Intención típica
 
 - “Artículo ABC-01 cantidad 12”
+- “Agregar 10 unidades del artículo 1001”
 - “Agregar tornillo hexagonal 5/16”
 - “Poner precio 1500 y descuento 5 en el último renglón”
+- “Bonificación 10 al artículo X” / “Descuento 5% en el último renglón”
 
 ### Comportamiento
 
 1. Búsqueda por **código** o **descripción** sobre el mismo universo que el combobox de carga (excluye BASE `usa_esc = 'B'`; requiere lista de precios válida cuando aplique precio).
-2. **0 / 1 / 2–10** resultados: patrón de lista numerada; **>10** → pedir refinar (igual que A/E).
-3. Al elegir artículo: pedir o tomar **cantidad** (> 0). Inicializar bonificación de renglón como en UI (bonificación del maestro / reglas de cantidad).
-4. **Precio** y **descuento/bonificación de línea:** solo si parámetros/permisos lo permiten (`ModificaPrecioV/S`, `ModificaBonArtV/S`). Perfil cliente: nunca modifica precio/bonif./lista.
-5. Agregar o actualizar renglón en el borrador de carga (sin duplicar código de artículo: misma regla que UI — un código por comprobante).
-6. Recalcular importes con la lógica vigente (`CalculoTotales` / utilidades de carga).
+   - Por **descripción** con varias palabras: el match debe cumplir **todas** las palabras significativas (AND por tokens), no un `LIKE` único de la frase entera.
+2. Resultados y mensajes (distintos; i18n en panel):
+   - **0** → *No se encontró ningún artículo…* (`reply.articulosNone`)
+   - **1** → agregar (o auto-aplicar) con reglas de cantidad/precio/bonif.
+   - **2–10** → lista numerada (`reply.articulosAmbiguous`)
+   - **>10** → *Demasiados artículos… refiná…* (`reply.articulosRefine`) — **no** el mismo texto que “no encontrado”
+3. **Parseo de frase de alta** (antes de buscar):
+   - Extraer **cantidad** si el usuario dice número + `unidad(es)` / `cantidad N` / `N del artículo…`; si **no** indica cantidad → **asumir 1**.
+   - Extraer **precio** si dice `precio` / `a $…` / `precio unitario`.
+   - Extraer **bonificación/descuento de línea** si dice `bonificación` / `bonif` / `descuento` / `%` asociado; sinónimo comercial: descuento ≈ bonificación de renglón.
+   - El **texto de búsqueda** del artículo **no** debe incluir los tokens de cantidad/unidad/precio/bonif (p. ej. de “10 unidades del artículo 1001” buscar `1001`, no `10 unidades…`).
+4. Al elegir artículo: cantidad `> 0` (default 1). Inicializar bonificación de renglón como en UI (maestro / reglas de cantidad) **salvo** que el usuario haya pedido un % explícito.
+5. **Precio** y **descuento/bonificación de línea:** solo si parámetros/permisos lo permiten (`ModificaPrecioV/S`, `ModificaBonArtV/S`). Perfil cliente: nunca modifica precio/bonif./lista. Si pide precio/bonif. sin permiso → informar y no aplicar ese campo (sí puede agregar con defaults de UI).
+6. Intenciones de **solo precio** o **solo bonif./descuento** sobre renglón existente (“último renglón” / lista si hay varios) reutilizan D1-13.
+7. **Eliminar / modificar renglón ya cargado** (detalle del comprobante, **no** el maestro de artículos):
+   - Intenciones: `eliminar`/`elimina`/`borrar`/`borra`/`quitar`/`quita`/`sacar`/`saca` + artículo; o `cambiar`/`modificar`/`poner` + cantidad/precio/bonif.
+   - Ámbito de búsqueda: solo `draftContext.renglones` (código, descripción o “último renglón”).
+   - **Convención de frase:** descripción/código entre **comillas** (`"…"` / `'…'`) **o** al **final** del mensaje (valores cantidad/precio **antes** del artículo). Así se permiten descripciones con espacios/números sin confundirlas con el valor nuevo.
+   - **0 match:** informar la **descripción/código buscado** (`renglonNoEncontradoConQ`).
+   - **1 match:** aplicar `remove` o `update`.
+   - **2–10 matches:** lista numerada `código — descripción · cant · precio · bonif%`; el usuario responde con el número.
+   - **>10 matches** en detalle: pedir refinar (mismo tope que listas del asistente).
+   - Update: cantidad/precio/bonif con los mismos permisos que el alta (`ModificaPrecio*`, `ModificaBonArt*`).
+8. Agregar o actualizar renglón en el borrador (un código por comprobante en UI manual; el asistente desambigua por lista si hay varios renglones coincidentes).
+9. Recalcular importes con la lógica vigente (`CalculoTotales` / utilidades de carga).
+10. Mensajes del asistente hacia el usuario: **siempre texto i18n del locale activo** (no claves crudas `carga.asistente.reply.*` en el panel).
+
+### Ejemplos eliminar / modificar
+
+- “Eliminar artículo almendra”
+- “Elimina el artículo arroz” (si hay varios renglones en el detalle, lista para elegir — **no** busca en el maestro)
+- “Quitar el último renglón”
+- “Cambiar cantidad a 5 del artículo ABC”
+- “Cambiar cantidad del artículo \"almendra tostada\" a 150”
+- “Poner precio 1500 y descuento 3 en el último renglón”
 
 ---
 
@@ -260,8 +316,10 @@ Requieren **cliente seleccionado** en el comprobante en curso. Visibilidad = uni
 ### Presentación
 
 - Resumen + lista acotada (máx. **10** filas visibles; si hay más, indicar total y pedir refinar o “ver en consulta …” / paginación conversacional en TR).
+- Presentación tabular en el panel (tabla HTML alineada; importes a la derecha con dígitos tabulares).
 - Importes con formato decimal coherente al portal.
-- **Fechas y zona horaria:** igual que las **consultas actuales** del portal (mismo formato / TZ que deuda, cheques e historial en UI).
+- **Fechas:** solo la parte fecha (`YYYY-MM-DD`), **sin horario**, en deuda/cheques (y columnas `fecha` / `vencimiento` del chat).
+- **Totales al pie (F/G):** si el listado tiene **más de un ítem**, al final mostrar la suma de **saldo** (deuda) o **importe** (cheques) de las filas listadas.
 - Si no hay cliente: guiar a capacidad A.
 - Si el usuario no tiene permiso de consulta del proceso: mensaje de permiso (no inventar datos).
 
@@ -338,7 +396,7 @@ Pueden coexistir: el documental responde “cómo se usa”; el de carga **opera
 - Toda acción respeta rol, perfil (V/S/C), parámetros ERP y visibilidad de cartera.
 - No elevar privilegios vía prompt injection: el backend de acciones debe revalidar permisos (nunca confiar solo en el LLM).
 - Sin configuración LLM: bloquear en cliente y servidor (respuesta fija §5.4).
-- Auditoría: usuario, timestamp, modalidad de entrada (texto/audio/imagen), intención, acción, resultado.
+- Auditoría: **log de aplicación** (usuario, timestamp, modalidad texto/audio/imagen, intención, acción, resultado).
 
 ---
 
@@ -350,12 +408,14 @@ Pueden coexistir: el documental responde “cómo se usa”; el de carga **opera
 - [ ] **CA-A01:** Búsqueda de cliente con 2–10 matches muestra lista numerada; >10 pide refinar; 1 match inicializa cabecera como combobox.
 - [ ] **CA-B01:** Cambio de lista/cabecera sin permiso es rechazado con mensaje.
 - [ ] **CA-C01:** “Leyenda 3: texto X” asigna solo ese campo.
-- [ ] **CA-D01:** Artículo ambiguo (≤10) → lista; >10 refine; con cantidad agrega renglón; precio solo con permiso.
+- [ ] **CA-D01:** Artículo ambiguo (≤10) → lista; >10 refine (mensaje distinto a “no encontrado”); con cantidad agrega renglón; “N unidades del artículo X” → qty N + búsqueda X; bonif/descuento de línea con permiso; precio solo con permiso; reply i18n resuelto.
+- [ ] **CA-D02:** Eliminar/modificar renglón busca en el **detalle del comprobante** (conjugados `elimina`/`borra`/…); comillas o descripción al final; 0 → muestra q buscada; 2+ → lista cant·precio·bonif; no confundir con alta en maestro.
 - [ ] **CA-E01:** Stock usa propiedades de [consulta-stock.md](./consulta-stock.md); ≤10 filas + totales de métricas por artículo; >10 pide refinar.
-- [ ] **CA-F01 / G01 / H01:** Sin cliente → pide selección; con cliente → datos de la API; fechas/TZ como consultas actuales.
+- [ ] **CA-F01 / G01 / H01:** Sin cliente → pide selección; con cliente → datos de la API; F/G fechas sin hora y total al pie si >1 ítem; presentación en tabla HTML del panel.
 - [ ] **CA-I01:** Cambio de cliente con renglones pide confirmación; sin confirmar no borra.
 - [ ] **CA-J01:** “Grabar pedido” / “Grabar presupuesto” dispara el mismo flujo que los botones.
 - [ ] **CA-K01:** Imagen con ítems válidos hidrata renglones en MVP; inválidos no se cargan y se informan.
+- [ ] **CA-UX-H:** Hilo expandido mín. 270px / `max(270px, 33vh)`; scroll interno (no empuja scroll de página).
 
 ---
 
@@ -366,20 +426,27 @@ Pueden coexistir: el documental responde “cómo se usa”; el de carga **opera
 | 1 | Ubicación del chat | **Cerrado:** pie del formulario de carga (§5.1) |
 | 2 | Mapping stock | **Cerrado:** contrato [consulta-stock.md](./consulta-stock.md) §6 |
 | 3 | Límite de listas | **Cerrado:** máx. 10; si hay más → refinar |
-| 4 | Zona horaria / fechas F–H | **Cerrado:** igual que consultas actuales |
+| 4 | Fechas F–G en chat | **Cerrado:** solo `YYYY-MM-DD` (sin horario); >1 ítem → total saldo/importe |
 | 5 | Alcance K | **Cerrado:** incluido en MVP |
-| 6 | Motor de audio (Web Speech vs STT del proveedor) | Abierto técnico en TR; funcionalmente dictado → texto |
+| 6 | Motor de audio (Web Speech vs STT del proveedor) | **Cerrado:** Web Speech API |
 | 7 | Costo BYOK en sesiones largas + imágenes | Avisos de uso / modelo económico |
-| 8 | Altura del panel vs grilla en notebooks | UX: colapsable + max-height |
+| 8 | Altura del hilo del panel | **Cerrado (rev):** mín. **270px** (`max(270px, 33vh)`); scroll interno |
+| 9 | Auditoría acciones asistente | **Cerrado:** log de aplicación Laravel |
+| 10 | Columnas chat deuda / cheques / historial | **Cerrado:** F tipo/nro·fecha·vto·saldo; G nro·fecha·importe; H desc·cant·PU neto·importe |
+| 11 | Frases confirmación cambio cliente | **Cerrado:** sí, confirmo, aceptado |
+| 12 | Presentación tablas consulta | **Cerrado:** tabla HTML (`cargaAsistenteIaConsultaTable`) |
+| 13 | Cabecera vía chat (C ampliado) | **Cerrado:** bonif 1–3, expreso, transporte, cond. venta, perfil, lista, fecha/dirección entrega + `Modifica*` |
+| 14 | Eliminar/modificar renglón | **Cerrado:** detalle borrador; comillas o desc. al final; lista con cant·precio·bonif; conjugados elimina/borra… |
 
 ---
 
 ## 19. Próximos pasos documentales sugeridos
 
-1. OpenSpec (p. ej. `SPEC-101-xx-asistente-carga-ia`) a partir de este archivo.
-2. HU por capacidad (A–M en MVP, agrupables).
-3. TR con contratos de “acciones” backend reutilizando services de carga/consultas + gate de credencial LLM.
-4. Actualizar [pantalla-carga-comprobante-ui.md](./pantalla-carga-comprobante-ui.md) y manual de usuario cuando exista implementación.
+1. ~~OpenSpec A0~~ → ~~revisión **A1**~~ — [cierre A1](../../04-tareas/101-PedidosWeb/F-101-18-20-cierre-a1-asistente-carga-ia.md).
+2. ~~HU (B/B1)~~ — HU-101-037…042; [cierre B1](../../04-tareas/101-PedidosWeb/F-101-18-20-cierre-b1-asistente-carga-ia.md).
+3. ~~TR (C/C1)~~ — TR-18/19/20; [cierre C1](../../04-tareas/101-PedidosWeb/F-101-18-20-cierre-c1-asistente-carga-ia.md) **Apto** → **D1**.
+4. Actualizar [pantalla-carga-comprobante-ui.md](./pantalla-carga-comprobante-ui.md) (detalle UI) si hace falta sincronía fina.
+5. ~~Ajustes post-smoke~~ · ~~F1~~ · ~~Parte F + OpenAPI~~ — [F-101-18-20-cierre-formal](../../04-tareas/101-PedidosWeb/F-101-18-20-cierre-formal.md) (2026-07-13).
 
 ---
 
@@ -390,3 +457,17 @@ Pueden coexistir: el documental responde “cómo se usa”; el de carga **opera
 - [PedidosWeb_Definicion_Conceptual_Final_OpenSpec.md](./PedidosWeb_Definicion_Conceptual_Final_OpenSpec.md)
 - Manual carga: [PedidosWeb.md](../../99-manual-usuario/PedidosWeb.md) §6
 - Chat documental / Preferencias: [Chat-Asistente-IA.md](../../99-manual-usuario/Chat-Asistente-IA.md)
+
+---
+
+## 21. Historial de ajustes post-smoke (2026-07-13)
+
+Consolidado de mejoras pedidas en implementación / smoke del panel:
+
+| Área | Ajuste |
+|------|--------|
+| Panel (SPEC-18) | Altura hilo **270px mín.** / `max(270px, 33vh)`; `flex-shrink: 0`; scroll interno (sin `scrollIntoView` de página) |
+| Consultas F/G (SPEC-20) | Fechas solo `YYYY-MM-DD`; totales pie si >1 ítem; tabla HTML alineada |
+| Cabecera B/C (SPEC-19) | Bonif. 1–3, expreso/dir. expreso, transporte, cond. venta, perfil, lista precios, fecha y dirección entrega; flags `Modifica*` ampliados |
+| Artículos D (SPEC-19) | Eliminar/modificar en **detalle**; comillas o descripción al final; devolver q buscada si 0; lista desambiguación con cant·precio·bonif%; conjugados `elimina`/`borra`/`quita`/`saca` (no caer en alta/maestro) |
+| i18n | `elegirRenglon`, `renglonNoEncontrado`, `renglonNoEncontradoConQ`, `renglonEliminado`, `renglonActualizado` (+ locales) |

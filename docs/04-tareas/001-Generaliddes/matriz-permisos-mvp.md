@@ -128,6 +128,7 @@ Sin endpoint API. Visible en UI solo en modo pivot; requiere permiso de ver la c
 | POST | `/api/v1/presupuestos/{id}/cerrar` | **`pw_cargapedidos`** | TR-SPEC-101-05-controllers-rest |
 | POST | `/api/v1/comprobantes/grabar`, `/copiar` | **`pw_cargapedidos`** | TR-SPEC-101-05-controllers-rest |
 | POST | `/api/v1/pedidos/{id}/edicion/*` | **`pw_cargapedidos`** | TR-SPEC-101-05-controllers-rest |
+| POST | `/api/v1/pedidos/carga/asistente/turn` | Autenticado + acceso carga (`pw_cargapedidos`) + BYOK usuario | TR-SPEC-101-18 |
 | GET | `/api/v1/consultas/pedidos-ingresados` | `Permiso_Repo` + **`pw_pedidosingresados`** + visibilidad | TR-SPEC-101-07-consultas-api |
 | GET | `/api/v1/consultas/pedidos-pendientes` | `Permiso_Repo` + **`pw_pedidospendientes`** + visibilidad | TR-SPEC-101-07-consultas-api |
 | GET | `/api/v1/consultas/presupuestos` | `Permiso_Repo` + **`pw_presupuestosingresados`** + visibilidad | TR-SPEC-101-07-consultas-api |

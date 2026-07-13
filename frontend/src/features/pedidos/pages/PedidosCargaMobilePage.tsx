@@ -1,8 +1,16 @@
+import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import Button from 'devextreme-react/button';
 import SelectBox from 'devextreme-react/select-box';
 import { SelectBoxDx } from '../../../shared/ui/controls/SelectBoxDx';
 import { isDevExtremeUserChange } from '../../../shared/ui/devextremeUserChange';
+import { CargaAsistenteIaPanel } from '../cargaAsistenteIa/components/CargaAsistenteIaPanel';
+import {
+  buildCargaAsistenteDraftContext,
+  mapFunctionalProfileToPerfilUsuario,
+} from '../cargaAsistenteIa/utils/buildCargaAsistenteDraftContext';
+import type { CargaAsistenteAddRenglonPayload } from '../cargaAsistenteIa/utils/applyCargaAsistenteActions';
+import { patchAsistenteCabecera } from '../cargaAsistenteIa/utils/patchAsistenteCabecera';
 import { PedidosCargaArticulosStockLoadPanel } from '../components/PedidosCargaArticulosStockLoadPanel';
 import { PedidosCargaMobileCabeceraStep } from '../components/mobile/PedidosCargaMobileCabeceraStep';
 import { PedidosCargaConfirmacionDialog } from '../components/PedidosCargaConfirmacionDialog';
@@ -12,9 +20,14 @@ import {
   usePedidosCargaMobile,
   type PedidosCargaMobileStep,
 } from '../hooks/usePedidosCargaMobile';
+import { useRequiredSessionContext } from '../../auth/AuthProvider';
+import type { ComprobanteRenglon } from '../api/comprobanteApi';
 import {
   calcularImporteNetoConIvaRenglon,
+  createEmptyRenglon,
   formatImporteMoneda,
+  nextRenglonNumber,
+  renglonesValidosParaGrabar,
 } from '../utils/renglonesCarga';
 import './PedidosCargaMobilePage.css';
 
@@ -29,9 +42,147 @@ const stepLabelKeys: Record<PedidosCargaMobileStep, string> = {
 
 export function PedidosCargaMobilePage() {
   const { t } = useTranslation();
+  const sessionContext = useRequiredSessionContext();
   const carga = usePedidosCargaMobile();
 
   const stepIndex = carga.stepOrder.indexOf(carga.step);
+
+  const buildAsistenteDraftContext = useCallback(
+    () =>
+      buildCargaAsistenteDraftContext({
+        selectedCliente: carga.selectedCliente,
+        cabecera: carga.cabecera,
+        renglones: carga.renglones,
+        readOnly: carga.readOnly,
+        modo: carga.modo,
+        perfilUsuario: mapFunctionalProfileToPerfilUsuario(sessionContext.functionalProfile),
+      }),
+    [
+      carga.cabecera,
+      carga.modo,
+      carga.readOnly,
+      carga.renglones,
+      carga.selectedCliente,
+      sessionContext.functionalProfile,
+    ],
+  );
+
+  const handleAsistenteAddRenglon = useCallback(
+    (payload: CargaAsistenteAddRenglonPayload) => {
+      carga.setRenglones((current) => {
+        const sinVacios = renglonesValidosParaGrabar(current);
+        const nuevoRenglon: ComprobanteRenglon = {
+          renglon: nextRenglonNumber(sinVacios),
+          codArticulo: payload.codArticulo,
+          descripcionArticulo: payload.descripcion ?? '',
+          cantidad: payload.cantidad,
+          precio: payload.precio ?? 0,
+          porcBonif: payload.porcBonif ?? 0,
+          porcIva: 21,
+        };
+
+        return [...sinVacios, nuevoRenglon];
+      });
+    },
+    [carga.setRenglones],
+  );
+
+  const handleAsistenteUpdateRenglon = useCallback(
+    (payload: { renglon: number; cantidad?: number; precio?: number; porcBonif?: number }) => {
+      carga.setRenglones((current) =>
+        current.map((row) => {
+          if (row.renglon !== payload.renglon) {
+            return row;
+          }
+
+          return {
+            ...row,
+            cantidad: payload.cantidad !== undefined ? payload.cantidad : row.cantidad,
+            precio: payload.precio !== undefined ? payload.precio : row.precio,
+            porcBonif: payload.porcBonif !== undefined ? payload.porcBonif : row.porcBonif,
+          };
+        }),
+      );
+    },
+    [carga.setRenglones],
+  );
+
+  const handleAsistenteRemoveRenglon = useCallback(
+    (renglon: number) => {
+      carga.setRenglones((current) => current.filter((row) => row.renglon !== renglon));
+    },
+    [carga.setRenglones],
+  );
+
+  const handleAsistenteUpdateCabeceraField = useCallback(
+    (field: string, value: unknown) => {
+      carga.setCabecera((current) => {
+        if (!current) {
+          return current;
+        }
+
+        return patchAsistenteCabecera(current, { [field]: value });
+      });
+    },
+    [carga.setCabecera],
+  );
+
+  const handleAsistentePatchCabeceraFields = useCallback(
+    (fields: Record<string, unknown>) => {
+      carga.setCabecera((current) => {
+        if (!current) {
+          return current;
+        }
+
+        return patchAsistenteCabecera(current, fields);
+      });
+    },
+    [carga.setCabecera],
+  );
+
+  const handleAsistenteApplyImageExtract = useCallback(
+    (payload: Record<string, unknown>) => {
+      const renglonesValidos = Array.isArray(payload.renglonesValidos)
+        ? payload.renglonesValidos
+        : [];
+
+      if (renglonesValidos.length === 0) {
+        return;
+      }
+
+      carga.setRenglones((current) => {
+        let next = renglonesValidosParaGrabar(current);
+
+        for (const item of renglonesValidos) {
+          if (!item || typeof item !== 'object') {
+            continue;
+          }
+
+          const row = item as Record<string, unknown>;
+          const codArticulo = String(row.codArticulo ?? '').trim();
+          if (codArticulo === '') {
+            continue;
+          }
+
+          next = [
+            ...next,
+            {
+              renglon: nextRenglonNumber(next),
+              codArticulo,
+              descripcionArticulo: String(row.descripcion ?? ''),
+              cantidad: Number(row.cantidad) > 0 ? Number(row.cantidad) : 1,
+              precio: row.precio !== undefined ? Number(row.precio) : 0,
+              porcBonif: row.porcBonif !== undefined ? Number(row.porcBonif) : 0,
+              porcIva: 21,
+            },
+          ];
+        }
+
+        return next.length > 0 ? next : [createEmptyRenglon(1)];
+      });
+    },
+    [carga.setRenglones],
+  );
 
   return (
     <section className="pedidosCargaMobilePage" data-testid="page-pedidos-carga-mobile">
@@ -273,6 +424,29 @@ export function PedidosCargaMobilePage() {
           ) : null}
         </div>
       </div>
+
+      <CargaAsistenteIaPanel
+        buildDraftContext={buildAsistenteDraftContext}
+        readOnly={carga.readOnly}
+        onSelectCliente={async (codCliente) => {
+          await carga.handleClienteChange(codCliente);
+        }}
+        onClearDraft={() => {
+          void carga.handleClienteChange(null);
+        }}
+        onAddRenglon={handleAsistenteAddRenglon}
+        onUpdateRenglon={handleAsistenteUpdateRenglon}
+        onRemoveRenglon={handleAsistenteRemoveRenglon}
+        onUpdateCabeceraField={handleAsistenteUpdateCabeceraField}
+        onPatchCabeceraFields={handleAsistentePatchCabeceraFields}
+        onGrabarPedido={() => {
+          void carga.saveComprobante('pedido');
+        }}
+        onGrabarPresupuesto={() => {
+          void carga.saveComprobante('presupuesto');
+        }}
+        onApplyImageExtract={handleAsistenteApplyImageExtract}
+      />
 
       <PedidosCargaRenglonEditDialog
         visible={carga.editDialogVisible}
