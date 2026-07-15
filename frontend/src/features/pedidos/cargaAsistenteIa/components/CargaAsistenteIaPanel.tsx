@@ -4,8 +4,10 @@ import { useTranslation } from 'react-i18next';
 import Button from 'devextreme-react/button';
 import TextBox from 'devextreme-react/text-box';
 import { isDevExtremeUserChange } from '../../../../shared/ui/devextremeUserChange';
+import { SelectBoxDx } from '../../../../shared/ui/controls/SelectBoxDx';
 import { ApiClientError } from '../../../../shared/http/client';
 import { postCargaAsistenteTurn } from '../api/postCargaAsistenteTurn';
+import { useCargaAsistenteLlmCredential } from '../hooks/useCargaAsistenteLlmCredential';
 import { useCargaAsistenteSpeech } from '../hooks/useCargaAsistenteSpeech';
 import type {
   CargaAsistenteDraftContext,
@@ -226,6 +228,13 @@ export function CargaAsistenteIaPanel({
   const fileInputId = useId();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const threadRef = useRef<HTMLDivElement | null>(null);
+  const listeningPrefixRef = useRef('');
+  const {
+    isLoading: isLoadingLlmCredentials,
+    operationalConfigurations,
+    selectedCredentialId,
+    selectCredential,
+  } = useCargaAsistenteLlmCredential();
 
   const [expanded, setExpanded] = useState(false);
   const [inputValue, setInputValue] = useState('');
@@ -337,6 +346,7 @@ export function CargaAsistenteIaPanel({
           draftContext: buildDraftContext(),
           pendingChoice,
           images: images.length > 0 ? images : undefined,
+          credentialId: selectedCredentialId,
         });
 
         if (resultado.configurationRequired) {
@@ -397,18 +407,32 @@ export function CargaAsistenteIaPanel({
       onUpdateCabeceraField,
       onPatchCabeceraFields,
       pendingChoice,
+      selectedCredentialId,
       t,
     ],
   );
 
+  const handleListeningTextChange = useCallback((text: string) => {
+    const prefix = listeningPrefixRef.current;
+    setInputValue(prefix === '' ? text : `${prefix}${text}`);
+  }, []);
+
   const speech = useCargaAsistenteSpeech({
     onTranscript: (text) => {
-      void submitTurn(text, 'audio', []);
+      const prefix = listeningPrefixRef.current;
+      listeningPrefixRef.current = '';
+      const fullMessage = `${prefix}${text}`.trim();
+      void submitTurn(fullMessage, 'audio', []);
     },
+    onListeningTextChange: handleListeningTextChange,
     onError: handleSpeechError,
   });
 
   const handleSend = () => {
+    if (speech.isListening) {
+      return;
+    }
+
     const images = pendingAttachments.map((item) => item.payload);
     const modality: CargaAsistenteModality = images.length > 0 ? 'imagen' : 'texto';
     void submitTurn(inputValue, modality, images);
@@ -573,7 +597,7 @@ export function CargaAsistenteIaPanel({
             <TextBox
               value={inputValue}
               valueChangeEvent="input"
-              disabled={isSubmitting}
+              disabled={isSubmitting || speech.isListening}
               placeholder={t('pedidos.carga.asistente.placeholder')}
               onValueChanged={(event) => {
                 if (!isDevExtremeUserChange(event)) {
@@ -583,7 +607,7 @@ export function CargaAsistenteIaPanel({
                 setInputValue(String(event.value ?? ''));
               }}
               onEnterKey={() => {
-                if (!isSubmitting) {
+                if (!isSubmitting && !speech.isListening) {
                   handleSend();
                 }
               }}
@@ -596,14 +620,20 @@ export function CargaAsistenteIaPanel({
                 type="default"
                 disabled={
                   isSubmitting
+                  || speech.isListening
                   || (inputValue.trim() === '' && pendingAttachments.length === 0)
                 }
                 elementAttr={{ 'data-testid': 'cargaAsistenteIaSend' }}
                 onClick={handleSend}
               />
               <Button
-                text={t('pedidos.carga.asistente.mic')}
+                text={
+                  speech.isListening
+                    ? t('pedidos.carga.asistente.micStop')
+                    : t('pedidos.carga.asistente.mic')
+                }
                 stylingMode="outlined"
+                type={speech.isListening ? 'danger' : 'normal'}
                 disabled={isSubmitting}
                 elementAttr={{ 'data-testid': 'cargaAsistenteIaMic' }}
                 onClick={() => {
@@ -622,25 +652,56 @@ export function CargaAsistenteIaPanel({
                     return;
                   }
 
+                  const current = inputValue.trim();
+                  listeningPrefixRef.current = current === '' ? '' : `${current} `;
                   speech.start();
                 }}
               />
               <Button
                 text={t('pedidos.carga.asistente.attach')}
                 stylingMode="outlined"
-                disabled={isSubmitting || pendingAttachments.length >= cargaAsistenteMaxImages}
+                disabled={
+                  isSubmitting
+                  || speech.isListening
+                  || pendingAttachments.length >= cargaAsistenteMaxImages
+                }
                 elementAttr={{ 'data-testid': 'cargaAsistenteIaAttach' }}
                 onClick={handleAttachClick}
               />
               <Button
                 text={t('pedidos.carga.asistente.config')}
                 stylingMode="text"
+                disabled={speech.isListening}
                 elementAttr={{ 'data-testid': 'cargaAsistenteIaConfig' }}
                 onClick={() => {
                   navigate('/preferences');
                 }}
               />
             </div>
+
+            {operationalConfigurations.length > 0 ? (
+              <label className="cargaAsistenteIaPanel__providerSelect">
+                <span>{t('pedidos.carga.asistente.configurationLabel')}</span>
+                <SelectBoxDx
+                  dataSource={operationalConfigurations}
+                  displayExpr="displayName"
+                  valueExpr="credentialId"
+                  value={selectedCredentialId}
+                  searchEnabled
+                  isLoading={isLoadingLlmCredentials}
+                  disabled={isSubmitting || speech.isListening}
+                  inputAttr={{ 'data-testid': 'cargaAsistenteIaConfigurationSelect' }}
+                  elementAttr={{ 'data-testid': 'cargaAsistenteIaConfigurationSelectBox' }}
+                  onValueChanged={(event) => {
+                    if (!isDevExtremeUserChange(event)) {
+                      return;
+                    }
+
+                    selectCredential((event.value as number | null) ?? null);
+                  }}
+                />
+              </label>
+            ) : null}
           </div>
 
           <input

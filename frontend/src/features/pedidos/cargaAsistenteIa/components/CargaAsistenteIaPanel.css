@@ -145,6 +145,17 @@
   gap: 0.35rem;
 }
 
+.cargaAsistenteIaPanel__providerSelect {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.85rem;
+}
+
+.cargaAsistenteIaPanel__providerSelect > span {
+  opacity: 0.85;
+}
+
 .cargaAsistenteIaPanel__configGate,
 .cargaAsistenteIaPanel__status,
 .cargaAsistenteIaPanel__listening {
