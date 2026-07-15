@@ -2,7 +2,7 @@
 
 ## Alcance del cierre
 
-Épica **Asistente IA en carga de pedidos/presupuestos**: shell (18), mutaciones (19), consultas (20), más ajustes **post-smoke** (panel, F/G UX, cabecera C, mutar renglones en detalle).
+Épica **Asistente IA en carga de pedidos/presupuestos**: shell (18), mutaciones (19), consultas (20), post-smoke 13/07, y revisión **14/07** (pedido compuesto multilínea, alias renglón/cabecera, extracto imagen con cabecera ampliada, diferidos post-choice).
 
 | TR | HU |
 |----|-----|
@@ -14,7 +14,7 @@
 
 **Producto:** [asistente-ia-carga-pedidos-presupuestos.md](../../02-producto/PedidosWeb/asistente-ia-carga-pedidos-presupuestos.md)
 
-**F1:** [D-VERIFICACION-101-18-20-asistente-carga-ia.md](D-VERIFICACION-101-18-20-asistente-carga-ia.md) — **Aprobado con observaciones** (2026-07-13)
+**F1:** [D-VERIFICACION-101-18-20-asistente-carga-ia.md](D-VERIFICACION-101-18-20-asistente-carga-ia.md) — **Aprobado con observaciones** (2026-07-14)
 
 **A1 / B1 / C1:** [cierre A1](F-101-18-20-cierre-a1-asistente-carga-ia.md) · [B1](F-101-18-20-cierre-b1-asistente-carga-ia.md) · [C1](F-101-18-20-cierre-c1-asistente-carga-ia.md)
 
@@ -22,59 +22,69 @@
 
 **Aprobado con observaciones**
 
-Implementación D operativa + post-smoke validado en sesión de producto. Cierre F documental y OpenAPI del turn completados (2026-07-13).
+Implementación D operativa + post-smoke 13/07 + revisión producto 14/07 (D1-25/26). Documentación alineada a código. OpenAPI del turn se mantiene del cierre previo.
 
 ## Resumen por capacidad
 
 | Slice | Resultado | Evidencia |
 |-------|-----------|-----------|
-| Panel / gate / audio / imagen (18) | Aprobado | `CargaAsistenteIaPanel`, altura 270px/33vh, Web Speech, adjunto, ruedita Preferencias, gate BYOK FE+BE |
-| Cliente / cabecera / cambio I (19 A–C, I) | Aprobado | Tools cliente + cabecera C ampliada (bonif, expreso, transporte, cond, perfil, lista, fecha, dirección) |
-| Artículos / grabar / imagen K (19 D, J, K) | Aprobado c/ obs. | Alta + `mutateExistingRenglon` en detalle; comillas/final; conjugados elimina; grabar invoke FE |
-| Consultas E–H (20) | Aprobado | Tools stock/deuda/cheques/historial; fechas YYYY-MM-DD; totales F/G; tabla HTML |
-| OpenAPI turn | Aprobado | `POST /api/v1/pedidos/carga/asistente/turn` + schemas `CargaAsistente*` |
+| Panel / gate / audio / imagen (18) | Aprobado | `CargaAsistenteIaPanel`, 270px/33vh, Web Speech, adjunto, ruedita Preferencias, gate BYOK |
+| Cliente / cabecera / cambio I (19 A–C, I) | Aprobado | Tools + **compositePedido** + Descto/Direccion; flags `Modifica*` |
+| Artículos / grabar / imagen K (19 D, J, K) | Aprobado c/ obs. | Alta + mutate detalle; alias art/item/it + canti; imagen cabecera ampliada; grabar FE |
+| Consultas E–H (20) | Aprobado | Stock/deuda/cheques/historial; fechas; totales F/G; tabla HTML |
+| OpenAPI turn | Aprobado | `POST .../carga/asistente/turn` — sin cambio de shape en rev. 14/07 |
 
-## Verificación automatizada (2026-07-13)
+## Decisiones post-cierre inicial (rev. 2026-07-14)
+
+| ID | Tema | Estado |
+|----|------|--------|
+| D1-25 | Pedido compuesto multilínea + `deferredCompositeItems` | Cerrado en código + docs |
+| D1-26 | Alias art/item/it, canti, Descto N, Direccion→expresoDire | Cerrado en código + docs |
+| T-19-14 | Imagen K con pasos de cabecera diferibles | Cerrado en código + docs |
+
+## Verificación automatizada (2026-07-14)
 
 | Comando | Resultado |
 |---------|-----------|
-| `php vendor/bin/phpunit tests/Unit/Services/PedidosWeb/CargaAsistente tests/Feature/Api/PedidosWeb/CargaAsistenteTurnTest.php` | **OK** — 13 tests / 76 assertions |
-| `npx vitest run src/features/pedidos/cargaAsistenteIa` | **OK** — 9 tests |
-| `php artisan l5-swagger:generate` | **OK** (ver § OpenAPI) |
+| `php vendor/bin/phpunit tests/Unit/Services/PedidosWeb/CargaAsistente tests/Feature/Api/PedidosWeb/CargaAsistenteTurnTest.php` | **OK** — 24 tests / 151 assertions |
+| `npx vitest run src/features/pedidos/cargaAsistenteIa` | **OK** — 10 tests |
+| `php artisan l5-swagger:generate` | No re-ejecutado en rev. 14/07 (sin cambio OpenAPI) |
 
 ## Smoke manual (producto)
 
 | Escenario | Estado |
 |-----------|--------|
-| Consultas deuda/cheques (fechas/totales/tabla) | OK (sesión post-smoke) |
-| Cabecera vía chat con permisos | OK |
-| Eliminar artículo ambiguo en detalle (`elimina el articulo arroz`) | OK tras fix conjugados |
-| Modificar con comillas / descripción al final | OK (convención producto) |
-| Mobile nativo panel | No smoke formal en este cierre |
+| Consultas deuda/cheques (fechas/totales/tabla) | OK (13/07) |
+| Cabecera vía chat con permisos | OK (13/07) |
+| Conservar datos tras preguntas intermedias | OK (sesión 14/07) |
+| Pedido completo pegado (cliente+cabecera+renglones) | OK tras D1-25 (sesión / unit composite) |
+| Alias `art`/`item`/`it` | Unit OK; smoke UI no repetido |
+| Mobile nativo panel | No smoke formal (**OBS-F-04**) |
 
 ## Criterios (síntesis F / openspec-05)
 
 | Eje | Estado | Notas |
 |-----|--------|-------|
-| Alcance ⊆ SPEC/HU/TR | OK | Post-smoke D1-23/24/25 reflejados en docs |
-| Código ↔ TR | OK | Turn + tools + panel + apply actions |
+| Alcance ⊆ SPEC/HU/TR | OK | D1-25/26 reflejados en producto/SPEC/HU/TR |
+| Código ↔ TR | OK | Turn + IntentDetector + ImageExtract + panel/apply |
 | Datos / esquema | OK | Sin DROP; BYOK existente |
 | Backend / permisos | OK | Revalida en tools; gate sin LLM |
-| Frontend / testids / i18n | OK | 5 locales; testids panel + consulta table |
-| Tests | OK c/ obs. | IntentDetector + Turn + FE utils; faltan unit tools |
-| Documentación | OK | Producto, SPEC, HU, TR, manual §6.17, F1, este F |
-| OpenAPI | OK | Schemas + operationId en controller |
-| Trazabilidad | OK | F1 + este cierre |
+| Frontend / testids / i18n | OK | 5 locales; pendingChoice conserva diferidos |
+| Tests | OK c/ obs. | Composite/alias en unit; falta Feature E2E composite (**OBS-F-06**) |
+| Documentación | OK | Producto, SPEC-19, HU-039/040, TR-19, F1, este F |
+| OpenAPI | OK | Sin regresión de contrato |
+| Trazabilidad | OK | F1 rev. + este cierre |
 
 ## Observaciones (no bloquean cierre)
 
 | ID | Tema | Estado | Notas |
 |----|------|--------|-------|
-| OBS-F-01 | Unit tests tools | **Cerrado** (2026-07-13) | `CargaAsistenteToolsTest` + `CargaAsistenteConsultaFormatting` |
-| OBS-F-02 | E2E Playwright | **Cerrado** (2026-07-13) | `pedidos-carga-asistente.spec.ts` (mock turn) |
-| OBS-F-03 | Reply i18n partido | **Cerrado** (2026-07-13) | BE emite `renglonNoEncontradoConQ` + `payload.q` |
-| OBS-F-04 | Smoke mobile | **Abierto** | Rama native montada; smoke formal mobile pendiente |
-| OBS-F-05 | DoD checklists SPEC | **Parcial** | Queda ligado a OBS-F-04 / endurecimiento stock fixture |
+| OBS-F-01 | Unit tests tools | **Cerrado** (2026-07-13) | `CargaAsistenteToolsTest` |
+| OBS-F-02 | E2E Playwright | **Cerrado** (2026-07-13) | `pedidos-carga-asistente.spec.ts` (no re-corrido 14/07) |
+| OBS-F-03 | Reply i18n partido | **Cerrado** (2026-07-13) | `renglonNoEncontradoConQ` |
+| OBS-F-04 | Smoke mobile | **Abierto** | Rama native montada; smoke formal pendiente |
+| OBS-F-05 | DoD checklists SPEC | **Parcial** | Ligado a OBS-F-04 |
+| OBS-F-06 | Feature test compositePedido | **Abierto** | Baja prioridad; unit IntentDetector cubre parse |
 
 ## OpenAPI
 
@@ -97,11 +107,12 @@ Implementación D operativa + post-smoke validado en sesión de producto. Cierre
 
 ## Veredicto
 
-**Parte F cerrada** para SPEC-101-18/19/20 — **Aprobado con observaciones**.
+**Parte F cerrada** (rev. **2026-07-14**) para SPEC-101-18/19/20 — **Aprobado con observaciones**.
 
-Autoriza PR / release del slice asistente de carga. Seguimiento principal post-merge: **OBS-F-04** (smoke mobile).
+Autoriza PR / release del slice asistente de carga con pedido compuesto y aliases. Seguimiento post-merge: **OBS-F-04** (smoke mobile); opcional **OBS-F-06**.
 
 ## Enlaces
 
 - Manual operador: [PedidosWeb.md §6.17](../../99-manual-usuario/PedidosWeb.md)
 - Matriz permisos: acceso vía pantalla `pw_cargapedidos` + BYOK usuario (sin permiso menú nuevo)
+- PR report: [`_PR-prompt-asistente-carga-ia.md`](_PR-prompt-asistente-carga-ia.md)

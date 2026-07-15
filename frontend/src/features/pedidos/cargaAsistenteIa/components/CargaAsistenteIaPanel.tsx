@@ -17,8 +17,10 @@ import { extractShowConsultaPayload, type ShowConsultaPayload } from '../utils/f
 import {
   applyCargaAsistenteActions,
   type CargaAsistenteAddRenglonPayload,
+  type CargaAsistenteUpdateRenglonPayload,
 } from '../utils/applyCargaAsistenteActions';
 import {
+  cargaAsistenteMaxImageBytes,
   cargaAsistenteMaxImages,
   fileToBase64Image,
   isAllowedCargaAsistenteImageFile,
@@ -31,6 +33,13 @@ type CargaAsistenteIaMessage = {
   role: 'user' | 'assistant';
   content: string;
   consulta?: ShowConsultaPayload | null;
+};
+
+type PendingAttachment = {
+  id: string;
+  fileName: string;
+  previewUrl: string;
+  payload: CargaAsistenteImagePayload;
 };
 
 export type CargaAsistenteIaPanelProps = {
@@ -72,6 +81,53 @@ function createMessageId(): string {
   return `carga-asistente-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 }
 
+function createAttachmentId(): string {
+  return `carga-adjunto-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+}
+
+function aliasAsistenteErrorKey(key: string): string {
+  const aliases: Record<string, string> = {
+    'chatAssistant.imageTooLarge': 'chatAssistant.images.tooLarge',
+    'chatAssistant.imagesTooMany': 'chatAssistant.images.tooMany',
+    'chatAssistant.imageInvalidFormat': 'chatAssistant.images.invalidFormat',
+    'chatAssistant.imageInvalidPayload': 'chatAssistant.images.invalidFormat',
+    'chatAssistant.visionUnsupported': 'pedidos.carga.asistente.visionUnsupported',
+  };
+
+  return aliases[key] ?? key;
+}
+
+function resolveCargaAsistenteErrorMessage(
+  error: unknown,
+  translate: (key: string, options?: Record<string, unknown>) => string,
+): string {
+  if (!(error instanceof ApiClientError)) {
+    return translate('pedidos.carga.asistente.errorGeneric');
+  }
+
+  const key = error.respuestaKey;
+
+  if (key.startsWith('pedidos.carga.asistente.') || key.startsWith('chatAssistant.')) {
+    return translate(aliasAsistenteErrorKey(key));
+  }
+
+  if (key === 'validation.failed') {
+    const fields = (error.resultado as { fields?: Record<string, string[]> } | undefined)?.fields;
+    const imageErrors = fields?.images ?? [];
+
+    for (const message of imageErrors) {
+      if (
+        typeof message === 'string'
+        && (message.startsWith('chatAssistant.') || message.startsWith('pedidos.carga.asistente.'))
+      ) {
+        return translate(aliasAsistenteErrorKey(message));
+      }
+    }
+  }
+
+  return translate('pedidos.carga.asistente.errorGeneric');
+}
+
 function resolveAsistenteReplyText(
   replyText: string | undefined,
   translate: (key: string, options?: Record<string, unknown>) => string,
@@ -80,6 +136,13 @@ function resolveAsistenteReplyText(
   const text = (replyText ?? '').trim();
   if (text === '') {
     return translate('pedidos.carga.asistente.emptyHint');
+  }
+
+  if (text.includes('\n')) {
+    return text
+      .split('\n')
+      .map((line) => resolveAsistenteReplyText(line, translate, searchedQ))
+      .join('\n');
   }
 
   if (
@@ -168,7 +231,7 @@ export function CargaAsistenteIaPanel({
   const [inputValue, setInputValue] = useState('');
   const [messages, setMessages] = useState<CargaAsistenteIaMessage[]>([]);
   const [pendingChoice, setPendingChoice] = useState<CargaAsistentePendingChoice>(null);
-  const [pendingImages, setPendingImages] = useState<CargaAsistenteImagePayload[]>([]);
+  const [pendingAttachments, setPendingAttachments] = useState<PendingAttachment[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [configurationRequired, setConfigurationRequired] = useState(false);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
@@ -188,6 +251,24 @@ export function CargaAsistenteIaPanel({
     [],
   );
 
+  const clearPendingAttachments = useCallback((attachments: PendingAttachment[]) => {
+    for (const attachment of attachments) {
+      URL.revokeObjectURL(attachment.previewUrl);
+    }
+  }, []);
+
+  const removePendingAttachment = useCallback((attachmentId: string) => {
+    setPendingAttachments((current) => {
+      const target = current.find((item) => item.id === attachmentId);
+      if (target) {
+        URL.revokeObjectURL(target.previewUrl);
+      }
+
+      return current.filter((item) => item.id !== attachmentId);
+    });
+    setStatusMessage(null);
+  }, []);
+
   useLayoutEffect(() => {
     if (!expanded) {
       return;
@@ -200,12 +281,17 @@ export function CargaAsistenteIaPanel({
 
     // Solo scroll interno del hilo (no scrollIntoView: mueve la página y corta el último mensaje).
     thread.scrollTop = thread.scrollHeight;
-  }, [expanded, messages, statusMessage, isSubmitting]);
+  }, [expanded, messages, statusMessage, isSubmitting, pendingAttachments]);
 
   const handleSpeechError = useCallback(
-    (reason: 'unsupported' | 'denied' | 'error') => {
+    (reason: 'unsupported' | 'insecureContext' | 'denied' | 'error') => {
       if (reason === 'unsupported') {
         setStatusMessage(t('pedidos.carga.asistente.micUnsupported'));
+        return;
+      }
+
+      if (reason === 'insecureContext') {
+        setStatusMessage(t('pedidos.carga.asistente.micInsecureContext'));
         return;
       }
 
@@ -236,7 +322,10 @@ export function CargaAsistenteIaPanel({
         { id: createMessageId(), role: 'user', content: userContent },
       ]);
       setInputValue('');
-      setPendingImages([]);
+      setPendingAttachments((current) => {
+        clearPendingAttachments(current);
+        return [];
+      });
       setStatusMessage(null);
       setConfigurationRequired(false);
       setIsSubmitting(true);
@@ -288,15 +377,7 @@ export function CargaAsistenteIaPanel({
           return;
         }
 
-        if (error instanceof ApiClientError) {
-          const key = error.respuestaKey;
-          if (key.startsWith('pedidos.carga.asistente.')) {
-            appendAssistantMessage(t(key));
-            return;
-          }
-        }
-
-        appendAssistantMessage(t('pedidos.carga.asistente.errorGeneric'));
+        appendAssistantMessage(resolveCargaAsistenteErrorMessage(error, t));
       } finally {
         setIsSubmitting(false);
       }
@@ -304,6 +385,7 @@ export function CargaAsistenteIaPanel({
     [
       appendAssistantMessage,
       buildDraftContext,
+      clearPendingAttachments,
       onAddRenglon,
       onUpdateRenglon,
       onRemoveRenglon,
@@ -327,9 +409,9 @@ export function CargaAsistenteIaPanel({
   });
 
   const handleSend = () => {
-    const modality: CargaAsistenteModality =
-      pendingImages.length > 0 ? 'imagen' : 'texto';
-    void submitTurn(inputValue, modality, pendingImages);
+    const images = pendingAttachments.map((item) => item.payload);
+    const modality: CargaAsistenteModality = images.length > 0 ? 'imagen' : 'texto';
+    void submitTurn(inputValue, modality, images);
   };
 
   const handleAttachClick = () => {
@@ -342,22 +424,42 @@ export function CargaAsistenteIaPanel({
     }
 
     const files = Array.from(fileList);
-    if (pendingImages.length + files.length > cargaAsistenteMaxImages) {
-      setStatusMessage(t('pedidos.carga.asistente.errorGeneric'));
+    if (pendingAttachments.length + files.length > cargaAsistenteMaxImages) {
+      setStatusMessage(t('chatAssistant.images.tooMany'));
       return;
     }
 
     if (files.some((file) => !isAllowedCargaAsistenteImageFile(file))) {
-      setStatusMessage(t('pedidos.carga.asistente.errorGeneric'));
+      setStatusMessage(t('chatAssistant.images.invalidFormat'));
+      return;
+    }
+
+    if (files.some((file) => file.size > cargaAsistenteMaxImageBytes)) {
+      setStatusMessage(t('chatAssistant.images.tooLarge'));
       return;
     }
 
     try {
-      const encoded = await Promise.all(files.map((file) => fileToBase64Image(file)));
-      setPendingImages((current) => [...current, ...encoded]);
+      const nextAttachments: PendingAttachment[] = [];
+
+      for (const file of files) {
+        const payload = await fileToBase64Image(file);
+        nextAttachments.push({
+          id: createAttachmentId(),
+          fileName: payload.fileName || file.name,
+          previewUrl: URL.createObjectURL(file),
+          payload,
+        });
+      }
+
+      setPendingAttachments((current) => [...current, ...nextAttachments]);
       setStatusMessage(null);
-    } catch {
-      setStatusMessage(t('pedidos.carga.asistente.errorGeneric'));
+    } catch (error) {
+      const message =
+        error instanceof Error && error.message.startsWith('chatAssistant.')
+          ? t(error.message)
+          : t('chatAssistant.images.invalidFormat');
+      setStatusMessage(message);
     }
   };
 
@@ -438,10 +540,33 @@ export function CargaAsistenteIaPanel({
             </p>
           ) : null}
 
-          {pendingImages.length > 0 ? (
-            <p className="cargaAsistenteIaPanel__attachments" data-testid="cargaAsistenteIaAttachments">
-              {t('pedidos.carga.asistente.attach')}: {pendingImages.length}
-            </p>
+          {pendingAttachments.length > 0 ? (
+            <ul
+              className="cargaAsistenteIaPanel__attachments"
+              data-testid="cargaAsistenteIaAttachments"
+            >
+              {pendingAttachments.map((attachment) => (
+                <li key={attachment.id} className="cargaAsistenteIaPanel__attachmentItem">
+                  <img
+                    src={attachment.previewUrl}
+                    alt={attachment.fileName}
+                    className="cargaAsistenteIaPanel__attachmentPreview"
+                  />
+                  <div className="cargaAsistenteIaPanel__attachmentMeta">
+                    <span className="cargaAsistenteIaPanel__attachmentName">{attachment.fileName}</span>
+                    <Button
+                      text={t('pedidos.carga.asistente.removeAttachment')}
+                      stylingMode="text"
+                      disabled={isSubmitting}
+                      elementAttr={{ 'data-testid': 'cargaAsistenteIaRemoveAttachment' }}
+                      onClick={() => {
+                        removePendingAttachment(attachment.id);
+                      }}
+                    />
+                  </div>
+                </li>
+              ))}
+            </ul>
           ) : null}
 
           <div className="cargaAsistenteIaPanel__composer">
@@ -469,7 +594,10 @@ export function CargaAsistenteIaPanel({
               <Button
                 text={t('pedidos.carga.asistente.send')}
                 type="default"
-                disabled={isSubmitting || (inputValue.trim() === '' && pendingImages.length === 0)}
+                disabled={
+                  isSubmitting
+                  || (inputValue.trim() === '' && pendingAttachments.length === 0)
+                }
                 elementAttr={{ 'data-testid': 'cargaAsistenteIaSend' }}
                 onClick={handleSend}
               />
@@ -484,7 +612,12 @@ export function CargaAsistenteIaPanel({
                     return;
                   }
 
-                  if (!speech.supported) {
+                  if (speech.blockReason === 'insecureContext') {
+                    handleSpeechError('insecureContext');
+                    return;
+                  }
+
+                  if (speech.blockReason === 'unsupported' || !speech.supported) {
                     handleSpeechError('unsupported');
                     return;
                   }
@@ -495,7 +628,7 @@ export function CargaAsistenteIaPanel({
               <Button
                 text={t('pedidos.carga.asistente.attach')}
                 stylingMode="outlined"
-                disabled={isSubmitting || pendingImages.length >= cargaAsistenteMaxImages}
+                disabled={isSubmitting || pendingAttachments.length >= cargaAsistenteMaxImages}
                 elementAttr={{ 'data-testid': 'cargaAsistenteIaAttach' }}
                 onClick={handleAttachClick}
               />
@@ -514,7 +647,7 @@ export function CargaAsistenteIaPanel({
             id={fileInputId}
             ref={fileInputRef}
             type="file"
-            accept="image/*"
+            accept="image/png,image/jpeg,image/webp,.png,.jpg,.jpeg,.webp"
             multiple
             hidden
             data-testid="cargaAsistenteIaFileInput"

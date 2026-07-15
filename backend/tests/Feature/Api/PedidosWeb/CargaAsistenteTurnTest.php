@@ -128,7 +128,7 @@ final class CargaAsistenteTurnTest extends TestCase
     {
         $this->putJson('/api/v1/chat-assistant/me/configuration', [
             'providerId' => 'groq',
-            'apiKey' => 'secret-groq-key',
+            'apiKey' => 'sk-test-groq-key',
             'modelId' => 'llama-3.1-8b-instant',
         ], $this->tenantHeaders())->assertOk();
 

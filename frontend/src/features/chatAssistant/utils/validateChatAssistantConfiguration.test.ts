@@ -3,7 +3,7 @@ import { resolveChatAssistantSaveValidationErrorKey } from './validateChatAssist
 
 describe('validateChatAssistantConfiguration', () => {
   it('exige baseUrl cuando el proveedor la requiere', () => {
-        expect(
+    expect(
       resolveChatAssistantSaveValidationErrorKey({
         displayName: 'Mi OpenAI',
         providerId: 'ollama',
@@ -23,7 +23,7 @@ describe('validateChatAssistantConfiguration', () => {
         providerId: 'openai',
         modelId: 'gpt-4o-mini',
         baseUrl: '',
-        apiKey: 'secret',
+        apiKey: 'sk-test-key',
         requiresBaseUrl: false,
         hasExistingApiKey: false,
       }),
@@ -42,5 +42,19 @@ describe('validateChatAssistantConfiguration', () => {
         hasExistingApiKey: true,
       }),
     ).toBeNull();
+  });
+
+  it('rechaza autofill de password de sitio en openai', () => {
+    expect(
+      resolveChatAssistantSaveValidationErrorKey({
+        displayName: 'openai / gpt-4.1',
+        providerId: 'openai',
+        modelId: 'gpt-4.1',
+        baseUrl: '',
+        apiKey: 'Paqsystems26',
+        requiresBaseUrl: false,
+        hasExistingApiKey: true,
+      }),
+    ).toBe('chatAssistant.settings.apiKeyInvalidFormat');
   });
 });

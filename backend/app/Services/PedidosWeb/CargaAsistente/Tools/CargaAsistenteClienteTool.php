@@ -40,10 +40,35 @@ final class CargaAsistenteClienteTool
         }
 
         $matches = $this->searchClientes($user, $q, 11);
+
+        // Código exacto gana siempre (LIKE '%10112%' puede devolver >10 y tapar el match único).
+        $exactMatches = array_values(array_filter(
+            $matches,
+            static fn (array $cliente): bool => mb_strtolower(trim($cliente['codCliente'])) === mb_strtolower($q),
+        ));
+        if ($exactMatches !== []) {
+            $matches = $exactMatches;
+        }
+
         $count = count($matches);
 
         if ($count === 0) {
-            return $this->refineResult('cliente');
+            return [
+                'replyText' => 'pedidos.carga.asistente.clienteNoEncontrado',
+                'actions' => [
+                    [
+                        'action' => 'needsRefine',
+                        'payload' => [
+                            'kind' => 'cliente',
+                            'q' => $q,
+                            'hint' => 'pedidos.carga.asistente.clienteNoEncontrado',
+                        ],
+                        'resultado' => 'needsRefine',
+                    ],
+                ],
+                'pendingChoice' => null,
+                'configurationRequired' => false,
+            ];
         }
 
         if ($count > 10) {

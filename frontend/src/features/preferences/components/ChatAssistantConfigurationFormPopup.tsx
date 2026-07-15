@@ -3,6 +3,7 @@ import Popup from 'devextreme-react/popup';
 import TextBox from 'devextreme-react/text-box';
 import { useTranslation } from 'react-i18next';
 import { SelectBoxDx } from '../../../shared/ui/controls/SelectBoxDx';
+import { isDevExtremeUserChange } from '../../../shared/ui/devextremeUserChange';
 import type { ChatAssistantConfigurationFormState } from '../../chatAssistant/hooks/useChatAssistantConfigurations';
 import type { MyChatAssistantConfiguration } from '../../chatAssistant/model/myChatAssistantConfiguration';
 import type { ChatAssistantProviderCatalogItem } from '../../chatAssistant/model/providerCatalog';
@@ -57,13 +58,27 @@ export function ChatAssistantConfigurationFormPopup({
       maxHeight="90vh"
       elementAttr={{ 'data-testid': 'chatAssistantConfigurationFormPopup' }}
     >
-      <div className="chatAssistantConfigurationFormPopup">
+      <form
+        className="chatAssistantConfigurationFormPopup"
+        autoComplete="off"
+        onSubmit={(event) => {
+          event.preventDefault();
+        }}
+      >
         <label className="chatAssistantConfigurationFormPopup__field">
           <span>{t('chatAssistant.settings.displayNameLabel')}</span>
           <TextBox
             value={formState.displayName}
-            inputAttr={{ 'data-testid': 'chatAssistantConfigurationDisplayNameInput' }}
+            inputAttr={{
+              'data-testid': 'chatAssistantConfigurationDisplayNameInput',
+              autoComplete: 'off',
+              name: 'chatAssistantDisplayName',
+            }}
             onValueChanged={(event) => {
+              if (!isDevExtremeUserChange(event)) {
+                return;
+              }
+
               onFormStateChange((current) => ({
                 ...current,
                 displayName: String(event.value ?? ''),
@@ -81,14 +96,31 @@ export function ChatAssistantConfigurationFormPopup({
             value={formState.providerId}
             searchEnabled
             showClearButton
-            inputAttr={{ 'data-testid': 'chatAssistantConfigurationProviderSelect' }}
+            inputAttr={{
+              'data-testid': 'chatAssistantConfigurationProviderSelect',
+              autoComplete: 'off',
+              name: 'chatAssistantProviderId',
+            }}
             elementAttr={{ 'data-testid': 'chatAssistantProviderSelectBox' }}
             onValueChanged={(event) => {
-              onFormStateChange((current) => ({
-                ...current,
-                providerId: (event.value as string | null) ?? null,
-                modelId: '',
-              }));
+              // DX dispara onValueChanged al montar el popup; no debe vaciar el modelo.
+              if (!isDevExtremeUserChange(event)) {
+                return;
+              }
+
+              const nextProviderId = (event.value as string | null) ?? null;
+
+              onFormStateChange((current) => {
+                if (current.providerId === nextProviderId) {
+                  return current;
+                }
+
+                return {
+                  ...current,
+                  providerId: nextProviderId,
+                  modelId: '',
+                };
+              });
             }}
           />
         </label>
@@ -128,8 +160,16 @@ export function ChatAssistantConfigurationFormPopup({
                 ? editingConfiguration.apiKeyHint || t('chatAssistant.settings.apiKeyKeepExisting')
                 : t('chatAssistant.settings.apiKeyPlaceholder')
             }
-            inputAttr={{ 'data-testid': 'chatAssistantConfigurationApiKeyInput' }}
+            inputAttr={{
+              'data-testid': 'chatAssistantConfigurationApiKeyInput',
+              autoComplete: 'new-password',
+              name: 'chatAssistantApiKey',
+            }}
             onValueChanged={(event) => {
+              if (!isDevExtremeUserChange(event)) {
+                return;
+              }
+
               onFormStateChange((current) => ({
                 ...current,
                 apiKey: String(event.value ?? ''),
@@ -170,7 +210,7 @@ export function ChatAssistantConfigurationFormPopup({
             }}
           />
         </div>
-      </div>
+      </form>
     </Popup>
   );
 }

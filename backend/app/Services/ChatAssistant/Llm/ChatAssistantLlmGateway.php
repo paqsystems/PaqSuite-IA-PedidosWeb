@@ -5,6 +5,7 @@ namespace App\Services\ChatAssistant\Llm;
 use App\Exceptions\ChatAssistantMessageException;
 use App\Support\ChatAssistantMessageErrorCodes;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class ChatAssistantLlmGateway
 {
@@ -24,10 +25,22 @@ class ChatAssistantLlmGateway
         array $corpusMatches,
         array $normalizedImages,
         ?int $credentialId = null,
+        ?string $systemPromptOverride = null,
     ): string {
-        $context = $this->credentialResolver->resolve($user, $credentialId);
-        $systemPrompt = $this->promptBuilder->buildSystemPrompt($corpusMatches);
-        $userPrompt = $this->promptBuilder->buildUserPrompt($message, $normalizedImages !== []);
+        $context = $this->credentialResolver->resolve(
+            $user,
+            $credentialId,
+            $normalizedImages !== [],
+        );
+        $override = is_string($systemPromptOverride) ? trim($systemPromptOverride) : '';
+        $systemPrompt = $override !== ''
+            ? $override
+            : $this->promptBuilder->buildSystemPrompt($corpusMatches);
+        $userPrompt = $override !== ''
+            ? (trim($message) !== ''
+                ? trim($message)
+                : $this->promptBuilder->buildUserPrompt('', $normalizedImages !== []))
+            : $this->promptBuilder->buildUserPrompt($message, $normalizedImages !== []);
 
         try {
             $endpoint = $this->providerEndpoints->resolve($context);
@@ -47,7 +60,12 @@ class ChatAssistantLlmGateway
             };
         } catch (ChatAssistantMessageException $exception) {
             throw $exception;
-        } catch (\Throwable) {
+        } catch (\Throwable $exception) {
+            Log::warning('chatAssistant.llm.invokeUnhandled', [
+                'provider' => $context->providerId,
+                'message' => $exception->getMessage(),
+            ]);
+
             throw new ChatAssistantMessageException(
                 ChatAssistantMessageErrorCodes::providerInvocationFailed,
                 'chatAssistant.providerInvocationFailed',
@@ -85,6 +103,8 @@ class ChatAssistantLlmGateway
             ->post($endpoint['url'], $payload);
 
         if (! $response->successful()) {
+            $this->logProviderHttpFailure($context->providerId, $response->status(), $response->body());
+
             throw new ChatAssistantMessageException(
                 ChatAssistantMessageErrorCodes::providerInvocationFailed,
                 'chatAssistant.providerInvocationFailed',
@@ -135,6 +155,8 @@ class ChatAssistantLlmGateway
             ->post($endpoint['url'], $payload);
 
         if (! $response->successful()) {
+            $this->logProviderHttpFailure($context->providerId, $response->status(), $response->body());
+
             throw new ChatAssistantMessageException(
                 ChatAssistantMessageErrorCodes::providerInvocationFailed,
                 'chatAssistant.providerInvocationFailed',
@@ -186,6 +208,8 @@ class ChatAssistantLlmGateway
             ]);
 
         if (! $response->successful()) {
+            $this->logProviderHttpFailure($context->providerId, $response->status(), $response->body());
+
             throw new ChatAssistantMessageException(
                 ChatAssistantMessageErrorCodes::providerInvocationFailed,
                 'chatAssistant.providerInvocationFailed',
@@ -243,6 +267,8 @@ class ChatAssistantLlmGateway
             ]);
 
         if (! $response->successful()) {
+            $this->logProviderHttpFailure($context->providerId, $response->status(), $response->body());
+
             throw new ChatAssistantMessageException(
                 ChatAssistantMessageErrorCodes::providerInvocationFailed,
                 'chatAssistant.providerInvocationFailed',
@@ -252,6 +278,15 @@ class ChatAssistantLlmGateway
         $content = data_get($response->json(), 'candidates.0.content.parts.0.text');
 
         return $this->normalizeReplyContent($content);
+    }
+
+    private function logProviderHttpFailure(string $providerId, int $status, string $body): void
+    {
+        Log::warning('chatAssistant.llm.httpFailed', [
+            'provider' => $providerId,
+            'status' => $status,
+            'body' => mb_substr($body, 0, 500),
+        ]);
     }
 
     /**

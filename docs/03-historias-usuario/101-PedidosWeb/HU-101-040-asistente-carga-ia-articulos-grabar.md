@@ -35,15 +35,17 @@ SPEC-101-19 D, J, K: lookup de artículos igual que carga; cantidad omitida = **
 ## Alcance incluido
 
 - Buscar/agregar artículos (excluir `usa_esc = 'B'`); listas 0/1/2–10/>10.
-- Cantidad > 0; si omitida → **asumir 1** (D1-06).
+- Prefijos de renglón (D1-26): `artículo(s)`, `art.`/`art`, `producto(s)`, `prod.`/`prod`, `item(s)`, `it.`/`it`.
+- Cantidad > 0; si omitida → **asumir 1** (D1-06); alias `cantidad` / `canti` / `cant`.
 - Bonificación inicial como UI (maestro / descuento por cantidad).
 - Precio / bonif. línea solo con permiso; perfil **C** nunca.
 - Renglón ambiguo para precio/eliminar/modificar: 1 renglón → ese; varios → lista **código — desc · cant · precio · bonif%** (D1-13/D1-24).
 - Eliminar/modificar: solo renglones del **borrador**; comillas o descripción al final; conjugados `elimina`/`borra`/`quita`/`saca`; 0 match → mostrar texto buscado.
+- Pedido multilínea (D1-25): varios `articulo`/`item`/`it` en el mismo mensaje → varios `addRenglon` (tras cabecera).
 - Un código de artículo por comprobante (regla UI).
 - Recálculo importes/totales (`renglonesCarga` / services vigentes).
 - Grabar pedido / grabar presupuesto vía asistente = mismos botones (validaciones, errores, post-éxito, mail).
-- Apply imagen: auto-hidratizar solo válidos; dudosos/inválidos → lista/errores; no grabar hasta J.
+- Apply imagen: auto-hidratizar solo válidos (cabecera ampliada + renglones); dudosos/inválidos → lista/errores; no grabar hasta J.
 - Sync UI sin F5; solo lectura → denied.
 
 ## Fuera de alcance
@@ -65,7 +67,8 @@ SPEC-101-19 D, J, K: lookup de artículos igual que carga; cantidad omitida = **
 - [ ] **CA-01:** 2–10 artículos → lista numerada; elección agrega renglón.
 - [ ] **CA-02:** 1 match → agrega renglón; >10 → refine; 0 → informar.
 - [ ] **CA-03:** Sin cantidad en el pedido → renglón con cantidad **1**.
-- [ ] **CA-04:** Con cantidad explícita > 0 → usa esa cantidad.
+- [ ] **CA-04:** Con cantidad explícita > 0 → usa esa cantidad (`cant`/`canti` válidos).
+- [ ] **CA-04b:** Prefijos `art.` / `item` / `it` disparan alta de renglón igual que `artículo`.
 - [ ] **CA-05:** Cantidad ≤ 0 → validationError; no agrega.
 - [ ] **CA-06:** Cambio de precio/bonif. sin `ModificaPrecio*`/`ModificaBonArt*` → denied.
 - [ ] **CA-07:** Perfil C no modifica precio/bonif. vía asistente.

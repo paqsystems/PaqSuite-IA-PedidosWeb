@@ -4,7 +4,7 @@
 |-------|--------|
 | **Estado** | Definición de producto + OpenSpec **A1+B1+C1** + post-smoke (2026-07-13) |
 | **Ámbito** | PedidosWeb — pantalla de carga (`/pedidos/carga`) + canal conversacional operativo |
-| **Última actualización** | 2026-07-13 (post-smoke: panel 270px, consultas F/G UX, cabecera C, mutar renglones detalle) |
+| **Última actualización** | 2026-07-14 (pedido compuesto multilínea, alias art/item/it, cabecera completa + permisos, diferidos post-choice) |
 | **OpenSpec** | [SPEC-101-18](../../05-open-spec/101-PedidosWeb/SPEC-101-18-asistente-carga-ia-shell.md) · [SPEC-101-19](../../05-open-spec/101-PedidosWeb/SPEC-101-19-asistente-carga-ia-mutaciones.md) · [SPEC-101-20](../../05-open-spec/101-PedidosWeb/SPEC-101-20-asistente-carga-ia-consultas.md) |
 | **Cierre A1** | [F-101-18-20-cierre-a1](../../04-tareas/101-PedidosWeb/F-101-18-20-cierre-a1-asistente-carga-ia.md) |
 | **Cierre B1** | [F-101-18-20-cierre-b1](../../04-tareas/101-PedidosWeb/F-101-18-20-cierre-b1-asistente-carga-ia.md) |
@@ -83,6 +83,7 @@ Hoy la carga exige navegar combobox, popups y grillas. Operadores comerciales (s
 7. **Trazabilidad:** loguear intención interpretada + acción ejecutada (útil para soporte y mejora del prompt).
 8. **Canal + pantalla sincronizados:** lo que el asistente carga debe verse reflejado en la UI de carga abierta (o en el borrador de sesión mobile).
 9. **Sin LLM configurado → respuesta fija** (no invocar modelo ni inventar acciones); ver §5.3.
+10. **Pedido pegado / multilínea:** si el mensaje trae varias etiquetas (cliente, cabecera, renglones), interpretar **todas** las líneas aplicables y aplicarlas en orden; ante lista numerada o confirmación, **diferir** el resto y continuar tras la respuesta (sin perder campos ya parseados).
 
 ---
 
@@ -185,9 +186,9 @@ Campos con catálogo o lookup (ejemplos): perfil de pedido, condición de venta,
 | Nivel | Respetar `NivelExtremo` (solo 0/100 si aplica) |
 | Observaciones | Texto libre de cabecera |
 | Leyenda 1 … Leyenda 5 | Texto libre; el usuario indica **atributo + valor** |
-| Bonificación 1 / 2 / 3 | Numérico; aplica directo en cabecera. Requiere `ModificaBonCli*` (perfil **C** nunca). Bonif. 3 rango −99.99…99.99 |
+| Bonificación 1 / 2 / 3 | Numérico; aplica directo en cabecera. Requiere `ModificaBonCli*` (perfil **C** nunca). Bonif. 3 rango −99.99…99.99. Alias de etiqueta: `Bonificación` / `Bonif` / `Descuento` / `Descto` / `Desc` / `Dto` + slot 1|2|3 |
 | Expreso | Texto libre (`expreso`); permiso `ModificaExpreso*` |
-| Dirección expreso | Texto libre (`expresoDire`); permiso `ModificaExpreso*` |
+| Dirección expreso | Texto libre (`expresoDire`); permiso `ModificaExpreso*`. Etiqueta suelta `Direccion:` (sin “de entrega”) → tratar como dirección de expreso |
 | Transporte | Lookup catálogo `codTranspor` (código/descripción); ambigüedad → lista numerada |
 | Condición de venta | Lookup catálogo `codCondvta`; permiso `ModificaCondVta*` |
 | Perfil | Lookup catálogo `codPerfil` (solo lectura bloquea) |
@@ -223,6 +224,7 @@ El asistente confirma el valor aplicado. Si el campo está deshabilitado por mod
 - “Artículo ABC-01 cantidad 12”
 - “Agregar 10 unidades del artículo 1001”
 - “Agregar tornillo hexagonal 5/16”
+- “art. AJO… canti: 100” / “item arroz cant: 10” / “it \"almendra…\" cant: 120”
 - “Poner precio 1500 y descuento 5 en el último renglón”
 - “Bonificación 10 al artículo X” / “Descuento 5% en el último renglón”
 
@@ -236,7 +238,8 @@ El asistente confirma el valor aplicado. Si el campo está deshabilitado por mod
    - **2–10** → lista numerada (`reply.articulosAmbiguous`)
    - **>10** → *Demasiados artículos… refiná…* (`reply.articulosRefine`) — **no** el mismo texto que “no encontrado”
 3. **Parseo de frase de alta** (antes de buscar):
-   - Extraer **cantidad** si el usuario dice número + `unidad(es)` / `cantidad N` / `N del artículo…`; si **no** indica cantidad → **asumir 1**.
+   - Prefijo de renglón: `artículo(s)` / `art.` / `art` / `producto(s)` / `prod.` / `prod` / `item(s)` / `it.` / `it` (además de `agregar` / `cargar`).
+   - Extraer **cantidad** si el usuario dice número + `unidad(es)` / `cantidad` / `canti` / `cant` / `N del artículo…`; si **no** indica cantidad → **asumir 1**.
    - Extraer **precio** si dice `precio` / `a $…` / `precio unitario`.
    - Extraer **bonificación/descuento de línea** si dice `bonificación` / `bonif` / `descuento` / `%` asociado; sinónimo comercial: descuento ≈ bonificación de renglón.
    - El **texto de búsqueda** del artículo **no** debe incluir los tokens de cantidad/unidad/precio/bonif (p. ej. de “10 unidades del artículo 1001” buscar `1001`, no `10 unidades…`).
@@ -408,7 +411,8 @@ Pueden coexistir: el documental responde “cómo se usa”; el de carga **opera
 - [ ] **CA-A01:** Búsqueda de cliente con 2–10 matches muestra lista numerada; >10 pide refinar; 1 match inicializa cabecera como combobox.
 - [ ] **CA-B01:** Cambio de lista/cabecera sin permiso es rechazado con mensaje.
 - [ ] **CA-C01:** “Leyenda 3: texto X” asigna solo ese campo.
-- [ ] **CA-D01:** Artículo ambiguo (≤10) → lista; >10 refine (mensaje distinto a “no encontrado”); con cantidad agrega renglón; “N unidades del artículo X” → qty N + búsqueda X; bonif/descuento de línea con permiso; precio solo con permiso; reply i18n resuelto.
+- [ ] **CA-C02:** Pedido multilínea con cliente + cabecera + renglones aplica todos los campos permitidos; si hay choice intermedia, el resto no se pierde.
+- [ ] **CA-D01:** Artículo ambiguo (≤10) → lista; >10 refine (mensaje distinto a “no encontrado”); con cantidad agrega renglón; “N unidades del artículo X” → qty N + búsqueda X; prefijos `art`/`item`/`it`; `canti`/`cant`; bonif/descuento de línea con permiso; precio solo con permiso; reply i18n resuelto.
 - [ ] **CA-D02:** Eliminar/modificar renglón busca en el **detalle del comprobante** (conjugados `elimina`/`borra`/…); comillas o descripción al final; 0 → muestra q buscada; 2+ → lista cant·precio·bonif; no confundir con alta en maestro.
 - [ ] **CA-E01:** Stock usa propiedades de [consulta-stock.md](./consulta-stock.md); ≤10 filas + totales de métricas por artículo; >10 pide refinar.
 - [ ] **CA-F01 / G01 / H01:** Sin cliente → pide selección; con cliente → datos de la API; F/G fechas sin hora y total al pie si >1 ítem; presentación en tabla HTML del panel.
@@ -437,6 +441,8 @@ Pueden coexistir: el documental responde “cómo se usa”; el de carga **opera
 | 12 | Presentación tablas consulta | **Cerrado:** tabla HTML (`cargaAsistenteIaConsultaTable`) |
 | 13 | Cabecera vía chat (C ampliado) | **Cerrado:** bonif 1–3, expreso, transporte, cond. venta, perfil, lista, fecha/dirección entrega + `Modifica*` |
 | 14 | Eliminar/modificar renglón | **Cerrado:** detalle borrador; comillas o desc. al final; lista con cant·precio·bonif; conjugados elimina/borra… |
+| 15 | Pedido multilínea / compuesto | **Cerrado (2026-07-14):** parse por líneas; aplicar A–D en orden; diferir resto tras `needsChoice`/`confirm` |
+| 16 | Alias renglón y cabecera | **Cerrado (2026-07-14):** art/item/it + canti; Descto N→bonifN; Direccion:→expresoDire |
 
 ---
 
@@ -446,7 +452,7 @@ Pueden coexistir: el documental responde “cómo se usa”; el de carga **opera
 2. ~~HU (B/B1)~~ — HU-101-037…042; [cierre B1](../../04-tareas/101-PedidosWeb/F-101-18-20-cierre-b1-asistente-carga-ia.md).
 3. ~~TR (C/C1)~~ — TR-18/19/20; [cierre C1](../../04-tareas/101-PedidosWeb/F-101-18-20-cierre-c1-asistente-carga-ia.md) **Apto** → **D1**.
 4. Actualizar [pantalla-carga-comprobante-ui.md](./pantalla-carga-comprobante-ui.md) (detalle UI) si hace falta sincronía fina.
-5. ~~Ajustes post-smoke~~ · ~~F1~~ · ~~Parte F + OpenAPI~~ — [F-101-18-20-cierre-formal](../../04-tareas/101-PedidosWeb/F-101-18-20-cierre-formal.md) (2026-07-13).
+5. ~~Ajustes post-smoke~~ · ~~F1~~ · ~~Parte F + OpenAPI~~ — [F-101-18-20-cierre-formal](../../04-tareas/101-PedidosWeb/F-101-18-20-cierre-formal.md) (2026-07-13; **rev. 2026-07-14** pedido compuesto / alias).
 
 ---
 
@@ -460,14 +466,17 @@ Pueden coexistir: el documental responde “cómo se usa”; el de carga **opera
 
 ---
 
-## 21. Historial de ajustes post-smoke (2026-07-13)
+## 21. Historial de ajustes post-smoke
 
 Consolidado de mejoras pedidas en implementación / smoke del panel:
 
-| Área | Ajuste |
-|------|--------|
-| Panel (SPEC-18) | Altura hilo **270px mín.** / `max(270px, 33vh)`; `flex-shrink: 0`; scroll interno (sin `scrollIntoView` de página) |
-| Consultas F/G (SPEC-20) | Fechas solo `YYYY-MM-DD`; totales pie si >1 ítem; tabla HTML alineada |
-| Cabecera B/C (SPEC-19) | Bonif. 1–3, expreso/dir. expreso, transporte, cond. venta, perfil, lista precios, fecha y dirección entrega; flags `Modifica*` ampliados |
-| Artículos D (SPEC-19) | Eliminar/modificar en **detalle**; comillas o descripción al final; devolver q buscada si 0; lista desambiguación con cant·precio·bonif%; conjugados `elimina`/`borra`/`quita`/`saca` (no caer en alta/maestro) |
-| i18n | `elegirRenglon`, `renglonNoEncontrado`, `renglonNoEncontradoConQ`, `renglonEliminado`, `renglonActualizado` (+ locales) |
+| Área | Ajuste | Fecha |
+|------|--------|-------|
+| Panel (SPEC-18) | Altura hilo **270px mín.** / `max(270px, 33vh)`; `flex-shrink: 0`; scroll interno (sin `scrollIntoView` de página) | 2026-07-13 |
+| Consultas F/G (SPEC-20) | Fechas solo `YYYY-MM-DD`; totales pie si >1 ítem; tabla HTML alineada | 2026-07-13 |
+| Cabecera B/C (SPEC-19) | Bonif. 1–3, expreso/dir. expreso, transporte, cond. venta, perfil, lista precios, fecha y dirección entrega; flags `Modifica*` ampliados | 2026-07-13 |
+| Artículos D (SPEC-19) | Eliminar/modificar en **detalle**; comillas o descripción al final; devolver q buscada si 0; lista desambiguación con cant·precio·bonif%; conjugados `elimina`/`borra`/`quita`/`saca` (no caer en alta/maestro) | 2026-07-13 |
+| i18n | `elegirRenglon`, `renglonNoEncontrado`, `renglonNoEncontradoConQ`, `renglonEliminado`, `renglonActualizado` (+ locales) | 2026-07-13 |
+| Pedido compuesto | Mensaje multilínea con etiquetas → `compositePedido`; aplica cliente + cabecera + renglones en orden; `deferredCompositeItems` tras choice | 2026-07-14 |
+| Alias / sinónimos | Renglón: `art`/`art.`/`item`/`it`/`prod`; cantidad `canti`/`cant`; cabecera `Descto`/`Descuento` N→bonifN; `Direccion:`→expresoDire | 2026-07-14 |
+| Imagen K | Extracto JSON ampliado a perfil, cond., fecha, expreso, lista, bonif 1–3, leyendas 1–5, observaciones (+ diferido cabecera) | 2026-07-14 |

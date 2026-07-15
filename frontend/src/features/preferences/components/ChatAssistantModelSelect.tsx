@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import TextBox from 'devextreme-react/text-box';
 import { SelectBoxDx } from '../../../shared/ui/controls/SelectBoxDx';
+import { isDevExtremeUserChange } from '../../../shared/ui/devextremeUserChange';
 import {
   findProviderCatalogItem,
   resolveProviderSuggestedModels,
@@ -50,8 +51,16 @@ export function ChatAssistantModelSelect({
         <TextBox
           value={modelId}
           disabled={disabled}
-          inputAttr={{ 'data-testid': 'chatAssistantConfigurationModelIdInput' }}
+          inputAttr={{
+            'data-testid': 'chatAssistantConfigurationModelIdInput',
+            autoComplete: 'off',
+            name: 'chatAssistantModelId',
+          }}
           onValueChanged={(event) => {
+            if (!isDevExtremeUserChange(event)) {
+              return;
+            }
+
             onModelIdChange(String(event.value ?? ''));
           }}
         />
@@ -71,9 +80,17 @@ export function ChatAssistantModelSelect({
         searchEnabled
         acceptCustomValue
         showClearButton
-        inputAttr={{ 'data-testid': 'chatAssistantConfigurationModelIdInput' }}
+        inputAttr={{
+          'data-testid': 'chatAssistantConfigurationModelIdInput',
+          autoComplete: 'off',
+          name: 'chatAssistantModelId',
+        }}
         elementAttr={{ 'data-testid': 'chatAssistantConfigurationModelSelect' }}
         onValueChanged={(event) => {
+          if (!isDevExtremeUserChange(event)) {
+            return;
+          }
+
           onModelIdChange(String(event.value ?? ''));
         }}
         onCustomItemCreating={(event) => {

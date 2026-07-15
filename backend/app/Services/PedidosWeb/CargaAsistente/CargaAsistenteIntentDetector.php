@@ -5,6 +5,12 @@ namespace App\Services\PedidosWeb\CargaAsistente;
 final class CargaAsistenteIntentDetector
 {
     /**
+     * Palabras/abreviaturas de renglón: artículo(s), art., producto(s), prod., item(s), it.
+     * Orden: formas largas antes que art/it para no partir mal el match.
+     */
+    private const ARTICULO_KEYWORD_REGEX = 'articulos?|artículos?|productos?|items?|art\.?|prod\.?|it\.?';
+
+    /**
      * @param  array<string, mixed>|null  $pendingChoice
      * @param  list<array{fileName: string, mimeType: string, content: string}>  $normalizedImages
      * @return array{intent: string, params: array<string, mixed>}
@@ -56,6 +62,24 @@ final class CargaAsistenteIntentDetector
             }
         }
 
+        $compositeItems = $this->detectCompositeItems($message);
+        if (count($compositeItems) >= 2) {
+            return [
+                'intent' => 'compositePedido',
+                'params' => ['items' => $compositeItems],
+            ];
+        }
+
+        return $this->detectSingle($message, $normalized);
+    }
+
+    /**
+     * @return array{intent: string, params: array<string, mixed>}
+     */
+    private function detectSingle(string $message, ?string $normalized = null): array
+    {
+        $normalized ??= $this->normalizeText($message);
+
         if (preg_match('/\b(cambiar\s+cliente|otro\s+cliente)\b/u', $normalized) === 1) {
             $q = $this->extractAfterPatterns($message, [
                 '/cambiar\s+cliente\s+(?:a\s+|por\s+)?(.+)/iu',
@@ -70,13 +94,16 @@ final class CargaAsistenteIntentDetector
 
         if (preg_match('/\b(cliente|buscar\s+cliente)\b/u', $normalized) === 1) {
             $q = $this->extractAfterPatterns($message, [
-                '/buscar\s+cliente\s+(.+)/iu',
-                '/cliente\s+(.+)/iu',
+                '/buscar\s+cliente\s*[:=]?\s*(.+)/iu',
+                '/cliente\s*[:=]?\s*(.+)/iu',
             ]);
+            if ($q === '') {
+                $q = $this->extractQueryAfterKeywords($message, ['buscar cliente', 'cliente']);
+            }
 
             return [
                 'intent' => 'selectCliente',
-                'params' => ['q' => $q],
+                'params' => ['q' => $this->sanitizeFieldValue($q)],
             ];
         }
 
@@ -85,41 +112,52 @@ final class CargaAsistenteIntentDetector
             $normalized,
         ) === 1) {
             $params = $this->extractArticuloParams($message);
-            $q = $this->extractMutateArticuloQuery($message, [
-                'eliminar articulo',
-                'eliminar artículo',
-                'elimina articulo',
-                'elimina artículo',
-                'eliminá articulo',
-                'eliminá artículo',
-                'borrar articulo',
-                'borrar artículo',
-                'borra articulo',
-                'borra artículo',
-                'quitar articulo',
-                'quitar artículo',
-                'quita articulo',
-                'quita artículo',
-                'sacar articulo',
-                'sacar artículo',
-                'saca articulo',
-                'saca artículo',
-                'articulo',
-                'artículo',
-                'producto',
-                'eliminar',
-                'elimina',
-                'eliminá',
-                'borrar',
-                'borra',
-                'borrá',
-                'quitar',
-                'quita',
-                'quitá',
-                'sacar',
-                'saca',
-                'sacá',
-            ]);
+            $q = $this->extractMutateArticuloQuery($message, array_merge(
+                [
+                    'eliminar articulo',
+                    'eliminar artículo',
+                    'elimina articulo',
+                    'elimina artículo',
+                    'eliminá articulo',
+                    'eliminá artículo',
+                    'borrar articulo',
+                    'borrar artículo',
+                    'borra articulo',
+                    'borra artículo',
+                    'quitar articulo',
+                    'quitar artículo',
+                    'quita articulo',
+                    'quita artículo',
+                    'sacar articulo',
+                    'sacar artículo',
+                    'saca articulo',
+                    'saca artículo',
+                    'eliminar item',
+                    'elimina item',
+                    'borrar item',
+                    'quita item',
+                    'sacar item',
+                    'eliminar art',
+                    'elimina art',
+                    'borrar art',
+                    'quita art',
+                ],
+                $this->articuloKeywordList(),
+                [
+                    'eliminar',
+                    'elimina',
+                    'eliminá',
+                    'borrar',
+                    'borra',
+                    'borrá',
+                    'quitar',
+                    'quita',
+                    'quitá',
+                    'sacar',
+                    'saca',
+                    'sacá',
+                ],
+            ));
             if ($q === '') {
                 $q = (string) ($params['q'] ?? '');
             }
@@ -141,7 +179,10 @@ final class CargaAsistenteIntentDetector
             '/\b(cantidad|precio|bonificaci[oó]n|bonif|descuento|desc\.?|dto)\b/u',
             $normalized,
         ) === 1;
-        $hablaDeArticuloOrRenglon = preg_match('/\b(articulo|artículo|producto|rengl[oó]n)\b/u', $normalized) === 1;
+        $hablaDeArticuloOrRenglon = preg_match(
+            '/\b(?:'.self::ARTICULO_KEYWORD_REGEX.'|rengl[oó]n)\b/u',
+            $normalized,
+        ) === 1;
 
         // Evitar capturar altas tipo “articulo X cantidad 10 precio 150” como update.
         if (
@@ -150,7 +191,7 @@ final class CargaAsistenteIntentDetector
         ) {
             $params = $this->extractArticuloParams($message);
             $explicitCantidad = preg_match(
-                '/\b(?:cantidad|cant\.?|unidades?|uds?)\b|\b\d+(?:[.,]\d+)?\s*(?:unidades?|uds?)\b/u',
+                '/\b(?:cantidad|canti|cant\.?|unidades?|uds?)\b|\b\d+(?:[.,]\d+)?\s*(?:unidades?|uds?)\b/u',
                 $normalized,
             ) === 1;
 
@@ -165,19 +206,26 @@ final class CargaAsistenteIntentDetector
 
             $q = '';
             if (! $ultimoRenglon) {
-                $q = $this->extractMutateArticuloQuery($message, [
-                    'modificar articulo',
-                    'modificar artículo',
-                    'cambiar articulo',
-                    'cambiar artículo',
-                    'actualizar articulo',
-                    'actualizar artículo',
-                    'articulo',
-                    'artículo',
-                    'producto',
-                    'renglon',
-                    'renglón',
-                ]);
+                $q = $this->extractMutateArticuloQuery($message, array_merge(
+                    [
+                        'modificar articulo',
+                        'modificar artículo',
+                        'cambiar articulo',
+                        'cambiar artículo',
+                        'actualizar articulo',
+                        'actualizar artículo',
+                        'modificar item',
+                        'cambiar item',
+                        'actualizar item',
+                        'modificar art',
+                        'cambiar art',
+                    ],
+                    $this->articuloKeywordList(),
+                    [
+                        'renglon',
+                        'renglón',
+                    ],
+                ));
                 if ($q === '' || $q === trim($message)) {
                     $q = (string) ($params['q'] ?? '');
                 }
@@ -264,7 +312,11 @@ final class CargaAsistenteIntentDetector
             ];
         }
 
-        if (preg_match('/\b(lista\s+de\s+precios|lista\s+precios)\b/u', $normalized) === 1) {
+        // Evitar que “Leyenda 1: entregar lista de precios” dispare lista de precios.
+        if (
+            preg_match('/\b(lista\s+de\s+precios|lista\s+precios)\b/u', $normalized) === 1
+            && preg_match('/^(?:leyenda|observacion|bonificaci|bonif|descuento|descto|desc\.?|dto\.?)\b/u', $normalized) !== 1
+        ) {
             return [
                 'intent' => 'setListaPrecios',
                 'params' => [
@@ -332,8 +384,12 @@ final class CargaAsistenteIntentDetector
             ];
         }
 
-        // Cabecera: bonificación 1/2/3 (antes que renglón genérico “bonificacion N%”).
-        if (preg_match('/\b(?:bonificaci[oó]n|bonif)\s*([123])\b/u', $normalized, $matches) === 1) {
+        // Cabecera: bonificación / descuento 1/2/3 (antes que renglón genérico “bonificacion N%”).
+        if (preg_match(
+            '/\b(?:bonificaci[oó]n|bonif|descuento|descto|desc\.?|dto\.?)\s*([123])\b/u',
+            $normalized,
+            $matches,
+        ) === 1) {
             $slot = (int) $matches[1];
 
             return [
@@ -347,6 +403,12 @@ final class CargaAsistenteIntentDetector
                         'bonificacion'.$slot,
                         'bonificación'.$slot,
                         'bonif'.$slot,
+                        'descuento '.$slot,
+                        'descto '.$slot,
+                        'desc '.$slot,
+                        'dto '.$slot,
+                        'descuento'.$slot,
+                        'descto'.$slot,
                     ]),
                 ],
             ];
@@ -384,10 +446,115 @@ final class CargaAsistenteIntentDetector
             ];
         }
 
+        // “Direccion: …” suelta = dirección del expreso (texto libre); “dirección de entrega” ya se resolvió arriba.
+        if (preg_match('/\bdirecci[oó]n\b/u', $normalized) === 1) {
+            return [
+                'intent' => 'setCampoLibre',
+                'params' => [
+                    'field' => 'expresoDire',
+                    'value' => $this->extractCampoLibreValue($message, ['direccion', 'dirección']),
+                ],
+            ];
+        }
+
         return [
             'intent' => 'unknown',
             'params' => [],
         ];
+    }
+
+    /**
+     * Pedido pegado con varias líneas etiqueta:valor + artículos → una intención por línea.
+     *
+     * @return list<array{intent: string, params: array<string, mixed>}>
+     */
+    private function detectCompositeItems(string $message): array
+    {
+        $segments = $this->splitCompositeSegments($message);
+        if (count($segments) < 2) {
+            return [];
+        }
+
+        $items = [];
+        foreach ($segments as $segment) {
+            $detected = $this->detectSingle($segment);
+            if (($detected['intent'] ?? 'unknown') === 'unknown') {
+                continue;
+            }
+            $items[] = $detected;
+        }
+
+        return $items;
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function splitCompositeSegments(string $message): array
+    {
+        $lines = preg_split('/\R/u', $message) ?: [];
+        $segments = [];
+
+        foreach ($lines as $line) {
+            $trimmed = trim($line);
+            if ($trimmed === '') {
+                continue;
+            }
+
+            if ($this->lineLooksLikeLabeledFieldOrArticulo($trimmed)) {
+                $segments[] = $trimmed;
+                continue;
+            }
+
+            if ($segments !== []) {
+                $segments[count($segments) - 1] .= ' '.$trimmed;
+            }
+        }
+
+        return $segments;
+    }
+
+    private function lineLooksLikeLabeledFieldOrArticulo(string $line): bool
+    {
+        $normalized = $this->normalizeText($line);
+
+        if ($this->looksLikeAddArticulo($normalized)) {
+            return true;
+        }
+
+        return preg_match(
+            '/^(?:'
+            .'cliente|perfil|'
+            .'condicion(?:\s+de)?\s+venta|condici[oó]n(?:\s+de)?\s+venta|'
+            .'fecha(?:\s+de)?\s+entrega|transporte|expreso|'
+            .'direccion(?:\s+de\s+entrega|\s+expreso)?|direcci[oó]n(?:\s+de\s+entrega|\s+expreso)?|'
+            .'lista(?:\s+de)?\s+precios|'
+            .'(?:bonificaci[oó]n|bonif|descuento|descto|desc\.?|dto\.?)\s*[123]|'
+            .'leyenda\s*[1-5]|observacion(?:es)?|nivel'
+            .')\b/u',
+            $normalized,
+        ) === 1;
+    }
+
+    private function sanitizeFieldValue(string $value): string
+    {
+        $value = trim($value);
+        if ($value === '') {
+            return '';
+        }
+
+        if (preg_match('/^([^\r\n]+)/u', $value, $matches) === 1) {
+            $value = trim($matches[1]);
+        }
+
+        // Solo cortar si viene otra etiqueta con “:” (evita partir “entregar lista de precios”).
+        $cut = preg_split(
+            '/\s+(?:perfil|condicion(?:\s+de)?\s+venta|condici[oó]n(?:\s+de)?\s+venta|fecha(?:\s+de)?\s+entrega|transporte|expreso|direccion(?:\s+de\s+entrega|\s+expreso)?|direcci[oó]n(?:\s+de\s+entrega|\s+expreso)?|lista(?:\s+de)?\s+precios|(?:bonificaci[oó]n|bonif|descuento|descto)\s*[123]|leyenda\s*[1-5]|observacion(?:es)?|nivel|cliente)\s*:/iu',
+            $value,
+            2,
+        );
+
+        return trim((string) ($cut[0] ?? $value));
     }
 
     private function normalizeText(string $message): string
@@ -459,15 +626,16 @@ final class CargaAsistenteIntentDetector
      */
     private function extractQueryAfterKeywords(string $message, array $keywords): string
     {
-        $lower = mb_strtolower($message);
-
         foreach ($keywords as $keyword) {
-            $pos = mb_strpos($lower, mb_strtolower($keyword));
-            if ($pos === false) {
+            $escaped = preg_quote($keyword, '/');
+            // Palabra completa (evita que “it”/“art” partan “item”/“articulo”).
+            if (preg_match('/(?:^|[^\p{L}\p{N}])'.$escaped.'(?=[^\p{L}\p{N}]|$)/iu', $message, $matches, PREG_OFFSET_CAPTURE) !== 1) {
                 continue;
             }
 
-            $after = trim(mb_substr($message, $pos + mb_strlen($keyword)));
+            $matchOffset = (int) $matches[0][1];
+            $matchLength = strlen($matches[0][0]);
+            $after = trim(substr($message, $matchOffset + $matchLength));
 
             // No comer el '-' de números negativos (p. ej. bonificación 3 -2).
             return preg_replace('/^[:\s]+/u', '', $after) ?? $after;
@@ -478,7 +646,7 @@ final class CargaAsistenteIntentDetector
 
     private function looksLikeAddArticulo(string $normalized): bool
     {
-        if (preg_match('/\b(articulo|artículo|agregar|producto|cargar)\b/u', $normalized) === 1) {
+        if (preg_match('/\b(?:'.self::ARTICULO_KEYWORD_REGEX.'|agregar|cargar)\b/u', $normalized) === 1) {
             return true;
         }
 
@@ -495,6 +663,29 @@ final class CargaAsistenteIntentDetector
     }
 
     /**
+     * @return list<string>
+     */
+    private function articuloKeywordList(): array
+    {
+        return [
+            'articulos',
+            'artículos',
+            'articulo',
+            'artículo',
+            'productos',
+            'producto',
+            'items',
+            'item',
+            'art.',
+            'art',
+            'prod.',
+            'prod',
+            'it.',
+            'it',
+        ];
+    }
+
+    /**
      * @return array{q: string, cantidad: float, precio: float|null, porcBonif: float|null}
      */
     private function extractArticuloParams(string $message): array
@@ -504,7 +695,7 @@ final class CargaAsistenteIntentDetector
         $porcBonif = null;
         $working = $message;
 
-        if (preg_match('/(?:cantidad|cant\.?|x)\s*[:=]?\s*(\d+(?:[.,]\d+)?)/iu', $working, $matches) === 1) {
+        if (preg_match('/(?:cantidad|canti|cant\.?|x)\s*[:=]?\s*(\d+(?:[.,]\d+)?)/iu', $working, $matches) === 1) {
             $cantidad = (float) str_replace(',', '.', $matches[1]);
             $working = trim(str_replace($matches[0], '', $working));
         } elseif (preg_match('/\b(\d+(?:[.,]\d+)?)\s*(?:unidades?|uds?|u\.?)\b/iu', $working, $matches) === 1) {
@@ -539,13 +730,16 @@ final class CargaAsistenteIntentDetector
             $q = trim($quoted[1]);
         } else {
             $q = $this->extractAfterPatterns($working, [
-                '/agregar\s+(?:articulo|artículo|producto)?\s*(.+)/iu',
-                '/(?:articulo|artículo|producto)\s+(.+)/iu',
+                '/agregar\s+(?:'.self::ARTICULO_KEYWORD_REGEX.')?\s*(.+)/iu',
+                '/(?:'.self::ARTICULO_KEYWORD_REGEX.')\s+(.+)/iu',
                 '/cargar\s+(.+)/iu',
             ]);
 
             if ($q === '') {
-                $q = $this->extractQueryAfterKeywords($working, ['agregar', 'articulo', 'artículo', 'producto', 'cargar']);
+                $q = $this->extractQueryAfterKeywords(
+                    $working,
+                    array_merge(['agregar', 'cargar'], $this->articuloKeywordList()),
+                );
             }
 
             if ($q === '' || $q === trim($message)) {
@@ -569,6 +763,6 @@ final class CargaAsistenteIntentDetector
      */
     private function extractCampoLibreValue(string $message, array $keywords): string
     {
-        return $this->extractQueryAfterKeywords($message, $keywords);
+        return $this->sanitizeFieldValue($this->extractQueryAfterKeywords($message, $keywords));
     }
 }

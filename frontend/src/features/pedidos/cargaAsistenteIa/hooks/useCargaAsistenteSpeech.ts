@@ -13,13 +13,24 @@ type SpeechRecognitionLike = {
 
 type SpeechRecognitionConstructor = new () => SpeechRecognitionLike;
 
+export type CargaAsistenteSpeechBlockReason =
+  | 'unsupported'
+  | 'insecureContext'
+  | 'denied'
+  | 'error'
+  | null;
+
 type UseCargaAsistenteSpeechOptions = {
   onTranscript: (text: string) => void;
-  onError?: (reason: 'unsupported' | 'denied' | 'error') => void;
+  onError?: (reason: Exclude<CargaAsistenteSpeechBlockReason, null>) => void;
   lang?: string;
 };
 
 function resolveSpeechRecognitionConstructor(): SpeechRecognitionConstructor | null {
+  if (typeof window === 'undefined') {
+    return null;
+  }
+
   const speechWindow = window as Window & {
     SpeechRecognition?: SpeechRecognitionConstructor;
     webkitSpeechRecognition?: SpeechRecognitionConstructor;
@@ -28,16 +39,35 @@ function resolveSpeechRecognitionConstructor(): SpeechRecognitionConstructor | n
   return speechWindow.SpeechRecognition ?? speechWindow.webkitSpeechRecognition ?? null;
 }
 
+function resolveSpeechBlockReason(): CargaAsistenteSpeechBlockReason {
+  if (typeof window === 'undefined') {
+    return 'unsupported';
+  }
+
+  // Chrome/Edge ocultan SpeechRecognition fuera de contexto seguro (salvo localhost).
+  if (!window.isSecureContext) {
+    return 'insecureContext';
+  }
+
+  if (resolveSpeechRecognitionConstructor() === null) {
+    return 'unsupported';
+  }
+
+  return null;
+}
+
 export function useCargaAsistenteSpeech({
   onTranscript,
   onError,
   lang = 'es-AR',
 }: UseCargaAsistenteSpeechOptions) {
   const [isListening, setIsListening] = useState(false);
+  const [blockReason, setBlockReason] = useState<CargaAsistenteSpeechBlockReason>(() =>
+    resolveSpeechBlockReason(),
+  );
   const recognitionRef = useRef<SpeechRecognitionLike | null>(null);
   const onTranscriptRef = useRef(onTranscript);
   const onErrorRef = useRef(onError);
-  const supported = typeof window !== 'undefined' && resolveSpeechRecognitionConstructor() !== null;
 
   useEffect(() => {
     onTranscriptRef.current = onTranscript;
@@ -46,6 +76,10 @@ export function useCargaAsistenteSpeech({
   useEffect(() => {
     onErrorRef.current = onError;
   }, [onError]);
+
+  useEffect(() => {
+    setBlockReason(resolveSpeechBlockReason());
+  }, []);
 
   useEffect(() => {
     return () => {
@@ -61,9 +95,17 @@ export function useCargaAsistenteSpeech({
   }, []);
 
   const start = useCallback(() => {
-    const Recognition = resolveSpeechRecognitionConstructor();
+    const reason = resolveSpeechBlockReason();
+    setBlockReason(reason);
 
+    if (reason === 'insecureContext' || reason === 'unsupported') {
+      onErrorRef.current?.(reason);
+      return;
+    }
+
+    const Recognition = resolveSpeechRecognitionConstructor();
     if (!Recognition) {
+      setBlockReason('unsupported');
       onErrorRef.current?.('unsupported');
       return;
     }
@@ -86,6 +128,7 @@ export function useCargaAsistenteSpeech({
       recognition.onerror = (event) => {
         const errorCode = String(event.error ?? '');
         if (errorCode === 'not-allowed' || errorCode === 'service-not-allowed') {
+          setBlockReason('denied');
           onErrorRef.current?.('denied');
         } else {
           onErrorRef.current?.('error');
@@ -102,6 +145,7 @@ export function useCargaAsistenteSpeech({
       recognitionRef.current = recognition;
       recognition.start();
       setIsListening(true);
+      setBlockReason(null);
     } catch {
       onErrorRef.current?.('error');
       setIsListening(false);
@@ -112,6 +156,7 @@ export function useCargaAsistenteSpeech({
     isListening,
     start,
     stop,
-    supported,
+    supported: blockReason === null || blockReason === 'denied',
+    blockReason,
   };
 }

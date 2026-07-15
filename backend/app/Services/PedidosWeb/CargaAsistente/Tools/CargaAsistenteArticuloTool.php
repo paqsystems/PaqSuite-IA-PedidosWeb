@@ -581,7 +581,33 @@ final class CargaAsistenteArticuloTool
     }
 
     /**
-     * @return list<array<string, mixed>>
+     * Lookup compartido (carga por texto / extracto imagen).
+     *
+     * @return list<array{
+     *     codArticulo: string,
+     *     descripcion: string,
+     *     porcIva: float,
+     *     bonificacion: float,
+     *     precio: float,
+     *     disponibleNeto: float,
+     *     disponibleNetoBase: float|null
+     * }>
+     */
+    public function buscarCandidatos(string $q, int $codLista): array
+    {
+        return $this->buscarArticulosFiltrados($q, $codLista);
+    }
+
+    /**
+     * @return list<array{
+     *     codArticulo: string,
+     *     descripcion: string,
+     *     porcIva: float,
+     *     bonificacion: float,
+     *     precio: float,
+     *     disponibleNeto: float,
+     *     disponibleNetoBase: float|null
+     * }>
      */
     private function buscarArticulosFiltrados(string $q, int $codLista): array
     {
@@ -590,61 +616,234 @@ final class CargaAsistenteArticuloTool
             return [];
         }
 
-        $tokens = $this->significantTokens($q);
-        $seed = $this->resolveSearchSeed($q, $tokens);
-        $raw = $this->articuloCargaLookupService->buscar($seed, 100, $codLista);
-        $raw = $this->excludeUsaEscBase($raw);
+        $variants = $this->buildArticuloSearchVariants($q);
+        $best = [];
 
-        if ($raw === []) {
-            // Fallback: frase completa por si el seed fue demasiado estrecho.
-            if ($seed !== $q) {
-                $raw = $this->excludeUsaEscBase(
-                    $this->articuloCargaLookupService->buscar($q, 100, $codLista),
-                );
+        foreach ($variants as $variant) {
+            $tokens = $this->significantTokens($variant);
+            $seed = $this->resolveSearchSeed($variant, $tokens);
+            $raw = $this->articuloCargaLookupService->buscar($seed, 100, $codLista);
+            $raw = $this->excludeUsaEscBase($raw);
+
+            if ($raw === []) {
+                if ($seed !== $variant) {
+                    $raw = $this->excludeUsaEscBase(
+                        $this->articuloCargaLookupService->buscar($variant, 100, $codLista),
+                    );
+                }
             }
 
-            return $raw;
-        }
+            if ($raw === []) {
+                continue;
+            }
 
-        if ($tokens === []) {
-            return array_slice($raw, 0, 11);
-        }
+            if ($tokens === []) {
+                $candidate = array_slice($raw, 0, 11);
+            } else {
+                $filtered = array_values(array_filter(
+                    $raw,
+                    function (array $row) use ($tokens): bool {
+                        $codigo = (string) ($row['codArticulo'] ?? '');
+                        $descripcion = (string) ($row['descripcion'] ?? '');
+                        $haystackText = $this->normalizeArticuloToken($descripcion);
+                        $haystackAll = $this->normalizeArticuloHaystack($codigo, $descripcion);
 
-        $filtered = array_values(array_filter(
-            $raw,
-            function (array $row) use ($tokens): bool {
-                $haystack = mb_strtolower(trim(
-                    (string) ($row['codArticulo'] ?? '').' '.(string) ($row['descripcion'] ?? ''),
+                        foreach ($tokens as $token) {
+                            $normalizedToken = $this->normalizeArticuloToken($token);
+                            if ($normalizedToken === '') {
+                                continue;
+                            }
+
+                            if (preg_match('/^\d+$/u', $normalizedToken) === 1) {
+                                // Evitar falsos positivos por dígitos del código (ej. AF01 vs pack "1").
+                                if (! $this->descriptionContainsPackNumber($descripcion, $normalizedToken)) {
+                                    return false;
+                                }
+                                continue;
+                            }
+
+                            if (! str_contains($haystackAll, $normalizedToken)
+                                && ! str_contains($haystackText, $normalizedToken)
+                                && ! $this->fuzzyTokenMatchesDescription($descripcion, $normalizedToken)
+                            ) {
+                                return false;
+                            }
+                        }
+
+                        return true;
+                    },
                 ));
 
-                foreach ($tokens as $token) {
-                    if (! str_contains($haystack, $token)) {
-                        return false;
-                    }
+                if ($filtered === []) {
+                    continue;
                 }
 
-                return true;
-            },
-        ));
+                $exact = array_values(array_filter(
+                    $filtered,
+                    function (array $row) use ($variant): bool {
+                        return $this->normalizeArticuloToken((string) ($row['descripcion'] ?? ''))
+                            === $this->normalizeArticuloToken($variant);
+                    },
+                ));
 
-        if ($filtered !== []) {
-            // Preferir coincidencia exacta de descripción.
-            $exact = array_values(array_filter(
-                $filtered,
-                static function (array $row) use ($q): bool {
-                    return mb_strtolower(trim((string) ($row['descripcion'] ?? ''))) === mb_strtolower($q);
-                },
-            ));
-
-            if (count($exact) === 1) {
-                return $exact;
+                $candidate = count($exact) === 1 ? $exact : array_slice($filtered, 0, 11);
             }
 
-            return array_slice($filtered, 0, 11);
+            $candidate = $this->preferCloserArticuloCandidates($variant, $candidate);
+
+            if (count($candidate) === 1) {
+                return $candidate;
+            }
+
+            if ($best === [] || count($candidate) < count($best)) {
+                $best = $candidate;
+            }
         }
 
-        // La semilla trajo filas, pero ninguna contiene todos los tokens.
-        return [];
+        return $best;
+    }
+
+    /**
+     * @param  list<array<string, mixed>>  $candidates
+     * @return list<array<string, mixed>>
+     */
+    private function preferCloserArticuloCandidates(string $q, array $candidates): array
+    {
+        if (count($candidates) <= 1) {
+            return $candidates;
+        }
+
+        $queryTokens = $this->significantTokens($q);
+        $scored = [];
+
+        foreach ($candidates as $row) {
+            $scored[] = [
+                'row' => $row,
+                'penalty' => $this->scoreArticuloExtraWords(
+                    (string) ($row['descripcion'] ?? ''),
+                    $queryTokens,
+                ),
+            ];
+        }
+
+        $minPenalty = min(array_column($scored, 'penalty'));
+        $preferred = array_values(array_map(
+            static fn (array $item): array => $item['row'],
+            array_filter(
+                $scored,
+                static fn (array $item): bool => $item['penalty'] === $minPenalty,
+            ),
+        ));
+
+        return $preferred !== [] ? $preferred : $candidates;
+    }
+
+    /**
+     * @param  list<string>  $queryTokens
+     */
+    private function scoreArticuloExtraWords(string $descripcion, array $queryTokens): int
+    {
+        $descTokens = $this->significantTokens($descripcion);
+        $penalty = 0;
+
+        foreach ($descTokens as $descToken) {
+            if (preg_match('/^\d+$/u', $descToken) === 1) {
+                continue;
+            }
+            if (in_array($descToken, ['kg', 'g', 'gr', 'lt', 'l', 'ml', 'un', 'u', 'ud', 'uds'], true)) {
+                continue;
+            }
+
+            $covered = false;
+            foreach ($queryTokens as $queryToken) {
+                $qt = $this->normalizeArticuloToken($queryToken);
+                $dt = $this->normalizeArticuloToken($descToken);
+                if ($qt === '' || $dt === '') {
+                    continue;
+                }
+                if ($qt === $dt || (mb_strlen($qt) >= 5 && levenshtein($qt, $dt) <= 1)) {
+                    $covered = true;
+                    break;
+                }
+            }
+
+            if (! $covered) {
+                $penalty++;
+            }
+        }
+
+        return $penalty;
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function buildArticuloSearchVariants(string $q): array
+    {
+        $variants = [$q];
+
+        // Catálogo Ankas: "AJO EN POLVO25 KG" (pack pegado al texto).
+        $glued = preg_replace(
+            '/(\S+)\s+(\d+)\s*(kg|g|gr|lt|l|ml|un|u|uds?)\b/iu',
+            '$1$2 $3',
+            $q,
+        );
+        if (is_string($glued) && $glued !== $q) {
+            $variants[] = $glued;
+        }
+
+        $compact = preg_replace('/\s+/u', '', $q);
+        if (is_string($compact) && $compact !== '' && $compact !== $q) {
+            $variants[] = $compact;
+        }
+
+        return array_values(array_unique($variants));
+    }
+
+    private function normalizeArticuloHaystack(string $codigo, string $descripcion): string
+    {
+        return $this->normalizeArticuloToken($codigo.' '.$descripcion);
+    }
+
+    private function normalizeArticuloToken(string $value): string
+    {
+        $value = mb_strtolower(trim($value));
+        $value = preg_replace('/\s+/u', '', $value) ?? $value;
+
+        return $value;
+    }
+
+    private function descriptionContainsPackNumber(string $descripcion, string $number): bool
+    {
+        $descripcion = mb_strtolower($descripcion);
+
+        return preg_match('/(?<!\d)'.preg_quote($number, '/').'(?!\d)/u', $descripcion) === 1;
+    }
+
+    /**
+     * Tolerancia OCR: "ramilada" ≈ "ramillada" (1 edición).
+     */
+    private function fuzzyTokenMatchesDescription(string $descripcion, string $token): bool
+    {
+        if (mb_strlen($token) < 5) {
+            return false;
+        }
+
+        $words = preg_split('/[\s,;]+/u', mb_strtolower($descripcion)) ?: [];
+
+        foreach ($words as $word) {
+            $word = preg_replace('/\d+(?:kg|g|gr|lt|l|ml|un|u|uds?)?$/iu', '', $word) ?? $word;
+            $word = $this->normalizeArticuloToken((string) $word);
+            if ($word === '' || mb_strlen($word) < 5) {
+                continue;
+            }
+
+            if (levenshtein($token, $word) <= 1) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private function normalizeArticuloQuery(string $q): string
@@ -652,6 +851,12 @@ final class CargaAsistenteArticuloTool
         $q = trim($q);
         $q = trim($q, " \t\"'`");
         $q = preg_replace('/\s+/u', ' ', $q) ?? $q;
+        // "POLVO 25kg" / "POLVO 25 kg" → "POLVO25 kg" (alineado a maestro).
+        $q = preg_replace(
+            '/(\S+)\s+(\d+)\s*(kg|g|gr|lt|l|ml|un|u|uds?)\b/iu',
+            '$1$2 $3',
+            $q,
+        ) ?? $q;
 
         return trim($q);
     }
@@ -666,12 +871,35 @@ final class CargaAsistenteArticuloTool
 
         foreach ($parts as $part) {
             $part = trim($part, " \t\"'`");
-            if ($part === '' || mb_strlen($part) < 2) {
+            if ($part === '') {
                 continue;
             }
-            if (in_array($part, ['de', 'la', 'el', 'los', 'las', 'un', 'una'], true)) {
+
+            if (preg_match('/^\d+$/u', $part) === 1) {
+                $tokens[] = $part;
                 continue;
             }
+
+            if (mb_strlen($part) < 2) {
+                continue;
+            }
+            if (in_array($part, ['de', 'la', 'el', 'los', 'las', 'un', 'una', 'en'], true)) {
+                continue;
+            }
+
+            if (preg_match('/^(\d+)(kg|g|gr|lt|l|ml|un|u|uds?)$/iu', $part, $matches) === 1) {
+                $tokens[] = $matches[1];
+                $tokens[] = mb_strtolower($matches[2]);
+                continue;
+            }
+
+            // "polvo25" → polvo + 25
+            if (preg_match('/^(.*?)(\d+)$/u', $part, $matches) === 1 && $matches[1] !== '') {
+                $tokens[] = $matches[1];
+                $tokens[] = $matches[2];
+                continue;
+            }
+
             $tokens[] = $part;
         }
 
@@ -689,10 +917,16 @@ final class CargaAsistenteArticuloTool
             }
         }
 
-        // Semilla = token más largo (suele ser la marca/descripción distintiva).
+        // Semilla = token alfabético más largo (evitar semilla solo numérica/unidad).
         $longest = $q;
         $maxLen = 0;
         foreach ($tokens as $token) {
+            if (preg_match('/^\d+$/u', $token) === 1) {
+                continue;
+            }
+            if (in_array($token, ['kg', 'g', 'gr', 'lt', 'l', 'ml', 'un', 'u', 'ud', 'uds'], true)) {
+                continue;
+            }
             $len = mb_strlen($token);
             if ($len > $maxLen) {
                 $maxLen = $len;

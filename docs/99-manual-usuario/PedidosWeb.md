@@ -464,9 +464,13 @@ Al pie del formulario hay un panel **colapsable** (Asistente IA) para operar el 
 
 **Puede:** elegir/cambiar cliente; ajustar cabecera (bonificaciones, transporte, condición, lista, fecha/dirección entrega, leyendas, etc.); agregar, modificar o eliminar renglones; consultar stock/deuda/cheques/historial del cliente en curso; grabar pedido o presupuesto.
 
-**Notas de uso al modificar/eliminar renglones**
+**Pedido pegado (varias líneas):** puede pegar de una vez cliente, cabecera y renglones (etiquetas tipo `Cliente:`, `Perfil:`, `Bonif 2:`, `Leyenda 1:`, `art.` / `item` / `it`…). Si el asistente pide elegir una opción, al responder continúa con el resto sin perder lo ya interpretado. Respeta los mismos permisos de cada campo.
 
-- Busca en el **detalle del comprobante**, no en el maestro de artículos.
+**Notas de uso al agregar / modificar / eliminar renglones**
+
+- Prefijos válidos de alta: `artículo`, `art.`, `art`, `producto`, `item`, `it` (y plurales).
+- Cantidad: `cantidad`, `canti` o `cant`.
+- Busca eliminar/modificar en el **detalle del comprobante**, no en el maestro de artículos.
 - Ponga la descripción entre comillas (`"almendra tostada"`) o al final (`cambiar cantidad a 150 del artículo almendra`).
 - Si hay varios renglones coincidentes, elija el número de la lista (código, cantidad, precio, bonif.).
 - Sin configuración LLM, el panel indica ir a Preferencias.

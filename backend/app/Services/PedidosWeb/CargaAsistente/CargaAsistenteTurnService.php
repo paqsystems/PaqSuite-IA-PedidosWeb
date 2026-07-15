@@ -40,6 +40,7 @@ final class CargaAsistenteTurnService
         'setListaPrecios',
         'setFechaEntrega',
         'setDireccionEntrega',
+        'compositePedido',
         'grabarPedido',
         'grabarPresupuesto',
         'applyImageExtract',
@@ -100,16 +101,16 @@ final class CargaAsistenteTurnService
             throw $this->mapChatAssistantException($exception);
         }
 
-        if ($normalizedImages !== []) {
-            $configuration = $this->configurationReadiness->getConfiguration($user, $credentialId);
+            if ($normalizedImages !== []) {
+                $configuration = $this->configurationReadiness->getConfiguration($user, $credentialId, true);
 
-            if (! $configuration['supportsVision']) {
-                throw new CargaAsistenteException(
-                    CargaAsistenteErrorCodes::visionUnsupported,
-                    'pedidos.carga.asistente.visionUnsupported',
-                );
+                if (! $configuration['supportsVision']) {
+                    throw new CargaAsistenteException(
+                        CargaAsistenteErrorCodes::visionUnsupported,
+                        'pedidos.carga.asistente.visionUnsupported',
+                    );
+                }
             }
-        }
 
         $detected = $this->intentDetector->detect($message, $pendingChoice, $normalizedImages);
         $intent = $detected['intent'];
@@ -180,10 +181,15 @@ final class CargaAsistenteTurnService
                 $pendingChoice,
                 (int) ($params['option'] ?? 0),
             ),
-            'confirmChangeCliente' => $this->clienteTool->confirmChangeCliente(
+            'confirmChangeCliente' => $this->withDeferredWork(
                 $user,
-                $draftContext,
                 $pendingChoice,
+                $draftContext,
+                $this->clienteTool->confirmChangeCliente(
+                    $user,
+                    $draftContext,
+                    $pendingChoice,
+                ),
             ),
             'rejectChangeCliente' => $this->clienteTool->rejectChangeCliente(),
             'selectCliente' => $this->clienteTool->selectCliente(
@@ -257,6 +263,15 @@ final class CargaAsistenteTurnService
                 (string) ($params['q'] ?? ''),
                 $draftContext,
             ),
+            'compositePedido' => $this->executeCompositePedido(
+                $user,
+                is_array($params['items'] ?? null) ? $params['items'] : [],
+                $draftContext,
+                $pendingChoice,
+                $normalizedImages,
+                $credentialId,
+                $message,
+            ),
             'grabarPedido' => $this->grabarTool->grabarPedido(),
             'grabarPresupuesto' => $this->grabarTool->grabarPresupuesto(),
             'applyImageExtract' => $this->imageExtractTool->extract(
@@ -268,6 +283,238 @@ final class CargaAsistenteTurnService
             ),
             default => $this->helpResult(),
         };
+    }
+
+    /**
+     * Aplica en orden cliente / cabecera / renglones de un pedido pegado completo.
+     *
+     * @param  list<mixed>  $items
+     * @param  array{
+     *     modo: string|null,
+     *     perfilUsuario: string|null,
+     *     codCliente: string|null,
+     *     cabecera: array<string, mixed>,
+     *     renglones: list<array<string, mixed>>,
+     *     readOnly: bool,
+     *     codLista: int
+     * }  $draftContext
+     * @param  array<string, mixed>|null  $pendingChoice
+     * @param  list<array{fileName: string, mimeType: string, content: string}>  $normalizedImages
+     * @return array{
+     *     replyText: string,
+     *     actions: list<array{action: string, payload: array<string, mixed>, resultado: string}>,
+     *     pendingChoice: array<string, mixed>|null,
+     *     configurationRequired: bool
+     * }
+     */
+    private function executeCompositePedido(
+        User $user,
+        array $items,
+        array $draftContext,
+        ?array $pendingChoice,
+        array $normalizedImages,
+        ?int $credentialId,
+        string $message,
+    ): array {
+        $normalizedItems = [];
+        foreach ($items as $item) {
+            if (! is_array($item)) {
+                continue;
+            }
+            $intent = trim((string) ($item['intent'] ?? ''));
+            if ($intent === '' || $intent === 'unknown' || $intent === 'compositePedido') {
+                continue;
+            }
+            $normalizedItems[] = [
+                'intent' => $intent,
+                'params' => is_array($item['params'] ?? null) ? $item['params'] : [],
+            ];
+        }
+
+        if ($normalizedItems === []) {
+            return $this->helpResult();
+        }
+
+        return $this->executeCompositeItems(
+            $user,
+            $normalizedItems,
+            $draftContext,
+            $pendingChoice,
+            $normalizedImages,
+            $credentialId,
+            $message,
+        );
+    }
+
+    /**
+     * @param  list<array{intent: string, params: array<string, mixed>}>  $items
+     * @param  array{
+     *     modo: string|null,
+     *     perfilUsuario: string|null,
+     *     codCliente: string|null,
+     *     cabecera: array<string, mixed>,
+     *     renglones: list<array<string, mixed>>,
+     *     readOnly: bool,
+     *     codLista: int
+     * }  $draftContext
+     * @param  array<string, mixed>|null  $incomingPendingChoice
+     * @param  list<array{fileName: string, mimeType: string, content: string}>  $normalizedImages
+     * @return array{
+     *     replyText: string,
+     *     actions: list<array{action: string, payload: array<string, mixed>, resultado: string}>,
+     *     pendingChoice: array<string, mixed>|null,
+     *     configurationRequired: bool
+     * }
+     */
+    private function executeCompositeItems(
+        User $user,
+        array $items,
+        array $draftContext,
+        ?array $incomingPendingChoice,
+        array $normalizedImages,
+        ?int $credentialId,
+        string $message,
+    ): array {
+        unset($incomingPendingChoice);
+
+        $actions = [];
+        $pendingChoice = null;
+        $replyParts = [];
+        $workingDraft = $draftContext;
+        $deferredItems = [];
+
+        foreach ($items as $index => $item) {
+            if ($pendingChoice !== null) {
+                $deferredItems = array_slice($items, $index);
+                break;
+            }
+
+            $intent = $item['intent'];
+            if ($draftContext['readOnly'] && in_array($intent, self::MUTATION_INTENTS, true)) {
+                $denied = $this->deniedResult('pedidos.carga.asistente.denied');
+                $this->mergeCompositeToolResult($denied, $actions, $pendingChoice, $replyParts, $workingDraft);
+
+                continue;
+            }
+
+            $result = $this->executeIntent(
+                $user,
+                $intent,
+                $item['params'],
+                $workingDraft,
+                null,
+                $normalizedImages,
+                $credentialId,
+                $message,
+            );
+            $this->mergeCompositeToolResult($result, $actions, $pendingChoice, $replyParts, $workingDraft);
+        }
+
+        if ($pendingChoice !== null && $deferredItems !== []) {
+            $pendingChoice['deferredCompositeItems'] = $deferredItems;
+        }
+
+        if ($actions === []) {
+            $actions[] = [
+                'action' => 'noop',
+                'payload' => [],
+                'resultado' => 'ok',
+            ];
+        }
+
+        if ($replyParts === []) {
+            $replyParts[] = 'pedidos.carga.asistente.help';
+        }
+
+        return [
+            'replyText' => implode("\n", array_values(array_unique($replyParts))),
+            'actions' => $actions,
+            'pendingChoice' => $pendingChoice,
+            'configurationRequired' => false,
+        ];
+    }
+
+    /**
+     * @param  array{
+     *     replyText: string,
+     *     actions: list<array{action: string, payload: array<string, mixed>, resultado: string}>,
+     *     pendingChoice: array<string, mixed>|null,
+     *     configurationRequired: bool
+     * }  $toolResult
+     * @param  list<array{action: string, payload: array<string, mixed>, resultado: string}>  $actions
+     * @param  list<string>  $replyParts
+     * @param  array{
+     *     modo: string|null,
+     *     perfilUsuario: string|null,
+     *     codCliente: string|null,
+     *     cabecera: array<string, mixed>,
+     *     renglones: list<array<string, mixed>>,
+     *     readOnly: bool,
+     *     codLista: int
+     * }  $workingDraft
+     */
+    private function mergeCompositeToolResult(
+        array $toolResult,
+        array &$actions,
+        ?array &$pendingChoice,
+        array &$replyParts,
+        array &$workingDraft,
+    ): void {
+        foreach ($toolResult['actions'] as $action) {
+            $actions[] = $action;
+
+            if (($action['action'] ?? '') === 'selectCliente') {
+                $codCliente = trim((string) ($action['payload']['codCliente'] ?? ''));
+                if ($codCliente !== '') {
+                    $workingDraft['codCliente'] = $codCliente;
+                }
+            }
+
+            if (
+                ($action['action'] ?? '') === 'setCabeceraFields'
+                || ($action['action'] ?? '') === 'setCabeceraField'
+                || ($action['action'] ?? '') === 'setCampoLibre'
+            ) {
+                if (($action['action'] ?? '') === 'setCabeceraFields') {
+                    $fields = is_array($action['payload']['fields'] ?? null)
+                        ? $action['payload']['fields']
+                        : [];
+                } else {
+                    $field = trim((string) ($action['payload']['field'] ?? ''));
+                    $fields = $field !== ''
+                        ? [$field => $action['payload']['value'] ?? null]
+                        : [];
+                }
+
+                if ($fields !== []) {
+                    $workingDraft['cabecera'] = array_merge(
+                        is_array($workingDraft['cabecera'] ?? null) ? $workingDraft['cabecera'] : [],
+                        $fields,
+                    );
+                    if (isset($fields['listaPrecios']) && is_numeric($fields['listaPrecios'])) {
+                        $workingDraft['codLista'] = (int) $fields['listaPrecios'];
+                    }
+                }
+            }
+
+            if (($action['action'] ?? '') === 'addRenglon') {
+                $workingDraft['renglones'][] = [
+                    'codArticulo' => (string) ($action['payload']['codArticulo'] ?? ''),
+                    'cantidad' => (float) ($action['payload']['cantidad'] ?? 1),
+                    'precio' => $action['payload']['precio'] ?? null,
+                    'porcBonif' => $action['payload']['porcBonif'] ?? null,
+                ];
+            }
+        }
+
+        $replyText = trim((string) ($toolResult['replyText'] ?? ''));
+        if ($replyText !== '') {
+            $replyParts[] = $replyText;
+        }
+
+        if ($pendingChoice === null && is_array($toolResult['pendingChoice'] ?? null)) {
+            $pendingChoice = $toolResult['pendingChoice'];
+        }
     }
 
     /**
@@ -296,25 +543,185 @@ final class CargaAsistenteTurnService
     ): array {
         $kind = (string) ($pendingChoice['kind'] ?? '');
 
-        if ($kind === 'articulo') {
-            return $this->articuloTool->chooseOption($draftContext, $pendingChoice, $option);
+        $result = match (true) {
+            $kind === 'articulo' => $this->articuloTool->chooseOption(
+                $draftContext,
+                $pendingChoice,
+                $option,
+            ),
+            $kind === 'renglonExistente' => $this->articuloTool->chooseExistingRenglonOption(
+                $draftContext,
+                $pendingChoice,
+                $option,
+            ),
+            in_array($kind, [
+                'transporte',
+                'condicionVenta',
+                'perfil',
+                'listaPrecios',
+                'direccionEntrega',
+            ], true) => $this->cabeceraTool->chooseCatalogOption($pendingChoice, $option),
+            default => $this->clienteTool->chooseOption(
+                $user,
+                $draftContext,
+                $pendingChoice,
+                $option,
+            ),
+        };
+
+        return $this->withDeferredWork(
+            $user,
+            $pendingChoice,
+            $draftContext,
+            $result,
+        );
+    }
+
+    /**
+     * Continúa trabajo diferido (imagen o pedido compuesto) tras resolver una choice.
+     *
+     * @param  array<string, mixed>|null  $pendingChoice
+     * @param  array{
+     *     modo: string|null,
+     *     perfilUsuario: string|null,
+     *     codCliente: string|null,
+     *     cabecera: array<string, mixed>,
+     *     renglones: list<array<string, mixed>>,
+     *     readOnly: bool,
+     *     codLista: int
+     * }  $draftContext
+     * @param  array{
+     *     replyText: string,
+     *     actions: list<array{action: string, payload: array<string, mixed>, resultado: string}>,
+     *     pendingChoice: array<string, mixed>|null,
+     *     configurationRequired: bool
+     * }  $result
+     * @return array{
+     *     replyText: string,
+     *     actions: list<array{action: string, payload: array<string, mixed>, resultado: string}>,
+     *     pendingChoice: array<string, mixed>|null,
+     *     configurationRequired: bool
+     * }
+     */
+    private function withDeferredWork(
+        User $user,
+        ?array $pendingChoice,
+        array $draftContext,
+        array $result,
+    ): array {
+        $result = $this->withDeferredImageExtract($pendingChoice, $draftContext, $result);
+
+        $deferredItems = is_array($pendingChoice['deferredCompositeItems'] ?? null)
+            ? $pendingChoice['deferredCompositeItems']
+            : null;
+
+        if ($deferredItems === null || $deferredItems === []) {
+            return $result;
         }
 
-        if ($kind === 'renglonExistente') {
-            return $this->articuloTool->chooseExistingRenglonOption($draftContext, $pendingChoice, $option);
+        $workingDraft = $draftContext;
+        foreach ($result['actions'] as $action) {
+            if (($action['action'] ?? '') === 'selectCliente') {
+                $codCliente = trim((string) ($action['payload']['codCliente'] ?? ''));
+                if ($codCliente !== '') {
+                    $workingDraft['codCliente'] = $codCliente;
+                }
+            }
+            if (($action['action'] ?? '') === 'setCabeceraFields') {
+                $fields = is_array($action['payload']['fields'] ?? null) ? $action['payload']['fields'] : [];
+                if ($fields !== []) {
+                    $workingDraft['cabecera'] = array_merge(
+                        is_array($workingDraft['cabecera'] ?? null) ? $workingDraft['cabecera'] : [],
+                        $fields,
+                    );
+                    if (isset($fields['listaPrecios']) && is_numeric($fields['listaPrecios'])) {
+                        $workingDraft['codLista'] = (int) $fields['listaPrecios'];
+                    }
+                }
+            }
         }
 
-        if (in_array($kind, [
-            'transporte',
-            'condicionVenta',
-            'perfil',
-            'listaPrecios',
-            'direccionEntrega',
-        ], true)) {
-            return $this->cabeceraTool->chooseCatalogOption($pendingChoice, $option);
+        if ($result['pendingChoice'] !== null) {
+            $result['pendingChoice']['deferredCompositeItems'] = $deferredItems;
+
+            return $result;
         }
 
-        return $this->clienteTool->chooseOption($user, $draftContext, $pendingChoice, $option);
+        $continuation = $this->executeCompositeItems(
+            $user,
+            array_values(array_filter(
+                $deferredItems,
+                static fn (mixed $item): bool => is_array($item),
+            )),
+            $workingDraft,
+            null,
+            [],
+            null,
+            '',
+        );
+
+        $replyParts = [];
+        $baseReply = trim((string) ($result['replyText'] ?? ''));
+        if ($baseReply !== '') {
+            $replyParts[] = $baseReply;
+        }
+        $contReply = trim((string) ($continuation['replyText'] ?? ''));
+        if ($contReply !== '' && $contReply !== 'pedidos.carga.asistente.help') {
+            $replyParts[] = $contReply;
+        }
+
+        return [
+            'replyText' => implode("\n", $replyParts),
+            'actions' => array_merge($result['actions'], $continuation['actions']),
+            'pendingChoice' => $continuation['pendingChoice'],
+            'configurationRequired' => false,
+        ];
+    }
+
+    /**
+     * Reaplica transporte/renglones de imagen diferidos tras resolver una choice.
+     *
+     * @param  array<string, mixed>|null  $pendingChoice
+     * @param  array{
+     *     modo: string|null,
+     *     perfilUsuario: string|null,
+     *     codCliente: string|null,
+     *     cabecera: array<string, mixed>,
+     *     renglones: list<array<string, mixed>>,
+     *     readOnly: bool,
+     *     codLista: int
+     * }  $draftContext
+     * @param  array{
+     *     replyText: string,
+     *     actions: list<array{action: string, payload: array<string, mixed>, resultado: string}>,
+     *     pendingChoice: array<string, mixed>|null,
+     *     configurationRequired: bool
+     * }  $result
+     * @return array{
+     *     replyText: string,
+     *     actions: list<array{action: string, payload: array<string, mixed>, resultado: string}>,
+     *     pendingChoice: array<string, mixed>|null,
+     *     configurationRequired: bool
+     * }
+     */
+    private function withDeferredImageExtract(
+        ?array $pendingChoice,
+        array $draftContext,
+        array $result,
+    ): array {
+        $deferred = is_array($pendingChoice['deferredImageExtract'] ?? null)
+            ? $pendingChoice['deferredImageExtract']
+            : null;
+
+        if ($deferred === null) {
+            return $result;
+        }
+
+        return $this->imageExtractTool->appendDeferredAfterChoice(
+            $result,
+            $deferred,
+            $draftContext,
+        );
     }
 
     /**
@@ -391,22 +798,22 @@ final class CargaAsistenteTurnService
             ],
             ChatAssistantMessageErrorCodes::imagesTooMany => [
                 CargaAsistenteErrorCodes::imagesTooMany,
-                'chatAssistant.imagesTooMany',
+                'chatAssistant.images.tooMany',
                 [],
             ],
             ChatAssistantMessageErrorCodes::imageInvalidFormat => [
                 CargaAsistenteErrorCodes::imageInvalidFormat,
-                'chatAssistant.imageInvalidFormat',
+                'chatAssistant.images.invalidFormat',
                 [],
             ],
             ChatAssistantMessageErrorCodes::imageTooLarge => [
                 CargaAsistenteErrorCodes::imageTooLarge,
-                'chatAssistant.imageTooLarge',
+                'chatAssistant.images.tooLarge',
                 [],
             ],
             ChatAssistantMessageErrorCodes::imageInvalidPayload => [
                 CargaAsistenteErrorCodes::imageInvalidPayload,
-                'chatAssistant.imageInvalidPayload',
+                'chatAssistant.images.invalidFormat',
                 [],
             ],
             ChatAssistantMessageErrorCodes::providerInvocationFailed => [
@@ -416,7 +823,7 @@ final class CargaAsistenteTurnService
             ],
             ChatAssistantMessageErrorCodes::providerUnsupported => [
                 CargaAsistenteErrorCodes::providerInvocationFailed,
-                'chatAssistant.providerInvocationFailed',
+                'chatAssistant.providerUnsupported',
                 [],
             ],
         ];

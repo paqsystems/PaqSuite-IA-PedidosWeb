@@ -18,7 +18,7 @@
 |----------------------------|----------------------|
 | A — Selección cliente (CA-A01) | CA-01 … CA-05 |
 | B — Cabecera lookups (CA-B01) | CA-06 … CA-08 |
-| C — Campos libres (CA-C01) + C ampliado D1-23 | CA-09 … CA-10, CA-16 … CA-17 |
+| C — Campos libres (CA-C01) + C ampliado D1-23 · compuesto D1-25 · alias D1-26 | CA-09 … CA-10, CA-16 … CA-18 |
 | I — Cambio cliente (CA-I01, D1-18) | CA-11 … CA-14 |
 | Moneda (D1-14) | CA-08 |
 | Listas 0/1/2–10/>10 | CA-01 … CA-03 |
@@ -41,6 +41,8 @@ SPEC-101-19 capacidades A, B, C, I: equivalencia con combobox cliente, `Cabecera
 - Tras selección: misma inicialización de cabecera que el combobox.
 - Lookups de cabecera (perfil, cond. venta, transporte, dirección, lista precios, bonif. cabecera 1–3, moneda si UI lo permite).
 - Campos libres / C ampliado: nivel (`NivelExtremo`), observaciones, leyendas 1…5, expreso, dirección expreso, **fecha de entrega**, **dirección de entrega** (lookup `idDe`).
+- Alias cabecera (D1-26): `Bonif`/`Descto`/`Descuento` + 1|2|3 → bonifN; `Direccion:` suelta → expresoDire.
+- Pedido multilínea (D1-25): pegar cliente + cabecera + renglones aplica todos los campos con permiso; ante choice, diferir el resto.
 - Permisos: `ModificaListaPrec*`, `ModificaCondVta*`, `ModificaDirEntr*`, `ModificaExpreso*`, `ModificaBonCli*` (perfil **C** never en bonif/lista).
 - Cambio de cliente con datos: advertencia + confirmación (`sí`/`si`, `confirmo`, `aceptado`) o rechazo (`no`, `cancelar`).
 - Sync UI sin F5.
@@ -75,6 +77,7 @@ SPEC-101-19 capacidades A, B, C, I: equivalencia con combobox cliente, `Cabecera
 - [ ] **CA-10:** Nivel respeta `NivelExtremo` (0/100 si aplica).
 - [ ] **CA-16:** Bonif. cabecera 1/2/3 y expreso/dir. expreso con `ModificaBonCli*` / `ModificaExpreso*`; sin permiso → denied.
 - [ ] **CA-17:** Transporte / cond. venta / perfil / lista / fecha entrega / dirección entrega vía chat con permisos y lookups (2–10 → lista).
+- [ ] **CA-18:** Pedido multilínea con etiquetas aplica cliente + cabecera permitida en un turn (o tras choice diferida); `Descto 3` → bonif3; `Direccion:` → expresoDire.
 - [ ] **CA-11:** Con cliente/renglones y pedido de otro cliente → pide confirmación antes de cambiar.
 - [ ] **CA-12:** Respuesta `confirmo`/`sí`/`aceptado` → limpia y aplica nuevo cliente.
 - [ ] **CA-13:** Respuesta `no`/`cancelar` → no cambia cliente ni datos.

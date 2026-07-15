@@ -8,7 +8,7 @@
 | **Prioridad** | **Should** |
 | **Dependencias** | [TR-SPEC-101-18](TR-SPEC-101-18-asistente-carga-ia-shell.md); TR-SPEC-101-04; TR-SPEC-101-10; HU-101-004…010 |
 | **Estado** | **C1 cerrado** — apto D1 (2026-07-13) |
-| **Última actualización** | 2026-07-13 (post-smoke D1-23/24) |
+| **Última actualización** | 2026-07-14 (D1-25/26 compuesto + alias) |
 
 **Normas:** [`../_NORMAS-TRANSVERSALES-TR.md`](../_NORMAS-TRANSVERSALES-TR.md)  
 **Cierre C1:** [F-101-18-20-cierre-c1](F-101-18-20-cierre-c1-asistente-carga-ia.md)
@@ -31,11 +31,11 @@ Extiende el registry de tools del turno (TR-18) con capacidades **A, B, C, D, I,
 |-----------|-------|-------|
 | A | 039 CA-01…05 | Listas 0/1/2–10/>10; perfil C |
 | B | 039 CA-06…08 | Modifica*; moneda D1-14 |
-| C | 039 CA-09…10, CA-16…17 | Nivel/obs/leyendas + C ampliado D1-23 |
+| C | 039 CA-09…10, CA-16…18 | Nivel/obs/leyendas + C ampliado D1-23; compuesto D1-25; alias D1-26 |
 | I | 039 CA-11…14 | Confirm D1-18 |
-| D | 040 CA-01…09, CA-17…21 | Cantidad default 1; precio; mutar detalle D1-24 |
+| D | 040 CA-01…09, CA-04b, CA-17…21 | Cantidad default 1; art/item/it; mutar detalle D1-24 |
 | J | 040 CA-10…13 | = botones grabar |
-| K | 040 CA-14…16 | Solo válidos; no grabar |
+| K | 040 CA-14…16 | Solo válidos + cabecera ampliada; no grabar |
 
 ---
 
@@ -78,6 +78,9 @@ Todas pasan por `POST .../carga/asistente/turn`. El service registra tools; el L
 | T-19-09 | Permisos ERP: leer parámetros carga ya usados en pantalla (`ModificaPrecio*`, etc.) en BE o validar en FE apply — **doble check:** BE en tools de precio; FE respeta disabled state |
 | T-19-10 | Mutar renglón: `IntentDetector` → `mutateRenglon`; `ArticuloTool::mutateExistingRenglon` filtra **solo** `draftContext.renglones`; comillas/`extractMutateArticuloQuery`; conjugados elimina/borra…; `pendingChoice.kind=renglonExistente` |
 | T-19-11 | Cabecera C: `CargaAsistenteCabeceraTool` + flags `ParametrosCarga` / `resolveModificaFlags` ampliados |
+| T-19-12 | Pedido compuesto: `IntentDetector` → `compositePedido` (≥2 segmentos etiquetados); `TurnService::executeCompositeItems`; diferir en `pendingChoice.deferredCompositeItems`; reanudar en `chooseOption`/`confirmChangeCliente` vía `withDeferredWork` |
+| T-19-13 | Alias: `ARTICULO_KEYWORD_REGEX` (art/item/it/prod…); cantidad `canti`/`cant`; cabecera `Descto` N→`bonifN`; `Direccion:`→`expresoDire` |
+| T-19-14 | Imagen K: prompt + `buildCabeceraStepsFromParsed` (perfil/cond/fecha/expreso/lista/bonif/leyendas/obs) + diferido `cabeceraSteps` |
 
 ---
 
@@ -172,6 +175,10 @@ Estado `pendingChoice.kind = "changeClienteConfirm"`.
 | 0 match mutate | reply con `q` buscada |
 | changeCliente + "confirmo" | clear + select |
 | image mixed | solo válidos en state |
+| multilínea Cliente+Perfil+…+art | `compositePedido` + N actions |
+| `Descto 3: 4` | `setCampoLibre` field=bonif3 |
+| `Direccion: calle` | field=expresoDire |
+| `art.` / `item` / `it` + cant | `addRenglon` |
 
 ---
 

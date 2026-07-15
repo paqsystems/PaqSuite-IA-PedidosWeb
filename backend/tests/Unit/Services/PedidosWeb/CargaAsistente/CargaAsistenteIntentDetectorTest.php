@@ -131,6 +131,138 @@ final class CargaAsistenteIntentDetectorTest extends TestCase
         $this->assertSame('Mitre', $dir['params']['q']);
     }
 
+    public function testDetectsDesctoCabeceraSlotAndBareDireccionAsExpresoDire(): void
+    {
+        $detector = new CargaAsistenteIntentDetector();
+
+        $descto = $detector->detect('Descto 3: 4', null);
+        $this->assertSame('setCampoLibre', $descto['intent']);
+        $this->assertSame('bonif3', $descto['params']['field']);
+        $this->assertSame('4', $descto['params']['value']);
+
+        $direccion = $detector->detect('Direccion: san martin 2470', null);
+        $this->assertSame('setCampoLibre', $direccion['intent']);
+        $this->assertSame('expresoDire', $direccion['params']['field']);
+        $this->assertSame('san martin 2470', $direccion['params']['value']);
+    }
+
+    public function testDetectsArticuloWithCantiAlias(): void
+    {
+        $detector = new CargaAsistenteIntentDetector();
+        $detected = $detector->detect('articulo "AJO EN POLVO25 kg" canti: 100', null);
+
+        $this->assertSame('addRenglon', $detected['intent']);
+        $this->assertSame(100.0, $detected['params']['cantidad']);
+        $this->assertSame('AJO EN POLVO25 kg', $detected['params']['q']);
+    }
+
+    public function testDetectsArticuloWithAbbreviationsItemAndIt(): void
+    {
+        $detector = new CargaAsistenteIntentDetector();
+
+        $art = $detector->detect('art. "AJO EN POLVO25 kg" canti: 100', null);
+        $this->assertSame('addRenglon', $art['intent']);
+        $this->assertSame(100.0, $art['params']['cantidad']);
+        $this->assertSame('AJO EN POLVO25 kg', $art['params']['q']);
+
+        $artSinPunto = $detector->detect('art almendra cant: 12', null);
+        $this->assertSame('addRenglon', $artSinPunto['intent']);
+        $this->assertSame(12.0, $artSinPunto['params']['cantidad']);
+        $this->assertStringContainsString('almendra', mb_strtolower((string) $artSinPunto['params']['q']));
+
+        $item = $detector->detect('item arroz largo fino 5/05 cant: 10 precio: 150', null);
+        $this->assertSame('addRenglon', $item['intent']);
+        $this->assertSame(10.0, $item['params']['cantidad']);
+        $this->assertSame(150.0, $item['params']['precio']);
+        $this->assertStringContainsString('arroz', mb_strtolower((string) $item['params']['q']));
+        $this->assertStringNotContainsString('item', mb_strtolower((string) $item['params']['q']));
+
+        $it = $detector->detect('it "almendra ramillada10 kg" cant: 120', null);
+        $this->assertSame('addRenglon', $it['intent']);
+        $this->assertSame(120.0, $it['params']['cantidad']);
+        $this->assertSame('almendra ramillada10 kg', $it['params']['q']);
+    }
+
+    public function testDetectsCompositePedidoWithAllCabeceraFields(): void
+    {
+        $detector = new CargaAsistenteIntentDetector();
+        $message = <<<'TXT'
+Cliente: 101093
+Perfil: aukanes presupuesto
+condición de venta: 180
+fecha de entrega: 31-07-2026
+transporte: retira por deposito
+Expreso: la estrella
+Direccion: san martin 2470
+Lista de Precios: Ankas C
+Bonificación 1: 3%
+Bonif 2: 5
+Descto 3: 4
+Leyenda 1: entregar lista de precios
+Observaciones: tener en cuenta horario de atención
+articulo "AJO EN POLVO25 kg" canti: 100
+articulo almendra ramillada10 kg cant: 120
+articulo arroz largo fino 5/05 cant: 10 precio: 150 bonif: 3
+TXT;
+
+        $detected = $detector->detect($message, null);
+
+        $this->assertSame('compositePedido', $detected['intent']);
+        $items = $detected['params']['items'];
+        $this->assertIsArray($items);
+        $this->assertGreaterThanOrEqual(14, count($items));
+
+        $intents = array_column($items, 'intent');
+        $this->assertContains('selectCliente', $intents);
+        $this->assertContains('setPerfil', $intents);
+        $this->assertContains('setCondicionVenta', $intents);
+        $this->assertContains('setFechaEntrega', $intents);
+        $this->assertContains('setTransporte', $intents);
+        $this->assertContains('setListaPrecios', $intents);
+        $this->assertContains('setCampoLibre', $intents);
+        $this->assertContains('addRenglon', $intents);
+
+        $cliente = $items[0];
+        $this->assertSame('selectCliente', $cliente['intent']);
+        $this->assertSame('101093', $cliente['params']['q']);
+
+        $fields = [];
+        foreach ($items as $item) {
+            if (($item['intent'] ?? '') === 'setCampoLibre') {
+                $fields[(string) ($item['params']['field'] ?? '')] = (string) ($item['params']['value'] ?? '');
+            }
+        }
+
+        $this->assertSame('la estrella', $fields['expreso'] ?? null);
+        $this->assertSame('san martin 2470', $fields['expresoDire'] ?? null);
+        $this->assertSame('3%', $fields['bonif1'] ?? null);
+        $this->assertSame('5', $fields['bonif2'] ?? null);
+        $this->assertSame('4', $fields['bonif3'] ?? null);
+        $this->assertSame('entregar lista de precios', $fields['leyenda1'] ?? null);
+        $this->assertStringContainsString('horario', $fields['observaciones'] ?? '');
+
+        $addRenglones = array_values(array_filter(
+            $items,
+            static fn (array $item): bool => ($item['intent'] ?? '') === 'addRenglon',
+        ));
+        $this->assertCount(3, $addRenglones);
+        $this->assertSame(100.0, $addRenglones[0]['params']['cantidad']);
+        $this->assertSame(120.0, $addRenglones[1]['params']['cantidad']);
+        $this->assertSame(10.0, $addRenglones[2]['params']['cantidad']);
+        $this->assertSame(150.0, $addRenglones[2]['params']['precio']);
+        $this->assertSame(3.0, $addRenglones[2]['params']['porcBonif']);
+    }
+
+    public function testDetectsClienteWithColonWithoutEatingNextFields(): void
+    {
+        $detector = new CargaAsistenteIntentDetector();
+        $detected = $detector->detect("Cliente: 101093\nPerfil: dummy", null);
+
+        // Multiline with 2 labels → composite; client q must stay clean.
+        $this->assertSame('compositePedido', $detected['intent']);
+        $this->assertSame('101093', $detected['params']['items'][0]['params']['q']);
+    }
+
     public function testDetectsRemoveAndUpdateRenglon(): void
     {
         $detector = new CargaAsistenteIntentDetector();

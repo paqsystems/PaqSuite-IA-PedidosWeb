@@ -2,12 +2,12 @@
 
 | Campo | Valor |
 |-------|--------|
-| **Fecha F1** | 2026-07-13 |
+| **Fecha F1** | 2026-07-14 (rev. post D1-25/26; base 2026-07-13) |
 | **TR** | [TR-18](./TR-SPEC-101-18-asistente-carga-ia-shell.md) · [TR-19](./TR-SPEC-101-19-asistente-carga-ia-mutaciones.md) · [TR-20](./TR-SPEC-101-20-asistente-carga-ia-consultas.md) |
 | **SPEC** | [101-18](../../05-open-spec/101-PedidosWeb/SPEC-101-18-asistente-carga-ia-shell.md) · [101-19](../../05-open-spec/101-PedidosWeb/SPEC-101-19-asistente-carga-ia-mutaciones.md) · [101-20](../../05-open-spec/101-PedidosWeb/SPEC-101-20-asistente-carga-ia-consultas.md) |
 | **HU** | 037…042 |
 | **Producto** | [asistente-ia-carga-pedidos-presupuestos.md](../../02-producto/PedidosWeb/asistente-ia-carga-pedidos-presupuestos.md) |
-| **Alcance F1** | Implementación D + ajustes post-smoke (panel, consultas F/G, cabecera C, mutar renglones) |
+| **Alcance F1** | Implementación D + post-smoke 13/07 + **pedido compuesto / alias / cabecera completa / diferidos** (14/07) |
 
 ## Resultado
 
@@ -15,80 +15,100 @@
 
 ## Evidencia revisada
 
-### Código (eje 1–2, 4–5)
+### 1–2. Alcance y código
 
-| Capacidad | Evidencia |
-|-----------|-----------|
-| Shell panel / altura D1-16 | `CargaAsistenteIaPanel.tsx` + `.css` (`min-height: 16.875rem`, `max(270px, 33vh)`, scroll interno) |
-| Gate BYOK | `CargaAsistenteTurnService` + Feature test `Turn rejects when configuration is missing` |
-| Turn API | `POST /pedidos/carga/asistente/turn` — Controller + Request |
-| Cabecera C ampliada (D1-23) | `CargaAsistenteCabeceraTool` + `IntentDetector` (bonif, expreso, transporte, cond, perfil, lista, fecha, dirección) + FE `patchAsistenteCabecera.ts` |
-| Mutar renglón detalle (D1-24) | `ArticuloTool::mutateExistingRenglon` solo `draftContext.renglones`; conjugados elimina→remove; comillas/`extractMutateArticuloQuery`; choice lista cant·precio·bonif; FE `removeRenglon`/`updateRenglon` |
-| Consultas E–H + UX F/G | Tools Deuda/Cheques (fecha date-only, totals si >1); FE `CargaAsistenteConsultaTable` + `formatShowConsulta` |
-| i18n | Claves `elegirRenglon`, `renglonNoEncontrado`, `renglonNoEncontradoConQ`, etc. en es/en/fr/pt/it |
+| Capacidad | Evidencia código | Doc alineada |
+|-----------|------------------|--------------|
+| Shell / gate / audio / imagen UI | `CargaAsistenteIaPanel`, speech, fileToBase64 | SPEC-18 / HU-037–038 |
+| Cliente / I confirm | `CargaAsistenteClienteTool` | SPEC-19 A/I · HU-039 |
+| Cabecera B/C + permisos | `CargaAsistenteCabeceraTool` + `resolveModificaFlags` | D1-23 · producto §7–8 |
+| **Pedido compuesto** (D1-25) | `IntentDetector::detectCompositeItems` → `compositePedido`; `TurnService::executeCompositeItems` + `deferredCompositeItems` + `withDeferredWork` | producto §4.10 · SPEC-19 D1-25 · HU-039 CA-18 · TR T-19-12 |
+| **Alias** (D1-26) | `ARTICULO_KEYWORD_REGEX`; `canti`; Descto→bonifN; Direccion→expresoDire | producto §8–9 · SPEC-19 D1-26 · HU-040 CA-04b · TR T-19-13 |
+| Mutar renglón detalle | `ArticuloTool::mutateExistingRenglon` | D1-24 |
+| Imagen K cabecera ampliada | `ImageExtractTool` prompt + `buildCabeceraStepsFromParsed` / diferido `cabeceraSteps` | T-19-14 · producto §21 |
+| Consultas E–H | Tools stock/deuda/cheques/historial + tabla FE | SPEC-20 |
+| FE apply | `applyCargaAsistenteActions` + `patchAsistenteCabecera` (leyendas/obs) | — |
 
-### Datos (eje 3)
+### 3. Datos
 
-- Sin migraciones/DROP en este slice (reusa BYOK `pq_asistente_ia_*` y APIs de carga/consultas). **OK** — no aplica esquema nuevo.
+- Sin migraciones/DROP en este slice. BYOK existente. **OK**.
 
-### Documentación (eje 7)
+### 4. Backend
 
-- Producto §9/§21, SPEC-18/19/20 historiales D1, HU-039/040/042, TR-18/19/20, manual `PedidosWeb.md` §6.17 actualizados (2026-07-13).
-- **Gap:** no se halló entrada OpenAPI/Swagger explícita para `POST .../carga/asistente/turn` en artefactos buscados.
+- Revalidación de permisos en tools de cabecera/artículos.
+- Gate BYOK sin inventar acciones.
+- Valores de campo sanitizados (primera línea; no comer “lista de precios” dentro de leyenda).
+- Keywords cortas (`it`/`art`) con límite de palabra (no parten `item`/`articulo`).
 
-### Trazabilidad (eje 8)
+### 5. Frontend
 
-- TR-18/19/20 + D1-PLAN + cierres A1/B1/C1 existentes.
-- Post-smoke reflejado en producto/SPEC/HU/TR (no hay documento F de cierre formal post-smoke aún — pendiente openspec-05 / F).
+- Panel + testids estables; i18n 5 locales.
+- `pendingChoice` round-trip conserva `deferredCompositeItems` / `deferredImageExtract` (`[key: string]: unknown`).
 
-## Hallazgos críticos
-
-Ninguno que bloquee el uso operativo del MVP verificado en smoke manual (eliminar/modificar renglón, cabecera, consultas).
-
-## Advertencias
-
-1. **Cobertura de tests incompleta vs DoD SPEC:** no hay unit tests de tools (`ArticuloTool` mutate, `CabeceraTool` permisos denied, Deuda/Cheques totals). Feature turn cubre auth/gate/envelope/help, no mutaciones end-to-end.
-2. **Sin E2E Playwright** del panel asistente.
-3. **Contrato i18n partido:** BE emite `renglonNoEncontrado` + `payload.q`; FE traduce a `renglonNoEncontradoConQ` — funciona, pero conviene documentarlo en TR como contrato estable.
-4. Checklists “Definición de listo” en SPEC-18/19/20 siguen con ítems abiertos (paridad smoke formal, fixture stock, etc.).
-5. OpenAPI del turn no verificado / posiblemente ausente.
-
-## Sugerencias
-
-1. ~~Unit tests tools~~ — hecho (`CargaAsistenteToolsTest`).
-2. ~~OpenAPI turn~~ — hecho.
-3. ~~Unificar i18n ConQ~~ — hecho.
-4. ~~E2E panel~~ — hecho (`pedidos-carga-asistente.spec.ts`).
-5. Smoke mobile formal (OBS-F-04) — diferido.
-
-## Tests
-
-### Comandos ejecutados (evidencia 2026-07-13)
+### 6. Tests (ejecutados 2026-07-14)
 
 ```text
-backend> php vendor/bin/phpunit tests/Unit/Services/PedidosWeb/CargaAsistente/CargaAsistenteToolsTest.php --testdox
-→ OK — 5 tests (mutate, denied, formatting F/G)
+backend> php vendor/bin/phpunit tests/Unit/Services/PedidosWeb/CargaAsistente tests/Feature/Api/PedidosWeb/CargaAsistenteTurnTest.php --testdox
+→ OK — 24 tests / 151 assertions
+   · ImageExtract deferred
+   · IntentDetector (composite, alias art/item/it, Descto, Direccion, canti, mutate…)
+   · Tools (mutate, denied C, formatting F/G)
+   · Feature turn (auth, gate config, envelope, help)
 
-frontend> npx playwright test tests/e2e/pedidosweb/pedidos-carga-asistente.spec.ts
-→ OK — 1 passed
+frontend> npx vitest run src/features/pedidos/cargaAsistenteIa
+→ OK — 10 tests (formatShowConsulta, draftContext, applyActions)
 ```
 
 ### No ejecutados (declarado)
 
-- Suite PHPUnit completa del backend
-- Smoke dispositivo/mobile nativo del panel (OBS-F-04)
+- Suite PHPUnit completa del backend.
+- Playwright E2E del panel en esta revisión (existía `pedidos-carga-asistente.spec.ts` en cierre 13/07; no re-corrido hoy).
+- Smoke formal mobile (OBS-F-04).
 
-### Smoke manual (sesión producto, no automatizado)
+### Smoke manual producto (sesión)
 
-- Usuario validó: eliminar artículo ambiguo en detalle (`elimina el articulo arroz` → lista), modificar con comillas/final, corrección conjugados (antes caía en maestro).
+- Pedido completo pegado: solo cliente/transporte/artículos antes del fix → motivó D1-25.
+- Conservar datos tras preguntas intermedias: OK (sesión previa).
+- Alias art/item/it: cubierto por unit tests; smoke UI no repetido post-alias.
+
+### 7. Documentación
+
+Actualizado 2026-07-14:
+
+- Producto (§4.10, §8–9, CA-C02/D01, decisiones 15–16, §21).
+- SPEC-101-19 (D1-25/26, CA-C02, K cabecera, historial).
+- HU-039 CA-18 · HU-040 CA-04b.
+- TR-19 T-19-12…14 + casos de test.
+- Este F1 + [F cierre formal](F-101-18-20-cierre-formal.md).
+
+### 8. Trazabilidad
+
+- Cadena SPEC → HU → TR → código → tests → F1/F coherente para D1-25/26.
+- OpenAPI turn ya cerrado en F 2026-07-13 (sin cambio de contrato de request en este rev.).
+
+## Hallazgos críticos
+
+Ninguno bloqueante para cierre F de la revisión 14/07.
+
+## Advertencias
+
+1. **OBS-F-04** (smoke mobile formal) sigue abierto.
+2. No hay Feature/E2E del turn **composite** end-to-end (solo unit IntentDetector + orquestación cubierta por código/test unitario del detector; TurnService composite sin test dedicado).
+3. Checklists CA en SPEC/HU siguen con checkboxes abiertos a nivel formal (estado documental histórico); comportamiento verificado por tests/smoke parcial.
+
+## Sugerencias
+
+1. Feature test opcional: turn con mensaje multilínea mock tools/DB → N actions.
+2. Re-correr Playwright al armar PR si el panel cambió layout/i18n.
+3. Cerrar OBS-F-04 en release mobile.
 
 ## Pendientes
 
 | Prioridad | Ítem |
 |-----------|------|
 | Media | Smoke mobile formal (**OBS-F-04**) |
-| ~~Media~~ | ~~Unit tests / E2E / i18n ConQ / OpenAPI / Parte F~~ |
+| Baja | Feature test `compositePedido` end-to-end (**OBS-F-06**, nueva) |
 
 ## Recomendación final
 
-**Parte F cerrada**; OBS-F-01/02/03 resueltos. Queda **OBS-F-04** (mobile). Ver [F-101-18-20-cierre-formal.md](F-101-18-20-cierre-formal.md).
+**Aprobado con observaciones** → autoriza cierre **F** rev. 2026-07-14. Ver [F-101-18-20-cierre-formal.md](F-101-18-20-cierre-formal.md).

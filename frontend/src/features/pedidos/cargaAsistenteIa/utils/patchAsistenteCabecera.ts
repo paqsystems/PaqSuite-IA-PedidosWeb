@@ -30,13 +30,27 @@ function coerceFieldValue(field: string, value: unknown): unknown {
     field === 'codPerfil' ||
     field === 'listaPreciosDescripcion' ||
     field === 'direccionEntrega' ||
-    field === 'fechaEntrega'
+    field === 'fechaEntrega' ||
+    field === 'observaciones' ||
+    field === 'leyenda1' ||
+    field === 'leyenda2' ||
+    field === 'leyenda3' ||
+    field === 'leyenda4' ||
+    field === 'leyenda5'
   ) {
     if (value === null || value === undefined) {
-      return field === 'direccionEntrega' || field === 'listaPreciosDescripcion' ? '' : null;
+      return field === 'direccionEntrega' ||
+        field === 'listaPreciosDescripcion' ||
+        field === 'observaciones'
+        ? ''
+        : null;
     }
     const text = String(value).trim();
-    if (field === 'direccionEntrega' || field === 'listaPreciosDescripcion') {
+    if (
+      field === 'direccionEntrega' ||
+      field === 'listaPreciosDescripcion' ||
+      field === 'observaciones'
+    ) {
       return text;
     }
     return text === '' ? null : text;
