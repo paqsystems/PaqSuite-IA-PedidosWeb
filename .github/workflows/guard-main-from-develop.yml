@@ -1,0 +1,25 @@
+# Gate físico: PRs hacia main solo desde develop.
+# Complementa la regla BASE 18-git-flujo-main-desde-develop.mdc
+# y el ruleset de GitHub sobre main.
+
+name: Guard main from develop
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  main-solo-desde-develop:
+    name: main-solo-desde-develop
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verificar rama origen
+        env:
+          HEAD_REF: ${{ github.head_ref }}
+        run: |
+          if [ "$HEAD_REF" != "develop" ]; then
+            echo "::error::Los Pull Requests hacia main solo se permiten desde develop. Origen recibido: '$HEAD_REF'."
+            exit 1
+          fi
+          echo "OK: PR develop → main permitido."
