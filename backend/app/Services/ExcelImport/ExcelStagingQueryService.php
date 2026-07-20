@@ -6,9 +6,16 @@ use App\Models\PqExcelImportacion;
 use App\Models\PqExcelImportacionFila;
 use App\Models\PqExcelProceso;
 use App\Models\PqExcelProcesoCampo;
+use App\Models\User;
+use App\Services\ExcelImport\Handlers\PedidoMasivoExcelImportHandler;
+use App\Services\ExcelImport\PedidoMasivo\PedidoMasivoGroupAssembler;
 
 final class ExcelStagingQueryService
 {
+    public function __construct(
+        private readonly PedidoMasivoGroupAssembler $pedidoMasivoGroupAssembler,
+    ) {}
+
     /**
      * @return array<string, mixed>
      */
@@ -47,6 +54,30 @@ final class ExcelStagingQueryService
             'page' => $page,
             'pageSize' => $pageSize,
         ];
+    }
+
+    /**
+     * @return array{items: list<array<string, mixed>>, total: int, grupos?: list<array<string, mixed>>}
+     */
+    public function listValidRowsResponse(PqExcelImportacion $importacion, ?User $user = null): array
+    {
+        $items = $this->listValidRowPayload($importacion);
+        $response = [
+            'items' => $items,
+            'total' => count($items),
+        ];
+
+        $codigoProceso = $importacion->proceso?->codigo_proceso;
+        if (
+            $codigoProceso === PedidoMasivoExcelImportHandler::CODIGO_PROCESO
+            && $items !== []
+            && (int) $importacion->cantidad_filas_con_error === 0
+            && $user !== null
+        ) {
+            $response['grupos'] = $this->pedidoMasivoGroupAssembler->assemble($items, $user);
+        }
+
+        return $response;
     }
 
     /**

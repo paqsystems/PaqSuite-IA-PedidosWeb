@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { custom } from 'devextreme/ui/dialog';
 import Button from 'devextreme-react/button';
@@ -74,6 +74,10 @@ import {
 import type { CargaAsistenteAddRenglonPayload } from '../cargaAsistenteIa/utils/applyCargaAsistenteActions';
 import { patchAsistenteCabecera } from '../cargaAsistenteIa/utils/patchAsistenteCabecera';
 import { PedidosCargaMobilePage } from './PedidosCargaMobilePage';
+import {
+  buildImportacionMasivaCargaHydration,
+  parseImportacionMasivaCargaState,
+} from '../importacionMasiva/utils/importacionMasivaCargaReadonly';
 import './PedidosCargaPage.css';
 
 const emptyCatalogos: CabeceraCatalogos = {
@@ -94,6 +98,7 @@ export function PedidosCargaPage() {
 
 function PedidosCargaWebPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams] = useSearchParams();
   const sessionContext = useRequiredSessionContext();
   const { t } = useTranslation();
@@ -144,9 +149,16 @@ function PedidosCargaWebPage() {
   const [autoOpenRenglonId, setAutoOpenRenglonId] = useState<number | null>(null);
   const [excelImportEnabled, setExcelImportEnabled] = useState(false);
 
+  const importacionMasivaContext = useMemo(
+    () => parseImportacionMasivaCargaState(location.state),
+    [location.state],
+  );
+  const isImportacionMasivaReadonly = importacionMasivaContext !== null;
+  const importacionMasivaHydratedRef = useRef(false);
+
   const modo = searchParams.get('modo') ?? 'nuevo';
   const comprobanteId = searchParams.get('codComprobante') ?? searchParams.get('id');
-  const readOnly = modo === 'ver';
+  const readOnly = modo === 'ver' || isImportacionMasivaReadonly;
   const isClienteProfile =
     sessionContext.functionalProfile === 'cliente' || sessionContext.codCliente !== null;
 
@@ -241,8 +253,11 @@ function PedidosCargaWebPage() {
     });
   }, []);
 
-  const tipoComprobanteLabel =
-    estadoActual === 99 || searchParams.get('tipoOrigen') === 'presupuesto'
+  const tipoComprobanteLabel = isImportacionMasivaReadonly
+    ? importacionMasivaContext.borrador.esPedido
+      ? t('pedidos.carga.tipoPedido')
+      : t('pedidos.carga.tipoPresupuesto')
+    : estadoActual === 99 || searchParams.get('tipoOrigen') === 'presupuesto'
       ? t('pedidos.carga.tipoPresupuesto')
       : t('pedidos.carga.tipoPedido');
 
@@ -415,6 +430,36 @@ function PedidosCargaWebPage() {
   }, []);
 
   useEffect(() => {
+    if (!importacionMasivaContext || importacionMasivaHydratedRef.current) {
+      return;
+    }
+
+    importacionMasivaHydratedRef.current = true;
+    isHydratingComprobanteRef.current = true;
+
+    const hydration = buildImportacionMasivaCargaHydration(importacionMasivaContext.borrador);
+    setCodPedidoActual(null);
+    setCodPedidoOrigen(null);
+    setCodPresupuestoOrigen(null);
+    setCodComprobanteOrigenCopia(null);
+    setSelectedCliente(hydration.selectedCliente);
+    setCabecera(hydration.cabecera);
+    setCatalogos(emptyCatalogos);
+    setRenglones(hydration.renglones);
+    setEstadoActual(hydration.estadoActual);
+    setCabeceraLoading(false);
+    setIsLoading(false);
+
+    window.requestAnimationFrame(() => {
+      isHydratingComprobanteRef.current = false;
+    });
+  }, [importacionMasivaContext]);
+
+  useEffect(() => {
+    if (isImportacionMasivaReadonly) {
+      return;
+    }
+
     if (isClienteProfile) {
       const codCliente = sessionContext.codCliente ?? '';
       setSelectedCliente(codCliente);
@@ -454,7 +499,14 @@ function PedidosCargaWebPage() {
     return () => {
       mounted = false;
     };
-  }, [comprobanteId, isClienteProfile, loadCabeceraForCliente, modo, sessionContext.codCliente]);
+  }, [
+    comprobanteId,
+    isClienteProfile,
+    isImportacionMasivaReadonly,
+    loadCabeceraForCliente,
+    modo,
+    sessionContext.codCliente,
+  ]);
 
   useEffect(() => {
     void loadArticulosStock();
@@ -475,6 +527,10 @@ function PedidosCargaWebPage() {
   }, [cabecera?.listaPrecios, loadArticulosPrecios, readOnly]);
 
   useEffect(() => {
+    if (isImportacionMasivaReadonly) {
+      return;
+    }
+
     if (!comprobanteId) {
       setCodComprobanteOrigenCopia(null);
       return;
@@ -582,7 +638,7 @@ function PedidosCargaWebPage() {
     return () => {
       mounted = false;
     };
-  }, [comprobanteId, modo, searchParams, sessionContext.codCliente, t]);
+  }, [comprobanteId, isImportacionMasivaReadonly, modo, searchParams, sessionContext.codCliente, t]);
 
   useEffect(
     () => () => {
@@ -1088,6 +1144,10 @@ function PedidosCargaWebPage() {
 
   return (
     <section className="pedidosCargaPage" data-testid="page-pedidos-carga">
+      {isImportacionMasivaReadonly ? (
+        <span hidden data-testid="cargaModoReadonlyMasiva" aria-hidden="true" />
+      ) : null}
+
       <div className="pedidosCargaPage__header">
         <h2>{t('pages.pedidosCarga')}</h2>
         <p className="pedidosCargaPage__tipo" data-testid="label-tipo-comprobante">
@@ -1099,7 +1159,7 @@ function PedidosCargaWebPage() {
         <p data-testid="label-modo-solo-lectura">{t('pedidos.carga.modoSoloLectura')}</p>
       ) : null}
 
-      {excelImportEnabled ? (
+      {excelImportEnabled && !isImportacionMasivaReadonly ? (
         <div className="pedidosCargaExcelToolbar" data-testid="pedidos-carga-excel-toolbar">
           <p className="pedidosCargaExcelToolbar__hint">{t('pedidos.carga.excelImport.toolbarHint')}</p>
           <ExcelImportHostToolbar
@@ -1112,49 +1172,65 @@ function PedidosCargaWebPage() {
         </div>
       ) : null}
 
-      <div className="pedidosCargaPage__toolbar">
-        <div className="pedidosCargaPage__toolbarLeft">
-          <div data-testid="btn-cancelar-carga">
-            <Button
-              text={t('pedidos.carga.cancelar')}
-              stylingMode="text"
-              onClick={() => {
-                void handleCancelar();
-              }}
-            />
+      {isImportacionMasivaReadonly ? (
+        <div className="pedidosCargaPage__toolbar">
+          <div className="pedidosCargaPage__toolbarLeft">
+            <div data-testid="cargaVolverImportacionMasiva">
+              <Button
+                text={t('pedidos.importacionMasiva.volver')}
+                stylingMode="outlined"
+                onClick={() => {
+                  navigate('/pedidos/importacion-masiva');
+                }}
+              />
+            </div>
           </div>
         </div>
-        <div className="pedidosCargaPage__toolbarCenter">
-          {showGrabarPresupuesto ? (
-            <div data-testid="btn-grabar-presupuesto">
+      ) : (
+        <div className="pedidosCargaPage__toolbar">
+          <div className="pedidosCargaPage__toolbarLeft">
+            <div data-testid="btn-cancelar-carga">
               <Button
-                text={t('pedidos.carga.grabarPresupuesto')}
-                type="default"
-                stylingMode="outlined"
-                disabled={isLoading || !cabeceraReady}
+                text={t('pedidos.carga.cancelar')}
+                stylingMode="text"
                 onClick={() => {
-                  void saveComprobante('presupuesto');
+                  void handleCancelar();
                 }}
               />
             </div>
-          ) : null}
+          </div>
+          <div className="pedidosCargaPage__toolbarCenter">
+            {showGrabarPresupuesto ? (
+              <div data-testid="btn-grabar-presupuesto">
+                <Button
+                  text={t('pedidos.carga.grabarPresupuesto')}
+                  type="default"
+                  stylingMode="outlined"
+                  disabled={isLoading || !cabeceraReady}
+                  onClick={() => {
+                    void saveComprobante('presupuesto');
+                  }}
+                />
+              </div>
+            ) : null}
+          </div>
+          <div className="pedidosCargaPage__toolbarRight">
+            {showGrabarPedido ? (
+              <div data-testid="btn-grabar-pedido">
+                <Button
+                  text={t('pedidos.carga.grabarPedido')}
+                  type="default"
+                  stylingMode="contained"
+                  disabled={isLoading || !cabeceraReady}
+                  onClick={() => {
+                    void saveComprobante('pedido');
+                  }}
+                />
+              </div>
+            ) : null}
+          </div>
         </div>
-        <div className="pedidosCargaPage__toolbarRight">
-          {showGrabarPedido ? (
-            <div data-testid="btn-grabar-pedido">
-              <Button
-                text={t('pedidos.carga.grabarPedido')}
-                type="default"
-                stylingMode="contained"
-                disabled={isLoading || !cabeceraReady}
-                onClick={() => {
-                  void saveComprobante('pedido');
-                }}
-              />
-            </div>
-          ) : null}
-        </div>
-      </div>
+      )}
 
       {saveError ? (
         <p className="pedidosCargaPage__error" role="alert" data-testid="carga-error">
@@ -1386,28 +1462,30 @@ function PedidosCargaWebPage() {
           </section>
         </div>
 
-        <CargaAsistenteIaPanel
-          buildDraftContext={buildAsistenteDraftContext}
-          readOnly={readOnly}
-          onSelectCliente={async (codCliente) => {
-            await handleClienteChange(codCliente);
-          }}
-          onClearDraft={() => {
-            void handleClienteChange(null);
-          }}
-          onAddRenglon={handleAsistenteAddRenglon}
-          onUpdateRenglon={handleAsistenteUpdateRenglon}
-          onRemoveRenglon={handleAsistenteRemoveRenglon}
-          onUpdateCabeceraField={handleAsistenteUpdateCabeceraField}
-          onPatchCabeceraFields={handleAsistentePatchCabeceraFields}
-          onGrabarPedido={() => {
-            void saveComprobante('pedido');
-          }}
-          onGrabarPresupuesto={() => {
-            void saveComprobante('presupuesto');
-          }}
-          onApplyImageExtract={handleAsistenteApplyImageExtract}
-        />
+        {!isImportacionMasivaReadonly ? (
+          <CargaAsistenteIaPanel
+            buildDraftContext={buildAsistenteDraftContext}
+            readOnly={readOnly}
+            onSelectCliente={async (codCliente) => {
+              await handleClienteChange(codCliente);
+            }}
+            onClearDraft={() => {
+              void handleClienteChange(null);
+            }}
+            onAddRenglon={handleAsistenteAddRenglon}
+            onUpdateRenglon={handleAsistenteUpdateRenglon}
+            onRemoveRenglon={handleAsistenteRemoveRenglon}
+            onUpdateCabeceraField={handleAsistenteUpdateCabeceraField}
+            onPatchCabeceraFields={handleAsistentePatchCabeceraFields}
+            onGrabarPedido={() => {
+              void saveComprobante('pedido');
+            }}
+            onGrabarPresupuesto={() => {
+              void saveComprobante('presupuesto');
+            }}
+            onApplyImageExtract={handleAsistenteApplyImageExtract}
+          />
+        ) : null}
       </div>
 
       <PedidosCargaArticulosStockLoadPanel visible={articulosStockPrecargaPendiente} />

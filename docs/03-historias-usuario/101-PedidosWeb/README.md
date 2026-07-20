@@ -7,6 +7,8 @@ Convención: **`HU-101-NNN-tema.md`** derivadas de [PedidosWeb_SPEC_MVP.md](../.
 **B1 (2026-06-17):** SPEC-101-16 — HU-101-029 y HU-101-030 **B1 cerrado** ([F-101-16-cierre-b1](../../04-tareas/101-PedidosWeb/F-101-16-cierre-b1.md)); estado **Especificado**.  
 **B1 (2026-06-30):** SPEC-101-17 — HU-101-031…036 **B1 cerrado** ([F-101-17-cierre-b1](../../04-tareas/101-PedidosWeb/F-101-17-cierre-b1.md)); estado **Especificado**.  
 **B1 (2026-07-13):** SPEC-101-18/19/20 — HU-101-037…042 **B1 cerrado** ([F-101-18-20-cierre-b1](../../04-tareas/101-PedidosWeb/F-101-18-20-cierre-b1-asistente-carga-ia.md)); estado **Especificado**.  
+**B (2026-07-19):** SPEC-101-21 — HU-101-043…045 **generadas**.  
+**B1 (2026-07-19):** SPEC-101-21 — HU-101-043…045 **B1 cerrado** ([F-101-21-cierre-b1](../../04-tareas/101-PedidosWeb/F-101-21-cierre-b1-importacion-masiva.md)); estado **Especificado**.  
 **C (2026-06-17):** TR-16a y TR-16b generadas.  
 **C1 (2026-06-17):** Revisión C1 **Apto** — [F-101-16-cierre-c1](../../04-tareas/101-PedidosWeb/F-101-16-cierre-c1.md); listo **D1**.
 
@@ -77,11 +79,27 @@ Convención: **`HU-101-NNN-tema.md`** derivadas de [PedidosWeb_SPEC_MVP.md](../.
 | [TR-SPEC-101-19](../../04-tareas/101-PedidosWeb/TR-SPEC-101-19-asistente-carga-ia-mutaciones.md) | 039, 040 | Mutaciones A–D, I, J, K |
 | [TR-SPEC-101-20](../../04-tareas/101-PedidosWeb/TR-SPEC-101-20-asistente-carga-ia-consultas.md) | 041, 042 | Consultas E–H |
 
+## SPEC-101-21 — Importación masiva
+
+| HU | Prioridad | Título |
+|----|-----------|--------|
+| [HU-101-043](HU-101-043-proceso-excel-pedido-masivo.md) | Should | Proceso Excel `PEDIDO_MASIVO` (catálogo, handler, agrupación) — **B1 cerrado** |
+| [HU-101-044](HU-101-044-pantalla-importacion-masiva.md) | Should | Pantalla grilla, import UI, grabación FE, modales — **B1 cerrado** |
+| [HU-101-045](HU-101-045-consultar-borrador-importacion-masiva.md) | Should | Consultar borrador en carga solo lectura — **B1 cerrado** |
+
+**SPEC:** [SPEC-101-21](../../05-open-spec/101-PedidosWeb/SPEC-101-21-importacion-masiva-pedidos.md) · **A1:** [F-cierre-a1](../../04-tareas/101-PedidosWeb/F-101-21-cierre-a1-importacion-masiva.md) · **B1:** [F-cierre-b1](../../04-tareas/101-PedidosWeb/F-101-21-cierre-b1-importacion-masiva.md) · **C:** [F-cierre-c](../../04-tareas/101-PedidosWeb/F-101-21-cierre-c-importacion-masiva.md) · **C1:** [F-cierre-c1](../../04-tareas/101-PedidosWeb/F-101-21-cierre-c1-importacion-masiva.md) — **autoriza D1**.
+
+| TR | HU | Título |
+|----|-----|--------|
+| [TR-21a](../../04-tareas/101-PedidosWeb/TR-SPEC-101-21-proceso-excel-pedido-masivo.md) | 043 | Proceso Excel `PEDIDO_MASIVO` |
+| [TR-21b](../../04-tareas/101-PedidosWeb/TR-SPEC-101-21-pantalla-importacion-masiva.md) | 044 | Pantalla + grabación FE |
+| [TR-21c](../../04-tareas/101-PedidosWeb/TR-SPEC-101-21-consultar-borrador-importacion-masiva.md) | 045 | Consultar readonly |
+
 ## Dependencias transversales
 
 - **GEN-01 / GEN-03:** shell, grillas, layouts, export Excel.
 - **GEN-02:** auth y visibilidad base (heredado en 101-001/002/006).
-- **GEN-07:** motor importación Excel (`HU-GEN-07-*`) — requerido por HU-101-029/030.
+- **GEN-07:** motor importación Excel (`HU-GEN-07-*`) — requerido por HU-101-029/030 y HU-101-043/044.
 - **SPEC-001-04:** parámetros (`MinutosWeb`, `DiasVentasDetalladas`, permisos por atributo); consulta parámetros → [TR-GEN-04](../../04-tareas/001-Generaliddes/TR-GEN-04-consulta-parametros.md).
 
 ## Siguiente paso
@@ -95,6 +113,14 @@ Parte **C (SPEC-101-17 mobile v1):** **cerrada** — [F-101-17-cierre-c1](../../
 Parte **D1 (SPEC-101-17 mobile v1):** implementar TR en orden scaffold → login → stock kardex (coordinado con TR-GEN-11-*).
 
 Parte **B1 (SPEC-101-18/19/20 asistente carga):** **cerrada** — HU-101-037…042 ([F-101-18-20-cierre-b1](../../04-tareas/101-PedidosWeb/F-101-18-20-cierre-b1-asistente-carga-ia.md)).
+
+Parte **B (SPEC-101-21 importación masiva):** **generada** — HU-101-043…045.
+
+Parte **B1 (SPEC-101-21):** **cerrada** — [F-101-21-cierre-b1](../../04-tareas/101-PedidosWeb/F-101-21-cierre-b1-importacion-masiva.md).
+
+Parte **C (SPEC-101-21):** **generada** — [F-101-21-cierre-c](../../04-tareas/101-PedidosWeb/F-101-21-cierre-c-importacion-masiva.md).
+
+Parte **C1 (SPEC-101-21):** **Apto** — [F-101-21-cierre-c1](../../04-tareas/101-PedidosWeb/F-101-21-cierre-c1-importacion-masiva.md); autoriza **D1** (21a → 21b → 21c).
 
 Parte **C1 (SPEC-101-18/19/20):** **Apto** — [F-101-18-20-cierre-c1](../../04-tareas/101-PedidosWeb/F-101-18-20-cierre-c1-asistente-carga-ia.md).
 

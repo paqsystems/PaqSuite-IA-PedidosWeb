@@ -34,11 +34,15 @@ final class ComprobanteController extends Controller
 
         try {
             $permiso = ($request->input('cod_pedido') ?? null) === null ? 'alta' : 'modi';
-            $this->visibilityPermissionGuard->ensurePermission(
-                $user,
-                (string) config('paqsuite_visibility.procedimientos.cargaComprobantes'),
-                $permiso
-            );
+            if ($permiso === 'alta') {
+                $this->visibilityPermissionGuard->ensureCargaComprobanteOrImportacionMasivaStore($user);
+            } else {
+                $this->visibilityPermissionGuard->ensurePermission(
+                    $user,
+                    (string) config('paqsuite_visibility.procedimientos.cargaComprobantes'),
+                    'modi'
+                );
+            }
 
             $payload = ComprobanteGrabacionPayload::fromRequest(
                 $request,

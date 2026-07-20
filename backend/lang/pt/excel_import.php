@@ -42,4 +42,8 @@ return [
         'precioCero' => 'Preco zero nao permitido',
         'nivelInvalido' => 'Nivel invalido para a configuracao atual',
     ],
+    'pedidoMasivo' => [
+        'cabeceraIncoherenteGrupo' => 'Os dados de cabecalho devem ser identicos em todas as linhas do mesmo comprovante',
+        'vendedorFaltante' => 'O cliente nao possui vendedor atribuido no cadastro',
+    ],
 ];

@@ -108,11 +108,15 @@ class PedidoController extends Controller
         $payload = ComprobanteGrabacionPayload::fromRequest($request, $accionGrabacion, $codPedido);
 
         try {
-            $this->visibilityPermissionGuard->ensurePermission(
-                $user,
-                (string) config('paqsuite_visibility.procedimientos.cargaComprobantes'),
-                $codPedido === null ? 'alta' : 'modi'
-            );
+            if ($codPedido === null) {
+                $this->visibilityPermissionGuard->ensureCargaComprobanteOrImportacionMasivaStore($user);
+            } else {
+                $this->visibilityPermissionGuard->ensurePermission(
+                    $user,
+                    (string) config('paqsuite_visibility.procedimientos.cargaComprobantes'),
+                    'modi'
+                );
+            }
             $resultado = $this->pedidoService->grabarComprobante($payload, $user);
         } catch (AuthFlowException|PedidosWebBusinessException $exception) {
             return ApiResponse::error(

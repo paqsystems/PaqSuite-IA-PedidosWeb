@@ -1,0 +1,25 @@
+.importacionMasivaPage {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+}
+
+.importacionMasivaPage__header h2 {
+  margin: 0;
+}
+
+.importacionMasivaPage__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+
+.importacionMasivaPage__modalActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 16px;
+}

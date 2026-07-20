@@ -6,6 +6,11 @@ const PedidosCargaPage = lazy(() =>
     default: module.PedidosCargaPage,
   })),
 );
+const ImportacionMasivaPage = lazy(() =>
+  import('../features/pedidos/importacionMasiva/pages/ImportacionMasivaPage').then((module) => ({
+    default: module.ImportacionMasivaPage,
+  })),
+);
 const PedidosIngresadosPage = lazy(() =>
   import('../features/pedidos/pages/PedidosIngresadosPage').then((module) => ({
     default: module.PedidosIngresadosPage,
@@ -103,6 +108,10 @@ function withSuspense(element: ReactElement, testId: string): ReactElement {
 
 export const pedidosWebRoutes: PedidosWebRoute[] = [
   { path: '/pedidos/carga', element: withSuspense(<PedidosCargaPage />, 'page-loading-pedidos-carga') },
+  {
+    path: '/pedidos/importacion-masiva',
+    element: withSuspense(<ImportacionMasivaPage />, 'page-loading-importacion-masiva'),
+  },
   {
     path: '/presupuestos/ingresados',
     element: withSuspense(<PresupuestosPage />, 'page-loading-presupuestos-ingresados'),

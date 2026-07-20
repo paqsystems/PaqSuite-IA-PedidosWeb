@@ -37,6 +37,19 @@
 | 18 | [SPEC-101-18-asistente-carga-ia-shell.md](SPEC-101-18-asistente-carga-ia-shell.md) | **Should** — Asistente IA carga — **A1+B1+C1** 2026-07-13; listo D1 |
 | 19 | [SPEC-101-19-asistente-carga-ia-mutaciones.md](SPEC-101-19-asistente-carga-ia-mutaciones.md) | **Should** — Asistente IA carga mutaciones — **A1+B1+C1** 2026-07-13; listo D1 |
 | 20 | [SPEC-101-20-asistente-carga-ia-consultas.md](SPEC-101-20-asistente-carga-ia-consultas.md) | **Should** — Asistente IA carga consultas — **A1+B1+C1** 2026-07-13; listo D1 |
+| 21 | [SPEC-101-21-importacion-masiva-pedidos.md](SPEC-101-21-importacion-masiva-pedidos.md) | **Should** — Importación masiva — **A1 + B1 + C + C1**; autoriza D1 |
+
+## Épica Importación masiva (101-21)
+
+| Campo | Valor |
+|-------|--------|
+| **Producto** | [importacion-masiva-pedidos.md](../../02-producto/PedidosWeb/importacion-masiva-pedidos.md) |
+| **A** | **Hecha** — SPEC-101-21 (2026-07-19) |
+| **A1** | **Apto con observaciones** — [F-101-21-cierre-a1](../../04-tareas/101-PedidosWeb/F-101-21-cierre-a1-importacion-masiva.md) |
+| **B / B1** | **Cerrado** — HU-101-043…045 — [F-101-21-cierre-b1](../../04-tareas/101-PedidosWeb/F-101-21-cierre-b1-importacion-masiva.md) |
+| **C** | **Generada** — TR 21a/21b/21c — [F-101-21-cierre-c](../../04-tareas/101-PedidosWeb/F-101-21-cierre-c-importacion-masiva.md) |
+| **C1** | **Apto** — [F-101-21-cierre-c1](../../04-tareas/101-PedidosWeb/F-101-21-cierre-c1-importacion-masiva.md) |
+| **Estado** | **Autoriza D1** (21a → 21b → 21c) |
 
 ## Épica Asistente IA en carga (101-18 … 101-20)
 

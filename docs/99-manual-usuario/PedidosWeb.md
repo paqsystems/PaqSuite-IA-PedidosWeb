@@ -5,7 +5,7 @@
 | **Versión documento** | MVP Fase 1 — 2026-07-02 (copia paramétrica `ActualizarPrecioCopia`, validación precios, modal error copia; revisión 2026-06-22 circuito, validaciones, renglones, parámetros, chat) |
 | **Ámbito** | Módulo comercial PedidosWeb |
 | **Manual transversal** | [Generalidades.md](./Generalidades.md) (login, sesión, menú, grillas, idioma, chat IA) |
-| **Guías complementarias** | [Circuito y estados](./PedidosWeb-circuito-estados.md) · [Validaciones y errores](./PedidosWeb-validaciones-errores.md) · [Chat Asistente IA](./Chat-Asistente-IA.md) |
+| **Guías complementarias** | [Circuito y estados](./PedidosWeb-circuito-estados.md) · [Validaciones y errores](./PedidosWeb-validaciones-errores.md) · [Chat Asistente IA](./Chat-Asistente-IA.md) · [Asistente IA de carga](./PedidosWeb-asistente-carga-ia.md) |
 | **Público** | Usuarios finales (vendedor, supervisor, cliente) y soporte funcional/técnico |
 
 ---
@@ -29,6 +29,7 @@ Este manual se complementa con documentos de **referencia rápida** pensados par
 | [PedidosWeb-circuito-estados.md](./PedidosWeb-circuito-estados.md) | Estados, conversiones, bloqueo -1, cierre de presupuestos |
 | [PedidosWeb-validaciones-errores.md](./PedidosWeb-validaciones-errores.md) | Catálogo completo de validaciones, mensajes y causas al grabar, importar o **copiar** |
 | [Chat-Asistente-IA.md](./Chat-Asistente-IA.md) | Configuración BYOK, límites y alcance del chat de ayuda |
+| [PedidosWeb-asistente-carga-ia.md](./PedidosWeb-asistente-carga-ia.md) | Asistente operativo en la carga (texto, dictado, imagen, pedido compuesto) |
 
 ---
 
@@ -460,22 +461,13 @@ Valores en **General → Consulta de parámetros** (solo lectura). Detalle de me
 
 ### 6.17 Asistente IA en la carga
 
-Al pie del formulario hay un panel **colapsable** (Asistente IA) para operar el comprobante por **texto**, **voz** (micrófono) o **imagen**, con la misma configuración LLM de Preferencias → Asistente IA.
+Al pie del formulario hay un panel **colapsable** (Asistente IA) para operar el comprobante por **texto**, **voz** (dictado continuo hasta Detener) o **imagen**, con la misma configuración LLM de Preferencias → Asistente IA. En el panel puede elegir el **proveedor/configuración activa** (combo).
 
 **Puede:** elegir/cambiar cliente; ajustar cabecera (bonificaciones, transporte, condición, lista, fecha/dirección entrega, leyendas, etc.); agregar, modificar o eliminar renglones; consultar stock/deuda/cheques/historial del cliente en curso; grabar pedido o presupuesto.
 
-**Pedido pegado (varias líneas):** puede pegar de una vez cliente, cabecera y renglones (etiquetas tipo `Cliente:`, `Perfil:`, `Bonif 2:`, `Leyenda 1:`, `art.` / `item` / `it`…). Si el asistente pide elegir una opción, al responder continúa con el resto sin perder lo ya interpretado. Respeta los mismos permisos de cada campo.
+**Pedido pegado o dictado largo:** puede enviar de una vez cliente, cabecera y renglones (varias líneas o un solo párrafo con palabras clave `cliente`, `artículo`/`art`/`item`/`it`, etc.). Si el cliente no se determina, **no se cargan** el resto de datos de ese mensaje. Si el asistente pide elegir una opción, al responder continúa con el resto diferido.
 
-**Notas de uso al agregar / modificar / eliminar renglones**
-
-- Prefijos válidos de alta: `artículo`, `art.`, `art`, `producto`, `item`, `it` (y plurales).
-- Cantidad: `cantidad`, `canti` o `cant`.
-- Busca eliminar/modificar en el **detalle del comprobante**, no en el maestro de artículos.
-- Ponga la descripción entre comillas (`"almendra tostada"`) o al final (`cambiar cantidad a 150 del artículo almendra`).
-- Si hay varios renglones coincidentes, elija el número de la lista (código, cantidad, precio, bonif.).
-- Sin configuración LLM, el panel indica ir a Preferencias.
-
-Detalle funcional: [asistente-ia-carga-pedidos-presupuestos.md](../02-producto/PedidosWeb/asistente-ia-carga-pedidos-presupuestos.md). El chat documental del menú avatar **no** muta el comprobante (§18 FAQ).
+**Manual completo:** [PedidosWeb-asistente-carga-ia.md](./PedidosWeb-asistente-carga-ia.md). Definición de producto: [asistente-ia-carga-pedidos-presupuestos.md](../02-producto/PedidosWeb/asistente-ia-carga-pedidos-presupuestos.md). El chat documental del menú avatar **no** muta el comprobante (§18 FAQ).
 
 ---
 

@@ -1,6 +1,7 @@
 export const mobileExcludedRoutePrefixes = [
   '/admin',
   '/excel-import',
+  '/pedidos/importacion-masiva',
   '/pivot',
   '/chat-assistant',
   '/demo',

@@ -42,4 +42,8 @@ return [
         'precioCero' => 'Prezzo zero non consentito',
         'nivelInvalido' => 'Livello non valido per la configurazione attuale',
     ],
+    'pedidoMasivo' => [
+        'cabeceraIncoherenteGrupo' => 'I dati di testata devono essere identici in tutte le righe dello stesso documento',
+        'vendedorFaltante' => 'Il cliente non ha un venditore assegnato in anagrafica',
+    ],
 ];

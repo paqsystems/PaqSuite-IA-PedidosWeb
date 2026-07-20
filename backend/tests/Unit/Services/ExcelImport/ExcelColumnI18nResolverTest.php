@@ -55,4 +55,16 @@ final class ExcelColumnI18nResolverTest extends TestCase
 
         $this->assertSame(1, $map['cod_cliente']);
     }
+
+    public function testPedidoMasivoReusesPedidoIndividualColumnTranslations(): void
+    {
+        $label = $this->resolver->headerLabel(
+            'PEDIDO_MASIVO',
+            'cod_cliente',
+            'codigo cliente',
+            'en'
+        );
+
+        $this->assertSame('customer code', $label);
+    }
 }

@@ -42,4 +42,8 @@ return [
         'precioCero' => 'Zero price is not allowed',
         'nivelInvalido' => 'Invalid level for current settings',
     ],
+    'pedidoMasivo' => [
+        'cabeceraIncoherenteGrupo' => 'Header data must be identical on all rows of the same voucher',
+        'vendedorFaltante' => 'Customer has no assigned salesperson in master data',
+    ],
 ];

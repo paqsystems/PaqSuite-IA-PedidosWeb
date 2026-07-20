@@ -23,6 +23,25 @@ final class VisibilityPermissionGuard
         $this->ensurePermission($user, $procedimiento, 'alta');
     }
 
+    public function ensureCargaComprobanteOrImportacionMasivaStore(User $user): void
+    {
+        $cargaComprobantes = (string) config('paqsuite_visibility.procedimientos.cargaComprobantes');
+        $importacionMasiva = (string) config('paqsuite_visibility.procedimientos.importacionMasiva');
+
+        if (
+            $this->hasPermission($user, $cargaComprobantes, 'alta')
+            || $this->hasPermission($user, $importacionMasiva, 'alta')
+        ) {
+            return;
+        }
+
+        throw new AuthFlowException(
+            AuthErrorCodes::noPermission,
+            'auth.noPermission',
+            403
+        );
+    }
+
     public function hasPermission(User $user, string $procedimiento, string $tipoPermiso): bool
     {
         try {

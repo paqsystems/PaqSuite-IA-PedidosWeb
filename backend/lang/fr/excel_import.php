@@ -42,4 +42,8 @@ return [
         'precioCero' => 'Prix zero non autorise',
         'nivelInvalido' => 'Niveau invalide pour la configuration actuelle',
     ],
+    'pedidoMasivo' => [
+        'cabeceraIncoherenteGrupo' => 'Les donnees d en-tete doivent etre identiques sur toutes les lignes du meme comprobant',
+        'vendedorFaltante' => 'Le client n a pas de vendeur assigne dans le referentiel',
+    ],
 ];

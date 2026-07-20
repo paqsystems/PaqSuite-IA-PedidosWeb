@@ -15,10 +15,11 @@ return [
     'menuItems' => [
         ['menuKey' => 'grupoPedidos', 'procedimiento' => 'grp_pedidos', 'text' => 'Pedidos', 'orden' => 10, 'tipoProceso' => 'G'],
         ['menuKey' => 'cargaPedidosPresupuestos', 'procedimiento' => 'pw_cargapedidos', 'text' => 'Carga de Pedidos', 'orden' => 11, 'routeName' => '/pedidos/carga', 'parentProcedimiento' => 'grp_pedidos'],
-        ['menuKey' => 'presupuestosIngresados', 'procedimiento' => 'pw_presupuestosingresados', 'text' => 'Presupuestos Ingresados', 'orden' => 12, 'routeName' => '/presupuestos/ingresados', 'parentProcedimiento' => 'grp_pedidos'],
-        ['menuKey' => 'pedidosIngresados', 'procedimiento' => 'pw_pedidosingresados', 'text' => 'Pedidos Ingresados', 'orden' => 13, 'routeName' => '/pedidos/ingresados', 'parentProcedimiento' => 'grp_pedidos'],
-        ['menuKey' => 'pedidosPendientes', 'procedimiento' => 'pw_pedidospendientes', 'text' => 'Pedidos Pendientes', 'orden' => 14, 'routeName' => '/pedidos/pendientes', 'parentProcedimiento' => 'grp_pedidos'],
-        ['menuKey' => 'detallePedidos', 'procedimiento' => 'pw_detallepedidos', 'text' => 'Detalle de pedidos', 'orden' => 15, 'routeName' => '/pedidos/detalle', 'parentProcedimiento' => 'grp_pedidos'],
+        ['menuKey' => 'pw_importacionmasiva', 'procedimiento' => 'pw_importacionmasiva', 'text' => 'Importación masiva', 'orden' => 12, 'routeName' => '/pedidos/importacion-masiva', 'parentProcedimiento' => 'grp_pedidos'],
+        ['menuKey' => 'presupuestosIngresados', 'procedimiento' => 'pw_presupuestosingresados', 'text' => 'Presupuestos Ingresados', 'orden' => 13, 'routeName' => '/presupuestos/ingresados', 'parentProcedimiento' => 'grp_pedidos'],
+        ['menuKey' => 'pedidosIngresados', 'procedimiento' => 'pw_pedidosingresados', 'text' => 'Pedidos Ingresados', 'orden' => 14, 'routeName' => '/pedidos/ingresados', 'parentProcedimiento' => 'grp_pedidos'],
+        ['menuKey' => 'pedidosPendientes', 'procedimiento' => 'pw_pedidospendientes', 'text' => 'Pedidos Pendientes', 'orden' => 15, 'routeName' => '/pedidos/pendientes', 'parentProcedimiento' => 'grp_pedidos'],
+        ['menuKey' => 'detallePedidos', 'procedimiento' => 'pw_detallepedidos', 'text' => 'Detalle de pedidos', 'orden' => 16, 'routeName' => '/pedidos/detalle', 'parentProcedimiento' => 'grp_pedidos'],
         ['menuKey' => 'grupoGeneral', 'procedimiento' => 'grp_general', 'text' => 'General', 'orden' => 60, 'tipoProceso' => 'G'],
         ['menuKey' => 'consultaParametros', 'procedimiento' => 'pw_consultaparametros', 'text' => 'Consulta de parametros', 'orden' => 61, 'routeName' => '/general/parametros', 'parentProcedimiento' => 'grp_general'],
         ['menuKey' => 'historialImportExcel', 'procedimiento' => 'pw_historialimportexcel', 'text' => 'Historial importaciones Excel', 'orden' => 62, 'routeName' => '/excel-import/historial', 'parentProcedimiento' => 'grp_general'],
@@ -76,6 +77,7 @@ return [
             'pw_clientes_visibles',
             'pw_comprobantes_visibles',
             'pw_dashboard',
+            'pw_importacionmasiva',
         ],
         'VendedorAcotado' => [
             'pw_clientes_visibles',

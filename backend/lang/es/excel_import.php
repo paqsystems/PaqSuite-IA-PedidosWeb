@@ -42,4 +42,8 @@ return [
         'precioCero' => 'Precio cero no permitido',
         'nivelInvalido' => 'Nivel invalido para la configuracion actual',
     ],
+    'pedidoMasivo' => [
+        'cabeceraIncoherenteGrupo' => 'Los datos de cabecera deben ser identicos en todas las filas del mismo comprobante',
+        'vendedorFaltante' => 'El cliente no tiene vendedor asignado en el maestro',
+    ],
 ];

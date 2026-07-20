@@ -33,6 +33,21 @@
 | 18 | [TR-SPEC-101-18-asistente-carga-ia-shell.md](TR-SPEC-101-18-asistente-carga-ia-shell.md) | **Should** | 037, 038 |
 | 19 | [TR-SPEC-101-19-asistente-carga-ia-mutaciones.md](TR-SPEC-101-19-asistente-carga-ia-mutaciones.md) | **Should** | 039, 040 |
 | 20 | [TR-SPEC-101-20-asistente-carga-ia-consultas.md](TR-SPEC-101-20-asistente-carga-ia-consultas.md) | **Should** | 041, 042 |
+| 21a | [TR-SPEC-101-21-proceso-excel-pedido-masivo.md](TR-SPEC-101-21-proceso-excel-pedido-masivo.md) | **Should** | 043 |
+| 21b | [TR-SPEC-101-21-pantalla-importacion-masiva.md](TR-SPEC-101-21-pantalla-importacion-masiva.md) | **Should** | 044 |
+| 21c | [TR-SPEC-101-21-consultar-borrador-importacion-masiva.md](TR-SPEC-101-21-consultar-borrador-importacion-masiva.md) | **Should** | 045 |
+
+## Slice SPEC-101-21 (Importación masiva)
+
+| Campo | Valor |
+|-------|--------|
+| **SPEC** | [SPEC-101-21](../../05-open-spec/101-PedidosWeb/SPEC-101-21-importacion-masiva-pedidos.md) |
+| **A1** | [F-101-21-cierre-a1](F-101-21-cierre-a1-importacion-masiva.md) |
+| **B1** | [F-101-21-cierre-b1](F-101-21-cierre-b1-importacion-masiva.md) |
+| **Parte C** | **Generada** (2026-07-19) — [F-101-21-cierre-c](F-101-21-cierre-c-importacion-masiva.md) |
+| **Parte C1** | **Apto** (2026-07-19) — [F-101-21-cierre-c1](F-101-21-cierre-c1-importacion-masiva.md) |
+| **Parte D1** | [D1-PLAN-101-21](D1-PLAN-101-21-importacion-masiva.md) — listo Parte D |
+| **Orden D1** | 21a → 21b → 21c |
 
 ## Slice SPEC-101-18/19/20 (Asistente IA en carga)
 
@@ -80,6 +95,9 @@ Omitir **101-01** hasta etapa `EMPRESAS_CONEXION`. Secuencia recomendada (SPEC m
 | 025 | 14 |
 | **029** | **16a** |
 | **030** | **16b** (+ 10) |
+| **043** | **21a** |
+| **044** | **21b** |
+| **045** | **21c** |
 | — | 15 (cierre transversal) |
 
 ## Matriz permisos
