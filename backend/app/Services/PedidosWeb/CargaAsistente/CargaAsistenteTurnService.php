@@ -389,6 +389,15 @@ final class CargaAsistenteTurnService
                 break;
             }
 
+            if (
+                ! $this->draftHasCliente($workingDraft)
+                && ! in_array($item['intent'], ['selectCliente', 'changeCliente'], true)
+            ) {
+                // Sin cliente efectivo no se cargan cabecera/renglones del mismo mensaje compuesto.
+                $replyParts[] = 'pedidos.carga.asistente.needsCliente';
+                break;
+            }
+
             $intent = $item['intent'];
             if ($draftContext['readOnly'] && in_array($intent, self::MUTATION_INTENTS, true)) {
                 $denied = $this->deniedResult('pedidos.carga.asistente.denied');
@@ -408,6 +417,15 @@ final class CargaAsistenteTurnService
                 $message,
             );
             $this->mergeCompositeToolResult($result, $actions, $pendingChoice, $replyParts, $workingDraft);
+
+            // Cliente no encontrado (sin lista de opciones): no seguir con el resto del pedido.
+            if (
+                in_array($intent, ['selectCliente', 'changeCliente'], true)
+                && ! $this->draftHasCliente($workingDraft)
+                && $pendingChoice === null
+            ) {
+                break;
+            }
         }
 
         if ($pendingChoice !== null && $deferredItems !== []) {
@@ -432,6 +450,22 @@ final class CargaAsistenteTurnService
             'pendingChoice' => $pendingChoice,
             'configurationRequired' => false,
         ];
+    }
+
+    /**
+     * @param  array{
+     *     modo: string|null,
+     *     perfilUsuario: string|null,
+     *     codCliente: string|null,
+     *     cabecera: array<string, mixed>,
+     *     renglones: list<array<string, mixed>>,
+     *     readOnly: bool,
+     *     codLista: int
+     * }  $draft
+     */
+    private function draftHasCliente(array $draft): bool
+    {
+        return trim((string) ($draft['codCliente'] ?? '')) !== '';
     }
 
     /**

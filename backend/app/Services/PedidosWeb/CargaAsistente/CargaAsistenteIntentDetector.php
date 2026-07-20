@@ -465,6 +465,7 @@ final class CargaAsistenteIntentDetector
 
     /**
      * Pedido pegado con varias líneas etiqueta:valor + artículos → una intención por línea.
+     * También admite un solo renglón (p. ej. dictado) con varias palabras clave.
      *
      * @return list<array{intent: string, params: array<string, mixed>}>
      */
@@ -511,7 +512,66 @@ final class CargaAsistenteIntentDetector
             }
         }
 
+        // Una sola línea (dictado / pegado plano): partir por palabras clave internas.
+        if (count($segments) <= 1) {
+            $flat = count($segments) === 1 ? $segments[0] : trim($message);
+            if ($flat === '') {
+                return [];
+            }
+
+            return $this->splitByInlineKeywords($flat);
+        }
+
         return $segments;
+    }
+
+    /**
+     * Parte un texto continuo en segmentos iniciados por etiqueta/cliente/artículo.
+     *
+     * @return list<string>
+     */
+    private function splitByInlineKeywords(string $text): array
+    {
+        $markerPattern = $this->inlineSegmentMarkerPattern();
+        if (preg_match_all($markerPattern, $text, $matches, PREG_OFFSET_CAPTURE) < 1) {
+            return [trim($text)];
+        }
+
+        /** @var list<array{0: string, 1: int}> $found */
+        $found = $matches[0];
+        if (count($found) < 2) {
+            return [trim($text)];
+        }
+
+        $segments = [];
+        $count = count($found);
+        for ($index = 0; $index < $count; $index += 1) {
+            $start = (int) $found[$index][1];
+            $end = $index + 1 < $count ? (int) $found[$index + 1][1] : strlen($text);
+            $segment = trim(substr($text, $start, $end - $start));
+            if ($segment !== '') {
+                $segments[] = $segment;
+            }
+        }
+
+        return $segments !== [] ? $segments : [trim($text)];
+    }
+
+    private function inlineSegmentMarkerPattern(): string
+    {
+        // No incluir bonificación/descuento N sin “:” (en renglón suele ser % del artículo).
+        return '/(?:^|(?<=\s))(?:'
+            .'buscar\s+cliente|cliente|'
+            .'(?:'.self::ARTICULO_KEYWORD_REGEX.')|'
+            .'perfil|'
+            .'condicion(?:\s+de)?\s+venta|condici[oó]n(?:\s+de)?\s+venta|'
+            .'fecha(?:\s+de)?\s+entrega|'
+            .'transporte|expreso|'
+            .'direccion(?:\s+de\s+entrega|\s+expreso)?|direcci[oó]n(?:\s+de\s+entrega|\s+expreso)?|'
+            .'lista(?:\s+de)?\s+precios|'
+            .'(?:bonificaci[oó]n|bonif|descuento|descto|desc\.?|dto\.?)\s*[123]\s*:|'
+            .'leyenda\s*[1-5]|observacion(?:es)?|nivel'
+            .')\b/iu';
     }
 
     private function lineLooksLikeLabeledFieldOrArticulo(string $line): bool
@@ -547,7 +607,15 @@ final class CargaAsistenteIntentDetector
             $value = trim($matches[1]);
         }
 
-        // Solo cortar si viene otra etiqueta con “:” (evita partir “entregar lista de precios”).
+        // Cortar ante artículo/producto/item (dictado en una línea: “cliente X artículo Y…”).
+        $cutArticulo = preg_split(
+            '/\s+(?:'.self::ARTICULO_KEYWORD_REGEX.')\b/iu',
+            $value,
+            2,
+        );
+        $value = trim((string) ($cutArticulo[0] ?? $value));
+
+        // Otras etiquetas de cabecera: solo con “:” (evita partir “entregar lista de precios”).
         $cut = preg_split(
             '/\s+(?:perfil|condicion(?:\s+de)?\s+venta|condici[oó]n(?:\s+de)?\s+venta|fecha(?:\s+de)?\s+entrega|transporte|expreso|direccion(?:\s+de\s+entrega|\s+expreso)?|direcci[oó]n(?:\s+de\s+entrega|\s+expreso)?|lista(?:\s+de)?\s+precios|(?:bonificaci[oó]n|bonif|descuento|descto)\s*[123]|leyenda\s*[1-5]|observacion(?:es)?|nivel|cliente)\s*:/iu',
             $value,

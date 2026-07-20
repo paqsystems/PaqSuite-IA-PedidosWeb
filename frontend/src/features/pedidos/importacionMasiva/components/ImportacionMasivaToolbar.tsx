@@ -26,34 +26,38 @@ export function ImportacionMasivaToolbar({
 
   return (
     <div className="importacionMasivaPage__toolbar">
-      {excelImportEnabled ? (
-        <ExcelImportHostToolbar
-          codigoProceso={EXCEL_PROCESO_PEDIDO_MASIVO}
-          disabled={disabled}
-          onComplete={onImportComplete}
+      <div className="importacionMasivaPage__toolbarLeft">
+        <Button
+          text={t('pedidos.importacionMasiva.marcarPedidos')}
+          stylingMode="outlined"
+          disabled={disabled || !tieneFilas}
+          onClick={onMarcarPedidos}
+          elementAttr={{ 'data-testid': 'importacionMasivaMarcarPedidos' }}
         />
+        <Button
+          text={t('pedidos.importacionMasiva.marcarPresupuestos')}
+          stylingMode="outlined"
+          disabled={disabled || !tieneFilas}
+          onClick={onMarcarPresupuestos}
+          elementAttr={{ 'data-testid': 'importacionMasivaMarcarPresupuestos' }}
+        />
+        <Button
+          text={t('pedidos.importacionMasiva.grabar')}
+          type="default"
+          disabled={disabled || !tieneFilas}
+          onClick={onGrabar}
+          elementAttr={{ 'data-testid': 'importacionMasivaGrabar' }}
+        />
+      </div>
+      {excelImportEnabled ? (
+        <div className="importacionMasivaPage__toolbarRight">
+          <ExcelImportHostToolbar
+            codigoProceso={EXCEL_PROCESO_PEDIDO_MASIVO}
+            disabled={disabled}
+            onComplete={onImportComplete}
+          />
+        </div>
       ) : null}
-      <Button
-        text={t('pedidos.importacionMasiva.marcarPedidos')}
-        stylingMode="outlined"
-        disabled={disabled || !tieneFilas}
-        onClick={onMarcarPedidos}
-        elementAttr={{ 'data-testid': 'importacionMasivaMarcarPedidos' }}
-      />
-      <Button
-        text={t('pedidos.importacionMasiva.marcarPresupuestos')}
-        stylingMode="outlined"
-        disabled={disabled || !tieneFilas}
-        onClick={onMarcarPresupuestos}
-        elementAttr={{ 'data-testid': 'importacionMasivaMarcarPresupuestos' }}
-      />
-      <Button
-        text={t('pedidos.importacionMasiva.grabar')}
-        type="default"
-        disabled={disabled || !tieneFilas}
-        onClick={onGrabar}
-        elementAttr={{ 'data-testid': 'importacionMasivaGrabar' }}
-      />
     </div>
   );
 }

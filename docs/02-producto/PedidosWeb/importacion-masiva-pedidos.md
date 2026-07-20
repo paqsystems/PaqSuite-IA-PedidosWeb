@@ -71,7 +71,7 @@ Por cada **combinación distinta** de:
 
 se confecciona **un comprobante distinto**.
 
-El resto de datos de cabecera (condición de venta, depósito, observaciones, fechas, etc.) se toman según la regla vigente de la plantilla / primera fila del grupo (misma lógica conceptual que “repetir encabezado en todos los renglones” de la importación individual). Dentro de un mismo grupo, los campos de cabecera deben ser coherentes (ver SPEC-101-21).
+El resto de datos de cabecera (condición de venta, depósito, observaciones, fechas, etc.) forman parte de la **clave de agrupación** junto con cliente y vendedor: si cambian, se genera **otro** pedido/presupuesto (un mismo cliente puede aportar varios comprobantes en el lote). Solo se consolidan renglones cuando la cabecera completa coincide (ver SPEC-101-21).
 
 ### 4.2 Tipo inicial
 

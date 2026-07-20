@@ -202,16 +202,14 @@ final class ExcelTemplateService
         };
 
         $formula = '"'.implode(',', $valores).'"';
-
-        for ($row = 2; $row <= 1000; $row++) {
-            $cell = $sheet->getCell($columnLetter.$row);
-            $validation = $cell->getDataValidation();
-            $validation->setType(DataValidation::TYPE_LIST);
-            $validation->setErrorStyle(DataValidation::STYLE_STOP);
-            $validation->setAllowBlank(true);
-            $validation->setShowDropDown(true);
-            $validation->setFormula1($formula);
-        }
+        $range = sprintf('%s2:%s%d', $columnLetter, $columnLetter, self::dataRowEnd);
+        $validation = $sheet->getCell($columnLetter.'2')->getDataValidation();
+        $validation->setType(DataValidation::TYPE_LIST);
+        $validation->setErrorStyle(DataValidation::STYLE_STOP);
+        $validation->setAllowBlank(true);
+        $validation->setShowDropDown(true);
+        $validation->setFormula1($formula);
+        $sheet->setDataValidation($range, $validation);
     }
 
     private function columnLetter(int $columnIndex): string

@@ -116,6 +116,25 @@ PROMPT;
         if ($clienteQ !== '') {
             $clienteResult = $this->clienteTool->selectCliente($user, $workingDraft, $clienteQ, false);
             $this->mergeToolResult($clienteResult, $actions, $pendingChoice, $replyParts, $workingDraft);
+
+            $clienteResuelto = trim((string) ($workingDraft['codCliente'] ?? '')) !== '';
+            if (! $clienteResuelto && $pendingChoice === null) {
+                // Cliente no encontrado: no cargar cabecera ni renglones de la imagen.
+                if ($actions === []) {
+                    $actions[] = [
+                        'action' => 'noop',
+                        'payload' => [],
+                        'resultado' => 'ok',
+                    ];
+                }
+
+                return [
+                    'replyText' => implode("\n", array_values(array_unique($replyParts))) ?: 'pedidos.carga.asistente.clienteNoEncontrado',
+                    'actions' => $actions,
+                    'pendingChoice' => null,
+                    'configurationRequired' => false,
+                ];
+            }
         }
 
         $cabeceraSteps = $this->buildCabeceraStepsFromParsed($parsed);

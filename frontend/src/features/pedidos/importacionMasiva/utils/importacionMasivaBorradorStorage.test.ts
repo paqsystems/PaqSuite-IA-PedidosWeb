@@ -17,6 +17,7 @@ function buildFila(idInterno: string): BorradorFila {
     totalImporte: 100,
     cabecera: {
       codCliente: 'CLI001',
+      razonSocial: 'Cliente Uno',
       codVended: 'V1',
       vendedorNombre: 'Vendedor',
       nivel: 0,

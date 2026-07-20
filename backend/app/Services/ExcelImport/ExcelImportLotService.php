@@ -383,10 +383,6 @@ final class ExcelImportLotService
         array $datosNormalizados,
         ExcelImportLotContext $ctx,
     ): array {
-        if (isset($datosNormalizados['precio'])) {
-            return $datosNormalizados;
-        }
-
         return $handler->processRow($datosNormalizados, $ctx);
     }
 }

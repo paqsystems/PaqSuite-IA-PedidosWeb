@@ -66,4 +66,15 @@ final class PedidoExcelImportCabeceraSignature
 
         return (int) $nivel;
     }
+
+    /**
+     * Clave de agrupación masiva: mismo cliente + vendedor + firma completa de cabecera
+     * → un comprobante; cabeceras distintas (aunque sea el mismo cliente) → comprobantes distintos.
+     *
+     * @param  array<string, mixed>  $datos
+     */
+    public static function buildMasivoGroupKey(string $codCliente, string $codVended, array $datos): string
+    {
+        return strtolower(trim($codCliente)).'|'.$codVended.'|'.self::fromDatos($datos);
+    }
 }

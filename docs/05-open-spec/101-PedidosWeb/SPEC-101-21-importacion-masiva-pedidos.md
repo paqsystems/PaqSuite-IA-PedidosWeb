@@ -32,7 +32,7 @@ Permitir a un usuario autorizado incorporar **varios** pedidos o presupuestos de
 | Tema | Decisión |
 |------|----------|
 | Tipo inicial | Toda fila importada nace como **Pedido**; el Excel **no** indica tipo |
-| Clave de agrupación | `cod_cliente` + `cod_vended` (resuelto) + `nivel` |
+| Clave de agrupación | `cod_cliente` + `cod_vended` (resuelto) + **firma completa de cabecera** (campos SPEC-101-16). Cabeceras distintas → comprobantes distintos (un mismo cliente puede tener varios pedidos en el lote). Misma cabecera → renglones del mismo comprobante |
 | Origen vendedor | **No** viene en plantilla. Al armar/validar cada comprobante se toma el vendedor del **maestro cliente** (`pq_pedidosweb_clientes.cod_vended` + nombre vía relación), igual patrón que razón social / defaults de cabecera |
 | Plantilla | Misma estructura de columnas / i18n que `PEDIDO_INDIVIDUAL` (SPEC-101-16 §2); sin columnas nuevas |
 | Proceso Excel | Nuevo código de proceso catálogo **`PEDIDO_MASIVO`** reutilizando el mismo set de campos; plantilla descargable equivalente a la individual |
@@ -60,7 +60,7 @@ Permitir a un usuario autorizado incorporar **varios** pedidos o presupuestos de
 | AMB-M-101-21-01 | i18n columnas Excel | Reutilizar literales `excelImport.column.PEDIDO_INDIVIDUAL.*` (y comentarios asociados); el proceso `PEDIDO_MASIVO` no duplica traducciones |
 | AMB-M-101-21-02 | Host Consultar | Reutilizar `/pedidos/carga` con `mode=readonly` (+ origen `from=importacionMasiva` o equivalente) y acción **Volver** a la grilla masiva |
 | AMB-M-101-21-03 | Grabación del lote | **N llamadas secuenciales desde el frontend** a las APIs de grabación individuales (pedido/presupuesto). Sin endpoint de lote síncrono en MVP. UI muestra progreso i18n tipo **«Cargando x de N»** (o «Grabando x de N») durante el ciclo; al terminar, toast resumen OK/Error |
-| AMB-M-101-21-04 | Coherencia dentro del grupo | Todos los campos de cabecera de SPEC-101-16 deben ser **idénticos** entre filas del mismo grupo; divergencia → error de importación del archivo (sin parcial a grilla) |
+| AMB-M-101-21-04 | Cabeceras distintas en el lote | **No** es error: cada combinación distinta de campos de cabecera (firma completa) genera un **comprobante distinto**. Solo se fusionan renglones cuando cliente + vendedor + firma de cabecera coinciden |
 | AMB-M-101-21-05 | Orden en grilla | Orden de **primera aparición** del grupo en el archivo Excel |
 
 ## Decisiones cerradas en A1 (2026-07-19)
@@ -107,7 +107,7 @@ Validaciones de importación (no exhaustivo; hereda 101-16 donde aplique):
 | Estructura / i18n | Parser multilenguaje; obligatorias `cod_cliente`, `cod_articulo`, `cantidad` |
 | Perfil C | Todo `cod_cliente` del archivo = cliente de sesión |
 | Perfil V/S | Cada `cod_cliente` en cartera visible |
-| Coherencia **dentro del grupo** | **Valores crudos** del Excel (antes de defaults) idénticos en todos los campos de cabecera 101-16 del mismo grupo (AMB-C-02 / AMB-04); vacío vs vacío = ok; divergencia → error de importación del lote (sin parcial a grilla) |
+| Coherencia **dentro del grupo** | El grupo se define por cliente + vendedor + firma completa de cabecera. Filas con cabecera distinta **no** se mezclan: forman otro comprobante. Dentro del mismo grupo, la cabecera es idéntica por construcción de la clave |
 | Nivel | Rango de negocio 0–100; si `NivelExtremo` → solo `0`/`100` |
 | Permisos `Modifica*` | Columnas no editables por el usuario deben venir vacías (igual 101-16) |
 | Artículo / cantidad / precio cero / cliente inhabilitado | Igual criterios 101-16 |
@@ -117,7 +117,7 @@ Validaciones de importación (no exhaustivo; hereda 101-16 donde aplique):
 1. Parsear y validar el archivo completo (sin parcial).
 2. Resolver defaults por fila (mismo espíritu que `PedidoIndividual` + `CabeceraInicialService`).
 3. Asignar **vendedor del cliente**: `cod_vended` y nombre desde maestro cliente (join vendedor).
-4. Agrupar filas por clave `(cod_cliente, cod_vended, nivel)` con `nivel` ya resuelto (default `0` si vacío).
+4. Agrupar filas por clave `(cod_cliente, cod_vended, firmaCabeceraCompleta)` (valores crudos normalizados). Cabeceras distintas → grupos distintos (varios pedidos del mismo cliente permitidos).
 5. Por cada grupo: un comprobante borrador con cabecera (primera fila / valores resueltos coherentes) + renglones del grupo.
 6. Ordenar filas de grilla por **primera aparición** del grupo en el Excel (AMB-05).
 7. Calcular totales sin IVA / con IVA con las **mismas funciones** que carga / import individual (`renglonesCarga` / servicios 101-04).
