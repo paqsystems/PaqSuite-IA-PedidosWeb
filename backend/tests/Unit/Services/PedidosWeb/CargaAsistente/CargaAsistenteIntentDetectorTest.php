@@ -253,6 +253,50 @@ TXT;
         $this->assertSame(3.0, $addRenglones[2]['params']['porcBonif']);
     }
 
+    public function testDetectsCompositePedidoOnSingleLineDictation(): void
+    {
+        $detector = new CargaAsistenteIntentDetector();
+        $message = 'cliente bernascone artículo ajo en polvo 25 kg cantidad 100 '
+            .'artículo almendra ramillada 10 cantidad 120 '
+            .'artículo arroz largo fino 5/05 cantidad 10 precio 150 bonificación 3';
+
+        $detected = $detector->detect($message, null);
+
+        $this->assertSame('compositePedido', $detected['intent']);
+        $items = $detected['params']['items'];
+        $this->assertIsArray($items);
+        $this->assertCount(4, $items);
+
+        $this->assertSame('selectCliente', $items[0]['intent']);
+        $this->assertSame('bernascone', $items[0]['params']['q']);
+
+        $addRenglones = array_values(array_filter(
+            $items,
+            static fn (array $item): bool => ($item['intent'] ?? '') === 'addRenglon',
+        ));
+        $this->assertCount(3, $addRenglones);
+        $this->assertSame(100.0, $addRenglones[0]['params']['cantidad']);
+        $this->assertStringContainsString('ajo', mb_strtolower((string) $addRenglones[0]['params']['q']));
+        $this->assertStringNotContainsString('cantidad', mb_strtolower((string) $addRenglones[0]['params']['q']));
+        $this->assertSame(120.0, $addRenglones[1]['params']['cantidad']);
+        $this->assertSame(10.0, $addRenglones[2]['params']['cantidad']);
+        $this->assertSame(150.0, $addRenglones[2]['params']['precio']);
+        $this->assertSame(3.0, $addRenglones[2]['params']['porcBonif']);
+    }
+
+    public function testDetectsClienteThenArticuloOnSingleLineWithoutEatingArticulo(): void
+    {
+        $detector = new CargaAsistenteIntentDetector();
+        $detected = $detector->detect('cliente agromenta artículo ajo en polvo 25 cantidad 100', null);
+
+        $this->assertSame('compositePedido', $detected['intent']);
+        $this->assertSame('selectCliente', $detected['params']['items'][0]['intent']);
+        $this->assertSame('agromenta', $detected['params']['items'][0]['params']['q']);
+        $this->assertSame('addRenglon', $detected['params']['items'][1]['intent']);
+        $this->assertSame(100.0, $detected['params']['items'][1]['params']['cantidad']);
+        $this->assertStringContainsString('ajo', mb_strtolower((string) $detected['params']['items'][1]['params']['q']));
+    }
+
     public function testDetectsClienteWithColonWithoutEatingNextFields(): void
     {
         $detector = new CargaAsistenteIntentDetector();

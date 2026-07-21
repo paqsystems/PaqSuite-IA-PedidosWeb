@@ -17,6 +17,12 @@ import { useImportacionMasivaNavigationGuard } from '../hooks/useImportacionMasi
 import type { BorradorFila } from '../types/importacionMasivaTypes';
 import { mapGruposToBorradorFilas } from '../utils/mapGrupoToBorradorFila';
 import { persistImportacionMasivaBorrador } from '../utils/importacionMasivaBorradorStorage';
+import {
+  clearImportacionMasivaConsultPayload,
+  IMPORTACION_MASIVA_CONSULT_QUERY,
+  storeImportacionMasivaConsultPayload,
+} from '../utils/importacionMasivaCargaReadonly';
+import { openImportacionMasivaConsultaWindow } from '../utils/openImportacionMasivaConsultaWindow';
 import './importacionMasivaPage.css';
 
 export function ImportacionMasivaPage() {
@@ -48,7 +54,7 @@ export function ImportacionMasivaPage() {
 
   const uiBloqueada = isGrabando;
 
-  const { salidaVisible, closeSalidaModal, confirmSalida, requestSalida } =
+  const { salidaVisible, closeSalidaModal, confirmSalida, requestSalida, allowNextNavigation } =
     useImportacionMasivaNavigationGuard({
       enabled: tieneFilasPendientes && !isGrabando,
       onSalidaAccion: async (accion) => {
@@ -133,20 +139,29 @@ export function ImportacionMasivaPage() {
   const handleConsultar = useCallback(
     (fila: BorradorFila) => {
       persistImportacionMasivaBorrador(filas);
-      navigate('/pedidos/carga', {
-        state: {
-          mode: 'readonly',
-          from: 'importacionMasiva',
-          borrador: {
-            idInterno: fila.idInterno,
-            cabecera: fila.cabecera,
-            renglones: fila.renglones,
-            esPedido: fila.esPedido,
-          },
+      const consultState = {
+        mode: 'readonly' as const,
+        from: 'importacionMasiva' as const,
+        borrador: {
+          idInterno: fila.idInterno,
+          cabecera: fila.cabecera,
+          renglones: fila.renglones,
+          esPedido: fila.esPedido,
         },
-      });
+      };
+      const storageKey = storeImportacionMasivaConsultPayload(consultState);
+      // Misma ruta/pantalla que consulta desde informes (`modo=ver`), con payload de borrador.
+      const consultUrl = `${window.location.origin}/pedidos/carga?modo=ver&${IMPORTACION_MASIVA_CONSULT_QUERY}=${encodeURIComponent(storageKey)}`;
+
+      if (openImportacionMasivaConsultaWindow(consultUrl)) {
+        return;
+      }
+
+      clearImportacionMasivaConsultPayload(storageKey);
+      allowNextNavigation();
+      navigate(`/pedidos/carga?modo=ver`, { state: consultState });
     },
-    [filas, navigate],
+    [allowNextNavigation, filas, navigate],
   );
 
   const handleEliminarRequest = useCallback((fila: BorradorFila) => {

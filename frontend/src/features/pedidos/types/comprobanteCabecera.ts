@@ -37,6 +37,7 @@ export type CabeceraCatalogos = {
 
 export type ComprobanteCabecera = {
   codCliente: string;
+  razonSocial: string;
   codVended: string | null;
   vendedorNombre: string;
   codCondvta: number | null;
@@ -66,6 +67,7 @@ export type ComprobanteCabecera = {
 
 export const emptyComprobanteCabecera = (codCliente: string): ComprobanteCabecera => ({
   codCliente,
+  razonSocial: '',
   codVended: null,
   vendedorNombre: '',
   codCondvta: null,

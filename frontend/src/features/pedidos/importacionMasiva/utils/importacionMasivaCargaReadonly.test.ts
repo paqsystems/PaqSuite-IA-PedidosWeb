@@ -1,11 +1,18 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
 import { emptyComprobanteCabecera } from '../../types/comprobanteCabecera';
 import {
   buildImportacionMasivaCargaHydration,
   parseImportacionMasivaCargaState,
+  readImportacionMasivaConsultPayload,
+  resolveImportacionMasivaCargaContext,
+  storeImportacionMasivaConsultPayload,
 } from './importacionMasivaCargaReadonly';
 
 describe('importacionMasivaCargaReadonly', () => {
+  afterEach(() => {
+    localStorage.clear();
+  });
+
   it('parsea state valido de consulta readonly', () => {
     const cabecera = emptyComprobanteCabecera('CLI001');
     const parsed = parseImportacionMasivaCargaState({
@@ -34,6 +41,65 @@ describe('importacionMasivaCargaReadonly', () => {
         borrador: { idInterno: 'f1' },
       }),
     ).toBeNull();
+  });
+
+  it('persiste y lee consulta entre solapas via localStorage', () => {
+    const cabecera = emptyComprobanteCabecera('CLI001');
+    const state = {
+      mode: 'readonly' as const,
+      from: 'importacionMasiva' as const,
+      borrador: {
+        idInterno: 'f1',
+        esPedido: true,
+        cabecera,
+        renglones: [],
+      },
+    };
+
+    const key = storeImportacionMasivaConsultPayload(state);
+    const first = readImportacionMasivaConsultPayload(key);
+    const second = readImportacionMasivaConsultPayload(key);
+
+    expect(first?.borrador.idInterno).toBe('f1');
+    expect(second?.borrador.idInterno).toBe('f1');
+    expect(localStorage.getItem(key)).not.toBeNull();
+  });
+
+  it('acepta codCliente numerico al parsear state de consulta', () => {
+    const cabecera = emptyComprobanteCabecera('CLI001');
+    const parsed = parseImportacionMasivaCargaState({
+      mode: 'readonly',
+      from: 'importacionMasiva',
+      borrador: {
+        idInterno: 'f-num',
+        esPedido: true,
+        cabecera: { ...cabecera, codCliente: 12345 as unknown as string },
+        renglones: [],
+      },
+    });
+
+    expect(parsed?.borrador.cabecera.codCliente).toBe('12345');
+  });
+
+  it('resuelve contexto desde query de consulta', () => {
+    const cabecera = emptyComprobanteCabecera('CLI009');
+    const key = storeImportacionMasivaConsultPayload({
+      mode: 'readonly',
+      from: 'importacionMasiva',
+      borrador: {
+        idInterno: 'f9',
+        esPedido: false,
+        cabecera,
+        renglones: [],
+      },
+    });
+
+    const resolved = resolveImportacionMasivaCargaContext({
+      locationState: null,
+      consultStorageKey: key,
+    });
+
+    expect(resolved?.borrador.idInterno).toBe('f9');
   });
 
   it('arma hidratacion de carga sin fetch de comprobante', () => {

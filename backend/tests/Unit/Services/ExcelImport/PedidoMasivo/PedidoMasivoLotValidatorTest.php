@@ -28,7 +28,7 @@ final class PedidoMasivoLotValidatorTest extends TestCase
         $this->assertFalse($result[1]['tieneError']);
     }
 
-    public function testMarcaErrorCuandoCabeceraIncoherenteDentroDelGrupo(): void
+    public function testPermiteMismoClienteConCabecerasDistintas(): void
     {
         $vendedorResolver = $this->createMock(PedidoMasivoClienteVendedorResolver::class);
         $vendedorResolver->method('resolve')->willReturn(['codVended' => 'V1', 'nombre' => 'Vendedor 1']);
@@ -42,7 +42,7 @@ final class PedidoMasivoLotValidatorTest extends TestCase
         $result = $validator->apply($rows);
 
         $this->assertFalse($result[0]['tieneError']);
-        $this->assertTrue($result[1]['tieneError']);
+        $this->assertFalse($result[1]['tieneError']);
     }
 
     public function testMarcaErrorCuandoClienteSinVendedor(): void

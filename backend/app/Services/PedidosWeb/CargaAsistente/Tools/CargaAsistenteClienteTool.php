@@ -41,6 +41,11 @@ final class CargaAsistenteClienteTool
 
         $matches = $this->searchClientes($user, $q, 11);
 
+        // Fallbacks típicos de dictado (B/V, e/i final) si no hubo match literal.
+        if ($matches === []) {
+            $matches = $this->searchClientesWithSpeechFallbacks($user, $q, 11);
+        }
+
         // Código exacto gana siempre (LIKE '%10112%' puede devolver >10 y tapar el match único).
         $exactMatches = array_values(array_filter(
             $matches,
@@ -336,6 +341,89 @@ final class CargaAsistenteClienteTool
             })
             ->values()
             ->all();
+    }
+
+    /**
+     * @return list<array{codCliente: string, razonSocial: string, nombre: string}>
+     */
+    private function searchClientesWithSpeechFallbacks(User $user, string $q, int $limit): array
+    {
+        $merged = [];
+
+        foreach ($this->speechAlternateClienteQueries($q) as $alternate) {
+            foreach ($this->searchClientes($user, $alternate, $limit) as $cliente) {
+                $merged[(string) $cliente['codCliente']] = $cliente;
+            }
+
+            if (count($merged) >= $limit) {
+                break;
+            }
+        }
+
+        return array_values($merged);
+    }
+
+    /**
+     * Variantes habituales de dictado: B↔V y terminación e↔i.
+     *
+     * @return list<string>
+     */
+    private function speechAlternateClienteQueries(string $q): array
+    {
+        $q = trim($q);
+        if ($q === '') {
+            return [];
+        }
+
+        $seeds = [$q];
+        $flippedBv = $this->flipBvCharacters($q);
+        if (mb_strtolower($flippedBv) !== mb_strtolower($q)) {
+            $seeds[] = $flippedBv;
+        }
+
+        $variants = [];
+        foreach ($seeds as $seed) {
+            $variants[] = $seed;
+            if (preg_match('/e$/iu', $seed) === 1) {
+                $variants[] = preg_replace('/e$/iu', 'i', $seed) ?? $seed;
+            }
+            if (preg_match('/i$/iu', $seed) === 1) {
+                $variants[] = preg_replace('/i$/iu', 'e', $seed) ?? $seed;
+            }
+        }
+
+        $normalizedOriginal = mb_strtolower($q);
+        $unique = [];
+        foreach ($variants as $variant) {
+            $variant = trim((string) $variant);
+            if ($variant === '' || mb_strtolower($variant) === $normalizedOriginal) {
+                continue;
+            }
+            $unique[mb_strtolower($variant)] = $variant;
+        }
+
+        return array_values($unique);
+    }
+
+    private function flipBvCharacters(string $value): string
+    {
+        $result = '';
+        $length = mb_strlen($value);
+
+        for ($index = 0; $index < $length; $index += 1) {
+            $char = mb_substr($value, $index, 1);
+            $lower = mb_strtolower($char);
+
+            if ($lower === 'b') {
+                $result .= ctype_upper($char) || $char === 'B' ? 'V' : 'v';
+            } elseif ($lower === 'v') {
+                $result .= ctype_upper($char) || $char === 'V' ? 'B' : 'b';
+            } else {
+                $result .= $char;
+            }
+        }
+
+        return $result;
     }
 
     /**

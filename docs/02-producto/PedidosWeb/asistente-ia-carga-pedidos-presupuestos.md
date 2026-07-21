@@ -4,7 +4,7 @@
 |-------|--------|
 | **Estado** | Definición de producto + OpenSpec **A1+B1+C1** + post-smoke (2026-07-13) |
 | **Ámbito** | PedidosWeb — pantalla de carga (`/pedidos/carga`) + canal conversacional operativo |
-| **Última actualización** | 2026-07-14 (pedido compuesto multilínea, alias art/item/it, cabecera completa + permisos, diferidos post-choice) |
+| **Última actualización** | 2026-07-15 (dictado continuo, selector LLM en panel, compuesto en una línea, gate sin cliente, fallback B/V e/i) |
 | **OpenSpec** | [SPEC-101-18](../../05-open-spec/101-PedidosWeb/SPEC-101-18-asistente-carga-ia-shell.md) · [SPEC-101-19](../../05-open-spec/101-PedidosWeb/SPEC-101-19-asistente-carga-ia-mutaciones.md) · [SPEC-101-20](../../05-open-spec/101-PedidosWeb/SPEC-101-20-asistente-carga-ia-consultas.md) |
 | **Cierre A1** | [F-101-18-20-cierre-a1](../../04-tareas/101-PedidosWeb/F-101-18-20-cierre-a1-asistente-carga-ia.md) |
 | **Cierre B1** | [F-101-18-20-cierre-b1](../../04-tareas/101-PedidosWeb/F-101-18-20-cierre-b1-asistente-carga-ia.md) |
@@ -60,6 +60,9 @@ Hoy la carga exige navegar combobox, popups y grillas. Operadores comerciales (s
 | K | Recepción de **imágenes** para leer, validar y cargar lo que se valide (**incluido en MVP**) |
 | L | Entrada por **audio** (dictado → texto → misma pipeline de intenciones) |
 | M | Configuración LLM vía Preferencias / Asistente IA (ruedita en el panel) |
+| N | Selector de **configuración LLM activa** en el panel (mismas credenciales BYOK) |
+| O | Pedido compuesto en **una sola línea / dictado largo** (corte por palabras clave, no solo saltos de línea) |
+| P | **Gate de cliente:** sin cliente resuelto no se aplican cabecera ni renglones del mismo turno compuesto (ni imagen equivalente) |
 
 ### No incluye (MVP)
 
@@ -83,7 +86,8 @@ Hoy la carga exige navegar combobox, popups y grillas. Operadores comerciales (s
 7. **Trazabilidad:** loguear intención interpretada + acción ejecutada (útil para soporte y mejora del prompt).
 8. **Canal + pantalla sincronizados:** lo que el asistente carga debe verse reflejado en la UI de carga abierta (o en el borrador de sesión mobile).
 9. **Sin LLM configurado → respuesta fija** (no invocar modelo ni inventar acciones); ver §5.3.
-10. **Pedido pegado / multilínea:** si el mensaje trae varias etiquetas (cliente, cabecera, renglones), interpretar **todas** las líneas aplicables y aplicarlas en orden; ante lista numerada o confirmación, **diferir** el resto y continuar tras la respuesta (sin perder campos ya parseados).
+10. **Pedido pegado / multilínea o monolínea:** si el mensaje trae varias etiquetas (cliente, cabecera, renglones), interpretar **todas** las partes aplicables y aplicarlas en orden. El corte puede ser por **saltos de línea** o por **palabras clave en una sola línea** (p. ej. dictado continuo). Ante lista numerada o confirmación, **diferir** el resto y continuar tras la respuesta (sin perder campos ya parseados).
+11. **Sin cliente no se carga el resto:** en un turno compuesto (texto/dictado/imagen), si la selección de cliente falla o queda pendiente de elección/confirmación, **no** aplicar cabecera ni renglones de ese mismo mensaje hasta que el cliente quede determinado.
 
 ---
 
@@ -97,7 +101,8 @@ Hoy la carga exige navegar combobox, popups y grillas. Operadores comerciales (s
 |---------|----------|
 | Por qué al pie | El operador ve cabecera + renglones arriba y conversa abajo sin perder contexto; no abre otra pestaña como el chat documental |
 | Layout web | Bloque colapsable/expandible (`data-testid` estable, p. ej. `cargaAsistenteIaPanel`); hilo expandido con **mín. 270px** (hasta 33vh) y scroll interno |
-| Toolbar del panel | Campo de texto, botón enviar, **micrófono** (audio L), **adjuntar imagen** (K), **ruedita** (Preferencias M) |
+| Toolbar del panel | Campo de texto, **Enviar**, **Dictar** / **Detener dictado** (audio L), **Adjuntar imagen** (K), **ruedita** (Preferencias M) |
+| Selector LLM (N) | Debajo de los botones: `SelectBox` con las configuraciones BYOK operativas del usuario (`credentialId`); misma sesión/preferencia que el chat documental |
 | Mobile / native | Misma idea al pie de la vista de carga; si el viewport es muy bajo, el panel puede abrirse como sheet/drawer anclado abajo, sin salir del flujo de carga |
 | Modo Ver / solo lectura | El panel puede permitir consultas E–H; acciones de mutación (A–D, J) deshabilitadas o rechazadas con el mismo criterio que la UI |
 
@@ -107,7 +112,8 @@ No se usa el chat documental global como host de estas acciones: ese sigue siend
 
 - Se reutiliza la **misma configuración BYOK** del usuario (tablas / Preferencias del Asistente IA: proveedor, modelo, API key, visión, etc.).
 - No hay un segundo catálogo de proveedores ni credenciales específicas de “carga”.
-- Capacidades de **visión** (K) y, si el proveedor lo permite, calidad de transcripción para **audio** (L) dependen de lo ya configurado / soportado (`supports_vision`, etc.).
+- El panel permite **elegir cuál configuración activa** usar en el turno (`credentialId`), sin salir de la carga (capacidad N).
+- Capacidades de **visión** (K) dependen de lo ya configurado / soportado (`supports_vision`, etc.).
 
 ### 5.3 Ruedita de configuración
 
@@ -129,12 +135,12 @@ Si el usuario **no tiene** configuración LLM habilitada (igual criterio que el 
 
 | Paso | Comportamiento |
 |------|----------------|
-| 1 | Usuario pulsa micrófono (Web Speech API del navegador y/o captura de audio enviada a transcripción según TR técnica) |
-| 2 | Se obtiene **texto** (dictado) |
-| 3 | Ese texto ingresa a la **misma pipeline** de intenciones que el chat escrito (A–K) |
-| 4 | Si no hay permiso de micrófono o falla la transcripción: mensaje claro; no mutar el comprobante |
+| 1 | Usuario pulsa **Dictar** (Web Speech API del navegador; MVP cerrado: no STT del proveedor) |
+| 2 | El reconocimiento es **continuo** hasta que el usuario pulsa **Detener dictado** (no corta solo tras una frase) |
+| 3 | Mientras escucha, el texto parcial se refleja en el composer; al detener se envía el texto acumulado a la **misma pipeline** de intenciones (A–K, O–P) |
+| 4 | Si no hay permiso de micrófono, contexto inseguro (HTTP no-localhost) o falla el reconocimiento: mensaje claro; no mutar el comprobante |
 
-Audio **no** es un canal de negocio aparte: es entrada alternativa a texto. En MVP se prioriza dictado → texto; si el proveedor LLM ofrece speech-to-text nativo, la TR puede elegirlo sin cambiar este contrato funcional.
+Audio **no** es un canal de negocio aparte: es entrada alternativa a texto. Un pedido completo se puede dictar en un solo turno; el motor de intenciones debe partir por palabras clave (§10 / §18 decisión 15).
 
 ### 5.6 Imágenes (capacidad K) — en MVP
 
@@ -153,11 +159,12 @@ Ver §13. Entrada desde el mismo panel (adjunto), no desde otro menú.
 ### Comportamiento
 
 1. Resolver búsqueda por **código** y/o **razón social / nombre / fantasía** (misma visibilidad de cartera que `GET /api/v1/clientes`).
-2. **0 resultados:** informar y pedir otro criterio.
+2. **0 resultados:** informar y pedir otro criterio. Antes de declararlo vacío, aplicar **fallbacks tipográficos de dictado** (p. ej. B↔V y terminación e↔i: `vernasconi` → candidatos `bernascone`).
 3. **1 resultado:** seleccionar ese cliente.
-4. **2–10 resultados:** lista numerada (código + razón social + fantasía si hay). El usuario responde con el número (o reformula).
+4. **2–10 resultados:** lista numerada (código + razón social + fantasía si hay). El usuario responde con el número (o reformula). **No** es equivalente a “no encontrado”.
 5. **Más de 10 resultados:** **no** mostrar lista completa; avisar que refine la búsqueda (más código o nombre).
 6. Al quedar el cliente determinado: ejecutar la **misma inicialización de cabecera** que al elegir en el listbox de carga (vendedor del cliente, condición, transporte, lista, bonificaciones, perfil según parámetros, dirección habitual, leyendas según `ClienteLeyendaN`, etc. — ver [pantalla-carga-comprobante-ui.md](./pantalla-carga-comprobante-ui.md)).
+7. **Gate (P):** en turno compuesto / imagen con cliente pedido, si el cliente **no** queda determinado (0 matches o pendiente de choice/confirmación), **no** aplicar cabecera ni renglones del mismo turno. Si hay lista numerada, diferir el resto (`deferredCompositeItems` / `deferredImageExtract`) hasta la elección.
 
 ### Perfil cliente
 
@@ -405,13 +412,14 @@ Pueden coexistir: el documental responde “cómo se usa”; el de carga **opera
 
 ## 17. Criterios de aceptación (borrador para HU futuras)
 
-- [ ] **CA-UX01:** El chat está al pie del formulario de carga; ruedita abre Preferencias / Asistente IA.
+- [ ] **CA-UX01:** El chat está al pie del formulario de carga; ruedita abre Preferencias / Asistente IA; selector LLM elige credencial BYOK.
 - [ ] **CA-UX02:** Sin LLM configurado, cualquier prompt responde el mensaje fijo de configuración (sin mutar).
-- [ ] **CA-L01:** Audio se transcribe a texto y ejecuta la misma pipeline que el texto.
-- [ ] **CA-A01:** Búsqueda de cliente con 2–10 matches muestra lista numerada; >10 pide refinar; 1 match inicializa cabecera como combobox.
+- [ ] **CA-L01:** Audio se transcribe a texto (Web Speech continuo hasta Detener) y ejecuta la misma pipeline que el texto.
+- [ ] **CA-A01:** Búsqueda de cliente con 2–10 matches muestra lista numerada; >10 pide refinar; 1 match inicializa cabecera como combobox; 0 matches intenta fallback B/V e/i antes de “no encontrado”.
+- [ ] **CA-A02:** Sin cliente determinado en turno compuesto/imagen, no se cargan cabecera ni renglones de ese turno.
 - [ ] **CA-B01:** Cambio de lista/cabecera sin permiso es rechazado con mensaje.
 - [ ] **CA-C01:** “Leyenda 3: texto X” asigna solo ese campo.
-- [ ] **CA-C02:** Pedido multilínea con cliente + cabecera + renglones aplica todos los campos permitidos; si hay choice intermedia, el resto no se pierde.
+- [ ] **CA-C02:** Pedido multilínea **o monolínea con keywords** con cliente + cabecera + renglones aplica todos los campos permitidos; si hay choice intermedia, el resto no se pierde.
 - [ ] **CA-D01:** Artículo ambiguo (≤10) → lista; >10 refine (mensaje distinto a “no encontrado”); con cantidad agrega renglón; “N unidades del artículo X” → qty N + búsqueda X; prefijos `art`/`item`/`it`; `canti`/`cant`; bonif/descuento de línea con permiso; precio solo con permiso; reply i18n resuelto.
 - [ ] **CA-D02:** Eliminar/modificar renglón busca en el **detalle del comprobante** (conjugados `elimina`/`borra`/…); comillas o descripción al final; 0 → muestra q buscada; 2+ → lista cant·precio·bonif; no confundir con alta en maestro.
 - [ ] **CA-E01:** Stock usa propiedades de [consulta-stock.md](./consulta-stock.md); ≤10 filas + totales de métricas por artículo; >10 pide refinar.
@@ -432,7 +440,7 @@ Pueden coexistir: el documental responde “cómo se usa”; el de carga **opera
 | 3 | Límite de listas | **Cerrado:** máx. 10; si hay más → refinar |
 | 4 | Fechas F–G en chat | **Cerrado:** solo `YYYY-MM-DD` (sin horario); >1 ítem → total saldo/importe |
 | 5 | Alcance K | **Cerrado:** incluido en MVP |
-| 6 | Motor de audio (Web Speech vs STT del proveedor) | **Cerrado:** Web Speech API |
+| 6 | Motor de audio (Web Speech vs STT del proveedor) | **Cerrado:** Web Speech API; **continuo** hasta Detener dictado (2026-07-15) |
 | 7 | Costo BYOK en sesiones largas + imágenes | Avisos de uso / modelo económico |
 | 8 | Altura del hilo del panel | **Cerrado (rev):** mín. **270px** (`max(270px, 33vh)`); scroll interno |
 | 9 | Auditoría acciones asistente | **Cerrado:** log de aplicación Laravel |
@@ -441,8 +449,10 @@ Pueden coexistir: el documental responde “cómo se usa”; el de carga **opera
 | 12 | Presentación tablas consulta | **Cerrado:** tabla HTML (`cargaAsistenteIaConsultaTable`) |
 | 13 | Cabecera vía chat (C ampliado) | **Cerrado:** bonif 1–3, expreso, transporte, cond. venta, perfil, lista, fecha/dirección entrega + `Modifica*` |
 | 14 | Eliminar/modificar renglón | **Cerrado:** detalle borrador; comillas o desc. al final; lista con cant·precio·bonif; conjugados elimina/borra… |
-| 15 | Pedido multilínea / compuesto | **Cerrado (2026-07-14):** parse por líneas; aplicar A–D en orden; diferir resto tras `needsChoice`/`confirm` |
+| 15 | Pedido multilínea / compuesto | **Cerrado (2026-07-14/15):** parse por líneas **o** por keywords en una línea; aplicar A–D en orden; diferir resto tras `needsChoice`/`confirm`; **sin cliente no aplica el resto** |
 | 16 | Alias renglón y cabecera | **Cerrado (2026-07-14):** art/item/it + canti; Descto N→bonifN; Direccion:→expresoDire |
+| 17 | Selector LLM en panel | **Cerrado (2026-07-15):** SelectBox de credenciales BYOK del usuario |
+| 18 | Fallback dictado cliente B/V e/i | **Cerrado (2026-07-15):** si 0 matches, probar variantes tipográficas de dictado |
 
 ---
 
@@ -462,7 +472,9 @@ Pueden coexistir: el documental responde “cómo se usa”; el de carga **opera
 - [consulta-stock.md](./consulta-stock.md)
 - [PedidosWeb_Definicion_Conceptual_Final_OpenSpec.md](./PedidosWeb_Definicion_Conceptual_Final_OpenSpec.md)
 - Manual carga: [PedidosWeb.md](../../99-manual-usuario/PedidosWeb.md) §6
+- Manual asistente de carga: [PedidosWeb-asistente-carga-ia.md](../../99-manual-usuario/PedidosWeb-asistente-carga-ia.md)
 - Chat documental / Preferencias: [Chat-Asistente-IA.md](../../99-manual-usuario/Chat-Asistente-IA.md)
+- Patrón reusable (otros proyectos): [patron-asistente-operativo-embebido.md](../_patrones/patron-asistente-operativo-embebido.md)
 
 ---
 
@@ -480,3 +492,8 @@ Consolidado de mejoras pedidas en implementación / smoke del panel:
 | Pedido compuesto | Mensaje multilínea con etiquetas → `compositePedido`; aplica cliente + cabecera + renglones en orden; `deferredCompositeItems` tras choice | 2026-07-14 |
 | Alias / sinónimos | Renglón: `art`/`art.`/`item`/`it`/`prod`; cantidad `canti`/`cant`; cabecera `Descto`/`Descuento` N→bonifN; `Direccion:`→expresoDire | 2026-07-14 |
 | Imagen K | Extracto JSON ampliado a perfil, cond., fecha, expreso, lista, bonif 1–3, leyendas 1–5, observaciones (+ diferido cabecera) | 2026-07-14 |
+| Dictado continuo | Web Speech `continuous`; botón Detener; acumula frases; no corta tras la primera | 2026-07-15 |
+| Selector LLM panel | SelectBox de configuraciones BYOK + `credentialId` en el turno | 2026-07-15 |
+| Compuesto monolínea | Partir por keywords (`cliente`, `artículo`/`art`/`item`/`it`, cabecera…) además de saltos de línea | 2026-07-15 |
+| Gate sin cliente | Si cliente no resuelto / pendiente choice, no aplicar cabecera ni renglones del mismo turno (compuesto e imagen) | 2026-07-15 |
+| Fallback dictado cliente | Si 0 matches: variantes B↔V y e↔i final antes de “no encontrado” | 2026-07-15 |

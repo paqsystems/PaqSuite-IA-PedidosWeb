@@ -76,8 +76,11 @@ import { patchAsistenteCabecera } from '../cargaAsistenteIa/utils/patchAsistente
 import { PedidosCargaMobilePage } from './PedidosCargaMobilePage';
 import {
   buildImportacionMasivaCargaHydration,
-  parseImportacionMasivaCargaState,
+  clearImportacionMasivaConsultPayload,
+  IMPORTACION_MASIVA_CONSULT_QUERY,
+  resolveImportacionMasivaCargaContext,
 } from '../importacionMasiva/utils/importacionMasivaCargaReadonly';
+import { mergeImportacionMasivaCabeceraWithInicial } from '../importacionMasiva/utils/mergeImportacionMasivaCabeceraWithInicial';
 import './PedidosCargaPage.css';
 
 const emptyCatalogos: CabeceraCatalogos = {
@@ -149,12 +152,18 @@ function PedidosCargaWebPage() {
   const [autoOpenRenglonId, setAutoOpenRenglonId] = useState<number | null>(null);
   const [excelImportEnabled, setExcelImportEnabled] = useState(false);
 
-  const importacionMasivaContext = useMemo(
-    () => parseImportacionMasivaCargaState(location.state),
-    [location.state],
+  const consultStorageKey = searchParams.get(IMPORTACION_MASIVA_CONSULT_QUERY);
+  const isImportacionMasivaPopupConsult = consultStorageKey !== null;
+  const [importacionMasivaContext] = useState(() =>
+    resolveImportacionMasivaCargaContext({
+      locationState: location.state,
+      consultStorageKey:
+        consultStorageKey ??
+        new URLSearchParams(window.location.search).get(IMPORTACION_MASIVA_CONSULT_QUERY),
+    }),
   );
-  const isImportacionMasivaReadonly = importacionMasivaContext !== null;
-  const importacionMasivaHydratedRef = useRef(false);
+  const isImportacionMasivaReadonly =
+    importacionMasivaContext !== null || isImportacionMasivaPopupConsult;
 
   const modo = searchParams.get('modo') ?? 'nuevo';
   const comprobanteId = searchParams.get('codComprobante') ?? searchParams.get('id');
@@ -254,7 +263,7 @@ function PedidosCargaWebPage() {
   }, []);
 
   const tipoComprobanteLabel = isImportacionMasivaReadonly
-    ? importacionMasivaContext.borrador.esPedido
+    ? importacionMasivaContext?.borrador.esPedido !== false
       ? t('pedidos.carga.tipoPedido')
       : t('pedidos.carga.tipoPresupuesto')
     : estadoActual === 99 || searchParams.get('tipoOrigen') === 'presupuesto'
@@ -430,37 +439,70 @@ function PedidosCargaWebPage() {
   }, []);
 
   useEffect(() => {
-    if (!importacionMasivaContext || importacionMasivaHydratedRef.current) {
+    if (!importacionMasivaContext) {
       return;
     }
 
-    importacionMasivaHydratedRef.current = true;
+    let mounted = true;
     isHydratingComprobanteRef.current = true;
+    setCabeceraLoading(true);
+    setIsLoading(true);
 
     const hydration = buildImportacionMasivaCargaHydration(importacionMasivaContext.borrador);
-    setCodPedidoActual(null);
-    setCodPedidoOrigen(null);
-    setCodPresupuestoOrigen(null);
-    setCodComprobanteOrigenCopia(null);
-    setSelectedCliente(hydration.selectedCliente);
-    setCabecera(hydration.cabecera);
-    setCatalogos(emptyCatalogos);
-    setRenglones(hydration.renglones);
-    setEstadoActual(hydration.estadoActual);
-    setCabeceraLoading(false);
-    setIsLoading(false);
 
-    window.requestAnimationFrame(() => {
-      isHydratingComprobanteRef.current = false;
-    });
+    void (async () => {
+      try {
+        // Misma fuente de catálogos que copia/consulta: cabecera inicial del cliente.
+        const result = await fetchCabeceraInicial(hydration.selectedCliente);
+        if (!mounted) {
+          return;
+        }
+
+        setCodPedidoActual(null);
+        setCodPedidoOrigen(null);
+        setCodPresupuestoOrigen(null);
+        setCodComprobanteOrigenCopia(null);
+        setSelectedCliente(hydration.selectedCliente);
+        setCatalogos(result.catalogos);
+        setCabecera(mergeImportacionMasivaCabeceraWithInicial(hydration.cabecera, result.cabecera));
+        setRenglones(hydration.renglones);
+        setEstadoActual(hydration.estadoActual);
+      } catch {
+        if (!mounted) {
+          return;
+        }
+
+        setCodPedidoActual(null);
+        setCodPedidoOrigen(null);
+        setCodPresupuestoOrigen(null);
+        setCodComprobanteOrigenCopia(null);
+        setSelectedCliente(hydration.selectedCliente);
+        setCatalogos(emptyCatalogos);
+        setCabecera(hydration.cabecera);
+        setRenglones(hydration.renglones);
+        setEstadoActual(hydration.estadoActual);
+      } finally {
+        if (mounted) {
+          setCabeceraLoading(false);
+          setIsLoading(false);
+          window.requestAnimationFrame(() => {
+            isHydratingComprobanteRef.current = false;
+          });
+        }
+      }
+    })();
+
+    return () => {
+      mounted = false;
+    };
   }, [importacionMasivaContext]);
 
   useEffect(() => {
-    if (isImportacionMasivaReadonly) {
-      return;
-    }
-
     if (isClienteProfile) {
+      if (isImportacionMasivaReadonly) {
+        return;
+      }
+
       const codCliente = sessionContext.codCliente ?? '';
       setSelectedCliente(codCliente);
       if (codCliente && modo === 'nuevo' && !comprobanteId) {
@@ -1159,6 +1201,12 @@ function PedidosCargaWebPage() {
         <p data-testid="label-modo-solo-lectura">{t('pedidos.carga.modoSoloLectura')}</p>
       ) : null}
 
+      {isImportacionMasivaPopupConsult && importacionMasivaContext === null ? (
+        <p className="pedidosCargaPage__error" role="alert" data-testid="carga-consulta-masiva-error">
+          {t('pedidos.importacionMasiva.consultaPayloadPerdido')}
+        </p>
+      ) : null}
+
       {excelImportEnabled && !isImportacionMasivaReadonly ? (
         <div className="pedidosCargaExcelToolbar" data-testid="pedidos-carga-excel-toolbar">
           <p className="pedidosCargaExcelToolbar__hint">{t('pedidos.carga.excelImport.toolbarHint')}</p>
@@ -1177,9 +1225,20 @@ function PedidosCargaWebPage() {
           <div className="pedidosCargaPage__toolbarLeft">
             <div data-testid="cargaVolverImportacionMasiva">
               <Button
-                text={t('pedidos.importacionMasiva.volver')}
+                text={
+                  isImportacionMasivaPopupConsult
+                    ? t('pedidos.importacionMasiva.cerrarConsulta')
+                    : t('pedidos.importacionMasiva.volver')
+                }
                 stylingMode="outlined"
                 onClick={() => {
+                  if (isImportacionMasivaPopupConsult) {
+                    if (consultStorageKey) {
+                      clearImportacionMasivaConsultPayload(consultStorageKey);
+                    }
+                    window.close();
+                    return;
+                  }
                   navigate('/pedidos/importacion-masiva');
                 }}
               />
@@ -1317,7 +1376,7 @@ function PedidosCargaWebPage() {
               onChange={handleCabeceraChange}
             />
           ) : null}
-          {selectedCliente && !cabeceraReady && cabeceraLoading ? (
+          {selectedCliente && cabeceraLoading ? (
             <p>{t('pedidos.carga.cabeceraCargando')}</p>
           ) : null}
         </section>

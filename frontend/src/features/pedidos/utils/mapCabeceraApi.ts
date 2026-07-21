@@ -2,7 +2,8 @@ import type { CabeceraCatalogos, ComprobanteCabecera } from '../types/comprobant
 import { emptyComprobanteCabecera } from '../types/comprobanteCabecera';
 
 type ApiCabeceraRow = {
-  cod_cliente?: string;
+  cod_cliente?: string | number;
+  razon_soci?: string | null;
   cod_vended?: string | null;
   vendedor_nombre?: string;
   cod_condvta?: number | null;
@@ -31,11 +32,13 @@ type ApiCabeceraRow = {
 };
 
 export function mapCabeceraFromApi(row: ApiCabeceraRow, codClienteFallback: string): ComprobanteCabecera {
-  const base = emptyComprobanteCabecera(row.cod_cliente ?? codClienteFallback);
+  const codCliente = String(row.cod_cliente ?? codClienteFallback ?? '').trim();
+  const base = emptyComprobanteCabecera(codCliente);
 
   return {
     ...base,
-    codCliente: row.cod_cliente ?? base.codCliente,
+    codCliente,
+    razonSocial: String(row.razon_soci ?? '').trim(),
     codVended: row.cod_vended ?? null,
     vendedorNombre: row.vendedor_nombre ?? '',
     codCondvta: row.cod_condvta ?? null,

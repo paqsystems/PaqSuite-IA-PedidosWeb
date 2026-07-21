@@ -9,6 +9,7 @@ describe('mapGrupoToBorradorFila', () => {
         clave: { codCliente: 'CLI001', codVended: 'V1', nivel: 0 },
         cabecera: {
           cod_cliente: 'CLI001',
+          razon_soci: 'Cliente Uno SA',
           cod_condvta: 1,
           bonif_1: 0,
           bonif_2: 0,
@@ -33,6 +34,7 @@ describe('mapGrupoToBorradorFila', () => {
     expect(fila.idInterno).toBe('id-interno-1');
     expect(fila.esPedido).toBe(true);
     expect(fila.cabecera.codCliente).toBe('CLI001');
+    expect(fila.cabecera.razonSocial).toBe('Cliente Uno SA');
     expect(fila.cabecera.vendedorNombre).toBe('Vendedor Uno');
     expect(fila.cantidadRenglones).toBe(1);
     expect(fila.renglones[0]?.codArticulo).toBe('ART1');

@@ -26,6 +26,8 @@ El **Chat Asistente IA** es una ayuda conversacional integrada en el portal. Res
 - reemplazar al soporte humano ni al administrador ERP;
 - garantizar una respuesta correcta si la documentación no cubre el caso.
 
+Para **operar un pedido o presupuesto con IA** (texto, dictado o imagen sobre la carga abierta), use el panel **Asistente IA** al pie de la pantalla de carga: [PedidosWeb-asistente-carga-ia.md](./PedidosWeb-asistente-carga-ia.md).
+
 ---
 
 ## 2. Cómo acceder

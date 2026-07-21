@@ -20,6 +20,7 @@ export function useImportacionMasivaNavigationGuard({
   const [salidaVisible, setSalidaVisible] = useState(false);
   const pendingProceedRef = useRef<(() => void) | null>(null);
   const enabledRef = useRef(enabled);
+  const allowNextNavigationRef = useRef(false);
   enabledRef.current = enabled;
 
   useEffect(() => {
@@ -35,8 +36,16 @@ export function useImportacionMasivaNavigationGuard({
       setSalidaVisible(true);
     };
 
+    const shouldBypass = (): boolean => {
+      if (allowNextNavigationRef.current) {
+        allowNextNavigationRef.current = false;
+        return true;
+      }
+      return !enabledRef.current;
+    };
+
     navigator.push = (...args: Parameters<typeof originalPush>) => {
-      if (!enabledRef.current) {
+      if (shouldBypass()) {
         originalPush(...args);
         return;
       }
@@ -44,7 +53,7 @@ export function useImportacionMasivaNavigationGuard({
     };
 
     navigator.replace = (...args: Parameters<typeof originalReplace>) => {
-      if (!enabledRef.current) {
+      if (shouldBypass()) {
         originalReplace(...args);
         return;
       }
@@ -100,10 +109,15 @@ export function useImportacionMasivaNavigationGuard({
     setSalidaVisible(true);
   }, [enabled]);
 
+  const allowNextNavigation = useCallback(() => {
+    allowNextNavigationRef.current = true;
+  }, []);
+
   return {
     salidaVisible,
     closeSalidaModal,
     confirmSalida,
     requestSalida,
+    allowNextNavigation,
   };
 }

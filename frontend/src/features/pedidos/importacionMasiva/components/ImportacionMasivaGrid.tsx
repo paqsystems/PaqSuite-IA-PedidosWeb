@@ -56,21 +56,37 @@ export function ImportacionMasivaGrid({
     >
       <Column dataField="cabecera.codCliente" caption={t('pedidos.importacionMasiva.columnCliente')} />
       <Column
+        dataField="cabecera.razonSocial"
+        caption={t('pedidos.carga.clienteOrden.razonSocial')}
+      />
+      <Column
         dataField="cabecera.vendedorNombre"
         caption={t('pedidos.importacionMasiva.columnVendedor')}
       />
       <Column dataField="cabecera.nivel" caption={t('pedidos.importacionMasiva.columnNivel')} dataType="number" />
       <Column
         caption={t('pedidos.importacionMasiva.columnTipo')}
-        width={150}
+        width={260}
+        minWidth={240}
+        alignment="center"
+        allowSorting={false}
         cellRender={({ data }) => (
           <Switch
             value={data.esPedido}
             disabled={disabled}
+            width={230}
             switchedOnText={t('pedidos.importacionMasiva.tipoPedido')}
             switchedOffText={t('pedidos.importacionMasiva.tipoPresupuesto')}
-            onValueChanged={(event) => onToggleTipo(data.idInterno, Boolean(event.value))}
-            elementAttr={{ 'data-testid': `importacionMasivaToggleTipo-${data.idInterno}` }}
+            onValueChanged={(event) => {
+              if (!event.event) {
+                return;
+              }
+              onToggleTipo(data.idInterno, Boolean(event.value));
+            }}
+            elementAttr={{
+              class: 'importacionMasivaTipoSwitch',
+              'data-testid': `importacionMasivaToggleTipo-${data.idInterno}`,
+            }}
           />
         )}
       />
