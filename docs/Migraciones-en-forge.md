@@ -41,6 +41,10 @@ composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev
 
 php artisan migrate --force
 
+# Catálogos idempotentes: menú MVP, Excel PEDIDO_INDIVIDUAL/PEDIDO_MASIVO,
+# atributos visibility y proveedores chat (no toca passwords salvo --with-seguridad).
+php artisan paqsuite:seed-deploy
+
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache
@@ -50,7 +54,10 @@ php artisan view:cache
 
 5. Guardar y ejecutar **Deploy Now**.
 
-Cada deploy aplica migraciones pendientes contra la base definida en **Environment** del sitio.
+Cada deploy aplica migraciones pendientes y **seeds de catálogo** contra la base definida en **Environment** del sitio.
+
+> **Importante:** el comando `paqsuite:seed-deploy` debe estar en el Deploy Script de Forge.
+> Sin esa línea, el código nuevo puede desplegarse pero menú / `PEDIDO_MASIVO` / flags de proceso no se materializan en BD.
 
 ---
 
@@ -103,15 +110,28 @@ php artisan db:seed --class=Database\\Seeders\\Pivots\\PivotCatalogPilotSeeder -
 ```bash
 php artisan migrate --path=database/migrations/2026_06_16_100000_create_pq_excel_catalog_tables.php --force
 php artisan migrate --path=database/migrations/2026_06_16_110000_create_pq_excel_import_tables.php --force
+# Preferible (incluye PEDIDO_MASIVO + menú):
+php artisan paqsuite:seed-deploy
+# Equivalente puntual:
 php artisan db:seed --class=Database\\Seeders\\ExcelImport\\PedidosWebExcelImportCatalogSeeder --force
 ```
 
-**Seeds (ejemplo catálogo chat IA):**
+### Comando post-deploy (`paqsuite:seed-deploy`)
 
-```bash
-php artisan db:seed --class=Database\\Seeders\\ChatAssistant\\ChatAssistantProviderCatalogSeeder --force
-```
+Idempotente. Pensado para el Deploy Script (después de `migrate --force`):
 
+| Qué hace | Notas |
+|----------|--------|
+| `paqsuite:seed-menus-mvp` | Inserta/actualiza ítems de `paqsuite_mvp.menuItems` (Importación masiva, Seguridad, etc.) |
+| `PedidosWebExcelImportCatalogSeeder` | `PEDIDO_INDIVIDUAL` + `PEDIDO_MASIVO` |
+| Chat providers | Catálogo `pq_asistente_ia_proveedores` si la tabla existe |
+| Atributos visibility | Upsert `PQ_RolAtributo` desde `visibilityProcedimientosByRole` (no borra otros) |
+| `--with-seguridad` | **Opcional.** Corre `seed-seguridad-mvp` (puede tocar usuarios MVP / passwords) |
+
+**Tablas tocadas por defecto (sin `--with-seguridad`):** ver matriz en runbook § «paqsuite:seed-deploy».  
+Regla: **no borra filas**; atributos de rol (`PQ_RolAtributo`) solo **inserta** procedimientos nuevos de config, sin pisar ABMR ya configurados por admin.
+
+No ejecutar bootstrap destructivo desde este comando.
 ---
 
 ## Opción C — Comando rápido desde Forge (sin SSH)

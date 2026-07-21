@@ -61,7 +61,15 @@ Ver spec completo en `/api/documentation`.
 
 ## Seed MVP (seguridad y menú)
 
-Orden obligatorio (SQL Server / diccionario legacy):
+**Post-deploy (Forge, idempotente):**
+
+```powershell
+php artisan paqsuite:seed-deploy
+```
+
+Incluye menú MVP, catálogo Excel (`PEDIDO_INDIVIDUAL` / `PEDIDO_MASIVO`), atributos visibility y catálogo chat. Ver `docs/Migraciones-en-forge.md`.
+
+Orden manual (SQL Server / diccionario legacy):
 
 ```powershell
 php artisan paqsuite:seed-menus-mvp
