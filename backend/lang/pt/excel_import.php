@@ -36,6 +36,7 @@ return [
         'clienteDistinto' => 'Todas as linhas devem ter o mesmo codigo cliente',
         'cabeceraIncoherente' => 'Os dados de cabecalho devem ser identicos em todas as linhas',
         'clienteSesion' => 'O codigo cliente deve coincidir com sua sessao',
+        'clienteNoVisible' => 'O cliente nao existe ou nao esta visivel/atribuido ao seu usuario',
         'articuloBase' => 'Artigo tipo BASE nao permitido',
         'articuloNoEncontrado' => 'Artigo inexistente',
         'cantidadInvalida' => 'A quantidade deve ser maior que zero',

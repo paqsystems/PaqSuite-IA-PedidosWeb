@@ -4,7 +4,7 @@
 |-------|--------|
 | **Estado** | Definición de producto + OpenSpec **A1+B1+C1** + post-smoke (2026-07-13) |
 | **Ámbito** | PedidosWeb — pantalla de carga (`/pedidos/carga`) + canal conversacional operativo |
-| **Última actualización** | 2026-07-15 (dictado continuo, selector LLM en panel, compuesto en una línea, gate sin cliente, fallback B/V e/i) |
+| **Última actualización** | 2026-07-22 (permisos alta/imagen, perfil autenticado, desambiguación artículos sin auto-pick) |
 | **OpenSpec** | [SPEC-101-18](../../05-open-spec/101-PedidosWeb/SPEC-101-18-asistente-carga-ia-shell.md) · [SPEC-101-19](../../05-open-spec/101-PedidosWeb/SPEC-101-19-asistente-carga-ia-mutaciones.md) · [SPEC-101-20](../../05-open-spec/101-PedidosWeb/SPEC-101-20-asistente-carga-ia-consultas.md) |
 | **Cierre A1** | [F-101-18-20-cierre-a1](../../04-tareas/101-PedidosWeb/F-101-18-20-cierre-a1-asistente-carga-ia.md) |
 | **Cierre B1** | [F-101-18-20-cierre-b1](../../04-tareas/101-PedidosWeb/F-101-18-20-cierre-b1-asistente-carga-ia.md) |
@@ -242,7 +242,7 @@ El asistente confirma el valor aplicado. Si el campo está deshabilitado por mod
 2. Resultados y mensajes (distintos; i18n en panel):
    - **0** → *No se encontró ningún artículo…* (`reply.articulosNone`)
    - **1** → agregar (o auto-aplicar) con reglas de cantidad/precio/bonif.
-   - **2–10** → lista numerada (`reply.articulosAmbiguous`)
+   - **2–10** → lista numerada (`reply.articulosAmbiguous`). **No** auto-elegir el “más cercano” (p. ej. descripción más corta) si varios cumplen los tokens; la cercanía solo ordena la lista.
    - **>10** → *Demasiados artículos… refiná…* (`reply.articulosRefine`) — **no** el mismo texto que “no encontrado”
 3. **Parseo de frase de alta** (antes de buscar):
    - Prefijo de renglón: `artículo(s)` / `art.` / `art` / `producto(s)` / `prod.` / `prod` / `item(s)` / `it.` / `it` (además de `agregar` / `cargar`).
@@ -251,7 +251,7 @@ El asistente confirma el valor aplicado. Si el campo está deshabilitado por mod
    - Extraer **bonificación/descuento de línea** si dice `bonificación` / `bonif` / `descuento` / `%` asociado; sinónimo comercial: descuento ≈ bonificación de renglón.
    - El **texto de búsqueda** del artículo **no** debe incluir los tokens de cantidad/unidad/precio/bonif (p. ej. de “10 unidades del artículo 1001” buscar `1001`, no `10 unidades…`).
 4. Al elegir artículo: cantidad `> 0` (default 1). Inicializar bonificación de renglón como en UI (maestro / reglas de cantidad) **salvo** que el usuario haya pedido un % explícito.
-5. **Precio** y **descuento/bonificación de línea:** solo si parámetros/permisos lo permiten (`ModificaPrecioV/S`, `ModificaBonArtV/S`). Perfil cliente: nunca modifica precio/bonif./lista. Si pide precio/bonif. sin permiso → informar y no aplicar ese campo (sí puede agregar con defaults de UI).
+5. **Precio** y **descuento/bonificación de línea:** solo si parámetros/permisos lo permiten (`ModificaPrecioV/S`, `ModificaBonArtV/S`). Perfil cliente: nunca modifica precio/bonif./lista. Si pide precio/bonif. **sin permiso** en alta o update → `denied` (no mutar ese override). En **extracto por imagen**, esos campos se **ignoran** (strip) y el renglón puede cargarse con defaults de lista/maestro. El perfil efectivo lo resuelve el **servidor** desde el usuario autenticado (no confiar en `draftContext.perfilUsuario` del cliente).
 6. Intenciones de **solo precio** o **solo bonif./descuento** sobre renglón existente (“último renglón” / lista si hay varios) reutilizan D1-13.
 7. **Eliminar / modificar renglón ya cargado** (detalle del comprobante, **no** el maestro de artículos):
    - Intenciones: `eliminar`/`elimina`/`borrar`/`borra`/`quitar`/`quita`/`sacar`/`saca` + artículo; o `cambiar`/`modificar`/`poner` + cantidad/precio/bonif.

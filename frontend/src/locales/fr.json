@@ -794,6 +794,7 @@
     "pedidos.carga.confirmacionCerrar": "OK",
     "pedidos.carga.confirmacionTitulo": "Document enregistré",
     "pedidos.carga.errorCargaComprobante": "Impossible de charger le document. Vérifiez le lien ou réessayez.",
+    "pedidos.carga.errorCargaClientes": "Impossible de charger la liste des clients. Rechargez la page ou reconnectez-vous.",
     "pedidos.carga.errorGrabacion": "Impossible d'enregistrer. Vérifiez les données.",
     "pedidos.carga.erroresCopiaIntro": "La copie n'a pas pu être effectuée pour la raison suivante :",
     "pedidos.carga.erroresCopiaTitulo": "Impossible de copier le document",

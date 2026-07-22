@@ -11,6 +11,7 @@ import {
 } from './authStorage';
 import type { SessionContext } from './types';
 import { clearImportacionMasivaBorradorStorage } from '../pedidos/importacionMasiva/utils/importacionMasivaBorradorStorage';
+import { clearClientesCache } from '../pedidos/api/comprobanteApi';
 
 type AuthContextValue = {
   sessionContext: SessionContext | null;
@@ -36,6 +37,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const clearSession = useCallback((reasonKey?: string) => {
     clearImportacionMasivaBorradorStorage();
+    clearClientesCache();
 
     if (reasonKey) {
       storeExpiredReason(reasonKey);

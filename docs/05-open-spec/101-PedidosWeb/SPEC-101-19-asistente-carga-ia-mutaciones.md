@@ -92,13 +92,13 @@ Confirmar valor aplicado. Rechazar en solo lectura.
 
 | Regla | Detalle |
 |-------|---------|
-| Universo | Mismo lookup de carga; excluir `usa_esc = 'B'`; lista de precios válida cuando aplique precio |
+| Universo | Mismo lookup de carga; excluir `usa_esc = 'B'`; lista de precios válida cuando aplique precio; **2–10 candidatos por tokens → lista** (no auto-pick del más corto) |
 | Parseo frase | Qty / precio / bonif-descuento fuera del texto de búsqueda (D1-19, D1-20); prefijos art/item/it y `canti` (D1-26) |
 | Pedido compuesto | Multilínea con etiquetas → aplicar todas las acciones permitidas en orden; diferir tras choice (D1-25) |
 | Búsqueda | Código o descripción; multi-palabra → AND por tokens (D1-22) |
 | 0 / 1 / 2–10 / >10 | None i18n / auto-add / lista / refine i18n **distinto** (D1-21) |
 | Cantidad | `> 0`; bonificación inicial como UI (maestro / descuento por cantidad) salvo % pedido. Si el usuario **no** indica cantidad → **asumir 1** |
-| Precio / bonif. línea | Solo con `ModificaPrecio*` / `ModificaBonArt*`; perfil **C** nunca; sinónimo descuento↔bonif. |
+| Precio / bonif. línea | Solo con `ModificaPrecio*` / `ModificaBonArt*`; perfil **C** nunca; sinónimo descuento↔bonif. Alta/update con override sin permiso → `denied`. Extracto imagen: strip. Perfil efectivo desde usuario autenticado. |
 | Eliminar / modificar existente | **Solo detalle** del borrador (D1-24). Match por código/desc/"último" o comillas. 0 → i18n con `q` buscada. >1 → lista cant·precio·bonif (elegir n). Conjugados elimina/borra… ≠ alta maestro. |
 | Duplicados | Un código de artículo por comprobante (misma regla UI) |
 | Importes | Recalcular con lógica vigente (`CalculoTotales` / `renglonesCarga`) |

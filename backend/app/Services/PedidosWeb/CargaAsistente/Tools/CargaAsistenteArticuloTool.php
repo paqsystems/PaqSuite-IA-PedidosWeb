@@ -36,6 +36,11 @@ final class CargaAsistenteArticuloTool
         ?float $precioOverride = null,
         ?float $porcBonifOverride = null,
     ): array {
+        $denied = $this->assertUpdatePermisos($draftContext, $precioOverride, $porcBonifOverride);
+        if ($denied !== null) {
+            return $denied;
+        }
+
         $q = trim($q);
         $cantidad = $cantidad > 0 ? $cantidad : 1.0;
 
@@ -139,6 +144,11 @@ final class CargaAsistenteArticuloTool
         $porcBonifOverride = isset($pendingChoice['porcBonif']) && $pendingChoice['porcBonif'] !== null
             ? (float) $pendingChoice['porcBonif']
             : null;
+
+        $denied = $this->assertUpdatePermisos($draftContext, $precioOverride, $porcBonifOverride);
+        if ($denied !== null) {
+            return $denied;
+        }
 
         return $this->buildAddRenglon([
             'codArticulo' => (string) ($selected['code'] ?? ''),
@@ -256,7 +266,6 @@ final class CargaAsistenteArticuloTool
         ?array $pendingChoice,
         int $option,
     ): array {
-        unset($draftContext);
         $options = is_array($pendingChoice['options'] ?? null) ? $pendingChoice['options'] : [];
         $selected = null;
 
@@ -284,6 +293,13 @@ final class CargaAsistenteArticuloTool
         $porcBonif = isset($pendingChoice['porcBonif']) && $pendingChoice['porcBonif'] !== null
             ? (float) $pendingChoice['porcBonif']
             : null;
+
+        if ($operation === 'update') {
+            $denied = $this->assertUpdatePermisos($draftContext, $precio, $porcBonif);
+            if ($denied !== null) {
+                return $denied;
+            }
+        }
 
         return $this->buildMutateAction(
             $operation,
@@ -678,15 +694,9 @@ final class CargaAsistenteArticuloTool
                     continue;
                 }
 
-                $exact = array_values(array_filter(
-                    $filtered,
-                    function (array $row) use ($variant): bool {
-                        return $this->normalizeArticuloToken((string) ($row['descripcion'] ?? ''))
-                            === $this->normalizeArticuloToken($variant);
-                    },
-                ));
-
-                $candidate = count($exact) === 1 ? $exact : array_slice($filtered, 0, 11);
+                // No colapsar a “descripción exacta”: si hay varios que matchean tokens
+                // (ej. BRAZO NOAR 15/40 CM), hay que ofrecer elección.
+                $candidate = array_slice($filtered, 0, 11);
             }
 
             $candidate = $this->preferCloserArticuloCandidates($variant, $candidate);
@@ -704,6 +714,9 @@ final class CargaAsistenteArticuloTool
     }
 
     /**
+     * Ordena candidatos por cercanía a la consulta (menos palabras extra primero).
+     * No descarta coincidencias: si hay varias, el llamador debe pedir elección.
+     *
      * @param  list<array<string, mixed>>  $candidates
      * @return list<array<string, mixed>>
      */
@@ -716,26 +729,33 @@ final class CargaAsistenteArticuloTool
         $queryTokens = $this->significantTokens($q);
         $scored = [];
 
-        foreach ($candidates as $row) {
+        foreach ($candidates as $index => $row) {
             $scored[] = [
                 'row' => $row,
                 'penalty' => $this->scoreArticuloExtraWords(
                     (string) ($row['descripcion'] ?? ''),
                     $queryTokens,
                 ),
+                'index' => $index,
             ];
         }
 
-        $minPenalty = min(array_column($scored, 'penalty'));
-        $preferred = array_values(array_map(
-            static fn (array $item): array => $item['row'],
-            array_filter(
-                $scored,
-                static fn (array $item): bool => $item['penalty'] === $minPenalty,
-            ),
-        ));
+        usort(
+            $scored,
+            static function (array $left, array $right): int {
+                $byPenalty = $left['penalty'] <=> $right['penalty'];
+                if ($byPenalty !== 0) {
+                    return $byPenalty;
+                }
 
-        return $preferred !== [] ? $preferred : $candidates;
+                return $left['index'] <=> $right['index'];
+            },
+        );
+
+        return array_values(array_map(
+            static fn (array $item): array => $item['row'],
+            $scored,
+        ));
     }
 
     /**
