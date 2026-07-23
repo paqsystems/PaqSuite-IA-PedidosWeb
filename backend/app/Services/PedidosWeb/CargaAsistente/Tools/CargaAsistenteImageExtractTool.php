@@ -4,6 +4,7 @@ namespace App\Services\PedidosWeb\CargaAsistente\Tools;
 
 use App\Models\User;
 use App\Services\ChatAssistant\Llm\ChatAssistantLlmGateway;
+use App\Services\PedidosWeb\PedidosWebParameterService;
 
 final class CargaAsistenteImageExtractTool
 {
@@ -49,6 +50,7 @@ PROMPT;
         private readonly CargaAsistenteArticuloTool $articuloTool,
         private readonly CargaAsistenteClienteTool $clienteTool,
         private readonly CargaAsistenteCabeceraTool $cabeceraTool,
+        private readonly PedidosWebParameterService $parameterService,
     ) {}
 
     /**
@@ -151,6 +153,7 @@ PROMPT;
         $codLista = max(0, (int) $workingDraft['codLista']);
         $renglonesValidos = [];
         $errores = [];
+        $modificaFlags = $this->resolveModificaFlags($workingDraft);
 
         foreach ($parsed['renglones'] as $index => $renglon) {
             if (! is_array($renglon)) {
@@ -168,6 +171,13 @@ PROMPT;
             $bonifRaw = $renglon['porcBonif'] ?? $renglon['bonif'] ?? null;
             $precioFromImage = is_numeric($precioRaw) ? (float) $precioRaw : null;
             $bonifFromImage = is_numeric($bonifRaw) ? (float) $bonifRaw : null;
+
+            if (! ($modificaFlags['modificaPrecio'] ?? false)) {
+                $precioFromImage = null;
+            }
+            if (! ($modificaFlags['modificaBonArt'] ?? false)) {
+                $bonifFromImage = null;
+            }
 
             $q = $codArticulo !== '' ? $codArticulo : $descripcion;
 
@@ -696,5 +706,29 @@ PROMPT;
         }
 
         return '';
+    }
+
+    /**
+     * @param  array<string, mixed>  $draftContext
+     * @return array{
+     *     modificaPrecio: bool,
+     *     modificaBonArt: bool,
+     *     modificaBonCli: bool,
+     *     modificaListaPrec: bool,
+     *     modificaCondVta: bool,
+     *     modificaDirEntr: bool,
+     *     modificaExpreso: bool
+     * }
+     */
+    private function resolveModificaFlags(array $draftContext): array
+    {
+        $perfil = strtoupper((string) ($draftContext['perfilUsuario'] ?? 'V'));
+        $functionalProfile = match ($perfil) {
+            'C' => 'cliente',
+            'S' => 'supervisor',
+            default => 'vendedor',
+        };
+
+        return $this->parameterService->resolveModificaFlags($functionalProfile);
     }
 }

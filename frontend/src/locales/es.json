@@ -644,6 +644,7 @@
     "pedidos.carga.confirmacionCerrar": "Aceptar",
     "pedidos.carga.confirmacionTitulo": "Comprobante grabado",
     "pedidos.carga.errorCargaComprobante": "No se pudo cargar el comprobante. Verifique el enlace o intente nuevamente.",
+    "pedidos.carga.errorCargaClientes": "No se pudo cargar el listado de clientes. Recargue la página o vuelva a iniciar sesión.",
     "pedidos.carga.errorGrabacion": "No se pudo grabar el comprobante. Revise los datos e intente nuevamente.",
     "pedidos.carga.erroresGrabacionCerrar": "Entendido",
     "pedidos.carga.erroresGrabacionIntro": "Corrija los siguientes puntos antes de volver a grabar:",

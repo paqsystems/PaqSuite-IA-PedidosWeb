@@ -644,6 +644,7 @@
     "pedidos.carga.confirmacionCerrar": "OK",
     "pedidos.carga.confirmacionTitulo": "Document saved",
     "pedidos.carga.errorCargaComprobante": "Could not load the document. Check the link or try again.",
+    "pedidos.carga.errorCargaClientes": "Could not load the customer list. Reload the page or sign in again.",
     "pedidos.carga.errorGrabacion": "Could not save the document. Check the data and try again.",
     "pedidos.carga.erroresGrabacionCerrar": "OK",
     "pedidos.carga.erroresGrabacionIntro": "Fix the following issues before saving again:",

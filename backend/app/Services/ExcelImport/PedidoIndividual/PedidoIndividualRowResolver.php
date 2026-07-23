@@ -42,7 +42,7 @@ final class PedidoIndividualRowResolver
         try {
             $this->visibilityGuard->ensureCodClienteVisible($user, $codCliente);
         } catch (\Throwable) {
-            $errors[] = $this->businessError('cod_cliente', 'codigo cliente', 'excel_import.pedidoIndividual.clienteSesion');
+            $errors[] = $this->businessError('cod_cliente', 'codigo cliente', 'excel_import.pedidoIndividual.clienteNoVisible');
 
             return $errors;
         }
@@ -128,7 +128,7 @@ final class PedidoIndividualRowResolver
                 $errors[] = $this->businessError('precio_lista', 'precio lista', 'excel_import.pedidoIndividual.precioCero');
             }
         } catch (\Throwable) {
-            $errors[] = $this->businessError('cod_cliente', 'codigo cliente', 'excel_import.pedidoIndividual.clienteSesion');
+            $errors[] = $this->businessError('cod_cliente', 'codigo cliente', 'excel_import.pedidoIndividual.clienteNoVisible');
         }
 
         return $errors;

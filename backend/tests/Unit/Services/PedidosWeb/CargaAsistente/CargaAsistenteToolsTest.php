@@ -110,6 +110,44 @@ final class CargaAsistenteToolsTest extends TestCase
         $this->assertSame('denied', $result['actions'][0]['resultado'] ?? null);
     }
 
+    public function testAddRenglonDeniedForClienteWhenPrecioOverride(): void
+    {
+        $tool = new CargaAsistenteArticuloTool(
+            new ArticuloCargaLookupService(),
+            new PedidosWebParameterService(),
+        );
+
+        $result = $tool->addRenglon(
+            $this->draftWithRenglones([], 'C'),
+            'ABC',
+            2.0,
+            1500.0,
+            null,
+        );
+
+        $this->assertSame('pedidos.carga.asistente.denied', $result['replyText']);
+        $this->assertSame('denied', $result['actions'][0]['resultado'] ?? null);
+    }
+
+    public function testAddRenglonDeniedForClienteWhenBonifOverride(): void
+    {
+        $tool = new CargaAsistenteArticuloTool(
+            new ArticuloCargaLookupService(),
+            new PedidosWebParameterService(),
+        );
+
+        $result = $tool->addRenglon(
+            $this->draftWithRenglones([], 'C'),
+            'ABC',
+            1.0,
+            null,
+            10.0,
+        );
+
+        $this->assertSame('pedidos.carga.asistente.denied', $result['replyText']);
+        $this->assertSame('denied', $result['actions'][0]['resultado'] ?? null);
+    }
+
     public function testCabeceraBonifDeniedForClienteProfile(): void
     {
         $tool = new CargaAsistenteCabeceraTool(new PedidosWebParameterService());
@@ -151,6 +189,42 @@ final class CargaAsistenteToolsTest extends TestCase
                 ['importe' => 200],
                 ['importe' => 50.25],
             ], 'importe'),
+        );
+    }
+
+    public function testPreferCloserArticuloCandidatesSortsWithoutCollapsing(): void
+    {
+        $tool = new CargaAsistenteArticuloTool(
+            new ArticuloCargaLookupService(),
+            new PedidosWebParameterService(),
+        );
+
+        $method = new \ReflectionMethod(CargaAsistenteArticuloTool::class, 'preferCloserArticuloCandidates');
+        $method->setAccessible(true);
+
+        $candidates = [
+            [
+                'codArticulo' => 'BBFN40',
+                'descripcion' => 'BRAZO NOAR 40 CM CURVO',
+            ],
+            [
+                'codArticulo' => 'BBFN15',
+                'descripcion' => 'BRAZO NOAR 15 CM',
+            ],
+            [
+                'codArticulo' => 'BBFN41',
+                'descripcion' => 'BRAZO NOAR 40 CM RECTO',
+            ],
+        ];
+
+        /** @var list<array<string, mixed>> $sorted */
+        $sorted = $method->invoke($tool, 'brazo noar', $candidates);
+
+        $this->assertCount(3, $sorted);
+        $this->assertSame('BBFN15', $sorted[0]['codArticulo']);
+        $this->assertSame(
+            ['BBFN15', 'BBFN40', 'BBFN41'],
+            array_column($sorted, 'codArticulo'),
         );
     }
 

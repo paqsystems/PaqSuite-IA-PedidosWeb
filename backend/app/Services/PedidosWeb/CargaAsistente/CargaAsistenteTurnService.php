@@ -5,6 +5,7 @@ namespace App\Services\PedidosWeb\CargaAsistente;
 use App\Exceptions\CargaAsistenteException;
 use App\Exceptions\ChatAssistantMessageException;
 use App\Models\User;
+use App\Services\Auth\CommercialProfileResolver;
 use App\Services\PedidosWeb\CargaAsistente\Tools\CargaAsistenteArticuloTool;
 use App\Services\PedidosWeb\CargaAsistente\Tools\CargaAsistenteCabeceraTool;
 use App\Services\PedidosWeb\CargaAsistente\Tools\CargaAsistenteChequesTool;
@@ -59,6 +60,7 @@ final class CargaAsistenteTurnService
         private readonly CargaAsistenteCabeceraTool $cabeceraTool,
         private readonly CargaAsistenteGrabarTool $grabarTool,
         private readonly CargaAsistenteImageExtractTool $imageExtractTool,
+        private readonly CommercialProfileResolver $commercialProfileResolver,
     ) {}
 
     /**
@@ -100,6 +102,8 @@ final class CargaAsistenteTurnService
         } catch (ChatAssistantMessageException $exception) {
             throw $this->mapChatAssistantException($exception);
         }
+
+        $draftContext = $this->enforceAuthenticatedPerfilUsuario($user, $draftContext);
 
             if ($normalizedImages !== []) {
                 $configuration = $this->configurationReadiness->getConfiguration($user, $credentialId, true);
@@ -874,6 +878,49 @@ final class CargaAsistenteTurnService
             $exception->httpStatus,
             $mapped[2],
         );
+    }
+
+    /**
+     * El perfil comercial efectivo sale del usuario autenticado; no del draft del cliente.
+     *
+     * @param  array{
+     *     modo: string|null,
+     *     perfilUsuario: string|null,
+     *     codCliente: string|null,
+     *     cabecera: array<string, mixed>,
+     *     renglones: list<array<string, mixed>>,
+     *     readOnly: bool,
+     *     codLista: int
+     * }  $draftContext
+     * @return array{
+     *     modo: string|null,
+     *     perfilUsuario: string|null,
+     *     codCliente: string|null,
+     *     cabecera: array<string, mixed>,
+     *     renglones: list<array<string, mixed>>,
+     *     readOnly: bool,
+     *     codLista: int
+     * }
+     */
+    private function enforceAuthenticatedPerfilUsuario(User $user, array $draftContext): array
+    {
+        $commercialProfile = $this->commercialProfileResolver->resolveForUser($user);
+
+        if ($commercialProfile['cliente'] !== null) {
+            $draftContext['perfilUsuario'] = 'C';
+
+            return $draftContext;
+        }
+
+        if ($commercialProfile['vendedor'] !== null) {
+            $draftContext['perfilUsuario'] = $commercialProfile['vendedor']->supervisor ? 'S' : 'V';
+
+            return $draftContext;
+        }
+
+        $draftContext['perfilUsuario'] = 'V';
+
+        return $draftContext;
     }
 
     /**

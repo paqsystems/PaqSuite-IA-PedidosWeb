@@ -7,6 +7,7 @@ use App\Services\PedidosWeb\CargaAsistente\Tools\CargaAsistenteArticuloTool;
 use App\Services\PedidosWeb\CargaAsistente\Tools\CargaAsistenteCabeceraTool;
 use App\Services\PedidosWeb\CargaAsistente\Tools\CargaAsistenteClienteTool;
 use App\Services\PedidosWeb\CargaAsistente\Tools\CargaAsistenteImageExtractTool;
+use App\Services\PedidosWeb\PedidosWebParameterService;
 use Tests\TestCase;
 
 final class CargaAsistenteImageExtractDeferredTest extends TestCase
@@ -18,6 +19,7 @@ final class CargaAsistenteImageExtractDeferredTest extends TestCase
             app(CargaAsistenteArticuloTool::class),
             app(CargaAsistenteClienteTool::class),
             app(CargaAsistenteCabeceraTool::class),
+            app(PedidosWebParameterService::class),
         );
 
         $result = $tool->appendDeferredAfterChoice(

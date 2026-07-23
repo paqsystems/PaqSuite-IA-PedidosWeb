@@ -136,10 +136,12 @@ function mapRenglonToApi(renglon: ComprobanteRenglon) {
 
 let cachedClientes: ClienteOption[] | null = null;
 let cachedClientesRequest: Promise<ClienteOption[]> | null = null;
+let cachedClientesUserId: number | null = null;
 
 export function clearClientesCache(): void {
   cachedClientes = null;
   cachedClientesRequest = null;
+  cachedClientesUserId = null;
 }
 
 async function loadClientesFromApi(): Promise<ClienteOption[]> {
@@ -157,9 +159,15 @@ async function loadClientesFromApi(): Promise<ClienteOption[]> {
   );
 }
 
-export async function fetchClientes(): Promise<ClienteOption[]> {
-  if (cachedClientes) {
+export async function fetchClientes(userId?: number | null): Promise<ClienteOption[]> {
+  const normalizedUserId = userId ?? null;
+
+  if (cachedClientes !== null && cachedClientesUserId === normalizedUserId) {
     return cachedClientes;
+  }
+
+  if (cachedClientesUserId !== normalizedUserId) {
+    clearClientesCache();
   }
 
   if (cachedClientesRequest) {
@@ -170,6 +178,7 @@ export async function fetchClientes(): Promise<ClienteOption[]> {
 
   try {
     cachedClientes = await cachedClientesRequest;
+    cachedClientesUserId = normalizedUserId;
     return cachedClientes;
   } finally {
     cachedClientesRequest = null;

@@ -517,18 +517,20 @@ function PedidosCargaWebPage() {
       setClientesLoading(true);
 
       try {
-        const data = await fetchClientes();
+        const data = await fetchClientes(sessionContext.user.id);
         if (!mounted) {
           return;
         }
 
         setClientes(data);
+        setSaveError(null);
       } catch {
         if (!mounted) {
           return;
         }
 
         setClientes([]);
+        setSaveError(t('pedidos.carga.errorCargaClientes'));
       } finally {
         if (mounted) {
           setClientesLoading(false);
@@ -548,6 +550,8 @@ function PedidosCargaWebPage() {
     loadCabeceraForCliente,
     modo,
     sessionContext.codCliente,
+    sessionContext.user.id,
+    t,
   ]);
 
   useEffect(() => {

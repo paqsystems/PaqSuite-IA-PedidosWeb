@@ -15,6 +15,7 @@ import { loginRequest } from './authApi';
 import { persistAuthSession } from './authStorage';
 import { useAuth } from './AuthProvider';
 import type { SessionContext } from './types';
+import { clearClientesCache } from '../pedidos/api/comprobanteApi';
 import './LoginPage.css';
 
 type LoginPageProps = {
@@ -92,6 +93,7 @@ export function LoginPage({ onLoginSuccess }: LoginPageProps) {
       const envelope = await loginRequest({ codigo, password });
       const { token, ...sessionContext } = envelope.resultado;
 
+      clearClientesCache();
       await persistAuthSession(token, envelope.resultado);
 
       onLoginSuccess(envelope.resultado);

@@ -254,8 +254,9 @@ En comprobantes de solo lectura el asistente puede responder consultas; **no** d
 | Debe configurar el proveedor LLM | Sin BYOK operativo | Preferencias → Asistente IA |
 | No encontré ese cliente | 0 matches (tras fallbacks) | Código exacto, otra grafía, o nombre más corto |
 | Seleccione un cliente (1–N) | Hay varios matches | Responder el número |
+| Seleccione un artículo (1–N) | Varios artículos matchean la búsqueda | Responder el número (no se elige solo el “más corto”) |
 | Primero seleccioná un cliente | Consulta/acción sin cliente en curso | Elegir cliente (UI o asistente) |
-| No tenés permiso… | Flag `Modifica*` / perfil | Pedir habilitación o no forzar el campo |
+| No tenés permiso… | Flag `Modifica*` / perfil (también en alta con precio/bonif) | Pedir habilitación o no forzar el campo |
 | Hay demasiados resultados | >10 matches | Refinar búsqueda |
 | El proveedor no admite imágenes | Sin visión | Texto/dictado, u otro modelo con visión |
 | Dictado no disponible / HTTPS | Web Speech bloqueado | Chrome/Edge + HTTPS o localhost |
@@ -276,7 +277,7 @@ En comprobantes de solo lectura el asistente puede responder consultas; **no** d
 
 ## 16. Permisos y seguridad (resumen)
 
-- El asistente **no** eleva privilegios: el servidor revalida permisos.
+- El asistente **no** eleva privilegios: el servidor revalida permisos y el **perfil comercial** (V/S/C) sale del usuario autenticado.
 - Visibilidad de clientes = misma cartera que el combobox de carga.
 - Auditoría: el portal registra modalidad (texto/audio/imagen), intención y resultado a nivel de aplicación.
 

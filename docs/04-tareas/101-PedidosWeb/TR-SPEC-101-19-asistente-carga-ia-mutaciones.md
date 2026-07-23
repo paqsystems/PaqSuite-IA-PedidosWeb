@@ -127,7 +127,8 @@ Estado `pendingChoice.kind = "changeClienteConfirm"`.
 | Tools | `SelectClienteTool`, `SetCabeceraTool`, `SetCampoLibreTool`, `AddRenglonTool`, `ChangeClienteTool`, `GrabarIntentTool`, `ImageExtractTool` |
 | Services reuso | Clientes, CabeceraInicial, Articulos lookup, ParametrosCarga, (opcional) Grabar |
 | Parseo D | `IntentDetector` / helper: `extractArticuloFrase` (qty, precio, porcBonif, query limpia); `setBonificacionRenglon` / sinónimo descuento; `extractMutateArticuloQuery` (comillas / final); conjugados remove |
-| Lookup D | Alta: filtro AND tokens + maestro. Mutate: **solo detalle**; label choice cant·precio·bonif; i18n `renglonNoEncontradoConQ` |
+| Lookup D | Alta: filtro AND tokens + maestro; **2–10 matches → `needsChoice`** (ordenar por cercanía, sin colapsar a uno). Mutate: **solo detalle**; label choice cant·precio·bonif; i18n `renglonNoEncontradoConQ` |
+| Permisos D / turno | `ModificaPrecio*` / `ModificaBonArt*` en alta y update; extracto imagen: strip precio/bonif sin permiso. `TurnService` fuerza `perfilUsuario` desde perfil comercial autenticado |
 | Cabecera C | Tool set transporte/cond/perfil/lista/fecha/dir/bonif/expreso |
 | Tests | Unit por tool: permiso denied, listas, cantidad default 1, parse “N unidades…”, confirm I, `elimina el articulo arroz` → mutate remove q=arroz |
 

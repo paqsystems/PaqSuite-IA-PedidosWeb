@@ -794,6 +794,7 @@
     "pedidos.carga.confirmacionCerrar": "OK",
     "pedidos.carga.confirmacionTitulo": "Documento salvato",
     "pedidos.carga.errorCargaComprobante": "Impossibile caricare il documento. Verificare il collegamento o riprovare.",
+    "pedidos.carga.errorCargaClientes": "Impossibile caricare l'elenco clienti. Ricaricare la pagina o accedere di nuovo.",
     "pedidos.carga.errorGrabacion": "Impossibile salvare. Verificare i dati.",
     "pedidos.carga.erroresCopiaIntro": "La copia non è stata completata per il seguente motivo:",
     "pedidos.carga.erroresCopiaTitulo": "Impossibile copiare il documento",

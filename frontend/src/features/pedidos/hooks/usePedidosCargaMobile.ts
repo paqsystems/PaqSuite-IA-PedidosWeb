@@ -294,13 +294,14 @@ export function usePedidosCargaMobile() {
       setClientesLoading(true);
 
       try {
-        const data = await fetchClientes();
+        const data = await fetchClientes(sessionContext.user.id);
         if (mounted) {
           setClientes(data);
         }
       } catch {
         if (mounted) {
           setClientes([]);
+          setSaveError(t('pedidos.carga.errorCargaClientes'));
         }
       } finally {
         if (mounted) {
@@ -314,7 +315,7 @@ export function usePedidosCargaMobile() {
     return () => {
       mounted = false;
     };
-  }, [comprobanteId, isClienteProfile, loadCabeceraForCliente, modo, sessionContext.codCliente]);
+  }, [comprobanteId, isClienteProfile, loadCabeceraForCliente, modo, sessionContext.codCliente, sessionContext.user.id, t]);
 
   useEffect(() => {
     void loadArticulosStock();

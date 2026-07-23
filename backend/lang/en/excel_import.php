@@ -36,6 +36,7 @@ return [
         'clienteDistinto' => 'All rows must have the same customer code',
         'cabeceraIncoherente' => 'Header data must be identical on all rows',
         'clienteSesion' => 'Customer code must match your session',
+        'clienteNoVisible' => 'Customer does not exist or is not visible/assigned to your user',
         'articuloBase' => 'BASE item type is not allowed',
         'articuloNoEncontrado' => 'Item not found',
         'cantidadInvalida' => 'Quantity must be greater than zero',

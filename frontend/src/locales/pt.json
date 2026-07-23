@@ -794,6 +794,7 @@
     "pedidos.carga.confirmacionCerrar": "Aceitar",
     "pedidos.carga.confirmacionTitulo": "Documento gravado",
     "pedidos.carga.errorCargaComprobante": "Não foi possível carregar o documento. Verifique o link ou tente novamente.",
+    "pedidos.carga.errorCargaClientes": "Não foi possível carregar a lista de clientes. Recarregue a página ou faça login novamente.",
     "pedidos.carga.errorGrabacion": "Não foi possível gravar. Verifique os dados.",
     "pedidos.carga.erroresCopiaIntro": "A cópia não pôde ser concluída pelo seguinte motivo:",
     "pedidos.carga.erroresCopiaTitulo": "Não foi possível copiar o documento",
