@@ -2,18 +2,17 @@ import {
   dispatchAuthenticatedRequestSucceeded,
   dispatchAuthExpired,
 } from '../../features/auth/authEvents';
+import { getActiveTenantSync, getApiBaseUrlSync } from '../mobile/mobileRuntime';
 
-const apiBaseUrl = import.meta.env.VITE_API_BASE_URL ?? '/api/v1';
 const tenantHeaderName = 'X-Paq-Cliente';
-const tenantFallbackValue = import.meta.env.VITE_TENANT_DEFAULT_CLIENT ?? 'desarrollo';
 
 export function getApiBaseUrl(): string {
-  return apiBaseUrl;
+  return getApiBaseUrlSync();
 }
 
 export function buildTenantHeaders(cliente?: string): Record<string, string> {
   return {
-    [tenantHeaderName]: cliente ?? tenantFallbackValue,
+    [tenantHeaderName]: cliente ?? getActiveTenantSync(),
   };
 }
 
@@ -45,7 +44,7 @@ export async function apiRequest<T>(path: string, options: ApiRequestOptions = {
     }
   }
 
-  const response = await fetch(`${apiBaseUrl}${path}`, {
+  const response = await fetch(`${getApiBaseUrlSync()}${path}`, {
     ...options,
     headers,
   });

@@ -28,9 +28,9 @@ final class ChatAssistantConfigurationReadiness
      *     isEnabled: bool
      * }
      */
-    public function getConfiguration(User $user, ?int $credentialId = null): array
+    public function getConfiguration(User $user, ?int $credentialId = null, bool $requiresVision = false): array
     {
-        return $this->configurationService->getConfiguration($user, $credentialId);
+        return $this->configurationService->getConfiguration($user, $credentialId, $requiresVision);
     }
 
     public function isOperational(User $user, ?int $credentialId = null): bool

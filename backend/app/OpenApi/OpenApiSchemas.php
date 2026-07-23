@@ -538,6 +538,93 @@ namespace App\OpenApi;
  *         )
  *     }
  * )
+ *
+ * @OA\Schema(
+ *     schema="CargaAsistenteDraftRenglon",
+ *     type="object",
+ *     @OA\Property(property="renglon", type="integer", example=1),
+ *     @OA\Property(property="codArticulo", type="string", example="ATS 0500"),
+ *     @OA\Property(property="descripcion", type="string", example="ALMENDRA TOSTADA"),
+ *     @OA\Property(property="cantidad", type="number", format="float", example=10),
+ *     @OA\Property(property="precio", type="number", format="float", nullable=true, example=123.5),
+ *     @OA\Property(property="porcBonif", type="number", format="float", nullable=true, example=3)
+ * )
+ *
+ * @OA\Schema(
+ *     schema="CargaAsistenteDraftContext",
+ *     type="object",
+ *     @OA\Property(property="modo", type="string", example="nuevo", description="nuevo|edicion|soloLectura"),
+ *     @OA\Property(property="perfilUsuario", type="string", enum={"V","S","C"}, example="V"),
+ *     @OA\Property(property="codCliente", type="string", nullable=true, example="C001"),
+ *     @OA\Property(property="cabecera", type="object"),
+ *     @OA\Property(property="renglones", type="array", @OA\Items(ref="#/components/schemas/CargaAsistenteDraftRenglon")),
+ *     @OA\Property(property="readOnly", type="boolean", example=false),
+ *     @OA\Property(property="codLista", type="integer", example=1)
+ * )
+ *
+ * @OA\Schema(
+ *     schema="CargaAsistenteTurnRequest",
+ *     type="object",
+ *     required={"modality","draftContext"},
+ *     @OA\Property(property="message", type="string", example="Elimina el articulo arroz", description="Obligatorio si no hay images"),
+ *     @OA\Property(property="modality", type="string", enum={"texto","audio","imagen"}, example="texto"),
+ *     @OA\Property(property="credentialId", type="integer", nullable=true, example=1),
+ *     @OA\Property(property="pendingChoice", type="object", nullable=true, description="Eco del turno anterior (lista numerada / confirm)"),
+ *     @OA\Property(property="draftContext", ref="#/components/schemas/CargaAsistenteDraftContext"),
+ *     @OA\Property(
+ *         property="images",
+ *         type="array",
+ *         maxItems=4,
+ *         @OA\Items(ref="#/components/schemas/ChatAssistantImageAttachmentRequest")
+ *     )
+ * )
+ *
+ * @OA\Schema(
+ *     schema="CargaAsistenteActionItem",
+ *     type="object",
+ *     required={"action","payload","resultado"},
+ *     @OA\Property(
+ *         property="action",
+ *         type="string",
+ *         example="removeRenglon",
+ *         description="noop|needsChoice|needsRefine|needsConfirm|selectCliente|clearDraftForClienteChange|setCabeceraField|setCabeceraFields|setCampoLibre|addRenglon|updateRenglon|removeRenglon|grabarPedido|grabarPresupuesto|showConsulta|applyImageExtract|denied|validationError|…"
+ *     ),
+ *     @OA\Property(property="payload", type="object"),
+ *     @OA\Property(
+ *         property="resultado",
+ *         type="string",
+ *         example="ok",
+ *         description="ok|needsChoice|needsRefine|needsConfirm|denied|validationError"
+ *     )
+ * )
+ *
+ * @OA\Schema(
+ *     schema="CargaAsistenteTurnResultado",
+ *     type="object",
+ *     required={"replyText","actions","configurationRequired"},
+ *     @OA\Property(property="replyText", type="string", example="pedidos.carga.asistente.elegirRenglon", description="Clave i18n o texto; el panel resuelve claves pedidos.carga.asistente.*"),
+ *     @OA\Property(property="actions", type="array", @OA\Items(ref="#/components/schemas/CargaAsistenteActionItem")),
+ *     @OA\Property(property="pendingChoice", type="object", nullable=true),
+ *     @OA\Property(property="configurationRequired", type="boolean", example=false)
+ * )
+ *
+ * @OA\Schema(
+ *     schema="ApiEnvelopeCargaAsistenteTurn",
+ *     allOf={
+ *         @OA\Schema(ref="#/components/schemas/ApiEnvelope"),
+ *         @OA\Schema(
+ *             type="object",
+ *             @OA\Property(property="resultado", ref="#/components/schemas/CargaAsistenteTurnResultado")
+ *         )
+ *     }
+ * )
+ *
+ * @OA\Schema(
+ *     schema="CargaAsistenteConfigurationRequiredResultado",
+ *     type="object",
+ *     @OA\Property(property="configurationRequired", type="boolean", example=true),
+ *     @OA\Property(property="preferencesPath", type="string", example="/preferences")
+ * )
  */
 final class OpenApiSchemas
 {

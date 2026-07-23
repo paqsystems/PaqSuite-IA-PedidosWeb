@@ -305,7 +305,7 @@ final class ChatAssistantMessageTest extends TestCase
             'modelId' => 'llama-3.1-8b-instant',
         ], $this->tenantHeaders())->assertOk();
 
-        $this->assertDatabaseHas('pq_pedidosweb_asistente_ia_credenciales', [
+        $this->assertDatabaseHas('pq_asistente_ia_credenciales', [
             'user_id' => $user->id,
             'provider_id' => 'groq',
             'is_enabled' => true,
@@ -321,7 +321,7 @@ final class ChatAssistantMessageTest extends TestCase
             'baseUrl' => 'http://localhost:11434',
         ], $this->tenantHeaders())->assertOk();
 
-        $this->assertDatabaseHas('pq_pedidosweb_asistente_ia_credenciales', [
+        $this->assertDatabaseHas('pq_asistente_ia_credenciales', [
             'user_id' => $user->id,
             'provider_id' => 'ollama',
             'supports_vision' => true,

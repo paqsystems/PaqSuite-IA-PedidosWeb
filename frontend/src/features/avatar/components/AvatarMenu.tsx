@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { isNativeApp } from '../../../shared/platform/isNativeApp';
 import { ThemeSelectorModal } from '../../theme/components/ThemeSelectorModal';
 import { useAvatarMenu } from '../hooks/useAvatarMenu';
 import { resolveAvatarInitials } from '../utils/avatarInitials';
@@ -26,6 +27,7 @@ export function AvatarMenu({
   const { containerRef, isOpen, toggleMenu, closeMenu } = useAvatarMenu();
   const [isThemeModalOpen, setIsThemeModalOpen] = useState(false);
   const initials = resolveAvatarInitials(displayName);
+  const nativeApp = isNativeApp();
 
   function handleChangePassword() {
     closeMenu();
@@ -34,6 +36,12 @@ export function AvatarMenu({
 
   function handleOpenChatAssistant() {
     closeMenu();
+
+    if (nativeApp) {
+      navigate('/chat-assistant');
+      return;
+    }
+
     window.open(`${window.location.origin}/chat-assistant`, '_blank', 'noopener,noreferrer');
   }
 
@@ -66,27 +74,31 @@ export function AvatarMenu({
 
         {isOpen && (
           <div className="avatarMenuPanel" data-testid="avatarMenuPanel" role="menu">
-            <label className="avatarMenuToggle" data-testid="avatarMenuItemOpenInNewTab">
-              <input
-                type="checkbox"
-                checked={openInNewTab}
-                disabled={isSavingOpenInNewTab}
-                onChange={(event) => {
-                  onOpenInNewTabChange(event.target.checked);
-                }}
-              />
-              <span>{t('avatar.openInNewTab')}</span>
-            </label>
+            {!nativeApp && (
+              <label className="avatarMenuToggle" data-testid="avatarMenuItemOpenInNewTab">
+                <input
+                  type="checkbox"
+                  checked={openInNewTab}
+                  disabled={isSavingOpenInNewTab}
+                  onChange={(event) => {
+                    onOpenInNewTabChange(event.target.checked);
+                  }}
+                />
+                <span>{t('avatar.openInNewTab')}</span>
+              </label>
+            )}
 
-            <button
-              type="button"
-              className="avatarMenuAction"
-              role="menuitem"
-              data-testid="avatarMenuItemChatAssistant"
-              onClick={handleOpenChatAssistant}
-            >
-              {t('avatar.chatAssistant')}
-            </button>
+            {!nativeApp && (
+              <button
+                type="button"
+                className="avatarMenuAction"
+                role="menuitem"
+                data-testid="avatarMenuItemChatAssistant"
+                onClick={handleOpenChatAssistant}
+              >
+                {t('avatar.chatAssistant')}
+              </button>
+            )}
 
             <button
               type="button"

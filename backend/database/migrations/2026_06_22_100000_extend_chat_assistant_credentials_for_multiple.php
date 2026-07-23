@@ -12,7 +12,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        if (! Schema::hasTable('pq_pedidosweb_asistente_ia_credenciales')) {
+        if (! Schema::hasTable('pq_asistente_ia_credenciales')) {
             return;
         }
 
@@ -27,31 +27,31 @@ return new class extends Migration
 
     private function upSqlServer(): void
     {
-        if (! Schema::hasColumn('pq_pedidosweb_asistente_ia_credenciales', 'display_name')) {
+        if (! Schema::hasColumn('pq_asistente_ia_credenciales', 'display_name')) {
             DB::statement(<<<'SQL'
-ALTER TABLE [pq_pedidosweb_asistente_ia_credenciales]
-    ADD [display_name] NVARCHAR(80) NOT NULL CONSTRAINT [DF_pq_pedidosweb_asistente_ia_credenciales_display_name] DEFAULT ('');
+ALTER TABLE [pq_asistente_ia_credenciales]
+    ADD [display_name] NVARCHAR(80) NOT NULL CONSTRAINT [DF_pq_asistente_ia_credenciales_display_name] DEFAULT ('');
 SQL);
         }
 
         DB::statement(<<<'SQL'
 IF EXISTS (
     SELECT 1 FROM sys.indexes
-    WHERE name = 'UX_pq_pedidosweb_asistente_ia_credenciales_user_id'
-      AND object_id = OBJECT_ID('pq_pedidosweb_asistente_ia_credenciales')
+    WHERE name = 'UX_pq_asistente_ia_credenciales_user_id'
+      AND object_id = OBJECT_ID('pq_asistente_ia_credenciales')
 )
-    DROP INDEX [UX_pq_pedidosweb_asistente_ia_credenciales_user_id]
-    ON [pq_pedidosweb_asistente_ia_credenciales];
+    DROP INDEX [UX_pq_asistente_ia_credenciales_user_id]
+    ON [pq_asistente_ia_credenciales];
 SQL);
 
         DB::statement(<<<'SQL'
 IF NOT EXISTS (
     SELECT 1 FROM sys.indexes
-    WHERE name = 'IX_pq_pedidosweb_asistente_ia_credenciales_user_id'
-      AND object_id = OBJECT_ID('pq_pedidosweb_asistente_ia_credenciales')
+    WHERE name = 'IX_pq_asistente_ia_credenciales_user_id'
+      AND object_id = OBJECT_ID('pq_asistente_ia_credenciales')
 )
-    CREATE INDEX [IX_pq_pedidosweb_asistente_ia_credenciales_user_id]
-        ON [pq_pedidosweb_asistente_ia_credenciales] ([user_id]);
+    CREATE INDEX [IX_pq_asistente_ia_credenciales_user_id]
+        ON [pq_asistente_ia_credenciales] ([user_id]);
 SQL);
 
         $this->backfillDisplayNames();
@@ -59,13 +59,13 @@ SQL);
 
     private function upGeneric(): void
     {
-        Schema::table('pq_pedidosweb_asistente_ia_credenciales', function (Blueprint $table): void {
-            if (! Schema::hasColumn('pq_pedidosweb_asistente_ia_credenciales', 'display_name')) {
+        Schema::table('pq_asistente_ia_credenciales', function (Blueprint $table): void {
+            if (! Schema::hasColumn('pq_asistente_ia_credenciales', 'display_name')) {
                 $table->string('display_name', 80)->default('');
             }
         });
 
-        Schema::table('pq_pedidosweb_asistente_ia_credenciales', function (Blueprint $table): void {
+        Schema::table('pq_asistente_ia_credenciales', function (Blueprint $table): void {
             $table->dropUnique(['user_id']);
             $table->index('user_id');
         });
@@ -75,7 +75,7 @@ SQL);
 
     private function backfillDisplayNames(): void
     {
-        $credentials = DB::table('pq_pedidosweb_asistente_ia_credenciales')
+        $credentials = DB::table('pq_asistente_ia_credenciales')
             ->select(['id_credencial', 'provider_id', 'model_id', 'display_name'])
             ->get();
 
@@ -86,7 +86,7 @@ SQL);
                 continue;
             }
 
-            DB::table('pq_pedidosweb_asistente_ia_credenciales')
+            DB::table('pq_asistente_ia_credenciales')
                 ->where('id_credencial', $credential->id_credencial)
                 ->update([
                     'display_name' => trim((string) $credential->provider_id).' / '.trim((string) $credential->model_id),

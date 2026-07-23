@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { custom } from 'devextreme/ui/dialog';
 import Button from 'devextreme-react/button';
@@ -7,12 +7,14 @@ import SelectBox from 'devextreme-react/select-box';
 import { SelectBoxDx } from '../../../shared/ui/controls/SelectBoxDx';
 import Toast from 'devextreme-react/toast';
 import { isDevExtremeUserChange } from '../../../shared/ui/devextremeUserChange';
+import { isNativeApp } from '../../../shared/platform/isNativeApp';
 import { useRequiredSessionContext } from '../../auth/AuthProvider';
 import { fetchPublicConfig } from '../../config/api/publicConfigApi';
 import { ExcelImportHostToolbar } from '../../excelImport/components/ExcelImportHostToolbar';
 import type { ExcelImportHostResult } from '../../excelImport/types/excelImportHostTypes';
 import {
   cancelarEdicionPedido,
+  copiarComprobante,
   fetchArticulosPreciosCatalogoCarga,
   fetchArticulosStockCatalogoCarga,
   fetchCabeceraInicial,
@@ -64,6 +66,21 @@ import {
   tieneRenglonesCargados,
 } from '../utils/renglonesCarga';
 import { resolveGrabacionErrorMessages } from '../utils/resolveGrabacionErrorMessages';
+import { CargaAsistenteIaPanel } from '../cargaAsistenteIa/components/CargaAsistenteIaPanel';
+import {
+  buildCargaAsistenteDraftContext,
+  mapFunctionalProfileToPerfilUsuario,
+} from '../cargaAsistenteIa/utils/buildCargaAsistenteDraftContext';
+import type { CargaAsistenteAddRenglonPayload } from '../cargaAsistenteIa/utils/applyCargaAsistenteActions';
+import { patchAsistenteCabecera } from '../cargaAsistenteIa/utils/patchAsistenteCabecera';
+import { PedidosCargaMobilePage } from './PedidosCargaMobilePage';
+import {
+  buildImportacionMasivaCargaHydration,
+  clearImportacionMasivaConsultPayload,
+  IMPORTACION_MASIVA_CONSULT_QUERY,
+  resolveImportacionMasivaCargaContext,
+} from '../importacionMasiva/utils/importacionMasivaCargaReadonly';
+import { mergeImportacionMasivaCabeceraWithInicial } from '../importacionMasiva/utils/mergeImportacionMasivaCabeceraWithInicial';
 import './PedidosCargaPage.css';
 
 const emptyCatalogos: CabeceraCatalogos = {
@@ -75,7 +92,16 @@ const emptyCatalogos: CabeceraCatalogos = {
 };
 
 export function PedidosCargaPage() {
+  if (isNativeApp()) {
+    return <PedidosCargaMobilePage />;
+  }
+
+  return <PedidosCargaWebPage />;
+}
+
+function PedidosCargaWebPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams] = useSearchParams();
   const sessionContext = useRequiredSessionContext();
   const { t } = useTranslation();
@@ -120,14 +146,28 @@ export function PedidosCargaPage() {
   const [saveError, setSaveError] = useState<string | null>(null);
   const [erroresGrabacionVisible, setErroresGrabacionVisible] = useState(false);
   const [erroresGrabacionMessages, setErroresGrabacionMessages] = useState<string[]>([]);
+  const [erroresDialogContext, setErroresDialogContext] = useState<'grabacion' | 'copia'>('grabacion');
   const [clienteSelectKey, setClienteSelectKey] = useState(0);
   const [clienteSortField, setClienteSortField] = useState<ClienteSortField>('razonSocial');
   const [autoOpenRenglonId, setAutoOpenRenglonId] = useState<number | null>(null);
   const [excelImportEnabled, setExcelImportEnabled] = useState(false);
 
+  const consultStorageKey = searchParams.get(IMPORTACION_MASIVA_CONSULT_QUERY);
+  const isImportacionMasivaPopupConsult = consultStorageKey !== null;
+  const [importacionMasivaContext] = useState(() =>
+    resolveImportacionMasivaCargaContext({
+      locationState: location.state,
+      consultStorageKey:
+        consultStorageKey ??
+        new URLSearchParams(window.location.search).get(IMPORTACION_MASIVA_CONSULT_QUERY),
+    }),
+  );
+  const isImportacionMasivaReadonly =
+    importacionMasivaContext !== null || isImportacionMasivaPopupConsult;
+
   const modo = searchParams.get('modo') ?? 'nuevo';
   const comprobanteId = searchParams.get('codComprobante') ?? searchParams.get('id');
-  const readOnly = modo === 'ver';
+  const readOnly = modo === 'ver' || isImportacionMasivaReadonly;
   const isClienteProfile =
     sessionContext.functionalProfile === 'cliente' || sessionContext.codCliente !== null;
 
@@ -222,8 +262,11 @@ export function PedidosCargaPage() {
     });
   }, []);
 
-  const tipoComprobanteLabel =
-    estadoActual === 99 || searchParams.get('tipoOrigen') === 'presupuesto'
+  const tipoComprobanteLabel = isImportacionMasivaReadonly
+    ? importacionMasivaContext?.borrador.esPedido !== false
+      ? t('pedidos.carga.tipoPedido')
+      : t('pedidos.carga.tipoPresupuesto')
+    : estadoActual === 99 || searchParams.get('tipoOrigen') === 'presupuesto'
       ? t('pedidos.carga.tipoPresupuesto')
       : t('pedidos.carga.tipoPedido');
 
@@ -396,7 +439,70 @@ export function PedidosCargaPage() {
   }, []);
 
   useEffect(() => {
+    if (!importacionMasivaContext) {
+      return;
+    }
+
+    let mounted = true;
+    isHydratingComprobanteRef.current = true;
+    setCabeceraLoading(true);
+    setIsLoading(true);
+
+    const hydration = buildImportacionMasivaCargaHydration(importacionMasivaContext.borrador);
+
+    void (async () => {
+      try {
+        // Misma fuente de catálogos que copia/consulta: cabecera inicial del cliente.
+        const result = await fetchCabeceraInicial(hydration.selectedCliente);
+        if (!mounted) {
+          return;
+        }
+
+        setCodPedidoActual(null);
+        setCodPedidoOrigen(null);
+        setCodPresupuestoOrigen(null);
+        setCodComprobanteOrigenCopia(null);
+        setSelectedCliente(hydration.selectedCliente);
+        setCatalogos(result.catalogos);
+        setCabecera(mergeImportacionMasivaCabeceraWithInicial(hydration.cabecera, result.cabecera));
+        setRenglones(hydration.renglones);
+        setEstadoActual(hydration.estadoActual);
+      } catch {
+        if (!mounted) {
+          return;
+        }
+
+        setCodPedidoActual(null);
+        setCodPedidoOrigen(null);
+        setCodPresupuestoOrigen(null);
+        setCodComprobanteOrigenCopia(null);
+        setSelectedCliente(hydration.selectedCliente);
+        setCatalogos(emptyCatalogos);
+        setCabecera(hydration.cabecera);
+        setRenglones(hydration.renglones);
+        setEstadoActual(hydration.estadoActual);
+      } finally {
+        if (mounted) {
+          setCabeceraLoading(false);
+          setIsLoading(false);
+          window.requestAnimationFrame(() => {
+            isHydratingComprobanteRef.current = false;
+          });
+        }
+      }
+    })();
+
+    return () => {
+      mounted = false;
+    };
+  }, [importacionMasivaContext]);
+
+  useEffect(() => {
     if (isClienteProfile) {
+      if (isImportacionMasivaReadonly) {
+        return;
+      }
+
       const codCliente = sessionContext.codCliente ?? '';
       setSelectedCliente(codCliente);
       if (codCliente && modo === 'nuevo' && !comprobanteId) {
@@ -411,18 +517,20 @@ export function PedidosCargaPage() {
       setClientesLoading(true);
 
       try {
-        const data = await fetchClientes();
+        const data = await fetchClientes(sessionContext.user.id);
         if (!mounted) {
           return;
         }
 
         setClientes(data);
+        setSaveError(null);
       } catch {
         if (!mounted) {
           return;
         }
 
         setClientes([]);
+        setSaveError(t('pedidos.carga.errorCargaClientes'));
       } finally {
         if (mounted) {
           setClientesLoading(false);
@@ -435,7 +543,16 @@ export function PedidosCargaPage() {
     return () => {
       mounted = false;
     };
-  }, [comprobanteId, isClienteProfile, loadCabeceraForCliente, modo, sessionContext.codCliente]);
+  }, [
+    comprobanteId,
+    isClienteProfile,
+    isImportacionMasivaReadonly,
+    loadCabeceraForCliente,
+    modo,
+    sessionContext.codCliente,
+    sessionContext.user.id,
+    t,
+  ]);
 
   useEffect(() => {
     void loadArticulosStock();
@@ -456,6 +573,10 @@ export function PedidosCargaPage() {
   }, [cabecera?.listaPrecios, loadArticulosPrecios, readOnly]);
 
   useEffect(() => {
+    if (isImportacionMasivaReadonly) {
+      return;
+    }
+
     if (!comprobanteId) {
       setCodComprobanteOrigenCopia(null);
       return;
@@ -471,6 +592,32 @@ export function PedidosCargaPage() {
       setIsLoading(true);
       isHydratingComprobanteRef.current = true;
       try {
+        if (modo === 'copia') {
+          const tipoDestino =
+            searchParams.get('tipoOrigen') === 'presupuesto' ? 'presupuesto' : 'pedido';
+          const copia = await copiarComprobante(comprobanteId, tipoDestino);
+          if (!mounted) {
+            return;
+          }
+
+          const { catalogos: catalogosInicial } = await fetchCabeceraInicial(copia.cabecera.codCliente);
+          if (!mounted) {
+            return;
+          }
+
+          setCodPedidoActual(null);
+          setEstadoActual(tipoDestino === 'presupuesto' ? 99 : 0);
+          setCodPedidoOrigen(null);
+          setCodPresupuestoOrigen(null);
+          setSelectedCliente(copia.cabecera.codCliente ?? sessionContext.codCliente ?? null);
+          setCabecera(copia.cabecera);
+          setCatalogos(catalogosInicial);
+          setRenglones(
+            copia.renglones.length > 0 ? copia.renglones : [createEmptyRenglon(1)],
+          );
+          return;
+        }
+
         const comprobante = await fetchComprobante(comprobanteId);
         if (!mounted) {
           return;
@@ -500,13 +647,23 @@ export function PedidosCargaPage() {
             setEstadoActual(-1);
           }
         }
-      } catch {
+      } catch (error) {
         if (mounted) {
-          setSelectedCliente(null);
-          setCabecera(null);
-          setCatalogos(emptyCatalogos);
-          setRenglones([createEmptyRenglon(1)]);
-          setSaveError(t('pedidos.carga.errorCargaComprobante'));
+          if (modo === 'copia') {
+            const messages = resolveGrabacionErrorMessages(error, t);
+            setErroresDialogContext('copia');
+            setErroresGrabacionMessages(
+              messages.length > 0 ? messages : [t('pedidos.carga.errorCargaComprobante')],
+            );
+            setErroresGrabacionVisible(true);
+            setSaveError(null);
+          } else {
+            setSelectedCliente(null);
+            setCabecera(null);
+            setCatalogos(emptyCatalogos);
+            setRenglones([createEmptyRenglon(1)]);
+            setSaveError(t('pedidos.carga.errorCargaComprobante'));
+          }
         }
       } finally {
         if (mounted) {
@@ -527,7 +684,7 @@ export function PedidosCargaPage() {
     return () => {
       mounted = false;
     };
-  }, [comprobanteId, modo, sessionContext.codCliente, t]);
+  }, [comprobanteId, isImportacionMasivaReadonly, modo, searchParams, sessionContext.codCliente, t]);
 
   useEffect(
     () => () => {
@@ -750,6 +907,121 @@ export function PedidosCargaPage() {
     setArticuloSeleccionado(null);
   }, [articuloSeleccionado, articuloSeleccionadoData, cabecera, readOnly, renglones, t]);
 
+  const buildAsistenteDraftContext = useCallback(
+    () =>
+      buildCargaAsistenteDraftContext({
+        selectedCliente,
+        cabecera,
+        renglones,
+        readOnly,
+        modo,
+        perfilUsuario: mapFunctionalProfileToPerfilUsuario(sessionContext.functionalProfile),
+      }),
+    [cabecera, modo, readOnly, renglones, selectedCliente, sessionContext.functionalProfile],
+  );
+
+  const handleAsistenteAddRenglon = useCallback((payload: CargaAsistenteAddRenglonPayload) => {
+    setRenglones((current) => {
+      const sinVacios = renglonesValidosParaGrabar(current);
+      const nuevoRenglon: ComprobanteRenglon = {
+        renglon: nextRenglonNumber(sinVacios),
+        codArticulo: payload.codArticulo,
+        descripcionArticulo: payload.descripcion ?? '',
+        cantidad: payload.cantidad,
+        precio: payload.precio ?? 0,
+        porcBonif: payload.porcBonif ?? 0,
+        porcIva: 21,
+      };
+
+      return [...sinVacios, nuevoRenglon];
+    });
+  }, []);
+
+  const handleAsistenteUpdateRenglon = useCallback(
+    (payload: { renglon: number; cantidad?: number; precio?: number; porcBonif?: number }) => {
+      setRenglones((current) =>
+        current.map((row) => {
+          if (row.renglon !== payload.renglon) {
+            return row;
+          }
+
+          return {
+            ...row,
+            cantidad: payload.cantidad !== undefined ? payload.cantidad : row.cantidad,
+            precio: payload.precio !== undefined ? payload.precio : row.precio,
+            porcBonif: payload.porcBonif !== undefined ? payload.porcBonif : row.porcBonif,
+          };
+        }),
+      );
+    },
+    [],
+  );
+
+  const handleAsistenteRemoveRenglon = useCallback((renglon: number) => {
+    setRenglones((current) => current.filter((row) => row.renglon !== renglon));
+  }, []);
+
+  const handleAsistenteUpdateCabeceraField = useCallback((field: string, value: unknown) => {
+    setCabecera((current) => {
+      if (!current) {
+        return current;
+      }
+
+      return patchAsistenteCabecera(current, { [field]: value });
+    });
+  }, []);
+
+  const handleAsistentePatchCabeceraFields = useCallback((fields: Record<string, unknown>) => {
+    setCabecera((current) => {
+      if (!current) {
+        return current;
+      }
+
+      return patchAsistenteCabecera(current, fields);
+    });
+  }, []);
+
+  const handleAsistenteApplyImageExtract = useCallback((payload: Record<string, unknown>) => {
+    const renglonesValidos = Array.isArray(payload.renglonesValidos)
+      ? payload.renglonesValidos
+      : [];
+
+    if (renglonesValidos.length === 0) {
+      return;
+    }
+
+    setRenglones((current) => {
+      let next = renglonesValidosParaGrabar(current);
+
+      for (const item of renglonesValidos) {
+        if (!item || typeof item !== 'object') {
+          continue;
+        }
+
+        const row = item as Record<string, unknown>;
+        const codArticulo = String(row.codArticulo ?? '').trim();
+        if (codArticulo === '') {
+          continue;
+        }
+
+        next = [
+          ...next,
+          {
+            renglon: nextRenglonNumber(next),
+            codArticulo,
+            descripcionArticulo: String(row.descripcion ?? ''),
+            cantidad: Number(row.cantidad) > 0 ? Number(row.cantidad) : 1,
+            precio: row.precio !== undefined ? Number(row.precio) : 0,
+            porcBonif: row.porcBonif !== undefined ? Number(row.porcBonif) : 0,
+            porcIva: 21,
+          },
+        ];
+      }
+
+      return next.length > 0 ? next : [createEmptyRenglon(1)];
+    });
+  }, []);
+
   const bonificacionNetaCabecera = useMemo(() => {
     if (!cabecera) {
       return 0;
@@ -856,6 +1128,7 @@ export function PedidosCargaPage() {
     } catch (error) {
       const messages = resolveGrabacionErrorMessages(error, t);
       if (messages.length > 0) {
+        setErroresDialogContext('grabacion');
         setErroresGrabacionMessages(messages);
         setErroresGrabacionVisible(true);
         setSaveError(null);
@@ -917,6 +1190,10 @@ export function PedidosCargaPage() {
 
   return (
     <section className="pedidosCargaPage" data-testid="page-pedidos-carga">
+      {isImportacionMasivaReadonly ? (
+        <span hidden data-testid="cargaModoReadonlyMasiva" aria-hidden="true" />
+      ) : null}
+
       <div className="pedidosCargaPage__header">
         <h2>{t('pages.pedidosCarga')}</h2>
         <p className="pedidosCargaPage__tipo" data-testid="label-tipo-comprobante">
@@ -928,7 +1205,13 @@ export function PedidosCargaPage() {
         <p data-testid="label-modo-solo-lectura">{t('pedidos.carga.modoSoloLectura')}</p>
       ) : null}
 
-      {excelImportEnabled ? (
+      {isImportacionMasivaPopupConsult && importacionMasivaContext === null ? (
+        <p className="pedidosCargaPage__error" role="alert" data-testid="carga-consulta-masiva-error">
+          {t('pedidos.importacionMasiva.consultaPayloadPerdido')}
+        </p>
+      ) : null}
+
+      {excelImportEnabled && !isImportacionMasivaReadonly ? (
         <div className="pedidosCargaExcelToolbar" data-testid="pedidos-carga-excel-toolbar">
           <p className="pedidosCargaExcelToolbar__hint">{t('pedidos.carga.excelImport.toolbarHint')}</p>
           <ExcelImportHostToolbar
@@ -941,49 +1224,76 @@ export function PedidosCargaPage() {
         </div>
       ) : null}
 
-      <div className="pedidosCargaPage__toolbar">
-        <div className="pedidosCargaPage__toolbarLeft">
-          <div data-testid="btn-cancelar-carga">
-            <Button
-              text={t('pedidos.carga.cancelar')}
-              stylingMode="text"
-              onClick={() => {
-                void handleCancelar();
-              }}
-            />
+      {isImportacionMasivaReadonly ? (
+        <div className="pedidosCargaPage__toolbar">
+          <div className="pedidosCargaPage__toolbarLeft">
+            <div data-testid="cargaVolverImportacionMasiva">
+              <Button
+                text={
+                  isImportacionMasivaPopupConsult
+                    ? t('pedidos.importacionMasiva.cerrarConsulta')
+                    : t('pedidos.importacionMasiva.volver')
+                }
+                stylingMode="outlined"
+                onClick={() => {
+                  if (isImportacionMasivaPopupConsult) {
+                    if (consultStorageKey) {
+                      clearImportacionMasivaConsultPayload(consultStorageKey);
+                    }
+                    window.close();
+                    return;
+                  }
+                  navigate('/pedidos/importacion-masiva');
+                }}
+              />
+            </div>
           </div>
         </div>
-        <div className="pedidosCargaPage__toolbarCenter">
-          {showGrabarPresupuesto ? (
-            <div data-testid="btn-grabar-presupuesto">
+      ) : (
+        <div className="pedidosCargaPage__toolbar">
+          <div className="pedidosCargaPage__toolbarLeft">
+            <div data-testid="btn-cancelar-carga">
               <Button
-                text={t('pedidos.carga.grabarPresupuesto')}
-                type="default"
-                stylingMode="outlined"
-                disabled={isLoading || !cabeceraReady}
+                text={t('pedidos.carga.cancelar')}
+                stylingMode="text"
                 onClick={() => {
-                  void saveComprobante('presupuesto');
+                  void handleCancelar();
                 }}
               />
             </div>
-          ) : null}
+          </div>
+          <div className="pedidosCargaPage__toolbarCenter">
+            {showGrabarPresupuesto ? (
+              <div data-testid="btn-grabar-presupuesto">
+                <Button
+                  text={t('pedidos.carga.grabarPresupuesto')}
+                  type="default"
+                  stylingMode="outlined"
+                  disabled={isLoading || !cabeceraReady}
+                  onClick={() => {
+                    void saveComprobante('presupuesto');
+                  }}
+                />
+              </div>
+            ) : null}
+          </div>
+          <div className="pedidosCargaPage__toolbarRight">
+            {showGrabarPedido ? (
+              <div data-testid="btn-grabar-pedido">
+                <Button
+                  text={t('pedidos.carga.grabarPedido')}
+                  type="default"
+                  stylingMode="contained"
+                  disabled={isLoading || !cabeceraReady}
+                  onClick={() => {
+                    void saveComprobante('pedido');
+                  }}
+                />
+              </div>
+            ) : null}
+          </div>
         </div>
-        <div className="pedidosCargaPage__toolbarRight">
-          {showGrabarPedido ? (
-            <div data-testid="btn-grabar-pedido">
-              <Button
-                text={t('pedidos.carga.grabarPedido')}
-                type="default"
-                stylingMode="contained"
-                disabled={isLoading || !cabeceraReady}
-                onClick={() => {
-                  void saveComprobante('pedido');
-                }}
-              />
-            </div>
-          ) : null}
-        </div>
-      </div>
+      )}
 
       {saveError ? (
         <p className="pedidosCargaPage__error" role="alert" data-testid="carga-error">
@@ -1070,7 +1380,7 @@ export function PedidosCargaPage() {
               onChange={handleCabeceraChange}
             />
           ) : null}
-          {selectedCliente && !cabeceraReady && cabeceraLoading ? (
+          {selectedCliente && cabeceraLoading ? (
             <p>{t('pedidos.carga.cabeceraCargando')}</p>
           ) : null}
         </section>
@@ -1214,6 +1524,31 @@ export function PedidosCargaPage() {
             </div>
           </section>
         </div>
+
+        {!isImportacionMasivaReadonly ? (
+          <CargaAsistenteIaPanel
+            buildDraftContext={buildAsistenteDraftContext}
+            readOnly={readOnly}
+            onSelectCliente={async (codCliente) => {
+              await handleClienteChange(codCliente);
+            }}
+            onClearDraft={() => {
+              void handleClienteChange(null);
+            }}
+            onAddRenglon={handleAsistenteAddRenglon}
+            onUpdateRenglon={handleAsistenteUpdateRenglon}
+            onRemoveRenglon={handleAsistenteRemoveRenglon}
+            onUpdateCabeceraField={handleAsistenteUpdateCabeceraField}
+            onPatchCabeceraFields={handleAsistentePatchCabeceraFields}
+            onGrabarPedido={() => {
+              void saveComprobante('pedido');
+            }}
+            onGrabarPresupuesto={() => {
+              void saveComprobante('presupuesto');
+            }}
+            onApplyImageExtract={handleAsistenteApplyImageExtract}
+          />
+        ) : null}
       </div>
 
       <PedidosCargaArticulosStockLoadPanel visible={articulosStockPrecargaPendiente} />
@@ -1230,8 +1565,24 @@ export function PedidosCargaPage() {
       <PedidosCargaErroresGrabacionDialog
         visible={erroresGrabacionVisible}
         messages={erroresGrabacionMessages}
+        titleKey={
+          erroresDialogContext === 'copia'
+            ? 'pedidos.carga.erroresCopiaTitulo'
+            : 'pedidos.carga.erroresGrabacionTitulo'
+        }
+        introKey={
+          erroresDialogContext === 'copia'
+            ? 'pedidos.carga.erroresCopiaIntro'
+            : 'pedidos.carga.erroresGrabacionIntro'
+        }
+        testId={
+          erroresDialogContext === 'copia' ? 'dialog-errores-copia' : 'dialog-errores-grabacion'
+        }
         onClose={() => {
           setErroresGrabacionVisible(false);
+          if (erroresDialogContext === 'copia') {
+            navigate(-1);
+          }
         }}
       />
 

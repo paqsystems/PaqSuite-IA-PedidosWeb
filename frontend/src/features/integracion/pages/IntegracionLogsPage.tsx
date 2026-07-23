@@ -4,8 +4,10 @@ import Button from 'devextreme-react/button';
 import DateBox from 'devextreme-react/date-box';
 import SelectBox from 'devextreme-react/select-box';
 import { Column } from 'devextreme-react/data-grid';
+import { isNativeApp } from '../../../shared/platform/isNativeApp';
 import { DataGridDx } from '../../../shared/ui/grids';
 import { fetchIntegracionLogs, type IntegracionLogRow } from '../api/integracionApi';
+import { IntegracionLogsMobileView } from './IntegracionLogsMobileView';
 
 const proceso = 'pw_logsintegracion';
 const gridId = 'pw_logsintegracion';
@@ -13,6 +15,14 @@ const gridId = 'pw_logsintegracion';
 const severidadOptions = ['info', 'warning', 'error'] as const;
 
 export function IntegracionLogsPage() {
+  if (isNativeApp()) {
+    return <IntegracionLogsMobileView />;
+  }
+
+  return <IntegracionLogsWebView />;
+}
+
+function IntegracionLogsWebView() {
   const { t } = useTranslation();
   const [fechaDesde, setFechaDesde] = useState<Date | null>(null);
   const [fechaHasta, setFechaHasta] = useState<Date | null>(null);

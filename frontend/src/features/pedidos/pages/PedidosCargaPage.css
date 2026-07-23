@@ -310,17 +310,47 @@
   min-width: 28px;
 }
 
+.pedidosCargaRenglonEditPopup .dx-overlay-content {
+  width: min(520px, calc(100vw - 1.5rem)) !important;
+  max-width: calc(100vw - 1.5rem);
+  box-sizing: border-box;
+}
+
+.pedidosCargaRenglonEditPopup .dx-popup-title {
+  padding-right: 2.75rem;
+  white-space: normal;
+}
+
+.pedidosCargaRenglonEditPopup .dx-popup-content {
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
+
 .pedidosCargaRenglonEditDialog {
   display: flex;
   flex-direction: column;
   gap: 0.65rem;
   padding: 0.25rem;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.pedidosCargaRenglonEditDialog .dx-texteditor,
+.pedidosCargaRenglonEditDialog .dx-numberbox {
+  max-width: 100%;
 }
 
 .pedidosCargaRenglonEditDialog__importes {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: 0.65rem;
+}
+
+@media (min-width: 480px) {
+  .pedidosCargaRenglonEditDialog__importes {
+    grid-template-columns: 1fr 1fr;
+  }
 }
 
 .pedidosCargaRenglonEditDialog__importeDestacado .dx-texteditor-input {
@@ -334,6 +364,17 @@
   gap: 0.5rem;
   justify-content: flex-end;
   margin-top: 0.5rem;
+}
+
+@media (max-width: 479px) {
+  .pedidosCargaRenglonEditDialog__actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .pedidosCargaRenglonEditDialog__actions .dx-button {
+    width: 100%;
+  }
 }
 
 .pedidosCargaConfirmacionDialog {

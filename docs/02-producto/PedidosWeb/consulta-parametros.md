@@ -37,7 +37,7 @@ En **PedidosWeb**: misma presentación de listado; **sin** modal de edición ni 
 
 | Recurso | Ubicación |
 |---------|-----------|
-| Inventario PedidosWeb (57 claves) | [`docs/backend/seed/PQ_PARAMETROS_GRAL/PQ_PARAMETROS_GRAL.PedidosWeb.seed.json`](../../backend/seed/PQ_PARAMETROS_GRAL/PQ_PARAMETROS_GRAL.PedidosWeb.seed.json) |
+| Inventario PedidosWeb (58 claves) | [`docs/backend/seed/PQ_PARAMETROS_GRAL/PQ_PARAMETROS_GRAL.PedidosWeb.seed.json`](../../backend/seed/PQ_PARAMETROS_GRAL/PQ_PARAMETROS_GRAL.PedidosWeb.seed.json) |
 | CAPTION / TOOLTIP SQL | [`Update_PQ_PARAMETROS_GRAL_PedidosWeb_CAPTION_TOOLTIP.sql`](../../backend/seed/PQ_PARAMETROS_GRAL/Update_PQ_PARAMETROS_GRAL_PedidosWeb_CAPTION_TOOLTIP.sql) |
 | Contrato Tango (referencia) | PaqSuite-IA-Tango — `docs/backend/seed/PQ_PARAMETROS_GRAL/README.md` |
 | Producto §10.6 | [PedidosWeb_Definicion_Conceptual_Final_OpenSpec.md](./PedidosWeb_Definicion_Conceptual_Final_OpenSpec.md) |
@@ -74,7 +74,7 @@ La API devuelve `caption` y `tooltip` desde BD (semilla en español). La UI **no
 | Valor booleano | `pedidos.carga.cabecera.si` / `no` cuando `tipoValor === 'B'` |
 | Fechas | `toLocaleDateString()` según locale activo cuando `tipoValor === 'D'` |
 
-**Archivos de recursos:** `frontend/src/locales/parametros/pedidosWeb.{en,it,fr,pt}.json` (57 claves × caption + tooltip). Fusión en `i18n.ts` al bootstrap.
+**Archivos de recursos:** `frontend/src/locales/parametros/pedidosWeb.{en,it,fr,pt}.json` (58 claves × caption + tooltip). Fusión en `i18n.ts` al bootstrap.
 
 **Código:** `frontend/src/features/config/utils/resolveParametroConsultaTexts.ts`; página `ParametrosConsultaPage.tsx` remapea filas en `useEffect` dependiente de `i18n.language`.
 
@@ -90,6 +90,7 @@ Patrón transversal: [`idioma-multilingual.md`](../../00-contexto/_mono/01-exper
 2. Administración de valores: ERP / herramientas internas (producto §10.6, SPEC-001-04).
 3. El backend de carga (`ParametrosCargaService`, `PedidosWebParameterService`) sigue leyendo parámetros en runtime; esta pantalla es informativa.
 4. Textos visibles vía i18n (`parametros.pedidosWeb.*`); `CAPTION`/`TOOLTIP` de BD como **fallback** si falta clave.
+5. **`ActualizarPrecioCopia`** (booleano, CC PQ #9): si al copiar pedido/presupuesto se conservan precios del origen (`false`, default) o se actualizan desde la lista vigente (`true`). La lógica de copia está en `ComprobanteCopiaService` (HU-101-026); esta pantalla solo informa el valor ERP.
 
 ---
 

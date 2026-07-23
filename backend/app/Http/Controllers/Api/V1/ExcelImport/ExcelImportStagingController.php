@@ -135,12 +135,9 @@ final class ExcelImportStagingController extends Controller
             $importacion = $this->accessService->findLoteByGuid($guidImportacion);
             $this->accessService->ensureLotAccess($user, $importacion);
 
-            $items = $this->stagingQueryService->listValidRowPayload($importacion);
-
-            return ApiResponse::success([
-                'items' => $items,
-                'total' => count($items),
-            ]);
+            return ApiResponse::success(
+                $this->stagingQueryService->listValidRowsResponse($importacion, $user)
+            );
         } catch (AuthFlowException|ExcelImportFlowException $exception) {
             return ApiResponse::error(
                 $exception->errorCode(),

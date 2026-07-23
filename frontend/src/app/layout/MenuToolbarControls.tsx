@@ -1,4 +1,6 @@
 import { useTranslation } from 'react-i18next';
+import Button from 'devextreme-react/button';
+import { isNativeApp } from '../../shared/platform/isNativeApp';
 
 type MenuToolbarControlsProps = {
   menuTreeExpanded: boolean;
@@ -6,6 +8,7 @@ type MenuToolbarControlsProps = {
   onToggleSidebar: () => void;
   onToggleExpandAll: () => void;
   onToggleDisplayMode: () => void;
+  compact?: boolean;
 };
 
 export function MenuToolbarControls({
@@ -14,20 +17,37 @@ export function MenuToolbarControls({
   onToggleSidebar,
   onToggleExpandAll,
   onToggleDisplayMode,
+  compact = false,
 }: MenuToolbarControlsProps) {
   const { t } = useTranslation();
+  const nativeApp = isNativeApp();
 
   return (
     <div className="shellMenuControls" aria-label={t('shell.menu.controls')}>
-      <button
-        type="button"
-        className="shellIconButton"
-        data-testid="menuToggleSidebar"
-        aria-label={t('shell.menu.toggleSidebar')}
-        onClick={onToggleSidebar}
-      >
-        ☰
-      </button>
+      {nativeApp ? (
+        <Button
+          icon="menu"
+          stylingMode="text"
+          className="shellIconButton shellIconButton--dx"
+          elementAttr={{
+            'data-testid': 'menuToggleSidebar',
+            'aria-label': t('shell.menu.toggleSidebar'),
+          }}
+          onClick={onToggleSidebar}
+        />
+      ) : (
+        <button
+          type="button"
+          className="shellIconButton"
+          data-testid="menuToggleSidebar"
+          aria-label={t('shell.menu.toggleSidebar')}
+          onClick={onToggleSidebar}
+        >
+          ☰
+        </button>
+      )}
+      {!compact && (
+        <>
       <button
         type="button"
         className="shellIconButton"
@@ -54,6 +74,8 @@ export function MenuToolbarControls({
       >
         ◫
       </button>
+        </>
+      )}
     </div>
   );
 }

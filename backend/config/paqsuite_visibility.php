@@ -7,6 +7,7 @@ return [
         'comprobantes' => 'pw_comprobantes_visibles',
         'dashboard' => 'pw_dashboard',
         'cargaComprobantes' => 'pw_cargapedidos',
+        'importacionMasiva' => 'pw_importacionmasiva',
         'consultasPedidosIngresados' => 'pw_pedidosingresados',
         'consultasPedidosPendientes' => 'pw_pedidospendientes',
         'consultasPresupuestos' => 'pw_presupuestosingresados',

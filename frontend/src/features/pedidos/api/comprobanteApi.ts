@@ -46,6 +46,9 @@ export type ParametrosCarga = {
   modificaBonArt: boolean;
   modificaBonCli: boolean;
   modificaListaPrec: boolean;
+  modificaCondVta: boolean;
+  modificaDirEntr: boolean;
+  modificaExpreso: boolean;
   clienteLeyenda1: boolean;
   clienteLeyenda2: boolean;
   clienteLeyenda3: boolean;
@@ -133,10 +136,12 @@ function mapRenglonToApi(renglon: ComprobanteRenglon) {
 
 let cachedClientes: ClienteOption[] | null = null;
 let cachedClientesRequest: Promise<ClienteOption[]> | null = null;
+let cachedClientesUserId: number | null = null;
 
 export function clearClientesCache(): void {
   cachedClientes = null;
   cachedClientesRequest = null;
+  cachedClientesUserId = null;
 }
 
 async function loadClientesFromApi(): Promise<ClienteOption[]> {
@@ -154,9 +159,15 @@ async function loadClientesFromApi(): Promise<ClienteOption[]> {
   );
 }
 
-export async function fetchClientes(): Promise<ClienteOption[]> {
-  if (cachedClientes) {
+export async function fetchClientes(userId?: number | null): Promise<ClienteOption[]> {
+  const normalizedUserId = userId ?? null;
+
+  if (cachedClientes !== null && cachedClientesUserId === normalizedUserId) {
     return cachedClientes;
+  }
+
+  if (cachedClientesUserId !== normalizedUserId) {
+    clearClientesCache();
   }
 
   if (cachedClientesRequest) {
@@ -167,6 +178,7 @@ export async function fetchClientes(): Promise<ClienteOption[]> {
 
   try {
     cachedClientes = await cachedClientesRequest;
+    cachedClientesUserId = normalizedUserId;
     return cachedClientes;
   } finally {
     cachedClientesRequest = null;
@@ -204,6 +216,38 @@ export async function fetchComprobante(comprobanteId: string): Promise<Comproban
   }
 
   throw new Error('comprobante.notFound');
+}
+
+export async function copiarComprobante(
+  codComprobanteOrigen: string,
+  tipoDestino: 'pedido' | 'presupuesto',
+): Promise<{
+  cabecera: ComprobanteCabecera;
+  renglones: ComprobanteRenglon[];
+  codComprobanteOrigen: string;
+  tipoComprobante: 'pedido' | 'presupuesto';
+}> {
+  const response = await apiRequest<{
+    borrador: {
+      cabecera: Record<string, unknown>;
+      renglones: ApiComprobanteDetalleRow[];
+      tipoComprobante: 'pedido' | 'presupuesto';
+      codComprobanteOrigen: string;
+    };
+  }>('/comprobantes/copiar', {
+    method: 'POST',
+    body: JSON.stringify({ codComprobanteOrigen, tipoDestino }),
+  });
+
+  const { borrador } = response.resultado;
+  const codCliente = String(borrador.cabecera.cod_cliente ?? '');
+
+  return {
+    cabecera: mapCabeceraFromApi(borrador.cabecera, codCliente),
+    renglones: borrador.renglones.map(mapRenglonFromApi),
+    codComprobanteOrigen: borrador.codComprobanteOrigen,
+    tipoComprobante: borrador.tipoComprobante,
+  };
 }
 
 export async function grabarComprobante(

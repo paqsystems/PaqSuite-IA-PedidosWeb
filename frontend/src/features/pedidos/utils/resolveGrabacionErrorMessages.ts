@@ -8,16 +8,22 @@ type GrabacionErrorResultado = {
 
 export function resolveGrabacionErrorMessages(error: unknown, t: TFunction): string[] {
   if (error instanceof ApiClientError) {
-    const resultado = error.resultado as GrabacionErrorResultado | undefined;
+    const resultado = error.resultado;
 
-    if (Array.isArray(resultado?.errores) && resultado.errores.length > 0) {
-      return resultado.errores
+    if (typeof resultado === 'string' && resultado.trim() !== '') {
+      return [resultado];
+    }
+
+    const grabacionResultado = resultado as GrabacionErrorResultado | undefined;
+
+    if (Array.isArray(grabacionResultado?.errores) && grabacionResultado.errores.length > 0) {
+      return grabacionResultado.errores
         .filter((item): item is string => typeof item === 'string' && item.trim() !== '')
         .map((key) => translateGrabacionErrorKey(key, t));
     }
 
-    if (resultado?.fields) {
-      const fieldMessages = Object.values(resultado.fields)
+    if (grabacionResultado?.fields) {
+      const fieldMessages = Object.values(grabacionResultado.fields)
         .flat()
         .filter((message): message is string => typeof message === 'string' && message.trim() !== '');
 
@@ -29,6 +35,17 @@ export function resolveGrabacionErrorMessages(error: unknown, t: TFunction): str
     if (error.respuestaKey && error.respuestaKey !== 'request.failed') {
       return [translateGrabacionErrorKey(error.respuestaKey, t)];
     }
+
+    if (grabacionResultado && typeof grabacionResultado === 'object' && 'message' in grabacionResultado) {
+      const message = (grabacionResultado as { message?: unknown }).message;
+      if (typeof message === 'string' && message.trim() !== '') {
+        return [message];
+      }
+    }
+  }
+
+  if (error instanceof Error && error.message.trim() !== '' && error.message !== 'request.failed') {
+    return [error.message];
   }
 
   return [];
@@ -39,6 +56,13 @@ function translateGrabacionErrorKey(key: string, t: TFunction): string {
 
   if (translated !== '' && translated !== key) {
     return translated;
+  }
+
+  if (key.startsWith('business.')) {
+    return key
+      .slice('business.'.length)
+      .replace(/([A-Z])/g, ' $1')
+      .replace(/^./, (char) => char.toUpperCase());
   }
 
   return key;

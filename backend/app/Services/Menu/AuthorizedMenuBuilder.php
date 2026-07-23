@@ -137,7 +137,10 @@ final class AuthorizedMenuBuilder
     {
         $configItem = $menuKeyByProcedimiento->get($menu->procedimiento);
         $menuKey = is_array($configItem) ? (string) $configItem['menuKey'] : (string) $menu->procedimiento;
-        $routePath = (string) ($menu->routeName ?? '');
+        $routePath = trim((string) ($menu->routeName ?? ''));
+        if ($routePath === '' && is_array($configItem)) {
+            $routePath = trim((string) ($configItem['routeName'] ?? ''));
+        }
         $tipoProceso = (string) ($menu->tipo_proceso ?? '');
 
         return [

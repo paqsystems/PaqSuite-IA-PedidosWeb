@@ -33,7 +33,7 @@ final class ChatAssistantMessageService
         $normalizedImages = $this->imageAttachmentValidator->validateAndNormalize($images);
 
         if ($normalizedImages !== []) {
-            $configuration = $this->configurationReadiness->getConfiguration($user, $credentialId);
+            $configuration = $this->configurationReadiness->getConfiguration($user, $credentialId, true);
 
             if (! $configuration['supportsVision']) {
                 throw new ChatAssistantMessageException(

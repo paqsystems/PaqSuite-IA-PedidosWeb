@@ -88,4 +88,48 @@ trait BuildsExcelImportWorkbooks
             ]
         );
     }
+
+    /**
+     * @return list<string>
+     */
+    protected function pedidoMasivoHeaders(): array
+    {
+        return [
+            'codigo cliente',
+            'codigo de articulo',
+            'cantidad',
+            'precio lista',
+            'bonif renglon',
+            'codigo perfil',
+            'condicion de venta',
+            'codigo transporte',
+            'direccion entrega',
+            'codigo lista',
+            'nivel',
+            'bonificacion 1',
+            'bonificacion 2',
+            'bonificacion 3',
+            'expreso',
+            'direccion expreso',
+            'fecha entrega',
+            'observaciones',
+            'leyenda 1',
+            'leyenda 2',
+            'leyenda 3',
+            'leyenda 4',
+            'leyenda 5',
+        ];
+    }
+
+    protected function pedidoMasivoMultiGrupoFile(): UploadedFile
+    {
+        return $this->buildExcelImportUploadedFile(
+            $this->pedidoMasivoHeaders(),
+            [
+                ['CLIMVP001', 'ART-HP-001', 1, null, null, null, null, null, null, null, 0, null, null, null, null, null, null, null, null, null, null, null, null],
+                ['CLIMVP002', 'ART-HP-001', 2, null, null, null, null, null, null, null, 0, null, null, null, null, null, null, null, null, null, null, null, null],
+            ],
+            'pedido_masivo_test.xlsx'
+        );
+    }
 }

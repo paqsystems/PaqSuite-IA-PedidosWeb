@@ -120,9 +120,7 @@ final class ExcelImportProcessService
 
             try {
                 SqlServerIsolation::transaction(function () use ($handler, $datos, $ctx, $fila): void {
-                    $enriched = array_key_exists('precio', $datos)
-                        ? $datos
-                        : $handler->processRow($datos, $ctx);
+                    $enriched = $handler->processRow($datos, $ctx);
                     $fila->update([
                         'estado_fila' => 'procesada',
                         'datos_normalizados_json' => json_encode($enriched, JSON_UNESCAPED_UNICODE),

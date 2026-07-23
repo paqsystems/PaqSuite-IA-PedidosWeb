@@ -1,0 +1,208 @@
+.cargaAsistenteIaPanel {
+  margin-top: 0.75rem;
+  border-top: 1px solid var(--dx-color-border, #d0d0d0);
+  padding-top: 0.5rem;
+}
+
+.cargaAsistenteIaPanel__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.cargaAsistenteIaPanel__title {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.cargaAsistenteIaPanel__content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  /* El hilo no debe comprimirse contra el composer. */
+  min-height: 0;
+}
+
+.cargaAsistenteIaPanel__body {
+  /*
+   * D1-16: piso 270px / hasta 33vh.
+   * flex-shrink:0 evita que el layout del pie comprima el hilo a una franja
+   * (síntoma: respuesta “invisible” y sin scroll útil).
+   */
+  --cargaAsistenteThreadMinHeight: 16.875rem; /* 270px */
+  flex: 0 0 auto;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  min-height: var(--cargaAsistenteThreadMinHeight);
+  height: max(var(--cargaAsistenteThreadMinHeight), 33vh);
+  max-height: max(var(--cargaAsistenteThreadMinHeight), 33vh);
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  /* Block layout: el scroll con display:flex + column suele fallar (min-height:auto). */
+  display: block;
+  padding: 0.35rem 0.25rem;
+  background: var(--dx-component-color-bg, #f7f7f7);
+  border-radius: 4px;
+}
+
+.cargaAsistenteIaPanel__threadEnd {
+  width: 100%;
+  height: 1px;
+}
+
+.cargaAsistenteIaPanel__hint {
+  margin: 0;
+  opacity: 0.75;
+  font-size: 0.875rem;
+}
+
+.cargaAsistenteIaPanel__message {
+  display: block;
+  margin-bottom: 0.4rem;
+  padding: 0.35rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  word-break: break-word;
+}
+
+.cargaAsistenteIaPanel__messageText {
+  white-space: pre-wrap;
+}
+
+.cargaAsistenteIaPanel__message--user {
+  margin-left: auto;
+  background: var(--dx-color-primary, #337ab7);
+  color: #fff;
+  max-width: 90%;
+}
+
+.cargaAsistenteIaPanel__message--assistant {
+  margin-right: auto;
+  background: var(--dx-color-main-bg, #fff);
+  border: 1px solid var(--dx-color-border, #d0d0d0);
+  max-width: 98%;
+  overflow-x: auto;
+}
+
+.cargaAsistenteIaPanel__consultaWrap {
+  margin-top: 0.4rem;
+  overflow-x: auto;
+}
+
+.cargaAsistenteIaPanel__consultaTable {
+  width: max-content;
+  min-width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+  line-height: 1.35;
+}
+
+.cargaAsistenteIaPanel__consultaTable th,
+.cargaAsistenteIaPanel__consultaTable td {
+  padding: 0.2rem 0.45rem;
+  border-bottom: 1px solid var(--dx-color-border, #e0e0e0);
+  text-align: left;
+  vertical-align: top;
+  white-space: nowrap;
+}
+
+.cargaAsistenteIaPanel__consultaTable thead th {
+  font-weight: 600;
+  border-bottom-width: 2px;
+}
+
+.cargaAsistenteIaPanel__consultaTable tfoot td {
+  font-weight: 600;
+  border-top: 2px solid var(--dx-color-border, #d0d0d0);
+  border-bottom: none;
+}
+
+.cargaAsistenteIaPanel__consultaCell--numeric {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.cargaAsistenteIaPanel__consultaNote {
+  margin: 0.35rem 0 0;
+  font-size: 0.8rem;
+  opacity: 0.8;
+}
+
+.cargaAsistenteIaPanel__composer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.cargaAsistenteIaPanel__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.cargaAsistenteIaPanel__providerSelect {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.85rem;
+}
+
+.cargaAsistenteIaPanel__providerSelect > span {
+  opacity: 0.85;
+}
+
+.cargaAsistenteIaPanel__configGate,
+.cargaAsistenteIaPanel__status,
+.cargaAsistenteIaPanel__listening {
+  margin: 0;
+  font-size: 0.85rem;
+}
+
+.cargaAsistenteIaPanel__attachments {
+  display: grid;
+  gap: 0.5rem;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.cargaAsistenteIaPanel__attachmentItem {
+  border: 1px solid var(--dx-color-border, #d0d0d0);
+  border-radius: 4px;
+  overflow: hidden;
+  background: var(--dx-color-main-bg, #fff);
+}
+
+.cargaAsistenteIaPanel__attachmentPreview {
+  display: block;
+  width: 100%;
+  height: 72px;
+  object-fit: cover;
+}
+
+.cargaAsistenteIaPanel__attachmentMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.35rem 0.45rem;
+}
+
+.cargaAsistenteIaPanel__attachmentName {
+  font-size: 0.75rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cargaAsistenteIaPanel__configGate {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.35rem;
+}

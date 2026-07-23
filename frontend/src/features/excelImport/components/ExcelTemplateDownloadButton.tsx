@@ -1,8 +1,8 @@
 import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import Button from 'devextreme-react/button';
-import { saveExcelWithPicker } from '../../../shared/ui/gridExport/saveExcelWithPicker';
-import { downloadExcelTemplate } from '../api/excelImportApi';
+import { saveExcelWithPickerLazy } from '../../../shared/ui/gridExport/saveExcelWithPicker';
+import { downloadExcelTemplate, resolveExcelImportErrorKey } from '../api/excelImportApi';
 
 type ExcelTemplateDownloadButtonProps = {
   codigoProceso: string;
@@ -17,17 +17,20 @@ export function ExcelTemplateDownloadButton({
 }: ExcelTemplateDownloadButtonProps) {
   const { t, i18n } = useTranslation();
   const [isLoading, setIsLoading] = useState(false);
+  const [errorKey, setErrorKey] = useState<string | null>(null);
 
   const handleDownload = useCallback(async () => {
     setIsLoading(true);
+    setErrorKey(null);
     try {
-      const blob = await downloadExcelTemplate(codigoProceso, i18n.language);
       const safeCodigo = codigoProceso.replace(/[^A-Za-z0-9_-]+/g, '_') || 'proceso';
       const suggestedName = `${safeCodigo}_plantilla.xlsx`;
-      const buffer = await blob.arrayBuffer();
-      await saveExcelWithPicker(buffer, suggestedName);
-    } catch {
-      // El shell muestra errores vía toast global si aplica.
+      await saveExcelWithPickerLazy(suggestedName, async () => {
+        const blob = await downloadExcelTemplate(codigoProceso, i18n.language);
+        return blob.arrayBuffer();
+      });
+    } catch (error) {
+      setErrorKey(resolveExcelImportErrorKey(error, 'excelImport.plantillaNoDisponible'));
     } finally {
       setIsLoading(false);
     }
@@ -46,6 +49,11 @@ export function ExcelTemplateDownloadButton({
         disabled={disabled || isLoading}
         onClick={() => void handleDownload()}
       />
+      {errorKey ? (
+        <p className="excelImportHostToolbar__error" role="alert" data-testid="excelTemplateDownloadError">
+          {t(errorKey)}
+        </p>
+      ) : null}
     </div>
   );
 }

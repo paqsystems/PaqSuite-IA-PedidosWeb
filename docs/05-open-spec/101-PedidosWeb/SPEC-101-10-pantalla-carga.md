@@ -5,7 +5,7 @@
 | **SPEC madre** | [PedidosWeb_SPEC_MVP.md](PedidosWeb_SPEC_MVP.md) |
 | **Estado** | Especificado |
 | **Prioridad épica** | Must |
-| **Última actualización** | 2026-06-17 (disponible base agregado — alineación consulta stock) |
+| **Última actualización** | 2026-06-24 (modal precarga stock, bloqueo cliente, NOLOCK backend) |
 
 ## Objetivo
 
@@ -105,3 +105,5 @@ Fuente de verdad UI: [pantalla-carga-comprobante-ui.md](../../02-producto/Pedido
 | 11/06/2026 | Parte I CC #5 | Unificación `SPEC-101-10-pantalla-carga-update` (CC #5) |
 | 17/06/2026 | CC PQ #6 | Disponible base listbox: agregado SUM por `base`; fórmula alineada con consulta stock §5 |
 | 23/06/2026 | perf carga | Precarga stock al montar; precios por lista (`solo_catalogo`); merge cliente — ver `pantalla-carga-comprobante-ui.md` §3 |
+| 24/06/2026 | perf carga | Modal precarga stock; cliente bloqueado hasta stock; precios batch con `solo_catalogo`; sin fetch por artículo al agregar — ver `pantalla-carga-comprobante-ui.md` §3 |
+| 24/06/2026 | concurrencia SQL | Lecturas ERP sin bloqueo (`NOLOCK` / `READ UNCOMMITTED`); escrituras con `READ COMMITTED` — ver [sqlserver-lecturas-sin-bloqueo.md](../../backend/sql/sqlserver-lecturas-sin-bloqueo.md) |

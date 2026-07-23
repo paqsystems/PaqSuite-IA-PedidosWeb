@@ -53,11 +53,9 @@ final class ExcelColumnI18nResolver
         string $fallbackExcelName,
         string $locale
     ): string {
-        $suffix = $this->internalFieldToKeySuffix($nombreCampoInterno);
-        $key = "excel_import.column.{$codigoProceso}.{$suffix}";
-        $translated = trans($key, [], $this->normalizeLocale($locale));
+        $translated = $this->translateColumnLabel($codigoProceso, $nombreCampoInterno, $locale);
 
-        return $translated !== $key ? $translated : $fallbackExcelName;
+        return $translated ?? $fallbackExcelName;
     }
 
     public function requiredComment(string $locale): string
@@ -74,10 +72,15 @@ final class ExcelColumnI18nResolver
         string $locale
     ): ?string {
         $suffix = $this->internalFieldToKeySuffix($nombreCampoInterno);
-        $key = "excel_import.columnComment.{$codigoProceso}.{$suffix}";
-        $translated = trans($key, [], $this->normalizeLocale($locale));
+        foreach ($this->columnTranslationProcessCodes($codigoProceso) as $processCode) {
+            $key = "excel_import.columnComment.{$processCode}.{$suffix}";
+            $translated = trans($key, [], $this->normalizeLocale($locale));
+            if ($translated !== $key) {
+                return $translated;
+            }
+        }
 
-        return $translated !== $key ? $translated : null;
+        return null;
     }
 
     /**
@@ -134,6 +137,35 @@ final class ExcelColumnI18nResolver
         foreach ($campos as $campo) {
             if ($campo->es_columna_obligatoria_estructural && ! isset($columnIndexByCampo[$campo->nombre_campo_interno])) {
                 return 'excelImport.errorColumnaEstructuralFaltante';
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function columnTranslationProcessCodes(string $codigoProceso): array
+    {
+        if ($codigoProceso === 'PEDIDO_MASIVO') {
+            return ['PEDIDO_MASIVO', 'PEDIDO_INDIVIDUAL'];
+        }
+
+        return [$codigoProceso];
+    }
+
+    private function translateColumnLabel(
+        string $codigoProceso,
+        string $nombreCampoInterno,
+        string $locale
+    ): ?string {
+        $suffix = $this->internalFieldToKeySuffix($nombreCampoInterno);
+        foreach ($this->columnTranslationProcessCodes($codigoProceso) as $processCode) {
+            $key = "excel_import.column.{$processCode}.{$suffix}";
+            $translated = trans($key, [], $this->normalizeLocale($locale));
+            if ($translated !== $key) {
+                return $translated;
             }
         }
 

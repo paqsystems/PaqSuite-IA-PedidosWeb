@@ -7,7 +7,7 @@
 | **Ruta** | `/pedidos/carga` |
 | **TR** | [TR-SPEC-101-10-pantalla-carga](../../04-tareas/101-PedidosWeb/TR-SPEC-101-10-pantalla-carga.md) |
 | **SPEC** | [SPEC-101-10-pantalla-carga](../../05-open-spec/101-PedidosWeb/SPEC-101-10-pantalla-carga.md) |
-| **Última actualización** | 2026-06-18 (layout CC PQ #7) |
+| **Última actualización** | 2026-06-24 (modal precarga stock + bloqueo cliente) |
 
 Este documento es la **fuente de verdad** para comportamiento de UI de la pantalla única de carga/edición de pedidos y presupuestos. Ante conflicto con implementaciones antiguas, prevalece este archivo.
 
@@ -26,6 +26,8 @@ Este documento es la **fuente de verdad** para comportamiento de UI de la pantal
 | Cálculos importes | `frontend/src/features/pedidos/utils/renglonesCarga.ts` |
 | Leyendas pie | `frontend/src/features/pedidos/components/ComprobanteLeyendasPie.tsx` |
 | Precios por lista | `frontend/src/features/pedidos/utils/actualizarPreciosRenglones.ts` |
+| Modal precarga stock | `frontend/src/features/pedidos/components/PedidosCargaArticulosStockLoadPanel.tsx` |
+| Merge stock + precios | `frontend/src/features/pedidos/utils/mergeArticulosStockPrecios.ts` |
 
 Controles: **DevExtreme** (`SelectBox`, `NumberBox`, `DataGrid`, `Popup`, `Button`).
 
@@ -57,12 +59,14 @@ Controles: **DevExtreme** (`SelectBox`, `NumberBox`, `DataGrid`, `Popup`, `Butto
 | API stock | `GET /api/v1/articulos?q=&page_size=10000` — join `pq_pedidosweb_stock`; disponible = stock − comprometido − pedidos web ingresados (**sin** `lista_precios`) |
 | API precios | `GET /api/v1/articulos?q=&lista_precios={cod_lista}&page_size=10000&solo_catalogo=1` — precio, bonificación e IVA por lista (**sin** recalcular stock) |
 | Carga de datos | **Al montar:** precarga **stock/disponible** (`fetchArticulosStockCatalogoCarga`, hasta **10 000** ítems). **Tras lista de precios válida en cabecera:** consulta de **precios** (`fetchArticulosPreciosCatalogoCarga`); merge en cliente (`mergeArticulosStockPrecios`). Stock **no** se repite al cambiar cliente; precios **sí** se recargan al cambiar lista |
+| Bloqueo inicial | Mientras la precarga de stock está en curso y el catálogo en memoria está vacío (`articulosStockPrecargaPendiente`): **Popup** modal no cerrable (`PedidosCargaArticulosStockLoadPanel`, `data-testid`: `articulos-cargando`); combobox **cliente** y orden cliente **deshabilitados**; combobox artículos y **Agregar artículo** deshabilitados |
 | Actualizar catálogo | Botón icono **refresh** (`data-testid`: `articulosRefresh`) junto al combobox; reconsulta solo **stock** y reemplaza el array en memoria |
 | Búsqueda | **Local** DevExtreme (`searchEnabled`, `searchExpr`: `codArticulo`, `descripcion`, `searchMode`: `contains`); sin consultas API al tipear |
 | Auto-match | Si el filtro local deja un único ítem, selección automática |
-| Lista precios | Sin `listaPrecios` válida en cabecera el combobox queda deshabilitado (sin `DataSource`); al cambiar lista → `actualizarPreciosRenglonesPorLista` (batch `codigos`) |
+| Lista precios | Sin `listaPrecios` válida en cabecera el combobox queda deshabilitado (sin `DataSource`); al cambiar lista → `actualizarPreciosRenglonesPorLista` (batch `codigos` + `solo_catalogo=1`) |
 | Orden | **`descripcion` ASC** (API `orderBy('descripcion')` + `ordenarArticulosPorDescripcion` en cliente) |
-| Estado carga | Hint i18n `selectBox.loading` durante precarga inicial |
+| Estado carga | Modal i18n `pedidos.carga.articulosStockLoadTitulo` / `articulosCargando` / `articulosStockLoadHint` durante precarga inicial de stock; hint `selectBox.loading` en combobox artículos al refrescar stock |
+| Agregar artículo | Deshabilitado hasta que stock esté listo **y** precios de la lista activa hayan terminado de cargar (`articulosPreciosListos`) |
 | Exclusión BASE | No listar artículos con `pq_pedidosweb_articulos.usa_esc = 'B'` (solo lookup/browse; refresh por `codigos` no aplica este filtro) |
 | Formato ítem | Ver §3.1 |
 | Precio al agregar | Campo `precio` del ítem mergeado en memoria (lista activa en cabecera); **sin** fetch puntual por código al pulsar Agregar |

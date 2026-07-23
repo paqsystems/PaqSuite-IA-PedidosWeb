@@ -47,6 +47,7 @@ final class CabeceraInicialService
         return [
             'cabecera' => [
                 'cod_cliente' => (string) $cliente->cod_client,
+                'razon_soci' => $this->resolveRazonSocial($cliente),
                 'cod_vended' => $cliente->cod_vended,
                 'vendedor_nombre' => (string) ($cliente->vendedor?->nombre ?? ''),
                 'cod_condvta' => (int) ($cliente->cod_condvta ?? 0),
@@ -84,6 +85,7 @@ final class CabeceraInicialService
     {
         return [
             'cod_cliente' => (string) $pedido->cod_cliente,
+            'razon_soci' => $this->resolveRazonSocial($cliente),
             'cod_vended' => $pedido->cod_vended,
             'vendedor_nombre' => (string) ($pedido->vendedor?->nombre ?? $cliente->vendedor?->nombre ?? ''),
             'cod_condvta' => (int) ($pedido->cod_condvta ?? 0),
@@ -252,6 +254,16 @@ final class CabeceraInicialService
         }
 
         return null;
+    }
+
+    private function resolveRazonSocial(PqPedidoswebCliente $cliente): string
+    {
+        $razon = trim((string) ($cliente->razon_soci ?? ''));
+        if ($razon !== '') {
+            return $razon;
+        }
+
+        return trim((string) ($cliente->nombre ?? ''));
     }
 
     /**

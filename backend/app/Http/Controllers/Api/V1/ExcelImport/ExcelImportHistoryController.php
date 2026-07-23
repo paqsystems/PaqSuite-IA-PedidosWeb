@@ -25,8 +25,12 @@ final class ExcelImportHistoryController extends Controller
     /**
      * @OA\Get(
      *     path="/api/v1/excel-import/historial",
+     *     summary="Historial de importaciones Excel",
      *     tags={"ExcelImport"},
-     *     security={{"sanctum":{}},{"tenant":{}}}
+     *     security={{"sanctum":{}},{"tenant":{}}},
+     *     @OA\Response(response=200, description="Listado paginado", @OA\JsonContent(ref="#/components/schemas/ApiEnvelope")),
+     *     @OA\Response(response=401, description="No autenticado"),
+     *     @OA\Response(response=403, description="Sin permiso o epica deshabilitada")
      * )
      */
     public function index(Request $request): JsonResponse

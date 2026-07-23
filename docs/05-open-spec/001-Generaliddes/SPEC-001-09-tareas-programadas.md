@@ -30,6 +30,7 @@ Subcarpeta: `docs/00-contexto/_mono/Tareas-programadas/`
 - `tareas_programadas_premium.md`
 - `tareas_programadas.md`
 - `template_proyecto_tasks.md`
+- `backups-programables-mono-multi.md` — proceso backup BD (Mono RDS→S3 / Multi tradicional)
 
 ## Alcance
 

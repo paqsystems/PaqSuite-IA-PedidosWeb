@@ -7,6 +7,7 @@ use App\Exceptions\PedidosWebBusinessException;
 use App\Models\PqPedidoswebPedidoCabecera;
 use App\Models\User;
 use App\Services\PedidosWeb\PedidosWebParameterService;
+use App\Services\PedidosWeb\PedidosWebSchemaBootstrap;
 use App\Services\PedidosWeb\PresupuestoCierreService;
 use App\Services\Visibility\PedidosWebVisibilityGuard;
 use PHPUnit\Framework\Attributes\Test;
@@ -23,7 +24,8 @@ final class PresupuestoCierreServiceTest extends TestCase
         $service = new PresupuestoCierreService(
             $repository,
             new PedidosWebParameterService(),
-            $this->createPermissiveVisibilityGuard()
+            $this->createPermissiveVisibilityGuard(),
+            new PedidosWebSchemaBootstrap(),
         );
 
         $user = new User();
@@ -48,7 +50,8 @@ final class PresupuestoCierreServiceTest extends TestCase
         $service = new PresupuestoCierreService(
             $repository,
             new PedidosWebParameterService(),
-            $this->createPermissiveVisibilityGuard()
+            $this->createPermissiveVisibilityGuard(),
+            new PedidosWebSchemaBootstrap(),
         );
 
         $user = new User();

@@ -3,6 +3,8 @@
   "parametros.pedidosWeb.ArticulosPrecioCero.tooltip": "When enabled, the portal allows loading lines whose price in the selected list is zero. When disabled, the system rejects or warns according to load validations.",
   "parametros.pedidosWeb.ArticulosSinPrecio.caption": "Allow items without list price",
   "parametros.pedidosWeb.ArticulosSinPrecio.tooltip": "When enabled, allows loading items with no price defined in the active price list. When disabled, load requires a valid list price.",
+  "parametros.pedidosWeb.ActualizarPrecioCopia.caption": "Update prices when copying voucher",
+  "parametros.pedidosWeb.ActualizarPrecioCopia.tooltip": "When enabled, copying an order or quote resolves line prices from the source voucher's active price list. When disabled, source line prices are kept and validated against zero-price and missing-price parameters.",
   "parametros.pedidosWeb.CargaRecurrente.caption": "Recurrent load after save",
   "parametros.pedidosWeb.CargaRecurrente.tooltip": "Defines behavior after saving an order or quote: when enabled, the flow returns to a new load; when disabled, it returns to the list or previous screen per portal implementation.",
   "parametros.pedidosWeb.ClienteLeyenda1.caption": "Initialize legend 1 from customer",

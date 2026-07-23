@@ -10,6 +10,8 @@ import {
   updateStoredSessionContext,
 } from './authStorage';
 import type { SessionContext } from './types';
+import { clearImportacionMasivaBorradorStorage } from '../pedidos/importacionMasiva/utils/importacionMasivaBorradorStorage';
+import { clearClientesCache } from '../pedidos/api/comprobanteApi';
 
 type AuthContextValue = {
   sessionContext: SessionContext | null;
@@ -34,6 +36,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [expiredReasonKey, setExpiredReasonKey] = useState<string | null>(() => consumeExpiredReason());
 
   const clearSession = useCallback((reasonKey?: string) => {
+    clearImportacionMasivaBorradorStorage();
+    clearClientesCache();
+
     if (reasonKey) {
       storeExpiredReason(reasonKey);
       setExpiredReasonKey(reasonKey);
@@ -41,9 +46,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
       setExpiredReasonKey(null);
     }
 
-    clearAuthSession();
-    setSessionContext(null);
-    setIsBootstrapping(false);
+    void clearAuthSession().finally(() => {
+      setSessionContext(null);
+      setIsBootstrapping(false);
+    });
   }, []);
 
   const clearExpiredReason = useCallback(() => {

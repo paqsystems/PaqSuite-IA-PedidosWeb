@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">PedidosWeb</string>
+    <string name="title_activity_main">PedidosWeb</string>
+    <string name="package_name">com.paqsystems.pedidosweb</string>
+    <string name="custom_url_scheme">com.paqsystems.pedidosweb</string>
+</resources>

@@ -121,6 +121,17 @@ Convención: **`HU-GEN-{SPEC}-{tema}.md`** derivadas de `docs/05-open-spec/001-G
 
 **SPEC:** [SPEC-001-08-pivots.md](../../05-open-spec/001-Generaliddes/SPEC-001-08-pivots.md) — **B1 (2026-06-11):** 4 HU enriquecidas · **C (2026-06-11):** 4 TR generadas · **D1 + F (2026-06-11):** implementado — [F-GEN-08-cierre-formal](../../04-tareas/001-Generaliddes/F-GEN-08-cierre-formal.md).
 
+## SPEC-001-11 — Mobile Capacitor
+
+| HU | TR | Título | Prioridad |
+|----|-----|--------|-----------|
+| [HU-GEN-11-mobile-capacitor-scaffold](HU-GEN-11-mobile-capacitor-scaffold.md) | [TR-GEN-11-mobile-capacitor-scaffold](../../04-tareas/001-Generaliddes/TR-GEN-11-mobile-capacitor-scaffold.md) | Scaffold Capacitor Android+iOS | Must |
+| [HU-GEN-11-mobile-login-tenant](HU-GEN-11-mobile-login-tenant.md) | [TR-GEN-11-mobile-login-tenant](../../04-tareas/001-Generaliddes/TR-GEN-11-mobile-login-tenant.md) | Login tenant-first MONO | Must |
+| [HU-GEN-11-mobile-config-api](HU-GEN-11-mobile-config-api.md) | (embebida en TR login) | Override URL API (engranaje) | Must |
+| [HU-GEN-11-mobile-shell-exclusiones](HU-GEN-11-mobile-shell-exclusiones.md) | [TR-GEN-11-mobile-shell](../../04-tareas/001-Generaliddes/TR-GEN-11-mobile-shell.md) | Shell native y exclusiones mobile | Must |
+
+**SPEC:** [SPEC-001-11-mobile-capacitor.md](../../05-open-spec/001-Generaliddes/SPEC-001-11-mobile-capacitor.md) — **A1 + B1 + C1 (2026-06-30):** [F-GEN-11-cierre-c1](../../04-tareas/001-Generaliddes/F-GEN-11-cierre-c1.md); release v1 **`v1.2.0-mobile`** — **autorizada Parte D**.
+
 ## Pendientes (otros SPEC)
 
 - SPEC-001-05 → HU-GEN-05 + TR (tenancy; prioridad Fase 0)

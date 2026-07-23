@@ -42,7 +42,7 @@ final class PedidoIndividualRowResolver
         try {
             $this->visibilityGuard->ensureCodClienteVisible($user, $codCliente);
         } catch (\Throwable) {
-            $errors[] = $this->businessError('cod_cliente', 'codigo cliente', 'excel_import.pedidoIndividual.clienteSesion');
+            $errors[] = $this->businessError('cod_cliente', 'codigo cliente', 'excel_import.pedidoIndividual.clienteNoVisible');
 
             return $errors;
         }
@@ -87,18 +87,26 @@ final class PedidoIndividualRowResolver
 
         $codArticulo = trim((string) ($row['cod_articulo'] ?? ''));
         if ($codArticulo !== '') {
-            $allowed = PqPedidoswebArticulo::query()
-                ->excluirArticulosBaseCarga()
-                ->where('codigo', $codArticulo)
-                ->exists();
-
-            if (! $allowed) {
-                $exists = $this->articuloRepository->findByCodigo($codArticulo) !== null;
+            $articulo = $this->articuloRepository->findByCodigo($codArticulo);
+            if ($articulo === null) {
                 $errors[] = $this->businessError(
                     'cod_articulo',
                     'codigo de articulo',
-                    $exists ? 'excel_import.pedidoIndividual.articuloBase' : 'excel_import.pedidoIndividual.articuloNoEncontrado'
+                    'excel_import.pedidoIndividual.articuloNoEncontrado'
                 );
+            } else {
+                $allowed = PqPedidoswebArticulo::query()
+                    ->excluirArticulosBaseCarga()
+                    ->where('codigo', $articulo->codigo)
+                    ->exists();
+
+                if (! $allowed) {
+                    $errors[] = $this->businessError(
+                        'cod_articulo',
+                        'codigo de articulo',
+                        'excel_import.pedidoIndividual.articuloBase'
+                    );
+                }
             }
         }
 
@@ -120,7 +128,7 @@ final class PedidoIndividualRowResolver
                 $errors[] = $this->businessError('precio_lista', 'precio lista', 'excel_import.pedidoIndividual.precioCero');
             }
         } catch (\Throwable) {
-            $errors[] = $this->businessError('cod_cliente', 'codigo cliente', 'excel_import.pedidoIndividual.clienteSesion');
+            $errors[] = $this->businessError('cod_cliente', 'codigo cliente', 'excel_import.pedidoIndividual.clienteNoVisible');
         }
 
         return $errors;
@@ -145,18 +153,21 @@ final class PedidoIndividualRowResolver
         $cabeceraBundle = $this->resolveCabeceraBundle($codCliente, $user);
         $cabecera = $cabeceraBundle['cabecera'];
 
-        $codLista = (int) ($row['cod_lista'] ?? $cabecera['lista_precios'] ?? 0);
-        $codArticulo = trim((string) ($row['cod_articulo'] ?? ''));
+        $codLista = $this->isFilled($row['cod_lista'] ?? null)
+            ? (int) $row['cod_lista']
+            : (int) ($cabecera['lista_precios'] ?? 0);
+        $codArticuloExcel = trim((string) ($row['cod_articulo'] ?? ''));
         $cantidad = (float) ($row['cantidad'] ?? 0);
 
-        $articulo = $this->articuloRepository->findByCodigo($codArticulo);
+        $articulo = $this->articuloRepository->findByCodigo($codArticuloExcel);
+        $codArticulo = $articulo !== null ? (string) $articulo->codigo : $codArticuloExcel;
+
         $precioLista = $row['precio_lista'] ?? null;
-        if (isset($row['precio']) && is_numeric($row['precio'])) {
-            $precio = (float) $row['precio'];
+        $precioVigenteLista = (float) ($this->articuloRepository->findPrecioLista($codLista, $codArticulo)?->precio ?? 0);
+        if ($this->isFilled($precioLista)) {
+            $precio = (float) $precioLista;
         } else {
-            $precio = $precioLista !== null && $precioLista !== ''
-                ? (float) $precioLista
-                : (float) ($this->articuloRepository->findPrecioLista($codLista, $codArticulo)?->precio ?? 0);
+            $precio = $precioVigenteLista;
         }
 
         $bonifRenglon = $row['bonif_renglon'] ?? null;

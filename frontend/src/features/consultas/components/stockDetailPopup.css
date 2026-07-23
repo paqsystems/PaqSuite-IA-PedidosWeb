@@ -1,0 +1,20 @@
+.stockDetailPopup {
+  display: grid;
+  gap: 0.75rem;
+  margin: 0;
+}
+
+.stockDetailPopup div {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.stockDetailPopup dt {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--pw-text-muted, #5f6368);
+}
+
+.stockDetailPopup dd {
+  margin: 0;
+}

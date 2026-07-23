@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 final class PqPedidoswebAsistenteIaProveedor extends Model
 {
-    protected $table = 'pq_pedidosweb_asistente_ia_proveedores';
+    protected $table = 'pq_asistente_ia_proveedores';
 
     protected $primaryKey = 'id_proveedor';
 

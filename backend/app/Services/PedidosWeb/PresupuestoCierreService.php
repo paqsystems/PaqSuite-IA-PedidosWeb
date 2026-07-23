@@ -14,6 +14,7 @@ final class PresupuestoCierreService
         private readonly PedidoRepositoryInterface $pedidoRepository,
         private readonly PedidosWebParameterService $parameterService,
         private readonly PedidosWebVisibilityGuard $pedidosWebVisibilityGuard,
+        private readonly PedidosWebSchemaBootstrap $schemaBootstrap,
     ) {}
 
     /**
@@ -25,6 +26,8 @@ final class PresupuestoCierreService
         ?string $observacion,
         User $user
     ): array {
+        $this->schemaBootstrap->ensureMvpSchema();
+
         $this->pedidosWebVisibilityGuard->ensureComprobanteVisible($user, $codPresupuesto);
         $presupuesto = $this->pedidoRepository->findByCodPedido($codPresupuesto, true);
 
@@ -59,6 +62,8 @@ final class PresupuestoCierreService
 
     public function cerrarPorConversion(string $codPresupuesto, string $codPedidoGenerado, User $user): void
     {
+        $this->schemaBootstrap->ensureMvpSchema();
+
         $motivo = $this->resolveMotivo(
             $this->parameterService->getCodMotivoCierreExitoso(),
             'positivo'

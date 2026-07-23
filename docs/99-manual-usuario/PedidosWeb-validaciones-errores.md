@@ -2,8 +2,8 @@
 
 | Campo | Valor |
 |-------|--------|
-| **Versión documento** | 2026-06-22 |
-| **Ámbito** | Todas las validaciones que impiden grabar, importar, editar o eliminar comprobantes |
+| **Versión documento** | 2026-07-02 (errores al copiar comprobante; revisión 2026-06-22) |
+| **Ámbito** | Todas las validaciones que impiden grabar, importar, **copiar**, editar o eliminar comprobantes |
 | **Manual principal** | [PedidosWeb.md](./PedidosWeb.md) |
 | **Circuito de estados** | [PedidosWeb-circuito-estados.md](./PedidosWeb-circuito-estados.md) |
 
@@ -14,7 +14,7 @@
 - Los textos en pantalla dependen del **idioma activo** del portal.
 - Al grabar, si hay varios problemas, el sistema puede mostrar un **diálogo con lista** de errores (no solo el primero).
 - Los mensajes de negocio suelen indicar **qué corregir** antes de reintentar.
-- Una grabación **rechazada** no deja datos parciales en el servidor: debe corregir y volver a pulsar Grabar.
+- Al **copiar**, un rechazo muestra un **modal** dedicado (*No se pudo copiar el comprobante*); no abre la pantalla de carga. Ver §8.
 
 ---
 
@@ -84,8 +84,9 @@ Consultables en **General → Consulta de parámetros**:
 
 | Parámetro (clave técnica) | Si está en **Sí** | Efecto en grabación |
 |---------------------------|-------------------|---------------------|
-| **Admitir artículos con precio cero** (`ArticulosPrecioCero`) | Permite renglones con precio 0 | Si **No**, rechaza grabación con precio cero |
-| **Admitir artículos sin precio en lista** (`ArticulosSinPrecio`) | Permite artículos sin precio en lista | Si **No**, rechaza cuando no hay precio válido |
+| **Admitir artículos con precio cero** (`ArticulosPrecioCero`) | Permite renglones con precio 0 | Si **No**, rechaza grabación con precio cero; al **copiar** con *Actualizar precios al copiar* = **Sí**, rechaza renglones con precio 0 en lista; con modo **No**, valida precios del origen |
+| **Admitir artículos sin precio en lista** (`ArticulosSinPrecio`) | Permite artículos sin precio en lista | Si **No**, rechaza cuando no hay precio válido al grabar; al **copiar** con lista, rechaza artículos sin fila de precio; con modo origen, valida renglones sin precio del detalle |
+| **Actualizar precios al copiar comprobante** (`ActualizarPrecioCopia`) | Precios desde lista al copiar | Si **No** (default), conserva precios del origen y valida contra parámetros vigentes; si **Sí**, resuelve precios desde la lista de cabecera |
 | **Solo niveles 0 y 100** (`NivelExtremo`) | Solo admite nivel 0 o 100 | Si **No**, acepta otros niveles del maestro |
 | **Procesar clientes inhabilitados** (`ClientesInhabilitados`) | Permite operar clientes inhabilitados | Si **No**, clientes inhabilitados quedan fuera de selección |
 
@@ -151,7 +152,33 @@ Si un campo aparece **deshabilitado** en carga, suele deberse a estos flags o al
 
 ---
 
-## 8. Importación Excel — errores por fila y por lote
+## 8. Errores al copiar comprobante
+
+Ocurren al pulsar **Copiar** en pedidos ingresados, pendientes o presupuestos activos, **antes** de abrir la pantalla de carga. El portal muestra un **modal** (no un mensaje pequeño en la consulta).
+
+| Mensaje habitual (ES) | Cuándo ocurre | Qué hacer |
+|------------------------|---------------|-----------|
+| **No se pudo copiar el comprobante** (título del modal) | Cualquier rechazo de la operación de copia | Leer el detalle en el cuerpo del modal; cerrar y volver a la consulta |
+| **Hay artículos con precio cero o sin precio** | Precios inválidos según parámetros ERP | Ver tabla siguiente y [PedidosWeb §6.9.2](./PedidosWeb.md#692-política-de-precios-al-copiar-actualizarpreciocopia) |
+
+### Causas frecuentes por modo de copia
+
+| Modo (`Actualizar precios al copiar`) | Causa típica | Acción |
+|---------------------------------------|--------------|--------|
+| **No** | Renglón del origen con precio ≤ 0 y *Admitir artículos con precio cero* = **No** | Cambiar parámetro en ERP, editar el comprobante origen en ERP, o copiar otro comprobante |
+| **No** | Renglón del origen sin precio y *Admitir artículos sin precio* = **No** | Idem |
+| **Sí** | Artículo sin fila en la lista de precios de la cabecera copiada | Completar precio en ERP, cambiar lista en origen antes de copiar, o activar *Admitir artículos sin precio* |
+| **Sí** | Precio 0 en lista y *Admitir artículos con precio cero* = **No** | Corregir precio en lista ERP o ajustar parámetro |
+
+**Notas:**
+
+- Una copia rechazada **no** crea borrador ni modifica el comprobante origen.
+- La **conversión** presupuesto → pedido **no** usa estas reglas (§7 de [PedidosWeb.md](./PedidosWeb.md)).
+- En **app móvil** el mismo modal y mensajes aplican al copiar desde las consultas kardex.
+
+---
+
+## 9. Importación Excel — errores por fila y por lote
 
 Disponible solo en **carga nueva** sin renglones, si el tenant la habilitó. Regla general: **si una fila falla, no se importa nada** (todo o nada).
 
@@ -196,7 +223,7 @@ Disponible solo en **carga nueva** sin renglones, si el tenant la habilitó. Reg
 
 ---
 
-## 9. Correo al grabar
+## 10. Correo al grabar
 
 | Situación | ¿Se grabó el comprobante? | Acción |
 |-----------|---------------------------|--------|
@@ -207,7 +234,7 @@ Parámetros relevantes: *Incluir detalle de renglones en mail*, *Destinatarios a
 
 ---
 
-## 10. Errores en consultas e informes
+## 11. Errores en consultas e informes
 
 | Situación | Causa probable | Acción |
 |-----------|----------------|--------|
@@ -218,7 +245,7 @@ Parámetros relevantes: *Incluir detalle de renglones en mail*, *Destinatarios a
 
 ---
 
-## 11. Tabla rápida: «No puedo grabar» → revisar en orden
+## 12. Tabla rápida: «No puedo grabar» → revisar en orden
 
 1. ¿Cliente y cabecera cargados? (lookups completos)
 2. ¿Al menos un renglón con cantidad > 0?
@@ -230,7 +257,7 @@ Parámetros relevantes: *Incluir detalle de renglones en mail*, *Destinatarios a
 
 ---
 
-## 12. Tabla rápida: «No puedo editar / eliminar» → revisar en orden
+## 13. Tabla rápida: «No puedo editar / eliminar» → revisar en orden
 
 1. **General → Consulta de parámetros:** *Impide modificar pedidos* / *Impide eliminar pedidos*
 2. Permiso de menú (modificación / baja)
@@ -240,7 +267,7 @@ Parámetros relevantes: *Incluir detalle de renglones en mail*, *Destinatarios a
 
 ---
 
-## 13. Preguntas frecuentes sobre validaciones
+## 14. Preguntas frecuentes sobre validaciones
 
 ### ¿Por qué me deja cargar un artículo sin stock?
 
@@ -257,6 +284,10 @@ La regla de descuento por cantidad del maestro se aplica al cambiar cantidad **a
 ### ¿Grabar presupuesto valida distinto que grabar pedido?
 
 Las validaciones de cabecera y renglones son las **mismas**; cambia el estado resultante y la matriz de conversión (ver [circuito de estados](./PedidosWeb-circuito-estados.md)).
+
+### ¿La copia valida precios antes de abrir la pantalla de carga?
+
+Sí. Si los precios no cumplen los parámetros ERP según *Actualizar precios al copiar comprobante*, el sistema muestra un modal y no abre carga. Ver §8 y [PedidosWeb §6.9](./PedidosWeb.md#691-copiar-comprobante--flujo-operativo).
 
 ### ¿El chat asistente puede ver por qué falló mi grabación?
 

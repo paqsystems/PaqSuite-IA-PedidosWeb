@@ -72,6 +72,12 @@
   width: auto;
 }
 
+.excelImportHostToolbar__error {
+  margin: 0.35rem 0 0;
+  color: var(--dx-color-danger, #d9534f);
+  font-size: 0.85rem;
+}
+
 .excelImportHostModal__upload,
 .excelImportHostModal__structural,
 .excelImportHostModal__processing,

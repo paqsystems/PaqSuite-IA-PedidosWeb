@@ -5,6 +5,7 @@ import { useCurrentLocale } from '../../features/i18n/hooks/useCurrentLocale';
 import { AvatarMenu } from '../../features/avatar/components/AvatarMenu';
 import type { SessionContext } from '../../features/auth/types';
 import type { useMenuPresentation } from '../../features/menu/hooks/useMenuPresentation';
+import { MobileConfigButton } from '../../features/mobile/MobileConfigButton';
 
 type MenuPresentationControls = ReturnType<typeof useMenuPresentation>;
 
@@ -15,6 +16,7 @@ type ShellHeaderProps = {
   isSavingOpenInNewTab: boolean;
   onOpenInNewTabChange: (openInNewTab: boolean) => void;
   onLogout: () => void;
+  showMobileConfig?: boolean;
 };
 
 export function ShellHeader({
@@ -24,28 +26,40 @@ export function ShellHeader({
   isSavingOpenInNewTab,
   onOpenInNewTabChange,
   onLogout,
+  showMobileConfig = false,
 }: ShellHeaderProps) {
   const { t } = useTranslation();
   const { currentLocale, changeLocale, isSaving, saveErrorKey } = useCurrentLocale();
 
+  const menuToolbarControls = (
+    <MenuToolbarControls
+      menuTreeExpanded={menuPresentation.menuTreeExpanded}
+      menuDisplayMode={menuPresentation.menuDisplayMode}
+      onToggleSidebar={menuPresentation.toggleSidebarVisible}
+      onToggleExpandAll={menuPresentation.toggleMenuTreeExpanded}
+      onToggleDisplayMode={menuPresentation.toggleMenuDisplayMode}
+      compact={showMobileConfig}
+    />
+  );
+
   return (
-    <header className="shellHeader" data-testid="shellHeader">
+    <header
+      className={`shellHeader${showMobileConfig ? ' shellHeader--native' : ''}`}
+      data-testid="shellHeader"
+    >
       <div className="shellHeaderStart">
-        <MenuToolbarControls
-          menuTreeExpanded={menuPresentation.menuTreeExpanded}
-          menuDisplayMode={menuPresentation.menuDisplayMode}
-          onToggleSidebar={menuPresentation.toggleSidebarVisible}
-          onToggleExpandAll={menuPresentation.toggleMenuTreeExpanded}
-          onToggleDisplayMode={menuPresentation.toggleMenuDisplayMode}
-        />
+        {!showMobileConfig && menuToolbarControls}
         <p className="shellHeaderBrand">{t('app.title')}</p>
       </div>
 
       <div className="shellHeaderEnd">
+        {showMobileConfig && menuToolbarControls}
+        {showMobileConfig && <MobileConfigButton />}
         <LocaleSelector
           testId="localeSelectorHeader"
           value={currentLocale}
           disabled={isSaving}
+          compact={showMobileConfig}
           onChange={(locale) => {
             void changeLocale(locale);
           }}

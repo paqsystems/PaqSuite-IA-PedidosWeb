@@ -36,10 +36,15 @@ return [
         'clienteDistinto' => 'Tutte le righe devono avere lo stesso codice cliente',
         'cabeceraIncoherente' => 'I dati di testata devono essere identici su tutte le righe',
         'clienteSesion' => 'Il codice cliente deve coincidere con la sessione',
+        'clienteNoVisible' => 'Il cliente non esiste o non e visibile/assegnato al tuo utente',
         'articuloBase' => 'Articolo di tipo BASE non consentito',
         'articuloNoEncontrado' => 'Articolo inesistente',
         'cantidadInvalida' => 'La quantita deve essere maggiore di zero',
         'precioCero' => 'Prezzo zero non consentito',
         'nivelInvalido' => 'Livello non valido per la configurazione attuale',
+    ],
+    'pedidoMasivo' => [
+        'cabeceraIncoherenteGrupo' => 'I dati di testata devono essere identici in tutte le righe dello stesso documento',
+        'vendedorFaltante' => 'Il cliente non ha un venditore assegnato in anagrafica',
     ],
 ];

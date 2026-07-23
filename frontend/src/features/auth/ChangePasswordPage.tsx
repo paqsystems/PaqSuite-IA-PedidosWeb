@@ -11,7 +11,7 @@ import {
   type ChangePasswordFormValues,
 } from './changePasswordForm';
 import { updateStoredSessionContext } from './authStorage';
-import { authenticatedHomePath } from '../../app/router/protectedRoutes';
+import { getAuthenticatedHomePath } from '../mobile/mobileNavigation';
 import './ChangePasswordPage.css';
 
 type ChangePasswordPageProps = {
@@ -69,7 +69,7 @@ export function ChangePasswordPage({ forceFirstLogin = false }: ChangePasswordPa
       const envelope = await changePasswordRequest(values);
       setSessionContext(envelope.resultado);
       updateStoredSessionContext(envelope.resultado);
-      navigate(authenticatedHomePath, { replace: true });
+      navigate(getAuthenticatedHomePath(), { replace: true });
     } catch (error) {
       if (error instanceof ApiClientError) {
         if (error.status === 401) {
@@ -91,7 +91,7 @@ export function ChangePasswordPage({ forceFirstLogin = false }: ChangePasswordPa
       return;
     }
 
-    navigate(authenticatedHomePath, { replace: true });
+    navigate(getAuthenticatedHomePath(), { replace: true });
   }
 
   return (

@@ -199,18 +199,21 @@ final class SecurityMvpSeeder extends Seeder
         }
 
         foreach ($procedimientos as $procedimiento) {
+            $exists = PqRolAtributo::query()
+                ->where('id_rol', $rol->id)
+                ->where('procedimiento', $procedimiento)
+                ->exists();
+
+            if ($exists) {
+                continue;
+            }
+
             $permisos = $this->resolveRolAtributoPermisos($procedimiento, $userSeed);
 
-            PqRolAtributo::query()->updateOrInsert(
-                [
-                    'id_rol' => $rol->id,
-                    'procedimiento' => $procedimiento,
-                ],
-                array_merge($permisos, [
-                    'id_rol' => $rol->id,
-                    'procedimiento' => $procedimiento,
-                ]),
-            );
+            PqRolAtributo::query()->create(array_merge($permisos, [
+                'id_rol' => $rol->id,
+                'procedimiento' => $procedimiento,
+            ]));
         }
     }
 

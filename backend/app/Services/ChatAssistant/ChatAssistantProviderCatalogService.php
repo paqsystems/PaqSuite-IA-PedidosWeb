@@ -32,7 +32,7 @@ final class ChatAssistantProviderCatalogService
      */
     public function listActiveProviders(): array
     {
-        if (! Schema::hasTable('pq_pedidosweb_asistente_ia_proveedores')) {
+        if (! Schema::hasTable('pq_asistente_ia_proveedores')) {
             return [];
         }
 
@@ -87,7 +87,7 @@ final class ChatAssistantProviderCatalogService
 
     public function isActiveProvider(string $providerId): bool
     {
-        if ($providerId === '' || ! Schema::hasTable('pq_pedidosweb_asistente_ia_proveedores')) {
+        if ($providerId === '' || ! Schema::hasTable('pq_asistente_ia_proveedores')) {
             return false;
         }
 

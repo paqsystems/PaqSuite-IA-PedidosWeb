@@ -36,6 +36,11 @@ final class PedidosWebParameterService
         return $this->getBool('CargaRecurrente', true);
     }
 
+    public function getActualizarPrecioCopia(): bool
+    {
+        return $this->getBool('ActualizarPrecioCopia', false);
+    }
+
     public function getDetallePorMail(): bool
     {
         return $this->getBool('DetallePorMail', true);
@@ -106,14 +111,12 @@ final class PedidosWebParameterService
 
     public function getArticuloPrecioCero(): bool
     {
-        return $this->getBool('ArticulosPrecioCero', false)
-            || $this->getBool('Articulopreciocero', false);
+        return $this->getBoolConAliasCanonico('ArticulosPrecioCero', 'Articulopreciocero', false);
     }
 
     public function getArticulosSinPrecio(): bool
     {
-        return $this->getBool('ArticulosSinPrecio', false)
-            || $this->getBool('Articulossinprecio', false);
+        return $this->getBoolConAliasCanonico('ArticulosSinPrecio', 'Articulossinprecio', false);
     }
 
     /**
@@ -135,27 +138,40 @@ final class PedidosWebParameterService
      *     modificaPrecio: bool,
      *     modificaBonArt: bool,
      *     modificaBonCli: bool,
-     *     modificaListaPrec: bool
+     *     modificaListaPrec: bool,
+     *     modificaCondVta: bool,
+     *     modificaDirEntr: bool,
+     *     modificaExpreso: bool
      * }
      */
     public function resolveModificaFlags(string $functionalProfile): array
     {
+        $suffix = match ($functionalProfile) {
+            'cliente' => 'C',
+            'supervisor' => 'S',
+            default => 'V',
+        };
+
         if ($functionalProfile === 'cliente') {
             return [
                 'modificaPrecio' => false,
                 'modificaBonArt' => false,
                 'modificaBonCli' => false,
                 'modificaListaPrec' => false,
+                'modificaCondVta' => $this->getBool("ModificaCondVta{$suffix}", false),
+                'modificaDirEntr' => $this->getBool("ModificaDirEntr{$suffix}", true),
+                'modificaExpreso' => $this->getBool("ModificaExpreso{$suffix}", true),
             ];
         }
-
-        $suffix = $functionalProfile === 'supervisor' ? 'S' : 'V';
 
         return [
             'modificaPrecio' => $this->getBool("ModificaPrecio{$suffix}", true),
             'modificaBonArt' => $this->getBool("ModificaBonArt{$suffix}", true),
             'modificaBonCli' => $this->getBool("ModificaBonCli{$suffix}", true),
             'modificaListaPrec' => $this->getBool("ModificaListaPrec{$suffix}", true),
+            'modificaCondVta' => $this->getBool("ModificaCondVta{$suffix}", true),
+            'modificaDirEntr' => $this->getBool("ModificaDirEntr{$suffix}", true),
+            'modificaExpreso' => $this->getBool("ModificaExpreso{$suffix}", true),
         ];
     }
 
@@ -188,6 +204,28 @@ final class PedidosWebParameterService
             return $this->boolFromConfigDefault($key, $defaultValue);
         }
 
+        return $this->boolFromRow($row, $defaultValue);
+    }
+
+    private function getBoolConAliasCanonico(string $canonicalKey, string $legacyKey, bool $defaultValue): bool
+    {
+        if ($this->canReadFromErp()) {
+            $index = $this->parametrosIndexados();
+
+            if (isset($index[$canonicalKey])) {
+                return $this->boolFromRow($index[$canonicalKey], $defaultValue);
+            }
+
+            if (isset($index[$legacyKey])) {
+                return $this->boolFromRow($index[$legacyKey], $defaultValue);
+            }
+        }
+
+        return $this->boolFromConfigDefault($canonicalKey, $defaultValue);
+    }
+
+    private function boolFromRow(PqParametrosGral $row, bool $defaultValue): bool
+    {
         $tipoValor = ParametrosGralTipoValor::fromRow($row);
 
         return match ($tipoValor) {

@@ -418,6 +418,40 @@ El flujo E2E §9 es obligatorio además de los E2E por slice.
 
 ---
 
+## 15. Épica mobile Capacitor (`v1.2.0-mobile`)
+
+| Campo | Valor |
+|-------|--------|
+| **SPEC transversal** | [SPEC-001-11-mobile-capacitor](../001-Generaliddes/SPEC-001-11-mobile-capacitor.md) |
+| **SPEC producto** | [SPEC-101-17-mobile-capacitor-pedidosweb](SPEC-101-17-mobile-capacitor-pedidosweb.md) |
+| **Patrón login tenant** | [`docs/_base/01-mobile/04-patron-login-tenant-mobile-mono.md`](../../_base/01-mobile/04-patron-login-tenant-mobile-mono.md) |
+| **Release v1** | Tag Git **`v1.2.0-mobile`** |
+| **Plataformas** | Android + iOS desde v1 |
+| **Estado OpenSpec** | **A1 + B1 + C1 + D1 + F v1 cerrados** (2026-06-30); pendiente tag `v1.2.0-mobile` tras smoke dispositivo |
+
+### 15.1 Roadmap mobile
+
+| Fase | Alcance |
+|------|---------|
+| **v1** | Scaffold Capacitor, login (tenant + usuario + contraseña), **una consulta kardex: stock** — tag `v1.2.0-mobile` |
+| **v2** | Todos listados y consultas en kardex (sin pivot) — tag `v1.2.1-mobile` |
+| **v3** | Carga pedidos/presupuestos (UX mobile dedicada) — tag `v1.2.2-mobile` |
+
+### 15.2 Fuera de alcance mobile (todas las fases)
+
+Pivot, importación Excel, ABM admin seguridad, preferencia «pestañas separadas».
+
+### 15.3 Siguiente paso mobile
+
+1. ~~Revisión **A1** SPEC-001-11 y SPEC-101-17.~~ **Hecho** (2026-06-30).
+2. ~~**Parte B:** HU-GEN-11-* y HU-101-031…036.~~ **Hecho** (2026-06-30).
+3. ~~**Parte C:** TR mobile v1.~~ **Hecho** (2026-06-30) — [F-GEN-11-cierre-c1](../../04-tareas/001-Generaliddes/F-GEN-11-cierre-c1.md), [F-101-17-cierre-c1](../../04-tareas/101-PedidosWeb/F-101-17-cierre-c1.md).
+4. ~~**Parte D:** implementación v1 (scaffold → login tenant → stock kardex).~~ **Hecho** (2026-06-30) — [D-VERIFICACION-101-17-mobile-v1](../../04-tareas/101-PedidosWeb/D-VERIFICACION-101-17-mobile-v1.md), [F-101-17-cierre-formal](../../04-tareas/101-PedidosWeb/F-101-17-cierre-formal.md).
+5. **Smoke + tag:** Android/iOS en dispositivo → tag Git `v1.2.0-mobile`.
+6. **Parte C v2/v3:** TR HU-101-034…036 tras tag v1 (`v1.2.1-mobile`, `v1.2.2-mobile`).
+
+---
+
 ## Definición de listo por `SPEC-101-xx`
 
 Cada `SPEC-101-xx` está listo si: alcance cerrado en su archivo slice; código del slice; tests según §12; **OpenAPI según `_NORMAS-TRANSVERSALES-TR.md`**; checklist DoD del slice en [README.md](README.md).

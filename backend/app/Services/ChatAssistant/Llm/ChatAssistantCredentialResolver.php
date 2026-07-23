@@ -5,14 +5,18 @@ namespace App\Services\ChatAssistant\Llm;
 use App\Exceptions\ChatAssistantMessageException;
 use App\Models\PqPedidoswebAsistenteIaCredencial;
 use App\Models\User;
+use App\Support\ChatAssistantCredentialSelection;
 use App\Support\ChatAssistantMessageErrorCodes;
 use Illuminate\Support\Facades\Crypt;
 
 final class ChatAssistantCredentialResolver
 {
-    public function resolve(User $user, ?int $credentialId = null): ChatAssistantInvocationContext
-    {
-        $credencial = $this->resolveCredencial($user, $credentialId);
+    public function resolve(
+        User $user,
+        ?int $credentialId = null,
+        bool $requiresVision = false,
+    ): ChatAssistantInvocationContext {
+        $credencial = $this->resolveCredencial($user, $credentialId, $requiresVision);
 
         if ($credencial === null) {
             throw new ChatAssistantMessageException(
@@ -48,8 +52,11 @@ final class ChatAssistantCredentialResolver
         );
     }
 
-    private function resolveCredencial(User $user, ?int $credentialId): ?PqPedidoswebAsistenteIaCredencial
-    {
+    private function resolveCredencial(
+        User $user,
+        ?int $credentialId,
+        bool $requiresVision,
+    ): ?PqPedidoswebAsistenteIaCredencial {
         if ($credentialId !== null) {
             return PqPedidoswebAsistenteIaCredencial::query()
                 ->where('user_id', $user->id)
@@ -58,11 +65,11 @@ final class ChatAssistantCredentialResolver
                 ->first();
         }
 
-        return PqPedidoswebAsistenteIaCredencial::query()
+        $enabled = PqPedidoswebAsistenteIaCredencial::query()
             ->where('user_id', $user->id)
             ->where('is_enabled', true)
-            ->orderBy('display_name')
-            ->orderBy('id_credencial')
-            ->first();
+            ->get();
+
+        return ChatAssistantCredentialSelection::pickDefault($enabled, $requiresVision);
     }
 }

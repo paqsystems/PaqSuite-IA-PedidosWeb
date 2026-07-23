@@ -8,6 +8,24 @@ export type ValidateChatAssistantSaveInput = {
   hasExistingApiKey: boolean;
 };
 
+const providersRequiringApiKeyPrefix = new Set(['openai', 'openRouter', 'groq', 'anthropic']);
+
+function apiKeyMatchesProviderFormat(providerId: string, apiKey: string): boolean {
+  if (providerId === 'groq') {
+    return apiKey.startsWith('gsk_') || apiKey.startsWith('sk-');
+  }
+
+  if (providerId === 'anthropic') {
+    return apiKey.startsWith('sk-ant-') || apiKey.startsWith('sk-');
+  }
+
+  if (providerId === 'openai' || providerId === 'openRouter') {
+    return apiKey.startsWith('sk-');
+  }
+
+  return true;
+}
+
 export function resolveChatAssistantSaveValidationErrorKey(
   input: ValidateChatAssistantSaveInput,
 ): string | null {
@@ -27,8 +45,18 @@ export function resolveChatAssistantSaveValidationErrorKey(
     return 'chatAssistant.settings.baseUrlRequired';
   }
 
-  if (!input.hasExistingApiKey && !input.apiKey.trim()) {
+  const apiKey = input.apiKey.trim();
+
+  if (!input.hasExistingApiKey && !apiKey) {
     return 'chatAssistant.settings.apiKeyRequired';
+  }
+
+  if (
+    apiKey
+    && providersRequiringApiKeyPrefix.has(input.providerId)
+    && !apiKeyMatchesProviderFormat(input.providerId, apiKey)
+  ) {
+    return 'chatAssistant.settings.apiKeyInvalidFormat';
   }
 
   return null;

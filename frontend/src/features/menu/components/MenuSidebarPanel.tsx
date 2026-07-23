@@ -10,6 +10,7 @@ type MenuSidebarPanelProps = {
   menuTreeExpanded: boolean;
   menuDisplayMode: MenuDisplayMode;
   openInNewTab: boolean;
+  onAfterItemNavigate?: () => void;
 };
 
 export function MenuSidebarPanel({
@@ -19,6 +20,7 @@ export function MenuSidebarPanel({
   menuTreeExpanded,
   menuDisplayMode,
   openInNewTab,
+  onAfterItemNavigate,
 }: MenuSidebarPanelProps) {
   const { t } = useTranslation();
 
@@ -49,6 +51,7 @@ export function MenuSidebarPanel({
         menuTreeExpanded={menuTreeExpanded}
         menuDisplayMode={menuDisplayMode}
         openInNewTab={openInNewTab}
+        onAfterItemNavigate={onAfterItemNavigate}
       />
     </nav>
   );

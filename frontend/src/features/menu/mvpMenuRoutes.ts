@@ -1,6 +1,7 @@
 /** Rutas MVP alineadas a backend/config/paqsuite_mvp.php */
 export const mvpMenuRoutePaths = [
   '/pedidos/carga',
+  '/pedidos/importacion-masiva',
   '/presupuestos/ingresados',
   '/pedidos/ingresados',
   '/pedidos/pendientes',

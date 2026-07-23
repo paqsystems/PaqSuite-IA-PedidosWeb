@@ -23,12 +23,12 @@ return new class extends Migration
 
     private function upSqlServer(): void
     {
-        if (Schema::hasTable('pq_pedidosweb_asistente_ia_credenciales')) {
+        if (Schema::hasTable('pq_asistente_ia_credenciales')) {
             return;
         }
 
         DB::statement(<<<'SQL'
-CREATE TABLE [pq_pedidosweb_asistente_ia_credenciales] (
+CREATE TABLE [pq_asistente_ia_credenciales] (
     [id_credencial] BIGINT IDENTITY(1,1) NOT NULL PRIMARY KEY,
     [user_id] BIGINT NOT NULL,
     [provider_id] NVARCHAR(50) NOT NULL,
@@ -42,18 +42,18 @@ CREATE TABLE [pq_pedidosweb_asistente_ia_credenciales] (
 );
 SQL);
         DB::statement(<<<'SQL'
-CREATE UNIQUE INDEX [UX_pq_pedidosweb_asistente_ia_credenciales_user_id]
-    ON [pq_pedidosweb_asistente_ia_credenciales] ([user_id]);
+CREATE UNIQUE INDEX [UX_pq_asistente_ia_credenciales_user_id]
+    ON [pq_asistente_ia_credenciales] ([user_id]);
 SQL);
     }
 
     private function upGeneric(): void
     {
-        if (Schema::hasTable('pq_pedidosweb_asistente_ia_credenciales')) {
+        if (Schema::hasTable('pq_asistente_ia_credenciales')) {
             return;
         }
 
-        Schema::create('pq_pedidosweb_asistente_ia_credenciales', function (Blueprint $table): void {
+        Schema::create('pq_asistente_ia_credenciales', function (Blueprint $table): void {
             $table->id('id_credencial');
             $table->unsignedBigInteger('user_id')->unique();
             $table->string('provider_id', 50);
@@ -68,6 +68,6 @@ SQL);
 
     public function down(): void
     {
-        Schema::dropIfExists('pq_pedidosweb_asistente_ia_credenciales');
+        Schema::dropIfExists('pq_asistente_ia_credenciales');
     }
 };

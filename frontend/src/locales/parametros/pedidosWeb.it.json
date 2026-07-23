@@ -3,6 +3,8 @@
   "parametros.pedidosWeb.ArticulosPrecioCero.tooltip": "Se attivo, il portale consente di caricare righe il cui prezzo nel listino selezionato è zero. Se inattivo, il sistema rifiuta o avvisa secondo le validazioni di caricamento.",
   "parametros.pedidosWeb.ArticulosSinPrecio.caption": "Consentire articoli senza prezzo in listino",
   "parametros.pedidosWeb.ArticulosSinPrecio.tooltip": "Se attivo, consente di caricare articoli senza prezzo definito nel listino vigente. Se inattivo, il caricamento richiede un prezzo valido in listino.",
+  "parametros.pedidosWeb.ActualizarPrecioCopia.caption": "Aggiorna prezzi alla copia del documento",
+  "parametros.pedidosWeb.ActualizarPrecioCopia.tooltip": "Se attivo, copiando un ordine o un preventivo i prezzi delle righe vengono risolti dal listino vigente del documento di origine. Se inattivo, conserva i prezzi del dettaglio origine validandoli secondo i parametri articoli a prezzo zero o senza prezzo.",
   "parametros.pedidosWeb.CargaRecurrente.caption": "Caricamento ricorrente dopo salvataggio",
   "parametros.pedidosWeb.CargaRecurrente.tooltip": "Definisce il comportamento dopo il salvataggio di un ordine o preventivo: se attivo, il flusso torna a un nuovo caricamento; se inattivo, ritorna all'elenco o alla schermata precedente secondo l'implementazione del portale.",
   "parametros.pedidosWeb.ClienteLeyenda1.caption": "Inizializzare legenda 1 dal cliente",

@@ -8,7 +8,7 @@
 | **Prioridad** | Must |
 | **Dependencias** | TR-SPEC-101-05 (controllers), TR-SPEC-101-04 (services), TR-SPEC-101-06, TR-SPEC-101-09; SPEC-001-04 (parámetros `Modifica*`); TR-SPEC-101-13 (mail post-grabación) |
 | **Estado** | Finalizado |
-| **Última actualización** | 2026-06-19 (CC PQ #7/#8 — precarga artículos, validaciones grabación, Excel vendedor) |
+| **Última actualización** | 2026-06-24 (modal precarga stock + NOLOCK backend) |
 
 **Origen:** HU-101-004 … HU-101-011, HU-101-009, HU-101-010, HU-101-013, HU-101-024, HU-101-026  
 **Referencia SPEC:** [SPEC-101-10-pantalla-carga](../../05-open-spec/101-PedidosWeb/SPEC-101-10-pantalla-carga.md)  
@@ -341,6 +341,7 @@ Ver contrato canónico en [TR-SPEC-101-05-controllers-rest](TR-SPEC-101-05-contr
 | Lista precios cabecera | `cabecera-lista-precios` |
 | Confirmación post-grabación | `dialog-confirmacion-grabar` |
 | Toast fallo envío mail | `toast-mail-envio-fallido` |
+| Modal precarga stock | `articulos-cargando` |
 | Contenedor página | `page-pedidos-carga` |
 
 Usar `elementAttr` / `inputAttr` DevExtreme; no acoplar tests al DOM interno DX.
@@ -407,6 +408,19 @@ Usar `elementAttr` / `inputAttr` DevExtreme; no acoplar tests al DOM interno DX.
 | T4 | Manual | Paréntesis listbox muestra disponible neto base (ej. AC01 → 177.100), no `comprometidoBaseWeb` | [x] QA PQ |
 
 **AC-CC6:** CA-CC6-01..03 de HU-101-005.
+
+### 7.5 Performance y concurrencia (23–24/06/2026 — cerrado)
+
+| ID | Ámbito | Tarea | DoD |
+|----|--------|-------|-----|
+| T1 | Frontend | Precarga stock al montar; precios por lista (`solo_catalogo`); merge `mergeArticulosStockPrecios` | [x] `PedidosCargaPage.tsx`, `mergeArticulosStockPrecios.ts` |
+| T2 | Frontend | Modal `PedidosCargaArticulosStockLoadPanel`; cliente y artículos bloqueados hasta stock inicial | [x] `data-testid` `articulos-cargando` |
+| T3 | Frontend | Sin fetch puntual por artículo al agregar renglón; precios batch al cambiar lista | [x] `comprobanteApi.ts`, `actualizarPreciosRenglonesPorLista` |
+| T4 | Backend | `ArticuloCargaLookupService`: `SqlServerReadHint` (`WITH NOLOCK`) en joins ERP | [x] `ArticuloCargaLookupServiceTest` |
+| T5 | Backend | Conexión `sqlsrv`: `READ UNCOMMITTED`; escrituras vía `SqlServerIsolation::transaction` | [x] `config/database.php`, `SqlServerIsolation.php` |
+| T6 | Docs | Manual §6.7; `pantalla-carga-comprobante-ui.md` §3; [sqlserver-lecturas-sin-bloqueo.md](../../backend/sql/sqlserver-lecturas-sin-bloqueo.md) | [x] |
+
+**AC-perf:** CA-CC3-03/04 de HU-101-005; sin regresión disponible base (CC #6).
 
 ---
 

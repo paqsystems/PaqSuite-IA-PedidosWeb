@@ -8,6 +8,7 @@ use App\Models\PqPedidoswebAsistenteIaProveedor;
 use App\Models\User;
 use App\Support\ChatAssistantConfigurationErrorCodes;
 use App\Support\ChatAssistantConfigurationMapper;
+use App\Support\ChatAssistantCredentialSelection;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Schema;
 
@@ -60,7 +61,7 @@ final class ChatAssistantConfigurationService
      *     isEnabled: bool
      * }
      */
-    public function getConfiguration(User $user, ?int $credentialId = null): array
+    public function getConfiguration(User $user, ?int $credentialId = null, bool $requiresVision = false): array
     {
         $this->assertTableAvailable();
 
@@ -72,7 +73,7 @@ final class ChatAssistantConfigurationService
                 : $this->mapper->fromModel($credencial);
         }
 
-        $credencial = $this->findFirstEnabledCredencialForUser($user)
+        $credencial = $this->findFirstEnabledCredencialForUser($user, $requiresVision)
             ?? $this->findCredencialesForUser($user)->first();
 
         if ($credencial === null) {
@@ -171,6 +172,13 @@ final class ChatAssistantConfigurationService
         ];
 
         if ($apiKey !== '') {
+            if ($this->apiKeyLooksLikeSitePassword($providerId, $apiKey)) {
+                throw new ChatAssistantConfigurationException(
+                    ChatAssistantConfigurationErrorCodes::apiKeyRequired,
+                    'chatAssistant.settings.apiKeyInvalidFormat',
+                );
+            }
+
             $attributes['api_key_encrypted'] = Crypt::encryptString($apiKey);
         } else {
             $this->assertExistingApiKeyAvailable($existing);
@@ -240,7 +248,7 @@ final class ChatAssistantConfigurationService
 
     private function assertTableAvailable(): void
     {
-        if (! Schema::hasTable('pq_pedidosweb_asistente_ia_credenciales')) {
+        if (! Schema::hasTable('pq_asistente_ia_credenciales')) {
             throw new ChatAssistantConfigurationException(
                 ChatAssistantConfigurationErrorCodes::configurationUnavailable,
                 'chatAssistant.configurationUnavailable',
@@ -261,14 +269,16 @@ final class ChatAssistantConfigurationService
             ->get();
     }
 
-    private function findFirstEnabledCredencialForUser(User $user): ?PqPedidoswebAsistenteIaCredencial
-    {
-        return PqPedidoswebAsistenteIaCredencial::query()
+    private function findFirstEnabledCredencialForUser(
+        User $user,
+        bool $requiresVision = false,
+    ): ?PqPedidoswebAsistenteIaCredencial {
+        $enabled = PqPedidoswebAsistenteIaCredencial::query()
             ->where('user_id', $user->id)
             ->where('is_enabled', true)
-            ->orderBy('display_name')
-            ->orderBy('id_credencial')
-            ->first();
+            ->get();
+
+        return ChatAssistantCredentialSelection::pickDefault($enabled, $requiresVision);
     }
 
     private function findCredencialForUser(User $user, int $credentialId): ?PqPedidoswebAsistenteIaCredencial
@@ -281,7 +291,7 @@ final class ChatAssistantConfigurationService
 
     private function findActiveProvider(string $providerId): ?PqPedidoswebAsistenteIaProveedor
     {
-        if (! Schema::hasTable('pq_pedidosweb_asistente_ia_proveedores')) {
+        if (! Schema::hasTable('pq_asistente_ia_proveedores')) {
             return null;
         }
 
@@ -306,6 +316,16 @@ final class ChatAssistantConfigurationService
                 'chatAssistant.apiKeyRequired',
             );
         }
+    }
+
+    private function apiKeyLooksLikeSitePassword(string $providerId, string $apiKey): bool
+    {
+        return match ($providerId) {
+            'openai', 'openRouter' => ! str_starts_with($apiKey, 'sk-'),
+            'anthropic' => ! (str_starts_with($apiKey, 'sk-ant-') || str_starts_with($apiKey, 'sk-')),
+            'groq' => ! (str_starts_with($apiKey, 'gsk_') || str_starts_with($apiKey, 'sk-')),
+            default => false,
+        };
     }
 
     private function normalizeModelIdForProvider(string $providerId, string $modelId): string

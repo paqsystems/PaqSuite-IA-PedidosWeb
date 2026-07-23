@@ -76,7 +76,7 @@ Al pulsar **Grabar pedido** o **Grabar presupuesto**, el sistema aplica esta ló
 
 | Acción | Efecto |
 |--------|--------|
-| **Copiar** | Crea un comprobante **nuevo** del tipo elegido (pedido o presupuesto). El origen **no cambia** de estado. |
+| **Copiar** | Crea un comprobante **nuevo** del tipo que elija al grabar (pedido o presupuesto). El origen **no cambia** de estado. Los precios al copiar dependen del parámetro ERP *Actualizar precios al copiar comprobante* (ver [PedidosWeb §6.9](./PedidosWeb.md#692-política-de-precios-al-copiar-actualizarpreciocopia)). |
 | **Convertir a pedido** (desde presupuesto activo) | Abre carga con datos del presupuesto; al grabar pedido se cierra el presupuesto origen (98) y se registra el motivo de cierre exitoso configurado en ERP. |
 | **Convertir a presupuesto** (desde pedido ingresado) | Genera presupuesto activo y **elimina** el pedido ingresado origen. |
 

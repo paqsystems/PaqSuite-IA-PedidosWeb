@@ -4,12 +4,18 @@ import { useTranslation } from 'react-i18next';
 import Button from 'devextreme-react/button';
 import TextBox from 'devextreme-react/text-box';
 import { ApiClientError } from '../../shared/http/client';
+import { isNativeApp } from '../../shared/platform/isNativeApp';
+import { getLastTenantForLogin, setActiveTenant } from '../../shared/mobile/mobileRuntime';
+import { isValidTenantSlug, normalizeTenant } from '../../shared/mobile/normalizeTenant';
+import { getAuthenticatedHomePath } from '../mobile/mobileNavigation';
+import { MobileConfigButton } from '../mobile/MobileConfigButton';
 import { LocaleSelector } from '../i18n/components/LocaleSelector';
 import { useCurrentLocale } from '../i18n/hooks/useCurrentLocale';
 import { loginRequest } from './authApi';
 import { persistAuthSession } from './authStorage';
 import { useAuth } from './AuthProvider';
 import type { SessionContext } from './types';
+import { clearClientesCache } from '../pedidos/api/comprobanteApi';
 import './LoginPage.css';
 
 type LoginPageProps = {
@@ -22,11 +28,34 @@ export function LoginPage({ onLoginSuccess }: LoginPageProps) {
   const { t } = useTranslation();
   const { expiredReasonKey, clearExpiredReason } = useAuth();
   const { currentLocale, changeLocale } = useCurrentLocale();
+  const nativeApp = isNativeApp();
+  const [tenant, setTenant] = useState('');
   const [codigo, setCodigo] = useState('');
   const [password, setPassword] = useState('');
   const [errorKey, setErrorKey] = useState<string | null>(null);
   const [noticeKey, setNoticeKey] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (!nativeApp) {
+      return;
+    }
+
+    let isCancelled = false;
+
+    async function preloadTenant() {
+      const lastTenant = await getLastTenantForLogin();
+      if (!isCancelled && lastTenant) {
+        setTenant(lastTenant);
+      }
+    }
+
+    void preloadTenant();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [nativeApp]);
 
   useEffect(() => {
     if (expiredReasonKey) {
@@ -46,13 +75,26 @@ export function LoginPage({ onLoginSuccess }: LoginPageProps) {
     event.preventDefault();
     setErrorKey(null);
     setNoticeKey(null);
+
+    if (nativeApp) {
+      const normalizedTenant = normalizeTenant(tenant);
+
+      if (!isValidTenantSlug(normalizedTenant)) {
+        setErrorKey('tenant.invalid');
+        return;
+      }
+
+      await setActiveTenant(normalizedTenant);
+    }
+
     setIsSubmitting(true);
 
     try {
       const envelope = await loginRequest({ codigo, password });
       const { token, ...sessionContext } = envelope.resultado;
 
-      persistAuthSession(token, envelope.resultado);
+      clearClientesCache();
+      await persistAuthSession(token, envelope.resultado);
 
       onLoginSuccess(envelope.resultado);
 
@@ -61,7 +103,7 @@ export function LoginPage({ onLoginSuccess }: LoginPageProps) {
         return;
       }
 
-      navigate('/dashboard', { replace: true });
+      navigate(getAuthenticatedHomePath(), { replace: true });
     } catch (error) {
       if (error instanceof ApiClientError) {
         setErrorKey(error.respuestaKey);
@@ -85,14 +127,17 @@ export function LoginPage({ onLoginSuccess }: LoginPageProps) {
 
       <section className="loginPage__panel">
         <div className="loginCard">
-          <div className="loginCard__locale">
-            <LocaleSelector
-              testId="localeSelectorLogin"
-              value={currentLocale}
-              onChange={(locale) => {
-                void changeLocale(locale);
-              }}
-            />
+          <div className="loginCard__toolbar">
+            <div className="loginCard__locale">
+              <LocaleSelector
+                testId="localeSelectorLogin"
+                value={currentLocale}
+                onChange={(locale) => {
+                  void changeLocale(locale);
+                }}
+              />
+            </div>
+            {nativeApp && <MobileConfigButton tenantForHealthCheck={tenant} />}
           </div>
 
           <div className="loginCard__header">
@@ -132,6 +177,25 @@ export function LoginPage({ onLoginSuccess }: LoginPageProps) {
           )}
 
           <form className="loginForm" data-testid="login-form" onSubmit={handleSubmit}>
+            {nativeApp && (
+              <label className="loginField">
+                <span className="loginField__label">{t('login.tenant')}</span>
+                <TextBox
+                  className="loginField__input"
+                  value={tenant}
+                  stylingMode="outlined"
+                  inputAttr={{
+                    name: 'tenant',
+                    autoComplete: 'organization',
+                    placeholder: t('login.tenantPlaceholder'),
+                    'data-testid': 'loginTenant',
+                  }}
+                  onValueChanged={(event) => {
+                    setTenant(String(event.value ?? ''));
+                  }}
+                />
+              </label>
+            )}
             <label className="loginField">
               <span className="loginField__label">{t('login.username')}</span>
               <TextBox
@@ -142,6 +206,7 @@ export function LoginPage({ onLoginSuccess }: LoginPageProps) {
                   name: 'codigo',
                   autoComplete: 'username',
                   placeholder: t('login.username'),
+                  'data-testid': 'loginUsername',
                 }}
                 onValueChanged={(event) => {
                   setCodigo(String(event.value ?? ''));
@@ -159,6 +224,7 @@ export function LoginPage({ onLoginSuccess }: LoginPageProps) {
                   name: 'password',
                   autoComplete: 'current-password',
                   placeholder: t('login.password'),
+                  'data-testid': 'loginPassword',
                 }}
                 onValueChanged={(event) => {
                   setPassword(String(event.value ?? ''));
@@ -175,9 +241,11 @@ export function LoginPage({ onLoginSuccess }: LoginPageProps) {
             />
           </form>
 
-          <Link className="loginCard__link" to="/forgot-password" data-testid="login-forgot-password">
-            {t('login.forgotPasswordLink')}
-          </Link>
+          {!nativeApp && (
+            <Link className="loginCard__link" to="/forgot-password" data-testid="login-forgot-password">
+              {t('login.forgotPasswordLink')}
+            </Link>
+          )}
         </div>
       </section>
     </main>

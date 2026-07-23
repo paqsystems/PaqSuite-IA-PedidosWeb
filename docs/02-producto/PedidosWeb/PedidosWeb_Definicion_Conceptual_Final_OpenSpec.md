@@ -354,6 +354,7 @@ Los clientes no modifican precio, lista ni descuentos de artículo.
 
 ArticulosPrecioCero : si admite cargar artículos con precios en cero
 ArticulosSinPrecio : si admite cargar artículos sin precio en la lista
+ActualizarPrecioCopia : si al copiar un pedido o presupuesto actualiza los precios desde la lista de precios vigente (`true`) o conserva los del comprobante origen (`false`), validando según `ArticulosPrecioCero` / `ArticulosSinPrecio`
 
 CargaRecurrente : si tras una carga de un pedido/presupuesto, vuelve a cargar un pedido o al listado
 ClienteLeyenda1 : si inicializa la leyenda 1 con la leyenda 1 del cliente
