@@ -58,6 +58,56 @@ Este archivo **no sustituye** SPEC, HU ni TR: es la **entrada** del circuito de 
 
 ---
 
+## Control de Calidad #10
+
+### Referencia del control
+
+| Campo | Valor |
+|-------|--------|
+| **Fecha** | 30/07/2026 |
+| **Responsable** | Pablo Quarracino (PQ) |
+| **Estado** | Pendiente |
+
+### Hallazgos
+
+Incorporar la posibilidad de ingresar los renglones de los pedidos por unidades de venta en lugar de unidades de stock/precio (campo CANTIDAD)
+
+### Errores encontrados - Mejoras solicitadas
+
+#### Agregar parámetro "Carga de pedidos por unidades de venta"
+
+Agregar en PQ_PARAMETROS_GRAL una nueva clave, de tipo booleana, llamada "CargaUnidadesVenta".
+tener presente este nuevo atributo para el seeder de actualización de versión.
+
+#### Tabla de Articulos, agregar atributo "Equivalencia Ventas"
+
+en la tabla PQ_PEDIDOSWEB_ARTICULOS, agregar un atributo decimal "equivalencia_ventas". por default en 1.
+
+#### Tabla de Detalle de pedidos, agregar atributo cantidad_venta
+
+en la tabla PQ_PEDIDOSWEB_DETALLEPEDIDOS, agregar un atributo decimal CANTIDAD_VENTA. por defecto igual que CANTIDAD.
+
+#### Carga de Pedidos/Presupuesto, carga de los renglones.
+
+cuando se abre la carga modal de un renglón de pedidos/presupuestos, el dato cantidad tiene un significado diferente según el parámetro nuevo "CargaUnidadesVenta".
+si es false, este campo se asigna a la columna CANTIDAD actual, el importe se calcula como hasta ahora, y en la nueva columna CANTIDAD_VENTA va CANTIDAD / pq_pedidosweb_articulos.equivalencia_venta (si es cero, se asume 1)
+si es true, este campo se asigna a la columna CANTIDAD_VENTA, se calcula CANTIDAD como CANTIDAD_VENTA * pq_pedidosweb_articulos.equivalencia_venta, y se calculan los importes a partir de este ultimo resultado. 
+es decir, los importes siempre se calculan a partir de CANTIDAD, sólo que se debe determinar previamente si este dato es el que ingresa el usuario , o el que se calcula multiplicando por la equivalencia ventas.
+Siempre mostrar un solo dato 'cantidad'. en una edición determinar cuál mostrar para editar. NO quiero que se muestren los dos valores y se edite uno u otro.
+En el envío de mail idem. Solo se muestra la cantidad que carga el cliente según el parámetro.
+
+#### Informes de Pedidos y Presupuestos, incluir nuevo atributo cantidad_venta
+
+incluir en los tres informes (pedidos ingresados, pedidos pendientes y presupuestos ingresados), este nuevo atributo CANTIDAD_VENTA. no se altera ningún otro atributo.
+
+#### Excel de importación, consideración de la columna cantidad
+
+Cuando se importa el Excel, ya sea en la carga individual o masiva, a la columna cantidad hay que darle el mismo tratamiento que se le da en la ventana de edición de un renglón
+
+#### Asistente IA, consideración del dato cantidad.
+
+Cuando se informa 'cantidad' en el asistente IA, ya sea en la forma escrita, verbal o por imagen, al dato  'cantidad' hay que darle el mismo tratamiento que se le da en la ventana de edición de un renglón
+
 ## Control de Calidad #9
 
 ### Referencia del control
