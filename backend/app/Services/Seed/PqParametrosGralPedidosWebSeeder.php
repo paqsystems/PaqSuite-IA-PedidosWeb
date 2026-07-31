@@ -16,6 +16,61 @@ final class PqParametrosGralPedidosWebSeeder
             app(PedidosWebDevSchemaBootstrap::class)->recreateParametrosGralTable();
         }
 
+        $items = $this->loadSeedItems($jsonPath);
+
+        DB::table('PQ_parametros_gral')->where('Programa', 'PedidosWeb')->delete();
+
+        $inserted = 0;
+
+        foreach ($items as $item) {
+            DB::table('PQ_parametros_gral')->insert($this->buildRow($item));
+            $inserted++;
+        }
+
+        return $inserted;
+    }
+
+    /**
+     * Inserta solo claves PedidosWeb del JSON que aún no existen.
+     * No actualiza valores/CAPTION existentes (seguro para deploy).
+     */
+    public function insertMissingFromJsonFile(string $jsonPath): int
+    {
+        if (! Schema::hasTable('PQ_parametros_gral')) {
+            return 0;
+        }
+
+        $items = $this->loadSeedItems($jsonPath);
+        $inserted = 0;
+
+        foreach ($items as $item) {
+            $programa = (string) ($item['programa'] ?? 'PedidosWeb');
+            $clave = (string) ($item['clave'] ?? '');
+            if ($clave === '') {
+                continue;
+            }
+
+            $exists = DB::table('PQ_parametros_gral')
+                ->where('Programa', $programa)
+                ->where('Clave', $clave)
+                ->exists();
+
+            if ($exists) {
+                continue;
+            }
+
+            DB::table('PQ_parametros_gral')->insert($this->buildRow($item));
+            $inserted++;
+        }
+
+        return $inserted;
+    }
+
+    /**
+     * @return list<array<string, mixed>>
+     */
+    private function loadSeedItems(string $jsonPath): array
+    {
         if (! is_file($jsonPath)) {
             throw new \RuntimeException("No se encontró el seed JSON: {$jsonPath}");
         }
@@ -23,38 +78,38 @@ final class PqParametrosGralPedidosWebSeeder
         /** @var list<array<string, mixed>> $items */
         $items = json_decode((string) file_get_contents($jsonPath), true, 512, JSON_THROW_ON_ERROR);
 
-        DB::table('PQ_parametros_gral')->where('Programa', 'PedidosWeb')->delete();
+        return $items;
+    }
 
-        $inserted = 0;
-
-        foreach ($items as $item) {
-            $tipoValor = strtoupper(substr((string) ($item['tipoValor'] ?? 'S'), 0, 1));
-            if (! in_array($tipoValor, ParametrosGralTipoValor::VALID, true)) {
-                $tipoValor = 'S';
-            }
-
-            $row = [
-                'Programa' => (string) ($item['programa'] ?? 'PedidosWeb'),
-                'Clave' => (string) $item['clave'],
-                'tipo_valor' => $tipoValor,
-                'Valor_String' => null,
-                'Valor_Text' => null,
-                'Valor_Int' => null,
-                'Valor_DateTime' => null,
-                'Valor_Bool' => null,
-                'Valor_Decimal' => null,
-                'CAPTION' => $item['caption'] ?? null,
-                'TOOLTIP' => $item['tooltip'] ?? null,
-            ];
-
-            $column = ParametrosGralTipoValor::columnaPorTipo($tipoValor);
-            $row[$column] = $this->resolveValorColumna($tipoValor, $item);
-
-            DB::table('PQ_parametros_gral')->insert($row);
-            $inserted++;
+    /**
+     * @param  array<string, mixed>  $item
+     * @return array<string, mixed>
+     */
+    private function buildRow(array $item): array
+    {
+        $tipoValor = strtoupper(substr((string) ($item['tipoValor'] ?? 'S'), 0, 1));
+        if (! in_array($tipoValor, ParametrosGralTipoValor::VALID, true)) {
+            $tipoValor = 'S';
         }
 
-        return $inserted;
+        $row = [
+            'Programa' => (string) ($item['programa'] ?? 'PedidosWeb'),
+            'Clave' => (string) $item['clave'],
+            'tipo_valor' => $tipoValor,
+            'Valor_String' => null,
+            'Valor_Text' => null,
+            'Valor_Int' => null,
+            'Valor_DateTime' => null,
+            'Valor_Bool' => null,
+            'Valor_Decimal' => null,
+            'CAPTION' => $item['caption'] ?? null,
+            'TOOLTIP' => $item['tooltip'] ?? null,
+        ];
+
+        $column = ParametrosGralTipoValor::columnaPorTipo($tipoValor);
+        $row[$column] = $this->resolveValorColumna($tipoValor, $item);
+
+        return $row;
     }
 
     /**
