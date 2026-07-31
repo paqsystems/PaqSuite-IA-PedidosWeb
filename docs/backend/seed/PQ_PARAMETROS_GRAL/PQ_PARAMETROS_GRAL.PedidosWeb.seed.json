@@ -40,6 +40,19 @@
   },
   {
     "programa": "PedidosWeb",
+    "clave": "CargaUnidadesVenta",
+    "caption": "Carga de pedidos por unidades de venta",
+    "tooltip": "Si está activo, la cantidad ingresada en renglón, Excel o asistente se interpreta como unidades de venta (cantidad_venta). Si está inactivo, se interpreta como unidades de stock/precio (cantidad). Los importes se calculan siempre sobre cantidad.",
+    "tipoValor": "B",
+    "valorString": null,
+    "valorText": null,
+    "valorInt": null,
+    "valorDateTime": null,
+    "valorBool": false,
+    "valorDecimal": null
+  },
+  {
+    "programa": "PedidosWeb",
     "clave": "CargaRecurrente",
     "caption": "Carga recurrente post grabación",
     "tooltip": "Define el comportamiento tras grabar un pedido o presupuesto: si está activo, el flujo vuelve a una nueva carga; si está inactivo, regresa al listado o pantalla anterior según la implementación del portal.",

@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Services\Auth\CommercialProfileResolver;
 use App\Services\ExcelImport\Dto\ExcelRowError;
 use App\Services\PedidosWeb\CabeceraInicialService;
+use App\Services\PedidosWeb\CargaUnidadesVentaConverter;
 use App\Services\PedidosWeb\PedidosWebParameterService;
 use App\Services\Visibility\PedidosWebVisibilityGuard;
 
@@ -157,10 +158,18 @@ final class PedidoIndividualRowResolver
             ? (int) $row['cod_lista']
             : (int) ($cabecera['lista_precios'] ?? 0);
         $codArticuloExcel = trim((string) ($row['cod_articulo'] ?? ''));
-        $cantidad = (float) ($row['cantidad'] ?? 0);
 
         $articulo = $this->articuloRepository->findByCodigo($codArticuloExcel);
         $codArticulo = $articulo !== null ? (string) $articulo->codigo : $codArticuloExcel;
+
+        $cantidadUsuario = (float) ($row['cantidad'] ?? 0);
+        $pair = CargaUnidadesVentaConverter::fromCantidadUsuario(
+            $cantidadUsuario,
+            $articulo?->equivalencia_ventas ?? 1,
+            $this->parameterService->getCargaUnidadesVenta(),
+        );
+        $cantidad = $pair['cantidad'];
+        $cantidadVenta = $pair['cantidad_venta'];
 
         $precioLista = $row['precio_lista'] ?? null;
         $precioVigenteLista = (float) ($this->articuloRepository->findPrecioLista($codLista, $codArticulo)?->precio ?? 0);
@@ -188,6 +197,7 @@ final class PedidoIndividualRowResolver
             'cod_cliente' => $codCliente,
             'cod_articulo' => $codArticulo,
             'cantidad' => $cantidad,
+            'cantidad_venta' => $cantidadVenta,
             'precio' => $precio,
             'porc_bonif' => $porcBonif,
             'porc_iva' => (float) ($articulo?->porc_iva ?? 0),

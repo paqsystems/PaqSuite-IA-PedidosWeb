@@ -124,7 +124,25 @@ final class ComprobanteMailService
         string $accionComprobante
     ): array {
         $nombreEmpresa = $this->resolveNombreEmpresa();
-        $cantidadTotal = array_sum(array_map(static fn (array $row): float => (float) ($row['cantidad'] ?? 0), $detalle));
+        $cargaUnidadesVenta = $this->parameterService->getCargaUnidadesVenta();
+        $detalleMail = array_map(
+            static function (array $row) use ($cargaUnidadesVenta): array {
+                $cantidad = (float) ($row['cantidad'] ?? 0);
+                $cantidadVenta = (float) ($row['cantidad_venta'] ?? $row['cantidadVenta'] ?? $cantidad);
+                $row['cantidad'] = CargaUnidadesVentaConverter::cantidadVisibleParaUsuario(
+                    $cantidad,
+                    $cantidadVenta,
+                    $cargaUnidadesVenta,
+                );
+
+                return $row;
+            },
+            $detalle,
+        );
+        $cantidadTotal = array_sum(array_map(
+            static fn (array $row): float => (float) ($row['cantidad'] ?? 0),
+            $detalleMail,
+        ));
         $importeBruto = $this->resolveImporteBrutoCabecera($detalle);
         $importeNeto = round((float) $cabecera->total + (float) $cabecera->total_iva, 2);
 
@@ -134,7 +152,7 @@ final class ComprobanteMailService
             'accionComprobante' => $accionComprobante,
             'guidSufijo' => strtoupper(substr((string) $cabecera->cod_pedido, -6)),
             'mostrarDetalle' => $this->parameterService->getDetallePorMail(),
-            'detalle' => $detalle,
+            'detalle' => $detalleMail,
             'cabeceraMail' => [
                 'fecha' => optional($cabecera->fecha)?->format('m/d/Y'),
                 'cliente' => (string) $cabecera->cod_cliente,

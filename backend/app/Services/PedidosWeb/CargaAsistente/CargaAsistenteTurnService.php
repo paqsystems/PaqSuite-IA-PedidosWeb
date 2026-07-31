@@ -539,6 +539,8 @@ final class CargaAsistenteTurnService
                 $workingDraft['renglones'][] = [
                     'codArticulo' => (string) ($action['payload']['codArticulo'] ?? ''),
                     'cantidad' => (float) ($action['payload']['cantidad'] ?? 1),
+                    'cantidadVenta' => $action['payload']['cantidadVenta'] ?? null,
+                    'equivalenciaVentas' => $action['payload']['equivalenciaVentas'] ?? null,
                     'precio' => $action['payload']['precio'] ?? null,
                     'porcBonif' => $action['payload']['porcBonif'] ?? null,
                 ];

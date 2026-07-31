@@ -10,6 +10,7 @@ import {
   mapFunctionalProfileToPerfilUsuario,
 } from '../cargaAsistenteIa/utils/buildCargaAsistenteDraftContext';
 import type { CargaAsistenteAddRenglonPayload } from '../cargaAsistenteIa/utils/applyCargaAsistenteActions';
+import { resolveAsistenteCantidadPair } from '../cargaAsistenteIa/utils/resolveAsistenteCantidadPair';
 import { patchAsistenteCabecera } from '../cargaAsistenteIa/utils/patchAsistenteCabecera';
 import { PedidosCargaArticulosStockLoadPanel } from '../components/PedidosCargaArticulosStockLoadPanel';
 import { PedidosCargaMobileCabeceraStep } from '../components/mobile/PedidosCargaMobileCabeceraStep';
@@ -69,13 +70,18 @@ export function PedidosCargaMobilePage() {
 
   const handleAsistenteAddRenglon = useCallback(
     (payload: CargaAsistenteAddRenglonPayload) => {
+      const cargaUnidadesVenta = carga.parametrosCarga?.cargaUnidadesVenta ?? false;
+      const pair = resolveAsistenteCantidadPair(payload, cargaUnidadesVenta);
+
       carga.setRenglones((current) => {
         const sinVacios = renglonesValidosParaGrabar(current);
         const nuevoRenglon: ComprobanteRenglon = {
           renglon: nextRenglonNumber(sinVacios),
           codArticulo: payload.codArticulo,
           descripcionArticulo: payload.descripcion ?? '',
-          cantidad: payload.cantidad,
+          cantidad: pair.cantidad,
+          cantidadVenta: pair.cantidadVenta,
+          equivalenciaVentas: pair.equivalenciaVentas,
           precio: payload.precio ?? 0,
           porcBonif: payload.porcBonif ?? 0,
           porcIva: 21,
@@ -84,27 +90,55 @@ export function PedidosCargaMobilePage() {
         return [...sinVacios, nuevoRenglon];
       });
     },
-    [carga.setRenglones],
+    [carga.parametrosCarga?.cargaUnidadesVenta, carga.setRenglones],
   );
 
   const handleAsistenteUpdateRenglon = useCallback(
-    (payload: { renglon: number; cantidad?: number; precio?: number; porcBonif?: number }) => {
+    (payload: {
+      renglon: number;
+      cantidad?: number;
+      cantidadVenta?: number;
+      equivalenciaVentas?: number;
+      precio?: number;
+      porcBonif?: number;
+    }) => {
+      const cargaUnidadesVenta = carga.parametrosCarga?.cargaUnidadesVenta ?? false;
+
       carga.setRenglones((current) =>
         current.map((row) => {
           if (row.renglon !== payload.renglon) {
             return row;
           }
 
-          return {
+          const next = {
             ...row,
-            cantidad: payload.cantidad !== undefined ? payload.cantidad : row.cantidad,
             precio: payload.precio !== undefined ? payload.precio : row.precio,
             porcBonif: payload.porcBonif !== undefined ? payload.porcBonif : row.porcBonif,
+          };
+
+          if (payload.cantidad === undefined && payload.cantidadVenta === undefined) {
+            return next;
+          }
+
+          const pair = resolveAsistenteCantidadPair(
+            {
+              cantidad: payload.cantidad ?? row.cantidad,
+              cantidadVenta: payload.cantidadVenta,
+              equivalenciaVentas: payload.equivalenciaVentas ?? row.equivalenciaVentas,
+            },
+            cargaUnidadesVenta,
+          );
+
+          return {
+            ...next,
+            cantidad: pair.cantidad,
+            cantidadVenta: pair.cantidadVenta,
+            equivalenciaVentas: pair.equivalenciaVentas,
           };
         }),
       );
     },
-    [carga.setRenglones],
+    [carga.parametrosCarga?.cargaUnidadesVenta, carga.setRenglones],
   );
 
   const handleAsistenteRemoveRenglon = useCallback(
@@ -171,6 +205,16 @@ export function PedidosCargaMobilePage() {
               codArticulo,
               descripcionArticulo: String(row.descripcion ?? ''),
               cantidad: Number(row.cantidad) > 0 ? Number(row.cantidad) : 1,
+              cantidadVenta:
+                row.cantidadVenta !== undefined
+                  ? Number(row.cantidadVenta)
+                  : Number(row.cantidad) > 0
+                    ? Number(row.cantidad)
+                    : 1,
+              equivalenciaVentas:
+                row.equivalenciaVentas !== undefined
+                  ? Number(row.equivalenciaVentas)
+                  : undefined,
               precio: row.precio !== undefined ? Number(row.precio) : 0,
               porcBonif: row.porcBonif !== undefined ? Number(row.porcBonif) : 0,
               porcIva: 21,
@@ -454,6 +498,7 @@ export function PedidosCargaMobilePage() {
         readOnly={carga.readOnly}
         modificaPrecio={carga.modificaPrecio}
         modificaBonArt={carga.modificaBonArt}
+        cargaUnidadesVenta={carga.parametrosCarga?.cargaUnidadesVenta ?? false}
         bonificacionNetaCabecera={carga.bonificacionNetaCabecera}
         monedaSimbolo={monedaSimbolo}
         onClose={carga.cerrarEdicionRenglon}

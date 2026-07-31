@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import FileUploader from 'devextreme-react/file-uploader';
 import SelectBox from 'devextreme-react/select-box';
 import Button from 'devextreme-react/button';
+import LoadIndicator from 'devextreme-react/load-indicator';
 import Popup from 'devextreme-react/popup';
 import { saveExcelWithPicker } from '../../../shared/ui/gridExport/saveExcelWithPicker';
 import {
@@ -18,6 +19,7 @@ import {
 } from '../api/excelImportApi';
 import type { ExcelImportHostModalPhase, ExcelImportHostResult } from '../types/excelImportHostTypes';
 import { ExcelImportErrorGrid } from './ExcelImportErrorGrid';
+import '../pages/excelImportPages.css';
 
 type ExcelImportHostModalProps = {
   visible: boolean;
@@ -186,7 +188,7 @@ export function ExcelImportHostModal({
     await saveExcelWithPicker(buffer, fileName);
   }, [activeLot]);
 
-  const modalWidth = phase === 'errors' ? 960 : 520;
+  const modalWidth = phase === 'errors' ? 960 : 560;
   const modalHeight = phase === 'errors' ? 560 : 'auto';
 
   return (
@@ -197,17 +199,22 @@ export function ExcelImportHostModal({
       width={modalWidth}
       height={modalHeight}
       showCloseButton={true}
-      wrapperAttr={{ 'data-testid': 'excelHostImportModal' }}
+      dragEnabled={false}
+      wrapperAttr={{
+        class: 'excelImportHostModalPopup',
+        'data-testid': 'excelHostImportModal',
+      }}
     >
       {phase === 'upload' ? (
         <section className="excelImportHostModal__upload">
-          <div data-testid="excelFileUpload">
+          <p className="excelImportHostModal__hint">{t('excelImport.uploadLabel')}</p>
+          <div className="excelImportHostModal__dropzone" data-testid="excelFileUpload">
             <FileUploader
               accept=".xlsx"
               uploadMode="useForm"
               multiple={false}
               showFileList={true}
-              labelText={t('excelImport.uploadLabel')}
+              labelText={t('excelImport.uploadDropHint')}
               selectButtonText={t('excelImport.uploadSelect')}
               onValueChanged={(event) => {
                 const files = event.value as File[] | null;
@@ -222,16 +229,20 @@ export function ExcelImportHostModal({
                 items={hojas}
                 value={hojaSeleccionada}
                 disabled={isLoadingHojas}
+                labelMode="floating"
                 onValueChanged={(event) => setHojaSeleccionada((event.value as string | null) ?? null)}
                 label={t('excelImport.sheetLabel')}
+                width="100%"
               />
             </div>
           ) : null}
 
-          <div data-testid="excelImportSubmit">
+          <div className="excelImportHostModal__actions" data-testid="excelImportSubmit">
             <Button
               text={t('excelImport.submitUpload')}
               type="default"
+              stylingMode="contained"
+              icon="upload"
               disabled={!archivo || !hojaSeleccionada || isSubmitting}
               onClick={() => void handleSubmit()}
             />
@@ -243,11 +254,20 @@ export function ExcelImportHostModal({
 
       {phase === 'structuralError' ? (
         <section className="excelImportHostModal__structural">
-          <p>{structuralMessage}</p>
+          <p className="excelImportHostModal__message">{structuralMessage}</p>
           <div className="excelImportHostModal__actions">
-            <Button text={t('excelImport.hostClose')} stylingMode="outlined" onClick={handleHidden} />
+            <Button
+              text={t('excelImport.hostClose')}
+              stylingMode="outlined"
+              onClick={handleHidden}
+            />
             <div data-testid="excelHostRetry">
-              <Button text={t('excelImport.hostRetry')} type="default" onClick={resetUpload} />
+              <Button
+                text={t('excelImport.hostRetry')}
+                type="default"
+                stylingMode="contained"
+                onClick={resetUpload}
+              />
             </div>
           </div>
         </section>
@@ -255,7 +275,13 @@ export function ExcelImportHostModal({
 
       {phase === 'processing' ? (
         <section className="excelImportHostModal__processing">
-          <p>{t('excelImport.hostProcessing')}</p>
+          <LoadIndicator height={48} width={48} visible={true} />
+          <p className="excelImportHostModal__processingMessage">
+            {t('excelImport.hostProcessing')}
+          </p>
+          <p className="excelImportHostModal__processingHint">
+            {t('excelImport.hostProcessingHint')}
+          </p>
         </section>
       ) : null}
 
@@ -292,12 +318,18 @@ export function ExcelImportHostModal({
                   <Button
                     text={t('excelImport.hostContinue')}
                     type="default"
+                    stylingMode="contained"
                     onClick={() => void deliverValidRows(activeLot)}
                   />
                 </div>
               ) : null}
               <div data-testid="excelHostRetry">
-                <Button text={t('excelImport.hostRetry')} type="default" onClick={resetUpload} />
+                <Button
+                  text={t('excelImport.hostRetry')}
+                  type="default"
+                  stylingMode="contained"
+                  onClick={resetUpload}
+                />
               </div>
             </div>
           </div>

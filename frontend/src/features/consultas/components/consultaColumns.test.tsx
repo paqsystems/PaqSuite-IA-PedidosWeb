@@ -53,4 +53,13 @@ describe('consulta columns CC', () => {
     expect(capturedFields).toContain('precioNeto');
     mounted.unmount();
   });
+
+  it('DetallePedidosConsultaColumns expone cantidadVenta', () => {
+    capturedFields.length = 0;
+    const mounted = renderColumns(<DetallePedidosConsultaColumns t={t} />);
+
+    expect(capturedFields).toContain('cantidad');
+    expect(capturedFields).toContain('cantidadVenta');
+    mounted.unmount();
+  });
 });

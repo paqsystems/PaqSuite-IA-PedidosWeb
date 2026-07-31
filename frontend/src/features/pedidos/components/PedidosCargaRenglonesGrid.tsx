@@ -7,6 +7,7 @@ import {
   calcularPrecioNetoUnitario,
   renglonesValidosParaGrabar,
 } from '../utils/renglonesCarga';
+import { cantidadVisibleParaUsuario } from '../utils/cargaUnidadesVenta';
 import { PedidosCargaRenglonEditDialog } from './PedidosCargaRenglonEditDialog';
 
 type PedidosCargaRenglonesGridProps = {
@@ -15,6 +16,7 @@ type PedidosCargaRenglonesGridProps = {
   isLoading: boolean;
   modificaPrecio: boolean;
   modificaBonArt: boolean;
+  cargaUnidadesVenta?: boolean;
   bonificacionNetaCabecera: number;
   monedaSimbolo?: string;
   autoOpenRenglonId?: number | null;
@@ -34,6 +36,7 @@ export function PedidosCargaRenglonesGrid({
   isLoading,
   modificaPrecio,
   modificaBonArt,
+  cargaUnidadesVenta = false,
   bonificacionNetaCabecera,
   monedaSimbolo = '$',
   autoOpenRenglonId = null,
@@ -151,6 +154,9 @@ export function PedidosCargaRenglonesGrid({
           caption={t('pedidos.carga.grid.cantidad')}
           dataType="number"
           allowEditing={false}
+          calculateCellValue={(row: ComprobanteRenglon) =>
+            cantidadVisibleParaUsuario(row.cantidad, row.cantidadVenta, cargaUnidadesVenta)
+          }
         />
         <Column
           dataField="precio"
@@ -193,6 +199,7 @@ export function PedidosCargaRenglonesGrid({
         readOnly={readOnly}
         modificaPrecio={modificaPrecio}
         modificaBonArt={modificaBonArt}
+        cargaUnidadesVenta={cargaUnidadesVenta}
         bonificacionNetaCabecera={bonificacionNetaCabecera}
         monedaSimbolo={monedaSimbolo}
         onClose={cerrarEdicion}

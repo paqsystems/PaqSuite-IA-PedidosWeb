@@ -78,6 +78,22 @@ describe('mapExcelImportToCarga', () => {
     expect(renglones[1].porcIva).toBe(21);
   });
 
+  it('mapea cantidad_venta del payload Excel enriquecido', () => {
+    const renglones = mapExcelRowsToRenglones([
+      {
+        cod_articulo: 'ART01',
+        cantidad: 10,
+        cantidad_venta: 4,
+        precio: 100,
+        porc_bonif: 0,
+        porc_iva: 21,
+      },
+    ]);
+
+    expect(renglones[0].cantidad).toBe(10);
+    expect(renglones[0].cantidadVenta).toBe(4);
+  });
+
   it('usa bonif_renglon cuando porc_bonif no viene enriquecido', () => {
     const renglones = mapExcelRowsToRenglones([
       {

@@ -84,6 +84,9 @@ final class ArticuloCargaLookupService
                     'porcIva' => round((float) ($row->porc_iva ?? 0), 4),
                     'bonificacion' => round((float) ($row->bonificacion ?? 0), 4),
                     'precio' => round((float) ($row->precio ?? 0), 2),
+                    'equivalenciaVentas' => CargaUnidadesVentaConverter::resolveEquivalenciaVentas(
+                        $row->equivalencia_ventas ?? 1,
+                    ),
                     'disponibleNeto' => round((float) ($row->disponible_neto ?? 0), 2),
                     'disponibleNetoBase' => $disponibleNetoBase !== null
                         ? round((float) $disponibleNetoBase, 2)
@@ -162,12 +165,17 @@ SQL;
             ." THEN (ISNULL(s_base.stock, 0) - ISNULL(s_base.comprometido, 0) - {$comprometidoBaseWebExpr})"
             .' ELSE NULL END';
 
+        $equivExpr = Schema::hasColumn('pq_pedidosweb_articulos', 'equivalencia_ventas')
+            ? 'a.equivalencia_ventas'
+            : '1';
+
         $sql = ($ctes !== [] ? 'WITH '.implode(",\n", $ctes)."\n" : '')
             ."SELECT TOP ({$pageSize})\n"
             ."    a.codigo,\n"
             ."    a.descripcion,\n"
             ."    a.porc_iva,\n"
             ."    a.bonificacion,\n"
+            ."    {$equivExpr} AS equivalencia_ventas,\n"
             ."    {$precioExpr} AS precio,\n"
             ."    {$disponibleExpr} AS disponible_neto,\n"
             ."    {$disponibleBaseExpr} AS disponible_neto_base\n"
@@ -212,11 +220,16 @@ SQL;
                 .' ON lp.cod_articulo = a.codigo AND lp.cod_lista = ?'
             : '';
 
+        $equivExpr = Schema::hasColumn('pq_pedidosweb_articulos', 'equivalencia_ventas')
+            ? 'a.equivalencia_ventas'
+            : '1';
+
         $sql = "SELECT TOP ({$pageSize})\n"
             ."    a.codigo,\n"
             ."    a.descripcion,\n"
             ."    a.porc_iva,\n"
             ."    a.bonificacion,\n"
+            ."    {$equivExpr} AS equivalencia_ventas,\n"
             ."    {$precioExpr} AS precio,\n"
             ."    CAST(0 AS DECIMAL(18, 4)) AS disponible_neto,\n"
             .'    CAST(NULL AS DECIMAL(18, 4)) AS disponible_neto_base'."\n"

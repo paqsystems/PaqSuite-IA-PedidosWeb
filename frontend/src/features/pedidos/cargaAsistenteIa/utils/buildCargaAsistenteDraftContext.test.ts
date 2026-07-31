@@ -42,6 +42,30 @@ describe('buildCargaAsistenteDraftContext', () => {
     });
   });
 
+  it('incluye cantidadVenta y equivalenciaVentas en renglones del draft', () => {
+    const draft = buildCargaAsistenteDraftContext({
+      selectedCliente: 'C001',
+      cabecera: { listaPrecios: 1 },
+      renglones: [
+        {
+          codArticulo: 'A1',
+          cantidad: 20,
+          cantidadVenta: 4,
+          equivalenciaVentas: 5,
+        },
+      ],
+      readOnly: false,
+      modo: 'nuevo',
+      perfilUsuario: 'V',
+    });
+
+    expect(draft.renglones[0]).toMatchObject({
+      cantidad: 20,
+      cantidadVenta: 4,
+      equivalenciaVentas: 5,
+    });
+  });
+
   it('maps readOnly and editar modes', () => {
     expect(
       buildCargaAsistenteDraftContext({

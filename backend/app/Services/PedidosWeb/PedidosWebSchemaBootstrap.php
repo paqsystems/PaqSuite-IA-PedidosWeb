@@ -17,6 +17,7 @@ final class PedidosWebSchemaBootstrap
 
         $this->ensureCabeceraColumns();
         $this->ensureDetalleColumns();
+        $this->ensureArticulosColumns();
         $this->ensureClienteColumns();
         $this->ensureMvpTables();
         $this->ensureMotivosCierreSeed();
@@ -196,11 +197,23 @@ final class PedidosWebSchemaBootstrap
             'importe_total' => 'decimal(18, 2) NULL',
             'descuento_origen' => 'nvarchar(20) NULL',
             'precio_origen' => 'nvarchar(20) NULL',
+            'cantidad_venta' => 'decimal(18, 4) NULL',
         ];
 
         foreach ($columns as $column => $definition) {
             $this->addColumnIfMissing($table, $column, $definition);
         }
+    }
+
+    private function ensureArticulosColumns(): void
+    {
+        $table = 'pq_pedidosweb_articulos';
+
+        if (! Schema::hasTable($table)) {
+            return;
+        }
+
+        $this->addColumnIfMissing($table, 'equivalencia_ventas', 'decimal(18, 4) NULL');
     }
 
     private function ensureCabeceraColumns(): void

@@ -165,6 +165,39 @@ final class CargaAsistenteToolsTest extends TestCase
         $this->assertSame('denied', $result['actions'][0]['resultado'] ?? null);
     }
 
+    public function testChooseOptionAplicaEquivalenciaVentasAlAgregar(): void
+    {
+        config()->set('paqsuite_pedidosweb.defaults.CargaUnidadesVenta', 1);
+
+        $tool = new CargaAsistenteArticuloTool(
+            new ArticuloCargaLookupService(),
+            new PedidosWebParameterService(),
+        );
+
+        $result = $tool->chooseOption(
+            $this->draftWithRenglones([], 'V'),
+            [
+                'kind' => 'articulo',
+                'options' => [
+                    [
+                        'n' => 1,
+                        'code' => 'ART-EQ',
+                        'descripcion' => 'Articulo con equivalencia',
+                        'precio' => 100,
+                        'equivalenciaVentas' => 5,
+                    ],
+                ],
+                'cantidad' => 4,
+            ],
+            1,
+        );
+
+        $this->assertSame('addRenglon', $result['actions'][0]['action'] ?? null);
+        $this->assertSame(20.0, (float) ($result['actions'][0]['payload']['cantidad'] ?? 0));
+        $this->assertSame(4.0, (float) ($result['actions'][0]['payload']['cantidadVenta'] ?? 0));
+        $this->assertSame(5.0, (float) ($result['actions'][0]['payload']['equivalenciaVentas'] ?? 0));
+    }
+
     public function testConsultaFormattingDateOnlyAndTotals(): void
     {
         $this->assertSame('2026-07-13', CargaAsistenteConsultaFormatting::formatDateOnly('2026-07-13 15:30:00'));

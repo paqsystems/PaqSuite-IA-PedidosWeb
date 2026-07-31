@@ -88,6 +88,28 @@ final class PedidosWebParameterServiceTest extends TestCase
     }
 
     #[Test]
+    public function getCargaUnidadesVentaDefaultFalse(): void
+    {
+        config()->set('paqsuite_pedidosweb.readFromErp', false);
+        config()->set('paqsuite_pedidosweb.defaults.CargaUnidadesVenta', 0);
+
+        $service = new PedidosWebParameterService();
+
+        $this->assertFalse($service->getCargaUnidadesVenta());
+    }
+
+    #[Test]
+    public function getCargaUnidadesVentaLeeConfigCuandoErpDeshabilitado(): void
+    {
+        config()->set('paqsuite_pedidosweb.readFromErp', false);
+        config()->set('paqsuite_pedidosweb.defaults.CargaUnidadesVenta', 1);
+
+        $service = new PedidosWebParameterService();
+
+        $this->assertTrue($service->getCargaUnidadesVenta());
+    }
+
+    #[Test]
     public function getArticulosSinPrecioPrefiereClaveCanonicaSobreLegacy(): void
     {
         config()->set('paqsuite_pedidosweb.readFromErp', true);

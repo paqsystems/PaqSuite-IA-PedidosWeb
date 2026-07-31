@@ -232,7 +232,8 @@ CREATE TABLE pq_pedidosweb_articulos (
     base nvarchar(50) NULL,
     valor1 decimal(18,4) NULL,
     valor2 decimal(18,4) NULL,
-    porc_iva decimal(18,4) NULL
+    porc_iva decimal(18,4) NULL,
+    equivalencia_ventas decimal(18,4) NULL CONSTRAINT DF_pw_art_equiv_ventas DEFAULT (1)
 )
 SQL);
 
@@ -335,6 +336,7 @@ CREATE TABLE pq_pedidosweb_pedidosdetalle (
     renglon int NOT NULL,
     cod_articulo nvarchar(50) NULL,
     cantidad decimal(18,4) NULL,
+    cantidad_venta decimal(18,4) NULL,
     porc_bonif decimal(18,4) NULL,
     precio decimal(18,4) NULL,
     precio_neto decimal(18,4) NULL,
