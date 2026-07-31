@@ -46,6 +46,7 @@ Este archivo **no sustituye** SPEC, HU ni TR: es la **entrada** del circuito de 
 
 | # | Fecha | Estado | Resumen |
 |---|-------|--------|---------|
+| 10 | 30/07/2026 | A Programar (Parte G 30/07/2026; D+E 30/07/2026) | `CargaUnidadesVenta` — cantidad dual stock/venta; Excel, mail, asistente; `cantidad_venta` en Detalle de Pedidos |
 | 9 | 02/07/2026 | Finalizado (Parte I 02/07/2026) | `ActualizarPrecioCopia` al copiar — D+E+F+I OK; copia paramétrica + modal error |
 | 8 | 19/06/2026 | Finalizado (Parte I) | Precarga artículos al ingresar, refresh catálogo, vendedor cliente al importar Excel |
 | 7 | 15/06/2026 | Finalizado (Parte I) | i18n parámetros/pivot, perfil CodPerfilPedidos, validaciones grabación, layout carga |
@@ -57,6 +58,70 @@ Este archivo **no sustituye** SPEC, HU ni TR: es la **entrada** del circuito de 
 | 3 | 09/06/2026 | Finalizado (Parte I) | Cartel cargando, layouts totales, performance carga, parámetros — unificado 09/06/2026 |
 
 ---
+
+## Control de Calidad #10
+
+### Referencia del control
+
+| Campo | Valor |
+|-------|--------|
+| **Fecha** | 30/07/2026 |
+| **Responsable** | Pablo Quarracino (PQ) |
+| **Estado** | A Programar (Parte G 30/07/2026) |
+
+### Hallazgos
+
+Incorporar la posibilidad de ingresar los renglones de los pedidos por unidades de venta en lugar de unidades de stock/precio (campo CANTIDAD)
+
+### Errores encontrados - Mejoras solicitadas
+
+#### Agregar parámetro "Carga de pedidos por unidades de venta"
+
+Agregar en PQ_PARAMETROS_GRAL una nueva clave, de tipo booleana, llamada "CargaUnidadesVenta".
+tener presente este nuevo atributo para el seeder de actualización de versión.
+
+*Procesado* → [SPEC-001-04-update](../05-open-spec/updates/001-Generaliddes/SPEC-001-04-configuracion-global-update.md) · [HU-GEN-04-update](../03-historias-usuario/updates/001-Generaliddes/HU-GEN-04-consulta-parametros-update.md) · [TR-GEN-04-update](../04-tareas/updates/001-Generaliddes/TR-GEN-04-consulta-parametros-update.md) — Parte G 30/07/2026
+
+#### Tabla de Articulos, agregar atributo "Equivalencia Ventas"
+
+en la tabla PQ_PEDIDOSWEB_ARTICULOS, agregar un atributo decimal "equivalencia_ventas". por default en 1.
+
+*Procesado* → [SPEC-101-02-update](../05-open-spec/updates/101-PedidosWeb/SPEC-101-02-modelos-update.md) · [TR-SPEC-101-02-update](../04-tareas/updates/101-PedidosWeb/TR-SPEC-101-02-modelos-update.md) — Parte G 30/07/2026 · **nomenclatura canónica:** `equivalencia_ventas` (plural)
+
+#### Tabla de Detalle de pedidos, agregar atributo cantidad_venta
+
+en la tabla PQ_PEDIDOSWEB_DETALLEPEDIDOS, agregar un atributo decimal CANTIDAD_VENTA. por defecto igual que CANTIDAD.
+
+*Procesado* → [SPEC-101-02-update](../05-open-spec/updates/101-PedidosWeb/SPEC-101-02-modelos-update.md) · [SPEC-101-04-update](../05-open-spec/updates/101-PedidosWeb/SPEC-101-04-services-pedidos-update.md) · [TR-SPEC-101-02-update](../04-tareas/updates/101-PedidosWeb/TR-SPEC-101-02-modelos-update.md) · [TR-SPEC-101-04-update](../04-tareas/updates/101-PedidosWeb/TR-SPEC-101-04-services-pedidos-update.md) — Parte G 30/07/2026 · **tabla canónica:** `pq_pedidosweb_pedidosdetalle`
+
+#### Carga de Pedidos/Presupuesto, carga de los renglones.
+
+cuando se abre la carga modal de un renglón de pedidos/presupuestos, el dato cantidad tiene un significado diferente según el parámetro nuevo "CargaUnidadesVenta".
+si es false, este campo se asigna a la columna CANTIDAD actual, el importe se calcula como hasta ahora, y en la nueva columna CANTIDAD_VENTA va CANTIDAD / pq_pedidosweb_articulos.equivalencia_venta (si es cero, se asume 1)
+si es true, este campo se asigna a la columna CANTIDAD_VENTA, se calcula CANTIDAD como CANTIDAD_VENTA * pq_pedidosweb_articulos.equivalencia_venta, y se calculan los importes a partir de este ultimo resultado. 
+es decir, los importes siempre se calculan a partir de CANTIDAD, sólo que se debe determinar previamente si este dato es el que ingresa el usuario , o el que se calcula multiplicando por la equivalencia ventas.
+Siempre mostrar un solo dato 'cantidad'. en una edición determinar cuál mostrar para editar. NO quiero que se muestren los dos valores y se edite uno u otro.
+En el envío de mail idem. Solo se muestra la cantidad que carga el cliente según el parámetro.
+
+*Procesado* → [SPEC-101-10-update](../05-open-spec/updates/101-PedidosWeb/SPEC-101-10-pantalla-carga-update.md) · [SPEC-101-13-update](../05-open-spec/updates/101-PedidosWeb/SPEC-101-13-mails-update.md) · [HU-101-006-update](../03-historias-usuario/updates/101-PedidosWeb/HU-101-006-carga-renglones-update.md) · [HU-101-019-update](../03-historias-usuario/updates/101-PedidosWeb/HU-101-019-mail-grabar-update.md) · [TR-SPEC-101-10-update](../04-tareas/updates/101-PedidosWeb/TR-SPEC-101-10-pantalla-carga-update.md) · [TR-SPEC-101-13-update](../04-tareas/updates/101-PedidosWeb/TR-SPEC-101-13-mails-update.md) — Parte G 30/07/2026
+
+#### Informe Detalle de Pedidos, incluir nuevo atributo cantidad_venta
+
+~~incluir en los tres informes (pedidos ingresados, pedidos pendientes y presupuestos ingresados)~~ → **corrección PQ 30/07/2026:** incluir en el informe **Detalle de Pedidos** (`pw_detallepedidos` / HU-101-028) el atributo **CANTIDAD_VENTA**. No se altera ningún otro atributo. **Fuera de alcance:** listados de cabecera (ingresados, pendientes, presupuestos).
+
+*Procesado* → [SPEC-101-07-update](../05-open-spec/updates/101-PedidosWeb/SPEC-101-07-consultas-api-update.md) · [SPEC-101-11-update](../05-open-spec/updates/101-PedidosWeb/SPEC-101-11-consultas-ui-update.md) · [HU-101-028-update](../03-historias-usuario/updates/101-PedidosWeb/HU-101-028-consulta-detalle-pedidos-update.md) · [TR-SPEC-101-07-update](../04-tareas/updates/101-PedidosWeb/TR-SPEC-101-07-consultas-api-update.md) · [TR-SPEC-101-11-update](../04-tareas/updates/101-PedidosWeb/TR-SPEC-101-11-consultas-ui-update.md) — Parte G 30/07/2026 · corrección alcance 30/07/2026
+
+#### Excel de importación, consideración de la columna cantidad
+
+Cuando se importa el Excel, ya sea en la carga individual o masiva, a la columna cantidad hay que darle el mismo tratamiento que se le da en la ventana de edición de un renglón
+
+*Procesado* → [SPEC-101-16-update](../05-open-spec/updates/101-PedidosWeb/SPEC-101-16-importacion-pedido-individual-excel-update.md) · [SPEC-101-21-update](../05-open-spec/updates/101-PedidosWeb/SPEC-101-21-importacion-masiva-pedidos-update.md) · [HU-101-029/030/043-update](../03-historias-usuario/updates/101-PedidosWeb/) · [TR-SPEC-101-16-update](../04-tareas/updates/101-PedidosWeb/TR-SPEC-101-16-importacion-excel-update.md) — Parte G 30/07/2026
+
+#### Asistente IA, consideración del dato cantidad.
+
+Cuando se informa 'cantidad' en el asistente IA, ya sea en la forma escrita, verbal o por imagen, al dato  'cantidad' hay que darle el mismo tratamiento que se le da en la ventana de edición de un renglón
+
+*Procesado* → [SPEC-101-19-update](../05-open-spec/updates/101-PedidosWeb/SPEC-101-19-asistente-carga-ia-mutaciones-update.md) · [HU-101-040-update](../03-historias-usuario/updates/101-PedidosWeb/HU-101-040-asistente-carga-ia-articulos-grabar-update.md) · [TR-SPEC-101-19-update](../04-tareas/updates/101-PedidosWeb/TR-SPEC-101-19-asistente-carga-ia-mutaciones-update.md) — Parte G 30/07/2026
 
 ## Control de Calidad #9
 

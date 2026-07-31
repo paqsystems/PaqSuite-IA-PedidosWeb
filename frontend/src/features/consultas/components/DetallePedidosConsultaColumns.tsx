@@ -22,6 +22,12 @@ export function DetallePedidosConsultaColumns({ t }: DetallePedidosConsultaColum
       <Column dataField="codArticulo" caption={t('consultas.detalle.column.codArticulo')} visible />
       <Column dataField="descripcionArticulo" caption={t('consultas.detalle.column.descripcionArticulo')} visible />
       <Column dataField="cantidad" caption={t('consultas.detalle.column.cantidad')} {...decimalColumnProps} visible />
+      <Column
+        dataField="cantidadVenta"
+        caption={t('consultas.detalle.column.cantidadVenta')}
+        {...decimalColumnProps}
+        visible
+      />
       <Column dataField="porcBonif" caption={t('consultas.detalle.column.descuento')} {...percentColumnProps} visible />
       <Column dataField="precioLista" caption={t('consultas.detalle.column.precioLista')} {...decimalColumnProps} visible />
       <Column dataField="precioNeto" caption={t('consultas.detalle.column.precioNeto')} {...decimalColumnProps} visible />

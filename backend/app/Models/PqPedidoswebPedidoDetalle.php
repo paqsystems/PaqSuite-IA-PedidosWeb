@@ -23,6 +23,7 @@ class PqPedidoswebPedidoDetalle extends Model
         'renglon',
         'cod_articulo',
         'cantidad',
+        'cantidad_venta',
         'porc_bonif',
         'precio',
         'precio_neto',
@@ -40,6 +41,7 @@ class PqPedidoswebPedidoDetalle extends Model
     protected $casts = [
         'renglon' => 'integer',
         'cantidad' => 'decimal:4',
+        'cantidad_venta' => 'decimal:4',
         'porc_bonif' => 'decimal:4',
         'precio' => 'decimal:4',
         'precio_neto' => 'decimal:4',

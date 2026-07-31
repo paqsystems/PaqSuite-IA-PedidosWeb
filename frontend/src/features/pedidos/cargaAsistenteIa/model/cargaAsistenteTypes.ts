@@ -9,6 +9,8 @@ export type CargaAsistenteDraftContext = {
     renglon?: number;
     codArticulo: string;
     cantidad: number;
+    cantidadVenta?: number;
+    equivalenciaVentas?: number;
     precio?: number;
     porcBonif?: number;
     descripcion?: string;

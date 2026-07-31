@@ -21,10 +21,11 @@ export function PedidosCargaArticulosStockLoadPanel({
       width={420}
       height="auto"
       title={t('pedidos.carga.articulosStockLoadTitulo')}
+      wrapperAttr={{ class: 'pedidosCargaDialogPopup pedidosCargaDialogPopup--busy' }}
       elementAttr={{ 'data-testid': 'articulos-cargando' }}
     >
       <div className="pedidosCargaArticulosStockLoadPanel">
-        <LoadIndicator height={48} width={48} />
+        <LoadIndicator height={48} width={48} visible={true} />
         <p className="pedidosCargaArticulosStockLoadPanel__message">
           {t('pedidos.carga.articulosCargando')}
         </p>

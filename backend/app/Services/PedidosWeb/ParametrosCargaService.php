@@ -28,6 +28,7 @@ final class ParametrosCargaService
             'noEliminaPedido' => $this->parameterService->getNoEliminaPedido(),
             'noModificaPedido' => $this->parameterService->getNoModificaPedido(),
             'cargaRecurrente' => $this->parameterService->getCargaRecurrente(),
+            'cargaUnidadesVenta' => $this->parameterService->getCargaUnidadesVenta(),
         ];
     }
 

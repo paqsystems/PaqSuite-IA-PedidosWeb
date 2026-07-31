@@ -27,15 +27,14 @@ export function PedidosCargaErroresGrabacionDialog({
       onHiding={onClose}
       dragEnabled={false}
       showCloseButton={true}
-      width={520}
+      width={540}
       height="auto"
       title={t(titleKey)}
+      wrapperAttr={{ class: 'pedidosCargaDialogPopup' }}
       elementAttr={{ 'data-testid': testId }}
     >
       <div className="pedidosCargaErroresGrabacionDialog">
-        <p className="pedidosCargaErroresGrabacionDialog__intro">
-          {t(introKey)}
-        </p>
+        <p className="pedidosCargaErroresGrabacionDialog__intro">{t(introKey)}</p>
         <ul
           className="pedidosCargaErroresGrabacionDialog__list"
           data-testid="errores-grabacion-lista"
@@ -48,6 +47,8 @@ export function PedidosCargaErroresGrabacionDialog({
           <Button
             text={t('pedidos.carga.erroresGrabacionCerrar')}
             type="default"
+            stylingMode="contained"
+            width={120}
             onClick={onClose}
             elementAttr={{ 'data-testid': 'errores-grabacion-cerrar' }}
           />

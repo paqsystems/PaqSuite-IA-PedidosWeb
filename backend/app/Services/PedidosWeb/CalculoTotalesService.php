@@ -16,7 +16,9 @@ final class CalculoTotalesService
         $factorCabecera = 1 - ($bonificacionNetaCabecera / 100);
 
         foreach ($renglones as $index => $renglon) {
-            $cantidad = $this->toFloat($renglon['cantidad'] ?? 0);
+            $pair = CargaUnidadesVentaConverter::ensurePair($renglon);
+            $cantidad = $pair['cantidad'];
+            $cantidadVenta = $pair['cantidad_venta'];
             $precio = $this->toFloat($renglon['precio'] ?? 0);
             $porcBonif = $this->toFloat($renglon['porc_bonif'] ?? $renglon['porcBonif'] ?? 0);
             $porcIva = $this->toFloat($renglon['porc_iva'] ?? $renglon['porcIva'] ?? 0);
@@ -34,6 +36,7 @@ final class CalculoTotalesService
                 'cod_articulo' => (string) ($renglon['cod_articulo'] ?? $renglon['codArticulo'] ?? ''),
                 'descripcion_articulo' => (string) ($renglon['descripcion_articulo'] ?? $renglon['descripcionArticulo'] ?? ''),
                 'cantidad' => $cantidad,
+                'cantidad_venta' => $cantidadVenta,
                 'porc_bonif' => $porcBonif,
                 'precio' => $precio,
                 'precio_neto' => $precioNeto,

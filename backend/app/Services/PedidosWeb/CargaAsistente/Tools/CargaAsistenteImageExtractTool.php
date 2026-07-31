@@ -4,6 +4,7 @@ namespace App\Services\PedidosWeb\CargaAsistente\Tools;
 
 use App\Models\User;
 use App\Services\ChatAssistant\Llm\ChatAssistantLlmGateway;
+use App\Services\PedidosWeb\CargaUnidadesVentaConverter;
 use App\Services\PedidosWeb\PedidosWebParameterService;
 
 final class CargaAsistenteImageExtractTool
@@ -198,9 +199,18 @@ PROMPT;
             }
 
             $articulo = $matches[0];
+            $pair = CargaUnidadesVentaConverter::fromCantidadUsuario(
+                $cantidad,
+                $articulo['equivalenciaVentas'] ?? 1,
+                $this->parameterService->getCargaUnidadesVenta(),
+            );
             $renglonesValidos[] = [
                 'codArticulo' => $articulo['codArticulo'],
-                'cantidad' => $cantidad,
+                'cantidad' => $pair['cantidad'],
+                'cantidadVenta' => $pair['cantidad_venta'],
+                'equivalenciaVentas' => CargaUnidadesVentaConverter::resolveEquivalenciaVentas(
+                    $articulo['equivalenciaVentas'] ?? 1,
+                ),
                 'precio' => $precioFromImage ?? $articulo['precio'],
                 'porcBonif' => $bonifFromImage ?? $articulo['bonificacion'],
                 'descripcion' => $articulo['descripcion'],

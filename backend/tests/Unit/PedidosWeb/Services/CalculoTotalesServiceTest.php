@@ -4,7 +4,7 @@ namespace Tests\Unit\PedidosWeb\Services;
 
 use App\Services\PedidosWeb\CalculoTotalesService;
 use PHPUnit\Framework\Attributes\Test;
-use Tests\TestCase;
+use PHPUnit\Framework\TestCase;
 
 final class CalculoTotalesServiceTest extends TestCase
 {
@@ -71,5 +71,46 @@ final class CalculoTotalesServiceTest extends TestCase
 
         $this->assertSame(100.0, $result['total']);
         $this->assertSame(15.75, $result['totalIva']);
+    }
+
+    #[Test]
+    public function calcularPersisteCantidadVentaYCalculaImportesDesdeCantidad(): void
+    {
+        $service = new CalculoTotalesService();
+
+        $result = $service->calcular([
+            [
+                'cod_articulo' => 'ART001',
+                'cantidad' => 10,
+                'cantidad_venta' => 4,
+                'precio' => 100,
+                'porc_bonif' => 0,
+                'porc_iva' => 0,
+            ],
+        ]);
+
+        $this->assertSame(10.0, $result['renglones'][0]['cantidad']);
+        $this->assertSame(4.0, $result['renglones'][0]['cantidad_venta']);
+        $this->assertSame(1000.0, $result['renglones'][0]['importe_neto']);
+    }
+
+    #[Test]
+    public function calcularDerivaCantidadVentaSiFaltaEnPayload(): void
+    {
+        $service = new CalculoTotalesService();
+
+        $result = $service->calcular([
+            [
+                'cod_articulo' => 'ART001',
+                'cantidad' => 10,
+                'precio' => 50,
+                'porc_bonif' => 0,
+                'porc_iva' => 0,
+            ],
+        ]);
+
+        $this->assertSame(10.0, $result['renglones'][0]['cantidad']);
+        $this->assertSame(10.0, $result['renglones'][0]['cantidad_venta']);
+        $this->assertSame(500.0, $result['renglones'][0]['importe_neto']);
     }
 }

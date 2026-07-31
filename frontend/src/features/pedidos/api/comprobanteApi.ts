@@ -16,6 +16,8 @@ export type ComprobanteRenglon = {
   codArticulo: string;
   descripcionArticulo?: string;
   cantidad: number;
+  cantidadVenta?: number;
+  equivalenciaVentas?: number;
   precio: number;
   porcBonif: number;
   porcIva: number;
@@ -59,6 +61,7 @@ export type ParametrosCarga = {
   noEliminaPedido: boolean;
   noModificaPedido: boolean;
   cargaRecurrente: boolean;
+  cargaUnidadesVenta: boolean;
 };
 
 export type ArticuloOption = {
@@ -67,6 +70,7 @@ export type ArticuloOption = {
   porcIva: number;
   bonificacion: number;
   precio?: number;
+  equivalenciaVentas?: number;
   disponibleNeto?: number;
   disponibleNetoBase?: number | null;
 };
@@ -93,6 +97,7 @@ type ApiComprobanteDetalleRow = {
   cod_articulo: string;
   descripcion_articulo?: string;
   cantidad: number;
+  cantidad_venta?: number;
   precio: number;
   porc_bonif: number;
   porc_iva: number;
@@ -111,11 +116,15 @@ type ApiComprobanteResponse = {
 };
 
 function mapRenglonFromApi(row: ApiComprobanteDetalleRow): ComprobanteRenglon {
+  const cantidad = row.cantidad;
+  const cantidadVenta = row.cantidad_venta ?? row.cantidad;
+
   return {
     renglon: row.renglon,
     codArticulo: row.cod_articulo,
     descripcionArticulo: row.descripcion_articulo,
-    cantidad: row.cantidad,
+    cantidad,
+    cantidadVenta,
     precio: row.precio,
     porcBonif: row.porc_bonif,
     porcIva: normalizarPorcIvaAlmacenado(row.porc_iva),
@@ -128,6 +137,7 @@ function mapRenglonToApi(renglon: ComprobanteRenglon) {
     cod_articulo: renglon.codArticulo,
     descripcion_articulo: renglon.descripcionArticulo ?? '',
     cantidad: renglon.cantidad,
+    cantidad_venta: renglon.cantidadVenta ?? renglon.cantidad,
     precio: renglon.precio,
     porc_bonif: renglon.porcBonif,
     porc_iva: renglon.porcIva,

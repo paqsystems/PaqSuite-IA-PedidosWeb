@@ -21,17 +21,22 @@ export function PedidosCargaConfirmacionDialog({
       onHiding={onClose}
       dragEnabled={false}
       showCloseButton={true}
-      width={440}
+      width={460}
       height="auto"
       title={t('pedidos.carga.confirmacionTitulo')}
+      wrapperAttr={{ class: 'pedidosCargaDialogPopup' }}
       elementAttr={{ 'data-testid': 'dialog-confirmacion-grabar' }}
     >
       <div className="pedidosCargaConfirmacionDialog">
-        <p data-testid="confirmacion-grabacion">{message}</p>
+        <p className="pedidosCargaConfirmacionDialog__message" data-testid="confirmacion-grabacion">
+          {message}
+        </p>
         <div className="pedidosCargaConfirmacionDialog__actions">
           <Button
             text={t('pedidos.carga.confirmacionCerrar')}
             type="default"
+            stylingMode="contained"
+            width={120}
             onClick={onClose}
             elementAttr={{ 'data-testid': 'confirmacion-grabacion-cerrar' }}
           />
