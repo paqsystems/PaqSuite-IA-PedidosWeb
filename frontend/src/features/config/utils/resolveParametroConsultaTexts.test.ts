@@ -14,6 +14,10 @@ describe('resolveParametroConsultaTexts', () => {
       return 'Actualizar precios al copiar';
     }
 
+    if (key === 'parametros.pedidosWeb.CargaUnidadesVenta.caption') {
+      return 'Carga por unidades de venta';
+    }
+
     if (key === 'pedidos.carga.cabecera.si') {
       return 'Si';
     }
@@ -29,6 +33,12 @@ describe('resolveParametroConsultaTexts', () => {
     expect(
       resolveParametroCaption(translate, 'ActualizarPrecioCopia', 'Actualizar precios al copiar comprobante'),
     ).toBe('Actualizar precios al copiar');
+  });
+
+  it('traduce caption de CargaUnidadesVenta', () => {
+    expect(
+      resolveParametroCaption(translate, 'CargaUnidadesVenta', 'Carga de pedidos por unidades de venta'),
+    ).toBe('Carga por unidades de venta');
   });
 
   it('localiza booleanos en valorMostrado', () => {

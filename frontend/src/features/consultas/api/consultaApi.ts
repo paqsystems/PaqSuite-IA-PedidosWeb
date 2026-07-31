@@ -91,6 +91,7 @@ export type DetallePedidoConsultaRow = ComprobanteConsultaRow & {
   codArticulo: string;
   descripcionArticulo: string;
   cantidad: number;
+  cantidadVenta: number;
   porcBonif: number;
   precioLista: number;
   precioNeto: number;
@@ -230,6 +231,7 @@ type ApiDetallePedidoItem = ApiComprobanteConsultaItem & {
   codArticulo?: string;
   descripcionArticulo?: string;
   cantidad?: number;
+  cantidadVenta?: number;
   porcBonif?: number;
   precioLista?: number;
   precioNeto?: number;
@@ -386,6 +388,7 @@ function mapDetallePedidoItem(item: ApiDetallePedidoItem): DetallePedidoConsulta
     codArticulo: item.codArticulo ?? '',
     descripcionArticulo: item.descripcionArticulo ?? '',
     cantidad: item.cantidad ?? 0,
+    cantidadVenta: item.cantidadVenta ?? item.cantidad ?? 0,
     porcBonif: item.porcBonif ?? 0,
     precioLista: item.precioLista ?? 0,
     precioNeto: item.precioNeto ?? 0,

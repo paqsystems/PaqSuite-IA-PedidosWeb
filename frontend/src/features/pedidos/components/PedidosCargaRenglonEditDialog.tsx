@@ -7,6 +7,10 @@ import TextBox from 'devextreme-react/text-box';
 import type { ComprobanteRenglon } from '../api/comprobanteApi';
 import { bonificacionCabeceraFormat } from '../constants/cabeceraCatalogos';
 import {
+  applyCantidadUsuarioToRenglon,
+  cantidadVisibleParaUsuario,
+} from '../utils/cargaUnidadesVenta';
+import {
   calcularImporteBrutoRenglon,
   calcularImporteIvaRenglon,
   calcularImporteNetoConIvaRenglon,
@@ -21,6 +25,7 @@ type PedidosCargaRenglonEditDialogProps = {
   readOnly: boolean;
   modificaPrecio: boolean;
   modificaBonArt: boolean;
+  cargaUnidadesVenta?: boolean;
   bonificacionNetaCabecera: number;
   monedaSimbolo?: string;
   onClose: () => void;
@@ -33,6 +38,7 @@ export function PedidosCargaRenglonEditDialog({
   readOnly,
   modificaPrecio,
   modificaBonArt,
+  cargaUnidadesVenta = false,
   bonificacionNetaCabecera,
   monedaSimbolo = '$',
   onClose,
@@ -70,6 +76,11 @@ export function PedidosCargaRenglonEditDialog({
   }
 
   const canEdit = !readOnly;
+  const cantidadVisible = cantidadVisibleParaUsuario(
+    draft.cantidad,
+    draft.cantidadVenta,
+    cargaUnidadesVenta,
+  );
 
   const handleConfirm = () => {
     if (!canEdit || draft.cantidad <= 0) {
@@ -88,39 +99,54 @@ export function PedidosCargaRenglonEditDialog({
       showCloseButton={true}
       height="auto"
       title={t('pedidos.carga.renglon.editarTitulo')}
-      wrapperAttr={{ class: 'pedidosCargaRenglonEditPopup' }}
+      wrapperAttr={{ class: 'pedidosCargaRenglonEditPopup pedidosCargaDialogPopup' }}
       elementAttr={{ 'data-testid': 'dialog-editar-renglon' }}
     >
       <div className="pedidosCargaRenglonEditDialog">
         <TextBox
           label={t('pedidos.carga.grid.articulo')}
+          labelMode="outside"
           value={draft.codArticulo}
           readOnly={true}
+          stylingMode="outlined"
+          width="100%"
           inputAttr={{ 'data-testid': 'renglon-edit-articulo' }}
         />
         <TextBox
           label={t('pedidos.carga.grid.descripcion')}
+          labelMode="outside"
           value={draft.descripcionArticulo ?? ''}
           readOnly={true}
+          stylingMode="outlined"
+          width="100%"
         />
         <NumberBox
           label={t('pedidos.carga.grid.cantidad')}
-          value={draft.cantidad}
+          labelMode="outside"
+          value={cantidadVisible}
           min={0.0001}
           readOnly={!canEdit}
+          stylingMode="outlined"
+          width="100%"
           onValueChanged={(event) => {
+            const cantidadUsuario = Number(event.value ?? 0);
             setDraft((previous) =>
-              previous ? { ...previous, cantidad: Number(event.value ?? 0) } : previous,
+              previous
+                ? applyCantidadUsuarioToRenglon(previous, cantidadUsuario, cargaUnidadesVenta)
+                : previous,
             );
           }}
           inputAttr={{ 'data-testid': 'renglon-edit-cantidad' }}
         />
         <NumberBox
           label={t('pedidos.carga.grid.precio')}
+          labelMode="outside"
           value={draft.precio}
           min={0}
           format={`${monedaSimbolo} #,##0.00`}
           disabled={!canEdit || !modificaPrecio}
+          stylingMode="outlined"
+          width="100%"
           onValueChanged={(event) => {
             setDraft((previous) =>
               previous ? { ...previous, precio: Number(event.value ?? 0) } : previous,
@@ -130,6 +156,7 @@ export function PedidosCargaRenglonEditDialog({
         />
         <NumberBox
           label={t('pedidos.carga.grid.bonificacion')}
+          labelMode="outside"
           value={draft.porcBonif}
           min={0}
           max={100}
@@ -137,6 +164,8 @@ export function PedidosCargaRenglonEditDialog({
           step={0.01}
           showSpinButtons={true}
           disabled={!canEdit || !modificaBonArt}
+          stylingMode="outlined"
+          width="100%"
           onValueChanged={(event) => {
             setDraft((previous) =>
               previous ? { ...previous, porcBonif: Number(event.value ?? 0) } : previous,
@@ -147,26 +176,38 @@ export function PedidosCargaRenglonEditDialog({
         <div className="pedidosCargaRenglonEditDialog__importes">
           <TextBox
             label={t('pedidos.carga.renglon.importeBruto')}
+            labelMode="outside"
             value={importes.bruto}
             readOnly={true}
+            stylingMode="outlined"
+            width="100%"
             inputAttr={{ 'data-testid': 'renglon-importe-bruto' }}
           />
           <TextBox
             label={t('pedidos.carga.renglon.importeNeto')}
+            labelMode="outside"
             value={importes.neto}
             readOnly={true}
+            stylingMode="outlined"
+            width="100%"
             inputAttr={{ 'data-testid': 'renglon-importe-neto' }}
           />
           <TextBox
             label={t('pedidos.carga.renglon.importeIva')}
+            labelMode="outside"
             value={importes.iva}
             readOnly={true}
+            stylingMode="outlined"
+            width="100%"
             inputAttr={{ 'data-testid': 'renglon-importe-iva' }}
           />
           <TextBox
             label={t('pedidos.carga.renglon.importeNetoConIva')}
+            labelMode="outside"
             value={importes.netoConIva}
             readOnly={true}
+            stylingMode="outlined"
+            width="100%"
             elementAttr={{ class: 'pedidosCargaRenglonEditDialog__importeDestacado' }}
             inputAttr={{ 'data-testid': 'renglon-importe-neto-con-iva' }}
           />
@@ -176,13 +217,14 @@ export function PedidosCargaRenglonEditDialog({
             <Button
               text={t('pedidos.carga.renglon.guardar')}
               type="default"
+              stylingMode="contained"
               disabled={draft.cantidad <= 0}
               onClick={handleConfirm}
               elementAttr={{ 'data-testid': 'renglon-edit-guardar' }}
             />
             <Button
               text={t('pedidos.carga.cancelar')}
-              stylingMode="text"
+              stylingMode="outlined"
               onClick={onClose}
               elementAttr={{ 'data-testid': 'renglon-edit-cancelar' }}
             />

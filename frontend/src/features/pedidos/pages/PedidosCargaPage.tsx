@@ -65,6 +65,7 @@ import {
   renglonesValidosParaGrabar,
   tieneRenglonesCargados,
 } from '../utils/renglonesCarga';
+import { fromCantidadUsuario, resolveEquivalenciaVentas } from '../utils/cargaUnidadesVenta';
 import { resolveGrabacionErrorMessages } from '../utils/resolveGrabacionErrorMessages';
 import { CargaAsistenteIaPanel } from '../cargaAsistenteIa/components/CargaAsistenteIaPanel';
 import {
@@ -72,6 +73,7 @@ import {
   mapFunctionalProfileToPerfilUsuario,
 } from '../cargaAsistenteIa/utils/buildCargaAsistenteDraftContext';
 import type { CargaAsistenteAddRenglonPayload } from '../cargaAsistenteIa/utils/applyCargaAsistenteActions';
+import { resolveAsistenteCantidadPair } from '../cargaAsistenteIa/utils/resolveAsistenteCantidadPair';
 import { patchAsistenteCabecera } from '../cargaAsistenteIa/utils/patchAsistenteCabecera';
 import { PedidosCargaMobilePage } from './PedidosCargaMobilePage';
 import {
@@ -892,11 +894,15 @@ function PedidosCargaWebPage() {
 
     setSaveError(null);
     const sinVacios = renglonesValidosParaGrabar(renglones);
+    const cargaUnidadesVenta = parametrosCarga?.cargaUnidadesVenta ?? false;
+    const pair = fromCantidadUsuario(1, articulo.equivalenciaVentas, cargaUnidadesVenta);
     const nuevoRenglon: ComprobanteRenglon = {
       renglon: nextRenglonNumber(sinVacios),
       codArticulo: articulo.codArticulo,
       descripcionArticulo: articulo.descripcion,
-      cantidad: 1,
+      cantidad: pair.cantidad,
+      cantidadVenta: pair.cantidadVenta,
+      equivalenciaVentas: resolveEquivalenciaVentas(articulo.equivalenciaVentas),
       precio: articulo.precio ?? 0,
       porcBonif: articulo.bonificacion,
       porcIva: normalizarPorcIvaAlmacenado(articulo.porcIva),
@@ -905,7 +911,7 @@ function PedidosCargaWebPage() {
     setRenglones([...sinVacios, nuevoRenglon]);
     setAutoOpenRenglonId(nuevoRenglon.renglon);
     setArticuloSeleccionado(null);
-  }, [articuloSeleccionado, articuloSeleccionadoData, cabecera, readOnly, renglones, t]);
+  }, [articuloSeleccionado, articuloSeleccionadoData, cabecera, parametrosCarga?.cargaUnidadesVenta, readOnly, renglones, t]);
 
   const buildAsistenteDraftContext = useCallback(
     () =>
@@ -921,13 +927,18 @@ function PedidosCargaWebPage() {
   );
 
   const handleAsistenteAddRenglon = useCallback((payload: CargaAsistenteAddRenglonPayload) => {
+    const cargaUnidadesVenta = parametrosCarga?.cargaUnidadesVenta ?? false;
+    const pair = resolveAsistenteCantidadPair(payload, cargaUnidadesVenta);
+
     setRenglones((current) => {
       const sinVacios = renglonesValidosParaGrabar(current);
       const nuevoRenglon: ComprobanteRenglon = {
         renglon: nextRenglonNumber(sinVacios),
         codArticulo: payload.codArticulo,
         descripcionArticulo: payload.descripcion ?? '',
-        cantidad: payload.cantidad,
+        cantidad: pair.cantidad,
+        cantidadVenta: pair.cantidadVenta,
+        equivalenciaVentas: pair.equivalenciaVentas,
         precio: payload.precio ?? 0,
         porcBonif: payload.porcBonif ?? 0,
         porcIva: 21,
@@ -935,26 +946,55 @@ function PedidosCargaWebPage() {
 
       return [...sinVacios, nuevoRenglon];
     });
-  }, []);
+  }, [parametrosCarga?.cargaUnidadesVenta]);
 
   const handleAsistenteUpdateRenglon = useCallback(
-    (payload: { renglon: number; cantidad?: number; precio?: number; porcBonif?: number }) => {
+    (payload: {
+      renglon: number;
+      cantidad?: number;
+      cantidadVenta?: number;
+      equivalenciaVentas?: number;
+      precio?: number;
+      porcBonif?: number;
+    }) => {
+      const cargaUnidadesVenta = parametrosCarga?.cargaUnidadesVenta ?? false;
+
       setRenglones((current) =>
         current.map((row) => {
           if (row.renglon !== payload.renglon) {
             return row;
           }
 
-          return {
+          const next = {
             ...row,
-            cantidad: payload.cantidad !== undefined ? payload.cantidad : row.cantidad,
             precio: payload.precio !== undefined ? payload.precio : row.precio,
             porcBonif: payload.porcBonif !== undefined ? payload.porcBonif : row.porcBonif,
+          };
+
+          if (payload.cantidad === undefined && payload.cantidadVenta === undefined) {
+            return next;
+          }
+
+          const pair = resolveAsistenteCantidadPair(
+            {
+              cantidad: payload.cantidad ?? row.cantidad,
+              cantidadVenta: payload.cantidadVenta,
+              equivalenciaVentas:
+                payload.equivalenciaVentas ?? row.equivalenciaVentas,
+            },
+            cargaUnidadesVenta,
+          );
+
+          return {
+            ...next,
+            cantidad: pair.cantidad,
+            cantidadVenta: pair.cantidadVenta,
+            equivalenciaVentas: pair.equivalenciaVentas,
           };
         }),
       );
     },
-    [],
+    [parametrosCarga?.cargaUnidadesVenta],
   );
 
   const handleAsistenteRemoveRenglon = useCallback((renglon: number) => {
@@ -1011,6 +1051,16 @@ function PedidosCargaWebPage() {
             codArticulo,
             descripcionArticulo: String(row.descripcion ?? ''),
             cantidad: Number(row.cantidad) > 0 ? Number(row.cantidad) : 1,
+            cantidadVenta:
+              row.cantidadVenta !== undefined
+                ? Number(row.cantidadVenta)
+                : Number(row.cantidad) > 0
+                  ? Number(row.cantidad)
+                  : 1,
+            equivalenciaVentas:
+              row.equivalenciaVentas !== undefined
+                ? Number(row.equivalenciaVentas)
+                : undefined,
             precio: row.precio !== undefined ? Number(row.precio) : 0,
             porcBonif: row.porcBonif !== undefined ? Number(row.porcBonif) : 0,
             porcIva: 21,
@@ -1458,6 +1508,7 @@ function PedidosCargaWebPage() {
                 isLoading={isLoading}
                 modificaPrecio={modificaPrecio}
                 modificaBonArt={modificaBonArt}
+                cargaUnidadesVenta={parametrosCarga?.cargaUnidadesVenta ?? false}
                 bonificacionNetaCabecera={bonificacionNetaCabecera}
                 monedaSimbolo={monedaSimbolo}
                 autoOpenRenglonId={autoOpenRenglonId}

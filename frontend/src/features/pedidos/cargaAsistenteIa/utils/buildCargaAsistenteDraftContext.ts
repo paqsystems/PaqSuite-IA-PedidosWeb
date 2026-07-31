@@ -17,6 +17,8 @@ export type BuildCargaAsistenteDraftContextInput = {
     renglon?: number;
     codArticulo: string;
     cantidad: number;
+    cantidadVenta?: number;
+    equivalenciaVentas?: number;
     precio?: number;
     porcBonif?: number;
     descripcionArticulo?: string;
@@ -61,6 +63,12 @@ export function buildCargaAsistenteDraftContext(
             : index + 1,
         codArticulo: String(renglon.codArticulo),
         cantidad: Number(renglon.cantidad) || 0,
+        ...(renglon.cantidadVenta !== undefined
+          ? { cantidadVenta: Number(renglon.cantidadVenta) }
+          : {}),
+        ...(renglon.equivalenciaVentas !== undefined
+          ? { equivalenciaVentas: Number(renglon.equivalenciaVentas) }
+          : {}),
         precio: renglon.precio,
         porcBonif: renglon.porcBonif,
         descripcion: renglon.descripcionArticulo ?? renglon.descripcion,

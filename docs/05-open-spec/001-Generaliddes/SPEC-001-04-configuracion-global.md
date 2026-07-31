@@ -56,6 +56,7 @@ Implementable en MVP (lectura y uso de parámetros; **sin** ABM web de parámetr
 | `CargaRecurrente` | Flujo post-grabación pedido/presupuesto |
 | `CodMotivoCierreExitoso` | Conversión presupuesto → pedido: `id_motivo` en `pq_pedidosweb_motivos_cierre` (tipo **positivo**, activo). Ver HU-101-013. |
 | `ActualizarPrecioCopia` | Copiar comprobante (HU-101-026): conservar precios origen (`false`, default) o actualizar desde lista (`true`). Ver SPEC-101-04 / CC PQ #9. |
+| `CargaUnidadesVenta` | Carga renglones (CC PQ #10): cantidad usuario = stock (`false`, default) o unidades de venta (`true`). Importes siempre desde `cantidad`. |
 | Resto §10.6 | Módulos según HU de negocio |
 
 Inventario completo con **`CAPTION`**, **`TOOLTIP`** y `tipo_valor`: [`docs/backend/seed/PQ_PARAMETROS_GRAL/PQ_PARAMETROS_GRAL.PedidosWeb.seed.json`](../../backend/seed/PQ_PARAMETROS_GRAL/PQ_PARAMETROS_GRAL.PedidosWeb.seed.json) (58 claves, producto §10.6 + ampliaciones MVP).

@@ -3,6 +3,8 @@ import type { CargaAsistenteAction } from '../model/cargaAsistenteTypes';
 export type CargaAsistenteAddRenglonPayload = {
   codArticulo: string;
   cantidad: number;
+  cantidadVenta?: number;
+  equivalenciaVentas?: number;
   precio?: number;
   porcBonif?: number;
   descripcion?: string;
@@ -11,6 +13,8 @@ export type CargaAsistenteAddRenglonPayload = {
 export type CargaAsistenteUpdateRenglonPayload = {
   renglon: number;
   cantidad?: number;
+  cantidadVenta?: number;
+  equivalenciaVentas?: number;
   precio?: number;
   porcBonif?: number;
 };
@@ -72,6 +76,12 @@ export async function applyCargaAsistenteActions(
       handlers.addRenglon({
         codArticulo,
         cantidad: Number(payload.cantidad) > 0 ? Number(payload.cantidad) : 1,
+        cantidadVenta:
+          payload.cantidadVenta !== undefined ? Number(payload.cantidadVenta) : undefined,
+        equivalenciaVentas:
+          payload.equivalenciaVentas !== undefined
+            ? Number(payload.equivalenciaVentas)
+            : undefined,
         precio: payload.precio !== undefined ? Number(payload.precio) : undefined,
         porcBonif: payload.porcBonif !== undefined ? Number(payload.porcBonif) : undefined,
         descripcion:
@@ -88,6 +98,12 @@ export async function applyCargaAsistenteActions(
           cantidad:
             payload.cantidad !== undefined && Number(payload.cantidad) > 0
               ? Number(payload.cantidad)
+              : undefined,
+          cantidadVenta:
+            payload.cantidadVenta !== undefined ? Number(payload.cantidadVenta) : undefined,
+          equivalenciaVentas:
+            payload.equivalenciaVentas !== undefined
+              ? Number(payload.equivalenciaVentas)
               : undefined,
           precio: payload.precio !== undefined ? Number(payload.precio) : undefined,
           porcBonif: payload.porcBonif !== undefined ? Number(payload.porcBonif) : undefined,

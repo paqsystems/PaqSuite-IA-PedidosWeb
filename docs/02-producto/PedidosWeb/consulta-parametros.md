@@ -91,6 +91,7 @@ Patrón transversal: [`idioma-multilingual.md`](../../00-contexto/_mono/01-exper
 3. El backend de carga (`ParametrosCargaService`, `PedidosWebParameterService`) sigue leyendo parámetros en runtime; esta pantalla es informativa.
 4. Textos visibles vía i18n (`parametros.pedidosWeb.*`); `CAPTION`/`TOOLTIP` de BD como **fallback** si falta clave.
 5. **`ActualizarPrecioCopia`** (booleano, CC PQ #9): si al copiar pedido/presupuesto se conservan precios del origen (`false`, default) o se actualizan desde la lista vigente (`true`). La lógica de copia está en `ComprobanteCopiaService` (HU-101-026); esta pantalla solo informa el valor ERP.
+6. **`CargaUnidadesVenta`** (booleano, CC PQ #10): si la cantidad ingresada se interpreta como unidades de venta (`true`) o stock/precio (`false`, default). Consumo en carga, Excel, mail y asistente; esta pantalla solo informa el valor ERP.
 
 ---
 

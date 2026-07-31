@@ -159,6 +159,10 @@ export function getDetallePedidoDetailFields(): ConsultaDetailField<DetallePedid
     { labelKey: 'consultas.column.codArticulo', getValue: (item) => item.codArticulo },
     { labelKey: 'consultas.column.descripcion', getValue: (item) => item.descripcionArticulo },
     { labelKey: 'consultas.column.cantidad', getValue: (item) => formatConsultaAmount(item.cantidad) },
+    {
+      labelKey: 'consultas.detalle.column.cantidadVenta',
+      getValue: (item) => formatConsultaAmount(item.cantidadVenta),
+    },
     { labelKey: 'consultas.column.precio', getValue: (item) => formatConsultaAmount(item.precioNeto) },
     { labelKey: 'consultas.column.importe', getValue: (item) => formatConsultaAmount(item.importeNeto) },
   ];

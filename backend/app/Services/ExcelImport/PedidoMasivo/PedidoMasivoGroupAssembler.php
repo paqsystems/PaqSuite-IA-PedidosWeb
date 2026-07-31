@@ -141,6 +141,7 @@ final class PedidoMasivoGroupAssembler
                 'cod_articulo' => (string) ($row['cod_articulo'] ?? ''),
                 'descripcion_articulo' => (string) ($row['descripcion_articulo'] ?? ''),
                 'cantidad' => (float) ($row['cantidad'] ?? 0),
+                'cantidad_venta' => (float) ($row['cantidad_venta'] ?? $row['cantidad'] ?? 0),
                 'precio' => (float) ($row['precio'] ?? 0),
                 'porc_bonif' => (float) ($row['porc_bonif'] ?? $row['bonif_renglon'] ?? 0),
                 'porc_iva' => (float) ($row['porc_iva'] ?? 0),

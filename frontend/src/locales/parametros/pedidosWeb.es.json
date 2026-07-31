@@ -5,6 +5,8 @@
   "parametros.pedidosWeb.ArticulosSinPrecio.tooltip": "Si está activo, permite cargar artículos que no tienen precio definido en la lista de precios vigente. Si está inactivo, la carga exige un precio válido en lista.",
   "parametros.pedidosWeb.ActualizarPrecioCopia.caption": "Actualizar precios al copiar comprobante",
   "parametros.pedidosWeb.ActualizarPrecioCopia.tooltip": "Si está activo, al copiar un pedido o presupuesto los precios de los renglones se resuelven desde la lista de precios vigente del comprobante origen. Si está inactivo, se conservan los precios del detalle origen, validando según los parámetros de artículos con precio cero o sin precio.",
+  "parametros.pedidosWeb.CargaUnidadesVenta.caption": "Carga de pedidos por unidades de venta",
+  "parametros.pedidosWeb.CargaUnidadesVenta.tooltip": "Si está activo, la cantidad ingresada en renglón, Excel o asistente se interpreta como unidades de venta (cantidad_venta). Si está inactivo, se interpreta como unidades de stock/precio (cantidad). Los importes se calculan siempre sobre cantidad.",
   "parametros.pedidosWeb.CargaRecurrente.caption": "Carga recurrente post grabación",
   "parametros.pedidosWeb.CargaRecurrente.tooltip": "Define el comportamiento tras grabar un pedido o presupuesto: si está activo, el flujo vuelve a una nueva carga; si está inactivo, regresa al listado o pantalla anterior según la implementación del portal.",
   "parametros.pedidosWeb.ClienteLeyenda1.caption": "Inicializar leyenda 1 desde cliente",

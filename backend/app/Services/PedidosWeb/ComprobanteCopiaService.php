@@ -85,6 +85,7 @@ final class ComprobanteCopiaService
                 'cod_articulo' => (string) $detalle->cod_articulo,
                 'descripcion_articulo' => (string) ($detalle->descripcion_articulo ?? ''),
                 'cantidad' => (float) $detalle->cantidad,
+                'cantidad_venta' => (float) ($detalle->cantidad_venta ?? $detalle->cantidad),
                 'porc_bonif' => (float) $detalle->porc_bonif,
                 'precio' => (float) $detalle->precio,
                 'porc_iva' => (float) $detalle->porc_iva,

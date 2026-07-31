@@ -3,6 +3,7 @@
 namespace App\Services\PedidosWeb\CargaAsistente\Tools;
 
 use App\Services\PedidosWeb\ArticuloCargaLookupService;
+use App\Services\PedidosWeb\CargaUnidadesVentaConverter;
 use App\Services\PedidosWeb\PedidosWebParameterService;
 
 final class CargaAsistenteArticuloTool
@@ -68,7 +69,11 @@ final class CargaAsistenteArticuloTool
                     'label' => trim($articulo['codArticulo'].' — '.$articulo['descripcion']),
                     'code' => $articulo['codArticulo'],
                     'precio' => $articulo['precio'] ?? null,
+                    'bonificacion' => $articulo['bonificacion'] ?? null,
                     'descripcion' => $articulo['descripcion'] ?? '',
+                    'equivalenciaVentas' => CargaUnidadesVentaConverter::resolveEquivalenciaVentas(
+                        $articulo['equivalenciaVentas'] ?? 1,
+                    ),
                 ];
             }
 
@@ -150,12 +155,10 @@ final class CargaAsistenteArticuloTool
             return $denied;
         }
 
-        return $this->buildAddRenglon([
-            'codArticulo' => (string) ($selected['code'] ?? ''),
-            'descripcion' => (string) ($selected['descripcion'] ?? $selected['label'] ?? ''),
-            'precio' => $selected['precio'] ?? null,
-            'bonificacion' => $selected['bonificacion'] ?? null,
-        ], $cantidad, $precioOverride, $porcBonifOverride);
+        $codLista = max(0, (int) ($draftContext['codLista'] ?? 0));
+        $articulo = $this->resolveArticuloDesdeSeleccion($selected, $codLista);
+
+        return $this->buildAddRenglon($articulo, $cantidad, $precioOverride, $porcBonifOverride);
     }
 
     /**
@@ -221,6 +224,9 @@ final class CargaAsistenteArticuloTool
                     'label' => $this->formatRenglonChoiceLabel($row),
                     'code' => (string) ($row['codArticulo'] ?? ''),
                     'renglon' => (int) ($row['renglon'] ?? 0),
+                    'equivalenciaVentas' => CargaUnidadesVentaConverter::resolveEquivalenciaVentas(
+                        $row['equivalenciaVentas'] ?? 1,
+                    ),
                 ];
             }
 
@@ -248,7 +254,16 @@ final class CargaAsistenteArticuloTool
             ];
         }
 
-        return $this->buildMutateAction($operation, $matches[0], $cantidad, $precio, $porcBonif);
+        $row = $matches[0];
+        if (($row['equivalenciaVentas'] ?? null) === null) {
+            $codLista = max(0, (int) ($draftContext['codLista'] ?? 0));
+            $row['equivalenciaVentas'] = $this->resolveEquivalenciaVentasPorCodigo(
+                (string) ($row['codArticulo'] ?? ''),
+                $codLista,
+            );
+        }
+
+        return $this->buildMutateAction($operation, $row, $cantidad, $precio, $porcBonif);
     }
 
     /**
@@ -301,11 +316,17 @@ final class CargaAsistenteArticuloTool
             }
         }
 
+        $codLista = max(0, (int) ($draftContext['codLista'] ?? 0));
+        $codArticulo = (string) ($selected['code'] ?? '');
+        $equivalenciaVentas = $selected['equivalenciaVentas']
+            ?? $this->resolveEquivalenciaVentasPorCodigo($codArticulo, $codLista);
+
         return $this->buildMutateAction(
             $operation,
             [
                 'renglon' => (int) ($selected['renglon'] ?? 0),
-                'codArticulo' => (string) ($selected['code'] ?? ''),
+                'codArticulo' => $codArticulo,
+                'equivalenciaVentas' => $equivalenciaVentas,
             ],
             $cantidad,
             $precio,
@@ -328,9 +349,19 @@ final class CargaAsistenteArticuloTool
         ?float $precioOverride = null,
         ?float $porcBonifOverride = null,
     ): array {
+        $pair = CargaUnidadesVentaConverter::fromCantidadUsuario(
+            $cantidad,
+            $articulo['equivalenciaVentas'] ?? 1,
+            $this->parameterService->getCargaUnidadesVenta(),
+        );
+
         $payload = [
             'codArticulo' => (string) ($articulo['codArticulo'] ?? ''),
-            'cantidad' => $cantidad,
+            'cantidad' => $pair['cantidad'],
+            'cantidadVenta' => $pair['cantidad_venta'],
+            'equivalenciaVentas' => CargaUnidadesVentaConverter::resolveEquivalenciaVentas(
+                $articulo['equivalenciaVentas'] ?? 1,
+            ),
             'descripcion' => (string) ($articulo['descripcion'] ?? ''),
         ];
 
@@ -400,7 +431,13 @@ final class CargaAsistenteArticuloTool
 
         $payload = ['renglon' => $renglon];
         if ($cantidad !== null && $cantidad > 0) {
-            $payload['cantidad'] = $cantidad;
+            $pair = CargaUnidadesVentaConverter::fromCantidadUsuario(
+                $cantidad,
+                $row['equivalenciaVentas'] ?? 1,
+                $this->parameterService->getCargaUnidadesVenta(),
+            );
+            $payload['cantidad'] = $pair['cantidad'];
+            $payload['cantidadVenta'] = $pair['cantidad_venta'];
         }
         if ($precio !== null && $precio >= 0) {
             $payload['precio'] = $precio;
@@ -445,6 +482,9 @@ final class CargaAsistenteArticuloTool
                 'cantidad' => (float) ($row['cantidad'] ?? 0),
                 'precio' => isset($row['precio']) ? (float) $row['precio'] : null,
                 'porcBonif' => isset($row['porcBonif']) ? (float) $row['porcBonif'] : null,
+                'equivalenciaVentas' => isset($row['equivalenciaVentas'])
+                    ? CargaUnidadesVentaConverter::resolveEquivalenciaVentas($row['equivalenciaVentas'])
+                    : null,
             ];
         }
 
@@ -612,6 +652,68 @@ final class CargaAsistenteArticuloTool
     public function buscarCandidatos(string $q, int $codLista): array
     {
         return $this->buscarArticulosFiltrados($q, $codLista);
+    }
+
+    /**
+     * @param  array<string, mixed>  $selected
+     * @return array<string, mixed>
+     */
+    private function resolveArticuloDesdeSeleccion(array $selected, int $codLista): array
+    {
+        $codArticulo = trim((string) ($selected['code'] ?? ''));
+        $fallback = [
+            'codArticulo' => $codArticulo,
+            'descripcion' => (string) ($selected['descripcion'] ?? $selected['label'] ?? ''),
+            'precio' => $selected['precio'] ?? null,
+            'bonificacion' => $selected['bonificacion'] ?? null,
+            'equivalenciaVentas' => CargaUnidadesVentaConverter::resolveEquivalenciaVentas(
+                $selected['equivalenciaVentas'] ?? 1,
+            ),
+        ];
+
+        if ($codArticulo === '') {
+            return $fallback;
+        }
+
+        $byCode = $this->articuloCargaLookupService->buscar(null, 5, $codLista, [$codArticulo]);
+        if ($byCode !== []) {
+            return $byCode[0];
+        }
+
+        $matches = $this->buscarArticulosFiltrados($codArticulo, $codLista);
+        foreach ($matches as $match) {
+            if (trim((string) ($match['codArticulo'] ?? '')) === $codArticulo) {
+                return $match;
+            }
+        }
+
+        return $fallback;
+    }
+
+    private function resolveEquivalenciaVentasPorCodigo(string $codArticulo, int $codLista): float
+    {
+        $codArticulo = trim($codArticulo);
+        if ($codArticulo === '') {
+            return 1.0;
+        }
+
+        $byCode = $this->articuloCargaLookupService->buscar(null, 5, $codLista, [$codArticulo]);
+        if ($byCode !== []) {
+            return CargaUnidadesVentaConverter::resolveEquivalenciaVentas(
+                $byCode[0]['equivalenciaVentas'] ?? 1,
+            );
+        }
+
+        $matches = $this->buscarArticulosFiltrados($codArticulo, $codLista);
+        foreach ($matches as $match) {
+            if (trim((string) ($match['codArticulo'] ?? '')) === $codArticulo) {
+                return CargaUnidadesVentaConverter::resolveEquivalenciaVentas(
+                    $match['equivalenciaVentas'] ?? 1,
+                );
+            }
+        }
+
+        return 1.0;
     }
 
     /**

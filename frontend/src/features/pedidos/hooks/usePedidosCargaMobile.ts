@@ -39,6 +39,7 @@ import {
   normalizarPorcIvaAlmacenado,
   renglonesValidosParaGrabar,
 } from '../utils/renglonesCarga';
+import { fromCantidadUsuario, resolveEquivalenciaVentas } from '../utils/cargaUnidadesVenta';
 import { resolveGrabacionErrorMessages } from '../utils/resolveGrabacionErrorMessages';
 
 const emptyCatalogos: CabeceraCatalogos = {
@@ -530,11 +531,15 @@ export function usePedidosCargaMobile() {
     }
 
     setSaveError(null);
+    const cargaUnidadesVenta = parametrosCarga?.cargaUnidadesVenta ?? false;
+    const pair = fromCantidadUsuario(1, articulo.equivalenciaVentas, cargaUnidadesVenta);
     const nuevoRenglon: ComprobanteRenglon = {
       renglon: nextRenglonNumber(renglonesVisibles),
       codArticulo: articulo.codArticulo,
       descripcionArticulo: articulo.descripcion,
-      cantidad: 1,
+      cantidad: pair.cantidad,
+      cantidadVenta: pair.cantidadVenta,
+      equivalenciaVentas: resolveEquivalenciaVentas(articulo.equivalenciaVentas),
       precio: articulo.precio ?? 0,
       porcBonif: articulo.bonificacion,
       porcIva: normalizarPorcIvaAlmacenado(articulo.porcIva),
@@ -543,7 +548,15 @@ export function usePedidosCargaMobile() {
     setRenglones([...renglonesVisibles, nuevoRenglon]);
     setAutoOpenRenglonId(nuevoRenglon.renglon);
     setArticuloSeleccionado(null);
-  }, [articuloSeleccionado, articuloSeleccionadoData, cabecera, readOnly, renglonesVisibles, t]);
+  }, [
+    articuloSeleccionado,
+    articuloSeleccionadoData,
+    cabecera,
+    parametrosCarga?.cargaUnidadesVenta,
+    readOnly,
+    renglonesVisibles,
+    t,
+  ]);
 
   const handleEliminarRenglon = useCallback((renglonId: number) => {
     setRenglones((current) => current.filter((renglon) => renglon.renglon !== renglonId));

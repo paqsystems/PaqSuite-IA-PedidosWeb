@@ -41,6 +41,11 @@ final class PedidosWebParameterService
         return $this->getBool('ActualizarPrecioCopia', false);
     }
 
+    public function getCargaUnidadesVenta(): bool
+    {
+        return $this->getBool('CargaUnidadesVenta', false);
+    }
+
     public function getDetallePorMail(): bool
     {
         return $this->getBool('DetallePorMail', true);
