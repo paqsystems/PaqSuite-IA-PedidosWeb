@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\PqRol;
 use App\Models\PqRolAtributo;
+use App\Services\Seed\PqParametrosGralPedidosWebSeeder;
 use Database\Seeders\ChatAssistant\ChatAssistantProviderCatalogSeeder;
 use Database\Seeders\ExcelImport\PedidosWebExcelImportCatalogSeeder;
 use Illuminate\Console\Command;
@@ -21,9 +22,10 @@ final class SeedDeployCommand extends Command
                             {--skip-excel : No seedear catálogo Excel PEDIDO_*}
                             {--skip-menus : No seedear pq_menus MVP}
                             {--skip-chat : No seedear catálogo proveedores chat asistente}
-                            {--skip-atributos : No upsert de PQ_RolAtributo desde visibilityProcedimientosByRole}';
+                            {--skip-atributos : No upsert de PQ_RolAtributo desde visibilityProcedimientosByRole}
+                            {--skip-parametros : No insertar claves PedidosWeb faltantes en PQ_parametros_gral}';
 
-    protected $description = 'Post-deploy: menú MVP, catálogo Excel, atributos visibility y catálogo chat (idempotente)';
+    protected $description = 'Post-deploy: menú MVP, catálogo Excel, parámetros PedidosWeb faltantes, atributos visibility y catálogo chat (idempotente)';
 
     public function handle(): int
     {
@@ -45,6 +47,10 @@ final class SeedDeployCommand extends Command
                     ]);
                     $this->info('Catálogo Excel PedidosWeb (PEDIDO_INDIVIDUAL / PEDIDO_MASIVO) actualizado.');
                 }
+            }
+
+            if (! $this->option('skip-parametros')) {
+                $this->insertMissingPedidosWebParametros();
             }
 
             if (! $this->option('skip-chat')) {
@@ -79,6 +85,25 @@ final class SeedDeployCommand extends Command
 
             return self::FAILURE;
         }
+    }
+
+    private function insertMissingPedidosWebParametros(): void
+    {
+        if (! Schema::hasTable('PQ_parametros_gral')) {
+            $this->warn('Tabla PQ_parametros_gral no presente; se omite seed de parámetros PedidosWeb.');
+
+            return;
+        }
+
+        $jsonPath = dirname(base_path()).'/docs/backend/seed/PQ_PARAMETROS_GRAL/PQ_PARAMETROS_GRAL.PedidosWeb.seed.json';
+        if (! is_file($jsonPath)) {
+            $this->warn("Seed JSON de parámetros no encontrado ({$jsonPath}); se omite.");
+
+            return;
+        }
+
+        $inserted = app(PqParametrosGralPedidosWebSeeder::class)->insertMissingFromJsonFile($jsonPath);
+        $this->info("Parámetros PedidosWeb: {$inserted} clave(s) nueva(s) (sin modificar existentes).");
     }
 
     /**

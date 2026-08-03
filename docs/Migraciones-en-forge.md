@@ -42,7 +42,8 @@ composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev
 php artisan migrate --force
 
 # Catálogos idempotentes: menú MVP, Excel PEDIDO_INDIVIDUAL/PEDIDO_MASIVO,
-# atributos visibility y proveedores chat (no toca passwords salvo --with-seguridad).
+# parámetros PedidosWeb faltantes (PQ_parametros_gral), atributos visibility
+# y proveedores chat (no toca passwords salvo --with-seguridad).
 php artisan paqsuite:seed-deploy
 
 php artisan config:cache
@@ -124,6 +125,7 @@ Idempotente. Pensado para el Deploy Script (después de `migrate --force`):
 |----------|--------|
 | `paqsuite:seed-menus-mvp` | Inserta/actualiza ítems de `paqsuite_mvp.menuItems` (Importación masiva, Seguridad, etc.) |
 | `PedidosWebExcelImportCatalogSeeder` | `PEDIDO_INDIVIDUAL` + `PEDIDO_MASIVO` |
+| Parámetros PedidosWeb faltantes | INSERT idempotente desde `PQ_PARAMETROS_GRAL.PedidosWeb.seed.json` (solo claves ausentes; no pisa valores) |
 | Chat providers | Catálogo `pq_asistente_ia_proveedores` si la tabla existe |
 | Atributos visibility | Upsert `PQ_RolAtributo` desde `visibilityProcedimientosByRole` (no borra otros) |
 | `--with-seguridad` | **Opcional.** Corre `seed-seguridad-mvp` (puede tocar usuarios MVP / passwords) |
