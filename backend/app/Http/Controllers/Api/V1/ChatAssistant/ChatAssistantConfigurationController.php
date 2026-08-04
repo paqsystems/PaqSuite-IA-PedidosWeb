@@ -22,9 +22,9 @@ final class ChatAssistantConfigurationController extends Controller
      * @OA\Get(
      *     path="/api/v1/chat-assistant/me/configurations",
      *     summary="Listar configuraciones personales del Chat Asistente IA",
-     *     tags={"ChatAssistant"},
+     *     tags={"Chat Assistant"},
      *     security={{"sanctum":{}},{"tenant":{}}},
-     *     @OA\Response(response=200, description="Listado de configuraciones"),
+     *     @OA\Response(response=200, description="Listado de configuraciones", @OA\JsonContent(ref="#/components/schemas/ApiEnvelopeChatAssistantConfigurationsList")),
      *     @OA\Response(response=401, description="No autenticado")
      * )
      */
@@ -51,7 +51,7 @@ final class ChatAssistantConfigurationController extends Controller
      * @OA\Get(
      *     path="/api/v1/chat-assistant/me/configuration",
      *     summary="Configuración personal activa del Chat Asistente IA",
-     *     tags={"ChatAssistant"},
+     *     tags={"Chat Assistant"},
      *     security={{"sanctum":{}},{"tenant":{}}},
      *     @OA\Response(
      *         response=200,
@@ -84,7 +84,7 @@ final class ChatAssistantConfigurationController extends Controller
      * @OA\Post(
      *     path="/api/v1/chat-assistant/me/configurations",
      *     summary="Crear configuración personal del Chat Asistente IA",
-     *     tags={"ChatAssistant"},
+     *     tags={"Chat Assistant"},
      *     security={{"sanctum":{}},{"tenant":{}}},
      *     @OA\RequestBody(
      *         required=true,
@@ -104,7 +104,7 @@ final class ChatAssistantConfigurationController extends Controller
      * @OA\Put(
      *     path="/api/v1/chat-assistant/me/configuration",
      *     summary="Guardar configuración personal del Chat Asistente IA",
-     *     tags={"ChatAssistant"},
+     *     tags={"Chat Assistant"},
      *     security={{"sanctum":{}},{"tenant":{}}},
      *     @OA\RequestBody(
      *         required=true,
@@ -130,7 +130,7 @@ final class ChatAssistantConfigurationController extends Controller
      * @OA\Put(
      *     path="/api/v1/chat-assistant/me/configurations/{credentialId}",
      *     summary="Actualizar configuración personal del Chat Asistente IA",
-     *     tags={"ChatAssistant"},
+     *     tags={"Chat Assistant"},
      *     security={{"sanctum":{}},{"tenant":{}}},
      *     @OA\Parameter(name="credentialId", in="path", required=true, @OA\Schema(type="integer")),
      *     @OA\RequestBody(
@@ -151,7 +151,7 @@ final class ChatAssistantConfigurationController extends Controller
      * @OA\Delete(
      *     path="/api/v1/chat-assistant/me/configurations/{credentialId}",
      *     summary="Eliminar configuración personal del Chat Asistente IA",
-     *     tags={"ChatAssistant"},
+     *     tags={"Chat Assistant"},
      *     security={{"sanctum":{}},{"tenant":{}}},
      *     @OA\Parameter(name="credentialId", in="path", required=true, @OA\Schema(type="integer")),
      *     @OA\Response(response=200, description="Configuración eliminada"),
@@ -184,7 +184,7 @@ final class ChatAssistantConfigurationController extends Controller
      * @OA\Patch(
      *     path="/api/v1/chat-assistant/me/configuration/status",
      *     summary="Habilitar o deshabilitar la configuración del Chat Asistente IA",
-     *     tags={"ChatAssistant"},
+     *     tags={"Chat Assistant"},
      *     security={{"sanctum":{}},{"tenant":{}}},
      *     @OA\RequestBody(
      *         required=true,
@@ -231,7 +231,7 @@ final class ChatAssistantConfigurationController extends Controller
      * @OA\Patch(
      *     path="/api/v1/chat-assistant/me/configurations/{credentialId}/status",
      *     summary="Habilitar o deshabilitar una configuración específica",
-     *     tags={"ChatAssistant"},
+     *     tags={"Chat Assistant"},
      *     security={{"sanctum":{}},{"tenant":{}}},
      *     @OA\Parameter(name="credentialId", in="path", required=true, @OA\Schema(type="integer")),
      *     @OA\RequestBody(

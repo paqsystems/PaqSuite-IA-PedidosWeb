@@ -14,9 +14,6 @@ use App\Support\AuthErrorCodes;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-/**
- * @OA\Tag(name="ExcelImport", description="Importación Excel — staging y procesamiento")
- */
 final class ExcelImportStagingController extends Controller
 {
     public function __construct(

@@ -24,7 +24,7 @@ final class CargaAsistenteTurnController extends Controller
      *     operationId="pedidosCargaAsistenteTurn",
      *     summary="Turno del Asistente IA en carga de pedidos/presupuestos",
      *     description="Orquesta un turno conversacional sobre el borrador de carga (draftContext). Reusa BYOK del Chat Asistente IA; no usa corpus documental. Sin LLM configurado → error con configurationRequired.",
-     *     tags={"PedidosWeb"},
+     *     tags={"Pedidos Web"},
      *     security={{"sanctum":{}},{"tenant":{}}},
      *     @OA\RequestBody(
      *         required=true,

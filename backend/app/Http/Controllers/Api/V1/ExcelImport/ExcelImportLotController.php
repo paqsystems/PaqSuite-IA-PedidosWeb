@@ -15,9 +15,6 @@ use App\Support\AuthErrorCodes;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-/**
- * @OA\Tag(name="ExcelImport", description="Importación Excel — lotes y carga")
- */
 final class ExcelImportLotController extends Controller
 {
     public function __construct(
@@ -32,7 +29,7 @@ final class ExcelImportLotController extends Controller
      * @OA\Post(
      *     path="/api/v1/excel-import/procesos/{codigoProceso}/archivo/hojas",
      *     summary="Listar hojas de un archivo Excel",
-     *     tags={"ExcelImport"},
+     *     tags={"Excel Import"},
      *     security={{"sanctum":{}},{"tenant":{}}},
      *     @OA\Parameter(name="codigoProceso", in="path", required=true, @OA\Schema(type="string")),
      *     @OA\Response(response=200, description="Hojas detectadas", @OA\JsonContent(ref="#/components/schemas/ApiEnvelope")),
@@ -84,7 +81,7 @@ final class ExcelImportLotController extends Controller
      * @OA\Post(
      *     path="/api/v1/excel-import/procesos/{codigoProceso}/lotes",
      *     summary="Crear lote de importacion Excel",
-     *     tags={"ExcelImport"},
+     *     tags={"Excel Import"},
      *     security={{"sanctum":{}},{"tenant":{}}},
      *     @OA\Parameter(name="codigoProceso", in="path", required=true, @OA\Schema(type="string")),
      *     @OA\Response(response=200, description="Lote creado", @OA\JsonContent(ref="#/components/schemas/ApiEnvelope")),
@@ -144,10 +141,10 @@ final class ExcelImportLotController extends Controller
      * @OA\Get(
      *     path="/api/v1/excel-import/lotes/{guidImportacion}",
      *     summary="Detalle de lote de importacion",
-     *     tags={"ExcelImport"},
+     *     tags={"Excel Import"},
      *     security={{"sanctum":{}},{"tenant":{}}},
      *     @OA\Parameter(name="guidImportacion", in="path", required=true, @OA\Schema(type="string")),
-     *     @OA\Response(response=200, description="Detalle del lote", @OA\JsonContent(ref="#/components/schemas/ApiEnvelope")),
+     *     @OA\Response(response=200, description="Detalle del lote", @OA\JsonContent(ref="#/components/schemas/ApiEnvelopeExcelImportLoteDetalle")),
      *     @OA\Response(response=401, description="No autenticado"),
      *     @OA\Response(response=404, description="Lote inexistente")
      * )
@@ -182,7 +179,7 @@ final class ExcelImportLotController extends Controller
      * @OA\Post(
      *     path="/api/v1/excel-import/lotes/{guidImportacion}/cancelar",
      *     summary="Cancelar lote de importacion",
-     *     tags={"ExcelImport"},
+     *     tags={"Excel Import"},
      *     security={{"sanctum":{}},{"tenant":{}}},
      *     @OA\Parameter(name="guidImportacion", in="path", required=true, @OA\Schema(type="string")),
      *     @OA\Response(response=200, description="Lote cancelado", @OA\JsonContent(ref="#/components/schemas/ApiEnvelope")),

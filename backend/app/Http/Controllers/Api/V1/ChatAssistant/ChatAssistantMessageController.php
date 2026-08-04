@@ -20,7 +20,7 @@ final class ChatAssistantMessageController extends Controller
      * @OA\Post(
      *     path="/api/v1/chat-assistant/messages",
      *     summary="Enviar consulta al Chat Asistente IA",
-     *     tags={"ChatAssistant"},
+     *     tags={"Chat Assistant"},
      *     security={{"sanctum":{}},{"tenant":{}}},
      *     @OA\RequestBody(
      *         required=true,

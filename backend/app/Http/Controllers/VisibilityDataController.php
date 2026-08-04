@@ -10,6 +10,9 @@ use App\Support\AuthErrorCodes;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
+/**
+ * Endpoints de maestros/framework visibles por perfil.
+ */
 final class VisibilityDataController extends Controller
 {
     public function __construct(
@@ -20,8 +23,8 @@ final class VisibilityDataController extends Controller
     /**
      * @OA\Get(
      *     path="/api/v1/clientes",
-     *     summary="Clientes visibles según perfil funcional",
-     *     tags={"Visibilidad"},
+     *     summary="Clientes",
+     *     tags={"Maestros y Tablas"},
      *     security={{"sanctum":{}},{"tenant":{}}},
      *     @OA\Response(response=200, description="Listado de clientes visibles", @OA\JsonContent(ref="#/components/schemas/ApiEnvelopeVisibleClients")),
      *     @OA\Response(response=400, description="Tenant invalido"),
@@ -62,11 +65,11 @@ final class VisibilityDataController extends Controller
     /**
      * @OA\Get(
      *     path="/api/v1/comprobantes/{id}",
-     *     summary="Comprobante visible según perfil funcional",
-     *     tags={"Visibilidad"},
-     *     security={{"sanctum":{}},{"tenant":{}}},
-     *     @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="string")),
-     *     @OA\Response(response=200, description="Comprobante visible", @OA\JsonContent(ref="#/components/schemas/ApiEnvelopeVisibleComprobante")),
+ *     summary="Comprobante visible según perfil funcional",
+ *     tags={"Pedidos Web"},
+ *     security={{"sanctum":{}},{"tenant":{}}},
+ *     @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="string")),
+ *     @OA\Response(response=200, description="Comprobante visible", @OA\JsonContent(ref="#/components/schemas/ApiEnvelopeVisibleComprobante")),
      *     @OA\Response(response=400, description="Tenant invalido"),
      *     @OA\Response(response=401, description="No autenticado"),
      *     @OA\Response(response=403, description="Sin permiso base de consulta"),
@@ -105,11 +108,11 @@ final class VisibilityDataController extends Controller
 
     /**
      * @OA\Get(
-     *     path="/api/v1/dashboard/resumen",
-     *     summary="Resumen visible del dashboard",
-     *     tags={"Visibilidad"},
-     *     security={{"sanctum":{}},{"tenant":{}}},
-     *     @OA\Response(response=200, description="Resumen dashboard visible", @OA\JsonContent(ref="#/components/schemas/ApiEnvelopeDashboardResumen")),
+ *     path="/api/v1/dashboard/resumen",
+ *     summary="Dashboard resumen",
+ *     tags={"Framework"},
+ *     security={{"sanctum":{}},{"tenant":{}}},
+ *     @OA\Response(response=200, description="Resumen dashboard visible", @OA\JsonContent(ref="#/components/schemas/ApiEnvelopeDashboardResumen")),
      *     @OA\Response(response=400, description="Tenant invalido"),
      *     @OA\Response(response=401, description="No autenticado"),
      *     @OA\Response(response=403, description="Sin permiso base de consulta")

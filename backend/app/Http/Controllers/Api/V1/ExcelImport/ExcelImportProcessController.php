@@ -15,9 +15,6 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * @OA\Tag(name="ExcelImport", description="Importación Excel por proceso")
- */
 final class ExcelImportProcessController extends Controller
 {
     public function __construct(
@@ -29,10 +26,11 @@ final class ExcelImportProcessController extends Controller
     /**
      * @OA\Get(
      *     path="/api/v1/excel-import/procesos/{codigoProceso}",
-     *     tags={"ExcelImport"},
+     *     summary="Metadata del proceso Excel",
+     *     tags={"Excel Import"},
      *     security={{"sanctum":{}},{"tenant":{}}},
      *     @OA\Parameter(name="codigoProceso", in="path", required=true, @OA\Schema(type="string")),
-     *     @OA\Response(response=200, description="Metadata del proceso"),
+     *     @OA\Response(response=200, description="Metadata del proceso", @OA\JsonContent(ref="#/components/schemas/ApiEnvelopeExcelImportProcesoMetadata")),
      *     @OA\Response(response=401, description="No autenticado"),
      *     @OA\Response(response=403, description="Sin permiso"),
      *     @OA\Response(response=404, description="Proceso no encontrado")
@@ -67,10 +65,18 @@ final class ExcelImportProcessController extends Controller
     /**
      * @OA\Get(
      *     path="/api/v1/excel-import/procesos/{codigoProceso}/plantilla",
-     *     tags={"ExcelImport"},
+     *     summary="Descargar plantilla Excel",
+     *     tags={"Excel Import"},
      *     security={{"sanctum":{}},{"tenant":{}}},
      *     @OA\Parameter(name="codigoProceso", in="path", required=true, @OA\Schema(type="string")),
-     *     @OA\Response(response=200, description="Archivo xlsx"),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Archivo xlsx",
+     *         @OA\MediaType(
+     *             mediaType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+     *             @OA\Schema(type="string", format="binary")
+     *         )
+     *     ),
      *     @OA\Response(response=401, description="No autenticado"),
      *     @OA\Response(response=403, description="Sin permiso"),
      *     @OA\Response(response=404, description="Plantilla no disponible")

@@ -12,9 +12,6 @@ use App\Support\AuthErrorCodes;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-/**
- * @OA\Tag(name="ExcelImport", description="Importación Excel — historial")
- */
 final class ExcelImportHistoryController extends Controller
 {
     public function __construct(
@@ -26,9 +23,9 @@ final class ExcelImportHistoryController extends Controller
      * @OA\Get(
      *     path="/api/v1/excel-import/historial",
      *     summary="Historial de importaciones Excel",
-     *     tags={"ExcelImport"},
+     *     tags={"Excel Import"},
      *     security={{"sanctum":{}},{"tenant":{}}},
-     *     @OA\Response(response=200, description="Listado paginado", @OA\JsonContent(ref="#/components/schemas/ApiEnvelope")),
+     *     @OA\Response(response=200, description="Listado paginado", @OA\JsonContent(ref="#/components/schemas/ApiEnvelopeExcelImportHistorial")),
      *     @OA\Response(response=401, description="No autenticado"),
      *     @OA\Response(response=403, description="Sin permiso o epica deshabilitada")
      * )

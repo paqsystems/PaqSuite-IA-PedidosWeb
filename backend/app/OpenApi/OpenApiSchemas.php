@@ -411,7 +411,8 @@ namespace App\OpenApi;
  *     @OA\Property(property="displayName", type="string", example="Ollama"),
  *     @OA\Property(property="supportsVision", type="boolean", example=true),
  *     @OA\Property(property="requiresBaseUrl", type="boolean", example=true),
- *     @OA\Property(property="supportUrl", type="string", example="https://ollama.com/download")
+ *     @OA\Property(property="supportUrl", type="string", example="https://ollama.com/download"),
+ *     @OA\Property(property="suggestedModels", type="array", @OA\Items(type="string"), example={"llama3.1","llava"})
  * )
  *
  * @OA\Schema(
@@ -438,6 +439,8 @@ namespace App\OpenApi;
  * @OA\Schema(
  *     schema="ChatAssistantConfigurationResultado",
  *     type="object",
+ *     @OA\Property(property="credentialId", type="integer", nullable=true, example=1),
+ *     @OA\Property(property="displayName", type="string", nullable=true, example="Mi Ollama"),
  *     @OA\Property(property="hasConfiguration", type="boolean", example=true),
  *     @OA\Property(property="hasApiKey", type="boolean", example=true),
  *     @OA\Property(property="apiKeyHint", type="string", example="••••••••"),
@@ -624,6 +627,200 @@ namespace App\OpenApi;
  *     type="object",
  *     @OA\Property(property="configurationRequired", type="boolean", example=true),
  *     @OA\Property(property="preferencesPath", type="string", example="/preferences")
+ * )
+ *
+ * @OA\Schema(
+ *     schema="ComprobanteCabeceraRequest",
+ *     type="object",
+ *     required={"cod_cliente"},
+ *     description="Cabecera de pedido/presupuesto (snake_case, contrato de grabación)",
+ *     @OA\Property(property="cod_cliente", type="string", example="CLIMVP001"),
+ *     @OA\Property(property="cod_vended", type="string", nullable=true, example="VENACOT01"),
+ *     @OA\Property(property="cod_condvta", type="integer", nullable=true, example=1),
+ *     @OA\Property(property="cod_transpor", type="string", nullable=true, example="TR01"),
+ *     @OA\Property(property="id_de", type="integer", nullable=true, example=10),
+ *     @OA\Property(property="nivel", type="integer", example=0, description="0 o 100"),
+ *     @OA\Property(property="lista_precios", type="integer", nullable=true, example=1),
+ *     @OA\Property(property="moneda", type="integer", example=1, description="0=extranjera, 1=local"),
+ *     @OA\Property(property="incluye_iva", type="boolean", example=false),
+ *     @OA\Property(property="bonif_1", type="number", format="float", example=0),
+ *     @OA\Property(property="bonif_2", type="number", format="float", example=0),
+ *     @OA\Property(property="bonif_3", type="number", format="float", example=0),
+ *     @OA\Property(property="descuento", type="number", format="float", example=0, description="Bonificación neta de cabecera (calculada/enviada)"),
+ *     @OA\Property(property="observaciones", type="string", nullable=true, example="Entrega urgente"),
+ *     @OA\Property(property="cod_perfil", type="string", nullable=true, example="P01"),
+ *     @OA\Property(property="expreso", type="string", nullable=true, example="Andreani"),
+ *     @OA\Property(property="expreso_dire", type="string", nullable=true, example="Av. Siempre Viva 742"),
+ *     @OA\Property(property="fecha_entrega", type="string", nullable=true, example="2026-08-10"),
+ *     @OA\Property(property="leyenda_1", type="string", nullable=true),
+ *     @OA\Property(property="leyenda_2", type="string", nullable=true),
+ *     @OA\Property(property="leyenda_3", type="string", nullable=true),
+ *     @OA\Property(property="leyenda_4", type="string", nullable=true),
+ *     @OA\Property(property="leyenda_5", type="string", nullable=true)
+ * )
+ *
+ * @OA\Schema(
+ *     schema="ComprobanteRenglonRequest",
+ *     type="object",
+ *     required={"cod_articulo","cantidad","precio"},
+ *     description="Renglón de pedido/presupuesto (snake_case)",
+ *     @OA\Property(property="renglon", type="integer", example=1),
+ *     @OA\Property(property="cod_articulo", type="string", example="ATS 0500"),
+ *     @OA\Property(property="descripcion_articulo", type="string", example="ALMENDRA TOSTADA"),
+ *     @OA\Property(property="cantidad", type="number", format="float", example=10, description="Cantidad en unidades de stock/precio"),
+ *     @OA\Property(property="cantidad_venta", type="number", format="float", nullable=true, example=10, description="Cantidad en unidades de venta (CC PQ #10)"),
+ *     @OA\Property(property="precio", type="number", format="float", example=123.5),
+ *     @OA\Property(property="porc_bonif", type="number", format="float", example=3),
+ *     @OA\Property(property="porc_iva", type="number", format="float", example=21, description="Porcentaje IVA (ej. 21, no 0.21)")
+ * )
+ *
+ * @OA\Schema(
+ *     schema="ComprobanteGrabarRequest",
+ *     type="object",
+ *     required={"accionGrabacion","cabecera","renglones"},
+ *     @OA\Property(property="accionGrabacion", type="string", enum={"pedido","presupuesto"}, example="pedido"),
+ *     @OA\Property(property="cod_pedido", type="string", nullable=true, example=null, description="Si viene, modifica comprobante existente"),
+ *     @OA\Property(property="cod_pedido_origen", type="string", nullable=true, example=null, description="Conversión pedido→presupuesto"),
+ *     @OA\Property(property="cod_presupuesto_origen", type="string", nullable=true, example=null, description="Conversión presupuesto→pedido"),
+ *     @OA\Property(property="cod_comprobante_origen_copia", type="string", nullable=true, example=null, description="Alta por copia"),
+ *     @OA\Property(property="cabecera", ref="#/components/schemas/ComprobanteCabeceraRequest"),
+ *     @OA\Property(
+ *         property="renglones",
+ *         type="array",
+ *         minItems=1,
+ *         @OA\Items(ref="#/components/schemas/ComprobanteRenglonRequest")
+ *     )
+ * )
+ *
+ * @OA\Schema(
+ *     schema="ComprobanteUpsertRequest",
+ *     type="object",
+ *     required={"cabecera","renglones"},
+ *     description="Body de alta/modificación legacy de pedidos o presupuestos",
+ *     @OA\Property(property="cabecera", ref="#/components/schemas/ComprobanteCabeceraRequest"),
+ *     @OA\Property(
+ *         property="renglones",
+ *         type="array",
+ *         minItems=1,
+ *         @OA\Items(ref="#/components/schemas/ComprobanteRenglonRequest")
+ *     ),
+ *     @OA\Property(property="cod_presupuesto_origen", type="string", nullable=true),
+ *     @OA\Property(property="cod_pedido_origen", type="string", nullable=true)
+ * )
+ *
+ * @OA\Schema(
+ *     schema="ComprobanteGrabarResultado",
+ *     type="object",
+ *     @OA\Property(property="cod_pedido", type="string", example="A1B2C3D4-E5F6-7890-ABCD-EF1234567890"),
+ *     @OA\Property(property="estado", type="integer", example=0),
+ *     @OA\Property(property="nro_visible", type="integer", example=1234),
+ *     @OA\Property(property="total", type="number", format="float", example=1500.25),
+ *     @OA\Property(property="total_iva", type="number", format="float", example=315.05),
+ *     @OA\Property(property="guidSufijo", type="string", example="567890"),
+ *     @OA\Property(property="mailEnviado", type="boolean", example=false)
+ * )
+ *
+ * @OA\Schema(
+ *     schema="ApiEnvelopeComprobanteGrabar",
+ *     allOf={
+ *         @OA\Schema(ref="#/components/schemas/ApiEnvelope"),
+ *         @OA\Schema(
+ *             type="object",
+ *             @OA\Property(property="resultado", ref="#/components/schemas/ComprobanteGrabarResultado")
+ *         )
+ *     },
+ *     example={
+ *         "error": 0,
+ *         "respuesta": "ok",
+ *         "resultado": {
+ *             "cod_pedido": "A1B2C3D4-E5F6-7890-ABCD-EF1234567890",
+ *             "estado": 0,
+ *             "nro_visible": 1234,
+ *             "total": 1500.25,
+ *             "total_iva": 315.05,
+ *             "guidSufijo": "567890",
+ *             "mailEnviado": false
+ *         }
+ *     }
+ * )
+ *
+ * @OA\Schema(
+ *     schema="CatalogoPerfilItem",
+ *     type="object",
+ *     @OA\Property(property="cod_perfil", type="string", example="P01"),
+ *     @OA\Property(property="descripcion", type="string", example="Perfil estándar")
+ * )
+ *
+ * @OA\Schema(
+ *     schema="CatalogoCondicionVentaItem",
+ *     type="object",
+ *     @OA\Property(property="codigo", type="integer", example=1),
+ *     @OA\Property(property="descripcion", type="string", example="Contado")
+ * )
+ *
+ * @OA\Schema(
+ *     schema="CatalogoTransporteItem",
+ *     type="object",
+ *     @OA\Property(property="codigo", type="string", example="TR01"),
+ *     @OA\Property(property="descripcion", type="string", example="Retiro en planta")
+ * )
+ *
+ * @OA\Schema(
+ *     schema="CatalogoListaPreciosItem",
+ *     type="object",
+ *     @OA\Property(property="cod_lista", type="integer", example=1),
+ *     @OA\Property(property="descripcion", type="string", example="Lista general"),
+ *     @OA\Property(property="moneda", type="integer", example=1),
+ *     @OA\Property(property="incluye_iva", type="boolean", example=false)
+ * )
+ *
+ * @OA\Schema(
+ *     schema="CatalogoDireccionEntregaItem",
+ *     type="object",
+ *     @OA\Property(property="id_de", type="integer", example=10),
+ *     @OA\Property(property="direccion", type="string", example="Av. Siempre Viva 742"),
+ *     @OA\Property(property="localidad", type="string", example="CABA"),
+ *     @OA\Property(property="habitual", type="boolean", example=true)
+ * )
+ *
+ * @OA\Schema(
+ *     schema="ApiEnvelopeCatalogoPerfiles",
+ *     allOf={
+ *         @OA\Schema(ref="#/components/schemas/ApiEnvelope"),
+ *         @OA\Schema(type="object", @OA\Property(property="resultado", type="array", @OA\Items(ref="#/components/schemas/CatalogoPerfilItem")))
+ *     }
+ * )
+ *
+ * @OA\Schema(
+ *     schema="ApiEnvelopeCatalogoCondicionesVenta",
+ *     allOf={
+ *         @OA\Schema(ref="#/components/schemas/ApiEnvelope"),
+ *         @OA\Schema(type="object", @OA\Property(property="resultado", type="array", @OA\Items(ref="#/components/schemas/CatalogoCondicionVentaItem")))
+ *     }
+ * )
+ *
+ * @OA\Schema(
+ *     schema="ApiEnvelopeCatalogoTransportes",
+ *     allOf={
+ *         @OA\Schema(ref="#/components/schemas/ApiEnvelope"),
+ *         @OA\Schema(type="object", @OA\Property(property="resultado", type="array", @OA\Items(ref="#/components/schemas/CatalogoTransporteItem")))
+ *     }
+ * )
+ *
+ * @OA\Schema(
+ *     schema="ApiEnvelopeCatalogoListasPrecios",
+ *     allOf={
+ *         @OA\Schema(ref="#/components/schemas/ApiEnvelope"),
+ *         @OA\Schema(type="object", @OA\Property(property="resultado", type="array", @OA\Items(ref="#/components/schemas/CatalogoListaPreciosItem")))
+ *     }
+ * )
+ *
+ * @OA\Schema(
+ *     schema="ApiEnvelopeCatalogoDireccionesEntrega",
+ *     allOf={
+ *         @OA\Schema(ref="#/components/schemas/ApiEnvelope"),
+ *         @OA\Schema(type="object", @OA\Property(property="resultado", type="array", @OA\Items(ref="#/components/schemas/CatalogoDireccionEntregaItem")))
+ *     }
  * )
  */
 final class OpenApiSchemas

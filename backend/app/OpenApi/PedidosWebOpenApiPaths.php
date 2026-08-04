@@ -4,27 +4,18 @@ namespace App\OpenApi;
 
 /**
  * Rutas REST PedidosWeb (SPEC-101-05 / SPEC-101-07).
- *
- * @OA\Tag(name="PedidosWeb", description="Carga, consultas, dashboard operativo e integración")
+ * Tags: ver {@see OpenApiTags}.
  *
  * @OA\Post(
  *     path="/api/v1/comprobantes/grabar",
  *     summary="Grabar pedido o presupuesto (contrato unificado)",
- *     tags={"PedidosWeb"},
+ *     tags={"Pedidos Web"},
  *     security={{"sanctum":{}},{"tenant":{}}},
  *     @OA\RequestBody(
  *         required=true,
- *         @OA\JsonContent(
- *             required={"accionGrabacion","cabecera","renglones"},
- *             @OA\Property(property="accionGrabacion", type="string", enum={"pedido","presupuesto"}),
- *             @OA\Property(property="cod_pedido", type="string", nullable=true),
- *             @OA\Property(property="cod_pedido_origen", type="string", nullable=true),
- *             @OA\Property(property="cod_presupuesto_origen", type="string", nullable=true),
- *             @OA\Property(property="cabecera", type="object"),
- *             @OA\Property(property="renglones", type="array", @OA\Items(type="object"))
- *         )
+ *         @OA\JsonContent(ref="#/components/schemas/ComprobanteGrabarRequest")
  *     ),
- *     @OA\Response(response=200, description="Comprobante grabado", @OA\JsonContent(ref="#/components/schemas/ApiEnvelope")),
+ *     @OA\Response(response=200, description="Comprobante grabado", @OA\JsonContent(ref="#/components/schemas/ApiEnvelopeComprobanteGrabar")),
  *     @OA\Response(response=400, description="Tenant invalido"),
  *     @OA\Response(response=401, description="No autenticado"),
  *     @OA\Response(response=403, description="Sin permiso"),
@@ -34,7 +25,7 @@ namespace App\OpenApi;
  * @OA\Post(
  *     path="/api/v1/comprobantes/copiar",
  *     summary="Copiar comprobante existente a pedido o presupuesto",
- *     tags={"PedidosWeb"},
+ *     tags={"Pedidos Web"},
  *     security={{"sanctum":{}},{"tenant":{}}},
  *     @OA\RequestBody(
  *         required=true,
@@ -54,18 +45,13 @@ namespace App\OpenApi;
  * @OA\Post(
  *     path="/api/v1/pedidos",
  *     summary="Alta de pedido",
- *     tags={"PedidosWeb"},
+ *     tags={"Pedidos Web"},
  *     security={{"sanctum":{}},{"tenant":{}}},
  *     @OA\RequestBody(
  *         required=true,
- *         @OA\JsonContent(
- *             required={"cabecera","renglones"},
- *             @OA\Property(property="cabecera", type="object"),
- *             @OA\Property(property="renglones", type="array", @OA\Items(type="object")),
- *             @OA\Property(property="cod_presupuesto_origen", type="string", nullable=true)
- *         )
+ *         @OA\JsonContent(ref="#/components/schemas/ComprobanteUpsertRequest")
  *     ),
- *     @OA\Response(response=200, description="Pedido creado", @OA\JsonContent(ref="#/components/schemas/ApiEnvelope")),
+ *     @OA\Response(response=200, description="Pedido creado", @OA\JsonContent(ref="#/components/schemas/ApiEnvelopeComprobanteGrabar")),
  *     @OA\Response(response=400, description="Tenant invalido"),
  *     @OA\Response(response=401, description="No autenticado"),
  *     @OA\Response(response=403, description="Sin permiso alta"),
@@ -75,18 +61,14 @@ namespace App\OpenApi;
  * @OA\Put(
  *     path="/api/v1/pedidos/{cod_pedido}",
  *     summary="Modificar pedido existente",
- *     tags={"PedidosWeb"},
+ *     tags={"Pedidos Web"},
  *     security={{"sanctum":{}},{"tenant":{}}},
  *     @OA\Parameter(name="cod_pedido", in="path", required=true, @OA\Schema(type="string")),
  *     @OA\RequestBody(
  *         required=true,
- *         @OA\JsonContent(
- *             required={"cabecera","renglones"},
- *             @OA\Property(property="cabecera", type="object"),
- *             @OA\Property(property="renglones", type="array", @OA\Items(type="object"))
- *         )
+ *         @OA\JsonContent(ref="#/components/schemas/ComprobanteUpsertRequest")
  *     ),
- *     @OA\Response(response=200, description="Pedido modificado", @OA\JsonContent(ref="#/components/schemas/ApiEnvelope")),
+ *     @OA\Response(response=200, description="Pedido modificado", @OA\JsonContent(ref="#/components/schemas/ApiEnvelopeComprobanteGrabar")),
  *     @OA\Response(response=400, description="Tenant invalido"),
  *     @OA\Response(response=401, description="No autenticado"),
  *     @OA\Response(response=403, description="Sin permiso modi"),
@@ -97,10 +79,10 @@ namespace App\OpenApi;
  * @OA\Get(
  *     path="/api/v1/pedidos/{cod_pedido}",
  *     summary="Obtener pedido con detalle",
- *     tags={"PedidosWeb"},
+ *     tags={"Pedidos Web"},
  *     security={{"sanctum":{}},{"tenant":{}}},
  *     @OA\Parameter(name="cod_pedido", in="path", required=true, @OA\Schema(type="string")),
- *     @OA\Response(response=200, description="Pedido", @OA\JsonContent(ref="#/components/schemas/ApiEnvelope")),
+ *     @OA\Response(response=200, description="Pedido", @OA\JsonContent(ref="#/components/schemas/ApiEnvelopeComprobanteDetalle")),
  *     @OA\Response(response=400, description="Tenant invalido"),
  *     @OA\Response(response=401, description="No autenticado"),
  *     @OA\Response(response=403, description="Sin permiso repo"),
@@ -110,7 +92,7 @@ namespace App\OpenApi;
  * @OA\Delete(
  *     path="/api/v1/pedidos/{cod_pedido}",
  *     summary="Eliminar pedido en estado 0",
- *     tags={"PedidosWeb"},
+ *     tags={"Pedidos Web"},
  *     security={{"sanctum":{}},{"tenant":{}}},
  *     @OA\Parameter(name="cod_pedido", in="path", required=true, @OA\Schema(type="string")),
  *     @OA\Response(response=200, description="Pedido eliminado", @OA\JsonContent(ref="#/components/schemas/ApiEnvelopeEmpty")),
@@ -123,7 +105,7 @@ namespace App\OpenApi;
  * @OA\Post(
  *     path="/api/v1/pedidos/{cod_pedido}/edicion/iniciar",
  *     summary="Iniciar edicion concurrente del pedido",
- *     tags={"PedidosWeb"},
+ *     tags={"Pedidos Web"},
  *     security={{"sanctum":{}},{"tenant":{}}},
  *     @OA\Parameter(name="cod_pedido", in="path", required=true, @OA\Schema(type="string")),
  *     @OA\Response(response=200, description="Edicion iniciada (estado -1)", @OA\JsonContent(ref="#/components/schemas/ApiEnvelope")),
@@ -137,7 +119,7 @@ namespace App\OpenApi;
  * @OA\Post(
  *     path="/api/v1/pedidos/{cod_pedido}/edicion/actividad",
  *     summary="Renovar timestamp de actividad en edicion",
- *     tags={"PedidosWeb"},
+ *     tags={"Pedidos Web"},
  *     security={{"sanctum":{}},{"tenant":{}}},
  *     @OA\Parameter(name="cod_pedido", in="path", required=true, @OA\Schema(type="string")),
  *     @OA\Response(response=200, description="Actividad actualizada", @OA\JsonContent(ref="#/components/schemas/ApiEnvelope")),
@@ -151,7 +133,7 @@ namespace App\OpenApi;
  * @OA\Post(
  *     path="/api/v1/pedidos/{cod_pedido}/edicion/cancelar",
  *     summary="Cancelar edicion y volver a estado 0",
- *     tags={"PedidosWeb"},
+ *     tags={"Pedidos Web"},
  *     security={{"sanctum":{}},{"tenant":{}}},
  *     @OA\Parameter(name="cod_pedido", in="path", required=true, @OA\Schema(type="string")),
  *     @OA\Response(response=200, description="Edicion cancelada", @OA\JsonContent(ref="#/components/schemas/ApiEnvelope")),
@@ -165,18 +147,13 @@ namespace App\OpenApi;
  * @OA\Post(
  *     path="/api/v1/presupuestos",
  *     summary="Alta de presupuesto",
- *     tags={"PedidosWeb"},
+ *     tags={"Pedidos Web"},
  *     security={{"sanctum":{}},{"tenant":{}}},
  *     @OA\RequestBody(
  *         required=true,
- *         @OA\JsonContent(
- *             required={"cabecera","renglones"},
- *             @OA\Property(property="cabecera", type="object"),
- *             @OA\Property(property="renglones", type="array", @OA\Items(type="object")),
- *             @OA\Property(property="cod_pedido_origen", type="string", nullable=true)
- *         )
+ *         @OA\JsonContent(ref="#/components/schemas/ComprobanteUpsertRequest")
  *     ),
- *     @OA\Response(response=200, description="Presupuesto creado", @OA\JsonContent(ref="#/components/schemas/ApiEnvelope")),
+ *     @OA\Response(response=200, description="Presupuesto creado", @OA\JsonContent(ref="#/components/schemas/ApiEnvelopeComprobanteGrabar")),
  *     @OA\Response(response=400, description="Tenant invalido"),
  *     @OA\Response(response=401, description="No autenticado"),
  *     @OA\Response(response=403, description="Sin permiso alta"),
@@ -186,18 +163,14 @@ namespace App\OpenApi;
  * @OA\Put(
  *     path="/api/v1/presupuestos/{cod_pedido}",
  *     summary="Modificar presupuesto existente",
- *     tags={"PedidosWeb"},
+ *     tags={"Pedidos Web"},
  *     security={{"sanctum":{}},{"tenant":{}}},
  *     @OA\Parameter(name="cod_pedido", in="path", required=true, @OA\Schema(type="string")),
  *     @OA\RequestBody(
  *         required=true,
- *         @OA\JsonContent(
- *             required={"cabecera","renglones"},
- *             @OA\Property(property="cabecera", type="object"),
- *             @OA\Property(property="renglones", type="array", @OA\Items(type="object"))
- *         )
+ *         @OA\JsonContent(ref="#/components/schemas/ComprobanteUpsertRequest")
  *     ),
- *     @OA\Response(response=200, description="Presupuesto modificado", @OA\JsonContent(ref="#/components/schemas/ApiEnvelope")),
+ *     @OA\Response(response=200, description="Presupuesto modificado", @OA\JsonContent(ref="#/components/schemas/ApiEnvelopeComprobanteGrabar")),
  *     @OA\Response(response=400, description="Tenant invalido"),
  *     @OA\Response(response=401, description="No autenticado"),
  *     @OA\Response(response=403, description="Sin permiso modi"),
@@ -208,7 +181,7 @@ namespace App\OpenApi;
  * @OA\Post(
  *     path="/api/v1/presupuestos/{cod}/cerrar",
  *     summary="Cerrar presupuesto por rechazo",
- *     tags={"PedidosWeb"},
+ *     tags={"Pedidos Web"},
  *     security={{"sanctum":{}},{"tenant":{}}},
  *     @OA\Parameter(name="cod", in="path", required=true, @OA\Schema(type="string")),
  *     @OA\RequestBody(
@@ -229,12 +202,12 @@ namespace App\OpenApi;
  *
  * @OA\Get(
  *     path="/api/v1/motivos-cierre",
- *     summary="Catalogo de motivos de cierre de presupuesto",
- *     tags={"PedidosWeb"},
+ *     summary="Motivos de cierre",
+ *     tags={"Tratativas"},
  *     security={{"sanctum":{}},{"tenant":{}}},
  *     @OA\Parameter(name="tipo_cierre", in="query", required=false, @OA\Schema(type="string")),
  *     @OA\Parameter(name="activo", in="query", required=false, @OA\Schema(type="string", example="1")),
- *     @OA\Response(response=200, description="Motivos de cierre", @OA\JsonContent(ref="#/components/schemas/ApiEnvelope")),
+ *     @OA\Response(response=200, description="Motivos de cierre", @OA\JsonContent(ref="#/components/schemas/ApiEnvelopeMotivosCierre")),
  *     @OA\Response(response=400, description="Tenant invalido"),
  *     @OA\Response(response=401, description="No autenticado"),
  *     @OA\Response(response=403, description="Sin permiso repo")
@@ -243,10 +216,10 @@ namespace App\OpenApi;
  * @OA\Get(
  *     path="/api/v1/presupuestos/{cod}/tratativas",
  *     summary="Listar tratativas de un presupuesto",
- *     tags={"PedidosWeb"},
+ *     tags={"Tratativas"},
  *     security={{"sanctum":{}},{"tenant":{}}},
  *     @OA\Parameter(name="cod", in="path", required=true, @OA\Schema(type="string")),
- *     @OA\Response(response=200, description="Tratativas", @OA\JsonContent(ref="#/components/schemas/ApiEnvelope")),
+ *     @OA\Response(response=200, description="Tratativas", @OA\JsonContent(ref="#/components/schemas/ApiEnvelopeTratativasListado")),
  *     @OA\Response(response=400, description="Tenant invalido"),
  *     @OA\Response(response=401, description="No autenticado"),
  *     @OA\Response(response=403, description="Sin permiso repo"),
@@ -256,7 +229,7 @@ namespace App\OpenApi;
  * @OA\Post(
  *     path="/api/v1/presupuestos/{cod}/tratativas",
  *     summary="Registrar tratativa en presupuesto",
- *     tags={"PedidosWeb"},
+ *     tags={"Tratativas"},
  *     security={{"sanctum":{}},{"tenant":{}}},
  *     @OA\Parameter(name="cod", in="path", required=true, @OA\Schema(type="string")),
  *     @OA\RequestBody(
@@ -280,9 +253,12 @@ namespace App\OpenApi;
  * @OA\Get(
  *     path="/api/v1/consultas/pedidos-ingresados",
  *     summary="Consulta pedidos ingresados",
- *     tags={"PedidosWeb"},
+ *     tags={"Informes"},
  *     security={{"sanctum":{}},{"tenant":{}}},
- *     @OA\Response(response=200, description="Listado paginado", @OA\JsonContent(ref="#/components/schemas/ApiEnvelope")),
+ *     @OA\Parameter(name="page", in="query", required=false, @OA\Schema(type="integer", default=1)),
+ *     @OA\Parameter(name="page_size", in="query", required=false, @OA\Schema(type="integer", default=20, maximum=100)),
+ *     @OA\Parameter(name="cod_cliente", in="query", required=false, @OA\Schema(type="string")),
+ *     @OA\Response(response=200, description="Listado paginado", @OA\JsonContent(ref="#/components/schemas/ApiEnvelopeConsultaComprobantes")),
  *     @OA\Response(response=400, description="Tenant invalido"),
  *     @OA\Response(response=401, description="No autenticado"),
  *     @OA\Response(response=403, description="Sin permiso consulta")
@@ -291,9 +267,12 @@ namespace App\OpenApi;
  * @OA\Get(
  *     path="/api/v1/consultas/pedidos-pendientes",
  *     summary="Consulta pedidos pendientes",
- *     tags={"PedidosWeb"},
+ *     tags={"Informes"},
  *     security={{"sanctum":{}},{"tenant":{}}},
- *     @OA\Response(response=200, description="Listado paginado", @OA\JsonContent(ref="#/components/schemas/ApiEnvelope")),
+ *     @OA\Parameter(name="page", in="query", required=false, @OA\Schema(type="integer", default=1)),
+ *     @OA\Parameter(name="page_size", in="query", required=false, @OA\Schema(type="integer", default=20, maximum=100)),
+ *     @OA\Parameter(name="cod_cliente", in="query", required=false, @OA\Schema(type="string")),
+ *     @OA\Response(response=200, description="Listado paginado", @OA\JsonContent(ref="#/components/schemas/ApiEnvelopeConsultaComprobantes")),
  *     @OA\Response(response=400, description="Tenant invalido"),
  *     @OA\Response(response=401, description="No autenticado"),
  *     @OA\Response(response=403, description="Sin permiso consulta")
@@ -301,10 +280,14 @@ namespace App\OpenApi;
  *
  * @OA\Get(
  *     path="/api/v1/consultas/presupuestos",
- *     summary="Consulta presupuestos",
- *     tags={"PedidosWeb"},
+ *     summary="Consulta presupuestos ingresados",
+ *     tags={"Informes"},
  *     security={{"sanctum":{}},{"tenant":{}}},
- *     @OA\Response(response=200, description="Listado paginado", @OA\JsonContent(ref="#/components/schemas/ApiEnvelope")),
+ *     @OA\Parameter(name="page", in="query", required=false, @OA\Schema(type="integer", default=1)),
+ *     @OA\Parameter(name="page_size", in="query", required=false, @OA\Schema(type="integer", default=20, maximum=100)),
+ *     @OA\Parameter(name="cod_cliente", in="query", required=false, @OA\Schema(type="string")),
+ *     @OA\Parameter(name="estado", in="query", required=false, @OA\Schema(type="integer", default=99, description="99=activos; otros=cerrados")),
+ *     @OA\Response(response=200, description="Listado paginado", @OA\JsonContent(ref="#/components/schemas/ApiEnvelopeConsultaComprobantes")),
  *     @OA\Response(response=400, description="Tenant invalido"),
  *     @OA\Response(response=401, description="No autenticado"),
  *     @OA\Response(response=403, description="Sin permiso consulta")
@@ -312,10 +295,13 @@ namespace App\OpenApi;
  *
  * @OA\Get(
  *     path="/api/v1/consultas/stock",
- *     summary="Consulta stock de articulos",
- *     tags={"PedidosWeb"},
+ *     summary="Consulta stock",
+ *     tags={"Informes"},
  *     security={{"sanctum":{}},{"tenant":{}}},
- *     @OA\Response(response=200, description="Listado paginado", @OA\JsonContent(ref="#/components/schemas/ApiEnvelope")),
+ *     @OA\Parameter(name="page", in="query", required=false, @OA\Schema(type="integer", default=1)),
+ *     @OA\Parameter(name="page_size", in="query", required=false, @OA\Schema(type="integer", default=20, maximum=100)),
+ *     @OA\Parameter(name="q", in="query", required=false, @OA\Schema(type="string", description="Filtro código/descripción")),
+ *     @OA\Response(response=200, description="Listado paginado", @OA\JsonContent(ref="#/components/schemas/ApiEnvelopeConsultaStock")),
  *     @OA\Response(response=400, description="Tenant invalido"),
  *     @OA\Response(response=401, description="No autenticado"),
  *     @OA\Response(response=403, description="Sin permiso consulta")
@@ -323,10 +309,13 @@ namespace App\OpenApi;
  *
  * @OA\Get(
  *     path="/api/v1/consultas/deuda",
- *     summary="Consulta deuda del cliente",
- *     tags={"PedidosWeb"},
+ *     summary="Consulta deuda",
+ *     tags={"Informes"},
  *     security={{"sanctum":{}},{"tenant":{}}},
- *     @OA\Response(response=200, description="Listado paginado", @OA\JsonContent(ref="#/components/schemas/ApiEnvelope")),
+ *     @OA\Parameter(name="page", in="query", required=false, @OA\Schema(type="integer", default=1)),
+ *     @OA\Parameter(name="page_size", in="query", required=false, @OA\Schema(type="integer", default=20, maximum=100)),
+ *     @OA\Parameter(name="cod_cliente", in="query", required=false, @OA\Schema(type="string")),
+ *     @OA\Response(response=200, description="Listado paginado", @OA\JsonContent(ref="#/components/schemas/ApiEnvelopeConsultaDeuda")),
  *     @OA\Response(response=400, description="Tenant invalido"),
  *     @OA\Response(response=401, description="No autenticado"),
  *     @OA\Response(response=403, description="Sin permiso consulta")
@@ -334,10 +323,13 @@ namespace App\OpenApi;
  *
  * @OA\Get(
  *     path="/api/v1/consultas/cheques",
- *     summary="Consulta cheques del cliente",
- *     tags={"PedidosWeb"},
+ *     summary="Consulta cheques",
+ *     tags={"Informes"},
  *     security={{"sanctum":{}},{"tenant":{}}},
- *     @OA\Response(response=200, description="Listado paginado", @OA\JsonContent(ref="#/components/schemas/ApiEnvelope")),
+ *     @OA\Parameter(name="page", in="query", required=false, @OA\Schema(type="integer", default=1)),
+ *     @OA\Parameter(name="page_size", in="query", required=false, @OA\Schema(type="integer", default=20, maximum=100)),
+ *     @OA\Parameter(name="cod_cliente", in="query", required=false, @OA\Schema(type="string")),
+ *     @OA\Response(response=200, description="Listado paginado", @OA\JsonContent(ref="#/components/schemas/ApiEnvelopeConsultaCheques")),
  *     @OA\Response(response=400, description="Tenant invalido"),
  *     @OA\Response(response=401, description="No autenticado"),
  *     @OA\Response(response=403, description="Sin permiso consulta")
@@ -345,10 +337,13 @@ namespace App\OpenApi;
  *
  * @OA\Get(
  *     path="/api/v1/consultas/historial-ventas",
- *     summary="Historial de ventas del cliente",
- *     tags={"PedidosWeb"},
+ *     summary="Consulta historial de ventas",
+ *     tags={"Informes"},
  *     security={{"sanctum":{}},{"tenant":{}}},
- *     @OA\Response(response=200, description="Listado paginado", @OA\JsonContent(ref="#/components/schemas/ApiEnvelope")),
+ *     @OA\Parameter(name="page", in="query", required=false, @OA\Schema(type="integer", default=1)),
+ *     @OA\Parameter(name="page_size", in="query", required=false, @OA\Schema(type="integer", default=20, maximum=100)),
+ *     @OA\Parameter(name="cod_cliente", in="query", required=false, @OA\Schema(type="string")),
+ *     @OA\Response(response=200, description="Listado paginado", @OA\JsonContent(ref="#/components/schemas/ApiEnvelopeConsultaHistorialVentas")),
  *     @OA\Response(response=400, description="Tenant invalido"),
  *     @OA\Response(response=401, description="No autenticado"),
  *     @OA\Response(response=403, description="Sin permiso consulta")
@@ -356,10 +351,16 @@ namespace App\OpenApi;
  *
  * @OA\Get(
  *     path="/api/v1/consultas/detalle-pedidos",
- *     summary="Consulta detalle de pedidos (cabecera + renglon)",
- *     tags={"PedidosWeb"},
+ *     summary="Consulta detalle de pedidos",
+ *     tags={"Informes"},
  *     security={{"sanctum":{}},{"tenant":{}}},
- *     @OA\Response(response=200, description="Listado paginado por renglon", @OA\JsonContent(ref="#/components/schemas/ApiEnvelope")),
+ *     @OA\Parameter(name="page", in="query", required=false, @OA\Schema(type="integer", default=1)),
+ *     @OA\Parameter(name="page_size", in="query", required=false, @OA\Schema(type="integer", default=20, maximum=100)),
+ *     @OA\Parameter(name="cod_cliente", in="query", required=false, @OA\Schema(type="string")),
+ *     @OA\Parameter(name="cod_pedido", in="query", required=false, @OA\Schema(type="string")),
+ *     @OA\Parameter(name="estado", in="query", required=false, @OA\Schema(type="integer")),
+ *     @OA\Parameter(name="q", in="query", required=false, @OA\Schema(type="string")),
+ *     @OA\Response(response=200, description="Listado paginado por renglon", @OA\JsonContent(ref="#/components/schemas/ApiEnvelopeConsultaDetallePedidos")),
  *     @OA\Response(response=400, description="Tenant invalido"),
  *     @OA\Response(response=401, description="No autenticado"),
  *     @OA\Response(response=403, description="Sin permiso consulta"),
@@ -368,10 +369,10 @@ namespace App\OpenApi;
  *
  * @OA\Get(
  *     path="/api/v1/integracion/logs",
- *     summary="Logs de integracion (mail, etc.)",
- *     tags={"PedidosWeb"},
+ *     summary="Integracion logs",
+ *     tags={"Framework"},
  *     security={{"sanctum":{}},{"tenant":{}}},
- *     @OA\Response(response=200, description="Listado paginado", @OA\JsonContent(ref="#/components/schemas/ApiEnvelope")),
+ *     @OA\Response(response=200, description="Listado paginado", @OA\JsonContent(ref="#/components/schemas/ApiEnvelopeIntegracionLogs")),
  *     @OA\Response(response=400, description="Tenant invalido"),
  *     @OA\Response(response=401, description="No autenticado"),
  *     @OA\Response(response=403, description="Sin permiso repo")
@@ -379,10 +380,10 @@ namespace App\OpenApi;
  *
  * @OA\Get(
  *     path="/api/v1/dashboard/operativo",
- *     summary="Dashboard operativo PedidosWeb",
- *     tags={"PedidosWeb"},
+ *     summary="Dashboard operativo",
+ *     tags={"Framework"},
  *     security={{"sanctum":{}},{"tenant":{}}},
- *     @OA\Response(response=200, description="Indicadores operativos", @OA\JsonContent(ref="#/components/schemas/ApiEnvelope")),
+ *     @OA\Response(response=200, description="Indicadores operativos", @OA\JsonContent(ref="#/components/schemas/ApiEnvelopeDashboardOperativo")),
  *     @OA\Response(response=400, description="Tenant invalido"),
  *     @OA\Response(response=401, description="No autenticado"),
  *     @OA\Response(response=403, description="Sin permiso dashboard")
@@ -390,21 +391,21 @@ namespace App\OpenApi;
  *
  * @OA\Get(
  *     path="/api/v1/config/parametros-carga",
- *     summary="Parametros Modifica* y flags UI para pantalla de carga",
- *     tags={"PedidosWeb"},
+ *     summary="Parametros carga",
+ *     tags={"Parametros"},
  *     security={{"sanctum":{}},{"tenant":{}}},
- *     @OA\Response(response=200, description="Flags segun perfil comercial", @OA\JsonContent(ref="#/components/schemas/ApiEnvelope")),
+ *     @OA\Response(response=200, description="Flags segun perfil comercial", @OA\JsonContent(ref="#/components/schemas/ApiEnvelopeParametrosCarga")),
  *     @OA\Response(response=400, description="Tenant invalido"),
  *     @OA\Response(response=401, description="No autenticado")
  * )
  *
  * @OA\Get(
  *     path="/api/v1/config/parametros",
- *     summary="Consulta de parametros generales (solo lectura)",
- *     tags={"PedidosWeb"},
+ *     summary="Parametros",
+ *     tags={"Parametros"},
  *     security={{"sanctum":{}},{"tenant":{}}},
  *     @OA\Parameter(name="programa", in="query", required=false, @OA\Schema(type="string", default="PedidosWeb")),
- *     @OA\Response(response=200, description="Listado informativo de parametros", @OA\JsonContent(ref="#/components/schemas/ApiEnvelope")),
+ *     @OA\Response(response=200, description="Listado informativo de parametros", @OA\JsonContent(ref="#/components/schemas/ApiEnvelopeParametrosConsulta")),
  *     @OA\Response(response=400, description="Tenant invalido"),
  *     @OA\Response(response=401, description="No autenticado"),
  *     @OA\Response(response=403, description="Sin permiso repo")
@@ -412,11 +413,11 @@ namespace App\OpenApi;
  *
  * @OA\Get(
  *     path="/api/v1/clientes/{codCliente}/cabecera-inicial",
- *     summary="Inicializar cabecera de comprobante desde cliente (HU-101-005)",
- *     tags={"PedidosWeb"},
+ *     summary="Clientes - cabecera inicial",
+ *     tags={"Maestros y Tablas"},
  *     security={{"sanctum":{}},{"tenant":{}}},
  *     @OA\Parameter(name="codCliente", in="path", required=true, @OA\Schema(type="string")),
- *     @OA\Response(response=200, description="Cabecera y catalogos", @OA\JsonContent(ref="#/components/schemas/ApiEnvelope")),
+ *     @OA\Response(response=200, description="Cabecera y catalogos", @OA\JsonContent(ref="#/components/schemas/ApiEnvelopeCabeceraInicial")),
  *     @OA\Response(response=400, description="Tenant invalido"),
  *     @OA\Response(response=401, description="No autenticado"),
  *     @OA\Response(response=403, description="Sin permiso repo"),
@@ -425,16 +426,29 @@ namespace App\OpenApi;
  *
  * @OA\Get(
  *     path="/api/v1/articulos",
- *     summary="Autocompletar articulos para carga de comprobantes",
- *     tags={"PedidosWeb"},
+ *     summary="Articulos",
+ *     tags={"Maestros y Tablas"},
  *     security={{"sanctum":{}},{"tenant":{}}},
  *     @OA\Parameter(name="q", in="query", required=false, @OA\Schema(type="string")),
  *     @OA\Parameter(name="page_size", in="query", required=false, @OA\Schema(type="integer", maximum=50)),
  *     @OA\Parameter(name="lista_precios", in="query", required=false, @OA\Schema(type="integer")),
- *     @OA\Response(response=200, description="Listado de articulos", @OA\JsonContent(ref="#/components/schemas/ApiEnvelope")),
+ *     @OA\Response(response=200, description="Listado de articulos", @OA\JsonContent(ref="#/components/schemas/ApiEnvelopeArticulosCarga")),
  *     @OA\Response(response=400, description="Tenant invalido"),
  *     @OA\Response(response=401, description="No autenticado"),
  *     @OA\Response(response=403, description="Sin permiso repo")
+ * )
+ *
+ * @OA\Get(
+ *     path="/api/v1/presupuestos/{cod_pedido}",
+ *     summary="Obtener presupuesto con detalle",
+ *     tags={"Pedidos Web"},
+ *     security={{"sanctum":{}},{"tenant":{}}},
+ *     @OA\Parameter(name="cod_pedido", in="path", required=true, @OA\Schema(type="string")),
+ *     @OA\Response(response=200, description="Presupuesto", @OA\JsonContent(ref="#/components/schemas/ApiEnvelopeComprobanteDetalle")),
+ *     @OA\Response(response=400, description="Tenant invalido"),
+ *     @OA\Response(response=401, description="No autenticado"),
+ *     @OA\Response(response=403, description="Sin permiso repo"),
+ *     @OA\Response(response=404, description="Presupuesto inexistente")
  * )
  */
 final class PedidosWebOpenApiPaths
