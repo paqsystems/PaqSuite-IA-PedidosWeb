@@ -18,6 +18,7 @@ use App\Http\Controllers\Api\V1\Pivots\PivotConfigController;
 use App\Http\Controllers\Api\V1\Pivots\PivotController;
 use App\Http\Controllers\Api\V1\PedidosWeb\ArticuloController;
 use App\Http\Controllers\Api\V1\PedidosWeb\CargaAsistenteTurnController;
+use App\Http\Controllers\Api\V1\PedidosWeb\CatalogosReferencialesController;
 use App\Http\Controllers\Api\V1\PedidosWeb\ClienteCabeceraController;
 use App\Http\Controllers\Api\V1\PedidosWeb\ComprobanteController;
 use App\Http\Controllers\Api\V1\PedidosWeb\ConsultaController;
@@ -113,6 +114,16 @@ Route::prefix('v1')->group(function (): void {
                 ->name('api.v1.clientes.index');
             Route::get('/clientes/{codCliente}/cabecera-inicial', [ClienteCabeceraController::class, 'show'])
                 ->name('api.v1.clientes.cabecera-inicial');
+            Route::get('/clientes/{codCliente}/direcciones-entrega', [CatalogosReferencialesController::class, 'direccionesEntrega'])
+                ->name('api.v1.clientes.direcciones-entrega');
+            Route::get('/perfiles', [CatalogosReferencialesController::class, 'perfiles'])
+                ->name('api.v1.perfiles.index');
+            Route::get('/condiciones-venta', [CatalogosReferencialesController::class, 'condicionesVenta'])
+                ->name('api.v1.condiciones-venta.index');
+            Route::get('/transportes', [CatalogosReferencialesController::class, 'transportes'])
+                ->name('api.v1.transportes.index');
+            Route::get('/listas-precios', [CatalogosReferencialesController::class, 'listasPrecios'])
+                ->name('api.v1.listas-precios.index');
             Route::get('/comprobantes/{id}', [VisibilityDataController::class, 'showComprobante'])
                 ->name('api.v1.comprobantes.show');
             Route::get('/dashboard/resumen', [VisibilityDataController::class, 'dashboardResumen'])

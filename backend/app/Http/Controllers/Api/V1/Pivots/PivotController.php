@@ -14,9 +14,6 @@ use App\Support\AuthErrorCodes;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-/**
- * @OA\Tag(name="Pivots", description="Motor metadata y dataset pivotable")
- */
 final class PivotController extends Controller
 {
     public function __construct(
@@ -29,10 +26,11 @@ final class PivotController extends Controller
     /**
      * @OA\Get(
      *     path="/api/v1/pivots/consultas/{consultaId}/metadata",
+     *     summary="Metadata efectiva de consulta pivot",
      *     tags={"Pivots"},
      *     security={{"sanctum":{}},{"tenant":{}}},
      *     @OA\Parameter(name="consultaId", in="path", required=true, @OA\Schema(type="string")),
-     *     @OA\Response(response=200, description="Metadata efectiva"),
+     *     @OA\Response(response=200, description="Metadata efectiva", @OA\JsonContent(ref="#/components/schemas/ApiEnvelopePivotMetadata")),
      *     @OA\Response(response=401, description="No autenticado"),
      *     @OA\Response(response=403, description="Sin permiso"),
      *     @OA\Response(response=404, description="Consulta no encontrada")
