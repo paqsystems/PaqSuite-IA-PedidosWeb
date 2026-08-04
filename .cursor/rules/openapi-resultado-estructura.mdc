@@ -1,0 +1,48 @@
+---
+description: OpenAPI — estructura tipada de resultado en envelope
+globs: backend/app/OpenApi/**/*.php,backend/OpenApi.php,backend/app/Http/Controllers/**/*.php,backend/tests/Feature/OpenApi*.php
+alwaysApply: false
+---
+
+# OpenAPI — estructura de `resultado`
+
+## Norma
+
+Todas las respuestas de negocio usan envelope `{ error, respuesta, resultado }`.
+
+Si `resultado` **puede contener datos** (objeto, lista o payload de negocio), el path OpenAPI **MUST** documentar esa estructura. Prohibido dejar solo `ApiEnvelope` genérico (`resultado: object` vacío) cuando el endpoint devuelve datos reales.
+
+Excepción válida: operaciones cuyo `resultado` es siempre `{}` → usar `ApiEnvelopeEmpty` (o equivalente) y dejarlo explícito.
+
+## Cómo documentar
+
+1. Definir schema del payload (`XxxResultado`, ítems de lista, etc.) en `backend/app/OpenApi/OpenApiSchemas.php`.
+2. Definir envelope compuesto `ApiEnvelopeXxx` con `allOf` = `ApiEnvelope` + `resultado` tipado (`$ref` o array/`items`).
+3. En el `@OA\Response(response=200, ...)` usar `ref="#/components/schemas/ApiEnvelopeXxx"`, no `ApiEnvelope`.
+4. Incluir `example` del envelope completo cuando ayude al consumidor (Swagger UI).
+
+## Request body
+
+Si el body tiene objetos anidados de negocio (`cabecera`, `renglones`, etc.), **MUST** tiparlos con schemas/`properties`. Prohibido `type: object` o `items: type: object` sin propiedades en contratos de carga/persistencia.
+
+## Checklist al agregar o tocar un endpoint
+
+- [ ] Path presente en OpenAPI
+- [ ] Tag de grupo acordado (nomenclatura del informe de revisión)
+- [ ] 200 con envelope tipado si hay datos en `resultado`
+- [ ] Body tipado si aplica
+- [ ] 401/403 (y 400 tenant) según seguridad MONO
+- [ ] Test de cobertura/calidad OpenAPI actualizado si existe aserción específica
+
+## Anti-patrones
+
+| Anti-patrón | Por qué |
+|-------------|---------|
+| `@OA\JsonContent(ref="#/components/schemas/ApiEnvelope")` en GET con lista/objeto | Swagger muestra `resultado: {}` engañoso |
+| `cabecera` / `renglones` como `object` vacío | No se puede integrar ni probar desde la UI |
+| Solo `example` sin `$ref`/properties de `resultado` | El example no sustituye el contrato tipado |
+
+## Referencia
+
+- Scaffold: `docs/_base/00-openapi-l5-swagger-scaffold.md`
+- Informe de gaps: `docs/06-operacion/openapi-revision-informe.md`

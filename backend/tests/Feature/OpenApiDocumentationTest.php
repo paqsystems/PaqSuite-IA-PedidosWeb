@@ -89,6 +89,159 @@ final class OpenApiDocumentationTest extends TestCase
         $this->assertSame([['sanctum' => []], ['tenant' => []]], $grabarOperation['security'] ?? null);
         $this->assertArrayHasKey('401', $grabarOperation['responses']);
         $this->assertArrayHasKey('403', $grabarOperation['responses']);
+
+        $grabarBodyRef = $grabarOperation['requestBody']['content']['application/json']['schema']['$ref']
+            ?? $grabarOperation['requestBody']['content']['application/json']['schema']['properties']
+            ?? null;
+        $this->assertNotNull($grabarBodyRef, 'POST /comprobantes/grabar debe tipar el request body');
+
+        $cabeceraSchema = $spec['components']['schemas']['ComprobanteCabeceraRequest']['properties'] ?? null;
+        $this->assertIsArray($cabeceraSchema);
+        $this->assertArrayHasKey('cod_cliente', $cabeceraSchema);
+        $this->assertArrayHasKey('lista_precios', $cabeceraSchema);
+        $this->assertArrayHasKey('bonif_1', $cabeceraSchema);
+
+        $renglonSchema = $spec['components']['schemas']['ComprobanteRenglonRequest']['properties'] ?? null;
+        $this->assertIsArray($renglonSchema);
+        $this->assertArrayHasKey('cod_articulo', $renglonSchema);
+        $this->assertArrayHasKey('cantidad', $renglonSchema);
+        $this->assertArrayHasKey('cantidad_venta', $renglonSchema);
+        $this->assertArrayHasKey('precio', $renglonSchema);
+
+        $clientesTags = $spec['paths']['/api/v1/clientes']['get']['tags'] ?? [];
+        $this->assertContains('Maestros y Tablas', $clientesTags);
+        $this->assertNotContains('Visibilidad', $clientesTags);
+        $this->assertNotContains('Maestros', $clientesTags);
+
+        $this->assertContains('Informes', $spec['paths']['/api/v1/consultas/stock']['get']['tags'] ?? []);
+        $this->assertContains('Parametros', $spec['paths']['/api/v1/config/parametros']['get']['tags'] ?? []);
+        $this->assertContains('Framework', $spec['paths']['/api/v1/health']['get']['tags'] ?? []);
+        $this->assertContains('Framework', $spec['paths']['/api/v1/user/menu']['get']['tags'] ?? []);
+        $this->assertContains('Framework', $spec['paths']['/api/v1/dashboard/resumen']['get']['tags'] ?? []);
+        $this->assertContains('Tratativas', $spec['paths']['/api/v1/motivos-cierre']['get']['tags'] ?? []);
+
+        foreach ([
+            '/api/v1/perfiles',
+            '/api/v1/condiciones-venta',
+            '/api/v1/transportes',
+            '/api/v1/listas-precios',
+            '/api/v1/clientes/{codCliente}/direcciones-entrega',
+        ] as $catalogPath) {
+            $this->assertArrayHasKey($catalogPath, $spec['paths'], "Falta path OpenAPI: {$catalogPath}");
+            $this->assertContains('Maestros y Tablas', $spec['paths'][$catalogPath]['get']['tags'] ?? []);
+        }
+
+        $informesEnvelopeRefs = [
+            '/api/v1/consultas/pedidos-ingresados' => 'ApiEnvelopeConsultaComprobantes',
+            '/api/v1/consultas/pedidos-pendientes' => 'ApiEnvelopeConsultaComprobantes',
+            '/api/v1/consultas/presupuestos' => 'ApiEnvelopeConsultaComprobantes',
+            '/api/v1/consultas/stock' => 'ApiEnvelopeConsultaStock',
+            '/api/v1/consultas/deuda' => 'ApiEnvelopeConsultaDeuda',
+            '/api/v1/consultas/cheques' => 'ApiEnvelopeConsultaCheques',
+            '/api/v1/consultas/historial-ventas' => 'ApiEnvelopeConsultaHistorialVentas',
+            '/api/v1/consultas/detalle-pedidos' => 'ApiEnvelopeConsultaDetallePedidos',
+        ];
+
+        foreach ($informesEnvelopeRefs as $path => $schemaName) {
+            $ref = $spec['paths'][$path]['get']['responses']['200']['content']['application/json']['schema']['$ref'] ?? null;
+            $this->assertSame(
+                '#/components/schemas/'.$schemaName,
+                $ref,
+                "Informes {$path} debe tipar resultado con {$schemaName}"
+            );
+            $this->assertArrayHasKey($schemaName, $spec['components']['schemas'] ?? []);
+        }
+
+        $this->assertArrayHasKey('items', $spec['components']['schemas']['ConsultaListadoStockResultado']['properties'] ?? []);
+        $this->assertArrayHasKey('codArticulo', $spec['components']['schemas']['ConsultaStockItem']['properties'] ?? []);
+        $this->assertArrayHasKey('saldo', $spec['components']['schemas']['ConsultaDeudaItem']['properties'] ?? []);
+
+        $getsTipados = [
+            '/api/v1/articulos' => 'ApiEnvelopeArticulosCarga',
+            '/api/v1/clientes/{codCliente}/cabecera-inicial' => 'ApiEnvelopeCabeceraInicial',
+            '/api/v1/config/parametros' => 'ApiEnvelopeParametrosConsulta',
+            '/api/v1/config/parametros-carga' => 'ApiEnvelopeParametrosCarga',
+            '/api/v1/dashboard/operativo' => 'ApiEnvelopeDashboardOperativo',
+            '/api/v1/integracion/logs' => 'ApiEnvelopeIntegracionLogs',
+            '/api/v1/motivos-cierre' => 'ApiEnvelopeMotivosCierre',
+            '/api/v1/pedidos/{cod_pedido}' => 'ApiEnvelopeComprobanteDetalle',
+            '/api/v1/presupuestos/{cod}/tratativas' => 'ApiEnvelopeTratativasListado',
+            '/api/v1/presupuestos/{cod_pedido}' => 'ApiEnvelopeComprobanteDetalle',
+            '/api/v1/excel-import/historial' => 'ApiEnvelopeExcelImportHistorial',
+            '/api/v1/excel-import/lotes/{guidImportacion}' => 'ApiEnvelopeExcelImportLoteDetalle',
+            '/api/v1/excel-import/procesos/{codigoProceso}' => 'ApiEnvelopeExcelImportProcesoMetadata',
+            '/api/v1/chat-assistant/me/configurations' => 'ApiEnvelopeChatAssistantConfigurationsList',
+            '/api/v1/pivots/consultas/{consultaId}/metadata' => 'ApiEnvelopePivotMetadata',
+        ];
+
+        foreach ($getsTipados as $path => $schemaName) {
+            $this->assertArrayHasKey($path, $spec['paths'], "Falta path OpenAPI: {$path}");
+            $ref = $spec['paths'][$path]['get']['responses']['200']['content']['application/json']['schema']['$ref'] ?? null;
+            $this->assertSame(
+                '#/components/schemas/'.$schemaName,
+                $ref,
+                "GET {$path} debe tipar resultado con {$schemaName}"
+            );
+        }
+
+        $plantillaMedia = $spec['paths']['/api/v1/excel-import/procesos/{codigoProceso}/plantilla']['get']['responses']['200']['content'] ?? [];
+        $this->assertArrayHasKey(
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            $plantillaMedia,
+            'GET plantilla debe documentar response binario xlsx'
+        );
+
+        $extraGets = [
+            '/api/v1/config/public' => 'ApiEnvelopePublicConfig',
+            '/api/v1/grid-layouts' => 'ApiEnvelopeGridLayoutsList',
+            '/api/v1/grid-layouts/active' => 'ApiEnvelopeGridLayoutActive',
+            '/api/v1/pivot-configs' => 'ApiEnvelopePivotConfigsList',
+            '/api/v1/pivot-configs/active' => 'ApiEnvelopePivotConfigActive',
+            '/api/v1/dashboard/resumen-mensual' => 'ApiEnvelopeDashboardResumenMensual',
+            '/api/v1/excel-import/lotes/{guidImportacion}/filas' => 'ApiEnvelopeExcelStagingFilas',
+            '/api/v1/excel-import/lotes/{guidImportacion}/filas/validas' => 'ApiEnvelopeExcelStagingFilasValidas',
+            '/api/v1/excel-import/lotes/{guidImportacion}/columnas' => 'ApiEnvelopeExcelStagingColumnas',
+            '/api/v1/admin/roles' => 'ApiEnvelopeAdminRolesList',
+            '/api/v1/admin/roles/{id}/atributos' => 'ApiEnvelopeAdminRolAtributos',
+            '/api/v1/admin/permisos' => 'ApiEnvelopeAdminPermisosList',
+            '/api/v1/admin/usuarios' => 'ApiEnvelopeAdminUsuariosLookup',
+        ];
+
+        foreach ($extraGets as $path => $schemaName) {
+            $this->assertArrayHasKey($path, $spec['paths'], "Falta path OpenAPI: {$path}");
+            $ref = $spec['paths'][$path]['get']['responses']['200']['content']['application/json']['schema']['$ref'] ?? null;
+            $this->assertSame(
+                '#/components/schemas/'.$schemaName,
+                $ref,
+                "GET {$path} debe tipar resultado con {$schemaName}"
+            );
+        }
+
+        $exportErroresMedia = $spec['paths']['/api/v1/excel-import/lotes/{guidImportacion}/export-errores']['get']['responses']['200']['content'] ?? [];
+        $this->assertArrayHasKey(
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            $exportErroresMedia,
+            'GET export-errores debe documentar response binario xlsx'
+        );
+
+        $adminTags = $spec['paths']['/api/v1/admin/roles']['get']['tags'] ?? [];
+        $this->assertContains('Admin', $adminTags);
+
+        $this->assertContains('Excel Import', $spec['paths']['/api/v1/excel-import/historial']['get']['tags'] ?? []);
+        $this->assertContains('Chat Assistant', $spec['paths']['/api/v1/chat-assistant/providers']['get']['tags'] ?? []);
+        $this->assertContains('Pedidos Web', $spec['paths']['/api/v1/comprobantes/grabar']['post']['tags'] ?? []);
+
+        $tagNames = array_column($spec['tags'] ?? [], 'name');
+        $sorted = $tagNames;
+        sort($sorted, SORT_STRING);
+        $this->assertSame(
+            $sorted,
+            $tagNames,
+            'Los tags OpenAPI deben declararse en orden alfabético'
+        );
+        $this->assertNotContains('ExcelImport', $tagNames);
+        $this->assertNotContains('ChatAssistant', $tagNames);
+        $this->assertNotContains('PedidosWeb', $tagNames);
     }
 
     public function testGeneratedSpecDocumentsTransversalSecurityRules(): void

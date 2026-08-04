@@ -122,82 +122,122 @@ final class CabeceraInicialService
     }
 
     /**
+     * @return list<array{cod_perfil: string, descripcion: string}>
+     */
+    public function listPerfiles(): array
+    {
+        if (! Schema::hasTable('pq_pedidosweb_perfil')) {
+            return [];
+        }
+
+        return PqPedidoswebPerfil::query()
+            ->orderBy('descripcion')
+            ->get()
+            ->map(static fn ($row): array => [
+                'cod_perfil' => (string) $row->cod_perfil,
+                'descripcion' => (string) $row->descripcion,
+            ])
+            ->values()
+            ->all();
+    }
+
+    /**
+     * @return list<array{codigo: int, descripcion: string}>
+     */
+    public function listCondicionesVenta(): array
+    {
+        if (! Schema::hasTable('pq_pedidosweb_condventa')) {
+            return [];
+        }
+
+        return PqPedidoswebCondicionVenta::query()
+            ->orderBy('descripcion')
+            ->get()
+            ->map(static fn ($row): array => [
+                'codigo' => (int) $row->codigo,
+                'descripcion' => (string) $row->descripcion,
+            ])
+            ->values()
+            ->all();
+    }
+
+    /**
+     * @return list<array{codigo: string, descripcion: string}>
+     */
+    public function listTransportes(): array
+    {
+        if (! Schema::hasTable('pq_pedidosweb_transportes')) {
+            return [];
+        }
+
+        return PqPedidoswebTransporte::query()
+            ->orderBy('descripcion')
+            ->get()
+            ->map(static fn ($row): array => [
+                'codigo' => (string) $row->codigo,
+                'descripcion' => (string) $row->descripcion,
+            ])
+            ->values()
+            ->all();
+    }
+
+    /**
+     * @return list<array{cod_lista: int, descripcion: string, moneda: int, incluye_iva: bool}>
+     */
+    public function listListasPrecios(): array
+    {
+        if (! Schema::hasTable('pq_pedidosweb_listaprecios')) {
+            return [];
+        }
+
+        return PqPedidoswebListaPrecios::query()
+            ->orderBy('descripcion')
+            ->get()
+            ->map(static fn ($row): array => [
+                'cod_lista' => (int) $row->cod_lista,
+                'descripcion' => (string) $row->descripcion,
+                'moneda' => (int) $row->moneda,
+                'incluye_iva' => (bool) $row->incluye_iva,
+            ])
+            ->values()
+            ->all();
+    }
+
+    /**
+     * @return list<array{id_de: int, direccion: string, localidad: string, habitual: bool}>
+     */
+    public function listDireccionesEntrega(string $codCliente): array
+    {
+        if (! Schema::hasTable('pq_pedidosweb_clientesde')) {
+            return [];
+        }
+
+        return PqPedidoswebClienteDireccionEntrega::query()
+            ->where('cod_client', $codCliente)
+            ->orderByDesc('habitual')
+            ->orderBy('direccion')
+            ->get()
+            ->map(static fn ($row): array => [
+                'id_de' => (int) $row->id_de,
+                'direccion' => trim((string) $row->direccion),
+                'localidad' => (string) ($row->localidad ?? ''),
+                'habitual' => (bool) $row->habitual,
+            ])
+            ->values()
+            ->all();
+    }
+
+    /**
      * @return array<string, list<array<string, mixed>>>
      */
     private function buildCatalogos(string $codCliente): array
     {
-        $condiciones = Schema::hasTable('pq_pedidosweb_condventa')
-            ? PqPedidoswebCondicionVenta::query()
-                ->orderBy('descripcion')
-                ->get()
-                ->map(static fn ($row): array => [
-                    'codigo' => (int) $row->codigo,
-                    'descripcion' => (string) $row->descripcion,
-                ])
-                ->values()
-                ->all()
-            : [];
-
-        $transportes = Schema::hasTable('pq_pedidosweb_transportes')
-            ? PqPedidoswebTransporte::query()
-                ->orderBy('descripcion')
-                ->get()
-                ->map(static fn ($row): array => [
-                    'codigo' => (string) $row->codigo,
-                    'descripcion' => (string) $row->descripcion,
-                ])
-                ->values()
-                ->all()
-            : [];
-
-        $listas = Schema::hasTable('pq_pedidosweb_listaprecios')
-            ? PqPedidoswebListaPrecios::query()
-                ->orderBy('descripcion')
-                ->get()
-                ->map(static fn ($row): array => [
-                    'cod_lista' => (int) $row->cod_lista,
-                    'descripcion' => (string) $row->descripcion,
-                    'moneda' => (int) $row->moneda,
-                    'incluye_iva' => (bool) $row->incluye_iva,
-                ])
-                ->values()
-                ->all()
-            : [];
-
-        $direcciones = Schema::hasTable('pq_pedidosweb_clientesde')
-            ? PqPedidoswebClienteDireccionEntrega::query()
-                ->where('cod_client', $codCliente)
-                ->orderByDesc('habitual')
-                ->orderBy('direccion')
-                ->get()
-                ->map(static fn ($row): array => [
-                    'id_de' => (int) $row->id_de,
-                    'direccion' => trim((string) $row->direccion),
-                    'localidad' => (string) ($row->localidad ?? ''),
-                    'habitual' => (bool) $row->habitual,
-                ])
-                ->values()
-                ->all()
-            : [];
-
-        $perfiles = Schema::hasTable('pq_pedidosweb_perfil')
-            ? PqPedidoswebPerfil::query()
-                ->orderBy('descripcion')
-                ->get()
-                ->map(static fn ($row): array => [
-                    'cod_perfil' => (string) $row->cod_perfil,
-                    'descripcion' => (string) $row->descripcion,
-                ])
-                ->values()
-                ->all()
-            : [];
-
         return [
-            'condicionesVenta' => $condiciones,
-            'transportes' => $transportes,
-            'listasPrecios' => $listas,
-            'direccionesEntrega' => $direcciones,
-            'perfiles' => $perfiles,
+            'condicionesVenta' => $this->listCondicionesVenta(),
+            'transportes' => $this->listTransportes(),
+            'listasPrecios' => $this->listListasPrecios(),
+            'direccionesEntrega' => $this->listDireccionesEntrega($codCliente),
+            'perfiles' => $this->listPerfiles(),
         ];
     }
 

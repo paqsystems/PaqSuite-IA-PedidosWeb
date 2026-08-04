@@ -19,7 +19,7 @@ final class ChatAssistantProviderCatalogController extends Controller
      * @OA\Get(
      *     path="/api/v1/chat-assistant/providers",
      *     summary="Catálogo de proveedores IA activos",
-     *     tags={"ChatAssistant"},
+     *     tags={"Chat Assistant"},
      *     security={{"sanctum":{}},{"tenant":{}}},
      *     @OA\Response(
      *         response=200,

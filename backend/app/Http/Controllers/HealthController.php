@@ -11,7 +11,7 @@ final class HealthController extends Controller
      * @OA\Get(
      *     path="/api/v1/health",
      *     summary="Health check del servicio",
-     *     tags={"System"},
+     *     tags={"Framework"},
      *     @OA\Response(response=200, description="Servicio operativo", @OA\JsonContent(ref="#/components/schemas/ApiEnvelopeHealth")),
      * )
      */

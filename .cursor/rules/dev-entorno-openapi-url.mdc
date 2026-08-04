@@ -1,0 +1,39 @@
+---
+description: Al iniciar el entorno de desarrollo, publicar siempre la URL de OpenAPI/Swagger
+alwaysApply: true
+---
+
+# Entorno de desarrollo — URL OpenAPI obligatoria
+
+## Norma
+
+Cuando el usuario pida **iniciar el entorno de desarrollo** (o equivalente: levantar backend/frontend, `artisan serve`, `npm run dev`), al informar que el entorno quedó listo **MUST** publicar de forma explícita y visible:
+
+1. URL del frontend
+2. URL del backend / health
+3. **URL de OpenAPI (Swagger UI)**
+
+No omitir OpenAPI aunque el usuario no la pida en ese mensaje.
+
+## URL canónica (PedidosWeb local)
+
+Con el backend en el puerto habitual del proyecto (`8088`):
+
+- OpenAPI UI: `http://127.0.0.1:8088/api/documentation`
+- Spec JSON (si aplica): `http://127.0.0.1:8088/docs?api-docs.json` o la ruta L5-Swagger configurada en `backend/config/l5-swagger.php`
+
+Si el puerto del `artisan serve` cambia, ajustar el host/puerto de la URL OpenAPI al puerto real en uso.
+
+## Formato mínimo al confirmar el entorno
+
+Incluir una tabla o lista con al menos:
+
+| Servicio | URL |
+|---|---|
+| Frontend | `http://localhost:3010` |
+| Backend | `http://127.0.0.1:8088` |
+| OpenAPI | `http://127.0.0.1:8088/api/documentation` |
+
+## Fuera de alcance
+
+No regenerar OpenAPI (`composer openapi` / `l5-swagger:generate`) solo por publicar la URL, salvo que el usuario lo pida o la UI falle por spec desactualizada.
