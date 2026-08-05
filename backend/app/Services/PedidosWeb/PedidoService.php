@@ -513,8 +513,9 @@ final class PedidoService
             $attributes['fecha_creacion'] = $timestamp;
             $attributes['usuario_creacion'] = $user->codigo;
             $attributes['nro_visible'] = $nroVisible;
-            $attributes['tal_pedido_tango'] = 1;
-            $attributes['nro_pedido_tango'] = substr($codPedido, 0, 20);
+            // Talonario y número ERP los completa la integración externa a Tango.
+            $attributes['tal_pedido_tango'] = null;
+            $attributes['nro_pedido_tango'] = null;
             $cabecera = $this->pedidoRepository->insertCabecera($attributes);
         } else {
             $this->pedidoRepository->updateCabecera($codPedido, $attributes);
