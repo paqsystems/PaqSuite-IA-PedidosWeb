@@ -7,7 +7,7 @@
 | **Epica** | 001-Generaliddes |
 | **Prioridad** | Must |
 | **Dependencias** | TR-GEN-02-modelo-roles-permisos-seed, TR-GEN-02-login-sesion, TR-GEN-02-politicas-endpoints |
-| **Estado** | Finalizado |
+| **Estado** | En Control Calidad |
 | **Ultima actualizacion** | 2026-05-31 (D implementado) |
 
 **Origen:** [HU-GEN-02-visibilidad-datos-pedidosweb](../../03-historias-usuario/001-Generaliddes/HU-GEN-02-visibilidad-datos-pedidosweb.md)  

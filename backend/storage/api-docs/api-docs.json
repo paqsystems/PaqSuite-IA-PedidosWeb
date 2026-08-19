@@ -1717,6 +1717,57 @@
                 ]
             }
         },
+        "/api/v1/clientes/{codCliente}": {
+            "get": {
+                "tags": [
+                    "Maestros y Tablas"
+                ],
+                "summary": "Cliente visible según perfil funcional",
+                "operationId": "8b6ea5c3be93f6d47e4692afb8d87a99",
+                "parameters": [
+                    {
+                        "name": "codCliente",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Cliente visible",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelopeVisibleClient"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Tenant invalido"
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "403": {
+                        "description": "Sin permiso base de consulta"
+                    },
+                    "404": {
+                        "description": "Cliente inexistente o fuera de alcance"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
         "/api/v1/comprobantes/{id}": {
             "get": {
                 "tags": [
@@ -7292,6 +7343,33 @@
                 },
                 "type": "object"
             },
+            "VisibleClientContactItem": {
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "codContacto": {
+                        "type": "string",
+                        "example": "C01"
+                    },
+                    "nombre": {
+                        "type": "string",
+                        "example": "Ana Perez"
+                    },
+                    "telefono": {
+                        "type": "string",
+                        "example": "1140000000",
+                        "nullable": true
+                    },
+                    "mail": {
+                        "type": "string",
+                        "example": "ana@paqsuite.local",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
             "VisibleClientItem": {
                 "properties": {
                     "codCliente": {
@@ -7316,6 +7394,12 @@
                         "type": "string",
                         "example": "cliente.mvp@paqsuite.local",
                         "nullable": true
+                    },
+                    "contactos": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/VisibleClientContactItem"
+                        }
                     }
                 },
                 "type": "object"
@@ -7650,7 +7734,16 @@
                             "nombre": "Cliente MVP",
                             "fantasia": "Cliente MVP",
                             "codVendedor": "VENACOT01",
-                            "email": "cliente.mvp@paqsuite.local"
+                            "email": "cliente.mvp@paqsuite.local",
+                            "contactos": [
+                                {
+                                    "id": 1,
+                                    "codContacto": "C01",
+                                    "nombre": "Ana Perez",
+                                    "telefono": "1140000000",
+                                    "mail": "ana@paqsuite.local"
+                                }
+                            ]
                         }
                     ]
                 },
@@ -7665,6 +7758,41 @@
                                 "items": {
                                     "$ref": "#/components/schemas/VisibleClientItem"
                                 }
+                            }
+                        },
+                        "type": "object"
+                    }
+                ]
+            },
+            "ApiEnvelopeVisibleClient": {
+                "example": {
+                    "error": 0,
+                    "respuesta": "ok",
+                    "resultado": {
+                        "codCliente": "CLIMVP001",
+                        "nombre": "Cliente MVP",
+                        "fantasia": "Cliente MVP",
+                        "codVendedor": "VENACOT01",
+                        "email": "cliente.mvp@paqsuite.local",
+                        "contactos": [
+                            {
+                                "id": 1,
+                                "codContacto": "C01",
+                                "nombre": "Ana Perez",
+                                "telefono": "1140000000",
+                                "mail": "ana@paqsuite.local"
+                            }
+                        ]
+                    }
+                },
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/ApiEnvelope"
+                    },
+                    {
+                        "properties": {
+                            "resultado": {
+                                "$ref": "#/components/schemas/VisibleClientItem"
                             }
                         },
                         "type": "object"

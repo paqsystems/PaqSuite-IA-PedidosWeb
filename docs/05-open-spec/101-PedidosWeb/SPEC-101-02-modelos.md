@@ -3,7 +3,7 @@
 | Campo | Valor |
 |-------|--------|
 | **SPEC madre** | [PedidosWeb_SPEC_MVP.md](PedidosWeb_SPEC_MVP.md) |
-| **Estado** | Finalizado |
+| **Estado** | En revisión |
 | **Prioridad épica** | Must |
 
 ## Objetivo

@@ -4,9 +4,12 @@ namespace Tests\Feature;
 
 use App\Models\PqPedidoswebCliente;
 use App\Models\PqPermiso;
+use App\Models\PqRol;
 use App\Models\PqRolAtributo;
+use App\Models\User;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Schema;
 use Tests\TestCase;
 
@@ -21,9 +24,10 @@ final class VisibilityDataTest extends TestCase
         $this->seedPassword = (string) config('paqsuite_seed.mvpPassword');
 
         $this->artisan('paqsuite:seed-menus-mvp')->assertExitCode(0);
-        $this->artisan('paqsuite:seed-seguridad-mvp')->assertExitCode(0);
+        $this->ensureSeguridadMvpForVisibilityTests();
 
         $this->ensureComprobanteReferences();
+        $this->ensureContactosTable();
 
         $this->upsertCliente('CLI-VEN-A', 'Cliente Vendedor A', 'VENACOT01');
         $this->upsertCliente('CLI-VEN-B', 'Cliente Vendedor B', 'VENSINM01');
@@ -91,17 +95,87 @@ final class VisibilityDataTest extends TestCase
 
     public function testClientesWithoutRepoPermissionReturns403(): void
     {
-        $permiso = PqPermiso::query()
-            ->with('rol')
-            ->whereHas('user', fn ($query) => $query->where('codigo', 'cliente.mvp'))
-            ->firstOrFail();
-
-        PqRolAtributo::query()
-            ->where('id_rol', $permiso->rol->id)
-            ->where('procedimiento', (string) config('paqsuite_visibility.procedimientos.clientes'))
-            ->delete();
+        $this->revokeClientesRepoPermissionFor('cliente.mvp');
 
         $this->getJson('/api/v1/clientes', $this->authHeadersFor('cliente.mvp'))
+            ->assertForbidden()
+            ->assertJsonPath('respuesta', 'auth.noPermission');
+    }
+
+    public function testClientesIncludesEmptyContactosWhenClienteHasNone(): void
+    {
+        $response = $this->getJson('/api/v1/clientes', $this->authHeadersFor('cliente.mvp'));
+
+        $response->assertOk();
+
+        $cliente = collect($response->json('resultado'))
+            ->first(fn (array $item): bool => $item['codCliente'] === 'CLIMVP001');
+
+        $this->assertIsArray($cliente);
+        $this->assertSame([], $cliente['contactos']);
+    }
+
+    public function testClientesIncludesContactosOnlyForVisibleClients(): void
+    {
+        $this->upsertContacto('CLI-VEN-A', 'C02', 'Beta', '222', 'beta@paqsuite.local');
+        $this->upsertContacto('CLI-VEN-A', 'C01', 'Ana', '111', 'ana@paqsuite.local');
+        $this->upsertContacto('CLI-VEN-B', 'X01', 'Ajeno', '999', 'ajeno@paqsuite.local');
+
+        $response = $this->getJson('/api/v1/clientes', $this->authHeadersFor('vendedor.acotado.mvp'));
+
+        $response->assertOk();
+
+        $clientes = collect($response->json('resultado'));
+        $visible = $clientes->first(fn (array $item): bool => $item['codCliente'] === 'CLI-VEN-A');
+
+        $this->assertIsArray($visible);
+        $this->assertCount(2, $visible['contactos']);
+        $this->assertSame('C01', $visible['contactos'][0]['codContacto']);
+        $this->assertSame('Ana', $visible['contactos'][0]['nombre']);
+        $this->assertSame('111', $visible['contactos'][0]['telefono']);
+        $this->assertSame('ana@paqsuite.local', $visible['contactos'][0]['mail']);
+        $this->assertFalse($clientes->contains(fn (array $item): bool => $item['codCliente'] === 'CLI-VEN-B'));
+        $this->assertFalse(
+            $clientes->contains(fn (array $item): bool => collect($item['contactos'] ?? [])
+                ->contains(fn (array $contacto): bool => $contacto['codContacto'] === 'X01'))
+        );
+    }
+
+    public function testShowClienteReturnsItemWithContactos(): void
+    {
+        $this->upsertContacto('CLI-VEN-A', 'C01', 'Ana', '111', 'ana@paqsuite.local');
+
+        $response = $this->getJson('/api/v1/clientes/CLI-VEN-A', $this->authHeadersFor('vendedor.acotado.mvp'));
+
+        $response->assertOk()
+            ->assertJsonPath('resultado.codCliente', 'CLI-VEN-A')
+            ->assertJsonPath('resultado.contactos.0.codContacto', 'C01')
+            ->assertJsonPath('resultado.contactos.0.nombre', 'Ana');
+
+        $this->assertIsInt($response->json('resultado.contactos.0.id'));
+    }
+
+    public function testShowClienteOutsideVisibleUniverseReturns404(): void
+    {
+        $this->upsertContacto('CLI-VEN-B', 'X01', 'Ajeno', '999', 'ajeno@paqsuite.local');
+
+        $this->getJson('/api/v1/clientes/CLI-VEN-B', $this->authHeadersFor('vendedor.acotado.mvp'))
+            ->assertStatus(404)
+            ->assertJsonPath('respuesta', 'resource.notFound');
+    }
+
+    public function testShowClienteRequiresAuthentication(): void
+    {
+        $this->getJson('/api/v1/clientes/CLI-VEN-A', $this->tenantHeaders())
+            ->assertUnauthorized()
+            ->assertJsonPath('respuesta', 'auth.unauthenticated');
+    }
+
+    public function testShowClienteWithoutRepoPermissionReturns403(): void
+    {
+        $this->revokeClientesRepoPermissionFor('cliente.mvp');
+
+        $this->getJson('/api/v1/clientes/CLIMVP001', $this->authHeadersFor('cliente.mvp'))
             ->assertForbidden()
             ->assertJsonPath('respuesta', 'auth.noPermission');
     }
@@ -177,6 +251,89 @@ final class VisibilityDataTest extends TestCase
                 'id_de' => null,
                 'cod_transpor' => 'MVP',
                 'lista_precios' => 1,
+            ]
+        );
+    }
+
+    private function revokeClientesRepoPermissionFor(string $codigo): void
+    {
+        $permisos = PqPermiso::query()
+            ->with('rol')
+            ->whereHas('user', fn ($query) => $query->where('codigo', $codigo))
+            ->where('id_empresa', (int) config('paqsuite_seed.monoEmpresaId'))
+            ->get();
+
+        $this->assertFalse($permisos->isEmpty(), "Sin PqPermiso para {$codigo} en empresa MONO");
+
+        foreach ($permisos as $permiso) {
+            if ($permiso->rol === null) {
+                continue;
+            }
+
+            PqRol::query()
+                ->where('id', $permiso->rol->id)
+                ->update(['acceso_total' => false]);
+
+            PqRolAtributo::query()
+                ->where('id_rol', $permiso->rol->id)
+                ->where('procedimiento', (string) config('paqsuite_visibility.procedimientos.clientes'))
+                ->delete();
+        }
+    }
+
+    /**
+     * Seed MVP puede fallar en Ankas si locale/theme de usuarios seed divergieron del catálogo.
+     * Si el seed no cierra OK, se deja la password de test en transacción (rollback al terminar).
+     */
+    private function ensureSeguridadMvpForVisibilityTests(): void
+    {
+        if ($this->artisan('paqsuite:seed-seguridad-mvp')->run() === 0) {
+            return;
+        }
+
+        $passwordHash = Hash::make($this->seedPassword);
+        $updated = User::query()
+            ->whereIn('codigo', ['cliente.mvp', 'vendedor.acotado.mvp'])
+            ->update(['password_hash' => $passwordHash]);
+
+        if ($updated < 2) {
+            $this->fail('seed-seguridad-mvp falló y no están cliente.mvp / vendedor.acotado.mvp.');
+        }
+    }
+
+    private function ensureContactosTable(): void
+    {
+        if (Schema::hasTable('pq_pedidosweb_clientescontactos')) {
+            return;
+        }
+
+        Schema::create('pq_pedidosweb_clientescontactos', function ($table): void {
+            $table->increments('id');
+            $table->string('cod_client', 20);
+            $table->string('cod_contacto', 50);
+            $table->string('nombre', 120);
+            $table->string('telefono', 50)->nullable();
+            $table->string('mail', 120)->nullable();
+            $table->unique(['cod_client', 'cod_contacto'], 'UQ_pw_clicont_cli_cod');
+        });
+    }
+
+    private function upsertContacto(
+        string $codCliente,
+        string $codContacto,
+        string $nombre,
+        ?string $telefono,
+        ?string $mail,
+    ): void {
+        DB::table('pq_pedidosweb_clientescontactos')->updateOrInsert(
+            [
+                'cod_client' => $codCliente,
+                'cod_contacto' => $codContacto,
+            ],
+            [
+                'nombre' => $nombre,
+                'telefono' => $telefono,
+                'mail' => $mail,
             ]
         );
     }

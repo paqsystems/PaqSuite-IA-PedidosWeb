@@ -64,6 +64,50 @@ final class VisibilityDataController extends Controller
 
     /**
      * @OA\Get(
+     *     path="/api/v1/clientes/{codCliente}",
+     *     summary="Cliente visible según perfil funcional",
+     *     tags={"Maestros y Tablas"},
+     *     security={{"sanctum":{}},{"tenant":{}}},
+     *     @OA\Parameter(name="codCliente", in="path", required=true, @OA\Schema(type="string")),
+     *     @OA\Response(response=200, description="Cliente visible", @OA\JsonContent(ref="#/components/schemas/ApiEnvelopeVisibleClient")),
+     *     @OA\Response(response=400, description="Tenant invalido"),
+     *     @OA\Response(response=401, description="No autenticado"),
+     *     @OA\Response(response=403, description="Sin permiso base de consulta"),
+     *     @OA\Response(response=404, description="Cliente inexistente o fuera de alcance")
+     * )
+     */
+    public function showClient(Request $request, string $codCliente): JsonResponse
+    {
+        $user = $request->user();
+
+        if ($user === null) {
+            return ApiResponse::error(
+                AuthErrorCodes::unauthenticated,
+                'auth.unauthenticated',
+                401
+            );
+        }
+
+        try {
+            $this->visibilityPermissionGuard->ensureRepoPermission(
+                $user,
+                (string) config('paqsuite_visibility.procedimientos.clientes')
+            );
+
+            $resultado = $this->visibilityDataService->findVisibleClient($user, $codCliente);
+        } catch (AuthFlowException $exception) {
+            return ApiResponse::error(
+                $exception->errorCode(),
+                $exception->respuestaKey(),
+                $exception->httpStatus()
+            );
+        }
+
+        return ApiResponse::success($resultado);
+    }
+
+    /**
+     * @OA\Get(
      *     path="/api/v1/comprobantes/{id}",
  *     summary="Comprobante visible según perfil funcional",
  *     tags={"Pedidos Web"},

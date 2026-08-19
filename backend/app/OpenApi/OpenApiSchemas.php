@@ -103,13 +103,28 @@ namespace App\OpenApi;
  * )
  *
  * @OA\Schema(
+ *     schema="VisibleClientContactItem",
+ *     type="object",
+ *     @OA\Property(property="id", type="integer", example=1),
+ *     @OA\Property(property="codContacto", type="string", example="C01"),
+ *     @OA\Property(property="nombre", type="string", example="Ana Perez"),
+ *     @OA\Property(property="telefono", type="string", nullable=true, example="1140000000"),
+ *     @OA\Property(property="mail", type="string", nullable=true, example="ana@paqsuite.local")
+ * )
+ *
+ * @OA\Schema(
  *     schema="VisibleClientItem",
  *     type="object",
  *     @OA\Property(property="codCliente", type="string", example="CLIMVP001"),
  *     @OA\Property(property="nombre", type="string", example="Cliente MVP"),
  *     @OA\Property(property="fantasia", type="string", nullable=true, example="Cliente MVP"),
  *     @OA\Property(property="codVendedor", type="string", nullable=true, example="VENACOT01"),
- *     @OA\Property(property="email", type="string", nullable=true, example="cliente.mvp@paqsuite.local")
+ *     @OA\Property(property="email", type="string", nullable=true, example="cliente.mvp@paqsuite.local"),
+ *     @OA\Property(
+ *         property="contactos",
+ *         type="array",
+ *         @OA\Items(ref="#/components/schemas/VisibleClientContactItem")
+ *     )
  * )
  *
  * @OA\Schema(
@@ -341,7 +356,47 @@ namespace App\OpenApi;
  *                 "nombre": "Cliente MVP",
  *                 "fantasia": "Cliente MVP",
  *                 "codVendedor": "VENACOT01",
- *                 "email": "cliente.mvp@paqsuite.local"
+ *                 "email": "cliente.mvp@paqsuite.local",
+ *                 "contactos": {
+ *                     {
+ *                         "id": 1,
+ *                         "codContacto": "C01",
+ *                         "nombre": "Ana Perez",
+ *                         "telefono": "1140000000",
+ *                         "mail": "ana@paqsuite.local"
+ *                     }
+ *                 }
+ *             }
+ *         }
+ *     }
+ * )
+ *
+ * @OA\Schema(
+ *     schema="ApiEnvelopeVisibleClient",
+ *     allOf={
+ *         @OA\Schema(ref="#/components/schemas/ApiEnvelope"),
+ *         @OA\Schema(
+ *             type="object",
+ *             @OA\Property(property="resultado", ref="#/components/schemas/VisibleClientItem")
+ *         )
+ *     },
+ *     example={
+ *         "error": 0,
+ *         "respuesta": "ok",
+ *         "resultado": {
+ *             "codCliente": "CLIMVP001",
+ *             "nombre": "Cliente MVP",
+ *             "fantasia": "Cliente MVP",
+ *             "codVendedor": "VENACOT01",
+ *             "email": "cliente.mvp@paqsuite.local",
+ *             "contactos": {
+ *                 {
+ *                     "id": 1,
+ *                     "codContacto": "C01",
+ *                     "nombre": "Ana Perez",
+ *                     "telefono": "1140000000",
+ *                     "mail": "ana@paqsuite.local"
+ *                 }
  *             }
  *         }
  *     }
