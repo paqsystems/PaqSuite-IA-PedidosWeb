@@ -155,11 +155,12 @@ Campos:
 | cod_login | Login asociado si el usuario es cliente |
 | e_mail | Mail cliente |
 | razon_soci | Razón social (consulta deuda y mails) |
-| leyenda_1..5 | Leyendas por defecto |
+|     leyenda_1..5 | Leyendas por defecto |
 
 Relaciones:
 
 - Cliente 1:N direcciones de entrega.
+- Cliente 1:N contactos (`pq_pedidosweb_clientescontactos`).
 - Cliente 1:N pedidos/presupuestos.
 - Cliente N:1 vendedor.
 - Cliente N:1 lista de precios.
@@ -187,6 +188,33 @@ Campos:
 | c_postal | Código postal |
 | cod_provin | Provincia |
 | habitual | Indica dirección habitual |
+
+### 3.2.1 pq_pedidosweb_clientescontactos
+
+Contactos del cliente para exposición en API de terceros (`GET /api/v1/clientes` y `GET /api/v1/clientes/{codCliente}`). PedidosWeb no consume este nodo en UI de carga.
+
+Clave primaria:
+
+- id (IDENTITY)
+
+Unique:
+
+- (cod_client, cod_contacto)
+
+Campos:
+
+| Campo | Descripción |
+|---|---|
+| id | Identidad numérica (API `id`) |
+| cod_client | Cliente (mismo tipo que `pq_pedidosweb_clientes.cod_client`) |
+| cod_contacto | Código de contacto en el cliente |
+| nombre | Nombre del contacto |
+| telefono | Teléfono (nullable) |
+| mail | Mail (nullable) |
+
+Relaciones:
+
+- Contacto N:1 cliente.
 
 ### 3.3 pq_pedidosweb_vendedores
 

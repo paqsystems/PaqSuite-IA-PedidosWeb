@@ -159,6 +159,7 @@ async function loadClientesFromApi(): Promise<ClienteOption[]> {
   const payload = response.resultado;
   const rows = Array.isArray(payload) ? payload : (payload.items ?? []);
 
+  // CC PQ #11: `contactos` llega en el API y no se mapea al selector de carga.
   return ordenarClientes(
     rows.map((cliente) => ({
       codCliente: cliente.codCliente ?? cliente.codigo ?? '',

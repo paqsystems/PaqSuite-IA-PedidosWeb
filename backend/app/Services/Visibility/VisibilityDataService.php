@@ -3,10 +3,12 @@
 namespace App\Services\Visibility;
 
 use App\Exceptions\AuthFlowException;
+use App\Models\PqPedidoswebClienteContacto;
 use App\Models\PqPedidoswebPedidoCabecera;
 use App\Models\User;
 use App\Support\VisibilityErrorCodes;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Schema;
 
 final class VisibilityDataService
 {
@@ -15,24 +17,51 @@ final class VisibilityDataService
     ) {}
 
     /**
+     * Lectura de maestros vía Eloquent (misma excepción SP que GET /api/v1/clientes vigente).
+     *
      * @return array<int, array<string, mixed>>
      */
     public function listVisibleClients(User $user): array
     {
-        return $this->visibleClientsResolver->visibleClientsForUser($user)
+        $clientes = $this->visibleClientsResolver->visibleClientsForUser($user)
             ->orderByRaw("COALESCE(NULLIF(LTRIM(RTRIM(razon_soci)), ''), nombre) ASC")
-            ->get()
-            ->map(static fn ($cliente): array => [
-                'codCliente' => (string) $cliente->cod_client,
-                'nombre' => (string) $cliente->nombre,
-                'razonSocial' => trim((string) ($cliente->razon_soci ?? '')) !== ''
-                    ? (string) $cliente->razon_soci
-                    : (string) $cliente->nombre,
-                'fantasia' => $cliente->fantasia !== null ? (string) $cliente->fantasia : null,
-                'codVendedor' => $cliente->cod_vended !== null ? (string) $cliente->cod_vended : null,
-                'email' => $cliente->e_mail !== null ? (string) $cliente->e_mail : null,
-            ])
+            ->get();
+
+        $contactosByClient = $this->contactosByClientCodes($clientes->pluck('cod_client'));
+
+        return $clientes
+            ->map(static fn ($cliente): array => VisibleClientPayloadMapper::mapCliente(
+                $cliente,
+                $contactosByClient[(string) $cliente->cod_client] ?? []
+            ))
             ->all();
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function findVisibleClient(User $user, string $codCliente): array
+    {
+        $normalized = trim($codCliente);
+
+        $cliente = $this->visibleClientsResolver->visibleClientsForUser($user)
+            ->where('cod_client', $normalized)
+            ->first();
+
+        if ($cliente === null) {
+            throw new AuthFlowException(
+                VisibilityErrorCodes::resourceNotFound,
+                'resource.notFound',
+                404
+            );
+        }
+
+        $contactosByClient = $this->contactosByClientCodes(collect([(string) $cliente->cod_client]));
+
+        return VisibleClientPayloadMapper::mapCliente(
+            $cliente,
+            $contactosByClient[(string) $cliente->cod_client] ?? []
+        );
     }
 
     /**
@@ -119,6 +148,38 @@ final class VisibilityDataService
             ->whereIn('cod_cliente', $visibleClientCodes)
             ->whereIn('estado', $this->dashboardStates($stateGroup))
             ->sum('total');
+    }
+
+    /**
+     * Carga contactos en un query (sin N+1). Solo clientes del universo ya resuelto.
+     *
+     * @param  Collection<int, mixed>  $codigos
+     * @return array<string, array<int, array<string, mixed>>>
+     */
+    private function contactosByClientCodes(Collection $codigos): array
+    {
+        $normalized = $codigos
+            ->map(static fn ($codigo): string => trim((string) $codigo))
+            ->filter(static fn (string $codigo): bool => $codigo !== '')
+            ->unique()
+            ->values();
+
+        if ($normalized->isEmpty() || ! Schema::hasTable('pq_pedidosweb_clientescontactos')) {
+            return [];
+        }
+
+        $grouped = [];
+
+        PqPedidoswebClienteContacto::query()
+            ->whereIn('cod_client', $normalized->all())
+            ->orderBy('cod_contacto')
+            ->get()
+            ->each(static function (PqPedidoswebClienteContacto $contacto) use (&$grouped): void {
+                $key = (string) $contacto->cod_client;
+                $grouped[$key][] = VisibleClientPayloadMapper::mapContacto($contacto);
+            });
+
+        return $grouped;
     }
 
     /**

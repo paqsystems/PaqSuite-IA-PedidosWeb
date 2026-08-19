@@ -24,6 +24,7 @@ final class PedidosWebDevSchemaBootstrap
         'pq_pedidosweb_escalas_cabecera',
         'pq_pedidosweb_stock',
         'pq_pedidosweb_clientesde',
+        'pq_pedidosweb_clientescontactos',
         'pq_pedidosweb_cheques',
         'pq_pedidosweb_deuda',
         'pq_pedidosweb_ventadetallada',
@@ -206,6 +207,18 @@ CREATE TABLE pq_pedidosweb_clientesde (
     cod_provin nvarchar(10) NULL,
     habitual bit NOT NULL CONSTRAINT DF_pw_cde_hab DEFAULT (0),
     CONSTRAINT PK_pw_clientesde PRIMARY KEY (cod_client, id_de)
+)
+SQL);
+
+        $this->createIfMissing('pq_pedidosweb_clientescontactos', <<<'SQL'
+CREATE TABLE pq_pedidosweb_clientescontactos (
+    id int IDENTITY(1,1) NOT NULL PRIMARY KEY,
+    cod_client nvarchar(20) NOT NULL,
+    cod_contacto nvarchar(50) NOT NULL,
+    nombre nvarchar(120) NOT NULL,
+    telefono nvarchar(50) NULL,
+    mail nvarchar(120) NULL,
+    CONSTRAINT UQ_pw_clicont_cli_cod UNIQUE (cod_client, cod_contacto)
 )
 SQL);
 

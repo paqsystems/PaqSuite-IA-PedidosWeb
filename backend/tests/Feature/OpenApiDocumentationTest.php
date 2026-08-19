@@ -38,6 +38,7 @@ final class OpenApiDocumentationTest extends TestCase
         $this->assertArrayHasKey('/api/v1/auth/logout', $spec['paths']);
         $this->assertArrayHasKey('/api/v1/auth/me', $spec['paths']);
         $this->assertArrayHasKey('/api/v1/clientes', $spec['paths']);
+        $this->assertArrayHasKey('/api/v1/clientes/{codCliente}', $spec['paths']);
         $this->assertArrayHasKey('/api/v1/comprobantes/{id}', $spec['paths']);
         $this->assertArrayHasKey('/api/v1/dashboard/resumen', $spec['paths']);
         $this->assertArrayHasKey('/api/v1/user/menu', $spec['paths']);
@@ -282,6 +283,20 @@ final class OpenApiDocumentationTest extends TestCase
         $this->assertArrayHasKey('401', $clientesOperation['responses']);
         $this->assertArrayHasKey('403', $clientesOperation['responses']);
 
+        $clienteUnitarioOperation = $spec['paths']['/api/v1/clientes/{codCliente}']['get'];
+        $this->assertSame([['sanctum' => []], ['tenant' => []]], $clienteUnitarioOperation['security'] ?? null);
+        $this->assertContains('Maestros y Tablas', $clienteUnitarioOperation['tags'] ?? []);
+        $this->assertSame(
+            '#/components/schemas/ApiEnvelopeVisibleClient',
+            $clienteUnitarioOperation['responses']['200']['content']['application/json']['schema']['$ref'] ?? null
+        );
+        $this->assertArrayHasKey('400', $clienteUnitarioOperation['responses']);
+        $this->assertArrayHasKey('401', $clienteUnitarioOperation['responses']);
+        $this->assertArrayHasKey('403', $clienteUnitarioOperation['responses']);
+        $this->assertArrayHasKey('404', $clienteUnitarioOperation['responses']);
+        $this->assertArrayHasKey('VisibleClientContactItem', $spec['components']['schemas'] ?? []);
+        $this->assertArrayHasKey('contactos', $spec['components']['schemas']['VisibleClientItem']['properties'] ?? []);
+
         $comprobantesOperation = $spec['paths']['/api/v1/comprobantes/{id}']['get'];
         $this->assertSame([['sanctum' => []], ['tenant' => []]], $comprobantesOperation['security'] ?? null);
         $this->assertArrayHasKey('400', $comprobantesOperation['responses']);
@@ -318,9 +333,7 @@ final class OpenApiDocumentationTest extends TestCase
      */
     private function loadGeneratedSpec(): array
     {
-        if (! is_file(storage_path('api-docs/api-docs.json'))) {
-            Artisan::call('l5-swagger:generate');
-        }
+        Artisan::call('l5-swagger:generate');
 
         /** @var array<string, mixed> $spec */
         $spec = json_decode((string) file_get_contents(storage_path('api-docs/api-docs.json')), true);
