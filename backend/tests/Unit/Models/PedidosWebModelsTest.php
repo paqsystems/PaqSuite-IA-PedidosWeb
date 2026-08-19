@@ -2,6 +2,7 @@
 
 namespace Tests\Unit\Models;
 
+use App\Models\PqPedidoswebCliente;
 use App\Models\PqPedidoswebPedidoCabecera;
 use App\Models\PqPedidoswebPedidoDetalle;
 use PHPUnit\Framework\Attributes\Test;
@@ -38,6 +39,16 @@ class PedidosWebModelsTest extends TestCase
     }
 
     #[Test]
+    public function clienteExponeRelacionContactosSinLogicaDeNegocio(): void
+    {
+        $model = new PqPedidoswebCliente();
+
+        $this->assertTrue(method_exists($model, 'contactos'));
+        $this->assertSame('cod_client', $model->getKeyName());
+        $this->assertFalse($model->incrementing);
+    }
+
+    #[Test]
     public function modelosNoDefinenMetodosDeNegocioCustom(): void
     {
         $modelClasses = [
@@ -57,7 +68,8 @@ class PedidosWebModelsTest extends TestCase
                     && ! str_starts_with($method->getName(), 'new')
                     && ! in_array($method->getName(), [
                         'cabecera', 'detalles', 'cliente', 'vendedor', 'condicionVenta', 'transporte',
-                        'listaPrecios', 'articulo', 'presupuestoCierre', 'perfil',
+                        'listaPrecios', 'articulo', 'presupuestoCierre', 'perfil', 'contactos',
+                        'direccionesEntrega', 'pedidosCabecera',
                     ], true)
             );
 

@@ -61,4 +61,9 @@ class PqPedidoswebCliente extends Model
     {
         return $this->hasMany(PqPedidoswebClienteDireccionEntrega::class, 'cod_client', 'cod_client');
     }
+
+    public function contactos(): HasMany
+    {
+        return $this->hasMany(PqPedidoswebClienteContacto::class, 'cod_client', 'cod_client');
+    }
 }

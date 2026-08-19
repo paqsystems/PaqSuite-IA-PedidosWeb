@@ -46,7 +46,8 @@ Este archivo **no sustituye** SPEC, HU ni TR: es la **entrada** del circuito de 
 
 | # | Fecha | Estado | Resumen |
 |---|-------|--------|---------|
-| 10 | 30/07/2026 | A Programar (Parte G 30/07/2026; D+E 30/07/2026) | `CargaUnidadesVenta` — cantidad dual stock/venta; Excel, mail, asistente; `cantidad_venta` en Detalle de Pedidos |
+| 11 | 18/08/2026 | Especificado (G+D+E 18/08/2026). Pendiente F e I | Contactos de cliente (`pq_pedidosweb_clientescontactos`) en API `GET /clientes` (listado + unitario); sin UI PedidosWeb |
+| 10 | 30/07/2026 | Implementado (D+E 30/07/2026; F1 18/08/2026). Pendiente Parte I | `CargaUnidadesVenta` — cantidad dual stock/venta; Excel, mail, asistente; `cantidad_venta` en Detalle de Pedidos |
 | 9 | 02/07/2026 | Finalizado (Parte I 02/07/2026) | `ActualizarPrecioCopia` al copiar — D+E+F+I OK; copia paramétrica + modal error |
 | 8 | 19/06/2026 | Finalizado (Parte I) | Precarga artículos al ingresar, refresh catálogo, vendedor cliente al importar Excel |
 | 7 | 15/06/2026 | Finalizado (Parte I) | i18n parámetros/pivot, perfil CodPerfilPedidos, validaciones grabación, layout carga |
@@ -59,6 +60,52 @@ Este archivo **no sustituye** SPEC, HU ni TR: es la **entrada** del circuito de 
 
 ---
 
+## Control de Calidad #11
+
+### Referencia del control
+
+| Campo | Valor |
+|-------|--------|
+| **Fecha** | 18/08/2026 |
+| **Responsable** | Pablo Quarracino (PQ) |
+| **Estado** | Especificado (G+D+E 18/08/2026). Pendiente F e I |
+
+### Hallazgos
+
+agregar una tabla de contactos de clientes, con sus numeros de telefonos y mails, para incorporar en la API de clientes (sin uso efectivo en PedidosWeb, disponible para consumir por terceras aplicaciones)
+
+### Errores encontrados - Mejoras solicitadas
+
+#### Generar nueva tabla
+
+Generar nueva tabla PQ_PEDIDOSWEB_CLIENTESCONTACTOS con los siguientes atributos:
+- id (si es que las demas tablas maestras usan ID)
+- cod_client 
+- cod_contacto
+- Nombre Contacto
+- Telefono
+- Mail
+
+*Procesado* → [SPEC-101-02-update-01](../05-open-spec/updates/101-PedidosWeb/SPEC-101-02-modelos-update-01.md) · [TR-SPEC-101-02-update-01](../04-tareas/updates/101-PedidosWeb/TR-SPEC-101-02-modelos-update-01.md) — Parte G 18/08/2026 · **tabla canónica:** `pq_pedidosweb_clientescontactos` · **PK:** `id` identity (el maestro clientes usa `cod_client`, no `id`)
+
+#### Agregar contactos en API de Clientes
+
+En la API donde se obtienen los clientes (unitario o grupal), agregar un nodo hijo en cada cliente que traiga todos los datos de los contactos 
+
+*Procesado* → [SPEC-001-02-update](../05-open-spec/updates/001-Generaliddes/SPEC-001-02-acceso-y-seguridad-update.md) · [HU-GEN-02-update](../03-historias-usuario/updates/001-Generaliddes/HU-GEN-02-visibilidad-datos-pedidosweb-update.md) · [HU-101-004-update](../03-historias-usuario/updates/101-PedidosWeb/HU-101-004-seleccion-cliente-update.md) · [TR-GEN-02-update](../04-tareas/updates/001-Generaliddes/TR-GEN-02-visibilidad-datos-pedidosweb-update.md) — Parte G 18/08/2026 · **grupal:** `GET /api/v1/clientes` · **unitario:** `GET /api/v1/clientes/{codCliente}` (nuevo; no es `cabecera-inicial`) · **nodo:** `contactos[]` · **sin UI PedidosWeb**
+
+### Verificación ciclo OpenSpec (18/08/2026)
+
+| Parte | Documento | Veredicto |
+|-------|-----------|-----------|
+| G | Updates en `docs/.../updates/` (SPEC/HU/TR) | Hecho 18/08/2026 — metadatos siguen **Pendiente** (esperan I) |
+| D | Código + migración `pq_pedidosweb_clientescontactos` | Hecho 18/08/2026 |
+| E | [E-CC-PQ-11-tests.md](../04-tareas/101-PedidosWeb/E-CC-PQ-11-tests.md) | **Aprobado** — 21 PHPUnit + 4 Vitest |
+| F | — | **Pendiente** |
+| I | — | **Pendiente** — no fusionar updates ni marcar CC **Finalizado** hasta I |
+
+---
+
 ## Control de Calidad #10
 
 ### Referencia del control
@@ -67,7 +114,9 @@ Este archivo **no sustituye** SPEC, HU ni TR: es la **entrada** del circuito de 
 |-------|--------|
 | **Fecha** | 30/07/2026 |
 | **Responsable** | Pablo Quarracino (PQ) |
-| **Estado** | A Programar (Parte G 30/07/2026) |
+| **Estado** | Implementado (D+E 30/07/2026; F1 18/08/2026). Pendiente Parte I |
+| **Entorno / integración** | Commit `56271ef` (30/07/2026) en `v1.1.1` → `develop` / `main` (PR #22 / #29). Código en producción según PQ (18/08/2026); QA F sin acta. |
+| **Build / rama** | `v1.1.1` @ `9e7785f` (incluye `56271ef`) |
 
 ### Hallazgos
 
@@ -122,6 +171,21 @@ Cuando se importa el Excel, ya sea en la carga individual o masiva, a la columna
 Cuando se informa 'cantidad' en el asistente IA, ya sea en la forma escrita, verbal o por imagen, al dato  'cantidad' hay que darle el mismo tratamiento que se le da en la ventana de edición de un renglón
 
 *Procesado* → [SPEC-101-19-update](../05-open-spec/updates/101-PedidosWeb/SPEC-101-19-asistente-carga-ia-mutaciones-update.md) · [HU-101-040-update](../03-historias-usuario/updates/101-PedidosWeb/HU-101-040-asistente-carga-ia-articulos-grabar-update.md) · [TR-SPEC-101-19-update](../04-tareas/updates/101-PedidosWeb/TR-SPEC-101-19-asistente-carga-ia-mutaciones-update.md) — Parte G 30/07/2026
+
+### Verificación ciclo OpenSpec (18/08/2026)
+
+El ítem figuraba **A Programar** por omisión de Parte **F** (no se informó el cierre de D). El código **sí** se programó el 30/07/2026 (`56271ef`) y está en `main`.
+
+| Parte | Documento | Veredicto |
+|-------|-----------|-----------|
+| G | Updates en `docs/.../updates/` (SPEC/HU/TR) | Hecho 30/07/2026 — metadatos siguen **Pendiente** (esperan I) |
+| D | `56271ef` en `v1.1.1` / `main` | Hecho |
+| E | [E-CC-PQ-10-tests.md](../04-tareas/101-PedidosWeb/E-CC-PQ-10-tests.md) | **Aprobado** — 15 PHPUnit + 20 Vitest |
+| F1 | [F-CC-PQ-10-cierre-formal.md](../04-tareas/101-PedidosWeb/F-CC-PQ-10-cierre-formal.md) | **Aprobado con observaciones** (retrospectivo 18/08/2026) |
+| F QA | — | **Sin acta**; PQ declara producción |
+| I | — | **Pendiente** — no fusionar updates ni marcar CC **Finalizado** hasta I |
+
+**Huecos documentales (no de código):** SPEC/HU/TR 101 base sin el delta; HU/TR-GEN-04 base sin `CargaUnidadesVenta`; manual de usuario sin el parámetro; casillas AC de TR-update sin tildar.
 
 ## Control de Calidad #9
 

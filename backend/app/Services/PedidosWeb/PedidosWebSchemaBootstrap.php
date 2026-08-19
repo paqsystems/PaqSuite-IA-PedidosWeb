@@ -254,6 +254,18 @@ final class PedidosWebSchemaBootstrap
 
     private function ensureMvpTables(): void
     {
+        $this->createTableIfMissing('pq_pedidosweb_clientescontactos', <<<'SQL'
+CREATE TABLE pq_pedidosweb_clientescontactos (
+    id int IDENTITY(1,1) NOT NULL PRIMARY KEY,
+    cod_client nvarchar(20) NOT NULL,
+    cod_contacto nvarchar(50) NOT NULL,
+    nombre nvarchar(120) NOT NULL,
+    telefono nvarchar(50) NULL,
+    mail nvarchar(120) NULL,
+    CONSTRAINT UQ_pw_clicont_cli_cod UNIQUE (cod_client, cod_contacto)
+)
+SQL);
+
         $this->createTableIfMissing('pq_pedidosweb_motivos_cierre', <<<'SQL'
 CREATE TABLE pq_pedidosweb_motivos_cierre (
     id_motivo int IDENTITY(1,1) NOT NULL PRIMARY KEY,

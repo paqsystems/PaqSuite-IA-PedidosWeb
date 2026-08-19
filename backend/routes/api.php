@@ -116,6 +116,8 @@ Route::prefix('v1')->group(function (): void {
                 ->name('api.v1.clientes.cabecera-inicial');
             Route::get('/clientes/{codCliente}/direcciones-entrega', [CatalogosReferencialesController::class, 'direccionesEntrega'])
                 ->name('api.v1.clientes.direcciones-entrega');
+            Route::get('/clientes/{codCliente}', [VisibilityDataController::class, 'showClient'])
+                ->name('api.v1.clientes.show');
             Route::get('/perfiles', [CatalogosReferencialesController::class, 'perfiles'])
                 ->name('api.v1.perfiles.index');
             Route::get('/condiciones-venta', [CatalogosReferencialesController::class, 'condicionesVenta'])
