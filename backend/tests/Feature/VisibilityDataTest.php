@@ -51,6 +51,23 @@ final class VisibilityDataTest extends TestCase
         $this->assertFalse($clientes->contains(fn (array $cliente): bool => $cliente['codCliente'] === 'CLI-VEN-A'));
     }
 
+    public function testClientesForSupervisorLoadsContactosWithoutClientCodeInList(): void
+    {
+        $this->upsertContacto('CLI-VEN-A', 'C01', 'Ana', '111', 'ana@paqsuite.local');
+
+        $response = $this->getJson('/api/v1/clientes', $this->authHeadersFor('supervisor.mvp'));
+
+        $response->assertOk();
+
+        $clientes = collect($response->json('resultado'));
+        $this->assertTrue($clientes->contains(fn (array $cliente): bool => $cliente['codCliente'] === 'CLI-VEN-A'));
+        $this->assertTrue($clientes->contains(fn (array $cliente): bool => $cliente['codCliente'] === 'CLI-VEN-B'));
+
+        $conContacto = $clientes->first(fn (array $item): bool => $item['codCliente'] === 'CLI-VEN-A');
+        $this->assertIsArray($conContacto);
+        $this->assertSame('C01', $conContacto['contactos'][0]['codContacto'] ?? null);
+    }
+
     public function testClientesForVendedorReturnsOnlyAssignedCustomers(): void
     {
         $response = $this->getJson('/api/v1/clientes', $this->authHeadersFor('vendedor.acotado.mvp'));
@@ -102,7 +119,7 @@ final class VisibilityDataTest extends TestCase
             ->assertJsonPath('respuesta', 'auth.noPermission');
     }
 
-    public function testClientesIncludesEmptyContactosWhenClienteHasNone(): void
+    public function testClientesIncludesContactosNodeForOwnClient(): void
     {
         $response = $this->getJson('/api/v1/clientes', $this->authHeadersFor('cliente.mvp'));
 
@@ -112,7 +129,13 @@ final class VisibilityDataTest extends TestCase
             ->first(fn (array $item): bool => $item['codCliente'] === 'CLIMVP001');
 
         $this->assertIsArray($cliente);
-        $this->assertSame([], $cliente['contactos']);
+        $this->assertIsArray($cliente['contactos']);
+        foreach ($cliente['contactos'] as $contacto) {
+            $this->assertArrayHasKey('codContacto', $contacto);
+            $this->assertArrayHasKey('nombre', $contacto);
+            $this->assertArrayHasKey('telefono', $contacto);
+            $this->assertArrayHasKey('mail', $contacto);
+        }
     }
 
     public function testClientesIncludesContactosOnlyForVisibleClients(): void
@@ -293,7 +316,7 @@ final class VisibilityDataTest extends TestCase
 
         $passwordHash = Hash::make($this->seedPassword);
         $updated = User::query()
-            ->whereIn('codigo', ['cliente.mvp', 'vendedor.acotado.mvp'])
+            ->whereIn('codigo', ['cliente.mvp', 'vendedor.acotado.mvp', 'supervisor.mvp'])
             ->update(['password_hash' => $passwordHash]);
 
         if ($updated < 2) {
