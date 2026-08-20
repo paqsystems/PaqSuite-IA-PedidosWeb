@@ -49,4 +49,19 @@ final class VisibleClientsResolver
 
         return $query->where('cod_vended', (string) $vendedor->cod_vended);
     }
+
+    /**
+     * Restringe `$query` al universo de clientes visibles con JOIN a subconsulta
+     * (sin `WHERE IN` de lista PHP — SQL Server limita 2100 parámetros).
+     */
+    public function joinVisibleClients(Builder $query, User $user, string $localClientColumn): Builder
+    {
+        return $query->joinSub(
+            $this->visibleClientsForUser($user)->select('cod_client'),
+            'clientes_visibles',
+            'clientes_visibles.cod_client',
+            '=',
+            $localClientColumn
+        );
+    }
 }

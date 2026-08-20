@@ -7,7 +7,7 @@ use App\Models\PqPedidoswebClienteContacto;
 use App\Models\PqPedidoswebPedidoCabecera;
 use App\Models\User;
 use App\Support\VisibilityErrorCodes;
-use Illuminate\Support\Collection;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Schema;
 
 final class VisibilityDataService
@@ -27,7 +27,7 @@ final class VisibilityDataService
             ->orderByRaw("COALESCE(NULLIF(LTRIM(RTRIM(razon_soci)), ''), nombre) ASC")
             ->get();
 
-        $contactosByClient = $this->contactosByClientCodes($clientes->pluck('cod_client'));
+        $contactosByClient = $this->contactosGroupedForUser($user);
 
         return $clientes
             ->map(static fn ($cliente): array => VisibleClientPayloadMapper::mapCliente(
@@ -56,11 +56,9 @@ final class VisibilityDataService
             );
         }
 
-        $contactosByClient = $this->contactosByClientCodes(collect([(string) $cliente->cod_client]));
-
         return VisibleClientPayloadMapper::mapCliente(
             $cliente,
-            $contactosByClient[(string) $cliente->cod_client] ?? []
+            $this->contactosOfClient($normalized)
         );
     }
 
@@ -69,11 +67,11 @@ final class VisibilityDataService
      */
     public function findVisibleComprobante(User $user, string $comprobanteId): array
     {
-        $comprobante = PqPedidoswebPedidoCabecera::query()
-            ->where('cod_pedido', $comprobanteId)
-            ->whereIn(
-                'cod_cliente',
-                $this->visibleClientsResolver->visibleClientsForUser($user)->select('cod_client')
+        $comprobante = $this->visibleClientsResolver
+            ->joinVisibleClients(
+                PqPedidoswebPedidoCabecera::query()->where('cod_pedido', $comprobanteId),
+                $user,
+                'pq_pedidosweb_pedidoscabecera.cod_cliente'
             )
             ->first();
 
@@ -102,10 +100,9 @@ final class VisibilityDataService
      */
     public function buildDashboardResumen(User $user): array
     {
-        $visibleClientsQuery = $this->visibleClientsResolver->visibleClientsForUser($user);
-        $visibleClientCodes = $visibleClientsQuery->pluck('cod_client');
+        $visibleClientsCount = $this->visibleClientsResolver->visibleClientsForUser($user)->count();
 
-        if ($visibleClientCodes->isEmpty()) {
+        if ($visibleClientsCount === 0) {
             return [
                 'visibleClientsCount' => 0,
                 'activeQuotesCount' => 0,
@@ -118,68 +115,83 @@ final class VisibilityDataService
         }
 
         return [
-            'visibleClientsCount' => $visibleClientCodes->count(),
-            'activeQuotesCount' => $this->countComprobantesForStates($visibleClientCodes, 'activeQuotes'),
-            'enteredOrdersCount' => $this->countComprobantesForStates($visibleClientCodes, 'enteredOrders'),
-            'pendingOrdersCount' => $this->countComprobantesForStates($visibleClientCodes, 'pendingOrders'),
-            'activeQuotesTotal' => $this->sumComprobantesForStates($visibleClientCodes, 'activeQuotes'),
-            'enteredOrdersTotal' => $this->sumComprobantesForStates($visibleClientCodes, 'enteredOrders'),
-            'pendingOrdersTotal' => $this->sumComprobantesForStates($visibleClientCodes, 'pendingOrders'),
+            'visibleClientsCount' => $visibleClientsCount,
+            'activeQuotesCount' => $this->countComprobantesForStates($user, 'activeQuotes'),
+            'enteredOrdersCount' => $this->countComprobantesForStates($user, 'enteredOrders'),
+            'pendingOrdersCount' => $this->countComprobantesForStates($user, 'pendingOrders'),
+            'activeQuotesTotal' => $this->sumComprobantesForStates($user, 'activeQuotes'),
+            'enteredOrdersTotal' => $this->sumComprobantesForStates($user, 'enteredOrders'),
+            'pendingOrdersTotal' => $this->sumComprobantesForStates($user, 'pendingOrders'),
         ];
     }
 
-    /**
-     * @param  Collection<int, string>  $visibleClientCodes
-     */
-    private function countComprobantesForStates(Collection $visibleClientCodes, string $stateGroup): int
+    private function countComprobantesForStates(User $user, string $stateGroup): int
     {
-        return PqPedidoswebPedidoCabecera::query()
-            ->whereIn('cod_cliente', $visibleClientCodes)
+        return $this->comprobantesVisibleQuery($user)
             ->whereIn('estado', $this->dashboardStates($stateGroup))
             ->count();
     }
 
-    /**
-     * @param  Collection<int, string>  $visibleClientCodes
-     */
-    private function sumComprobantesForStates(Collection $visibleClientCodes, string $stateGroup): float
+    private function sumComprobantesForStates(User $user, string $stateGroup): float
     {
-        return (float) PqPedidoswebPedidoCabecera::query()
-            ->whereIn('cod_cliente', $visibleClientCodes)
+        return (float) $this->comprobantesVisibleQuery($user)
             ->whereIn('estado', $this->dashboardStates($stateGroup))
             ->sum('total');
     }
 
+    private function comprobantesVisibleQuery(User $user): Builder
+    {
+        return $this->visibleClientsResolver->joinVisibleClients(
+            PqPedidoswebPedidoCabecera::query(),
+            $user,
+            'pq_pedidosweb_pedidoscabecera.cod_cliente'
+        );
+    }
+
     /**
-     * Carga contactos en un query (sin N+1). Solo clientes del universo ya resuelto.
+     * Contactos del universo visible: JOIN a subconsulta de clientes, no lista IN.
      *
-     * @param  Collection<int, mixed>  $codigos
      * @return array<string, array<int, array<string, mixed>>>
      */
-    private function contactosByClientCodes(Collection $codigos): array
+    private function contactosGroupedForUser(User $user): array
     {
-        $normalized = $codigos
-            ->map(static fn ($codigo): string => trim((string) $codigo))
-            ->filter(static fn (string $codigo): bool => $codigo !== '')
-            ->unique()
-            ->values();
-
-        if ($normalized->isEmpty() || ! Schema::hasTable('pq_pedidosweb_clientescontactos')) {
+        if (! Schema::hasTable('pq_pedidosweb_clientescontactos')) {
             return [];
         }
 
         $grouped = [];
 
-        PqPedidoswebClienteContacto::query()
-            ->whereIn('cod_client', $normalized->all())
-            ->orderBy('cod_contacto')
-            ->get()
+        $this->visibleClientsResolver
+            ->joinVisibleClients(
+                PqPedidoswebClienteContacto::query(),
+                $user,
+                'pq_pedidosweb_clientescontactos.cod_client'
+            )
+            ->orderBy('pq_pedidosweb_clientescontactos.cod_contacto')
+            ->get(['pq_pedidosweb_clientescontactos.*'])
             ->each(static function (PqPedidoswebClienteContacto $contacto) use (&$grouped): void {
                 $key = (string) $contacto->cod_client;
                 $grouped[$key][] = VisibleClientPayloadMapper::mapContacto($contacto);
             });
 
         return $grouped;
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    private function contactosOfClient(string $codCliente): array
+    {
+        if ($codCliente === '' || ! Schema::hasTable('pq_pedidosweb_clientescontactos')) {
+            return [];
+        }
+
+        return PqPedidoswebClienteContacto::query()
+            ->where('cod_client', $codCliente)
+            ->orderBy('cod_contacto')
+            ->get()
+            ->map(static fn (PqPedidoswebClienteContacto $contacto): array => VisibleClientPayloadMapper::mapContacto($contacto))
+            ->all();
     }
 
     /**

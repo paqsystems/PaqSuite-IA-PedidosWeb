@@ -35,11 +35,13 @@ class PedidosWebVisibilityGuard
         bool $lockForUpdate = false
     ): PqPedidoswebPedidoCabecera {
         $query = PqPedidoswebPedidoCabecera::query()
-            ->where('cod_pedido', $codPedido)
-            ->whereIn(
-                'cod_cliente',
-                $this->visibleClientsResolver->visibleClientsForUser($user)->select('cod_client')
-            );
+            ->where('cod_pedido', $codPedido);
+
+        $this->visibleClientsResolver->joinVisibleClients(
+            $query,
+            $user,
+            'pq_pedidosweb_pedidoscabecera.cod_cliente'
+        );
 
         if ($lockForUpdate) {
             $query->lockForUpdate();
