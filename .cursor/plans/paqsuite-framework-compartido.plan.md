@@ -24,6 +24,8 @@ location: .cursor/plans/paqsuite-framework-compartido.plan.md
 
 # Framework propio PaqSuite — reutilizar Generalidades entre productos
 
+> **Estado (2026-08-24):** este plan describía **extraer** un SDK *desde* PedidosWeb. Eso ya ocurrió en `PaqSuite-IA-FRAMEWORK`. El plan **vivo de adopción** (consumir los paquetes y reemplazar GEN local) es [`docs/06-operacion/plan-adopcion-sdk-framework.md`](../../docs/06-operacion/plan-adopcion-sdk-framework.md). No usar este archivo como guía de implementación.
+
 > **Ubicación versionada:** [`.cursor/plans/paqsuite-framework-compartido.plan.md`](./paqsuite-framework-compartido.plan.md) — incluir en Git junto al repo para compartir con el equipo.
 
 ## Respuesta corta
