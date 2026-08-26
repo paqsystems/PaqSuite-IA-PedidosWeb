@@ -9,6 +9,36 @@ use Tests\TestCase;
 final class PedidosWebParameterServiceTest extends TestCase
 {
     #[Test]
+    public function getMailCcoParseaListaConSeparadoresYCaracteresDeControl(): void
+    {
+        config()->set('paqsuite_pedidosweb.readFromErp', false);
+        config()->set(
+            'paqsuite_pedidosweb.defaults.mailCCO',
+            "a@empresa.test, b@empresa.test;\r\nc@empresa.test,\tinvalido,\td@empresa.test"
+        );
+
+        $service = new PedidosWebParameterService();
+
+        $this->assertSame([
+            'a@empresa.test',
+            'b@empresa.test',
+            'c@empresa.test',
+            'd@empresa.test',
+        ], $service->getMailCco());
+    }
+
+    #[Test]
+    public function getMailCcoVacioRetornaListaVacia(): void
+    {
+        config()->set('paqsuite_pedidosweb.readFromErp', false);
+        config()->set('paqsuite_pedidosweb.defaults.mailCCO', "  \r\n\t  ");
+
+        $service = new PedidosWebParameterService();
+
+        $this->assertSame([], $service->getMailCco());
+    }
+
+    #[Test]
     public function usaDefaultsConfigCuandoLecturaErpEstaDeshabilitada(): void
     {
         config()->set('paqsuite_pedidosweb.readFromErp', false);

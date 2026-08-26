@@ -56,17 +56,17 @@ final class PedidosWebParameterService
      */
     public function getMailDestinatariosAdicionales(): array
     {
-        $rawValue = (string) $this->resolveValue('MailDestinatariosAdicionales', '');
-        $parts = preg_split('/[;,]/', $rawValue) ?: [];
-
-        return array_values(array_filter(array_map(static fn (string $mail): string => trim($mail), $parts)));
+        return $this->parseMailAddressList((string) $this->resolveValue('MailDestinatariosAdicionales', ''));
     }
 
-    public function getMailCco(): ?string
+    /**
+     * Lista BCC global (`mailCCO`). Acepta `;` y `,`; elimina caracteres de control.
+     *
+     * @return list<string>
+     */
+    public function getMailCco(): array
     {
-        $mailCco = trim((string) $this->resolveValue('mailCCO', ''));
-
-        return $mailCco !== '' ? $mailCco : null;
+        return $this->parseMailAddressList((string) $this->resolveValue('mailCCO', ''));
     }
 
     public function getMailDireccionRemitente(): ?string
@@ -74,6 +74,30 @@ final class PedidosWebParameterService
         $mail = trim((string) $this->resolveValue('Mail_DireccionRemitente', ''));
 
         return $mail !== '' && filter_var($mail, FILTER_VALIDATE_EMAIL) ? $mail : null;
+    }
+
+    /**
+     * Parser tolerante de listas de correo (`;` / `,` / saltos / tabs).
+     *
+     * @return list<string>
+     */
+    private function parseMailAddressList(string $rawValue): array
+    {
+        $normalized = preg_replace('/[\x00-\x1F\x7F]+/', ';', $rawValue) ?? '';
+        $parts = preg_split('/[;,]+/', $normalized) ?: [];
+        $unicos = [];
+
+        foreach ($parts as $part) {
+            $mail = strtolower(trim($part));
+
+            if ($mail === '' || filter_var($mail, FILTER_VALIDATE_EMAIL) === false) {
+                continue;
+            }
+
+            $unicos[$mail] = $mail;
+        }
+
+        return array_values($unicos);
     }
 
     public function getDiasVentasDetalladas(): int
