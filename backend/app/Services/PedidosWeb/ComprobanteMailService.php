@@ -49,7 +49,7 @@ final class ComprobanteMailService
             $mailer = Mail::to($destinatarios);
             $bcc = $this->parameterService->getMailCco();
 
-            if ($bcc !== null) {
+            if ($bcc !== []) {
                 $mailer->bcc($bcc);
             }
 
