@@ -29,6 +29,36 @@ final class ComprobanteMailServiceTest extends TestCase
     }
 
     #[Test]
+    public function enviaBccDesdeMailCcoConListaSucia(): void
+    {
+        Mail::fake();
+        config()->set(
+            'paqsuite_pedidosweb.defaults.mailCCO',
+            "cco1@empresa.test,\r\ncco2@empresa.test;\tinvalido,CCO1@empresa.test"
+        );
+
+        $cliente = new PqPedidoswebCliente();
+        $cliente->e_mail = 'cliente@empresa.test';
+        $cliente->nombre = 'Cliente MVP';
+
+        $cabecera = $this->buildCabeceraConCliente($cliente);
+        $service = $this->buildService();
+        $user = new User();
+        $user->locale = 'es';
+
+        $this->assertTrue($service->enviarComprobante($cabecera, [], 'pedido', 'ingresado', $user));
+
+        Mail::assertSent(ComprobanteNotificationMail::class, function (ComprobanteNotificationMail $mail): bool {
+            $bcc = collect($mail->bcc)->pluck('address')->map(fn (string $addr): string => strtolower($addr))->unique()->values();
+
+            return $mail->hasTo('cliente@empresa.test')
+                && $bcc->count() === 2
+                && $bcc->contains('cco1@empresa.test')
+                && $bcc->contains('cco2@empresa.test');
+        });
+    }
+
+    #[Test]
     public function enviaMailCuandoHayDestinatarioValido(): void
     {
         Mail::fake();
