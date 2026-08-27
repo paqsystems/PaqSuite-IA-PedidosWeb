@@ -98,7 +98,7 @@ La API **siempre** expone las mismas propiedades JSON (§6); la detección es so
 
 **Metadata:** `metadata.fecha_proceso` — `MAX(fecha_proceso)` de `pq_pedidosweb_deuda`, o `null` si no hay datos. Mismo valor para todos los registros de la exportación ERP; se muestra en carátula UI (`consultas.fechaProceso`).
 
-**Paginación:** `page`, `page_size` (máx. 100), `total`, `total_pages`.
+**Paginación:** `page`, `page_size` (máx. 1000, default 20), `total`, `total_pages`. La UI web acumula páginas hasta el dataset completo.
 
 **Query opcional:** `cod_cliente`.
 

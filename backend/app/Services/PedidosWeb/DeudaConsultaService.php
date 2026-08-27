@@ -5,6 +5,7 @@ namespace App\Services\PedidosWeb;
 use App\Models\User;
 use App\Services\Visibility\PedidosWebVisibilityGuard;
 use App\Services\Visibility\VisibleClientsResolver;
+use App\Support\ConsultaPaginacion;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Carbon;
@@ -34,8 +35,8 @@ final class DeudaConsultaService
             return $this->emptyResult($filters);
         }
 
-        $page = max(1, (int) ($filters['page'] ?? 1));
-        $pageSize = min(100, max(1, (int) ($filters['page_size'] ?? 20)));
+        $page = ConsultaPaginacion::resolvePage($filters['page'] ?? null);
+        $pageSize = ConsultaPaginacion::resolvePageSize($filters['page_size'] ?? null);
 
         $codCliente = $this->resolveCodCliente($user, $filters);
         $query = $this->buildDeudaQuery($codCliente, $user);
@@ -147,8 +148,8 @@ SQL)
      */
     private function emptyResult(array $filters): array
     {
-        $page = max(1, (int) ($filters['page'] ?? 1));
-        $pageSize = min(100, max(1, (int) ($filters['page_size'] ?? 20)));
+        $page = ConsultaPaginacion::resolvePage($filters['page'] ?? null);
+        $pageSize = ConsultaPaginacion::resolvePageSize($filters['page_size'] ?? null);
 
         return [
             'items' => [],

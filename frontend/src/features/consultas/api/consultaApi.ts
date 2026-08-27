@@ -1,5 +1,10 @@
 import { apiRequest } from '../../../shared/http/client';
 
+/** Tope alineado a `App\Support\ConsultaPaginacion::MAX_PAGE_SIZE`. */
+const CONSULTA_FETCH_PAGE_SIZE = 1000;
+/** Seguridad: 1000 × 50 = 50_000 filas máx. en grillas cliente. */
+const CONSULTA_FETCH_MAX_PAGES = 50;
+
 export type ConsultaMeta = {
   fecha_proceso?: string;
   dias_ventas_detalladas?: number;
@@ -492,13 +497,29 @@ async function fetchConsultaMapped<TApi, TRow>(
   path: string,
   mapper: (item: TApi, index: number) => TRow,
 ): Promise<ConsultaResult<TRow>> {
-  const response = await apiRequest<ConsultaPayload<TApi>>(path);
-  const payload = response.resultado;
-  const items = payload.items ?? [];
+  const allItems: TRow[] = [];
+  let meta: ConsultaMeta | null = null;
+  let page = 1;
+  let totalPages = 1;
+  let absoluteIndex = 0;
+
+  do {
+    const separator = path.includes('?') ? '&' : '?';
+    const pagedPath = `${path}${separator}page=${page}&page_size=${CONSULTA_FETCH_PAGE_SIZE}`;
+    const response = await apiRequest<ConsultaPayload<TApi>>(pagedPath);
+    const payload = response.resultado;
+    const items = payload.items ?? [];
+
+    allItems.push(...items.map((item, index) => mapper(item, absoluteIndex + index)));
+    absoluteIndex += items.length;
+    meta = extractMeta(payload);
+    totalPages = Math.max(1, payload.total_pages ?? 1);
+    page += 1;
+  } while (page <= totalPages && page <= CONSULTA_FETCH_MAX_PAGES);
 
   return {
-    items: items.map(mapper),
-    meta: extractMeta(payload),
+    items: allItems,
+    meta,
   };
 }
 
