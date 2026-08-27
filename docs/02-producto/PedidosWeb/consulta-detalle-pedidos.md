@@ -68,7 +68,7 @@ Columnas de detalle **visibles inicialmente sugeridas:** `codArticulo`, `descrip
 
 ## 5) Contrato API
 
-Paginación estándar (`page`, `page_size` máx. 100, `total`, `metadata.fecha_proceso`).
+Paginación estándar (`page`, `page_size` máx. 1000, default 20, `total`, `metadata.fecha_proceso`). La UI web acumula páginas hasta el dataset completo.
 
 Filtros opcionales: `cod_cliente`, `cod_pedido`, `estado`, `q` (código/descripción artículo).
 

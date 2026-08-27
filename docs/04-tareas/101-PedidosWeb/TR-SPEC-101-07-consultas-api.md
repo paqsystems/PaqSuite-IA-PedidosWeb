@@ -213,7 +213,7 @@ Un endpoint GET paginado con join cabecera+detalle+maestros, visibilidad, metada
 | Parámetro | Tipo | Descripción |
 |-----------|------|-------------|
 | `page` | int ≥ 1 | Default `1` |
-| `page_size` | int 1…100 | Default `20` |
+| `page_size` | int 1…1000 | Default `20` (`ConsultaPaginacion::MAX_PAGE_SIZE`) |
 | `cod_cliente` | string | Opcional; validar visibilidad |
 | `fecha_desde` / `fecha_hasta` | date | Opcional donde aplique |
 | `q` | string | Búsqueda libre (número visible, texto) según endpoint |

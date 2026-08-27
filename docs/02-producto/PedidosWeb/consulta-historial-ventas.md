@@ -85,7 +85,7 @@ Ver tabla §2. Decimales redondeados a **2 cifras** en API. Fechas ISO 8601.
 | `fecha_proceso` | `MAX(fecha_proceso)` de la tabla |
 | `dias_ventas_detalladas` | Parámetro ERP `DiasVentasDetalladas` |
 
-**Paginación:** `page`, `page_size` (máx. 100), `total`, `total_pages`.
+**Paginación:** `page`, `page_size` (máx. 1000, default 20), `total`, `total_pages`. La UI web acumula páginas hasta el dataset completo.
 
 ---
 
