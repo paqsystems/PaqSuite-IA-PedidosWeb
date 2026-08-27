@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Services\Visibility\PedidosWebVisibilityGuard;
 use App\Services\Visibility\VisibleClientsResolver;
 use App\Support\ConsultaFechaProcesoFormatter;
+use App\Support\ConsultaPaginacion;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -52,8 +53,8 @@ final class DetallePedidosConsultaService
             ->orderBy("{$detTable}.cod_pedido")
             ->orderBy("{$detTable}.renglon");
 
-        $page = max(1, (int) ($filters['page'] ?? 1));
-        $pageSize = min(100, max(1, (int) ($filters['page_size'] ?? 20)));
+        $page = ConsultaPaginacion::resolvePage($filters['page'] ?? null);
+        $pageSize = ConsultaPaginacion::resolvePageSize($filters['page_size'] ?? null);
 
         /** @var LengthAwarePaginator $paginator */
         $paginator = $query->paginate($pageSize, ["{$detTable}.*"], 'page', $page);

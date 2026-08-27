@@ -101,7 +101,7 @@ Si `articulos.base` está vacío o solo espacios: `stockBase`, `comprometidoBase
 
 **BD sin tabla stock:** si no existe `pq_pedidosweb_stock`, la API responde **200** con `items: []` y `total: 0` (no error 500). Subconsultas de pedidos/artículos se omiten si faltan esas tablas.
 
-**Paginación:** `page`, `page_size` (máx. 100), `total`, `total_pages`.
+**Paginación:** `page`, `page_size` (máx. 1000, default 20), `total`, `total_pages`. La UI web acumula páginas hasta el dataset completo.
 
 **Filtro:** query `q` — `LIKE` sobre `cod_articulo` y `descripcion`.
 

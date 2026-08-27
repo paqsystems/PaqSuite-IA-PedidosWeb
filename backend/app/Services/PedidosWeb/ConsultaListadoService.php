@@ -10,6 +10,7 @@ use App\Services\Visibility\PedidosWebVisibilityGuard;
 use App\Services\Visibility\VisibleClientsResolver;
 use App\Services\Visibility\VisibilityPermissionGuard;
 use App\Support\ConsultaFechaProcesoFormatter;
+use App\Support\ConsultaPaginacion;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
@@ -169,8 +170,8 @@ final class ConsultaListadoService
      */
     private function paginate(Builder $query, array $filters, callable $mapper): array
     {
-        $page = max(1, (int) ($filters['page'] ?? 1));
-        $pageSize = min(100, max(1, (int) ($filters['page_size'] ?? 20)));
+        $page = ConsultaPaginacion::resolvePage($filters['page'] ?? null);
+        $pageSize = ConsultaPaginacion::resolvePageSize($filters['page_size'] ?? null);
 
         /** @var LengthAwarePaginator $paginator */
         $paginator = $query->paginate($pageSize, ['*'], 'page', $page);
@@ -197,8 +198,8 @@ final class ConsultaListadoService
         callable $mapper,
         ?string $fechaProceso = null
     ): array {
-        $page = max(1, (int) ($filters['page'] ?? 1));
-        $pageSize = min(100, max(1, (int) ($filters['page_size'] ?? 20)));
+        $page = ConsultaPaginacion::resolvePage($filters['page'] ?? null);
+        $pageSize = ConsultaPaginacion::resolvePageSize($filters['page_size'] ?? null);
         $total = count($items);
         $offset = ($page - 1) * $pageSize;
         $slice = array_slice($items, $offset, $pageSize);
