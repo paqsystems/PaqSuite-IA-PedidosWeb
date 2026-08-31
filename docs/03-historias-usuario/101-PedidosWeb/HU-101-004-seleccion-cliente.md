@@ -6,6 +6,7 @@
 | **SPEC origen** | [SPEC-101-10-pantalla-carga](../../05-open-spec/101-PedidosWeb/SPEC-101-10-pantalla-carga.md) |
 | **Prioridad** | Must |
 | **Estado** | En Control Calidad |
+| **Última actualización** | 2026-08-30 (Parte I — CC PQ #12) |
 | **B1** | Enriquecida (2026-06-01) |
 | **Dependencias** | HU-101-001; HU-GEN-02-visibilidad-datos-pedidosweb |
 
@@ -26,6 +27,7 @@ para **no elegir entidades ajenas**.
 3. **Supervisor:** todos los clientes visibles.
 4. Al elegir cliente se dispara inicialización de cabecera (HU-101-005).
 5. **CC PQ 04/06/2026:** SelectBox muestra `(codigo) {razonSocial} - {nombreFantasia}`; ordenamiento habilitado por código, razón social o nombre fantasía (`cliente-orden-select`).
+6. **CC PQ #12:** Tras elegir cliente, se muestra saldo de deuda con colores (verde ≤0; negro >0 sin vencidos; rojo con vencidos). Si saldo ≠ 0, ícono abre modal con grilla de comprobantes + total, sin export/layouts/pivot. Respeta visibilidad GEN-02 del cliente.
 
 ## Criterios de aceptación
 
@@ -37,6 +39,9 @@ para **no elegir entidades ajenas**.
 - [x] **CA-CC-01:** SelectBox muestra `(codigo) {razonSocial} - {nombreFantasia}`.
 - [x] **CA-CC-02:** Ordenamiento habilitado por código, razón social o nombre fantasía.
 - [x] **CA-CC-03:** Textos y tooltips vía i18n; `data-testid` estable preservado.
+- [ ] **CA-CC12-D01:** Tras elegir cliente, se muestra el saldo de deuda con colores (verde ≤0; negro >0 sin vencidos; rojo con vencidos).
+- [ ] **CA-CC12-D02:** Si saldo ≠ 0, ícono abre modal con grilla de comprobantes + total, sin export/layouts/pivot.
+- [ ] **CA-CC12-D03:** Respeta visibilidad GEN-02 del cliente.
 
 ## Escenarios Gherkin
 
@@ -53,6 +58,10 @@ Feature: Selección de cliente
     When abre el selector de cliente
     Then solo ve esos 3 clientes
 ```
+
+## Historial CC PQ #12 (28/08/2026) — Parte I 30/08/2026
+
+Saldo de deuda con colores y modal de comprobantes tras selección de cliente (RN-6, CA-CC12-D01…D03). Unificación delta `HU-101-004-seleccion-cliente-update-01` (archivo eliminado en Parte I). Queda pendiente `HU-101-004-seleccion-cliente-update.md`.
 
 ## Veredicto B1
 

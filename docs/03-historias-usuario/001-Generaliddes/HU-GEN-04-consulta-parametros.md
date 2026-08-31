@@ -9,7 +9,7 @@
 | **Épica** | 001 — Generalidades / Configuración global |
 | **Prioridad** | Should |
 | **Estado** | En Control Calidad |
-| **Última actualización** | 2026-07-02 (Parte I — CC PQ #9) |
+| **Última actualización** | 2026-08-30 (Parte I — CC PQ #12) |
 | **D1** | Implementado (2026-06-03) |
 | **TR relacionada** | [TR-GEN-04-consulta-parametros](../../04-tareas/001-Generaliddes/TR-GEN-04-consulta-parametros.md) |
 | **Dependencias** | HU-GEN-03-grillas-listados; tabla `PQ_parametros_gral`; seed [PQ_PARAMETROS_GRAL.PedidosWeb.seed.json](../../backend/seed/PQ_PARAMETROS_GRAL/PQ_PARAMETROS_GRAL.PedidosWeb.seed.json) |
@@ -62,6 +62,7 @@ Fuente de verdad: **[consulta-parametros.md](../../02-producto/PedidosWeb/consul
 6. **Permiso:** `Permiso_Repo` sobre `pw_consultaparametros` (misma familia que consultas comerciales).
 7. Servicios runtime existentes (`PedidosWebParameterService`) **no** se reemplazan; esta pantalla no altera su lectura.
 8. **RN-P01 (CC PQ #9):** Parámetro `ActualizarPrecioCopia` (`tipo_valor = B`) visible en listado con caption «Actualizar precios al copiar comprobante», valor Sí/No y tooltip; sin edición web.
+9. **RN-P02 (CC PQ #12):** Parámetro `IncluyeArticulosNoStockeables` (`tipo_valor = B`) visible en listado con valor Sí/No, caption/tooltip i18n informativos (uso en alimentador de artículos); sin edición web.
 
 ## Decisiones cerradas (producto / B1)
 
@@ -89,6 +90,9 @@ Fuente de verdad: **[consulta-parametros.md](../../02-producto/PedidosWeb/consul
 - [x] **CA-CC3-01:** Encabezado columna Valor centrado.
 - [x] **CA-CC3-02:** Celdas de valor centradas horizontalmente.
 - [x] **CA-CC3-03:** Sin regresión en descripción, tooltip ni ausencia de columna Clave.
+- [ ] **CA-CC12-P01:** Existe parámetro `IncluyeArticulosNoStockeables` (B) visible en consulta de parámetros (Sí/No).
+- [ ] **CA-CC12-P02:** Sin edición web del valor.
+- [ ] **CA-CC12-P03:** Caption/tooltip i18n informativos (uso en alimentador de artículos).
 
 ## Escenarios Gherkin
 
@@ -150,3 +154,7 @@ Feature: Consulta de parámetros PedidosWeb (solo lectura)
 ## Historial CC PQ #9 (02/07/2026) — Parte I 02/07/2026
 
 Alta parámetro `ActualizarPrecioCopia` en consulta solo lectura (58 claves seed). Unificación delta CC PQ #9 (archivo `*-update` eliminado en Parte I). Evidencia: [F-CC-PQ-9-cierre-formal](../../04-tareas/101-PedidosWeb/F-CC-PQ-9-cierre-formal.md).
+
+## Historial CC PQ #12 (28/08/2026) — Parte I 30/08/2026
+
+Alta parámetro `IncluyeArticulosNoStockeables` en consulta solo lectura (RN-P02, CA-CC12-P01…P03). Unificación delta `HU-GEN-04-consulta-parametros-update-01` (archivo eliminado en Parte I). Queda pendiente `HU-GEN-04-consulta-parametros-update.md`.

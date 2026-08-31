@@ -5,7 +5,7 @@
 | **SPEC madre** | [PedidosWeb_SPEC_MVP.md](PedidosWeb_SPEC_MVP.md) |
 | **Estado** | En revisión |
 | **Prioridad épica** | Must |
-| **Última actualización** | 2026-06-16 (Parte I — CC PQ #4 pivot informes) |
+| **Última actualización** | 2026-08-30 (Parte I — CC PQ #12) |
 
 ## Objetivo
 
@@ -15,6 +15,9 @@ Pantallas de consulta con `DataGridDx`, layouts, exportación **Excel**, accione
 
 - Grillas: pedidos ingresados, pendientes, presupuestos 99, presupuestos 98 (solo lectura)
 - Stock, deuda, cheques, historial (modal detalle ventas)
+- **Deuda:** importe/saldo en **verde** si a favor del cliente (saldo &lt; 0); **rojo** si vencido (`fecha_vto < hoy`) con saldo a cargo; si ambos, vencido manda cuando saldo &gt; 0 (CC PQ #12).
+- **Historial:** DateBox fecha desde / fecha hasta (default vacío); query params `fecha_desde`/`fecha_hasta` (`data-testid`: `historialFechaDesde`, `historialFechaHasta`).
+- **Stock UI:** sin controles extra; la grilla no lista no-stockeables (exclusión API).
 - **Detalle de pedidos** (grilla plana cabecera + renglón)
 - **CC PQ #4:** pivot en Detalle pedidos, Deudas, Cheques y Stock (`ConsultaGrillaPivotShell`, catálogo `pq_pivots_*`)
 - Carátula con `fecha_proceso` (**formato `dd/MM/yyyy HH:mm`**, i18n, sin segundos)
@@ -46,6 +49,7 @@ HU-101-015…018, HU-101-021…023, HU-101-028
 - [x] Layouts y export operativos
 - [x] CC PQ #1: nombre comercial, carátula fecha, actualizar, copiar pendientes, precio neto detalle
 - [x] CC PQ #4: cuatro informes con toggle grilla/pivot; catálogo pivot; E2E detalle + deuda
+- [x] CC PQ #12: colores saldo deuda; rango fechas historial; stock sin no-stockeables
 
 ## Historial de cambios
 
@@ -55,3 +59,5 @@ HU-101-015…018, HU-101-021…023, HU-101-028
 | 09/06/2026 | Parte I | Unificación oleada CC PQ #1 |
 | 11/06/2026 | CC PQ #4 / Parte G | Pivot en 4 informes — volcado updates |
 | 16/06/2026 | Parte I CC #4 | Unificación `SPEC-101-11-consultas-ui-update`; manual y producto pivot |
+| 28/08/2026 | CC PQ #12 | Colores deuda + rango fechas historial |
+| 30/08/2026 | Parte I | Unificación `SPEC-101-11-consultas-ui-update-01`. Queda abierto `SPEC-101-11-…-update.md` |

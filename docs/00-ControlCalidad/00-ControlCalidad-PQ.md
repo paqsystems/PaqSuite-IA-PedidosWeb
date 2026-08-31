@@ -46,7 +46,7 @@ Este archivo **no sustituye** SPEC, HU ni TR: es la **entrada** del circuito de 
 
 | # | Fecha | Estado | Resumen |
 |---|-------|--------|---------|
-| 12 | 28/08/2026 | Implementado (G+D+E 28/08; F1 29/08). Pendiente smoke PQ e I | Saldo deuda en carga; unidades/precio neto modal; no stockeables; sync leyendas; colores deuda; rango fechas historial |
+| 12 | 28/08/2026 | Finalizado (Parte I 30/08/2026) | Saldo deuda en carga; unidades/precio neto modal; no stockeables; sync leyendas; colores deuda; rango fechas historial |
 | 11 | 18/08/2026 | Especificado (G+D+E 18/08/2026). Pendiente F e I | Contactos de cliente (`pq_pedidosweb_clientescontactos`) en API `GET /clientes` (listado + unitario); sin UI PedidosWeb |
 | 10 | 30/07/2026 | Implementado (D+E 30/07/2026; F1 18/08/2026). Pendiente Parte I | `CargaUnidadesVenta` — cantidad dual stock/venta; Excel, mail, asistente; `cantidad_venta` en Detalle de Pedidos |
 | 9 | 02/07/2026 | Finalizado (Parte I 02/07/2026) | `ActualizarPrecioCopia` al copiar — D+E+F+I OK; copia paramétrica + modal error |
@@ -69,7 +69,7 @@ Este archivo **no sustituye** SPEC, HU ni TR: es la **entrada** del circuito de 
 |-------|--------|
 | **Fecha** | 28/08/2026 |
 | **Responsable** | Pablo Quarracino (PQ) |
-| **Estado** | Implementado (G+D+E 28/08/2026; F1 29/08/2026). Pendiente smoke PQ con BD e I |
+| **Estado** | Finalizado (Parte I 30/08/2026) |
 
 ### Hallazgos
 
@@ -82,7 +82,7 @@ Mejoras solicitadas por los usuarios
 - En Carga de Pedidos, tras elegir un cliente mostrar el saldo de la deuda con las siguientes particularidades : 1) Si está en cero o con saldo a favor del cliente, mostrarlo en verde. 2) Si tiene saldo y ninguna factura vencida, mostrarlo en negro. 3) Si tiene algún saldo vencido, mostrarlo en rojo. 
 - por otra parte, si el saldo NO es cero, que tenga un icono junto al mismo para desplegar una ventana modal con los comprobantes pendientes, SIMIL la consulta de deuda (pero solo la grilla y el total, sin capacidades de exportar, plantillas, etc)
 
-*Procesado* → [SPEC-101-10-update-01](../05-open-spec/updates/101-PedidosWeb/SPEC-101-10-pantalla-carga-update-01.md) · [HU-101-004-update-01](../03-historias-usuario/updates/101-PedidosWeb/HU-101-004-seleccion-cliente-update-01.md) · [HU-101-005-update](../03-historias-usuario/updates/101-PedidosWeb/HU-101-005-inicializacion-cabecera-update.md) · [TR-SPEC-101-10-update-01](../04-tareas/updates/101-PedidosWeb/TR-SPEC-101-10-pantalla-carga-update-01.md) — Parte G 28/08/2026
+*Procesado* → [SPEC-101-10](../05-open-spec/101-PedidosWeb/SPEC-101-10-pantalla-carga.md) · [HU-101-004](../03-historias-usuario/101-PedidosWeb/HU-101-004-seleccion-cliente.md) · [HU-101-005](../03-historias-usuario/101-PedidosWeb/HU-101-005-inicializacion-cabecera.md) · [TR-SPEC-101-10](../04-tareas/101-PedidosWeb/TR-SPEC-101-10-pantalla-carga.md) — Parte G 28/08/2026 · **Parte I** 30/08/2026
 
 #### Carga de Pedidos : Destacar unidades cuando se carga unidades de venta
 
@@ -90,7 +90,7 @@ Mejoras solicitadas por los usuarios
 - en el mail que se envia en la confirmación, que incluya las dos columnas "Bultos" (por las cantidades de venta) y "Unidades" por las cantidades netas.
 - Aprovechar que se modifica la ventana modal de carga de un renglón, e incluir también el precio unitario neto (precio cargado menos bonificación del renglon menos bonificacion neta de la cabecera del pedido)
 
-*Procesado* → [SPEC-101-10-update-01](../05-open-spec/updates/101-PedidosWeb/SPEC-101-10-pantalla-carga-update-01.md) · [SPEC-101-13-update-01](../05-open-spec/updates/101-PedidosWeb/SPEC-101-13-mails-update-01.md) · [HU-101-006-update-01](../03-historias-usuario/updates/101-PedidosWeb/HU-101-006-carga-renglones-update-01.md) · [HU-101-008-update](../03-historias-usuario/updates/101-PedidosWeb/HU-101-008-precio-importes-update.md) · [HU-101-019-update-01](../03-historias-usuario/updates/101-PedidosWeb/HU-101-019-mail-grabar-update-01.md) · [TR-SPEC-101-10-update-01](../04-tareas/updates/101-PedidosWeb/TR-SPEC-101-10-pantalla-carga-update-01.md) · [TR-SPEC-101-13-update-01](../04-tareas/updates/101-PedidosWeb/TR-SPEC-101-13-mails-update-01.md) — Parte G 28/08/2026
+*Procesado* → [SPEC-101-10](../05-open-spec/101-PedidosWeb/SPEC-101-10-pantalla-carga.md) · [SPEC-101-13](../05-open-spec/101-PedidosWeb/SPEC-101-13-mails.md) · [HU-101-006](../03-historias-usuario/101-PedidosWeb/HU-101-006-carga-renglones.md) · [HU-101-008](../03-historias-usuario/101-PedidosWeb/HU-101-008-precio-importes.md) · [HU-101-019](../03-historias-usuario/101-PedidosWeb/HU-101-019-mail-grabar.md) · [TR-SPEC-101-10](../04-tareas/101-PedidosWeb/TR-SPEC-101-10-pantalla-carga.md) · [TR-SPEC-101-13](../04-tareas/101-PedidosWeb/TR-SPEC-101-13-mails.md) — Parte G 28/08/2026 · **Parte I** 30/08/2026
 
 #### Parámetro "Incluye artículos no stockeables"
 
@@ -98,7 +98,7 @@ Mejoras solicitadas por los usuarios
 - en la búsqueda de artículos, estos items no deben mostrar stock
 - NO deben aparecer en la consulta de stock
 
-*Procesado* → [SPEC-001-04-update-01](../05-open-spec/updates/001-Generaliddes/SPEC-001-04-configuracion-global-update-01.md) · [SPEC-101-02-update-02](../05-open-spec/updates/101-PedidosWeb/SPEC-101-02-modelos-update-02.md) · [SPEC-101-07-update-01](../05-open-spec/updates/101-PedidosWeb/SPEC-101-07-consultas-api-update-01.md) · [SPEC-101-10-update-01](../05-open-spec/updates/101-PedidosWeb/SPEC-101-10-pantalla-carga-update-01.md) · [HU-GEN-04-update-01](../03-historias-usuario/updates/001-Generaliddes/HU-GEN-04-consulta-parametros-update-01.md) · [HU-101-005-update](../03-historias-usuario/updates/101-PedidosWeb/HU-101-005-inicializacion-cabecera-update.md) · [HU-101-018-update](../03-historias-usuario/updates/101-PedidosWeb/HU-101-018-consulta-stock-update.md) · [TR-GEN-04-update-01](../04-tareas/updates/001-Generaliddes/TR-GEN-04-consulta-parametros-update-01.md) · [TR-SPEC-101-02-update-02](../04-tareas/updates/101-PedidosWeb/TR-SPEC-101-02-modelos-update-02.md) · [TR-SPEC-101-07-update-01](../04-tareas/updates/101-PedidosWeb/TR-SPEC-101-07-consultas-api-update-01.md) — Parte G 28/08/2026 · **columna canónica artículos:** `stockeable` (default true) · **parámetro:** `IncluyeArticulosNoStockeables` (informativo)
+*Procesado* → [SPEC-001-04](../05-open-spec/001-Generaliddes/SPEC-001-04-configuracion-global.md) · [SPEC-101-02](../05-open-spec/101-PedidosWeb/SPEC-101-02-modelos.md) · [SPEC-101-07](../05-open-spec/101-PedidosWeb/SPEC-101-07-consultas-api.md) · [SPEC-101-10](../05-open-spec/101-PedidosWeb/SPEC-101-10-pantalla-carga.md) · [HU-GEN-04](../03-historias-usuario/001-Generaliddes/HU-GEN-04-consulta-parametros.md) · [HU-101-005](../03-historias-usuario/101-PedidosWeb/HU-101-005-inicializacion-cabecera.md) · [HU-101-018](../03-historias-usuario/101-PedidosWeb/HU-101-018-consulta-stock.md) · [TR-GEN-04](../04-tareas/001-Generaliddes/TR-GEN-04-consulta-parametros.md) · [TR-SPEC-101-02](../04-tareas/101-PedidosWeb/TR-SPEC-101-02-modelos.md) · [TR-SPEC-101-07](../04-tareas/101-PedidosWeb/TR-SPEC-101-07-consultas-api.md) — Parte G 28/08/2026 · **Parte I** 30/08/2026 · **columna canónica artículos:** `stockeable` (default true) · **parámetro:** `IncluyeArticulosNoStockeables` (informativo)
 
 #### Carga de Pedidos : Alteración de leyendas predefinidas de clientes
 
@@ -111,14 +111,14 @@ c) Se carga un nuevo pedido de este cliente y se modifica la leyenda por "NO ent
 d) Se edita el pedido 100 para cambiar algún otro dato, sin modificar la leyenda1.
 en este caso , NO debe volver a colocar "Entegar folletería", por ser diferente a la leyenda1 actual del cliente
 
-*Procesado* → [SPEC-101-04-update-01](../05-open-spec/updates/101-PedidosWeb/SPEC-101-04-services-pedidos-update-01.md) · [SPEC-101-10-update-01](../05-open-spec/updates/101-PedidosWeb/SPEC-101-10-pantalla-carga-update-01.md) · [HU-101-009-update](../03-historias-usuario/updates/101-PedidosWeb/HU-101-009-grabar-pedido-update.md) · [HU-101-010-update](../03-historias-usuario/updates/101-PedidosWeb/HU-101-010-grabar-presupuesto-update.md) · [HU-101-011-update](../03-historias-usuario/updates/101-PedidosWeb/HU-101-011-editar-pedido-update.md) · [TR-SPEC-101-04-update-01](../04-tareas/updates/101-PedidosWeb/TR-SPEC-101-04-services-pedidos-update-01.md) · [TR-SPEC-101-10-update-01](../04-tareas/updates/101-PedidosWeb/TR-SPEC-101-10-pantalla-carga-update-01.md) — Parte G 28/08/2026 · **dirty de sesión**, no comparar vs maestro al grabar
+*Procesado* → [SPEC-101-04](../05-open-spec/101-PedidosWeb/SPEC-101-04-services-pedidos.md) · [SPEC-101-10](../05-open-spec/101-PedidosWeb/SPEC-101-10-pantalla-carga.md) · [HU-101-009](../03-historias-usuario/101-PedidosWeb/HU-101-009-grabar-pedido.md) · [HU-101-010](../03-historias-usuario/101-PedidosWeb/HU-101-010-grabar-presupuesto.md) · [HU-101-011](../03-historias-usuario/101-PedidosWeb/HU-101-011-editar-pedido.md) · [TR-SPEC-101-04](../04-tareas/101-PedidosWeb/TR-SPEC-101-04-services-pedidos.md) · [TR-SPEC-101-10](../04-tareas/101-PedidosWeb/TR-SPEC-101-10-pantalla-carga.md) — Parte G 28/08/2026 · **Parte I** 30/08/2026 · **dirty de sesión**, no comparar vs maestro al grabar
 
 #### Informe de Deuda : Colores en los importes
 
 - que los comprobantes con saldo a favor del cliente, muestre los importes en verde.
 - que los comprobantes con saldo vencidos, los muestre en rojo.
 
-*Procesado* → [SPEC-101-11-update-01](../05-open-spec/updates/101-PedidosWeb/SPEC-101-11-consultas-ui-update-01.md) · [HU-101-021-update](../03-historias-usuario/updates/101-PedidosWeb/HU-101-021-consulta-deuda-update.md) · [TR-SPEC-101-11-update-01](../04-tareas/updates/101-PedidosWeb/TR-SPEC-101-11-consultas-ui-update-01.md) — Parte G 28/08/2026
+*Procesado* → [SPEC-101-11](../05-open-spec/101-PedidosWeb/SPEC-101-11-consultas-ui.md) · [HU-101-021](../03-historias-usuario/101-PedidosWeb/HU-101-021-consulta-deuda.md) · [TR-SPEC-101-11](../04-tareas/101-PedidosWeb/TR-SPEC-101-11-consultas-ui.md) — Parte G 28/08/2026 · **Parte I** 30/08/2026
 
 #### Historial de Ventas : incluir rango de fechas.
 
@@ -127,17 +127,23 @@ en este caso , NO debe volver a colocar "Entegar folletería", por ser diferente
 - si carga fecha desde pero no fecha hasta, filtrar desde esa fecha hacia adelante
 - si carga fecha hasta pero no fecha desde, filtrar hasta la fecha indicada.
 
-*Procesado* → [SPEC-101-07-update-01](../05-open-spec/updates/101-PedidosWeb/SPEC-101-07-consultas-api-update-01.md) · [SPEC-101-11-update-01](../05-open-spec/updates/101-PedidosWeb/SPEC-101-11-consultas-ui-update-01.md) · [HU-101-023-update](../03-historias-usuario/updates/101-PedidosWeb/HU-101-023-historial-ventas-update.md) · [TR-SPEC-101-07-update-01](../04-tareas/updates/101-PedidosWeb/TR-SPEC-101-07-consultas-api-update-01.md) · [TR-SPEC-101-11-update-01](../04-tareas/updates/101-PedidosWeb/TR-SPEC-101-11-consultas-ui-update-01.md) — Parte G 28/08/2026 · convive con `DiasVentasDetalladas`
+*Procesado* → [SPEC-101-07](../05-open-spec/101-PedidosWeb/SPEC-101-07-consultas-api.md) · [SPEC-101-11](../05-open-spec/101-PedidosWeb/SPEC-101-11-consultas-ui.md) · [HU-101-023](../03-historias-usuario/101-PedidosWeb/HU-101-023-historial-ventas.md) · [TR-SPEC-101-07](../04-tareas/101-PedidosWeb/TR-SPEC-101-07-consultas-api.md) · [TR-SPEC-101-11](../04-tareas/101-PedidosWeb/TR-SPEC-101-11-consultas-ui.md) — Parte G 28/08/2026 · **Parte I** 30/08/2026 · convive con `DiasVentasDetalladas`
 
 ### Verificación ciclo OpenSpec (28/08/2026)
 
 | Parte | Documento | Veredicto |
 |-------|-----------|-----------|
-| G | Updates en `docs/.../updates/` (SPEC/HU/TR) | Hecho 28/08/2026 — metadatos updates **Pendiente** (esperan I) |
+| G | Updates en `docs/.../updates/` (SPEC/HU/TR) | Hecho 28/08/2026 — unificados en Parte I 30/08/2026 |
 | D | Implementación código (6 ítems) | **Hecho** 28/08/2026 |
 | E | [E-CC-PQ-12-tests.md](../04-tareas/101-PedidosWeb/E-CC-PQ-12-tests.md) | **Aprobado** 28/08/2026 — 11 PHPUnit + 15 Vitest (skips posibles en BD parcial) |
-| F | [F-CC-PQ-12-cierre-formal.md](../04-tareas/101-PedidosWeb/F-CC-PQ-12-cierre-formal.md) | **F1 Aprobado con observaciones** 29/08/2026 — smoke HTTP/QA manual **pendiente** (timeout SQL Server) |
-| I | — | **Pendiente** — no fusionar updates ni marcar CC **Finalizado** hasta I |
+| F | [F-CC-PQ-12-cierre-formal.md](../04-tareas/101-PedidosWeb/F-CC-PQ-12-cierre-formal.md) | **F1 Aprobado con observaciones** 29/08/2026 — **QA manual PQ Aprobado** 30/08/2026 |
+| I | [I-CC-PQ-12-cierre-formal.md](../04-tareas/101-PedidosWeb/I-CC-PQ-12-cierre-formal.md) | **Aprobado** 30/08/2026 — updates CC #12 unificados; archivos `*-update-01` / HU sin hermano eliminados |
+
+### Verificación Parte I (30/08/2026)
+
+| Parte | Documento | Veredicto |
+|-------|-----------|-----------|
+| I | [I-CC-PQ-12-cierre-formal](../04-tareas/101-PedidosWeb/I-CC-PQ-12-cierre-formal.md) | **Aprobado** — SPEC/HU/TR base actualizados; manual `PedidosWeb.md`; updates del #12 eliminados. Quedan abiertos updates de **CC #10** y otras familias (SPEC/HU/TR `*-update.md` sin sufijo 01/02). |
 
 ---
 

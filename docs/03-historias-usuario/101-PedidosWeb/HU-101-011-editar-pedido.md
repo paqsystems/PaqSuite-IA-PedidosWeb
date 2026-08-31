@@ -5,7 +5,8 @@
 | **ID** | HU-101-011-editar-pedido |
 | **SPEC origen** | [SPEC-101-04-services-pedidos](../../05-open-spec/101-PedidosWeb/SPEC-101-04-services-pedidos.md), [SPEC-101-10](../../05-open-spec/101-PedidosWeb/SPEC-101-10-pantalla-carga.md) |
 | **Prioridad** | Must |
-| **Estado** | En Control Calidad |
+| **Estado** | Finalizado (Parte I CC PQ #12) |
+| **Última actualización** | 2026-08-30 (Parte I — CC PQ #12) |
 | **B1** | Enriquecida (2026-06-01) |
 
 ## Narrativa
@@ -26,6 +27,7 @@ para **corregir datos antes de la descarga al ERP**, respetando el bloqueo param
 6. Descarga ERP concurrente: además validar `MinutosBloqueo` + `MinutosAviso` (producto §21; SPEC-001-04) antes de pasar a **-1**.
 7. Al **Grabar pedido**, **Cancelar** o abandonar según TR: volver a **0** si corresponde y limpiar marcas de modificación.
 8. La edición usa la **misma pantalla** que presupuesto (HU-101-009/010, SPEC-101-10).
+9. **CC PQ #12:** En edición, snapshot al abrir; grabar sin tocar leyenda no modifica maestro aunque el texto del pedido difiera del maestro actual. Si el usuario modifica la leyenda en la sesión de edición, sí actualiza el maestro (si `ClienteLeyendaN`).
 
 ## Criterios de aceptación
 
@@ -36,6 +38,8 @@ para **corregir datos antes de la descarga al ERP**, respetando el bloqueo param
 - [ ] **CA-05:** Pedido **-1** con `fechahora_ultima_actividad + MinutosWeb >= ahora` y otro usuario → rechazo.
 - [ ] **CA-06:** Tras actividad del editor, `fechahora_ultima_actividad` se actualiza y extiende la ventana.
 - [ ] **CA-07:** Parámetro `MinutosWeb` desde ERP (SPEC-001-04).
+- [ ] **CA-CC12-E01:** En edición, snapshot al abrir; grabar sin tocar leyenda no modifica maestro aunque el texto del pedido difiera del maestro actual.
+- [ ] **CA-CC12-E02:** Si el usuario modifica la leyenda en la sesión de edición, sí actualiza el maestro (si `ClienteLeyendaN`).
 
 ## Escenarios Gherkin
 
@@ -54,6 +58,10 @@ Feature: Edición pedido estado -1 y ventana MinutosWeb
     When un usuario con permiso abre edición
     Then puede modificar y grabar pedido
 ```
+
+## Historial CC PQ #12 (28/08/2026) — Parte I 30/08/2026
+
+Snapshot de leyendas en edición y sync condicionado por dirty (RN-9, CA-CC12-E01…E02). Unificación delta `HU-101-011-editar-pedido-update` (archivo eliminado en Parte I).
 
 ## Veredicto B1
 

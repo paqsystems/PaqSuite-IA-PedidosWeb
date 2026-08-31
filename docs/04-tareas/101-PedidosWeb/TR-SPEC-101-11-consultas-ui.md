@@ -8,7 +8,7 @@
 | **Prioridad** | Must |
 | **Dependencias** | TR-SPEC-101-07-consultas-api; TR-SPEC-101-09-frontend-base; [TR-GEN-03-grillas-listados](../001-Generaliddes/TR-GEN-03-grillas-listados.md); [TR-GEN-03-exportaciones](../001-Generaliddes/TR-GEN-03-exportaciones.md); [TR-GEN-03-layouts-grilla](../001-Generaliddes/TR-GEN-03-layouts-grilla.md) |
 | **Estado** | En Control Calidad |
-| **Última actualización** | 2026-06-16 (Parte I — CC PQ #4 pivot informes) |
+| **Última actualización** | 2026-08-30 (Parte I — CC PQ #12) |
 
 **Origen:** HU-101-015, 016, 017, 018, 021, 022, 023, **028**  
 **Referencia SPEC:** [SPEC-101-11-consultas-ui](../../05-open-spec/101-PedidosWeb/SPEC-101-11-consultas-ui.md)  
@@ -51,6 +51,9 @@ Como **usuario comercial**, quiero **consultar pedidos, presupuestos, stock, deu
 - **AC-PVT-05 (CC PQ #4):** Diseños pivot (`pq_pivots_config`), plantilla inicial, `pivotRefresh`, export pivot GEN-08.
 - **AC-PVT-06 (CC PQ #4):** Pedidos ingresados, pendientes y presupuestos **sin** shell pivot.
 - **AC-PVT-07 (CC PQ #4):** E2E mínimo detalle + deuda con toggle (`pivot-informes.spec.ts`).
+- **AC-CC12-T-U1:** `DeudaPage`: color de celda `saldo` según monto (`onCellPrepared` o equivalente DX).
+- **AC-CC12-T-U2:** `HistorialVentasPage`: DateBox `fecha_desde`/`fecha_hasta`; pasar a `fetchHistorialVentas`.
+- **AC-CC12-T-U3:** Stock: grilla coherente con API (sin filas no-stockeables).
 
 ### Escenarios Gherkin
 
@@ -397,3 +400,16 @@ Ver TR-SPEC-101-07 para request/response, 401, 403 y envelope.
 | T5 | Columna precio neto detalle | `DetallePedidosConsultaColumns` |
 | T6 | i18n 5 locales | `consultas.*` |
 | T7 | Vitest + E2E consultas | `consultas-d1.spec.ts`, columnas tests |
+
+## CC PQ #12 — Parte I 30/08/2026
+
+Colores deuda, filtros fecha historial y coherencia stock con API.
+
+| ID | Tarea | Evidencia |
+|----|-------|-----------|
+| T1 | `DeudaPage` colores `saldo` | `onCellPrepared` / `DataGridDx` |
+| T2 | `HistorialVentasPage` DateBox desde/hasta | `fetchHistorialVentas` |
+| T3 | Stock sin no-stockeables | `StockPage` + API TR-101-07 |
+| T4 | Tests Vitest / E2E mínimos | filtros y estilos |
+
+Unificación delta CC PQ #12 update-01 (archivo `TR-SPEC-101-11-consultas-ui-update-01.md` eliminado en Parte I).

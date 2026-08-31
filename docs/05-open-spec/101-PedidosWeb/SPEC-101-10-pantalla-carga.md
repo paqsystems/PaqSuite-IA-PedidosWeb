@@ -5,7 +5,7 @@
 | **SPEC madre** | [PedidosWeb_SPEC_MVP.md](PedidosWeb_SPEC_MVP.md) |
 | **Estado** | En revisión |
 | **Prioridad épica** | Must |
-| **Última actualización** | 2026-06-24 (modal precarga stock, bloqueo cliente, NOLOCK backend) |
+| **Última actualización** | 2026-08-30 (Parte I — CC PQ #12) |
 
 ## Objetivo
 
@@ -24,6 +24,10 @@ Pantalla **única** pedido/presupuesto: mismo flujo transaccional; cabecera, ren
 - Columna **Precio neto unitario** en grilla de renglones (solo lectura); persistencia en `pq_pedidosweb_pedidosdetalle.precio_neto`.
 - Mail post-grabación (101-13); identificación visual pedido vs presupuesto.
 - DevExtreme; i18n.
+- **Saldo de deuda** tras elegir cliente (CC PQ #12): verde si saldo neto ≤ 0; negro si saldo > 0 sin vencidos; rojo si hay comprobante vencido con saldo. Si saldo ≠ 0, ícono abre Popup con grilla de pendientes + total (**sin** export/layouts/pivot). Fuente `GET /consultas/deuda?cod_cliente=…`.
+- **Modal renglón:** si `CargaUnidadesVenta`, mostrar equivalencia unidades de stock (`cantidad_venta * equivalencia_ventas`, equiv≤0→1), solo lectura. Incluir **precio unitario neto** (precio − bonif. renglón − bonif. neta cabecera).
+- **Leyendas dirty:** snapshot de `leyenda_1…5` al abrir/inicializar; al grabar enviar flags dirty para SPEC-101-04.
+- **Listbox artículos:** ítems con `stockeable = false` pueden aparecer, **sin** mostrar stock/disponible.
 
 ## Permisos precio y descuento (parámetros ERP)
 
@@ -72,6 +76,7 @@ HU-101-005…010, copia (B), HU-101-011, HU-101-012 (solo pedido delete)
 - [x] CC PQ 09/06/2026: listas carga (loading, performance, display código artículo, búsqueda lazy)
 - [x] CC PQ #5 09/06/2026: listbox artículos — disponible neto con `comprometido_web`; display con base opcional
 - [x] CC PQ #6 17/06/2026: disponible base en listbox = agregado SUM por `articulos.base` (§5 consulta stock), no stock del código base aislado
+- [x] CC PQ #12: saldo deuda + modal; equivalencia unidades y precio neto en modal renglón; dirty leyendas; no stockeables sin stock en listbox
 
 ## In scope — CC PQ #5 / #6 (listbox artículos)
 
@@ -107,3 +112,5 @@ Fuente de verdad UI: [pantalla-carga-comprobante-ui.md](../../02-producto/Pedido
 | 23/06/2026 | perf carga | Precarga stock al montar; precios por lista (`solo_catalogo`); merge cliente — ver `pantalla-carga-comprobante-ui.md` §3 |
 | 24/06/2026 | perf carga | Modal precarga stock; cliente bloqueado hasta stock; precios batch con `solo_catalogo`; sin fetch por artículo al agregar — ver `pantalla-carga-comprobante-ui.md` §3 |
 | 24/06/2026 | concurrencia SQL | Lecturas ERP sin bloqueo (`NOLOCK` / `READ UNCOMMITTED`); escrituras con `READ COMMITTED` — ver [sqlserver-lecturas-sin-bloqueo.md](../../backend/sql/sqlserver-lecturas-sin-bloqueo.md) |
+| 28/08/2026 | CC PQ #12 | Deuda en carga, unidades/precio neto modal, leyendas dirty, stockeable UI |
+| 30/08/2026 | Parte I | Unificación `SPEC-101-10-pantalla-carga-update-01`. Queda abierto `SPEC-101-10-…-update.md` (CC #10) |

@@ -8,7 +8,7 @@
 | **Prioridad** | Must |
 | **Dependencias** | [TR-SPEC-101-02-modelos](TR-SPEC-101-02-modelos.md), [TR-SPEC-101-03-repositories](TR-SPEC-101-03-repositories.md); lectura parámetros [SPEC-001-04](../../05-open-spec/001-Generaliddes/SPEC-001-04-configuracion-global.md) (defaults temporales documentados); visibilidad [SPEC-101-06](../../05-open-spec/101-PedidosWeb/SPEC-101-06-seguridad-visibilidad.md) / TR-GEN-02-visibilidad |
 | **Estado** | En Control Calidad |
-| **Última actualización** | 2026-07-02 (Parte I — CC PQ #9) |
+| **Última actualización** | 2026-08-30 (Parte I — CC PQ #12) |
 
 **Origen:** [SPEC-101-04](../../05-open-spec/101-PedidosWeb/SPEC-101-04-services-pedidos.md), [PedidosWeb_SPEC_MVP.md](../../05-open-spec/101-PedidosWeb/PedidosWeb_SPEC_MVP.md) §5, §5.1, §5.3, §12  
 **Referencia SPEC:** [SPEC-101-04-services-pedidos](../../05-open-spec/101-PedidosWeb/SPEC-101-04-services-pedidos.md)  
@@ -71,6 +71,8 @@ para **garantizar coherencia con el ERP, trazabilidad y ausencia de DELETE en pr
 - **AC-12**: Totales/IVA en BD coinciden con cálculo service (tests unitarios con fixtures).
 - **AC-13**: Cobertura líneas `app/Services/PedidosWeb/**` ≥ **70 %** (SPEC MVP §12.2).
 - **AC-14**: Parámetros leídos vía servicio de configuración SPEC-001-04; defaults documentados si ausentes en tenant test.
+- **AC-CC12-T-L1:** Sync leyendas cliente 1–5 en grabar solo si parámetro `ClienteLeyendaN` activo **y** flag `leyendaNDirty` (o snapshot dirty equivalente).
+- **AC-CC12-T-L2:** Edición sin dirty en leyendas no modifica maestro cliente.
 
 ### Escenarios Gherkin
 
@@ -178,6 +180,12 @@ Fuente: producto §10.1, [SPEC-101-10](../../05-open-spec/101-PedidosWeb/SPEC-10
 
 **RN-18**: Auditoría en cada grabación: usuario/fecha modificación; creación en altas.
 
+**RN-19 (CC PQ #12):** Sincronización leyendas cliente 1–5 al grabar comprobante:
+
+- DTO `GrabarComprobanteDto` incluye valores leyenda + flags `leyenda1Dirty`…`leyenda5Dirty` (o comparación snapshot FE/BE).
+- En `PedidoService` / `GrabacionService`: si `leyendaNDirty === true` **y** parámetro `ClienteLeyendaN` activo → `UPDATE pq_pedidosweb_clientes` con leyenda N.
+- Sin dirty: no tocar maestro cliente (escenarios a–d CC PQ #12).
+
 ---
 
 ## 4) Impacto en Datos
@@ -211,8 +219,8 @@ Fuente: producto §10.1, [SPEC-101-10](../../05-open-spec/101-PedidosWeb/SPEC-10
 
 | Método service | Entrada | Salida / efecto |
 |----------------|---------|-----------------|
-| `grabarPedido(GrabarComprobanteDto)` | cabecera, renglones, contexto origen | `PedidoCabeceraDto` estado 0 |
-| `grabarPresupuesto(GrabarComprobanteDto)` | idem | estado 99 |
+| `grabarPedido(GrabarComprobanteDto)` | cabecera, renglones, contexto origen, **leyendas 1–5 + flags dirty** | `PedidoCabeceraDto` estado 0; sync cliente si aplica RN-19 |
+| `grabarPresupuesto(GrabarComprobanteDto)` | idem | estado 99; sync cliente si aplica RN-19 |
 | `iniciarEdicionPedido(codPedido, usuario)` | — | estado -1 o error |
 | `touchActividadEdicion(codPedido)` | — | actualiza `fechahora_ultima_actividad` |
 | `cancelarEdicionPedido(codPedido, usuario)` | — | estado 0, limpia bloqueo |
@@ -368,3 +376,15 @@ Copia paramétrica `ActualizarPrecioCopia` en `ComprobanteCopiaService` + FE `co
 | T3 | Tests | `ComprobanteCopiaServiceTest.php` (16 casos) |
 
 Unificación delta CC PQ #9 (archivo `*-update` eliminado en Parte I). Evidencia: [F-CC-PQ-9-cierre-formal](F-CC-PQ-9-cierre-formal.md).
+
+## CC PQ #12 — Parte I 30/08/2026
+
+Sync leyendas cliente 1–5 en grabación unificada: flags dirty en DTO, rama en `PedidoService`/`GrabacionService` y tests PHPUnit escenarios a–d.
+
+| ID | Tarea | Evidencia |
+|----|-------|-----------|
+| T1 | DTO dirty leyendas + contrato grabar | `GrabarComprobanteDto` |
+| T2 | `UPDATE` cliente condicionado | `GrabacionService` / `PedidoService` |
+| T3 | Tests escenarios dirty / no-dirty | `GrabacionServiceTest` o equivalente |
+
+Unificación delta CC PQ #12 update-01 (archivo `TR-SPEC-101-04-services-pedidos-update-01.md` eliminado en Parte I).

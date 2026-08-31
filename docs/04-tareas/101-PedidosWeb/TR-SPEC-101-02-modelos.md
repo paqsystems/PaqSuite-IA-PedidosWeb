@@ -8,7 +8,7 @@
 | **Prioridad** | Must |
 | **Dependencias** | Stub tenant operativo ([SPEC-101-01](../../05-open-spec/101-PedidosWeb/SPEC-101-01-backend-base.md) — etapa posterior AMB-C07); [PedidosWeb_Modelo_Datos_Final.md](../../02-producto/PedidosWeb/PedidosWeb_Modelo_Datos_Final.md) |
 | **Estado** | En Control Calidad |
-| **Última actualización** | 2026-06-01 |
+| **Última actualización** | 2026-08-30 (Parte I — CC PQ #12) |
 
 **Origen:** [SPEC-101-02](../../05-open-spec/101-PedidosWeb/SPEC-101-02-modelos.md), [PedidosWeb_SPEC_MVP.md](../../05-open-spec/101-PedidosWeb/PedidosWeb_SPEC_MVP.md) §7  
 **Referencia SPEC:** [SPEC-101-02-modelos](../../05-open-spec/101-PedidosWeb/SPEC-101-02-modelos.md)  
@@ -59,6 +59,8 @@ para **que repositories y services consuman una capa de persistencia tipada sin 
 - **AC-06**: **Ningún** modelo contiene métodos de negocio (cálculo totales, conversión estado, validación MinutosWeb).
 - **AC-07**: Tests smoke (factory o seed mínimo) confirman lectura/escritura en tenant `desarrollo` para cabecera+detalle.
 - **AC-08**: Claves compuestas resueltas con trait/repository pattern acordado (no forzar `save()` estándar sin documentar limitación).
+- **AC-CC12-T-M1:** Columna `stockeable` presente en `pq_pedidosweb_articulos` del tenant.
+- **AC-CC12-T-M2:** Default `true` (1) para filas existentes; modelo `Articulo` con cast `boolean`.
 
 ### Escenarios Gherkin
 
@@ -93,6 +95,7 @@ Feature: Modelos Eloquent PedidosWeb
 4. **RN-04**: **`cod_presupuesto_origen`** en pedido nuevo tras conversión; **`cod_pedido_generado`** vive en `presupuestos_cierres`, no duplicar como columna obligatoria en cabecera presupuesto.
 5. **RN-05**: Timestamps Laravel (`created_at`/`updated_at`) solo donde la tabla los tenga; cabecera ERP usa `fecha_creacion` / `fecha_modif` según modelo datos.
 6. **RN-06**: Modelos de tablas nuevas MVP pueden usar `$timestamps` si el DDL lo define (tratativas, logs).
+7. **RN-07 (CC PQ #12):** `pq_pedidosweb_articulos.stockeable` — `bit NOT NULL DEFAULT 1`; modelo `Articulo` expone propiedad `stockeable` (cast boolean); consumido por stock/consultas y API artículos (TR-101-07, TR-101-10).
 
 ---
 
@@ -107,7 +110,7 @@ Feature: Modelos Eloquent PedidosWeb
 | `Cliente` | `pq_pedidosweb_clientes` | `cod_client` |
 | `ClienteDireccionEntrega` | `pq_pedidosweb_clientesde` | compuesta |
 | `Vendedor` | `pq_pedidosweb_vendedores` | `cod_vended` |
-| `Articulo` | `pq_pedidosweb_articulos` | `codigo` |
+| `Articulo` | `pq_pedidosweb_articulos` | `codigo`; columna **`stockeable`** bit NOT NULL DEFAULT 1 |
 | `EscalasCabecera` | `pq_pedidosweb_escalas_cabecera` | `cod_escala` |
 | `EscalasDetalle` | `pq_pedidosweb_escalas_detalle` | compuesta `cod_escala`, `cod_valor` |
 | `Stock` | `pq_pedidosweb_stock` | `cod_articulo` |
@@ -142,6 +145,7 @@ Según [PedidosWeb_Modelo_Datos_Final.md](../../02-producto/PedidosWeb/PedidosWe
 1. `pedidosdetalle.cantidad` → decimal si aplica.
 2. Campos auditoría + `fechahora_*` + trazabilidad en cabecera si no existen en tenant.
 3. Creación tablas §7 (tratativas, motivos, cierres, logs).
+4. **CC PQ #12:** `ALTER` idempotente `pq_pedidosweb_articulos.stockeable` bit NOT NULL DEFAULT 1 (`alter-pq-pedidosweb-stockeable.sql`); bootstrap schema dev si aplica.
 
 ---
 
@@ -255,3 +259,15 @@ No aplica. Los consumidores son repositories (TR-101-03) y services (TR-101-04).
 ### Docs
 
 - Actualizar checklist DDL en TR-101-03 si alteraciones pendientes
+
+## CC PQ #12 — Parte I 30/08/2026
+
+Columna `stockeable` en maestro artículos: DDL idempotente, modelo Eloquent y documentación modelo datos §3.4.
+
+| ID | Tarea | Evidencia |
+|----|-------|-----------|
+| T1 | `ALTER` idempotente `stockeable` | `alter-pq-pedidosweb-stockeable.sql` |
+| T2 | Modelo `Articulo` + cast | `PqPedidoswebArticulo.php` |
+| T3 | Bootstrap schema dev | `PedidosWebDevSchemaBootstrap` (si aplica) |
+
+Unificación delta CC PQ #12 update-02 (archivo `TR-SPEC-101-02-modelos-update-02.md` eliminado en Parte I).

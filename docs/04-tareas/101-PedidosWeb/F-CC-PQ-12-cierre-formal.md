@@ -101,19 +101,19 @@ Verificación **F1 + F** (openspec-05 / agent-verification-guide) sobre las 6 co
 | OpenAPI UI | No verificado en vivo (BD caída impide bootstrap completo en tests Feature) |
 | OpenAPI JSON estático (`storage/api-docs/api-docs.json`) | OK — `fecha_desde` / `fecha_hasta` presentes en historial-ventas |
 
-### Checklist QA manual PQ (pendiente con BD disponible)
+### Checklist QA manual PQ (30/08/2026)
 
 | # | Escenario | Resultado PQ |
 |---|-----------|--------------|
-| 1 | Carga pedido: elegir cliente → saldo coloreado + modal comprobantes | Pendiente |
-| 2 | `CargaUnidadesVenta=true`: modal renglón muestra unidades equivalentes y precio neto | Pendiente |
-| 3 | Grabar pedido → mail con columnas Bultos y Unidades distintas | Pendiente |
-| 4 | Artículo `stockeable=0`: listbox sin disponible; ausente en consulta stock | Pendiente |
-| 5 | Modificar leyenda1 y grabar → actualiza maestro; editar pedido viejo sin tocar leyenda → no pisa maestro | Pendiente |
-| 6 | Informe deuda: saldos a favor verde, vencidos rojo | Pendiente |
-| 7 | Historial ventas: filtros fecha vacío / solo desde / solo hasta / rango | Pendiente |
+| 1 | Carga pedido: elegir cliente → saldo coloreado + modal comprobantes | OK |
+| 2 | `CargaUnidadesVenta=true`: modal renglón muestra unidades equivalentes y precio neto | OK |
+| 3 | Grabar pedido → mail con columnas Bultos y Unidades distintas | OK |
+| 4 | Artículo `stockeable=0`: listbox sin disponible; ausente en consulta stock | OK |
+| 5 | Modificar leyenda1 y grabar → actualiza maestro; editar pedido viejo sin tocar leyenda → no pisa maestro | OK |
+| 6 | Informe deuda: saldos a favor verde, vencidos rojo | OK |
+| 7 | Historial ventas: filtros fecha vacío / solo desde / solo hasta / rango | OK |
 
-**Resultado QA manual PQ:** **Pendiente** (bloqueado por conectividad BD en sesión 29/08/2026).
+**Resultado QA manual PQ:** **Aprobado** 30/08/2026 (usuario confirmó testeos manuales).
 
 ---
 
@@ -131,7 +131,7 @@ Verificación **F1 + F** (openspec-05 / agent-verification-guide) sobre las 6 co
 | ID | Tema | Destino |
 |----|------|---------|
 | OBS-F-01 | Smoke HTTP + PHPUnit con BD caída | Re-ejecutar `smoke-cc-pq-12-f.php` y filtro E cuando SQL Server responda |
-| OBS-F-02 | QA manual PQ checklist § arriba | PQ en `localhost:3010` tras migrate/SQL `stockeable` |
+| OBS-F-02 | QA manual PQ | **Cerrado** 30/08/2026 — testeos manuales OK |
 | OBS-F-03 | Historial mobile sin DateBox (solo web) | Aceptado en alcance TR-update (web informes) |
 | OBS-F-04 | Deploy `migrate` + `alter-pq-pedidosweb-stockeable.sql` en tenants | Runbook deploy pre-prod |
 
@@ -141,9 +141,9 @@ Verificación **F1 + F** (openspec-05 / agent-verification-guide) sobre las 6 co
 
 | Control | F1 (agente) | F (smoke HTTP) | F (manual PQ) |
 |---------|-------------|----------------|---------------|
-| CC #12 (28/08/2026) | **Aprobado con observaciones** | **Pendiente** (BD) | **Pendiente** (checklist) |
+| CC #12 (28/08/2026) | **Aprobado con observaciones** | **Pendiente** (script HTTP; BD en F1) | **Aprobado** 30/08/2026 |
 
-**Estado CC #12:** **Implementado (G+D+E 28/08/2026; F1 29/08/2026).** Pendiente smoke PQ con BD activa y **Parte I**.
+**Estado CC #12:** **Implementado (G+D+E 28/08/2026; F1 29/08/2026; QA manual 30/08/2026).** Cierre documental: **Parte I** [I-CC-PQ-12-cierre-formal](I-CC-PQ-12-cierre-formal.md).
 
 **Recomendación:** Con SQL Server disponible, ejecutar en orden:
 

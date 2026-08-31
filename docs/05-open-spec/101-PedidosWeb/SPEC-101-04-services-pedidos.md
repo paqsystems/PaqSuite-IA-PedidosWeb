@@ -5,7 +5,7 @@
 | **SPEC madre** | [PedidosWeb_SPEC_MVP.md](PedidosWeb_SPEC_MVP.md) |
 | **Estado** | En revisión |
 | **Prioridad épica** | Must |
-| **Última actualización** | 2026-07-02 (Parte I — CC PQ #9) |
+| **Última actualización** | 2026-08-30 (Parte I — CC PQ #12) |
 
 ## Objetivo
 
@@ -23,6 +23,7 @@ Reglas de negocio en services: CRUD, conversiones, copia, totales/IVA, auditorí
 - Auditoría: usuario/fecha creación y última modificación
 - Transición **-1** en edición pedido; **`fechahora_inicio_proceso`** (auditoría) y **`fechahora_ultima_actividad`** (vigencia bloqueo con **`MinutosWeb`** — HU-101-011)
 - Grabación desde pantalla única: acciones **grabar pedido** / **grabar presupuesto** (matriz §10.1 producto)
+- **Sync leyendas cliente** al grabar (CC PQ #12): si `ClienteLeyendaN = true` y la leyenda N quedó **dirty en la sesión** (valor distinto al snapshot al abrir/inicializar cabecera), actualizar `pq_pedidosweb_clientes.leyenda_N`. Si no se modificó en la sesión, **no** tocar el maestro aunque el texto del comprobante difiera del maestro actual (escenario pedido 100 vs 200).
 - Trazabilidad conversión: **`cod_presupuesto_origen`** en pedido; **`cod_pedido_generado`** en `presupuestos_cierres`
 
 ## Fuera de scope
@@ -47,7 +48,12 @@ HU-101-005…012, HU-101-013, HU-101-024, copia (trazar en B), auditoría transv
 - [ ] Cobertura services ≥ 70 % (§12 madre)
 - [ ] Sin DELETE presupuesto
 - [x] Copia paramétrica `ActualizarPrecioCopia` (CC PQ #9) — ver HU-101-026 / TR-SPEC-101-04
+- [x] CC PQ #12: sync leyendas dirty de sesión (HU-101-009/010/011)
 
 ## Historial CC PQ #9 (02/07/2026) — Parte I 02/07/2026
 
 Extensión `ComprobanteCopiaService::copiarBorrador` con lectura `ActualizarPrecioCopia`, lookup lista precios, validación granular precio cero/sin precio y recálculo importes. Unificación delta CC PQ #9 (archivo `*-update` eliminado en Parte I). Evidencia: [F-CC-PQ-9-cierre-formal](../../04-tareas/101-PedidosWeb/F-CC-PQ-9-cierre-formal.md).
+
+## Historial CC PQ #12 (28/08/2026) — Parte I 30/08/2026
+
+Al grabar pedido o presupuesto, `PedidoService` sincroniza leyendas 1–5 del maestro cliente solo si el parámetro `ClienteLeyendaN` está activo y el frontend envía dirty de sesión (`leyendas_dirty`). Unificación `SPEC-101-04-services-pedidos-update-01`. Queda abierto `SPEC-101-04-…-update.md` (CC #10). Evidencia: [F-CC-PQ-12-cierre-formal](../../04-tareas/101-PedidosWeb/F-CC-PQ-12-cierre-formal.md).

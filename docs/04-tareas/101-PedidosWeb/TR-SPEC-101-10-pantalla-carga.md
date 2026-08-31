@@ -8,7 +8,7 @@
 | **Prioridad** | Must |
 | **Dependencias** | TR-SPEC-101-05 (controllers), TR-SPEC-101-04 (services), TR-SPEC-101-06, TR-SPEC-101-09; SPEC-001-04 (parámetros `Modifica*`); TR-SPEC-101-13 (mail post-grabación) |
 | **Estado** | En Control Calidad |
-| **Última actualización** | 2026-06-24 (modal precarga stock + NOLOCK backend) |
+| **Última actualización** | 2026-08-30 (Parte I — CC PQ #12) |
 
 **Origen:** HU-101-004 … HU-101-011, HU-101-009, HU-101-010, HU-101-013, HU-101-024, HU-101-026  
 **Referencia SPEC:** [SPEC-101-10-pantalla-carga](../../05-open-spec/101-PedidosWeb/SPEC-101-10-pantalla-carga.md)  
@@ -47,6 +47,10 @@ para **operar según la matriz de transiciones del producto §10.1 sin pantallas
 - **AC-10:** E2E camino feliz §9 SPEC madre: carga + grabar pedido 0.
 - **AC-11:** `data-testid` en botones y controles críticos (tabla §6).
 - **AC-12:** Si `resultado.mailEnviado === false` tras grabación OK, toast informativo i18n (TR-101-13 §6); `data-testid` `toast-mail-envio-fallido`.
+- **AC-CC12-T-C1:** Widget saldo deuda cliente (colores + Popup grilla DX sin export); fetch deuda por cliente; rama `isNativeApp()`.
+- **AC-CC12-T-C2:** Modal renglón: texto equivalencia unidades si `CargaUnidadesVenta`; campo precio unitario neto.
+- **AC-CC12-T-C3:** Snapshot/dirty leyendas 1–5; enviar flags en grabar (TR-101-04 RN-19).
+- **AC-CC12-T-C4:** Listbox artículos: ocultar stock si `stockeable=false` (API artículos expone flag).
 
 ### Escenarios Gherkin
 
@@ -119,6 +123,10 @@ Leídos en runtime (SPEC-001-04) según `functionalProfile`:
 4. **RN-04:** T5: `cod_pedido_origen` en presupuesto nuevo.
 5. **RN-05:** Secuencia número visible única por tenant (pedido y presupuesto).
 6. **RN-06:** Prohibido `DELETE` presupuesto.
+7. **RN-07 (CC PQ #12):** Cabecera: widget saldo deuda por cliente (GET consulta deuda); colores según monto; Popup con grilla DX solo lectura (sin export).
+8. **RN-08 (CC PQ #12):** Modal renglón: equivalencia unidades visible si parámetro `CargaUnidadesVenta`; precio unitario neto en edición.
+9. **RN-09 (CC PQ #12):** Leyendas 1–5: snapshot inicial + flags `leyendaNDirty` en payload grabar (sync maestro TR-101-04).
+10. **RN-10 (CC PQ #12):** Listbox/browse artículos: no mostrar stock disponible si `stockeable=false` en ítem API.
 
 ---
 
@@ -341,6 +349,9 @@ Ver contrato canónico en [TR-SPEC-101-05-controllers-rest](TR-SPEC-101-05-contr
 | Lista precios cabecera | `cabecera-lista-precios` |
 | Confirmación post-grabación | `dialog-confirmacion-grabar` |
 | Toast fallo envío mail | `toast-mail-envio-fallido` |
+| Widget saldo deuda | `carga-saldo-deuda` |
+| Popup detalle deuda | `carga-deuda-popup` |
+| Equivalencia unidades renglón | `renglon-equivalencia-unidades` |
 | Modal precarga stock | `articulos-cargando` |
 | Contenedor página | `page-pedidos-carga` |
 
@@ -480,3 +491,16 @@ Usar `elementAttr` / `inputAttr` DevExtreme; no acoplar tests al DOM interno DX.
 ### OpenAPI / Docs
 - Matriz permisos
 - Enlace TR-SPEC-101-13 (mail)
+
+## CC PQ #12 — Parte I 30/08/2026
+
+Saldo deuda en cabecera, equivalencia unidades, dirty leyendas y listbox sin stock para no-stockeables.
+
+| ID | Tarea | Evidencia |
+|----|-------|-----------|
+| T1 | Widget saldo + Popup deuda | `PedidosCargaPage.tsx`, `isNativeApp()` branch |
+| T2 | Modal renglón equivalencia + precio neto | modal renglón DX |
+| T3 | Dirty leyendas en grabar | payload `leyenda*Dirty` → TR-101-04 |
+| T4 | Listbox sin stock no-stockeable | API artículos `stockeable` |
+
+Unificación delta CC PQ #12 update-01 (archivo `TR-SPEC-101-10-pantalla-carga-update-01.md` eliminado en Parte I).
