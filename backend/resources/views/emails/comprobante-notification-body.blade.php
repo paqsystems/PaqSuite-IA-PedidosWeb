@@ -37,7 +37,8 @@
                 <tr>
                     <th>{{ __('mail.comprobanteNotification.detalle.codigo') }}</th>
                     <th>{{ __('mail.comprobanteNotification.detalle.descripcion') }}</th>
-                    <th>{{ __('mail.comprobanteNotification.detalle.cantidad') }}</th>
+                    <th>{{ __('mail.comprobanteNotification.detalle.bultos') }}</th>
+                    <th>{{ __('mail.comprobanteNotification.detalle.unidades') }}</th>
                     <th>{{ __('mail.comprobanteNotification.detalle.precio') }}</th>
                     <th>{{ __('mail.comprobanteNotification.detalle.porcBonif') }}</th>
                     <th>{{ __('mail.comprobanteNotification.detalle.precioNeto') }}</th>
@@ -49,6 +50,7 @@
                     <tr>
                         <td>{{ $renglon['cod_articulo'] ?? '' }}</td>
                         <td>{{ $renglon['descripcion_articulo'] ?? '' }}</td>
+                        <td>{{ number_format((float) ($renglon['cantidad_venta'] ?? $renglon['cantidad'] ?? 0), 2, ',', '.') }}</td>
                         <td>{{ number_format((float) ($renglon['cantidad'] ?? 0), 2, ',', '.') }}</td>
                         <td>{{ number_format((float) ($renglon['precio'] ?? 0), 2, ',', '.') }}</td>
                         <td>{{ number_format((float) ($renglon['porc_bonif'] ?? 0), 2, ',', '.') }} %</td>

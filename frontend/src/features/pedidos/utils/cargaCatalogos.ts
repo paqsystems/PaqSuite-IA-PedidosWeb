@@ -51,8 +51,17 @@ function formatDisponibleCarga(valor: number): string {
   });
 }
 
-/** Código, descripción, disponible neto y — si aplica — disponible neto base entre paréntesis. */
+/** Código, descripción y — si aplica — disponible neto. */
 export function etiquetaArticulo(articulo: ArticuloOption, t: TFunction): string {
+  const stockeable = articulo.stockeable !== false;
+
+  if (!stockeable) {
+    return t('pedidos.carga.articuloDisplaySinStock', {
+      codigo: articulo.codArticulo,
+      descripcion: articulo.descripcion,
+    });
+  }
+
   const params = {
     codigo: articulo.codArticulo,
     descripcion: articulo.descripcion,

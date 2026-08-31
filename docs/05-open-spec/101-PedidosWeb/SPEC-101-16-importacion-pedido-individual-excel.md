@@ -4,9 +4,10 @@
 |-------|--------|
 | **SPEC madre** | [PedidosWeb_SPEC_MVP.md](PedidosWeb_SPEC_MVP.md) |
 | **Producto** | [Importación Pedido Individual desde Excel.md](../../02-producto/PedidosWeb/Importación%20Pedido%20Individual%20desde%20Excel.md) |
-| **Estado** | Especificado — **A1 + B1 + C + C1 cerrados** (2026-06-17) |
+| **Estado** | Finalizado (Parte I CC PQ #10/#11) |
 | **Prioridad épica** | Should (extensión post-MVP; motor GEN-07 ya implementado) |
 | **Revisión A1** | Apto con observaciones (2026-06-17) |
+| **Última actualización** | 2026-08-31 |
 | **HU relacionadas** | [HU-101-029](../../03-historias-usuario/101-PedidosWeb/HU-101-029-proceso-excel-pedido-individual.md), [HU-101-030](../../03-historias-usuario/101-PedidosWeb/HU-101-030-importacion-excel-pantalla-carga.md) |
 | **TR relacionadas** | [TR-SPEC-101-16-proceso-excel-pedido-individual](../../04-tareas/101-PedidosWeb/TR-SPEC-101-16-proceso-excel-pedido-individual.md), [TR-SPEC-101-16-importacion-excel-pantalla-carga](../../04-tareas/101-PedidosWeb/TR-SPEC-101-16-importacion-excel-pantalla-carga.md) |
 
@@ -106,7 +107,7 @@ Tipos de dato sugeridos: `codigo` / `texto` / `decimal` (cantidad, precios, boni
 | **Permisos por tipo usuario** | Columnas que el usuario **no** puede editar en pantalla (parámetros `ModificaListaPrec*`, `ModificaPrecio*`, `ModificaBonArt*`, `ModificaBonCli*`) deben venir **vacías** en Excel; valor no vacío → error. Cliente (`C`): lista, precios y bonificaciones de renglón siempre vacíos en Excel. |
 | **Visibilidad cliente** | Vendedor/supervisor: `cod_cliente` debe estar en cartera asignada. Cliente: debe coincidir con cliente de sesión. |
 | **Artículo** | Código existente, no `usa_esc = 'B'`, visible según reglas de carga (SPEC-101-10). |
-| **Cantidad** | `> 0`. |
+| **Cantidad** | `> 0`. Columna Excel **`cantidad`**: mismo tratamiento que modal de renglón según `CargaUnidadesVenta` (CC PQ #10) — helper conversión canónico SPEC-101-10/101-04; materializar `cantidad` + `cantidad_venta`; importes desde `cantidad`. Sin columna Excel `cantidad_venta`. Aplica import desde pantalla carga (HU-101-030). |
 | **Catálogos** | Perfil, condición, transporte, dirección, lista deben existir y ser válidos para el cliente cuando se informan o se resuelven por default. |
 | **Nivel** | Si parámetro `NivelExtremo` = true → solo `0` o `100`. |
 | **Precio cero** | Si `Articulopreciocero` o `Articulossinprecio` = false → ningún renglón con precio resuelto = 0. |
@@ -118,7 +119,7 @@ Tras validación estructural, el handler resuelve por fila los vacíos según ta
 
 Los valores resueltos deben **persistirse en `datos_normalizados_json`** de cada fila válida (en `processRow` o equivalente) antes de que el host consuma `GET .../filas/validas`, ya que el contrato GEN-07 entrega `validRows` desde staging post-procesamiento.
 
-El payload por fila debe incluir al menos: datos de cabecera resueltos, `cod_articulo`, `cantidad`, `precio` (lista), `porc_bonif`, `porc_iva`, `descripcion_articulo` — listos para mapear a `ComprobanteCabecera` y `ComprobanteRenglon`.
+El payload por fila debe incluir al menos: datos de cabecera resueltos, `cod_articulo`, `cantidad`, `cantidad_venta`, `precio` (lista), `porc_bonif`, `porc_iva`, `descripcion_articulo` — listos para mapear a `ComprobanteCabecera` y `ComprobanteRenglon`.
 
 ### 5. Integración UI (pantalla host)
 
@@ -400,3 +401,7 @@ Ninguna bloqueante para **Parte B**.
 ### Veredicto final C1
 
 **C1 cerrado.** Ejecutar **Parte D1** en orden TR-16a → TR-16b.
+
+## Historial CC PQ #10 (30/07/2026) — Parte I 31/08/2026
+
+Columna Excel `cantidad` = semántica modal renglón según `CargaUnidadesVenta`; helper compartido SPEC-101-10/101-04. Unificación `SPEC-101-16-importacion-pedido-individual-excel-update`. Sin updates abiertos.

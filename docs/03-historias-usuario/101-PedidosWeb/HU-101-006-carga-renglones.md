@@ -6,6 +6,7 @@
 | **SPEC origen** | [SPEC-101-10-pantalla-carga](../../05-open-spec/101-PedidosWeb/SPEC-101-10-pantalla-carga.md) |
 | **Prioridad** | Must |
 | **Estado** | Finalizado |
+| **Última actualización** | 2026-08-31 |
 | **B1** | Enriquecida (2026-06-01) |
 | **Dependencias** | HU-101-005; HU-101-007, HU-101-008 |
 
@@ -33,6 +34,8 @@ para **armar el detalle del pedido o presupuesto**.
 5. **Descuento por cantidad:** al agregar renglón, descuento inicial = bonificación del artículo; al cambiar cantidad, aplicar regla `pq_pedidosweb_descuentocantidad` (mayor cantidad ≤ ingresada). Ver **[pantalla-carga-comprobante-ui.md](../../02-producto/PedidosWeb/pantalla-carga-comprobante-ui.md)** §12. Esta regla aplica **aunque** no haya permiso `ModificaBonArt*`.
 6. **CC PQ 04/06/2026:** Lookup de artículos **excluye** `pq_pedidosweb_articulos.usa_esc = 'B'` (artículos BASE).
 7. **Precio neto unitario** = precio lista − descuento renglón − descuento cabecera; no editable; se persiste en `pq_pedidosweb_pedidosdetalle.precio_neto`.
+8. **CC PQ #10:** Modal/alta renglón con un solo campo «cantidad» interpretado según `CargaUnidadesVenta`: con parámetro `false` persiste `cantidad` ingresada y `cantidad_venta = cantidad / equiv` (`equiv`≤0 → 1); con `true` persiste `cantidad_venta` ingresada y `cantidad = cantidad_venta * equiv`; importes siempre desde `cantidad`; al editar, el valor mostrado corresponde al modo del parámetro; `equivalencia_ventas` del artículo; 0/null → 1.
+9. **CC PQ #12:** Con `CargaUnidadesVenta=true`, el modal muestra las unidades de stock equivalentes a las unidades de venta ingresadas (solo lectura). Sigue habiendo un solo campo editable «cantidad».
 
 ## Fuera de alcance
 
@@ -51,6 +54,20 @@ para **armar el detalle del pedido o presupuesto**.
 - [x] **CA-CC-01:** Búsqueda no devuelve artículos BASE (`usa_esc = 'B'`).
 - [x] **CA-CC-02:** Columna precio neto unitario visible y coherente al agregar/editar renglón.
 - [x] **CA-CC-03:** Valor persistido en `pq_pedidosweb_pedidosdetalle.precio_neto` al grabar/actualizar.
+- [x] **CA-CC12-R01:** Con `CargaUnidadesVenta=true`, el modal muestra las unidades de stock equivalentes a las unidades de venta ingresadas (solo lectura).
+- [x] **CA-CC12-R02:** Sigue habiendo un solo campo editable «cantidad».
+- [ ] **CA-CC10-R01:** Modal/alta renglón muestra un solo campo «cantidad».
+- [ ] **CA-CC10-R02:** Con parámetro `false`: persiste `cantidad` ingresada y `cantidad_venta = cantidad / equiv` (`equiv`≤0 → 1).
+- [ ] **CA-CC10-R03:** Con parámetro `true`: persiste `cantidad_venta` ingresada y `cantidad = cantidad_venta * equiv`; importes desde `cantidad`.
+- [ ] **CA-CC10-R04:** Al editar, el valor mostrado corresponde al modo del parámetro.
+
+## Historial CC PQ #12 (28/08/2026) — Parte I 30/08/2026
+
+Equivalencia unidades de stock en modal de renglón (RN-9, CA-CC12-R01…R02). Unificación delta `HU-101-006-carga-renglones-update-01` (archivo eliminado en Parte I).
+
+## Historial CC PQ #10 (30/07/2026) — Parte I 31/08/2026
+
+Cantidad dual según `CargaUnidadesVenta` (RN-8, CA-CC10-R01…R04). Unificación delta `HU-101-006-carga-renglones-update` (archivo eliminado en Parte I).
 
 ## Veredicto B1
 

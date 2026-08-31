@@ -7,8 +7,8 @@
 | **Epica** | 001-Generaliddes |
 | **Prioridad** | Must |
 | **Dependencias** | TR-GEN-02-modelo-roles-permisos-seed, TR-GEN-02-login-sesion, TR-GEN-02-politicas-endpoints |
-| **Estado** | En Control Calidad |
-| **Ultima actualizacion** | 2026-05-31 (D implementado) |
+| **Estado** | Finalizado (Parte I CC PQ #10/#11) |
+| **Ultima actualizacion** | 2026-08-31 |
 
 **Origen:** [HU-GEN-02-visibilidad-datos-pedidosweb](../../03-historias-usuario/001-Generaliddes/HU-GEN-02-visibilidad-datos-pedidosweb.md)  
 **Referencia SPEC:** [SPEC-001-02-acceso-y-seguridad](../../05-open-spec/001-Generaliddes/SPEC-001-02-acceso-y-seguridad.md)  
@@ -41,6 +41,10 @@ Como usuario PedidosWeb, quiero ver solo los datos permitidos por mi perfil para
 - **AC-05**: `visibleClientsForUser` se reutiliza en consultas de slices `SPEC-101`.
 - **AC-06**: Dashboard agrega solo datos del universo visible del perfil.
 - **AC-07**: Usuario sin vínculo comercial válido recibe error controlado en login según `TR-GEN-02-login-sesion` (`auth.noCommercialProfile`).
+- **AC-CC11-T-V1:** Listado `GET /api/v1/clientes` incluye `contactos[]` camelCase por `cod_client`.
+- **AC-CC11-T-V2:** `GET /api/v1/clientes/{codCliente}` responde 200/401/403/404; `resultado` = un `VisibleClientItem` (no array).
+- **AC-CC11-T-V3:** OpenAPI: `VisibleClientContactItem`; `contactos` en `VisibleClientItem`; `ApiEnvelopeVisibleClient` tipado.
+- **AC-CC11-T-V4:** Sin N+1; sin filtrar mails/teléfonos de clientes no visibles; FE selector carga no mapea `contactos` (regresión HU-101-004).
 
 ### Escenarios Gherkin
 
@@ -80,6 +84,7 @@ Feature: Visibilidad por perfil funcional
 6. **RN-06**: Perfil funcional se resuelve con la cadena canónica ya adoptada en autenticación: `users.codigo` → `pq_pedidosweb_login.cod_usuario_web` → `pq_pedidosweb_clientes.cod_login` / `pq_pedidosweb_vendedores.cod_login`.
 7. **RN-07**: Esta TR es dueña del helper/base de visibilidad y también de los endpoints base `GET /api/v1/clientes`, `GET /api/v1/comprobantes/{id}` y `GET /api/v1/dashboard/resumen`, aunque los slices `SPEC-101-*` puedan extenderlos o reutilizarlos.
 8. **RN-08**: Si el usuario tiene permiso base de consulta pero el recurso pedido queda fuera de su universo visible, la respuesta base del slice es `404` sin fuga de datos.
+9. **RN-09 (CC PQ #11):** Cada ítem de listado/unitario de clientes incluye `contactos[]` (lookup batch por `cod_client`, sin N+1). `GET /api/v1/clientes/{codCliente}` se registra **después** de rutas más específicas (`cabecera-inicial`, `direcciones-entrega`); mismo permiso `paqsuite_visibility.procedimientos.clientes` y universo `visibleClientsForUser`; 404 si no visible. FE selector de carga **no** consume `contactos`.
 
 ### Regla base `visibleClientsForUser(user)`
 
@@ -366,6 +371,7 @@ Implementar la base de visibilidad por perfil funcional y, además, los endpoint
 | Metodo | Path | Auth | Permiso / rol | Publico |
 |--------|------|------|---------------|---------|
 | GET | `/api/v1/clientes` | Bearer Sanctum + `X-Paq-Cliente` | `Permiso_Repo` + visibilidad perfil | No |
+| GET | `/api/v1/clientes/{codCliente}` | Bearer Sanctum + `X-Paq-Cliente` | `Permiso_Repo` + visibilidad perfil | No |
 | GET | `/api/v1/comprobantes/{id}` | Bearer Sanctum + `X-Paq-Cliente` | `Permiso_Repo` + visibilidad perfil | No |
 | GET | `/api/v1/dashboard/resumen` | Bearer Sanctum + `X-Paq-Cliente` | `Permiso_Repo` + visibilidad perfil | No |
 
@@ -377,6 +383,13 @@ Implementar la base de visibilidad por perfil funcional y, además, los endpoint
 **Response 401:** no autenticado.
 **Response 403:** autenticado sin permiso base de consulta.
 **Response 404:** no aplica para listados.
+
+#### GET `/api/v1/clientes/{codCliente}`
+**Autorizacion:** permiso de consulta + filtro `visibleClientsForUser`.
+**Response 200:** envelope con un ítem cliente + `contactos[]`.
+**Response 401:** no autenticado.
+**Response 403:** autenticado sin permiso base de consulta.
+**Response 404:** cliente inexistente o fuera del universo visible.
 
 #### GET `/api/v1/comprobantes/{id}`
 **Autorizacion:** permiso de consulta + validacion de pertenencia al universo visible.
@@ -478,3 +491,16 @@ Implementar la base de visibilidad por perfil funcional y, además, los endpoint
 ### Docs
 - `docs/04-tareas/001-Generaliddes/matriz-permisos-mvp.md`
 - Referencias cruzadas en TR `SPEC-101-*` al helper de visibilidad.
+
+## CC PQ #11 — Parte I 31/08/2026
+
+Contactos de cliente en API listado y GET unitario; OpenAPI tipado; tests feature.
+
+| ID | Tarea | Evidencia |
+|----|-------|-----------|
+| T1 | `contactos[]` en `listVisibleClients` (batch, sin N+1) | `VisibilityDataService` |
+| T2 | Ruta `GET /clientes/{codCliente}` + envelope unitario | `routes/api.php`, controller |
+| T3 | OpenAPI `VisibleClientContactItem` | `OpenApiSchemas.php` |
+| T4 | Feature tests 200/404 + listado 0/N contactos | `ClientesVisibilityTest` |
+
+Unificación delta CC PQ #11 (archivo `TR-GEN-02-visibilidad-datos-pedidosweb-update.md` eliminado en Parte I).

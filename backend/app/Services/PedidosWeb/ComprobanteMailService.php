@@ -43,7 +43,7 @@ final class ComprobanteMailService
         }
 
         $locale = LocaleNormalizer::normalize($user->locale, 'es');
-        $viewData = $this->buildViewData($cabecera, $detalle, $tipoComprobante, $accionComprobante);
+        $viewData = $this->buildViewData($cabecera, $detalle, $tipoComprobante, $accionComprobante, $locale);
 
         try {
             $mailer = Mail::to($destinatarios);
@@ -121,19 +121,16 @@ final class ComprobanteMailService
         PqPedidoswebPedidoCabecera $cabecera,
         array $detalle,
         string $tipoComprobante,
-        string $accionComprobante
+        string $accionComprobante,
+        string $locale = 'es'
     ): array {
         $nombreEmpresa = $this->resolveNombreEmpresa();
-        $cargaUnidadesVenta = $this->parameterService->getCargaUnidadesVenta();
         $detalleMail = array_map(
-            static function (array $row) use ($cargaUnidadesVenta): array {
+            static function (array $row): array {
                 $cantidad = (float) ($row['cantidad'] ?? 0);
                 $cantidadVenta = (float) ($row['cantidad_venta'] ?? $row['cantidadVenta'] ?? $cantidad);
-                $row['cantidad'] = CargaUnidadesVentaConverter::cantidadVisibleParaUsuario(
-                    $cantidad,
-                    $cantidadVenta,
-                    $cargaUnidadesVenta,
-                );
+                $row['cantidad'] = $cantidad;
+                $row['cantidad_venta'] = $cantidadVenta;
 
                 return $row;
             },
@@ -154,7 +151,7 @@ final class ComprobanteMailService
             'mostrarDetalle' => $this->parameterService->getDetallePorMail(),
             'detalle' => $detalleMail,
             'cabeceraMail' => [
-                'fecha' => optional($cabecera->fecha)?->format('m/d/Y'),
+                'fecha' => $this->formatFechaI18n($cabecera->fecha, $locale),
                 'cliente' => (string) $cabecera->cod_cliente,
                 'razonSocial' => (string) ($cabecera->cliente?->nombre ?? ''),
                 'vendedor' => $this->formatCodigoDescripcion(
@@ -208,6 +205,28 @@ final class ComprobanteMailService
         }
 
         return $codigoText.' ( '.$descripcionText.' )';
+    }
+
+    private function formatFechaI18n(mixed $fecha, string $locale): string
+    {
+        if ($fecha === null || $fecha === '') {
+            return '';
+        }
+
+        try {
+            $carbon = $fecha instanceof \DateTimeInterface
+                ? \Illuminate\Support\Carbon::parse($fecha)
+                : \Illuminate\Support\Carbon::parse((string) $fecha);
+        } catch (\Throwable) {
+            return '';
+        }
+
+        $normalized = strtolower(substr($locale, 0, 2));
+
+        // en → m/d/Y; resto de locales de la app → d/m/Y
+        return $normalized === 'en'
+            ? $carbon->format('m/d/Y')
+            : $carbon->format('d/m/Y');
     }
 
     private function formatImporte(float $importe): string

@@ -115,6 +115,7 @@ function DataGridDxInner<TRecord extends Record<string, unknown> = Record<string
     abm,
     exportEnabled = true,
     onRowPrepared,
+    onCellPrepared,
   }: DataGridDxProps<TRecord>,
   ref: React.ForwardedRef<DataGridDxHandle>,
 ) {
@@ -229,6 +230,8 @@ function DataGridDxInner<TRecord extends Record<string, unknown> = Record<string
   );
 
   const handleCellPrepared = (event: CellPreparedEvent) => {
+    onCellPrepared?.(event);
+
     if (event.rowType === 'totalFooter' && event.cellElement) {
       event.cellElement.classList.add('dataGridDx__summaryCell');
       return;

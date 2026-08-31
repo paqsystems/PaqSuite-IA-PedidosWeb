@@ -7,8 +7,8 @@
 | **Épica** | 101-PedidosWeb |
 | **Prioridad** | Must |
 | **Dependencias** | [TR-SPEC-101-02-modelos](TR-SPEC-101-02-modelos.md), [TR-SPEC-101-03-repositories](TR-SPEC-101-03-repositories.md); lectura parámetros [SPEC-001-04](../../05-open-spec/001-Generaliddes/SPEC-001-04-configuracion-global.md) (defaults temporales documentados); visibilidad [SPEC-101-06](../../05-open-spec/101-PedidosWeb/SPEC-101-06-seguridad-visibilidad.md) / TR-GEN-02-visibilidad |
-| **Estado** | Finalizado (Parte I — CC PQ #9) |
-| **Última actualización** | 2026-07-02 (Parte I — CC PQ #9) |
+| **Estado** | Finalizado (Parte I CC PQ #10/#11) |
+| **Última actualización** | 2026-08-31 |
 
 **Origen:** [SPEC-101-04](../../05-open-spec/101-PedidosWeb/SPEC-101-04-services-pedidos.md), [PedidosWeb_SPEC_MVP.md](../../05-open-spec/101-PedidosWeb/PedidosWeb_SPEC_MVP.md) §5, §5.1, §5.3, §12  
 **Referencia SPEC:** [SPEC-101-04-services-pedidos](../../05-open-spec/101-PedidosWeb/SPEC-101-04-services-pedidos.md)  
@@ -71,6 +71,10 @@ para **garantizar coherencia con el ERP, trazabilidad y ausencia de DELETE en pr
 - **AC-12**: Totales/IVA en BD coinciden con cálculo service (tests unitarios con fixtures).
 - **AC-13**: Cobertura líneas `app/Services/PedidosWeb/**` ≥ **70 %** (SPEC MVP §12.2).
 - **AC-14**: Parámetros leídos vía servicio de configuración SPEC-001-04; defaults documentados si ausentes en tenant test.
+- **AC-CC12-T-L1:** Sync leyendas cliente 1–5 en grabar solo si parámetro `ClienteLeyendaN` activo **y** flag `leyendaNDirty` (o snapshot dirty equivalente).
+- **AC-CC12-T-L2:** Edición sin dirty en leyendas no modifica maestro cliente.
+- **AC-CC10-T-S1:** Helper `CargaUnidadesVentaConverter` (inputs: `cantidadUsuario`, `equivalenciaVentas`, `cargaUnidadesVenta`; outputs: `cantidad`, `cantidadVenta`) con tests unitarios.
+- **AC-CC10-T-S2:** Grabación de renglones persiste ambos campos; importes usan `cantidad`; reutilizable desde Excel y asistente.
 
 ### Escenarios Gherkin
 
@@ -178,6 +182,19 @@ Fuente: producto §10.1, [SPEC-101-10](../../05-open-spec/101-PedidosWeb/SPEC-10
 
 **RN-18**: Auditoría en cada grabación: usuario/fecha modificación; creación en altas.
 
+**RN-19 (CC PQ #12):** Sincronización leyendas cliente 1–5 al grabar comprobante:
+
+- DTO `GrabarComprobanteDto` incluye valores leyenda + flags `leyenda1Dirty`…`leyenda5Dirty` (o comparación snapshot FE/BE).
+- En `PedidoService` / `GrabacionService`: si `leyendaNDirty === true` **y** parámetro `ClienteLeyendaN` activo → `UPDATE pq_pedidosweb_clientes` con leyenda N.
+- Sin dirty: no tocar maestro cliente (escenarios a–d CC PQ #12).
+
+**RN-20 (CC PQ #10):** Conversión unidades venta al validar/grabar renglón:
+
+- Helper compartido: inputs `cantidadUsuario`, `equivalenciaVentas` (artículo), `cargaUnidadesVenta` (parámetro); outputs `cantidad`, `cantidadVenta`.
+- `equivalenciaVentas` 0 o null → tratar como 1.
+- Importes y totales usan `cantidad` (no `cantidadVenta`).
+- Reutilizar desde Excel (TR-101-16) y asistente (TR-101-19).
+
 ---
 
 ## 4) Impacto en Datos
@@ -211,8 +228,8 @@ Fuente: producto §10.1, [SPEC-101-10](../../05-open-spec/101-PedidosWeb/SPEC-10
 
 | Método service | Entrada | Salida / efecto |
 |----------------|---------|-----------------|
-| `grabarPedido(GrabarComprobanteDto)` | cabecera, renglones, contexto origen | `PedidoCabeceraDto` estado 0 |
-| `grabarPresupuesto(GrabarComprobanteDto)` | idem | estado 99 |
+| `grabarPedido(GrabarComprobanteDto)` | cabecera, renglones, contexto origen, **leyendas 1–5 + flags dirty** | `PedidoCabeceraDto` estado 0; sync cliente si aplica RN-19 |
+| `grabarPresupuesto(GrabarComprobanteDto)` | idem | estado 99; sync cliente si aplica RN-19 |
 | `iniciarEdicionPedido(codPedido, usuario)` | — | estado -1 o error |
 | `touchActividadEdicion(codPedido)` | — | actualiza `fechahora_ultima_actividad` |
 | `cancelarEdicionPedido(codPedido, usuario)` | — | estado 0, limpia bloqueo |
@@ -368,3 +385,27 @@ Copia paramétrica `ActualizarPrecioCopia` en `ComprobanteCopiaService` + FE `co
 | T3 | Tests | `ComprobanteCopiaServiceTest.php` (16 casos) |
 
 Unificación delta CC PQ #9 (archivo `*-update` eliminado en Parte I). Evidencia: [F-CC-PQ-9-cierre-formal](F-CC-PQ-9-cierre-formal.md).
+
+## CC PQ #12 — Parte I 30/08/2026
+
+Sync leyendas cliente 1–5 en grabación unificada: flags dirty en DTO, rama en `PedidoService`/`GrabacionService` y tests PHPUnit escenarios a–d.
+
+| ID | Tarea | Evidencia |
+|----|-------|-----------|
+| T1 | DTO dirty leyendas + contrato grabar | `GrabarComprobanteDto` |
+| T2 | `UPDATE` cliente condicionado | `GrabacionService` / `PedidoService` |
+| T3 | Tests escenarios dirty / no-dirty | `GrabacionServiceTest` o equivalente |
+
+Unificación delta CC PQ #12 update-01 (archivo `TR-SPEC-101-04-services-pedidos-update-01.md` eliminado en Parte I).
+
+## CC PQ #10 — Parte I 31/08/2026
+
+Conversión cantidad usuario ↔ cantidad/cantidadVenta según parámetro `CargaUnidadesVenta`.
+
+| ID | Tarea | Evidencia |
+|----|-------|-----------|
+| T1 | Helper compartido conversión | `CargaUnidadesVentaConverter` o equivalente |
+| T2 | Integración grabación renglones | `PedidoService` / validación renglón |
+| T3 | PHPUnit false/true; equiv 0→1 | tests unitarios |
+
+Unificación delta CC PQ #10 (archivo `TR-SPEC-101-04-services-pedidos-update.md` eliminado en Parte I).

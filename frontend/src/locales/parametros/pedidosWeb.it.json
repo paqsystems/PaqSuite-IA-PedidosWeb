@@ -7,6 +7,8 @@
   "parametros.pedidosWeb.ActualizarPrecioCopia.tooltip": "Se attivo, copiando un ordine o un preventivo i prezzi delle righe vengono risolti dal listino vigente del documento di origine. Se inattivo, conserva i prezzi del dettaglio origine validandoli secondo i parametri articoli a prezzo zero o senza prezzo.",
   "parametros.pedidosWeb.CargaUnidadesVenta.caption": "Caricamento ordini per unità di vendita",
   "parametros.pedidosWeb.CargaUnidadesVenta.tooltip": "Se attivo, la quantità in riga, Excel o assistente è in unità di vendita. Se inattivo, è in unità di stock/prezzo. Gli importi usano sempre quantità stock.",
+  "parametros.pedidosWeb.IncluyeArticulosNoStockeables.caption": "Include articoli non stoccabili",
+  "parametros.pedidosWeb.IncluyeArticulosNoStockeables.tooltip": "Indica se il catalogo include articoli non stoccabili. Solo informativo in PedidosWeb.",
   "parametros.pedidosWeb.CargaRecurrente.caption": "Caricamento ricorrente dopo salvataggio",
   "parametros.pedidosWeb.CargaRecurrente.tooltip": "Definisce il comportamento dopo il salvataggio di un ordine o preventivo: se attivo, il flusso torna a un nuovo caricamento; se inattivo, ritorna all'elenco o alla schermata precedente secondo l'implementazione del portale.",
   "parametros.pedidosWeb.ClienteLeyenda1.caption": "Inizializzare legenda 1 dal cliente",

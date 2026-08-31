@@ -76,6 +76,14 @@
   grid-template-columns: minmax(180px, 240px) minmax(0, 1fr);
   gap: 0.75rem;
   margin-bottom: 0.75rem;
+  align-items: start;
+}
+
+.pedidosCargaPage__clienteSelectColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 0;
 }
 
 .pedidosCargaPage__middle {
@@ -188,6 +196,11 @@
   .pedidosCargaPage__middle,
   .pedidosCargaPage__footer,
   .pedidosCargaPage__clienteRow {
+    grid-template-columns: 1fr;
+  }
+
+  .pedidosCargaRenglonEditDialog__row,
+  .pedidosCargaRenglonEditDialog__row--compact {
     grid-template-columns: 1fr;
   }
 
@@ -335,6 +348,17 @@
   min-width: 0;
   max-width: 100%;
   box-sizing: border-box;
+}
+
+.pedidosCargaRenglonEditDialog__row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 0.75rem 1rem;
+  align-items: start;
+}
+
+.pedidosCargaRenglonEditDialog__row--compact {
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
 }
 
 .pedidosCargaRenglonEditDialog .dx-texteditor,

@@ -1,4 +1,5 @@
 import { apiRequest } from '../../../shared/http/client';
+import { toConsultaFechaCalendario } from '../utils/consultaFechaCalendario';
 
 /** Tope alineado a `App\Support\ConsultaPaginacion::MAX_PAGE_SIZE`. */
 const CONSULTA_FETCH_PAGE_SIZE = 1000;
@@ -464,15 +465,16 @@ function mapHistorialItem(item: ApiHistorialItem, index: number): HistorialVenta
   const tipo = item.tipo ?? '';
   const numero = item.numero ?? '';
   const codArticulo = item.codArticulo ?? '';
+  const fechaEmision = toConsultaFechaCalendario(item.fechaEmision ?? '') || (item.fechaEmision ?? '');
 
   return {
-    id: `${codCliente}-${tipo}-${numero}-${codArticulo}-${item.fechaEmision ?? index}`,
+    id: `${codCliente}-${tipo}-${numero}-${codArticulo}-${fechaEmision || index}`,
     codCliente,
     razonSocial: item.razonSocial ?? '',
     nRemito: item.nRemito ?? '',
     tipo,
     numero,
-    fechaEmision: item.fechaEmision ?? '',
+    fechaEmision,
     condVta: item.condVta ?? null,
     porcDesc: item.porcDesc ?? 0,
     cotiz: item.cotiz ?? 0,
@@ -489,7 +491,7 @@ function mapHistorialItem(item: ApiHistorialItem, index: number): HistorialVenta
     totSinImp: item.totSinImp ?? 0,
     nCompRem: item.nCompRem ?? '',
     cantRem: item.cantRem ?? 0,
-    fechaRem: item.fechaRem ?? '',
+    fechaRem: toConsultaFechaCalendario(item.fechaRem ?? '') || (item.fechaRem ?? ''),
   };
 }
 
@@ -500,10 +502,9 @@ async function fetchConsultaMapped<TApi, TRow>(
   const allItems: TRow[] = [];
   let meta: ConsultaMeta | null = null;
   let page = 1;
-  let totalPages = 1;
   let absoluteIndex = 0;
 
-  do {
+  while (page <= CONSULTA_FETCH_MAX_PAGES) {
     const separator = path.includes('?') ? '&' : '?';
     const pagedPath = `${path}${separator}page=${page}&page_size=${CONSULTA_FETCH_PAGE_SIZE}`;
     const response = await apiRequest<ConsultaPayload<TApi>>(pagedPath);
@@ -513,9 +514,22 @@ async function fetchConsultaMapped<TApi, TRow>(
     allItems.push(...items.map((item, index) => mapper(item, absoluteIndex + index)));
     absoluteIndex += items.length;
     meta = extractMeta(payload);
-    totalPages = Math.max(1, payload.total_pages ?? 1);
+
+    const pageSizeUsed = Number(
+      payload.page_size ?? (payload as { pageSize?: number }).pageSize ?? CONSULTA_FETCH_PAGE_SIZE,
+    );
+    const totalPages = Math.max(
+      1,
+      Number(payload.total_pages ?? (payload as { totalPages?: number }).totalPages ?? 1),
+    );
+
+    // Cortar si es la última página real (menos ítems que el page_size) o se alcanzó total_pages.
+    if (items.length === 0 || items.length < pageSizeUsed || page >= totalPages) {
+      break;
+    }
+
     page += 1;
-  } while (page <= totalPages && page <= CONSULTA_FETCH_MAX_PAGES);
+  }
 
   return {
     items: allItems,
@@ -601,15 +615,49 @@ export function fetchDeuda() {
   return fetchConsultaMapped<ApiDeudaItem, DeudaConsultaRow>('/consultas/deuda', mapDeudaItem);
 }
 
-export function fetchCheques() {
-  return fetchConsultaMapped<ApiChequeItem, ChequeConsultaRow>('/consultas/cheques', mapChequeItem);
+export function fetchDeudaPorCliente(codCliente: string) {
+  const query = new URLSearchParams({
+    cod_cliente: codCliente,
+    page_size: '1000',
+  });
+  return fetchConsultaMapped<ApiDeudaItem, DeudaConsultaRow>(
+    `/consultas/deuda?${query.toString()}`,
+    mapDeudaItem,
+  );
 }
 
-export function fetchHistorialVentas() {
-  return fetchConsultaMapped<ApiHistorialItem, HistorialVentasRow>(
-    '/consultas/historial-ventas',
-    mapHistorialItem,
-  );
+export type HistorialVentasFilters = {
+  fechaDesde?: string | null;
+  fechaHasta?: string | null;
+  codCliente?: string | null;
+};
+
+export function fetchHistorialVentas(filters: HistorialVentasFilters = {}) {
+  const query = new URLSearchParams();
+
+  if (filters.fechaDesde) {
+    query.set('fecha_desde', filters.fechaDesde);
+  }
+
+  if (filters.fechaHasta) {
+    query.set('fecha_hasta', filters.fechaHasta);
+  }
+
+  if (filters.codCliente) {
+    query.set('cod_cliente', filters.codCliente);
+  }
+
+  const queryString = query.toString();
+  const path =
+    queryString.length > 0
+      ? `/consultas/historial-ventas?${queryString}`
+      : '/consultas/historial-ventas';
+
+  return fetchConsultaMapped<ApiHistorialItem, HistorialVentasRow>(path, mapHistorialItem);
+}
+
+export function fetchCheques() {
+  return fetchConsultaMapped<ApiChequeItem, ChequeConsultaRow>('/consultas/cheques', mapChequeItem);
 }
 
 export function fetchDetallePedidos() {

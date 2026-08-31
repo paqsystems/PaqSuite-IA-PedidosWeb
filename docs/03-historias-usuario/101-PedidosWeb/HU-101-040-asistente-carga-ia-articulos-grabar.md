@@ -6,7 +6,8 @@
 | **SPEC origen** | [SPEC-101-19](../../05-open-spec/101-PedidosWeb/SPEC-101-19-asistente-carga-ia-mutaciones.md) |
 | **Épica** | 101 — PedidosWeb / Asistente IA en carga |
 | **Prioridad** | **Should** |
-| **Estado** | **Especificado** |
+| **Estado** | Finalizado (Parte I CC PQ #10/#11) |
+| **Última actualización** | 2026-08-31 |
 | **B1** | Enriquecida (2026-07-13) |
 | **TR** | [TR-SPEC-101-19](../../04-tareas/101-PedidosWeb/TR-SPEC-101-19-asistente-carga-ia-mutaciones.md) |
 | **Dependencias** | HU-101-037; HU-101-038 (entrada imagen); HU-101-006…010; SPEC-101-10 |
@@ -61,6 +62,7 @@ SPEC-101-19 D, J, K: lookup de artículos igual que carga; cantidad omitida = **
 3. Extracto: solo válidos al borrador; nunca grabación implícita.
 4. Respetar `NOmodificaPedido`, estados no editables, CC PQ de grabado vigentes.
 5. Duplicado de artículo → misma regla que grilla (no segundo renglón del mismo código).
+6. **CC PQ #10:** Cantidad informada por texto, voz o imagen se interpreta igual que en el modal de renglón según `CargaUnidadesVenta`; cantidad omitida = 1 según el parámetro; `addRenglon` / modify y apply extracto imagen (K) aplican el mismo helper de conversión.
 
 ## Criterios de aceptación
 
@@ -86,6 +88,9 @@ SPEC-101-19 D, J, K: lookup de artículos igual que carga; cantidad omitida = **
 - [ ] **CA-19:** “Cambiar cantidad a 5 del artículo ABC” (desc. al final) actualiza cantidad a 5.
 - [ ] **CA-20:** “Quitar el último renglón” elimina el último del borrador.
 - [ ] **CA-21:** Update precio/bonif. de renglón existente respeta `ModificaPrecio*` / `ModificaBonArt*`.
+- [ ] **CA-CC10-A01:** `addRenglon` / modify aplican helper de conversión.
+- [ ] **CA-CC10-A02:** Apply extracto imagen (K) aplica la misma conversión.
+- [ ] **CA-CC10-A03:** Cantidad omitida = 1 se interpreta según el parámetro.
 
 ## Casos negativos
 
@@ -141,6 +146,10 @@ Ninguna bloqueante.
 ## Riesgos de ambigüedad
 
 - Facade única vs N llamadas FE queda a TR; el contrato `action`/`resultado` del SPEC orienta la implementación.
+
+## Historial CC PQ #10 (30/07/2026) — Parte I 31/08/2026
+
+Cantidad del asistente según `CargaUnidadesVenta` (RN-6, CA-CC10-A01…A03). Unificación delta `HU-101-040-asistente-carga-ia-articulos-grabar-update` (archivo eliminado en Parte I).
 
 ## Veredicto B1
 

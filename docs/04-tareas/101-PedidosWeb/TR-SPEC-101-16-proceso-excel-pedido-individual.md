@@ -7,8 +7,8 @@
 | **Épica** | 101 — PedidosWeb |
 | **Prioridad** | **Should** |
 | **Dependencias** | TR-GEN-07-plantilla-excel; TR-GEN-07-carga-staging-excel; TR-GEN-07-grilla-procesamiento-excel; TR-GEN-07-ui-embebida-host; TR-SPEC-101-04 (servicios pedido); TR-SPEC-101-06 (visibilidad); SPEC-001-04 (parámetros) |
-| **Estado** | **C1 cerrado** — apto D1 |
-| **Última actualización** | 2026-06-17 (Parte C1) |
+| **Estado** | Finalizado (Parte I CC PQ #10/#11) |
+| **Última actualización** | 2026-08-31 |
 
 **Origen:** [HU-101-029](../../03-historias-usuario/101-PedidosWeb/HU-101-029-proceso-excel-pedido-individual.md)  
 **Producto:** [Importación Pedido Individual desde Excel.md](../../02-producto/PedidosWeb/Importación%20Pedido%20Individual%20desde%20Excel.md)  
@@ -46,6 +46,8 @@ Heredados de HU-101-029 (CA-01 … CA-16). Resumen ejecutable:
 | CA-14 | 403 sin `pw_cargapedidos` |
 | CA-15 | Unit handler ≥3 defaults + ≥3 errores |
 | CA-16 | Feature lote feliz + error validación |
+| **AC-CC10-T-X1** | `processRow` convierte cantidad vía helper TR-101-04 (false/true) |
+| **AC-CC10-T-X3** | Masivo (TR-101-21) convierte en pipeline equivalente |
 
 ### Escenarios Gherkin
 
@@ -354,3 +356,15 @@ Integración toolbar carga → TR-030.
 ### Frontend
 - `frontend/src/locales/*.json` (claves columna)
 - `frontend/src/features/excelImport/api/excelImportApi.ts` (Accept-Language)
+
+## CC PQ #10 — Parte I 31/08/2026
+
+Conversión cantidad en `processRow` individual (y masivo TR-101-21) vía helper TR-101-04.
+
+| ID | Tarea | Evidencia |
+|----|-------|-----------|
+| T1 | `processRow` + `equivalencia_ventas` + `CargaUnidadesVenta` | `PedidoIndividualExcelImportHandler` |
+| T2 | Tests fila false/true | `PedidoIndividual*Test.php` |
+| T3 | Masivo smoke (TR-101-21) | handler masivo |
+
+Unificación delta CC PQ #10 (archivo `TR-SPEC-101-16-importacion-excel-update.md` eliminado en Parte I).

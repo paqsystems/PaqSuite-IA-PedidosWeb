@@ -7,8 +7,8 @@
 | **Épica** | 101 — PedidosWeb / Asistente IA en carga |
 | **Prioridad** | **Should** |
 | **Dependencias** | [TR-SPEC-101-18](TR-SPEC-101-18-asistente-carga-ia-shell.md); TR-SPEC-101-04; TR-SPEC-101-10; HU-101-004…010 |
-| **Estado** | **C1 cerrado** — apto D1 (2026-07-13) |
-| **Última actualización** | 2026-07-14 (D1-25/26 compuesto + alias) |
+| **Estado** | Finalizado (Parte I CC PQ #10/#11) |
+| **Última actualización** | 2026-08-31 |
 
 **Normas:** [`../_NORMAS-TRANSVERSALES-TR.md`](../_NORMAS-TRANSVERSALES-TR.md)  
 **Cierre C1:** [F-101-18-20-cierre-c1](F-101-18-20-cierre-c1-asistente-carga-ia.md)
@@ -36,6 +36,9 @@ Extiende el registry de tools del turno (TR-18) con capacidades **A, B, C, D, I,
 | D | 040 CA-01…09, CA-04b, CA-17…21 | Cantidad default 1; art/item/it; mutar detalle D1-24 |
 | J | 040 CA-10…13 | = botones grabar |
 | K | 040 CA-14…16 | Solo válidos + cabecera ampliada; no grabar |
+| CC #10 | — | Tools add/modify/image: cantidad vía helper TR-101-04 |
+| **AC-CC10-T-A1** | Tools texto convierten cantidad false/true |
+| **AC-CC10-T-A2** | Extracto imagen convierte cantidad |
 
 ---
 
@@ -195,3 +198,14 @@ Estado `pendingChoice.kind = "changeClienteConfirm"`.
 ## Veredicto C1
 
 **Apto para D1** (después o en paralelo controlado con TR-18). Ver cierre C1.
+
+## CC PQ #10 — Parte I 31/08/2026
+
+Tools mutación: conversión cantidad compartida con carga manual.
+
+| ID | Tarea | Evidencia |
+|----|-------|-----------|
+| T1 | `addRenglon` / modify / image apply → helper TR-101-04 | `CargaAsistenteTools` |
+| T2 | PHPUnit false/true + default equiv 1 | `CargaAsistenteToolsTest` |
+
+Unificación delta CC PQ #10 (archivo `TR-SPEC-101-19-asistente-carga-ia-mutaciones-update.md` eliminado en Parte I).

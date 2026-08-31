@@ -6,7 +6,8 @@
 | **SPEC origen** | [SPEC-101-07](../../05-open-spec/101-PedidosWeb/SPEC-101-07-consultas-api.md), [SPEC-101-11](../../05-open-spec/101-PedidosWeb/SPEC-101-11-consultas-ui.md) |
 | **Producto** | [consulta-deuda.md](../../02-producto/PedidosWeb/consulta-deuda.md) |
 | **Prioridad** | Must |
-| **Estado** | Finalizado (Parte I — CC PQ #4) |
+| **Estado** | Finalizado (Parte I CC PQ #12) |
+| **Última actualización** | 2026-08-31 |
 | **B1** | Enriquecida (2026-06-01) |
 
 ## Narrativa
@@ -21,6 +22,7 @@ para **evaluar situación crediticia** y **analizar saldos en vista pivot** cuan
 2. Columnas y origen BD: **[consulta-deuda.md](../../02-producto/PedidosWeb/consulta-deuda.md)** (fuente de verdad).
 3. `fecha_proceso` en carátula (`metadata.fecha_proceso`).
 4. **CC PQ #4:** pivot opcional (`CONSULTA_DEUDA`); dataset = mismo listado API; visibilidad GEN-02 preservada en pivot.
+5. **CC PQ #12:** Comprobantes con saldo a favor del cliente muestran el importe en **verde**; comprobantes con saldo vencido muestran el importe en **rojo**.
 
 ## Criterios de aceptación
 
@@ -32,10 +34,16 @@ para **evaluar situación crediticia** y **analizar saldos en vista pivot** cuan
 - [x] **CA-PVT-03:** Export/layouts grilla sin regresión.
 - [x] **CA-PVT-04:** Pivot totaliza `saldo` con agregaciones numéricas.
 - [x] **CA-PVT-05:** Diseños pivot guardables.
+- [x] **CA-CC12-V01:** Comprobantes con saldo a favor del cliente muestran el importe en **verde**.
+- [x] **CA-CC12-V02:** Comprobantes con saldo vencido muestran el importe en **rojo**.
 
 ## Historial CC PQ #4 (10/06/2026) — Parte I 16/06/2026
 
 Unificación delta CC PQ #4 (archivo `*-update` eliminado en Parte I).
+
+## Historial CC PQ #12 (28/08/2026) — Parte I 30/08/2026
+
+Colores de importes según saldo a favor / vencido (RN-5, CA-CC12-V01…V02). Unificación delta `HU-101-021-consulta-deuda-update` (archivo eliminado en Parte I).
 
 ## Veredicto B1
 

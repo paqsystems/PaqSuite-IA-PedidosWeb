@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 |-------|--------|
-| **Versión documento** | MVP Fase 1 — 2026-07-02 (copia paramétrica `ActualizarPrecioCopia`, validación precios, modal error copia; revisión 2026-06-22 circuito, validaciones, renglones, parámetros, chat) |
+| **Versión documento** | MVP Fase 1 — 2026-08-31 (Parte I CC #10/#11; CC #12 re-unificado) |
 | **Ámbito** | Módulo comercial PedidosWeb |
 | **Manual transversal** | [Generalidades.md](./Generalidades.md) (login, sesión, menú, grillas, idioma, chat IA) |
 | **Guías complementarias** | [Circuito y estados](./PedidosWeb-circuito-estados.md) · [Validaciones y errores](./PedidosWeb-validaciones-errores.md) · [Chat Asistente IA](./Chat-Asistente-IA.md) · [Asistente IA de carga](./PedidosWeb-asistente-carga-ia.md) |
@@ -201,6 +201,16 @@ Mientras se carga el listado de clientes, el combobox muestra **Cargando…** y 
 
 Al elegir cliente, el sistema inicializa la cabecera con los datos habituales del maestro: **vendedor asignado al cliente**, condición de venta, transporte, lista de precios, bonificaciones, **perfil** (según parámetro *Perfil de pedidos por defecto* — §6.4), dirección de entrega habitual, etc.
 
+Debajo del selector aparece el **saldo de deuda** del cliente:
+
+| Color del saldo | Significado |
+|-----------------|-------------|
+| **Verde** | Saldo cero o a favor del cliente |
+| **Negro** | Hay deuda y ningún comprobante está vencido |
+| **Rojo** | Hay al menos un comprobante vencido con saldo |
+
+Si el saldo **no es cero**, un ícono junto al importe abre una ventana con los comprobantes pendientes (grilla y total). Esa ventana es de consulta: no exporta ni usa plantillas de informe.
+
 El campo **Vendedor** en cabecera es de **solo lectura**: muestra el código y nombre del vendedor del cliente en ERP, no el usuario logueado salvo que coincidan.
 
 ### 6.3 Alta de un comprobante nuevo
@@ -237,7 +247,7 @@ Al cambiar la lista de precios en cabecera, el sistema recalcula precios de los 
 - Cuando la cabecera tiene una **lista de precios válida**, el sistema completa en memoria los **precios** de ese catálogo (consulta separada, más liviana). El botón **Agregar artículo** permanece deshabilitado mientras cargan esos precios.
 - El combobox de artículos permanece **deshabilitado** hasta que termine la precarga de stock **y** la cabecera tenga lista de precios válida; la búsqueda dentro del listado es **local** (código o descripción).
 - Icono **Actualizar** (↻) junto al combobox: vuelve a consultar **stock/disponible** al servidor si el usuario desea refrescar disponibilidades.
-- Cada ítem se muestra con **código, descripción y disponible** (y disponible del artículo base entre paréntesis cuando aplica).
+- Cada ítem se muestra con **código, descripción y disponible** (y disponible del artículo base entre paréntesis cuando aplica). Los artículos **no stockeables** pueden aparecer en la búsqueda, **sin** mostrar disponible.
 - Si al filtrar queda **un solo artículo**, se selecciona automáticamente.
 - No aparecen artículos marcados como **BASE** en el catálogo ERP.
 
@@ -329,7 +339,7 @@ El comportamiento de los **precios e importes** al copiar lo define el parámetr
 
 Si el parámetro ERP lo habilita, al grabar o modificar se envía notificación por correo a destinatarios configurados (cliente, vendedor, supervisor, lista adicional).
 
-El mail incluye cabecera completa y, si **DetallePorMail** está activo, tabla de renglones con **precio neto unitario**. Los importes neto y bruto reflejan los **descuentos aplicados** (coherentes con lo grabado).
+El mail incluye cabecera completa y, si **DetallePorMail** está activo, tabla de renglones con **precio neto unitario**. Cuando hay unidades de venta, el detalle muestra **Bultos** (cantidad de venta) y **Unidades** (cantidad neta). Los importes neto y bruto reflejan los **descuentos aplicados** (coherentes con lo grabado).
 
 Si el envío falla, puede mostrarse un **aviso informativo** en pantalla **sin revertir** la grabación.
 
@@ -388,6 +398,8 @@ Si esperaba ver leyendas del cliente y los campos están vacíos:
 
 Las leyendas son **editables** en carga (salvo modo solo lectura) aunque no se hayan inicializado desde el cliente.
 
+Si una leyenda se **inicializa desde el cliente** y usted la **modifica en esa sesión**, al grabar el pedido o presupuesto el sistema **actualiza también el maestro de clientes** con el texto nuevo. Si no toca la leyenda en esa sesión (por ejemplo al editar un pedido viejo), el maestro **no** se cambia, aunque el texto del comprobante sea distinto al del cliente hoy.
+
 ### 6.14 Importación desde Excel (pedido individual)
 
 Cuando el tenant tiene habilitada la importación Excel en carga, aparece una **barra superior** con acceso a plantilla e importación.
@@ -434,6 +446,8 @@ Cuando el tenant tiene habilitada la importación Excel en carga, aparece una **
 | **Editar / quitar** | Íconos en grilla de renglones; popup muestra importes calculados |
 | **Precio neto unitario** | Solo lectura en grilla; precio lista − bonif. renglón − bonif. neta cabecera |
 | **Popup importes** | Bruto, neto, IVA y neto con IVA (2×2); IVA según % del artículo |
+| **Unidades equivalentes** | Si *Carga unidades de venta* está activo, el popup muestra cuántas unidades de stock equivalen a la cantidad de venta ingresada (solo lectura) |
+| **Precio unitario neto en popup** | Visible en el mismo modal (precio cargado menos bonificación de renglón y de cabecera) |
 | **Bonificación renglón** | Editable según `ModificaBonArtV/S`; rango habitual 0–100 |
 | **Descuento por cantidad** | Al cambiar cantidad, el sistema puede aplicar descuento del maestro `descuentocantidad` (mayor tramo ≤ cantidad ingresada), **independiente** del permiso de bonificación manual |
 | **Bonificación inicial** | Al agregar, parte de la bonificación del artículo en maestro |
@@ -457,7 +471,9 @@ Valores en **General → Consulta de parámetros** (solo lectura). Detalle de me
 | Minutos de inactividad web | Sesión y ventana de bloqueo -1 en edición |
 | Carga recurrente post grabación | Tras grabar, limpia pantalla o vuelve al listado |
 | Motivo de cierre exitoso | Usado al convertir presupuesto → pedido |
-| Incluir detalle en mail | Tabla de renglones en correo de notificación |
+| Incluir detalle en mail | Tabla de renglones en correo de notificación (con columnas **Bultos** y **Unidades** cuando aplica) |
+| Incluye artículos no stockeables | Informativo para la integración de artículos; en PedidosWeb el stock de no stockeables no se muestra (§6.7 y §9.4) |
+| Carga unidades de venta | Cantidad en renglón como unidades de venta; el popup muestra la equivalencia en unidades de stock |
 
 ### 6.17 Asistente IA en la carga
 
@@ -556,6 +572,7 @@ Grilla **plana**: cada fila = un renglón con datos de cabecera repetidos.
 
 - Todos los **estados** visibles para el usuario.
 - Columna **Precio neto unitario** por renglón.
+- Columna **Cantidad venta** (bultos) cuando el tenant expone el campo en la consulta.
 - Columna **Estado** como **texto** (no código numérico).
 - Solo consulta y export Excel; sin acciones de edición.
 - Con pivot habilitado en el tenant: conmutador **Grilla / Pivot** para análisis por dimensiones (cliente, artículo, vendedor, etc.) — ver [Generalidades §19](./Generalidades.md).
@@ -581,6 +598,8 @@ Las consultas de **pedidos ingresados**, **pendientes** y **presupuestos** no in
 
 Saldos y composición de deuda según visibilidad. Filtros por cliente y columnas expuestas en la grilla.
 
+Los importes de saldo se colorean: **verde** si el comprobante está a favor del cliente; **rojo** si está vencido y el saldo queda a cargo del cliente.
+
 **Pivot (opcional):** agrupar por cliente, vendedor o moneda; totalizar saldos e importes.
 
 ### 9.2 Cheques en cartera
@@ -593,11 +612,13 @@ Cheques con fechas, importes y estado. Incluye cheques en cartera y aplicados se
 
 Ventas detalladas en un rango temporal (parámetro **DiasVentasDetalladas** en ERP). Análisis por artículo, cliente o vendedor según columnas.
 
+Además puede filtrar por **fecha desde** y **fecha hasta** (vacías = no se aplican). Si completa solo desde, se listan ventas desde esa fecha; si completa solo hasta, hasta esa fecha; si completa ambas, el rango es inclusivo.
+
 **Pivot (opcional):** totales por artículo, cliente o período según campos arrastrados al panel pivot.
 
 ### 9.4 Stock
 
-Disponibilidad de artículos con **stock neto**: descuenta stock ERP, comprometido ERP y **pedidos web ingresados** (`estado = 0`).
+Disponibilidad de artículos con **stock neto**: descuenta stock ERP, comprometido ERP y **pedidos web ingresados** (`estado = 0`). Los artículos **no stockeables** no aparecen en este informe.
 
 En la **carga de pedidos** (§6.7), el combobox muestra **código, descripción y disponible** (con disponible base entre paréntesis cuando aplica). Use el icono **Actualizar** si necesita refrescar cantidades desde el servidor, o este informe **Stock** para análisis pivot y filtros amplios.
 

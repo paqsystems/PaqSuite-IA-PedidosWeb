@@ -4,8 +4,9 @@
 |-------|--------|
 | **HU relacionadas** | `docs/03-historias-usuario/001-Generaliddes/HU-GEN-02-*.md` (8 HU; índice en README) |
 | **TR relacionadas** | `docs/04-tareas/001-Generaliddes/TR-GEN-02-*.md` (8 TR; índice en README) |
-| **Estado** | En revisión |
+| **Estado** | Finalizado (Parte I CC PQ #10/#11) |
 | **Revisión A1** | Apto con observaciones (2026-05-28) |
+| **Última actualización** | 2026-08-31 |
 
 ## Objetivo
 
@@ -44,6 +45,29 @@ Toda respuesta `/api/v1/*` usa el envelope MONO **`error` / `respuesta` / `resul
 - Modelo usuarios, roles y permisos (seed; sin ABM seguridad en UI).
 - Relación menú ↔ autorización (backend + API menú).
 - Visibilidad por perfil funcional según producto §7.3.
+- **API clientes — nodo `contactos` (CC PQ #11):** exposición para consumidores terceros; PedidosWeb **no** usa el nodo en UI (carga, consultas, mail, asistente, selector).
+
+### API clientes — contactos (CC PQ #11)
+
+Dueño vigente de `GET /api/v1/clientes`: TR-GEN-02-visibilidad (helper `visibleClientsForUser` + endpoint).
+
+**Listado grupal** — `GET /api/v1/clientes`: cada ítem de `resultado` incluye nodo hijo **`contactos`**: array (posiblemente vacío) con todos los contactos de ese `cod_client`.
+
+**Ficha unitaria** — agregar `GET /api/v1/clientes/{codCliente}` con el **mismo shape** que un ítem del listado (incl. `contactos`), misma visibilidad y permiso `pw_clientes_visibles`. Fuera del universo → **404** sin fuga. No sustituye ni mezcla `cabecera-inicial` ni `direcciones-entrega`.
+
+**Contrato JSON (camelCase)** — cada contacto:
+
+| Campo API | Origen columna |
+|-----------|----------------|
+| `id` | `id` |
+| `codContacto` | `cod_contacto` |
+| `nombre` | `nombre` |
+| `telefono` | `telefono` |
+| `mail` | `mail` |
+
+Orden sugerido: `codContacto` ascendente. Envelope `{ error, respuesta, resultado }` sin cambio de forma. OpenAPI: extender `VisibleClientItem` + envelope unitario tipado. Visibilidad: solo contactos de clientes ya visibles; no nuevo permiso de menú.
+
+Modelo de datos: [SPEC-101-02](../101-PedidosWeb/SPEC-101-02-modelos.md) — tabla `pq_pedidosweb_clientescontactos`. ABM de contactos fuera de alcance portal.
 
 ## Fuera de alcance
 
@@ -115,3 +139,10 @@ Soporte consolidado: `docs/04-tareas/001-Generaliddes/F-GEN-01-02-cierre-formal.
 ### Criterio de lectura de estado
 
 Esta SPEC ya tiene slices implementados y verificados en F, pero **no** se considera cerrada en forma total mientras existan HU/TR asociadas sin cierre formal o con observaciones de entorno pendientes.
+
+## Historial de cambios
+
+| Fecha | Origen | Resumen |
+|-------|--------|---------|
+| 18/08/2026 | CC PQ #11 | Nodo `contactos` en API clientes (listado + GET unitario) |
+| 31/08/2026 | Parte I | Unificación `SPEC-001-02-acceso-y-seguridad-update`. Sin updates abiertos |

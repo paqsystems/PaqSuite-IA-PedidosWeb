@@ -7,8 +7,8 @@
 | **Épica** | 101 — PedidosWeb |
 | **Prioridad** | **Should** |
 | **Dependencias** | [TR-SPEC-101-16-proceso-excel-pedido-individual](TR-SPEC-101-16-proceso-excel-pedido-individual.md); TR-SPEC-101-10-pantalla-carga; TR-GEN-07-ui-embebida-host; HU-101-007/008 (cálculos) |
-| **Estado** | **C1 cerrado** — apto D1 |
-| **Última actualización** | 2026-06-17 (Parte C1) |
+| **Estado** | Finalizado (Parte I CC PQ #10/#11) |
+| **Última actualización** | 2026-08-31 |
 
 **Origen:** [HU-101-030](../../03-historias-usuario/101-PedidosWeb/HU-101-030-importacion-excel-pantalla-carga.md)  
 **Fuente UI:** [pantalla-carga-comprobante-ui.md](../../02-producto/PedidosWeb/pantalla-carga-comprobante-ui.md)  
@@ -47,6 +47,7 @@ Como usuario en comprobante nuevo, quiero importar planilla Excel y ver cabecera
 | CA-11 | Grabar post-import (validaciones 009/010 + CC PQ #6) |
 | CA-12 | i18n + `data-testid` |
 | CA-13 | E2E import → renglones visibles |
+| **AC-CC10-T-X2** | Volcado pantalla carga convierte cantidad (helper TR-101-04) |
 
 ### Escenarios Gherkin
 
@@ -276,3 +277,14 @@ Reutilizar patrón `mvp-section9.spec.ts` — paso opcional post-import.
 ### Sin cambios backend en v1
 
 Descuento cantidad resuelto en TR-16a.
+
+## CC PQ #10 — Parte I 31/08/2026
+
+Pipeline import Excel en pantalla carga: conversión cantidad al volcar `validRows`.
+
+| ID | Tarea | Evidencia |
+|----|-------|-----------|
+| T1 | `mapExcelImportToCarga` + helper TR-101-04 | `mapExcelImportToCarga.ts` |
+| T2 | Vitest conversión | `mapExcelImportToCarga.test.ts` |
+
+Unificación delta CC PQ #10 (archivo `TR-SPEC-101-16-importacion-excel-update.md` eliminado en Parte I — slice pantalla carga).

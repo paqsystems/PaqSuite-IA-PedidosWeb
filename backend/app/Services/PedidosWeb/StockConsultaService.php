@@ -209,6 +209,13 @@ SQL);
 
         $query->orderBy('s.cod_articulo');
 
+        if ($hasArticulosTable && Schema::hasColumn('pq_pedidosweb_articulos', 'stockeable')) {
+            $query->where(function (Builder $builder): void {
+                $builder->whereNull('a.stockeable')
+                    ->orWhere('a.stockeable', 1);
+            });
+        }
+
         if (filled($filters['q'] ?? null)) {
             $search = '%'.trim((string) $filters['q']).'%';
             $query->where(function (Builder $builder) use ($search, $hasArticulosTable): void {

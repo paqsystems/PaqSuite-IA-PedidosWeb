@@ -36,6 +36,8 @@ return [
             'codigo' => 'Codigo',
             'descripcion' => 'Descricao',
             'cantidad' => 'Qtd.',
+            'bultos' => 'Bultos',
+            'unidades' => 'Unidades',
             'precio' => 'Preco',
             'porcBonif' => '% Bonif.',
             'precioNeto' => 'Preco liquido',
