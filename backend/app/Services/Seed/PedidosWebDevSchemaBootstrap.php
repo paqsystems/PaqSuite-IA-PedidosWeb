@@ -205,7 +205,7 @@ CREATE TABLE pq_pedidosweb_clientesde (
     localidad nvarchar(120) NULL,
     c_postal nvarchar(20) NULL,
     cod_provin nvarchar(10) NULL,
-    habitual bit NOT NULL CONSTRAINT DF_pw_cde_hab DEFAULT (0),
+    habitual char(1) NULL CONSTRAINT DF_pw_cde_hab DEFAULT ('N'),
     CONSTRAINT PK_pw_clientesde PRIMARY KEY (cod_client, id_de)
 )
 SQL);
@@ -238,15 +238,17 @@ SQL);
 
         $this->createIfMissing('pq_pedidosweb_articulos', <<<'SQL'
 CREATE TABLE pq_pedidosweb_articulos (
-    codigo nvarchar(50) NOT NULL PRIMARY KEY,
+    codigo varchar(15) NOT NULL,
     descripcion varchar(60) NULL,
-    bonificacion decimal(18,4) NULL,
-    usa_esc bit NOT NULL CONSTRAINT DF_pw_art_esc DEFAULT (0),
-    base nvarchar(50) NULL,
-    valor1 decimal(18,4) NULL,
-    valor2 decimal(18,4) NULL,
-    porc_iva decimal(18,4) NULL,
-    equivalencia_ventas decimal(18,4) NULL CONSTRAINT DF_pw_art_equiv_ventas DEFAULT (1)
+    bonificacion decimal(6, 2) NULL,
+    usa_esc char(1) NULL,
+    base varchar(15) NULL,
+    valor1 varchar(15) NULL,
+    valor2 varchar(15) NULL,
+    porc_iva numeric(6, 2) NULL,
+    equivalencia_ventas decimal(18, 4) NOT NULL CONSTRAINT DF_pw_art_equiv_ventas DEFAULT (1),
+    stockeable bit NOT NULL CONSTRAINT DF_pw_art_stockeable DEFAULT (1),
+    CONSTRAINT PK_pq_pedidosweb_articulos PRIMARY KEY CLUSTERED (codigo ASC)
 )
 SQL);
 
@@ -350,7 +352,7 @@ CREATE TABLE pq_pedidosweb_pedidosdetalle (
     cod_articulo nvarchar(50) NULL,
     cantidad decimal(18,4) NULL,
     cantidad_venta decimal(18,4) NULL,
-    porc_bonif decimal(18,4) NULL,
+    bonificacion decimal(6,2) NULL,
     precio decimal(18,4) NULL,
     precio_neto decimal(18,4) NULL,
     precio_bruto decimal(18,4) NULL,

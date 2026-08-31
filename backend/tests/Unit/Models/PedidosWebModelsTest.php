@@ -23,12 +23,14 @@ class PedidosWebModelsTest extends TestCase
     }
 
     #[Test]
-    public function pedidoDetalleUsaPorcBonifYClaveCompuesta(): void
+    public function pedidoDetalleUsaBonificacionYClaveCompuesta(): void
     {
         $model = new PqPedidoswebPedidoDetalle();
 
+        $this->assertContains('bonificacion', $model->getFillable());
         $this->assertContains('porc_bonif', $model->getFillable());
-        $this->assertArrayHasKey('porc_bonif', $model->getCasts());
+        $this->assertArrayHasKey('bonificacion', $model->getCasts());
+        $this->assertSame('decimal:2', $model->getCasts()['bonificacion']);
         $this->assertSame('decimal:4', $model->getCasts()['cantidad']);
 
         $reflection = new ReflectionClass($model);
