@@ -1,9 +1,17 @@
 import type { MenuNode } from '../menuApi';
 
+function childNodesOf(node: MenuNode): MenuNode[] {
+  return Array.isArray(node.children) ? node.children : [];
+}
+
 export function flattenOperationalMenu(menuItems: MenuNode[]): MenuNode[] {
   const flattened: MenuNode[] = [];
 
   function walk(nodes: MenuNode[]) {
+    if (!Array.isArray(nodes)) {
+      return;
+    }
+
     for (const node of nodes) {
       if (node.nodeType === 'process') {
         flattened.push({
@@ -12,13 +20,14 @@ export function flattenOperationalMenu(menuItems: MenuNode[]): MenuNode[] {
         });
       }
 
-      if (node.children.length > 0) {
-        walk(node.children);
+      const children = childNodesOf(node);
+      if (children.length > 0) {
+        walk(children);
       }
     }
   }
 
-  walk(menuItems);
+  walk(Array.isArray(menuItems) ? menuItems : []);
 
   return flattened.sort((left, right) => left.order - right.order);
 }
@@ -30,6 +39,10 @@ export function collectAncestorMenuKeys(
   const ancestors: string[] = [];
 
   function walk(nodes: MenuNode[], path: string[]): boolean {
+    if (!Array.isArray(nodes)) {
+      return false;
+    }
+
     for (const node of nodes) {
       const nextPath = [...path, node.menuKey];
 
@@ -38,7 +51,8 @@ export function collectAncestorMenuKeys(
         return true;
       }
 
-      if (node.children.length > 0 && walk(node.children, nextPath)) {
+      const children = childNodesOf(node);
+      if (children.length > 0 && walk(children, nextPath)) {
         return true;
       }
     }
@@ -46,7 +60,7 @@ export function collectAncestorMenuKeys(
     return false;
   }
 
-  walk(menuItems, []);
+  walk(Array.isArray(menuItems) ? menuItems : [], []);
 
   return ancestors;
 }
@@ -55,13 +69,18 @@ export function findActiveMenuKey(
   menuItems: MenuNode[],
   activeRoutePath: string,
 ): string | null {
+  if (!Array.isArray(menuItems)) {
+    return null;
+  }
+
   for (const node of menuItems) {
     if (node.routePath === activeRoutePath) {
       return node.menuKey;
     }
 
-    if (node.children.length > 0) {
-      const childMatch = findActiveMenuKey(node.children, activeRoutePath);
+    const children = childNodesOf(node);
+    if (children.length > 0) {
+      const childMatch = findActiveMenuKey(children, activeRoutePath);
       if (childMatch !== null) {
         return childMatch;
       }
@@ -75,18 +94,23 @@ export function collectAllGroupMenuKeys(menuItems: MenuNode[]): string[] {
   const keys: string[] = [];
 
   function walk(nodes: MenuNode[]) {
+    if (!Array.isArray(nodes)) {
+      return;
+    }
+
     for (const node of nodes) {
       if (node.nodeType === 'group') {
         keys.push(node.menuKey);
       }
 
-      if (node.children.length > 0) {
-        walk(node.children);
+      const children = childNodesOf(node);
+      if (children.length > 0) {
+        walk(children);
       }
     }
   }
 
-  walk(menuItems);
+  walk(Array.isArray(menuItems) ? menuItems : []);
 
   return keys;
 }

@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "build:mobile": "tsc -b && vite build",
+    "build:mobile": "tsc -b && vite build --mode mobile",
     "build:release": "vite build --mode production",
     "cap:sync": "cap sync",
     "cap:android": "cap open android",
