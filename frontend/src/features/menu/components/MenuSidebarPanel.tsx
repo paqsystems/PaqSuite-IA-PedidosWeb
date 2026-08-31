@@ -36,7 +36,7 @@ export function MenuSidebarPanel({
     );
   }
 
-  if (menuItems.length === 0) {
+  if (!Array.isArray(menuItems) || menuItems.length === 0) {
     return (
       <p data-testid="menuSidebarEmptyState">
         {t('shell.menu.empty')}

@@ -2,6 +2,8 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth, useRequiredSessionContext } from '../../features/auth/AuthProvider';
+import { filterMenuTreeForAdminSecurity } from '../../features/admin/security/shared/adminSecurityMenu';
+import { fetchPublicConfig } from '../../features/config/api/publicConfigApi';
 import { MobileRouteGuard } from '../../features/mobile/MobileRouteGuard';
 import { filterMenuTreeForMobileV3 } from '../../features/mobile/pedidosWebMobilePolicy';
 import { useUserMenu } from '../../features/menu/useUserMenu';
@@ -21,10 +23,34 @@ export function ShellLayout() {
   const { logout } = useAuth();
   const nativeApp = isNativeApp();
   const { menuItems, isLoading, errorKey } = useUserMenu(true);
-  const filteredMenuItems = useMemo(
-    () => (nativeApp ? filterMenuTreeForMobileV3(menuItems) : menuItems),
-    [menuItems, nativeApp],
-  );
+  const [securityAdminEnabled, setSecurityAdminEnabled] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    let mounted = true;
+
+    void fetchPublicConfig()
+      .then((config) => {
+        if (mounted) {
+          setSecurityAdminEnabled(config.securityAdminEnabled);
+        }
+      })
+      .catch(() => {
+        // Mantener null: no asumir flag off (evita filtrar menú incompleto / crash .map).
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  const filteredMenuItems = useMemo(() => {
+    // null = config aún no cargó: no ocultar (evita flash al habilitar el flag)
+    const withoutDisabledAdmin = filterMenuTreeForAdminSecurity(
+      menuItems,
+      securityAdminEnabled !== false,
+    );
+    return nativeApp ? filterMenuTreeForMobileV3(withoutDisabledAdmin) : withoutDisabledAdmin;
+  }, [menuItems, nativeApp, securityAdminEnabled]);
   const menuPresentation = useMenuPresentation(sessionContext.user.id);
   const { preferences, isSavingOpenInNewTab, updateOpenInNewTab } = useUserPreferences(sessionContext);
   const [isOverlayMode, setIsOverlayMode] = useState(() =>

@@ -58,7 +58,8 @@ export function isRouteAllowedOnMobileApp(routePath: string): boolean {
 
 function filterMenuNodeForMobileV3(item: MenuNode): MenuNode | null {
   if (item.nodeType === 'group') {
-    const children = item.children
+    const childList = Array.isArray(item.children) ? item.children : [];
+    const children = childList
       .map((child) => filterMenuNodeForMobileV3(child))
       .filter((child): child is MenuNode => child !== null);
 
@@ -84,7 +85,9 @@ function filterMenuNodeForMobileV3(item: MenuNode): MenuNode | null {
 }
 
 export function filterMenuTreeForMobileV3(items: MenuNode[]): MenuNode[] {
-  return items
+  const safeItems = Array.isArray(items) ? items : [];
+
+  return safeItems
     .map((item) => filterMenuNodeForMobileV3(item))
     .filter((item): item is MenuNode => item !== null);
 }
