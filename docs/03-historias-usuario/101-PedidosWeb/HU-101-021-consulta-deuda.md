@@ -7,7 +7,7 @@
 | **Producto** | [consulta-deuda.md](../../02-producto/PedidosWeb/consulta-deuda.md) |
 | **Prioridad** | Must |
 | **Estado** | Finalizado (Parte I CC PQ #12) |
-| **Última actualización** | 2026-08-30 (Parte I — CC PQ #12) |
+| **Última actualización** | 2026-08-31 |
 | **B1** | Enriquecida (2026-06-01) |
 
 ## Narrativa
@@ -34,8 +34,8 @@ para **evaluar situación crediticia** y **analizar saldos en vista pivot** cuan
 - [x] **CA-PVT-03:** Export/layouts grilla sin regresión.
 - [x] **CA-PVT-04:** Pivot totaliza `saldo` con agregaciones numéricas.
 - [x] **CA-PVT-05:** Diseños pivot guardables.
-- [ ] **CA-CC12-V01:** Comprobantes con saldo a favor del cliente muestran el importe en **verde**.
-- [ ] **CA-CC12-V02:** Comprobantes con saldo vencido muestran el importe en **rojo**.
+- [x] **CA-CC12-V01:** Comprobantes con saldo a favor del cliente muestran el importe en **verde**.
+- [x] **CA-CC12-V02:** Comprobantes con saldo vencido muestran el importe en **rojo**.
 
 ## Historial CC PQ #4 (10/06/2026) — Parte I 16/06/2026
 

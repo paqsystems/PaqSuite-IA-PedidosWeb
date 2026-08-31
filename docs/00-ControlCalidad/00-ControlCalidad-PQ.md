@@ -46,9 +46,9 @@ Este archivo **no sustituye** SPEC, HU ni TR: es la **entrada** del circuito de 
 
 | # | Fecha | Estado | Resumen |
 |---|-------|--------|---------|
-| 12 | 28/08/2026 | Finalizado (Parte I 30/08/2026) | Saldo deuda en carga; unidades/precio neto modal; no stockeables; sync leyendas; colores deuda; rango fechas historial |
-| 11 | 18/08/2026 | Especificado (G+D+E 18/08/2026). Pendiente F e I | Contactos de cliente (`pq_pedidosweb_clientescontactos`) en API `GET /clientes` (listado + unitario); sin UI PedidosWeb |
-| 10 | 30/07/2026 | Implementado (D+E 30/07/2026; F1 18/08/2026). Pendiente Parte I | `CargaUnidadesVenta` — cantidad dual stock/venta; Excel, mail, asistente; `cantidad_venta` en Detalle de Pedidos |
+| 12 | 28/08/2026 | Finalizado (Parte I 30/08/2026; re-unificación CC #10/#11 31/08/2026) | Saldo deuda en carga; unidades/precio neto modal; no stockeables; sync leyendas; colores deuda; rango fechas historial |
+| 11 | 18/08/2026 | Finalizado (Parte I 31/08/2026) | Contactos de cliente (`pq_pedidosweb_clientescontactos`) en API `GET /clientes` (listado + unitario); sin UI PedidosWeb |
+| 10 | 30/07/2026 | Finalizado (Parte I 31/08/2026) | `CargaUnidadesVenta` — cantidad dual stock/venta; Excel, mail, asistente; `cantidad_venta` en Detalle de Pedidos |
 | 9 | 02/07/2026 | Finalizado (Parte I 02/07/2026) | `ActualizarPrecioCopia` al copiar — D+E+F+I OK; copia paramétrica + modal error |
 | 8 | 19/06/2026 | Finalizado (Parte I) | Precarga artículos al ingresar, refresh catálogo, vendedor cliente al importar Excel |
 | 7 | 15/06/2026 | Finalizado (Parte I) | i18n parámetros/pivot, perfil CodPerfilPedidos, validaciones grabación, layout carga |
@@ -155,7 +155,7 @@ en este caso , NO debe volver a colocar "Entegar folletería", por ser diferente
 |-------|--------|
 | **Fecha** | 18/08/2026 |
 | **Responsable** | Pablo Quarracino (PQ) |
-| **Estado** | Especificado (G+D+E 18/08/2026). Pendiente F e I |
+| **Estado** | Finalizado (Parte I 31/08/2026) |
 
 ### Hallazgos
 
@@ -173,23 +173,23 @@ Generar nueva tabla PQ_PEDIDOSWEB_CLIENTESCONTACTOS con los siguientes atributos
 - Telefono
 - Mail
 
-*Procesado* → [SPEC-101-02-update-01](../05-open-spec/updates/101-PedidosWeb/SPEC-101-02-modelos-update-01.md) · [TR-SPEC-101-02-update-01](../04-tareas/updates/101-PedidosWeb/TR-SPEC-101-02-modelos-update-01.md) — Parte G 18/08/2026 · **tabla canónica:** `pq_pedidosweb_clientescontactos` · **PK:** `id` identity (el maestro clientes usa `cod_client`, no `id`)
+*Procesado* → [SPEC-101-02-modelos](../05-open-spec/101-PedidosWeb/SPEC-101-02-modelos.md) · [TR-SPEC-101-02-modelos](../04-tareas/101-PedidosWeb/TR-SPEC-101-02-modelos.md) — Parte G 18/08/2026 · Parte I 31/08/2026 · **tabla canónica:** `pq_pedidosweb_clientescontactos` · **PK:** `id` identity (el maestro clientes usa `cod_client`, no `id`)
 
 #### Agregar contactos en API de Clientes
 
 En la API donde se obtienen los clientes (unitario o grupal), agregar un nodo hijo en cada cliente que traiga todos los datos de los contactos 
 
-*Procesado* → [SPEC-001-02-update](../05-open-spec/updates/001-Generaliddes/SPEC-001-02-acceso-y-seguridad-update.md) · [HU-GEN-02-update](../03-historias-usuario/updates/001-Generaliddes/HU-GEN-02-visibilidad-datos-pedidosweb-update.md) · [HU-101-004-update](../03-historias-usuario/updates/101-PedidosWeb/HU-101-004-seleccion-cliente-update.md) · [TR-GEN-02-update](../04-tareas/updates/001-Generaliddes/TR-GEN-02-visibilidad-datos-pedidosweb-update.md) — Parte G 18/08/2026 · **grupal:** `GET /api/v1/clientes` · **unitario:** `GET /api/v1/clientes/{codCliente}` (nuevo; no es `cabecera-inicial`) · **nodo:** `contactos[]` · **sin UI PedidosWeb**
+*Procesado* → [SPEC-001-02-acceso-y-seguridad](../05-open-spec/001-Generaliddes/SPEC-001-02-acceso-y-seguridad.md) · [HU-GEN-02-visibilidad-datos-pedidosweb](../03-historias-usuario/001-Generaliddes/HU-GEN-02-visibilidad-datos-pedidosweb.md) · [HU-101-004-seleccion-cliente](../03-historias-usuario/101-PedidosWeb/HU-101-004-seleccion-cliente.md) · [TR-GEN-02-visibilidad-datos-pedidosweb](../04-tareas/001-Generaliddes/TR-GEN-02-visibilidad-datos-pedidosweb.md) — Parte G 18/08/2026 · Parte I 31/08/2026 · **grupal:** `GET /api/v1/clientes` · **unitario:** `GET /api/v1/clientes/{codCliente}` (nuevo; no es `cabecera-inicial`) · **nodo:** `contactos[]` · **sin UI PedidosWeb**
 
 ### Verificación ciclo OpenSpec (18/08/2026)
 
 | Parte | Documento | Veredicto |
 |-------|-----------|-----------|
-| G | Updates en `docs/.../updates/` (SPEC/HU/TR) | Hecho 18/08/2026 — metadatos siguen **Pendiente** (esperan I) |
+| G | Updates en `docs/.../updates/` (SPEC/HU/TR) | Hecho 18/08/2026 |
 | D | Código + migración `pq_pedidosweb_clientescontactos` | Hecho 18/08/2026 |
 | E | [E-CC-PQ-11-tests.md](../04-tareas/101-PedidosWeb/E-CC-PQ-11-tests.md) | **Aprobado** — 21 PHPUnit + 4 Vitest |
-| F | — | **Pendiente** |
-| I | — | **Pendiente** — no fusionar updates ni marcar CC **Finalizado** hasta I |
+| F | — | No formalizado (alcance API-only; E suficiente) |
+| I | [I-CC-PQ-11-cierre-formal.md](../04-tareas/101-PedidosWeb/I-CC-PQ-11-cierre-formal.md) | **Finalizado** 31/08/2026 |
 
 ---
 
@@ -201,7 +201,7 @@ En la API donde se obtienen los clientes (unitario o grupal), agregar un nodo hi
 |-------|--------|
 | **Fecha** | 30/07/2026 |
 | **Responsable** | Pablo Quarracino (PQ) |
-| **Estado** | Implementado (D+E 30/07/2026; F1 18/08/2026). Pendiente Parte I |
+| **Estado** | Finalizado (Parte I 31/08/2026) |
 | **Entorno / integración** | Commit `56271ef` (30/07/2026) en `v1.1.1` → `develop` / `main` (PR #22 / #29). Código en producción según PQ (18/08/2026); QA F sin acta. |
 | **Build / rama** | `v1.1.1` @ `9e7785f` (incluye `56271ef`) |
 
@@ -216,7 +216,7 @@ Incorporar la posibilidad de ingresar los renglones de los pedidos por unidades 
 Agregar en PQ_PARAMETROS_GRAL una nueva clave, de tipo booleana, llamada "CargaUnidadesVenta".
 tener presente este nuevo atributo para el seeder de actualización de versión.
 
-*Procesado* → [SPEC-001-04-update](../05-open-spec/updates/001-Generaliddes/SPEC-001-04-configuracion-global-update.md) · [HU-GEN-04-update](../03-historias-usuario/updates/001-Generaliddes/HU-GEN-04-consulta-parametros-update.md) · [TR-GEN-04-update](../04-tareas/updates/001-Generaliddes/TR-GEN-04-consulta-parametros-update.md) — Parte G 30/07/2026
+*Procesado* → [SPEC-001-04-configuracion-global](../05-open-spec/001-Generaliddes/SPEC-001-04-configuracion-global.md) · [HU-GEN-04-consulta-parametros](../03-historias-usuario/001-Generaliddes/HU-GEN-04-consulta-parametros.md) · [TR-GEN-04-consulta-parametros](../04-tareas/001-Generaliddes/TR-GEN-04-consulta-parametros.md) — Parte G 30/07/2026 · Parte I 31/08/2026
 
 #### Tabla de Articulos, agregar atributo "Equivalencia Ventas"
 
@@ -265,14 +265,14 @@ El ítem figuraba **A Programar** por omisión de Parte **F** (no se informó el
 
 | Parte | Documento | Veredicto |
 |-------|-----------|-----------|
-| G | Updates en `docs/.../updates/` (SPEC/HU/TR) | Hecho 30/07/2026 — metadatos siguen **Pendiente** (esperan I) |
+| G | Updates en `docs/.../updates/` (SPEC/HU/TR) | Hecho 30/07/2026 |
 | D | `56271ef` en `v1.1.1` / `main` | Hecho |
 | E | [E-CC-PQ-10-tests.md](../04-tareas/101-PedidosWeb/E-CC-PQ-10-tests.md) | **Aprobado** — 15 PHPUnit + 20 Vitest |
 | F1 | [F-CC-PQ-10-cierre-formal.md](../04-tareas/101-PedidosWeb/F-CC-PQ-10-cierre-formal.md) | **Aprobado con observaciones** (retrospectivo 18/08/2026) |
 | F QA | — | **Sin acta**; PQ declara producción |
-| I | — | **Pendiente** — no fusionar updates ni marcar CC **Finalizado** hasta I |
+| I | [I-CC-PQ-10-cierre-formal.md](../04-tareas/101-PedidosWeb/I-CC-PQ-10-cierre-formal.md) | **Finalizado** 31/08/2026 |
 
-**Huecos documentales (no de código):** SPEC/HU/TR 101 base sin el delta; HU/TR-GEN-04 base sin `CargaUnidadesVenta`; manual de usuario sin el parámetro; casillas AC de TR-update sin tildar.
+**Nota mail:** CC #10 pedía una columna cantidad según parámetro; CC #12 posterior define **Bultos + Unidades** en mail — prevalece #12 (documentado en SPEC-101-13 / HU-101-019 / TR-101-13).
 
 ## Control de Calidad #9
 

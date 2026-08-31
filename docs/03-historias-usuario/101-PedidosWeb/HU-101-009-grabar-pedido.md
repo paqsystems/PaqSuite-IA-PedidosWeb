@@ -6,7 +6,7 @@
 | **SPEC origen** | [SPEC-101-04-services-pedidos](../../05-open-spec/101-PedidosWeb/SPEC-101-04-services-pedidos.md), [SPEC-101-10](../../05-open-spec/101-PedidosWeb/SPEC-101-10-pantalla-carga.md) |
 | **Prioridad** | Must |
 | **Estado** | Finalizado (Parte I CC PQ #12) |
-| **Última actualización** | 2026-08-30 (Parte I — CC PQ #12) |
+| **Última actualización** | 2026-08-31 |
 | **B1** | Enriquecida (2026-06-01) |
 | **Dependencias** | HU-101-006…008; HU-101-019 |
 
@@ -32,8 +32,8 @@ para **dejar un pedido ingresado (0), actualizar uno existente o convertir un pr
 - [ ] **CA-02:** Confirmación muestra últimos caracteres GUID y número visible.
 - [ ] **CA-03:** Pedido aparece en consulta ingresados (HU-101-015).
 - [ ] **CA-04:** E2E §9 madre: paso grabar pedido + mail (mock/log).
-- [ ] **CA-CC12-G01:** Al grabar pedido, si una leyenda N dirty y `ClienteLeyendaN=true`, actualiza `clientes.leyenda_N`.
-- [ ] **CA-CC12-G02:** Si la leyenda no se modificó en la sesión, no actualiza el maestro (escenario d del CC).
+- [x] **CA-CC12-G01:** Al grabar pedido, si una leyenda N dirty y `ClienteLeyendaN=true`, actualiza `clientes.leyenda_N`.
+- [x] **CA-CC12-G02:** Si la leyenda no se modificó en la sesión, no actualiza el maestro (escenario d del CC).
 
 ## Historial CC PQ #12 (28/08/2026) — Parte I 30/08/2026
 

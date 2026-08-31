@@ -6,7 +6,8 @@
 | **SPEC origen** | [SPEC-101-07-consultas-api](../../05-open-spec/101-PedidosWeb/SPEC-101-07-consultas-api.md), [SPEC-101-11-consultas-ui](../../05-open-spec/101-PedidosWeb/SPEC-101-11-consultas-ui.md) |
 | **Producto** | [consulta-detalle-pedidos.md](../../02-producto/PedidosWeb/consulta-detalle-pedidos.md), §17.3.1 |
 | **Prioridad** | Must |
-| **Estado** | Finalizado (Parte I — CC PQ #4) |
+| **Estado** | Finalizado (Parte I CC PQ #10/#11) |
+| **Última actualización** | 2026-08-31 |
 | **B1** | Enriquecida (2026-06-03) |
 | **C** | Generada (2026-06-03) |
 | **C1** | Cerrada — apto para D1 (2026-06-03) |
@@ -61,6 +62,7 @@ Fuente de verdad columnas, joins y contrato: **[consulta-detalle-pedidos.md](../
 5. **Descuento renglón:** columna `porc_bonif` (API `porcBonif` / alias `descuento` según TR).
 6. **Descripción artículo:** preferir `descripcion_articulo` del detalle; fallback `articulos.descripcion`.
 7. **Estado en UI:** `consultas.comprobanteEstado.*` (mismas claves que consulta cabecera).
+8. **CC PQ #10:** API incluye `cantidadVenta`; grilla (y kardex mobile si aplica) muestra columna cantidad venta; no elimina `cantidad`.
 
 ## Decisiones cerradas (producto / B1)
 
@@ -96,10 +98,16 @@ Fuente de verdad columnas, joins y contrato: **[consulta-detalle-pedidos.md](../
 - [x] **CA-PVT-05:** Agregaciones por tipo de dato en menú contextual pivot.
 - [x] **CA-PVT-06:** Guardar/cargar diseño pivot (`pq_pivots_config`).
 - [x] **CA-PVT-07:** E2E toggle pivot + field panel (`pivot-informes.spec.ts`).
+- [ ] **CA-CC10-D01:** API incluye `cantidadVenta`.
+- [ ] **CA-CC10-D02:** Grilla (y kardex mobile si aplica) muestra columna cantidad venta; no elimina `cantidad`.
 
 ## Historial CC PQ #4 (10/06/2026) — Parte I 16/06/2026
 
 Unificación delta CC PQ #4 en esta HU (archivo `*-update` eliminado en Parte I). Ver [F-CC-PQ-4-pivot-informes](../../04-tareas/101-PedidosWeb/F-CC-PQ-4-pivot-informes.md) · [I-CC-PQ-4-cierre-formal](../../04-tareas/101-PedidosWeb/I-CC-PQ-4-cierre-formal.md).
+
+## Historial CC PQ #10 (30/07/2026) — Parte I 31/08/2026
+
+Columna `cantidadVenta` en consulta detalle de pedidos (RN-8, CA-CC10-D01…D02). Unificación delta `HU-101-028-consulta-detalle-pedidos-update` (archivo eliminado en Parte I).
 
 ## Escenarios Gherkin
 

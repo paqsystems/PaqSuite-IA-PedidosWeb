@@ -7,8 +7,8 @@
 | **Épica** | 101-PedidosWeb |
 | **Prioridad** | Must |
 | **Dependencias** | TR-SPEC-101-04-services-pedidos; TR-SPEC-101-05-controllers-rest; [TR-GEN-02-recuperacion-contrasena](../001-Generaliddes/TR-GEN-02-recuperacion-contrasena.md) (canal mail); [SPEC-001-04](../../05-open-spec/001-Generaliddes/SPEC-001-04-configuracion-global.md) (`DetallePorMail`, `MailDestinatariosAdicionales`, `Mail_DireccionRemitente`, `mailCCO`) |
-| **Estado** | En Control Calidad |
-| **Última actualización** | 2026-08-30 (Parte I — CC PQ #12) |
+| **Estado** | Finalizado (Parte I CC PQ #10/#11) |
+| **Última actualización** | 2026-08-31 |
 
 **Origen:** [HU-101-019-mail-grabar](../../03-historias-usuario/101-PedidosWeb/HU-101-019-mail-grabar.md)  
 **Referencia SPEC:** [SPEC-101-13-mails](../../05-open-spec/101-PedidosWeb/SPEC-101-13-mails.md)  
@@ -48,6 +48,7 @@ Como **destinatario configurado**, quiero **recibir un correo al grabar o modifi
 - **AC-10:** Si la grabación responde **200** pero el mail no se envió, la API expone indicador en `resultado` (ej. `mailEnviado: false`) y la UI muestra **toast informativo** i18n (no bloqueante, no revierte grabación) — ver §6.
 - **AC-CC12-T-MAIL1:** Con `DetallePorMail` activo, tabla renglones incluye columnas **Bultos** y **Unidades**.
 - **AC-CC12-T-MAIL2:** i18n 5 locales para encabezados `detalle.bultos`, `detalle.unidades`.
+- **AC-CC10-T-MAIL1:** Con `DetallePorMail` activo, columnas **Bultos**/**Unidades** (CC PQ #12 prevalece sobre columna única CC #10): `Bultos` ← `cantidad`; `Unidades` ← `cantidad_venta` si `CargaUnidadesVenta=true`, si no ambas desde `cantidad` según regla producto.
 
 ### Escenarios Gherkin
 
@@ -89,6 +90,8 @@ Feature: Mail al grabar comprobante
 7. **RN-07:** Vendedor destinatario = vendedor del **cliente** del comprobante, no necesariamente usuario que cargó.
 8. **RN-08:** El `Mailable` / `ComprobanteMailService` debe resolver `accionComprobante`: `ingresado` (alta nueva) | `modificado` (PUT o grabación sobre comprobante existente) y `tipoComprobante`: `pedido` | `presupuesto`.
 9. **RN-09 (UI — cerrado D1-06):** Si el comprobante se grabó OK pero falló el envío de mail, la pantalla de carga (TR-101-10) muestra un **toast informativo** al usuario (DevExtreme `notify` o equivalente del proyecto). **No** es error bloqueante; **no** revierte la grabación. El fallo también se registra en log (AC-08).
+10. **RN-10 (CC PQ #12):** Tabla detalle mail: columnas **Bultos** y **Unidades** (no columna cantidad única).
+11. **RN-11 (CC PQ #10, subordinado a RN-10):** Selector de valor por columna según `CargaUnidadesVenta`: **Bultos** ← `cantidad`; **Unidades** ← `cantidad_venta` si param true, si no replicar `cantidad`. Test unitario del builder.
 
 ### 3.1 Parámetro `MailDestinatariosAdicionales` (cerrado D1)
 
@@ -363,3 +366,14 @@ Columnas Bultos y Unidades en plantilla mail de detalle.
 | T3 | Unit test armado filas | `ComprobanteMailServiceTest` |
 
 Unificación delta CC PQ #12 update-01 (archivo `TR-SPEC-101-13-mails-update-01.md` eliminado en Parte I).
+
+## CC PQ #10 — Parte I 31/08/2026
+
+Selector cantidad mail subordinado a columnas Bultos/Unidades (CC #12 prevalece).
+
+| ID | Tarea | Evidencia |
+|----|-------|-----------|
+| T1 | Builder filas detalle según `CargaUnidadesVenta` | `ComprobanteMailService` |
+| T2 | Unit test selector | `ComprobanteMailServiceTest` |
+
+Unificación delta CC PQ #10 (archivo `TR-SPEC-101-13-mails-update.md` eliminado en Parte I).

@@ -6,7 +6,7 @@
 | **SPEC origen** | [SPEC-101-04-services-pedidos](../../05-open-spec/101-PedidosWeb/SPEC-101-04-services-pedidos.md), [SPEC-101-10](../../05-open-spec/101-PedidosWeb/SPEC-101-10-pantalla-carga.md) |
 | **Prioridad** | Must |
 | **Estado** | Finalizado (Parte I CC PQ #12) |
-| **Última actualización** | 2026-08-30 (Parte I — CC PQ #12) |
+| **Última actualización** | 2026-08-31 |
 | **B1** | Enriquecida (2026-06-01) |
 
 ## Narrativa
@@ -38,8 +38,8 @@ para **corregir datos antes de la descarga al ERP**, respetando el bloqueo param
 - [ ] **CA-05:** Pedido **-1** con `fechahora_ultima_actividad + MinutosWeb >= ahora` y otro usuario → rechazo.
 - [ ] **CA-06:** Tras actividad del editor, `fechahora_ultima_actividad` se actualiza y extiende la ventana.
 - [ ] **CA-07:** Parámetro `MinutosWeb` desde ERP (SPEC-001-04).
-- [ ] **CA-CC12-E01:** En edición, snapshot al abrir; grabar sin tocar leyenda no modifica maestro aunque el texto del pedido difiera del maestro actual.
-- [ ] **CA-CC12-E02:** Si el usuario modifica la leyenda en la sesión de edición, sí actualiza el maestro (si `ClienteLeyendaN`).
+- [x] **CA-CC12-E01:** En edición, snapshot al abrir; grabar sin tocar leyenda no modifica maestro aunque el texto del pedido difiera del maestro actual.
+- [x] **CA-CC12-E02:** Si el usuario modifica la leyenda en la sesión de edición, sí actualiza el maestro (si `ClienteLeyendaN`).
 
 ## Escenarios Gherkin
 

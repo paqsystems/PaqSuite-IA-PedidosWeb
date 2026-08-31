@@ -3,9 +3,9 @@
 | Campo | Valor |
 |-------|--------|
 | **SPEC madre** | [PedidosWeb_SPEC_MVP.md](PedidosWeb_SPEC_MVP.md) |
-| **Estado** | En revisión |
+| **Estado** | Finalizado (Parte I CC PQ #10/#11) |
 | **Prioridad épica** | Must |
-| **Última actualización** | 2026-08-30 (Parte I — CC PQ #12) |
+| **Última actualización** | 2026-08-31 |
 
 ## Objetivo
 
@@ -25,6 +25,7 @@ Reglas de negocio en services: CRUD, conversiones, copia, totales/IVA, auditorí
 - Grabación desde pantalla única: acciones **grabar pedido** / **grabar presupuesto** (matriz §10.1 producto)
 - **Sync leyendas cliente** al grabar (CC PQ #12): si `ClienteLeyendaN = true` y la leyenda N quedó **dirty en la sesión** (valor distinto al snapshot al abrir/inicializar cabecera), actualizar `pq_pedidosweb_clientes.leyenda_N`. Si no se modificó en la sesión, **no** tocar el maestro aunque el texto del comprobante difiera del maestro actual (escenario pedido 100 vs 200).
 - Trazabilidad conversión: **`cod_presupuesto_origen`** en pedido; **`cod_pedido_generado`** en `presupuestos_cierres`
+- **Persistencia dual cantidad (CC PQ #10):** grabación, edición, copia e hidratación de borradores persisten y recalculan **`cantidad`** + **`cantidad_venta`** según regla canónica SPEC-101-10; importes siempre desde `cantidad`. Validadores/mappers aceptan entrada según `CargaUnidadesVenta`; lectura `equivalencia_ventas` del artículo (fallback 1). Copia de comprobante: preservar ambos campos del origen. Helper de conversión compartido (Excel, asistente IA). No recalcular históricos al cambiar el parámetro (solo ingreso/edición nueva).
 
 ## Fuera de scope
 
@@ -49,6 +50,7 @@ HU-101-005…012, HU-101-013, HU-101-024, copia (trazar en B), auditoría transv
 - [ ] Sin DELETE presupuesto
 - [x] Copia paramétrica `ActualizarPrecioCopia` (CC PQ #9) — ver HU-101-026 / TR-SPEC-101-04
 - [x] CC PQ #12: sync leyendas dirty de sesión (HU-101-009/010/011)
+- [x] CC PQ #10: persistencia dual `cantidad` / `cantidad_venta` + helper conversión
 
 ## Historial CC PQ #9 (02/07/2026) — Parte I 02/07/2026
 
@@ -56,4 +58,8 @@ Extensión `ComprobanteCopiaService::copiarBorrador` con lectura `ActualizarPrec
 
 ## Historial CC PQ #12 (28/08/2026) — Parte I 30/08/2026
 
-Al grabar pedido o presupuesto, `PedidoService` sincroniza leyendas 1–5 del maestro cliente solo si el parámetro `ClienteLeyendaN` está activo y el frontend envía dirty de sesión (`leyendas_dirty`). Unificación `SPEC-101-04-services-pedidos-update-01`. Queda abierto `SPEC-101-04-…-update.md` (CC #10). Evidencia: [F-CC-PQ-12-cierre-formal](../../04-tareas/101-PedidosWeb/F-CC-PQ-12-cierre-formal.md).
+Al grabar pedido o presupuesto, `PedidoService` sincroniza leyendas 1–5 del maestro cliente solo si el parámetro `ClienteLeyendaN` está activo y el frontend envía dirty de sesión (`leyendas_dirty`). Unificación `SPEC-101-04-services-pedidos-update-01`. Evidencia: [F-CC-PQ-12-cierre-formal](../../04-tareas/101-PedidosWeb/F-CC-PQ-12-cierre-formal.md).
+
+## Historial CC PQ #10 (30/07/2026) — Parte I 31/08/2026
+
+Persistencia dual `cantidad`/`cantidad_venta` según `CargaUnidadesVenta`; helper compartido para pantalla, Excel y asistente. Unificación `SPEC-101-04-services-pedidos-update`. Evidencia: CC PQ #10 / HU-101-006-update.

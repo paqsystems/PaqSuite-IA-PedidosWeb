@@ -7,7 +7,7 @@
 | **Producto** | [consulta-stock.md](../../02-producto/PedidosWeb/consulta-stock.md) |
 | **Prioridad** | Must |
 | **Estado** | Finalizado (Parte I CC PQ #12) |
-| **Última actualización** | 2026-08-30 (Parte I — CC PQ #12) |
+| **Última actualización** | 2026-08-31 |
 | **B1** | Enriquecida (2026-06-01) |
 
 ## Narrativa
@@ -33,8 +33,8 @@ para **decidir cantidades en cargas y atención al cliente**, y **pivotar dispon
 - [x] **CA-PVT-02:** Fórmulas disponible neto idénticas a producto.
 - [x] **CA-PVT-03:** Columnas base opcionales en catálogo cuando artículo tiene `base`.
 - [x] **CA-PVT-04:** Actualizar recarga dataset servidor en grilla y pivot.
-- [ ] **CA-CC12-S01:** La consulta de stock no lista artículos con `stockeable=false`.
-- [ ] **CA-CC12-S02:** Kardex mobile / pivot (si aplica) usan el mismo dataset filtrado.
+- [x] **CA-CC12-S01:** La consulta de stock no lista artículos con `stockeable=false`.
+- [x] **CA-CC12-S02:** Kardex mobile / pivot (si aplica) usan el mismo dataset filtrado.
 
 ## Historial CC PQ #4 (10/06/2026) — Parte I 16/06/2026
 

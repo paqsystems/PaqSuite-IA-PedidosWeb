@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 |-------|--------|
-| **Versión documento** | MVP Fase 1 — 2026-08-30 (CC PQ #12: saldo deuda en carga, unidades/precio neto en modal, leyendas dirty, colores deuda, rango historial; revisión 2026-07-02 copia paramétrica) |
+| **Versión documento** | MVP Fase 1 — 2026-08-31 (Parte I CC #10/#11; CC #12 re-unificado) |
 | **Ámbito** | Módulo comercial PedidosWeb |
 | **Manual transversal** | [Generalidades.md](./Generalidades.md) (login, sesión, menú, grillas, idioma, chat IA) |
 | **Guías complementarias** | [Circuito y estados](./PedidosWeb-circuito-estados.md) · [Validaciones y errores](./PedidosWeb-validaciones-errores.md) · [Chat Asistente IA](./Chat-Asistente-IA.md) · [Asistente IA de carga](./PedidosWeb-asistente-carga-ia.md) |
@@ -572,6 +572,7 @@ Grilla **plana**: cada fila = un renglón con datos de cabecera repetidos.
 
 - Todos los **estados** visibles para el usuario.
 - Columna **Precio neto unitario** por renglón.
+- Columna **Cantidad venta** (bultos) cuando el tenant expone el campo en la consulta.
 - Columna **Estado** como **texto** (no código numérico).
 - Solo consulta y export Excel; sin acciones de edición.
 - Con pivot habilitado en el tenant: conmutador **Grilla / Pivot** para análisis por dimensiones (cliente, artículo, vendedor, etc.) — ver [Generalidades §19](./Generalidades.md).

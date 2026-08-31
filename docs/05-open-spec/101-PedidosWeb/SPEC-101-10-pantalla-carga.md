@@ -3,9 +3,9 @@
 | Campo | Valor |
 |-------|--------|
 | **SPEC madre** | [PedidosWeb_SPEC_MVP.md](PedidosWeb_SPEC_MVP.md) |
-| **Estado** | En revisión |
+| **Estado** | Finalizado (Parte I CC PQ #10/#11) |
 | **Prioridad épica** | Must |
-| **Última actualización** | 2026-08-30 (Parte I — CC PQ #12) |
+| **Última actualización** | 2026-08-31 |
 
 ## Objetivo
 
@@ -25,7 +25,11 @@ Pantalla **única** pedido/presupuesto: mismo flujo transaccional; cabecera, ren
 - Mail post-grabación (101-13); identificación visual pedido vs presupuesto.
 - DevExtreme; i18n.
 - **Saldo de deuda** tras elegir cliente (CC PQ #12): verde si saldo neto ≤ 0; negro si saldo > 0 sin vencidos; rojo si hay comprobante vencido con saldo. Si saldo ≠ 0, ícono abre Popup con grilla de pendientes + total (**sin** export/layouts/pivot). Fuente `GET /consultas/deuda?cod_cliente=…`.
-- **Modal renglón:** si `CargaUnidadesVenta`, mostrar equivalencia unidades de stock (`cantidad_venta * equivalencia_ventas`, equiv≤0→1), solo lectura. Incluir **precio unitario neto** (precio − bonif. renglón − bonif. neta cabecera).
+- **Modal renglón (CC PQ #12):** equivalencia unidades de stock en solo lectura cuando aplica; incluir **precio unitario neto** (precio − bonif. renglón − bonif. neta cabecera).
+- **Cantidad dual según `CargaUnidadesVenta` (CC PQ #10):** un solo campo «cantidad» en alta/edición (DevExtreme); **prohibido** mostrar ambos campos editables. Regla de conversión — sea `equiv = equivalencia_ventas` del artículo; si `equiv` es null o ≤ 0 → `equiv = 1`:
+  - `CargaUnidadesVenta = false`: usuario edita → `cantidad`; persistir `cantidad_venta = cantidad / equiv`; importes desde `cantidad`.
+  - `CargaUnidadesVenta = true`: usuario edita → `cantidad_venta`; persistir `cantidad = cantidad_venta * equiv`; importes desde `cantidad` (derivada).
+  - Al abrir edición y en grilla de renglones: mostrar la cantidad «de usuario» coherente con el parámetro (sin duplicar columnas). Misma semántica en rama native (`isNativeApp()`).
 - **Leyendas dirty:** snapshot de `leyenda_1…5` al abrir/inicializar; al grabar enviar flags dirty para SPEC-101-04.
 - **Listbox artículos:** ítems con `stockeable = false` pueden aparecer, **sin** mostrar stock/disponible.
 
@@ -77,6 +81,7 @@ HU-101-005…010, copia (B), HU-101-011, HU-101-012 (solo pedido delete)
 - [x] CC PQ #5 09/06/2026: listbox artículos — disponible neto con `comprometido_web`; display con base opcional
 - [x] CC PQ #6 17/06/2026: disponible base en listbox = agregado SUM por `articulos.base` (§5 consulta stock), no stock del código base aislado
 - [x] CC PQ #12: saldo deuda + modal; equivalencia unidades y precio neto en modal renglón; dirty leyendas; no stockeables sin stock en listbox
+- [x] CC PQ #10: cantidad dual según `CargaUnidadesVenta` (un solo control editable)
 
 ## In scope — CC PQ #5 / #6 (listbox artículos)
 
@@ -113,4 +118,6 @@ Fuente de verdad UI: [pantalla-carga-comprobante-ui.md](../../02-producto/Pedido
 | 24/06/2026 | perf carga | Modal precarga stock; cliente bloqueado hasta stock; precios batch con `solo_catalogo`; sin fetch por artículo al agregar — ver `pantalla-carga-comprobante-ui.md` §3 |
 | 24/06/2026 | concurrencia SQL | Lecturas ERP sin bloqueo (`NOLOCK` / `READ UNCOMMITTED`); escrituras con `READ COMMITTED` — ver [sqlserver-lecturas-sin-bloqueo.md](../../backend/sql/sqlserver-lecturas-sin-bloqueo.md) |
 | 28/08/2026 | CC PQ #12 | Deuda en carga, unidades/precio neto modal, leyendas dirty, stockeable UI |
-| 30/08/2026 | Parte I | Unificación `SPEC-101-10-pantalla-carga-update-01`. Queda abierto `SPEC-101-10-…-update.md` (CC #10) |
+| 30/08/2026 | Parte I | Unificación `SPEC-101-10-pantalla-carga-update-01` (CC PQ #12) |
+| 30/07/2026 | CC PQ #10 | Cantidad dual según `CargaUnidadesVenta` |
+| 31/08/2026 | Parte I | Unificación `SPEC-101-10-pantalla-carga-update`. Sin updates abiertos |

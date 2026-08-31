@@ -6,7 +6,7 @@
 | **SPEC origen** | [SPEC-101-04-services-pedidos](../../05-open-spec/101-PedidosWeb/SPEC-101-04-services-pedidos.md) |
 | **Prioridad** | Must |
 | **Estado** | Finalizado (Parte I CC PQ #12) |
-| **Última actualización** | 2026-08-30 (Parte I — CC PQ #12) |
+| **Última actualización** | 2026-08-31 |
 | **B1** | Enriquecida (2026-06-01) |
 
 ## Narrativa
@@ -28,8 +28,8 @@ para **conocer el monto final del comprobante**.
 - [ ] **CA-01:** Alta de renglón actualiza subtotales y total cabecera en UI.
 - [ ] **CA-02:** Tras grabar, importes en BD coinciden con pantalla (transacción).
 - [ ] **CA-03:** Tests unitarios de totales/IVA ≥ umbral slice (§12 madre).
-- [ ] **CA-CC12-I01:** El modal de renglón muestra precio unitario neto = precio cargado − bonif. renglón − bonif. neta de cabecera (misma base de cálculo de importes).
-- [ ] **CA-CC12-I02:** Se actualiza al cambiar precio/bonificaciones en el modal.
+- [x] **CA-CC12-I01:** El modal de renglón muestra precio unitario neto = precio cargado − bonif. renglón − bonif. neta de cabecera (misma base de cálculo de importes).
+- [x] **CA-CC12-I02:** Se actualiza al cambiar precio/bonificaciones en el modal.
 
 ## Historial CC PQ #12 (28/08/2026) — Parte I 30/08/2026
 

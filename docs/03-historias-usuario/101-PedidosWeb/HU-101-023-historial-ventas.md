@@ -6,7 +6,7 @@
 | **SPEC origen** | [SPEC-101-07](../../05-open-spec/101-PedidosWeb/SPEC-101-07-consultas-api.md), SPEC madre §5.2 |
 | **Prioridad** | Must |
 | **Estado** | Finalizado (Parte I CC PQ #12) |
-| **Última actualización** | 2026-08-30 (Parte I — CC PQ #12) |
+| **Última actualización** | 2026-08-31 |
 | **B1** | Enriquecida (2026-06-01) |
 | **Dependencias** | Parámetro `DiasVentasDetalladas` (SPEC-001-04) |
 
@@ -31,9 +31,9 @@ Fuente de verdad: **[consulta-historial-ventas.md](../../02-producto/PedidosWeb/
 - [ ] **CA-01:** Listado respeta días del parámetro (o default documentado en TR).
 - [ ] **CA-02:** Doble clic o acción ver abre modal con detalle.
 - [ ] **CA-03:** Export Excel desde grilla principal.
-- [ ] **CA-CC12-H01:** UI con fecha desde / hasta (default vacío).
-- [ ] **CA-CC12-H02:** Sin fechas → solo filtro `DiasVentasDetalladas` (+ cliente/visibilidad).
-- [ ] **CA-CC12-H03:** Solo desde → filtra hacia adelante; solo hasta → hacia atrás; ambas → rango.
+- [x] **CA-CC12-H01:** UI con fecha desde / hasta (default vacío).
+- [x] **CA-CC12-H02:** Sin fechas → solo filtro `DiasVentasDetalladas` (+ cliente/visibilidad).
+- [x] **CA-CC12-H03:** Solo desde → filtra hacia adelante; solo hasta → hacia atrás; ambas → rango.
 
 ## Historial CC PQ #12 (28/08/2026) — Parte I 30/08/2026
 

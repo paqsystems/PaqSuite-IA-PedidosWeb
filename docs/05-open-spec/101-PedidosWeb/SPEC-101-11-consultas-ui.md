@@ -3,9 +3,9 @@
 | Campo | Valor |
 |-------|--------|
 | **SPEC madre** | [PedidosWeb_SPEC_MVP.md](PedidosWeb_SPEC_MVP.md) |
-| **Estado** | En revisión |
+| **Estado** | Finalizado (Parte I CC PQ #10/#11) |
 | **Prioridad épica** | Must |
-| **Última actualización** | 2026-08-30 (Parte I — CC PQ #12) |
+| **Última actualización** | 2026-08-31 |
 
 ## Objetivo
 
@@ -25,6 +25,7 @@ Pantallas de consulta con `DataGridDx`, layouts, exportación **Excel**, accione
 - Ícono **Actualizar** (tooltip i18n) en informes de consulta — recarga datos de grilla
 - Acción **Copiar** en pedidos pendientes (mismo patrón HU-101-026)
 - Columna **Precio neto unitario** en detalle pedidos (HU-101-028)
+- Columna **cantidad venta** (`cantidadVenta`, decimal `#,##0.00`, i18n `consultas.detalle.column.cantidadVenta`) en **Detalle de Pedidos** — CC PQ #10; visible junto a `cantidad` (no la reemplaza). Kardex mobile si aplica.
 - Export Excel (GEN-03); acciones ver/editar/eliminar según permisos (**eliminar** solo pedido 0)
 - Pivot: diseños `pq_pivots_config`, plantilla inicial, refresh, export Excel pivot (GEN-08) cuando flags activos
 - PDF: **fuera** — ver SPEC-001-06
@@ -50,6 +51,7 @@ HU-101-015…018, HU-101-021…023, HU-101-028
 - [x] CC PQ #1: nombre comercial, carátula fecha, actualizar, copiar pendientes, precio neto detalle
 - [x] CC PQ #4: cuatro informes con toggle grilla/pivot; catálogo pivot; E2E detalle + deuda
 - [x] CC PQ #12: colores saldo deuda; rango fechas historial; stock sin no-stockeables
+- [x] CC PQ #10: columna `cantidadVenta` en detalle pedidos
 
 ## Historial de cambios
 
@@ -60,4 +62,6 @@ HU-101-015…018, HU-101-021…023, HU-101-028
 | 11/06/2026 | CC PQ #4 / Parte G | Pivot en 4 informes — volcado updates |
 | 16/06/2026 | Parte I CC #4 | Unificación `SPEC-101-11-consultas-ui-update`; manual y producto pivot |
 | 28/08/2026 | CC PQ #12 | Colores deuda + rango fechas historial |
-| 30/08/2026 | Parte I | Unificación `SPEC-101-11-consultas-ui-update-01`. Queda abierto `SPEC-101-11-…-update.md` |
+| 30/08/2026 | Parte I | Unificación `SPEC-101-11-consultas-ui-update-01` (CC PQ #12) |
+| 30/07/2026 | CC PQ #10 | Columna UI `cantidadVenta` (solo Detalle de Pedidos) |
+| 31/08/2026 | Parte I | Unificación `SPEC-101-11-consultas-ui-update`. Sin updates abiertos |

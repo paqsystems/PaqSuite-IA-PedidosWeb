@@ -6,7 +6,7 @@
 | **SPEC origen** | [SPEC-101-04-services-pedidos](../../05-open-spec/101-PedidosWeb/SPEC-101-04-services-pedidos.md), [SPEC-101-10](../../05-open-spec/101-PedidosWeb/SPEC-101-10-pantalla-carga.md) |
 | **Prioridad** | Must |
 | **Estado** | Finalizado (Parte I CC PQ #12) |
-| **Última actualización** | 2026-08-30 (Parte I — CC PQ #12) |
+| **Última actualización** | 2026-08-31 |
 | **B1** | Enriquecida (2026-06-01) |
 
 ## Narrativa
@@ -28,7 +28,7 @@ para **dejar un presupuesto activo (99), actualizarlo o convertir un pedido no d
 - [ ] **CA-01:** Presupuesto grabado queda en estado 99.
 - [ ] **CA-02:** Visible en consulta presupuestos activos (HU-101-016).
 - [ ] **CA-03:** No existe acción eliminar presupuesto en UI/API.
-- [ ] **CA-CC12-GP01:** Misma regla de sync de leyendas dirty que HU-101-009-update al grabar presupuesto.
+- [x] **CA-CC12-GP01:** Misma regla de sync de leyendas dirty que HU-101-009-update al grabar presupuesto.
 
 ## Historial CC PQ #12 (28/08/2026) — Parte I 30/08/2026
 

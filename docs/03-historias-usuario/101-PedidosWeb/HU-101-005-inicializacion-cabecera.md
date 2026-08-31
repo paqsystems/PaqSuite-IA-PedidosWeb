@@ -6,7 +6,7 @@
 | **SPEC origen** | [SPEC-101-10-pantalla-carga](../../05-open-spec/101-PedidosWeb/SPEC-101-10-pantalla-carga.md) |
 | **Prioridad** | Must |
 | **Estado** | Finalizado (Parte I CC PQ #12) |
-| **Última actualización** | 2026-08-30 (Parte I — CC PQ #12) |
+| **Última actualización** | 2026-08-31 |
 | **B1** | Enriquecida (2026-06-01) |
 | **Dependencias** | HU-101-004; contexto SPEC-001-04 (parámetros §10.6 producto) |
 
@@ -56,9 +56,9 @@ Al seleccionar cliente, precargar según producto §10.4: vendedor, condición d
 - [x] **CA-CC6-01:** Paréntesis base no muestra `comprometidoBaseWeb` ni stock aislado del código base.
 - [x] **CA-CC6-02:** Presentaciones con misma `base` (ej. AC01) comparten el mismo `disponibleNetoBase`.
 - [x] **CA-CC6-03:** Implementación en `ArticuloCargaLookupService` alineada con `StockConsultaService` §5.
-- [ ] **CA-CC12-C01:** Al inicializar cabecera con cliente, queda disponible el saldo/modal de deuda (coherente HU-101-004-update-01).
-- [ ] **CA-CC12-C02:** Snapshot de leyendas 1–5 al abrir/inicializar para dirty tracking.
-- [ ] **CA-CC12-C03:** En listbox de artículos, ítems `stockeable=false` no muestran stock/disponible.
+- [x] **CA-CC12-C01:** Al inicializar cabecera con cliente, queda disponible el saldo/modal de deuda (coherente HU-101-004-update-01).
+- [x] **CA-CC12-C02:** Snapshot de leyendas 1–5 al abrir/inicializar para dirty tracking.
+- [x] **CA-CC12-C03:** En listbox de artículos, ítems `stockeable=false` no muestran stock/disponible.
 
 ## Historial CC PQ #12 (28/08/2026) — Parte I 30/08/2026
 

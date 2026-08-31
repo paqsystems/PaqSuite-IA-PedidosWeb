@@ -5,8 +5,8 @@
 | **ID** | HU-101-019-mail-grabar |
 | **SPEC origen** | [SPEC-101-13-mails](../../05-open-spec/101-PedidosWeb/SPEC-101-13-mails.md) |
 | **Prioridad** | Must |
-| **Estado** | En Control Calidad |
-| **Última actualización** | 2026-08-30 (Parte I — CC PQ #12) |
+| **Estado** | Finalizado |
+| **Última actualización** | 2026-08-31 |
 | **B1** | Enriquecida (2026-06-01) |
 | **Dependencias** | HU-101-009, HU-101-010; SPEC-001-04 (`DetallePorMail`) |
 
@@ -34,7 +34,8 @@ para **enterarme sin ingresar al portal**.
 10. **Formatos:** fecha prioriza `MM/DD/YYYY` ante duda; importes con signo adelante; bonificaciones como `valor %` (espacio antes de `%`). Detalle en [TR-SPEC-101-13-mails](../../04-tareas/101-PedidosWeb/TR-SPEC-101-13-mails.md) §3.2–3.4.
 11. **Campos del cuerpo:** cabecera (13 filas), detalle condicional (7 columnas) y pie (**solo texto fijo i18n**, sin leyendas ni URL) según TR-101-13 §3.2 — **cerrado producto 2026-06-02**.
 12. **Idiomas del mail:** claves `mail.comprobanteNotification.*` en **`es`**, **`en`**, **`fr`**, **`pt`**, **`it`** (locales habilitados del portal).
-13. **CC PQ #12:** El mail de confirmación incluye columnas **Bultos** (`cantidad_venta`) y **Unidades** (`cantidad`); textos de columna i18n.
+13. **CC PQ #12:** El mail de confirmación incluye columnas **Bultos** (`cantidad_venta`) y **Unidades** (`cantidad`); textos de columna i18n; prevalecen en el detalle sobre la regla CC #10 de columna única.
+14. **CC PQ #10:** Con `DetallePorMail` activo, si no aplican columnas Bultos/Unidades (CC #12), la columna cantidad del mail = `cantidad` con parámetro `false` o `cantidad_venta` con `true`; no se muestran ambas cantidades en el mail.
 
 ## Criterios de aceptación
 
@@ -49,12 +50,19 @@ para **enterarme sin ingresar al portal**.
 - [x] **CA-CC-01:** Tabla de renglones del mail incluye **Precio neto unitario**.
 - [x] **CA-CC-02:** **Importe neto** del mail refleja descuentos aplicados.
 - [x] **CA-CC-03:** **Importe bruto** del mail refleja descuentos aplicados (coherente con totales del comprobante).
-- [ ] **CA-CC12-M01:** El mail de confirmación incluye columnas **Bultos** (`cantidad_venta`) y **Unidades** (`cantidad`).
-- [ ] **CA-CC12-M02:** Textos de columna i18n.
+- [x] **CA-CC12-M01:** El mail de confirmación incluye columnas **Bultos** (`cantidad_venta`) y **Unidades** (`cantidad`).
+- [x] **CA-CC12-M02:** Textos de columna i18n.
+- [ ] **CA-CC10-M01:** Con `DetallePorMail` activo y parámetro `false`, columna cantidad = `cantidad`.
+- [ ] **CA-CC10-M02:** Con parámetro `true`, columna cantidad = `cantidad_venta`.
+- [ ] **CA-CC10-M03:** No se muestran ambas cantidades en el mail (salvo columnas Bultos/Unidades CC #12).
 
 ## Historial CC PQ #12 (28/08/2026) — Parte I 30/08/2026
 
-Columnas Bultos y Unidades en mail de confirmación (RN-13, CA-CC12-M01…M02). Unificación delta `HU-101-019-mail-grabar-update-01` (archivo eliminado en Parte I). Queda pendiente `HU-101-019-mail-grabar-update.md`.
+Columnas Bultos y Unidades en mail de confirmación (RN-13, CA-CC12-M01…M02). Unificación delta `HU-101-019-mail-grabar-update-01` (archivo eliminado en Parte I).
+
+## Historial CC PQ #10 (30/07/2026) — Parte I 31/08/2026
+
+Cantidad en mail según `CargaUnidadesVenta` (RN-14, CA-CC10-M01…M03); Bultos/Unidades CC #12 prevalecen en detalle. Unificación delta `HU-101-019-mail-grabar-update` (archivo eliminado en Parte I).
 
 ## Veredicto B1
 
