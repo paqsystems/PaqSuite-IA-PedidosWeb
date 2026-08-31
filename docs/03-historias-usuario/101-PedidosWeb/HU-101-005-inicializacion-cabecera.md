@@ -5,8 +5,8 @@
 | **ID** | HU-101-005-inicializacion-cabecera |
 | **SPEC origen** | [SPEC-101-10-pantalla-carga](../../05-open-spec/101-PedidosWeb/SPEC-101-10-pantalla-carga.md) |
 | **Prioridad** | Must |
-| **Estado** | Finalizado |
-| **Última actualización** | 2026-06-24 (modal precarga stock + bloqueo cliente) |
+| **Estado** | Finalizado (Parte I CC PQ #12) |
+| **Última actualización** | 2026-08-31 |
 | **B1** | Enriquecida (2026-06-01) |
 | **Dependencias** | HU-101-004; contexto SPEC-001-04 (parámetros §10.6 producto) |
 
@@ -32,6 +32,7 @@ Al seleccionar cliente, precargar según producto §10.4: vendedor, condición d
 8. **CC PQ #3 (artículos):** Al montar pantalla, precarga **stock/disponible** (hasta 10 000 ítems); modal no cerrable y selector de **cliente deshabilitado** hasta completar esa precarga; tras lista de precios en cabecera, consulta **precios** por lista (`solo_catalogo`) y merge en cliente; **Agregar artículo** deshabilitado hasta stock + precios listos; búsqueda DevExtreme **local** por `codArticulo` y `descripcion`; display **`{codigo} - {descripcion} — Disp. X (Y)`**.
 9. **CC PQ #3:** Al cambiar **lista de precios** con renglones → recálculo batch de precios (API `codigos` CSV).
 10. **CC PQ #5 / #6 (listbox artículos):** `disponibleNeto = stock − comprometido − comprometido_web` (pedidos ingresados `estado = 0`). Si `articulos.base` ≠ vacío: `disponibleNetoBase = SUM(stock) − SUM(comprometido) − comprometido_base_web` sobre **todas** las presentaciones con la misma `base` ([consulta-stock.md](../../02-producto/PedidosWeb/consulta-stock.md) §5). Entre paréntesis en el ítem: solo `disponibleNetoBase`.
+11. **CC PQ #12:** Al inicializar cabecera con cliente, queda disponible el saldo/modal de deuda (coherente HU-101-004). Snapshot de leyendas 1–5 al abrir/inicializar para dirty tracking. En listbox de artículos, ítems `stockeable=false` no muestran stock/disponible.
 
 ## Criterios de aceptación
 
@@ -55,6 +56,13 @@ Al seleccionar cliente, precargar según producto §10.4: vendedor, condición d
 - [x] **CA-CC6-01:** Paréntesis base no muestra `comprometidoBaseWeb` ni stock aislado del código base.
 - [x] **CA-CC6-02:** Presentaciones con misma `base` (ej. AC01) comparten el mismo `disponibleNetoBase`.
 - [x] **CA-CC6-03:** Implementación en `ArticuloCargaLookupService` alineada con `StockConsultaService` §5.
+- [x] **CA-CC12-C01:** Al inicializar cabecera con cliente, queda disponible el saldo/modal de deuda (coherente HU-101-004-update-01).
+- [x] **CA-CC12-C02:** Snapshot de leyendas 1–5 al abrir/inicializar para dirty tracking.
+- [x] **CA-CC12-C03:** En listbox de artículos, ítems `stockeable=false` no muestran stock/disponible.
+
+## Historial CC PQ #12 (28/08/2026) — Parte I 30/08/2026
+
+Deuda en cabecera, snapshot leyendas 1–5 y ocultar stock en artículos no stockeables (RN-11, CA-CC12-C01…C03). Unificación delta `HU-101-005-inicializacion-cabecera-update` (archivo eliminado en Parte I).
 
 ## Veredicto B1
 

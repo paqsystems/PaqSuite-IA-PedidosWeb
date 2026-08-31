@@ -6,7 +6,8 @@
 | **SPEC origen** | [SPEC-101-16-importacion-pedido-individual-excel](../../05-open-spec/101-PedidosWeb/SPEC-101-16-importacion-pedido-individual-excel.md) |
 | **Épica** | 101 — PedidosWeb / Carga comprobantes |
 | **Prioridad** | **Should** |
-| **Estado** | **Especificado** |
+| **Estado** | Finalizado (Parte I CC PQ #10/#11) |
+| **Última actualización** | 2026-08-31 |
 | **B1** | **Cerrado** (2026-06-17) |
 | **C1** | **Apto** (2026-06-17) — [F-101-16-cierre-c1](../../04-tareas/101-PedidosWeb/F-101-16-cierre-c1.md) |
 | **TR** | [TR-SPEC-101-16-proceso-excel-pedido-individual](../../04-tareas/101-PedidosWeb/TR-SPEC-101-16-proceso-excel-pedido-individual.md) |
@@ -92,6 +93,7 @@ Los **títulos de columna** en plantilla y validación estructural usan **i18n**
 12. **RN-12:** Catálogos informados o resueltos deben existir y ser válidos para el cliente.
 13. **RN-13:** Payload fila válida incluye cabecera resuelta + `cod_articulo`, `cantidad`, `precio`, `porc_bonif`, `porc_iva`, `descripcion_articulo`.
 14. **RN-14 (CC PQ #6 en import):** Tras resolver defaults, cabecera debe tener valores válidos en catálogo (perfil, condición, transporte, dirección, lista, vendedor); al menos un renglón válido en el archivo; cliente no inhabilitado.
+15. **RN-15 (CC PQ #10):** Columna Excel `cantidad` se interpreta según `CargaUnidadesVenta` (misma regla que modal renglón); renglones hidratados tienen `cantidad` y `cantidad_venta` coherentes; importes desde `cantidad`.
 
 ## Criterios de aceptación
 
@@ -111,6 +113,8 @@ Los **títulos de columna** en plantilla y validación estructural usan **i18n**
 - [ ] **CA-14:** Sin permiso `pw_cargapedidos` → 403 en plantilla y carga.
 - [ ] **CA-15:** Tests unitarios handler: ≥3 combinaciones defaults + ≥3 errores de negocio.
 - [ ] **CA-16:** Feature API: lote feliz + error validación para `PEDIDO_INDIVIDUAL`.
+- [ ] **CA-CC10-X01:** Columna Excel `cantidad` se interpreta según `CargaUnidadesVenta` (misma regla que modal renglón).
+- [ ] **CA-CC10-X02:** Renglones hidratados tienen `cantidad` y `cantidad_venta` coherentes; importes desde `cantidad`.
 
 ## Casos negativos
 
@@ -198,6 +202,10 @@ Feature: Proceso Excel PEDIDO_INDIVIDUAL
 | AMB-M-101-16-04 | Artículo duplicado | Permitir; N renglones |
 | AMB-B1-029-01 | Fuente traducciones plantilla | `frontend/src/locales` + espejo `backend/lang/{locale}/excel_import.php` |
 | AMB-B1-029-02 | `OBLIGATORIO` en comentario | i18n `excelImport.columnComment.required` (evolución GEN-07) |
+
+## Historial CC PQ #10 (30/07/2026) — Parte I 31/08/2026
+
+Interpretación de `cantidad` en Excel según `CargaUnidadesVenta` (RN-15, CA-CC10-X01…X02). Unificación delta `HU-101-029-proceso-excel-pedido-individual-update` (archivo eliminado en Parte I).
 
 ## Veredicto B1
 

@@ -36,6 +36,8 @@ return [
             'codigo' => 'Codice',
             'descripcion' => 'Descrizione',
             'cantidad' => 'Qta.',
+            'bultos' => 'Colli',
+            'unidades' => 'Unita',
             'precio' => 'Prezzo',
             'porcBonif' => '% Sconto',
             'precioNeto' => 'Prezzo netto',

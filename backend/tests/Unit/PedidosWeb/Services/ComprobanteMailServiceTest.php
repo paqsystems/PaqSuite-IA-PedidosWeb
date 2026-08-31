@@ -250,6 +250,78 @@ final class ComprobanteMailServiceTest extends TestCase
     }
 
     #[Test]
+    public function fechaCabeceraMailUsaFormatoI18nDelUsuario(): void
+    {
+        Mail::fake();
+
+        $cliente = new PqPedidoswebCliente();
+        $cliente->e_mail = 'cliente@empresa.test';
+        $cliente->nombre = 'Cliente MVP';
+
+        $cabecera = $this->buildCabeceraConCliente($cliente);
+        $cabecera->fecha = \Illuminate\Support\Carbon::parse('2026-08-30');
+        $service = $this->buildService();
+
+        $user = new User();
+        $user->locale = 'es';
+
+        $this->assertTrue($service->enviarComprobante($cabecera, [], 'pedido', 'ingresado', $user));
+
+        Mail::assertSent(ComprobanteNotificationMail::class, function (ComprobanteNotificationMail $mail): bool {
+            $fecha = $mail->comprobanteViewData['cabeceraMail']['fecha'] ?? '';
+
+            return $fecha === '30/08/2026';
+        });
+    }
+
+    #[Test]
+    public function detalleMailConservaCantidadYBultosUnidadesSeparados(): void
+    {
+        Mail::fake();
+
+        $cliente = new PqPedidoswebCliente();
+        $cliente->e_mail = 'cliente@empresa.test';
+        $cliente->nombre = 'Cliente MVP';
+
+        $cabecera = $this->buildCabeceraConCliente($cliente);
+        $service = $this->buildService();
+
+        $user = new User();
+        $user->locale = 'es';
+
+        $this->assertTrue($service->enviarComprobante(
+            $cabecera,
+            [
+                [
+                    'cod_articulo' => 'ART-DUAL',
+                    'descripcion_articulo' => 'Artículo dual',
+                    'cantidad' => 2,
+                    'cantidad_venta' => 24,
+                    'precio' => 100,
+                    'porc_bonif' => 0,
+                    'precio_neto' => 100,
+                ],
+            ],
+            'pedido',
+            'ingresado',
+            $user
+        ));
+
+        Mail::assertSent(ComprobanteNotificationMail::class, function (ComprobanteNotificationMail $mail): bool {
+            $detalle = $mail->comprobanteViewData['detalle'] ?? [];
+
+            if (! is_array($detalle) || $detalle === []) {
+                return false;
+            }
+
+            $renglon = $detalle[0];
+
+            return (float) ($renglon['cantidad'] ?? 0) === 2.0
+                && (float) ($renglon['cantidad_venta'] ?? 0) === 24.0;
+        });
+    }
+
+    #[Test]
     public function retornaFalseSinDestinatariosValidos(): void
     {
         Mail::fake();

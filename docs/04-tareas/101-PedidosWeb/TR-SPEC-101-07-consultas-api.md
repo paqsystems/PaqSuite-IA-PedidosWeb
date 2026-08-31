@@ -7,8 +7,8 @@
 | **Épica** | 101 — PedidosWeb |
 | **Prioridad** | Must |
 | **Dependencias** | TR-SPEC-101-06 (visibilidad); SPEC-101-03 (repositories); contexto [SPEC-001-04](../../05-open-spec/001-Generaliddes/SPEC-001-04-configuracion-global.md) para `DiasVentasDetalladas` |
-| **Estado** | Finalizado |
-| **Última actualización** | 2026-06-09 (Parte I — CC PQ #1) |
+| **Estado** | Finalizado (Parte I CC PQ #10/#11) |
+| **Última actualización** | 2026-08-31 |
 
 **Origen:** HU-101-015, HU-101-016, HU-101-017, HU-101-018, HU-101-021, HU-101-022, HU-101-023, **HU-101-028**  
 **Referencia SPEC:** [SPEC-101-07-consultas-api](../../05-open-spec/101-PedidosWeb/SPEC-101-07-consultas-api.md)  
@@ -45,6 +45,10 @@ para **alimentar grillas DevExtreme (SPEC-101-11) y exportación Excel (GEN-03)*
 - **AC-09:** 401 sin token; 403 sin `Permiso_Repo` (o regla acordada); 404 en detalle fuera de visibilidad.
 - **AC-10:** OpenAPI + matriz permisos actualizados; feature test por endpoint Must.
 - **AC-11 (Bloque 3):** `GET .../detalle-pedidos` devuelve join cabecera+detalle; todos los estados; paginación por **renglón**; sin flags `puede*`.
+- **AC-CC12-T-A1:** Historial ventas: cuatro combinaciones `fecha_desde` / `fecha_hasta` opcionales sobre `fecha_emi` (con fallback `DiasVentasDetalladas` si ambas ausentes).
+- **AC-CC12-T-A2:** Stock excluye artículos con `stockeable = 0`.
+- **AC-CC12-T-A3:** OpenAPI actualizado con params historial y regla stock.
+- **AC-CC10-T-API1:** Respuesta `GET .../detalle-pedidos` incluye `cantidadVenta` (mapeo desde `cantidad_venta`).
 
 ### Escenarios Gherkin
 
@@ -83,6 +87,9 @@ Feature: Consultas API PedidosWeb
 7. **RN-07:** Deuda/cheques: por cliente o agregado según perfil (§17.4–17.5).
 8. **RN-08:** Preparar contrato estable para export Excel (GEN-03): mismos filtros/query que listado.
 9. **RN-09 (Bloque 3):** Detalle pedidos: sin filtro de estado por defecto; paginar filas detalle; `id` lógico `{codPedido}-{renglon}` en UI.
+10. **RN-10 (CC PQ #12):** Historial ventas: query `fecha_desde` / `fecha_hasta` opcionales filtran `fecha_emi`; si omitidas, rango por `DiasVentasDetalladas` (RN-06).
+11. **RN-11 (CC PQ #12):** Stock: excluir filas donde `pq_pedidosweb_articulos.stockeable = 0` (`StockConsultaService`).
+12. **RN-12 (CC PQ #10):** Detalle pedidos: exponer `cantidad_venta` como `cantidadVenta` camelCase en ítems; producto `consulta-detalle-pedidos.md`.
 
 ---
 
@@ -298,6 +305,8 @@ Un endpoint GET paginado con join cabecera+detalle+maestros, visibilidad, metada
 
 **Query:** `q` (código/descripción), `todos` (bool, listado amplio según §17.7)
 
+**Regla (CC PQ #12):** excluir artículos con `stockeable = 0` en join maestro.
+
 **Visibilidad:** no filtra por cliente; sí por tenant.
 
 **Response 200:** ítems según [`consulta-stock.md`](../../02-producto/PedidosWeb/consulta-stock.md): `codArticulo`, `descripcion`, `stock`, `comprometido`, `comprometidoWeb`, `disponibleNeto`, métricas `*Base` opcionales; `metadata.fecha_proceso`. Implementación: `StockConsultaService` (SQL agregado).
@@ -328,9 +337,9 @@ Un endpoint GET paginado con join cabecera+detalle+maestros, visibilidad, metada
 
 **Autorización:** `Permiso_Repo` + visibilidad
 
-**Query:** `cod_cliente` (requerido salvo perfil cliente); paginación
+**Query:** `cod_cliente` (requerido salvo perfil cliente); paginación; **`fecha_desde`**, **`fecha_hasta`** (date, opcionales — filtro `fecha_emi`)
 
-**Regla:** ventas desde `today - DiasVentasDetalladas` días (parámetro ERP/tenant).
+**Regla:** ventas desde `today - DiasVentasDetalladas` días si **no** se informan fechas; con fechas, aplicar rango explícito (inclusive) sobre `fecha_emi`.
 
 **Response 200:** ítems según [`consulta-historial-ventas.md`](../../02-producto/PedidosWeb/consulta-historial-ventas.md) (22 campos JSON); `metadata.fecha_proceso` y `metadata.dias_ventas_detalladas`. Implementación: `HistorialVentasConsultaService`.
 
@@ -512,3 +521,27 @@ Ninguno en este slice (API only). TR-SPEC-101-11 consumirá estos endpoints.
 | T5 | Feature tests consultas | `PedidosWebEndpointsHappyPathTest` (CI SQL) |
 
 Producto actualizado: [consulta-comprobantes-cabecera.md](../../02-producto/PedidosWeb/consulta-comprobantes-cabecera.md), [consulta-detalle-pedidos.md](../../02-producto/PedidosWeb/consulta-detalle-pedidos.md).
+
+## CC PQ #12 — Parte I 30/08/2026
+
+Filtros fecha opcionales en historial ventas y exclusión artículos no stockeables en stock.
+
+| ID | Tarea | Evidencia |
+|----|-------|-----------|
+| T1 | `HistorialVentasConsultaService` — `fecha_desde`/`fecha_hasta` | query `fecha_emi` |
+| T2 | `StockConsultaService` — filtro `stockeable` | join `articulos` |
+| T3 | OpenAPI + feature tests | `PedidosWebOpenApiPaths`, happy path |
+
+Unificación delta CC PQ #12 update-01 (archivo `TR-SPEC-101-07-consultas-api-update-01.md` eliminado en Parte I).
+
+## CC PQ #10 — Parte I 31/08/2026
+
+Campo `cantidadVenta` en consulta detalle pedidos.
+
+| ID | Tarea | Evidencia |
+|----|-------|-----------|
+| T1 | Mapper/query detalle | `DetallePedidosConsultaService` |
+| T2 | Producto consulta detalle | `consulta-detalle-pedidos.md` |
+| T3 | Feature test campo presente | `PedidosWebEndpointsHappyPathTest` |
+
+Unificación delta CC PQ #10 (archivo `TR-SPEC-101-07-consultas-api-update.md` eliminado en Parte I).

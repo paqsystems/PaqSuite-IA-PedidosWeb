@@ -6,7 +6,8 @@
 | **SPEC origen** | [SPEC-101-16-importacion-pedido-individual-excel](../../05-open-spec/101-PedidosWeb/SPEC-101-16-importacion-pedido-individual-excel.md) |
 | **Épica** | 101 — PedidosWeb / Carga comprobantes |
 | **Prioridad** | **Should** |
-| **Estado** | **Especificado** |
+| **Estado** | Finalizado (Parte I CC PQ #10/#11) |
+| **Última actualización** | 2026-08-31 |
 | **B1** | **Cerrado** (2026-06-17) |
 | **C1** | **Apto** (2026-06-17) — [F-101-16-cierre-c1](../../04-tareas/101-PedidosWeb/F-101-16-cierre-c1.md) |
 | **TR** | [TR-SPEC-101-16-importacion-excel-pantalla-carga](../../04-tareas/101-PedidosWeb/TR-SPEC-101-16-importacion-excel-pantalla-carga.md) |
@@ -88,6 +89,7 @@ La pantalla `/pedidos/carga` incorpora `ExcelImportHostToolbar` con `codigoProce
 7. Respetar `isDevExtremeUserChange` al hidratar programáticamente (§14 `pantalla-carga-comprobante-ui`).
 8. **Copia de comprobante:** si la pantalla abre con renglones precargados, import deshabilitado (equivalente a «formulario no vacío»).
 9. **Descuento por cantidad:** tras mapear renglones, aplicar `findDescuentoCantidad` por cantidad importada (§12 producto).
+10. **CC PQ #10:** Import desde `/pedidos/carga` aplica la misma conversión de cantidad que HU-101-029 / modal renglón (`CargaUnidadesVenta`).
 
 ## Criterios de aceptación
 
@@ -104,6 +106,7 @@ La pantalla `/pedidos/carga` incorpora `ExcelImportHostToolbar` con `codigoProce
 - [ ] **CA-11:** Grabar pedido/presupuesto post-import: validaciones HU-101-009/010 y CC PQ #6 (cabecera completa, ≥1 renglón, perfil, nivel extremo, precio cero, cliente habilitado).
 - [ ] **CA-12:** Textos visibles del host vía i18n; `data-testid` estables.
 - [ ] **CA-13:** E2E: nuevo comprobante → import mock/archivo test → renglones visibles en grilla.
+- [ ] **CA-CC10-X03:** Import desde `/pedidos/carga` aplica la misma conversión de cantidad que HU-101-029 / modal.
 
 ## Casos negativos
 
@@ -188,6 +191,10 @@ Feature: Importacion Excel en pantalla de carga
 | AMB-B1-030-01 | Ubicación toolbar | Zona superior de `PedidosCargaPage`, sin desplazar acciones Grabar/Cancelar |
 | AMB-B1-030-02 | Orden hidratación | Cliente → cabecera inicial API → overlay Excel → renglones → totales |
 | AMB-M-101-16-03 | Descuento cantidad | En `onComplete` host, no en handler |
+
+## Historial CC PQ #10 (30/07/2026) — Parte I 31/08/2026
+
+Conversión de cantidad en import pantalla carga (RN-10, CA-CC10-X03). Unificación delta `HU-101-030-importacion-excel-pantalla-carga-update` (archivo eliminado en Parte I).
 
 ## Veredicto B1
 

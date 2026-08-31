@@ -6,9 +6,9 @@
 | **SPEC origen** | [SPEC-001-02-acceso-y-seguridad.md](../../05-open-spec/001-Generaliddes/SPEC-001-02-acceso-y-seguridad.md) |
 | **Épica** | 001 — Generaliddes / Acceso y seguridad |
 | **Prioridad** | Must |
-| **Estado** | En Control Calidad |
+| **Estado** | Finalizado (Parte I CC PQ #10/#11) |
 | **B1** | Enriquecida (2026-05-28) |
-| **Última actualización** | 2026-05-28 |
+| **Última actualización** | 2026-08-31 |
 | **Dependencias** | HU-GEN-02-login-sesion; HU-GEN-02-politicas-endpoints |
 
 ## Trazabilidad SPEC
@@ -48,9 +48,11 @@ Regla SPEC: un login = un cliente **o** un vendedor (nunca ambos). Los permisos 
 - Cliente: `cod_cliente` fijo al propio; sin selector de otro cliente.
 - Intento de acceso a datos fuera de alcance → 403 o 404 sin filtrar datos ajenos.
 - Coherencia con consultas Must del MVP (pedidos, presupuestos, deuda, cheques, historial, dashboard).
+- **CC PQ #11:** `GET /api/v1/clientes` y `GET /api/v1/clientes/{codCliente}` incluyen `contactos` (array) en cada ítem visible; campos por contacto: `id`, `codContacto`, `nombre`, `telefono`, `mail`; vacío si no hay filas.
 
 ## Fuera de alcance
 
+- UI PedidosWeb para ABM o visualización de contactos; mails de grabación de comprobante (`e_mail` del maestro cliente sigue igual).
 - Administración de asignaciones vendedor–cliente en UI portal (ERP/herramientas internas).
 - Permisos granulares ABM por atributo de menú (HU-GEN-02-politicas-endpoints).
 - ABM seguridad UI (SPEC fuera de alcance).
@@ -72,6 +74,15 @@ Regla SPEC: un login = un cliente **o** un vendedor (nunca ambos). Los permisos 
 - [ ] Tests integración: 3 perfiles, mismos datos semilla, resultados distintos.
 - [ ] E2E: vendedor A no ve cliente de vendedor B en selector.
 - [ ] Dashboard agrega solo comprobantes del universo visible (coherente SPEC MVP Must).
+- [ ] **CA-CC11-V01:** `GET /api/v1/clientes` incluye `contactos` (array) en cada ítem; vacío si no hay filas.
+- [ ] **CA-CC11-V02:** `GET /api/v1/clientes/{codCliente}` devuelve el mismo shape (incl. `contactos`) si el cliente está en el universo visible.
+- [ ] **CA-CC11-V03:** Cliente fuera de visibilidad → 404; sin permiso base → 403; sin auth → 401. Igual que el listado vigente.
+- [ ] **CA-CC11-V04:** No se listan contactos de clientes no visibles.
+- [ ] **CA-CC11-V05:** Campos por contacto: `id`, `codContacto`, `nombre`, `telefono`, `mail`.
+
+## Historial CC PQ #11 (18/08/2026) — Parte I 31/08/2026
+
+Contactos en API de clientes (CA-CC11-V01…V05). Unificación delta `HU-GEN-02-visibilidad-datos-pedidosweb-update` (archivo eliminado en Parte I).
 
 ## Escenarios Gherkin
 

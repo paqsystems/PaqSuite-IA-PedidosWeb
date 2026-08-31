@@ -4,9 +4,10 @@
 |-------|--------|
 | **SPEC madre** | [PedidosWeb_SPEC_MVP.md](PedidosWeb_SPEC_MVP.md) |
 | **Producto** | [importacion-masiva-pedidos.md](../../02-producto/PedidosWeb/importacion-masiva-pedidos.md) |
-| **Estado** | Especificado — **A1 + B1 + C + C1** (2026-07-19); autoriza D1 |
+| **Estado** | Finalizado (Parte I CC PQ #10/#11) |
 | **Prioridad épica** | Should (extensión post-MVP; reutiliza plantilla / motor GEN-07 y grabación 101-04/13) |
 | **Revisión A1** | [F-101-21-cierre-a1-importacion-masiva](../../04-tareas/101-PedidosWeb/F-101-21-cierre-a1-importacion-masiva.md) |
+| **Última actualización** | 2026-08-31 |
 | **HU relacionadas** | [HU-101-043](../../03-historias-usuario/101-PedidosWeb/HU-101-043-proceso-excel-pedido-masivo.md) · [HU-101-044](../../03-historias-usuario/101-PedidosWeb/HU-101-044-pantalla-importacion-masiva.md) · [HU-101-045](../../03-historias-usuario/101-PedidosWeb/HU-101-045-consultar-borrador-importacion-masiva.md) |
 | **TR relacionadas** | [21a](../../04-tareas/101-PedidosWeb/TR-SPEC-101-21-proceso-excel-pedido-masivo.md) · [21b](../../04-tareas/101-PedidosWeb/TR-SPEC-101-21-pantalla-importacion-masiva.md) · [21c](../../04-tareas/101-PedidosWeb/TR-SPEC-101-21-consultar-borrador-importacion-masiva.md) |
 
@@ -110,7 +111,7 @@ Validaciones de importación (no exhaustivo; hereda 101-16 donde aplique):
 | Coherencia **dentro del grupo** | El grupo se define por cliente + vendedor + firma completa de cabecera. Filas con cabecera distinta **no** se mezclan: forman otro comprobante. Dentro del mismo grupo, la cabecera es idéntica por construcción de la clave |
 | Nivel | Rango de negocio 0–100; si `NivelExtremo` → solo `0`/`100` |
 | Permisos `Modifica*` | Columnas no editables por el usuario deben venir vacías (igual 101-16) |
-| Artículo / cantidad / precio cero / cliente inhabilitado | Igual criterios 101-16 |
+| Artículo / cantidad / precio cero / cliente inhabilitado | Igual criterios 101-16. Columna `cantidad`: misma semántica que importación individual / modal renglón (`CargaUnidadesVenta`, CC PQ #10); reutilizar helper/pipeline SPEC-101-16; renglones con ambos campos materializados. |
 
 ### 3. Agrupación y armado de borrador
 
@@ -336,3 +337,5 @@ Decisiones C1: `grupos[]`; store OR permiso; sessionStorage al Consultar. Orden 
 | 2026-07-19 | **B1 cerrado** — 3 HU enriquecidas; autoriza Parte C |
 | 2026-07-19 | **Parte C** — TR 21a/21b/21c generadas |
 | 2026-07-19 | **C1 cerrado** — Apto; autoriza D1 |
+| 2026-07-30 | CC PQ #10 | Masiva: columna `cantidad` = semántica individual/modal |
+| 2026-08-31 | Parte I | Unificación `SPEC-101-21-importacion-masiva-pedidos-update`. Sin updates abiertos |

@@ -17,6 +17,7 @@ import { PedidosCargaMobileCabeceraStep } from '../components/mobile/PedidosCarg
 import { PedidosCargaConfirmacionDialog } from '../components/PedidosCargaConfirmacionDialog';
 import { PedidosCargaErroresGrabacionDialog } from '../components/PedidosCargaErroresGrabacionDialog';
 import { PedidosCargaRenglonEditDialog } from '../components/PedidosCargaRenglonEditDialog';
+import { CargaDeudaSaldoPanel } from '../components/CargaDeudaSaldoPanel';
 import {
   usePedidosCargaMobile,
   type PedidosCargaMobileStep,
@@ -294,6 +295,7 @@ export function PedidosCargaMobilePage() {
               }}
             />
           )}
+          {carga.selectedCliente ? <CargaDeudaSaldoPanel codCliente={carga.selectedCliente} /> : null}
         </div>
       ) : null}
 

@@ -4,9 +4,9 @@
 |-------|--------|
 | **HU relacionadas** | [HU-GEN-04-consulta-parametros](../../03-historias-usuario/001-Generaliddes/HU-GEN-04-consulta-parametros.md), lectura runtime (servicios existentes) |
 | **TR relacionada** | [TR-GEN-04-consulta-parametros](../../04-tareas/001-Generaliddes/TR-GEN-04-consulta-parametros.md) (**C1** 2026-06-03) |
-| **Estado** | Especificado |
+| **Estado** | Finalizado (Parte I CC PQ #10/#11) |
 | **Revisión A1** | Apto con observaciones (2026-05-28) |
-| **Última actualización** | 2026-07-02 (Parte I — CC PQ #9) |
+| **Última actualización** | 2026-08-31 |
 
 ## Objetivo
 
@@ -56,10 +56,26 @@ Implementable en MVP (lectura y uso de parámetros; **sin** ABM web de parámetr
 | `CargaRecurrente` | Flujo post-grabación pedido/presupuesto |
 | `CodMotivoCierreExitoso` | Conversión presupuesto → pedido: `id_motivo` en `pq_pedidosweb_motivos_cierre` (tipo **positivo**, activo). Ver HU-101-013. |
 | `ActualizarPrecioCopia` | Copiar comprobante (HU-101-026): conservar precios origen (`false`, default) o actualizar desde lista (`true`). Ver SPEC-101-04 / CC PQ #9. |
-| `CargaUnidadesVenta` | Carga renglones (CC PQ #10): cantidad usuario = stock (`false`, default) o unidades de venta (`true`). Importes siempre desde `cantidad`. |
+| `CargaUnidadesVenta` | Carga renglones (CC PQ #10): `tipo_valor` **B**, default `false`. Cantidad usuario = stock/precio (`cantidad`) o unidades de venta (`cantidad_venta`). Importes **siempre** desde `cantidad`. Ver § semántica runtime. |
+| `IncluyeArticulosNoStockeables` | Informativo (CC PQ #12): indica si la integración que alimenta artículos incluye no stockeables. PedidosWeb **no** filtra carga/stock con este flag; el filtro runtime usa `pq_pedidosweb_articulos.stockeable` (SPEC-101-02). `tipo_valor` **B**, default `false`. |
 | Resto §10.6 | Módulos según HU de negocio |
 
 Inventario completo con **`CAPTION`**, **`TOOLTIP`** y `tipo_valor`: [`docs/backend/seed/PQ_PARAMETROS_GRAL/PQ_PARAMETROS_GRAL.PedidosWeb.seed.json`](../../backend/seed/PQ_PARAMETROS_GRAL/PQ_PARAMETROS_GRAL.PedidosWeb.seed.json) (58 claves, producto §10.6 + ampliaciones MVP).
+
+### Semántica runtime — `CargaUnidadesVenta` (CC PQ #10)
+
+| `CargaUnidadesVenta` | Valor editable «cantidad» (pantalla, Excel, asistente IA, mail) | Persistencia |
+|----------------------|----------------------------------------------------------------|--------------|
+| `false` (default) | → `pq_pedidosweb_pedidosdetalle.cantidad` | Se deriva `cantidad_venta` |
+| `true` | → `cantidad_venta` | Se deriva `cantidad` |
+
+- **Administración:** ERP / herramientas internas (sin ABM web en MVP).
+- **Seed deploy:** `PQ_PARAMETROS_GRAL.PedidosWeb.seed.json` + seeder de actualización de versión (`paqsuite:seed-deploy` / INSERT idempotente).
+- **CAPTION sugerido:** Carga de pedidos por unidades de venta.
+- **TOOLTIP sugerido:** Si está activo, la cantidad ingresada en renglón / Excel / asistente se interpreta como unidades de venta (`cantidad_venta`); si no, como unidades de stock/precio (`cantidad`).
+- **Lectura runtime:** `PedidosWebParameterService` (o equivalente).
+- **Importes:** siempre calculados a partir de `cantidad` (SPEC-101-10).
+- Documentar en producto §10.6 y `consulta-parametros.md`.
 
 ## Fuera de alcance
 
@@ -98,3 +114,7 @@ Inventario completo con **`CAPTION`**, **`TOOLTIP`** y `tipo_valor`: [`docs/back
 | 09/06/2026 | Parte I | Unificación `SPEC-001-04-configuracion-global-update` |
 | 02/07/2026 | CC PQ #9 | Alta parámetro `ActualizarPrecioCopia` (copia paramétrica) |
 | 02/07/2026 | Parte I | Unificación `SPEC-001-04-configuracion-global-update` (CC PQ #9) |
+| 28/08/2026 | CC PQ #12 | Parámetro `IncluyeArticulosNoStockeables` (informativo) |
+| 30/08/2026 | Parte I | Unificación `SPEC-001-04-configuracion-global-update-01` (CC PQ #12) |
+| 30/07/2026 | CC PQ #10 | Parámetro `CargaUnidadesVenta` — semántica runtime § |
+| 31/08/2026 | Parte I | Unificación `SPEC-001-04-configuracion-global-update` (CC PQ #10). Sin updates abiertos |

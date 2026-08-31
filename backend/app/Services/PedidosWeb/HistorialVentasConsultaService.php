@@ -40,7 +40,7 @@ final class HistorialVentasConsultaService
         $pageSize = ConsultaPaginacion::resolvePageSize($filters['page_size'] ?? null);
 
         $codCliente = $this->resolveCodCliente($user, $filters);
-        $query = $this->buildQuery($codCliente, $user, $dias);
+        $query = $this->buildQuery($codCliente, $user, $dias, $filters);
 
         /** @var LengthAwarePaginator $paginator */
         $paginator = $query->paginate($pageSize, ['*'], 'page', $page);
@@ -83,7 +83,7 @@ final class HistorialVentasConsultaService
         return null;
     }
 
-    private function buildQuery(?string $codCliente, User $user, int $dias): Builder
+    private function buildQuery(?string $codCliente, User $user, int $dias, array $filters = []): Builder
     {
         $query = DB::table('pq_pedidosweb_ventadetallada as v')
             ->select([
@@ -111,10 +111,28 @@ final class HistorialVentasConsultaService
                 'v.cant_rem',
                 'v.fecha_rem',
             ])
-            ->whereRaw('v.fecha_emi >= DATEADD(day, -?, CAST(GETDATE() AS date))', [$dias])
             ->orderByDesc('v.fecha_emi')
             ->orderBy('v.cod_cli')
             ->orderBy('v.n_comp');
+
+        $fechaDesde = filled($filters['fecha_desde'] ?? null)
+            ? Carbon::parse((string) $filters['fecha_desde'])->toDateString()
+            : null;
+        $fechaHasta = filled($filters['fecha_hasta'] ?? null)
+            ? Carbon::parse((string) $filters['fecha_hasta'])->toDateString()
+            : null;
+
+        // Comparar por fecha de calendario (CAST) evita falsos vacíos por hora/timezone
+        // y el redondeo de datetime SQL Server al usar endOfDay (.999999).
+        if ($fechaDesde !== null && $fechaHasta !== null) {
+            $query->whereRaw('CAST(v.fecha_emi AS date) BETWEEN ? AND ?', [$fechaDesde, $fechaHasta]);
+        } elseif ($fechaDesde !== null) {
+            $query->whereRaw('CAST(v.fecha_emi AS date) >= ?', [$fechaDesde]);
+        } elseif ($fechaHasta !== null) {
+            $query->whereRaw('CAST(v.fecha_emi AS date) <= ?', [$fechaHasta]);
+        } else {
+            $query->whereRaw('v.fecha_emi >= DATEADD(day, -?, CAST(GETDATE() AS date))', [$dias]);
+        }
 
         if ($codCliente !== null) {
             $query->where('v.cod_cli', $codCliente);
@@ -139,9 +157,7 @@ final class HistorialVentasConsultaService
             'nRemito' => (string) ($row->n_remito ?? ''),
             'tipo' => (string) ($row->t_comp ?? ''),
             'numero' => (string) ($row->n_comp ?? ''),
-            'fechaEmision' => $row->fecha_emi !== null
-                ? Carbon::parse((string) $row->fecha_emi)->toIso8601String()
-                : null,
+            'fechaEmision' => $this->formatFechaCalendario($row->fecha_emi ?? null),
             'condVta' => $row->cond_vta !== null ? (int) $row->cond_vta : null,
             'porcDesc' => round((float) ($row->porc_desc ?? 0), 2),
             'cotiz' => round((float) ($row->cotiz ?? 0), 2),
@@ -158,10 +174,22 @@ final class HistorialVentasConsultaService
             'totSinImp' => round((float) ($row->tot_s_imp ?? 0), 2),
             'nCompRem' => (string) ($row->n_comp_rem ?? ''),
             'cantRem' => round((float) ($row->cant_rem ?? 0), 2),
-            'fechaRem' => $row->fecha_rem !== null
-                ? Carbon::parse((string) $row->fecha_rem)->toIso8601String()
-                : null,
+            'fechaRem' => $this->formatFechaCalendario($row->fecha_rem ?? null),
         ];
+    }
+
+    private function formatFechaCalendario(mixed $value): ?string
+    {
+        if ($value === null || $value === '') {
+            return null;
+        }
+
+        try {
+            // Día de calendario del ERP (sin offset ISO) para evitar -1 día en FE UTC-3.
+            return Carbon::parse((string) $value)->format('Y-m-d');
+        } catch (\Throwable) {
+            return null;
+        }
     }
 
     /**

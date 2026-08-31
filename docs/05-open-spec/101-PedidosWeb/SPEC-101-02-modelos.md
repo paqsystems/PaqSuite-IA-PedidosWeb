@@ -3,8 +3,9 @@
 | Campo | Valor |
 |-------|--------|
 | **SPEC madre** | [PedidosWeb_SPEC_MVP.md](PedidosWeb_SPEC_MVP.md) |
-| **Estado** | En revisión |
+| **Estado** | Finalizado (Parte I CC PQ #10/#11) |
 | **Prioridad épica** | Must |
+| **Última actualización** | 2026-08-31 |
 
 ## Objetivo
 
@@ -13,7 +14,11 @@ Modelos Eloquent para tablas operativas y maestras ERP en base tenant, sin lógi
 ## In scope
 
 - `pq_pedidosweb_pedidoscabecera`, `pq_pedidosweb_pedidosdetalle`
-- Maestras: clientes, clientesde, vendedores, artículos, **escalas (cabecera/detalle)**, stock, listas, precios, condiciones, transportes
+- Maestras: clientes, **clientescontactos**, clientesde, vendedores, artículos, **escalas (cabecera/detalle)**, stock, listas, precios, condiciones, transportes
+- Artículos: columna **`stockeable`** (bit, default `true`). `false` = no stockeable: no mostrar stock en listbox de carga y excluir de consulta stock (CC PQ #12). Alimentación vía sync ERP; sin ABM web.
+- Artículos: columna **`equivalencia_ventas`** (decimal, default `1`). Si valor leído es `0` o nulo en runtime → tratar como **1** al convertir (CC PQ #10).
+- Detalle: columna **`cantidad_venta`** (decimal). Persistir siempre junto con `cantidad`; backfill filas existentes `cantidad_venta = cantidad` (CC PQ #10).
+- **`pq_pedidosweb_clientescontactos`** (CC PQ #11): PK `id` (identity); `cod_client` (FK lógica a clientes); `cod_contacto`; `nombre`; `telefono` nullable; `mail` nullable. Unique (`cod_client`, `cod_contacto`). Relación Cliente 1:N ClienteContacto. Solo lectura portal; alta/edición vía ERP/integración. API: [SPEC-001-02](../001-Generaliddes/SPEC-001-02-acceso-y-seguridad.md).
 - Tablas nuevas MVP: tratativas, resultados, motivos_cierre, presupuestos_cierres, logs_integracion (según modelo datos)
 - PK, relaciones y casts según `PedidosWeb_Modelo_Datos_Final.md`
 
@@ -35,3 +40,16 @@ Modelos Eloquent para tablas operativas y maestras ERP en base tenant, sin lógi
 
 - [ ] Modelos registrados y relaciones mínimas probadas
 - [ ] Sin reglas de negocio en modelos
+- [x] CC PQ #12: columna `stockeable` (default true) en `pq_pedidosweb_articulos`
+- [x] CC PQ #10: columnas `equivalencia_ventas` + `cantidad_venta`
+- [x] CC PQ #11: tabla `pq_pedidosweb_clientescontactos` + modelo Eloquent
+
+## Historial de cambios
+
+| Fecha | Origen | Resumen |
+|-------|--------|---------|
+| 28/08/2026 | CC PQ #12 | Flag `stockeable` en artículos |
+| 30/08/2026 | Parte I | Unificación `SPEC-101-02-modelos-update-02` (CC PQ #12) |
+| 30/07/2026 | CC PQ #10 | `equivalencia_ventas` + `cantidad_venta` |
+| 18/08/2026 | CC PQ #11 | Tabla contactos de cliente |
+| 31/08/2026 | Parte I | Unificación `SPEC-101-02-modelos-update` + `…-update-01`. Sin updates abiertos |

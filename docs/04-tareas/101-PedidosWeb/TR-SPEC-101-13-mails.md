@@ -7,9 +7,8 @@
 | **Épica** | 101-PedidosWeb |
 | **Prioridad** | Must |
 | **Dependencias** | TR-SPEC-101-04-services-pedidos; TR-SPEC-101-05-controllers-rest; [TR-GEN-02-recuperacion-contrasena](../001-Generaliddes/TR-GEN-02-recuperacion-contrasena.md) (canal mail); [SPEC-001-04](../../05-open-spec/001-Generaliddes/SPEC-001-04-configuracion-global.md) (`DetallePorMail`, `MailDestinatariosAdicionales`, `Mail_DireccionRemitente`, `mailCCO`) |
-| **Estado** | Finalizado |
-| **Última actualización** | 2026-06-09 (Parte I — CC PQ #1) |
-| **Última actualización** | 2026-06-02 |
+| **Estado** | Finalizado (Parte I CC PQ #10/#11) |
+| **Última actualización** | 2026-08-31 |
 
 **Origen:** [HU-101-019-mail-grabar](../../03-historias-usuario/101-PedidosWeb/HU-101-019-mail-grabar.md)  
 **Referencia SPEC:** [SPEC-101-13-mails](../../05-open-spec/101-PedidosWeb/SPEC-101-13-mails.md)  
@@ -47,6 +46,9 @@ Como **destinatario configurado**, quiero **recibir un correo al grabar o modifi
 - **AC-08:** Fallo SMTP no revierte grabación; error en log integración o canal dedicado.
 - **AC-09:** Sin secretos en repo; tests con `Mail::fake()` o log sink.
 - **AC-10:** Si la grabación responde **200** pero el mail no se envió, la API expone indicador en `resultado` (ej. `mailEnviado: false`) y la UI muestra **toast informativo** i18n (no bloqueante, no revierte grabación) — ver §6.
+- **AC-CC12-T-MAIL1:** Con `DetallePorMail` activo, tabla renglones incluye columnas **Bultos** y **Unidades**.
+- **AC-CC12-T-MAIL2:** i18n 5 locales para encabezados `detalle.bultos`, `detalle.unidades`.
+- **AC-CC10-T-MAIL1:** Con `DetallePorMail` activo, columnas **Bultos**/**Unidades** (CC PQ #12 prevalece sobre columna única CC #10): `Bultos` ← `cantidad`; `Unidades` ← `cantidad_venta` si `CargaUnidadesVenta=true`, si no ambas desde `cantidad` según regla producto.
 
 ### Escenarios Gherkin
 
@@ -88,6 +90,8 @@ Feature: Mail al grabar comprobante
 7. **RN-07:** Vendedor destinatario = vendedor del **cliente** del comprobante, no necesariamente usuario que cargó.
 8. **RN-08:** El `Mailable` / `ComprobanteMailService` debe resolver `accionComprobante`: `ingresado` (alta nueva) | `modificado` (PUT o grabación sobre comprobante existente) y `tipoComprobante`: `pedido` | `presupuesto`.
 9. **RN-09 (UI — cerrado D1-06):** Si el comprobante se grabó OK pero falló el envío de mail, la pantalla de carga (TR-101-10) muestra un **toast informativo** al usuario (DevExtreme `notify` o equivalente del proyecto). **No** es error bloqueante; **no** revierte la grabación. El fallo también se registra en log (AC-08).
+10. **RN-10 (CC PQ #12):** Tabla detalle mail: columnas **Bultos** y **Unidades** (no columna cantidad única).
+11. **RN-11 (CC PQ #10, subordinado a RN-10):** Selector de valor por columna según `CargaUnidadesVenta`: **Bultos** ← `cantidad`; **Unidades** ← `cantidad_venta` si param true, si no replicar `cantidad`. Test unitario del builder.
 
 ### 3.1 Parámetro `MailDestinatariosAdicionales` (cerrado D1)
 
@@ -161,6 +165,8 @@ Orden de columnas (**cerrado producto 2026-06-02**):
 | 5 | % Bonif. | `pq_pedidosweb_pedidosdetalle.porc_bonif` | §3.4 (`valor %`) |
 | 6 | Precio neto | `pq_pedidosweb_pedidosdetalle.precio_neto` | §3.4 |
 | 7 | Importe | `pq_pedidosweb_pedidosdetalle.cantidad × pq_pedidosweb_pedidosdetalle.precio_neto` | §3.4 |
+| 8 | Bultos | `pq_pedidosweb_pedidosdetalle.bultos` (o cálculo acordado) | Numérico |
+| 9 | Unidades | `pq_pedidosweb_pedidosdetalle.unidades` (o cálculo acordado) | Numérico |
 
 #### Pie
 
@@ -206,7 +212,7 @@ Separadores decimales adicionales pueden seguir locale de sesión cuando no cont
 | Asunto / intro | `subject`, `intro.ingresado`, `intro.modificado`, `empresaFallback` | Asunto e intro |
 | Catálogos | `tipoComprobante.*`, `tipoComprobanteIntro.*`, `accionComprobante.*` | Labels según tipo y acción |
 | Cabecera | `cabecera.fecha`, `cabecera.cliente`, `cabecera.razonSocial`, `cabecera.vendedor`, `cabecera.transporte`, `cabecera.listaPrecios`, `cabecera.condicionVenta`, `cabecera.nivel`, `cabecera.cantidades`, `cabecera.importeBruto`, `cabecera.importeNeto`, `cabecera.descuento`, `cabecera.observaciones` | Etiquetas §3.2 cabecera (campo BD: `pq_pedidosweb_pedidoscabecera.descuento`) |
-| Detalle | `detalle.codigo`, `detalle.descripcion`, `detalle.cantidad`, `detalle.precio`, `detalle.porcBonif`, `detalle.precioNeto`, `detalle.importe` | Encabezados tabla renglones (campo BD: `pq_pedidosweb_pedidosdetalle.porc_bonif`) |
+| Detalle | `detalle.codigo`, `detalle.descripcion`, `detalle.cantidad`, `detalle.precio`, `detalle.porcBonif`, `detalle.precioNeto`, `detalle.importe`, **`detalle.bultos`**, **`detalle.unidades`** | Encabezados tabla renglones |
 | Pie | `footerConsulta` | Texto fijo de cierre (§3.2 Pie) |
 
 Redacción completa en **los 5 locales** del portal antes de cerrar TR de implementación.
@@ -348,3 +354,26 @@ Documentar en OpenAPI de **TR-SPEC-101-05** en `description` de `POST /api/v1/co
 | T2 | Importes neto/bruto con descuentos | `resolveImporteBrutoCabecera` = Σ `importe_neto` renglones |
 | T3 | Unit test importes | `ComprobanteMailServiceTest` |
 | T4 | i18n columna precio neto | `mail.comprobanteNotification.*` |
+
+## CC PQ #12 — Parte I 30/08/2026
+
+Columnas Bultos y Unidades en plantilla mail de detalle.
+
+| ID | Tarea | Evidencia |
+|----|-------|-----------|
+| T1 | Plantilla HTML/texto columnas Bultos/Unidades | `ComprobanteMailService` |
+| T2 | i18n 5 locales encabezados | `mail.comprobanteNotification.detalle.bultos`, `.unidades` |
+| T3 | Unit test armado filas | `ComprobanteMailServiceTest` |
+
+Unificación delta CC PQ #12 update-01 (archivo `TR-SPEC-101-13-mails-update-01.md` eliminado en Parte I).
+
+## CC PQ #10 — Parte I 31/08/2026
+
+Selector cantidad mail subordinado a columnas Bultos/Unidades (CC #12 prevalece).
+
+| ID | Tarea | Evidencia |
+|----|-------|-----------|
+| T1 | Builder filas detalle según `CargaUnidadesVenta` | `ComprobanteMailService` |
+| T2 | Unit test selector | `ComprobanteMailServiceTest` |
+
+Unificación delta CC PQ #10 (archivo `TR-SPEC-101-13-mails-update.md` eliminado en Parte I).

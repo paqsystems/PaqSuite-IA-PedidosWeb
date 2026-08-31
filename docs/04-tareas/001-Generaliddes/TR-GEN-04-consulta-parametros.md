@@ -8,8 +8,8 @@
 | **Épica** | 001 — Generalidades / Configuración global |
 | **Prioridad** | Should |
 | **Dependencias** | TR-GEN-02-autorizacion-menu-api; TR-GEN-03-grillas-listados; `PQ_parametros_gral` + seed PedidosWeb |
-| **Estado** | Finalizado (Parte I — CC PQ #9) |
-| **Última actualización** | 2026-07-02 (Parte I — CC PQ #9) |
+| **Estado** | Finalizado (Parte I CC PQ #10/#11) |
+| **Última actualización** | 2026-08-31 |
 
 **Origen:** [HU-GEN-04-consulta-parametros](../../03-historias-usuario/001-Generaliddes/HU-GEN-04-consulta-parametros.md)  
 **Referencia SPEC:** [SPEC-001-04-configuracion-global](../../05-open-spec/001-Generaliddes/SPEC-001-04-configuracion-global.md)  
@@ -41,6 +41,11 @@ Como usuario con permiso de consulta, quiero ver descripción, valor y ayuda de 
 - **AC-06:** Booleanos visibles como Sí/No (i18n).
 - **AC-07:** Tooltip por fila cuando `TOOLTIP` no vacío.
 - **AC-08:** ≥ 1 E2E supervisor ve descripción conocida (caption de `MinutosWeb`); clave técnica no visible en grilla.
+- **AC-CC12-T-P1:** Seed `IncluyeArticulosNoStockeables` (tipo B, default `false`) + lectura en consulta parámetros.
+- **AC-CC12-T-P2:** Sin ABM web ni PATCH del parámetro desde portal.
+- **AC-CC10-T-P1:** Seed contiene clave `CargaUnidadesVenta` (tipo B, default `false`) + CAPTION/TOOLTIP i18n.
+- **AC-CC10-T-P2:** API `GET /config/parametros` lista el parámetro ordenado por caption.
+- **AC-CC10-T-P3:** Runtime (`PedidosWebParameterService`) lee el booleano para conversión unidades venta.
 
 ### Escenarios Gherkin
 
@@ -56,7 +61,9 @@ Ver HU-GEN-04 § Escenarios Gherkin (copia autoritativa en HU).
 4. **RN-04:** `valorMostrado` según `ParametrosGralTipoValor::fromRow()` + columna `Valor_*` efectiva.
 5. **RN-05:** `CAPTION` / `TOOLTIP` desde BD como fallback; UI resuelve **`parametros.pedidosWeb.{Clave}.caption|tooltip`** en los 5 locales (CC PQ #7, 2026-06-18).
 6. **RN-06:** Permiso `Permiso_Repo` sobre procedimiento `pw_consultaparametros`.
-7. **RN-07:** No paginar en MVP (≤ 57 filas); respuesta lista completa en `resultado.items[]`.
+7. **RN-07:** No paginar en MVP (≤ 58 filas); respuesta lista completa en `resultado.items[]`.
+8. **RN-08 (CC PQ #12):** Parámetro `IncluyeArticulosNoStockeables` (tipo B, default `false`): seed idempotente en deploy; visible en consulta (caption/tooltip i18n `parametros.pedidosWeb.IncluyeArticulosNoStockeables.*`); **sin** PATCH ni ABM web.
+9. **RN-09 (CC PQ #10):** Parámetro `CargaUnidadesVenta` (tipo B, default `false`): seed idempotente + INSERT deploy tenants existentes; visible en consulta parámetros; lectura booleana en `PedidosWebParameterService`; producto §10.6 + `consulta-parametros.md`.
 
 Fuente producto: [consulta-parametros.md](../../02-producto/PedidosWeb/consulta-parametros.md).
 
@@ -355,3 +362,27 @@ Alta parámetro `ActualizarPrecioCopia` en seed JSON (58 claves), i18n fallback 
 | T3 | Vitest caption | `resolveParametroConsultaTexts.test.ts` |
 
 Unificación delta CC PQ #9 (archivo `*-update` eliminado en Parte I). Evidencia: [F-CC-PQ-9-cierre-formal](../../101-PedidosWeb/F-CC-PQ-9-cierre-formal.md).
+
+## CC PQ #12 — Parte I 30/08/2026
+
+Alta parámetro `IncluyeArticulosNoStockeables` en seed JSON PedidosWeb, i18n 5 locales y script SQL idempotente. Sin cambio de contrato API ni UI salvo fila dinámica en listado GET `/api/v1/config/parametros`.
+
+| ID | Tarea | Evidencia |
+|----|-------|-----------|
+| T1 | Entrada seed + caption/tooltip | `PQ_PARAMETROS_GRAL.PedidosWeb.seed.json` |
+| T2 | i18n `parametros.pedidosWeb.IncluyeArticulosNoStockeables.*` | `pedidosWeb.{es,en,pt,fr,it}.json` |
+| T3 | INSERT idempotente seed-deploy | script SQL deploy parámetros |
+
+Unificación delta CC PQ #12 update-01 (archivo `TR-GEN-04-consulta-parametros-update-01.md` eliminado en Parte I).
+
+## CC PQ #10 — Parte I 31/08/2026
+
+Alta parámetro `CargaUnidadesVenta` en seed JSON PedidosWeb, i18n 5 locales e INSERT idempotente seed-deploy.
+
+| ID | Tarea | Evidencia |
+|----|-------|-----------|
+| T1 | Entrada seed + caption/tooltip | `PQ_PARAMETROS_GRAL.PedidosWeb.seed.json` |
+| T2 | i18n `parametros.pedidosWeb.CargaUnidadesVenta.*` | `pedidosWeb.{es,en,pt,fr,it}.json` |
+| T3 | Lectura booleana runtime | `PedidosWebParameterService` |
+
+Unificación delta CC PQ #10 (archivo `TR-GEN-04-consulta-parametros-update.md` eliminado en Parte I).

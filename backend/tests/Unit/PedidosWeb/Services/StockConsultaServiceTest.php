@@ -54,6 +54,39 @@ final class StockConsultaServiceTest extends TestCase
         $this->assertSame(122.0, $presentacion['disponibleNetoBase']);
     }
 
+    public function testListarExcluyeArticulosNoStockeables(): void
+    {
+        if (! Schema::hasTable('pq_pedidosweb_stock')) {
+            $this->markTestSkipped('Tablas de stock no disponibles en el entorno de test.');
+        }
+
+        if (! Schema::hasColumn('pq_pedidosweb_articulos', 'stockeable')) {
+            $this->markTestSkipped('Columna stockeable no disponible en pq_pedidosweb_articulos.');
+        }
+
+        DB::table('pq_pedidosweb_articulos')->where('codigo', 'ART-NOSTK')->delete();
+        DB::table('pq_pedidosweb_stock')->where('cod_articulo', 'ART-NOSTK')->delete();
+
+        DB::table('pq_pedidosweb_articulos')->insert([
+            'codigo' => 'ART-NOSTK',
+            'descripcion' => 'No stockeable',
+            'base' => '',
+            'stockeable' => 0,
+        ]);
+
+        DB::table('pq_pedidosweb_stock')->insert([
+            'cod_articulo' => 'ART-NOSTK',
+            'stock' => 99,
+            'comprometido' => 0,
+        ]);
+
+        $service = $this->app->make(StockConsultaService::class);
+        $result = $service->listar(['page' => 1, 'page_size' => 200]);
+        $codigos = collect($result['items'])->pluck('codArticulo');
+
+        $this->assertFalse($codigos->contains('ART-NOSTK'));
+    }
+
     public function testLookupCargaExcluyeComprometidoWeb(): void
     {
         if (! Schema::hasTable('pq_pedidosweb_stock')) {

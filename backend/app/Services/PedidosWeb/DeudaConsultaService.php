@@ -132,14 +132,23 @@ SQL)
             'razonSocial' => (string) ($row->razon_social ?? ''),
             'tipo' => (string) ($row->tipo ?? ''),
             'numero' => (string) ($row->numero ?? ''),
-            'fecha' => $row->fecha !== null
-                ? Carbon::parse((string) $row->fecha)->toIso8601String()
-                : null,
-            'vencimiento' => $row->vencimiento !== null
-                ? Carbon::parse((string) $row->vencimiento)->toIso8601String()
-                : null,
-            'saldo' => round((float) $row->saldo, 2),
+            'fecha' => $this->safeIsoDate($row->fecha ?? null),
+            'vencimiento' => $this->safeIsoDate($row->vencimiento ?? null),
+            'saldo' => round((float) ($row->saldo ?? 0), 2),
         ];
+    }
+
+    private function safeIsoDate(mixed $value): ?string
+    {
+        if ($value === null || $value === '') {
+            return null;
+        }
+
+        try {
+            return Carbon::parse((string) $value)->toIso8601String();
+        } catch (\Throwable) {
+            return null;
+        }
     }
 
     /**

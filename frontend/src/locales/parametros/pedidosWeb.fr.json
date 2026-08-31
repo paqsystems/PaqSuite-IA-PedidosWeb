@@ -7,6 +7,8 @@
   "parametros.pedidosWeb.ActualizarPrecioCopia.tooltip": "Si activé, la copie d'une commande ou d'un devis résout les prix des lignes depuis la liste de prix active du document source. Si désactivé, les prix du détail source sont conservés et validés selon les paramètres d'articles à prix zéro ou sans prix.",
   "parametros.pedidosWeb.CargaUnidadesVenta.caption": "Saisie des commandes en unités de vente",
   "parametros.pedidosWeb.CargaUnidadesVenta.tooltip": "Si activé, la quantité saisie (ligne, Excel, assistant) est en unités de vente. Sinon, en unités stock/prix. Les montants utilisent toujours la quantité stock.",
+  "parametros.pedidosWeb.IncluyeArticulosNoStockeables.caption": "Inclut les articles non stockables",
+  "parametros.pedidosWeb.IncluyeArticulosNoStockeables.tooltip": "Indique si le catalogue inclut des articles non stockables. Informatif dans PedidosWeb uniquement.",
   "parametros.pedidosWeb.CargaRecurrente.caption": "Saisie récurrente après enregistrement",
   "parametros.pedidosWeb.CargaRecurrente.tooltip": "Définit le comportement après enregistrement d'une commande ou d'un devis : si activé, le flux revient à une nouvelle saisie ; si désactivé, retour à la liste ou à l'écran précédent selon l'implémentation du portail.",
   "parametros.pedidosWeb.ClienteLeyenda1.caption": "Initialiser légende 1 depuis le client",

@@ -153,6 +153,13 @@ final class OpenApiDocumentationTest extends TestCase
             $this->assertArrayHasKey($schemaName, $spec['components']['schemas'] ?? []);
         }
 
+        $historialParams = array_column(
+            $spec['paths']['/api/v1/consultas/historial-ventas']['get']['parameters'] ?? [],
+            'name'
+        );
+        $this->assertContains('fecha_desde', $historialParams);
+        $this->assertContains('fecha_hasta', $historialParams);
+
         $this->assertArrayHasKey('items', $spec['components']['schemas']['ConsultaListadoStockResultado']['properties'] ?? []);
         $this->assertArrayHasKey('codArticulo', $spec['components']['schemas']['ConsultaStockItem']['properties'] ?? []);
         $this->assertArrayHasKey('saldo', $spec['components']['schemas']['ConsultaDeudaItem']['properties'] ?? []);
