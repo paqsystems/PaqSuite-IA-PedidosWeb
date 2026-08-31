@@ -48,14 +48,16 @@ function mapMenuNodeToTreeItem(
   node: MenuNode,
   translate: (labelKey: string) => string,
 ): TreeMenuItem {
+  const childList = Array.isArray(node.children) ? node.children : [];
+
   return {
     menuKey: node.menuKey,
     text: resolveMenuLabel(node, translate),
     routePath: node.routePath,
     nodeType: node.nodeType,
     items:
-      node.children.length > 0
-        ? node.children.map((childNode) => mapMenuNodeToTreeItem(childNode, translate))
+      childList.length > 0
+        ? childList.map((childNode) => mapMenuNodeToTreeItem(childNode, translate))
         : undefined,
   };
 }
@@ -74,9 +76,10 @@ export function MenuSidebarTree({
 
   const treeItems = useMemo(() => {
     const translate = (labelKey: string) => t(labelKey);
+    const safeMenuItems = Array.isArray(menuItems) ? menuItems : [];
 
     if (menuDisplayMode === 'operationalOnly') {
-      return flattenOperationalMenu(menuItems).map((node: MenuNode) => ({
+      return flattenOperationalMenu(safeMenuItems).map((node: MenuNode) => ({
         menuKey: node.menuKey,
         text: resolveMenuLabel(node, translate),
         routePath: node.routePath,
@@ -84,7 +87,7 @@ export function MenuSidebarTree({
       }));
     }
 
-    return menuItems.map((node) => mapMenuNodeToTreeItem(node, translate));
+    return safeMenuItems.map((node) => mapMenuNodeToTreeItem(node, translate));
   }, [i18n.language, menuDisplayMode, menuItems, t]);
 
   const activeMenuKey = useMemo(
