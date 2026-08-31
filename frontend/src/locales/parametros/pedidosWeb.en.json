@@ -7,6 +7,8 @@
   "parametros.pedidosWeb.ActualizarPrecioCopia.tooltip": "When enabled, copying an order or quote resolves line prices from the source voucher's active price list. When disabled, source line prices are kept and validated against zero-price and missing-price parameters.",
   "parametros.pedidosWeb.CargaUnidadesVenta.caption": "Load orders by sales units",
   "parametros.pedidosWeb.CargaUnidadesVenta.tooltip": "When enabled, quantity entered in lines, Excel or assistant is treated as sales units (cantidad_venta). When disabled, it is treated as stock/price units (cantidad). Amounts always use cantidad.",
+  "parametros.pedidosWeb.IncluyeArticulosNoStockeables.caption": "Includes non-stockeable items",
+  "parametros.pedidosWeb.IncluyeArticulosNoStockeables.tooltip": "Indicates whether the item catalog includes non-stockeable items. Informational in PedidosWeb only.",
   "parametros.pedidosWeb.CargaRecurrente.caption": "Recurrent load after save",
   "parametros.pedidosWeb.CargaRecurrente.tooltip": "Defines behavior after saving an order or quote: when enabled, the flow returns to a new load; when disabled, it returns to the list or previous screen per portal implementation.",
   "parametros.pedidosWeb.ClienteLeyenda1.caption": "Initialize legend 1 from customer",

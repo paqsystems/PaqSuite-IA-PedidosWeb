@@ -91,6 +91,7 @@ final class ArticuloCargaLookupService
                     'disponibleNetoBase' => $disponibleNetoBase !== null
                         ? round((float) $disponibleNetoBase, 2)
                         : null,
+                    'stockeable' => filter_var($row->stockeable ?? true, FILTER_VALIDATE_BOOLEAN),
                 ];
             })
             ->values()
@@ -168,6 +169,9 @@ SQL;
         $equivExpr = Schema::hasColumn('pq_pedidosweb_articulos', 'equivalencia_ventas')
             ? 'a.equivalencia_ventas'
             : '1';
+        $stockeableExpr = Schema::hasColumn('pq_pedidosweb_articulos', 'stockeable')
+            ? 'CAST(ISNULL(a.stockeable, 1) AS bit)'
+            : '1';
 
         $sql = ($ctes !== [] ? 'WITH '.implode(",\n", $ctes)."\n" : '')
             ."SELECT TOP ({$pageSize})\n"
@@ -176,6 +180,7 @@ SQL;
             ."    a.porc_iva,\n"
             ."    a.bonificacion,\n"
             ."    {$equivExpr} AS equivalencia_ventas,\n"
+            ."    {$stockeableExpr} AS stockeable,\n"
             ."    {$precioExpr} AS precio,\n"
             ."    {$disponibleExpr} AS disponible_neto,\n"
             ."    {$disponibleBaseExpr} AS disponible_neto_base\n"
@@ -223,6 +228,9 @@ SQL;
         $equivExpr = Schema::hasColumn('pq_pedidosweb_articulos', 'equivalencia_ventas')
             ? 'a.equivalencia_ventas'
             : '1';
+        $stockeableExpr = Schema::hasColumn('pq_pedidosweb_articulos', 'stockeable')
+            ? 'CAST(ISNULL(a.stockeable, 1) AS bit)'
+            : '1';
 
         $sql = "SELECT TOP ({$pageSize})\n"
             ."    a.codigo,\n"
@@ -230,6 +238,7 @@ SQL;
             ."    a.porc_iva,\n"
             ."    a.bonificacion,\n"
             ."    {$equivExpr} AS equivalencia_ventas,\n"
+            ."    {$stockeableExpr} AS stockeable,\n"
             ."    {$precioExpr} AS precio,\n"
             ."    CAST(0 AS DECIMAL(18, 4)) AS disponible_neto,\n"
             .'    CAST(NULL AS DECIMAL(18, 4)) AS disponible_neto_base'."\n"

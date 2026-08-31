@@ -3,7 +3,7 @@
 | Campo | Valor |
 |-------|--------|
 | **SPEC madre** | [PedidosWeb_SPEC_MVP.md](PedidosWeb_SPEC_MVP.md) |
-| **Estado** | Especificado |
+| **Estado** | En revisión |
 | **Prioridad épica** | Must |
 | **Última actualización** | 2026-06-24 (modal precarga stock, bloqueo cliente, NOLOCK backend) |
 

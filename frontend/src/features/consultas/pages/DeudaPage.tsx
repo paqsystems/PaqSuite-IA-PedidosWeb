@@ -1,11 +1,17 @@
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
+import type { CellPreparedEvent } from 'devextreme/ui/data_grid';
 import { Column } from 'devextreme-react/data-grid';
 import { isNativeApp } from '../../../shared/platform/isNativeApp';
 import { ConsultaKardexMobileView } from '../../../shared/consultas/ConsultaKardexMobileView';
 import { ConsultaInformePivotPage } from '../components/ConsultaInformePivotPage';
 import { fetchDeuda, type DeudaConsultaRow } from '../api/consultaApi';
 import { getDeudaDetailFields, renderDeudaCard } from '../components/consultaMobileRenderers';
+import {
+  deudaSaldoToneClassName,
+  resolveDeudaSaldoCellTone,
+} from '../utils/deudaPresentacion';
+import '../consultasShared.css';
 
 const proceso = 'pw_deuda';
 const gridId = 'pw_deuda';
@@ -14,6 +20,20 @@ const pivotConsultaId = 'CONSULTA_DEUDA';
 export function DeudaPage() {
   const { t } = useTranslation();
   const loadData = useCallback(() => fetchDeuda(), []);
+
+  const handleDeudaCellPrepared = useCallback((event: CellPreparedEvent) => {
+    if (event.rowType !== 'data' || event.column?.dataField !== 'saldo' || !event.cellElement) {
+      return;
+    }
+
+    const row = event.data as DeudaConsultaRow | undefined;
+    if (!row) {
+      return;
+    }
+
+    const tone = resolveDeudaSaldoCellTone(row);
+    event.cellElement.classList.add(deudaSaldoToneClassName(tone));
+  }, []);
 
   if (isNativeApp()) {
     return (
@@ -40,6 +60,7 @@ export function DeudaPage() {
       pivotConsultaId={pivotConsultaId}
       testIdPrefix="consultaDeuda"
       loadData={loadData}
+      onCellPrepared={handleDeudaCellPrepared}
       columns={
         <>
           <Column dataField="codCliente" caption={t('consultas.column.cliente')} />

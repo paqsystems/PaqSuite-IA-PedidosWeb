@@ -21,6 +21,7 @@ final class ComprobanteGrabacionPayload
             'cod_comprobante_origen_copia' => $request->input('cod_comprobante_origen_copia'),
             'cabecera' => (array) $request->input('cabecera', []),
             'renglones' => (array) $request->input('renglones', []),
+            'leyendas_dirty' => (array) $request->input('leyendas_dirty', []),
         ];
     }
 
@@ -38,6 +39,12 @@ final class ComprobanteGrabacionPayload
             'cabecera' => ['required', 'array'],
             'cabecera.cod_cliente' => ['required', 'string'],
             'renglones' => ['required', 'array', 'min:1'],
+            'leyendas_dirty' => ['sometimes', 'array'],
+            'leyendas_dirty.leyenda_1_dirty' => ['sometimes', 'boolean'],
+            'leyendas_dirty.leyenda_2_dirty' => ['sometimes', 'boolean'],
+            'leyendas_dirty.leyenda_3_dirty' => ['sometimes', 'boolean'],
+            'leyendas_dirty.leyenda_4_dirty' => ['sometimes', 'boolean'],
+            'leyendas_dirty.leyenda_5_dirty' => ['sometimes', 'boolean'],
         ];
     }
 }

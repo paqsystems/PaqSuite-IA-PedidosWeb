@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
+import type { CellPreparedEvent } from 'devextreme/ui/data_grid';
 import { Column } from 'devextreme-react/data-grid';
 import { ConsultaGrillaPivotShell } from '../../../shared/pivot';
 import { useGridLayouts } from '../../gridLayouts/hooks/useGridLayouts';
@@ -24,6 +25,7 @@ type ConsultaInformePivotPageProps<TRecord extends BaseRow> = {
   rowActions?: DataGridRowAction<TRecord>[];
   headerExtra?: React.ReactNode;
   enableDrillDown?: boolean;
+  onCellPrepared?: (event: CellPreparedEvent) => void;
 };
 
 export function ConsultaInformePivotPage<TRecord extends BaseRow>({
@@ -38,6 +40,7 @@ export function ConsultaInformePivotPage<TRecord extends BaseRow>({
   rowActions = [],
   headerExtra,
   enableDrillDown = false,
+  onCellPrepared,
 }: ConsultaInformePivotPageProps<TRecord>) {
   const { t, i18n } = useTranslation();
   const gridRef = useRef<DataGridDxHandle>(null);
@@ -148,6 +151,7 @@ export function ConsultaInformePivotPage<TRecord extends BaseRow>({
               loadError={loadError}
               toolbarEnd={toolbarEnd}
               rowActions={rowActions}
+              onCellPrepared={onCellPrepared}
             >
               <Column dataField="id" visible={false} />
               {columns}

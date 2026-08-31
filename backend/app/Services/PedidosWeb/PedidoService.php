@@ -7,6 +7,7 @@ use App\Contracts\PedidosWeb\PedidoRepositoryInterface;
 use App\Exceptions\PedidosWebBusinessException;
 use App\Exceptions\PedidosWebBusinessValidationException;
 use App\Models\PqPedidoswebArticulo;
+use App\Models\PqPedidoswebCliente;
 use App\Models\PqPedidoswebPedidoCabecera;
 use App\Models\PqPedidoswebPedidoDetalle;
 use App\Models\User;
@@ -70,6 +71,7 @@ final class PedidoService
             $codPedidoOrigen,
             $codPresupuestoOrigen,
             $codComprobanteOrigenCopia,
+            $payload,
             $user,
             &$mailEnviado
         ): array {
@@ -121,6 +123,8 @@ final class PedidoService
                 $user,
                 $extraAttributes
             );
+
+            $this->syncClienteLeyendasSiDirty($cabeceraPayload, (array) ($payload['leyendas_dirty'] ?? []));
 
             $mailEnviado = $this->comprobanteMailService->enviarComprobante(
                 $cabecera,
@@ -751,5 +755,40 @@ final class PedidoService
         $codArticulo = trim((string) $detalle->cod_articulo);
 
         return $descripcionesPorCodigo[$codArticulo] ?? '';
+    }
+
+    /**
+     * @param  array<string, mixed>  $cabeceraPayload
+     * @param  array<string, mixed>  $leyendasDirty
+     */
+    private function syncClienteLeyendasSiDirty(array $cabeceraPayload, array $leyendasDirty): void
+    {
+        $codCliente = trim((string) ($cabeceraPayload['cod_cliente'] ?? ''));
+
+        if ($codCliente === '') {
+            return;
+        }
+
+        $updates = [];
+
+        for ($numero = 1; $numero <= 5; $numero++) {
+            $dirtyKey = "leyenda_{$numero}_dirty";
+            $isDirty = filter_var($leyendasDirty[$dirtyKey] ?? false, FILTER_VALIDATE_BOOLEAN);
+
+            if (! $isDirty || ! $this->parameterService->getClienteLeyendaInicializa($numero)) {
+                continue;
+            }
+
+            $field = "leyenda_{$numero}";
+            $updates[$field] = $cabeceraPayload[$field] ?? null;
+        }
+
+        if ($updates === []) {
+            return;
+        }
+
+        PqPedidoswebCliente::query()
+            ->where('cod_client', $codCliente)
+            ->update($updates);
     }
 }

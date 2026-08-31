@@ -8,7 +8,7 @@
 | **MONO** | [parametros-generales.md](../../00-contexto/_mono/04-configuracion-global/parametros-generales.md) (HU-007 — variante solo lectura) |
 | **Épica** | 001 — Generalidades / Configuración global |
 | **Prioridad** | Should |
-| **Estado** | Finalizado (Parte I — CC PQ #9) |
+| **Estado** | En Control Calidad |
 | **Última actualización** | 2026-07-02 (Parte I — CC PQ #9) |
 | **D1** | Implementado (2026-06-03) |
 | **TR relacionada** | [TR-GEN-04-consulta-parametros](../../04-tareas/001-Generaliddes/TR-GEN-04-consulta-parametros.md) |

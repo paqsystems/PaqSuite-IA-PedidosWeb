@@ -37,6 +37,30 @@ final class PqParametrosGralPedidosWebSeedTest extends TestCase
     }
 
     #[Test]
+    public function seedIncluyeIncluyeArticulosNoStockeablesBooleano(): void
+    {
+        $seedPath = $this->seedPath();
+        $this->assertFileExists($seedPath);
+
+        $entries = json_decode((string) file_get_contents($seedPath), true, 512, JSON_THROW_ON_ERROR);
+        $parametro = null;
+
+        foreach ($entries as $entry) {
+            if (($entry['clave'] ?? '') === 'IncluyeArticulosNoStockeables') {
+                $parametro = $entry;
+                break;
+            }
+        }
+
+        $this->assertIsArray($parametro);
+        $this->assertSame('PedidosWeb', $parametro['programa']);
+        $this->assertSame('B', $parametro['tipoValor']);
+        $this->assertFalse($parametro['valorBool']);
+        $this->assertNotSame('', trim((string) ($parametro['caption'] ?? '')));
+        $this->assertNotSame('', trim((string) ($parametro['tooltip'] ?? '')));
+    }
+
+    #[Test]
     public function seedIncluyeCargaUnidadesVentaBooleano(): void
     {
         $seedPath = $this->seedPath();

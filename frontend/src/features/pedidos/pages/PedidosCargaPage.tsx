@@ -35,6 +35,7 @@ import { PedidosCargaArticulosStockLoadPanel } from '../components/PedidosCargaA
 import { PedidosCargaConfirmacionDialog } from '../components/PedidosCargaConfirmacionDialog';
 import { PedidosCargaErroresGrabacionDialog } from '../components/PedidosCargaErroresGrabacionDialog';
 import { PedidosCargaRenglonesGrid } from '../components/PedidosCargaRenglonesGrid';
+import { CargaDeudaSaldoPanel } from '../components/CargaDeudaSaldoPanel';
 import {
   emptyComprobanteCabecera,
   type CabeceraCatalogos,
@@ -66,6 +67,12 @@ import {
   tieneRenglonesCargados,
 } from '../utils/renglonesCarga';
 import { fromCantidadUsuario, resolveEquivalenciaVentas } from '../utils/cargaUnidadesVenta';
+import {
+  computeLeyendasDirtyFlags,
+  createLeyendasSnapshot,
+  mapLeyendasDirtyToApi,
+  type LeyendasSnapshot,
+} from '../utils/leyendasDirtySession';
 import { resolveGrabacionErrorMessages } from '../utils/resolveGrabacionErrorMessages';
 import { CargaAsistenteIaPanel } from '../cargaAsistenteIa/components/CargaAsistenteIaPanel';
 import {
@@ -120,6 +127,7 @@ function PedidosCargaWebPage() {
   const [clientesLoading, setClientesLoading] = useState(false);
   const [selectedCliente, setSelectedCliente] = useState<string | null>(null);
   const [cabecera, setCabecera] = useState<ComprobanteCabecera | null>(null);
+  const leyendasSnapshotRef = useRef<LeyendasSnapshot | null>(null);
   const [catalogos, setCatalogos] = useState<CabeceraCatalogos>(emptyCatalogos);
   const [parametrosCarga, setParametrosCarga] = useState<ParametrosCarga | null>(null);
   const [articuloSeleccionado, setArticuloSeleccionado] = useState<string | null>(null);
@@ -299,6 +307,10 @@ function PedidosCargaWebPage() {
     );
   }, [estadoActual, modo, readOnly]);
 
+  const captureLeyendasSnapshot = useCallback((cabeceraValue: ComprobanteCabecera) => {
+    leyendasSnapshotRef.current = createLeyendasSnapshot(cabeceraValue);
+  }, []);
+
   const loadCabeceraForCliente = useCallback(async (codCliente: string) => {
     if (hydratingFromExcelImportRef.current) {
       return;
@@ -308,14 +320,17 @@ function PedidosCargaWebPage() {
     try {
       const result = await fetchCabeceraInicial(codCliente);
       setCabecera(result.cabecera);
+      captureLeyendasSnapshot(result.cabecera);
       setCatalogos(result.catalogos);
     } catch {
-      setCabecera(emptyComprobanteCabecera(codCliente));
+      const emptyCabecera = emptyComprobanteCabecera(codCliente);
+      setCabecera(emptyCabecera);
+      captureLeyendasSnapshot(emptyCabecera);
       setCatalogos(emptyCatalogos);
     } finally {
       setCabeceraLoading(false);
     }
-  }, []);
+  }, [captureLeyendasSnapshot]);
 
   const loadArticulosStock = useCallback(async (options?: { force?: boolean }) => {
     if (!options?.force && articulosStockLoadRef.current) {
@@ -613,6 +628,7 @@ function PedidosCargaWebPage() {
           setCodPresupuestoOrigen(null);
           setSelectedCliente(copia.cabecera.codCliente ?? sessionContext.codCliente ?? null);
           setCabecera(copia.cabecera);
+          captureLeyendasSnapshot(copia.cabecera);
           setCatalogos(catalogosInicial);
           setRenglones(
             copia.renglones.length > 0 ? copia.renglones : [createEmptyRenglon(1)],
@@ -630,6 +646,7 @@ function PedidosCargaWebPage() {
         setEstadoActual(comprobante.estado);
         setSelectedCliente(comprobante.codCliente ?? sessionContext.codCliente ?? null);
         setCabecera(comprobante.cabecera);
+        captureLeyendasSnapshot(comprobante.cabecera);
         setCatalogos(comprobante.catalogos);
         setRenglones(
           comprobante.renglones.length > 0 ? comprobante.renglones : [createEmptyRenglon(1)],
@@ -1141,6 +1158,9 @@ function PedidosCargaWebPage() {
           descuento: bonificacionNetaCabecera,
         },
         renglones: renglonesGrabar,
+        leyendasDirty: mapLeyendasDirtyToApi(
+          computeLeyendasDirtyFlags(cabecera, leyendasSnapshotRef.current),
+        ),
       });
 
       const resultado = response.resultado;
@@ -1220,6 +1240,7 @@ function PedidosCargaWebPage() {
         setSelectedCliente(codCliente);
         setCatalogos(cabeceraResult.catalogos);
         setCabecera(mergedCabecera);
+        captureLeyendasSnapshot(mergedCabecera);
         setRenglones(importedRenglones);
         setArticuloSeleccionado(null);
         setAutoOpenRenglonId(null);
@@ -1357,7 +1378,10 @@ function PedidosCargaWebPage() {
           {selectedCliente ? <span data-testid="cliente-cargado" hidden aria-hidden="true" /> : null}
 
           {isClienteProfile ? (
-            <p data-testid="cliente-fijo">{clienteNombre || selectedCliente}</p>
+            <div className="pedidosCargaPage__clienteSelectColumn">
+              <p data-testid="cliente-fijo">{clienteNombre || selectedCliente}</p>
+              {selectedCliente ? <CargaDeudaSaldoPanel codCliente={selectedCliente} /> : null}
+            </div>
           ) : (
             <div className="pedidosCargaPage__clienteRow">
               <SelectBox
@@ -1376,44 +1400,47 @@ function PedidosCargaWebPage() {
                 }}
                 inputAttr={{ 'data-testid': 'cliente-orden-select' }}
               />
-              <SelectBoxDx
-                key={`cliente-select-${clienteSelectKey}`}
-                dataSource={clientesOrdenados}
-                valueExpr="codCliente"
-                displayExpr={(item: ClienteOption | null) =>
-                  item ? etiquetaCliente(item) : ''
-                }
-                searchEnabled={true}
-                searchExpr={['codCliente', 'razonSocial', 'nombreFantasia', 'nombre']}
-                value={selectedCliente}
-                readOnly={readOnly}
-                disabled={articulosStockPrecargaPendiente}
-                isLoading={clientesLoading}
-                autoSelectSingleMatch={!readOnly && !articulosStockPrecargaPendiente}
-                onValueChanged={(event) => {
-                  if (isHydratingComprobanteRef.current || !isDevExtremeUserChange(event)) {
-                    return;
+              <div className="pedidosCargaPage__clienteSelectColumn">
+                <SelectBoxDx
+                  key={`cliente-select-${clienteSelectKey}`}
+                  dataSource={clientesOrdenados}
+                  valueExpr="codCliente"
+                  displayExpr={(item: ClienteOption | null) =>
+                    item ? etiquetaCliente(item) : ''
                   }
-
-                  const nextCliente = (event.value as string | null) ?? null;
-                  if (nextCliente === selectedCliente) {
-                    return;
-                  }
-
-                  void (async () => {
-                    const confirmed = await confirmarCambioCliente();
-                    if (!confirmed) {
-                      setClienteSelectKey((value) => value + 1);
+                  searchEnabled={true}
+                  searchExpr={['codCliente', 'razonSocial', 'nombreFantasia', 'nombre']}
+                  value={selectedCliente}
+                  readOnly={readOnly}
+                  disabled={articulosStockPrecargaPendiente}
+                  isLoading={clientesLoading}
+                  autoSelectSingleMatch={!readOnly && !articulosStockPrecargaPendiente}
+                  onValueChanged={(event) => {
+                    if (isHydratingComprobanteRef.current || !isDevExtremeUserChange(event)) {
                       return;
                     }
 
-                    await handleClienteChange(nextCliente);
-                  })();
-                }}
-                placeholder={t('pedidos.carga.clientePlaceholder')}
-                showClearButton={!readOnly}
-                inputAttr={{ 'data-testid': 'cliente-select' }}
-              />
+                    const nextCliente = (event.value as string | null) ?? null;
+                    if (nextCliente === selectedCliente) {
+                      return;
+                    }
+
+                    void (async () => {
+                      const confirmed = await confirmarCambioCliente();
+                      if (!confirmed) {
+                        setClienteSelectKey((value) => value + 1);
+                        return;
+                      }
+
+                      await handleClienteChange(nextCliente);
+                    })();
+                  }}
+                  placeholder={t('pedidos.carga.clientePlaceholder')}
+                  showClearButton={!readOnly}
+                  inputAttr={{ 'data-testid': 'cliente-select' }}
+                />
+                {selectedCliente ? <CargaDeudaSaldoPanel codCliente={selectedCliente} /> : null}
+              </div>
             </div>
           )}
 

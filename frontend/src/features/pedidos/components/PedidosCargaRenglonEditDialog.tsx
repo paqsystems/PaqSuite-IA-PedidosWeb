@@ -9,12 +9,14 @@ import { bonificacionCabeceraFormat } from '../constants/cabeceraCatalogos';
 import {
   applyCantidadUsuarioToRenglon,
   cantidadVisibleParaUsuario,
+  resolveEquivalenciaVentas,
 } from '../utils/cargaUnidadesVenta';
 import {
   calcularImporteBrutoRenglon,
   calcularImporteIvaRenglon,
   calcularImporteNetoConIvaRenglon,
   calcularImporteNetoRenglon,
+  calcularPrecioNetoUnitario,
   formatImporteMoneda,
 } from '../utils/renglonesCarga';
 import '../pages/PedidosCargaPage.css';
@@ -81,6 +83,15 @@ export function PedidosCargaRenglonEditDialog({
     draft.cantidadVenta,
     cargaUnidadesVenta,
   );
+  const equivalenciaVentas = resolveEquivalenciaVentas(draft.equivalenciaVentas);
+  const unidadesStockEquivalentes = cargaUnidadesVenta
+    ? Number((cantidadVisible * equivalenciaVentas).toFixed(4))
+    : null;
+  const precioNetoUnitario = calcularPrecioNetoUnitario(
+    draft.precio,
+    draft.porcBonif,
+    bonificacionNetaCabecera,
+  );
 
   const handleConfirm = () => {
     if (!canEdit || draft.cantidad <= 0) {
@@ -120,40 +131,70 @@ export function PedidosCargaRenglonEditDialog({
           stylingMode="outlined"
           width="100%"
         />
-        <NumberBox
-          label={t('pedidos.carga.grid.cantidad')}
-          labelMode="outside"
-          value={cantidadVisible}
-          min={0.0001}
-          readOnly={!canEdit}
-          stylingMode="outlined"
-          width="100%"
-          onValueChanged={(event) => {
-            const cantidadUsuario = Number(event.value ?? 0);
-            setDraft((previous) =>
-              previous
-                ? applyCantidadUsuarioToRenglon(previous, cantidadUsuario, cargaUnidadesVenta)
-                : previous,
-            );
-          }}
-          inputAttr={{ 'data-testid': 'renglon-edit-cantidad' }}
-        />
-        <NumberBox
-          label={t('pedidos.carga.grid.precio')}
-          labelMode="outside"
-          value={draft.precio}
-          min={0}
-          format={`${monedaSimbolo} #,##0.00`}
-          disabled={!canEdit || !modificaPrecio}
-          stylingMode="outlined"
-          width="100%"
-          onValueChanged={(event) => {
-            setDraft((previous) =>
-              previous ? { ...previous, precio: Number(event.value ?? 0) } : previous,
-            );
-          }}
-          inputAttr={{ 'data-testid': 'renglon-precio' }}
-        />
+        <div
+          className={
+            cargaUnidadesVenta
+              ? 'pedidosCargaRenglonEditDialog__row pedidosCargaRenglonEditDialog__row--compact'
+              : undefined
+          }
+        >
+          <NumberBox
+            label={t('pedidos.carga.grid.cantidad')}
+            labelMode="outside"
+            value={cantidadVisible}
+            min={0.0001}
+            readOnly={!canEdit}
+            stylingMode="outlined"
+            width="100%"
+            onValueChanged={(event) => {
+              const cantidadUsuario = Number(event.value ?? 0);
+              setDraft((previous) =>
+                previous
+                  ? applyCantidadUsuarioToRenglon(previous, cantidadUsuario, cargaUnidadesVenta)
+                  : previous,
+              );
+            }}
+            inputAttr={{ 'data-testid': 'renglon-edit-cantidad' }}
+          />
+          {cargaUnidadesVenta && unidadesStockEquivalentes !== null ? (
+            <TextBox
+              label={t('pedidos.carga.renglon.unidadesStockEquivalentes')}
+              labelMode="outside"
+              value={String(unidadesStockEquivalentes)}
+              readOnly={true}
+              stylingMode="outlined"
+              width="100%"
+              inputAttr={{ 'data-testid': 'renglon-unidades-stock-equiv' }}
+            />
+          ) : null}
+        </div>
+        <div className="pedidosCargaRenglonEditDialog__row pedidosCargaRenglonEditDialog__row--compact">
+          <NumberBox
+            label={t('pedidos.carga.grid.precio')}
+            labelMode="outside"
+            value={draft.precio}
+            min={0}
+            format={`${monedaSimbolo} #,##0.00`}
+            disabled={!canEdit || !modificaPrecio}
+            stylingMode="outlined"
+            width="100%"
+            onValueChanged={(event) => {
+              setDraft((previous) =>
+                previous ? { ...previous, precio: Number(event.value ?? 0) } : previous,
+              );
+            }}
+            inputAttr={{ 'data-testid': 'renglon-precio' }}
+          />
+          <TextBox
+            label={t('pedidos.carga.renglon.precioNetoUnitario')}
+            labelMode="outside"
+            value={formatImporteMoneda(monedaSimbolo, precioNetoUnitario)}
+            readOnly={true}
+            stylingMode="outlined"
+            width="100%"
+            inputAttr={{ 'data-testid': 'renglon-precio-neto-unitario' }}
+          />
+        </div>
         <NumberBox
           label={t('pedidos.carga.grid.bonificacion')}
           labelMode="outside"

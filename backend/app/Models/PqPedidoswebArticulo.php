@@ -30,6 +30,7 @@ class PqPedidoswebArticulo extends Model
         'valor2',
         'porc_iva',
         'equivalencia_ventas',
+        'stockeable',
     ];
 
     protected $casts = [
@@ -38,6 +39,7 @@ class PqPedidoswebArticulo extends Model
         'valor2' => 'decimal:4',
         'porc_iva' => 'decimal:4',
         'equivalencia_ventas' => 'decimal:4',
+        'stockeable' => 'boolean',
     ];
 
     public function stock(): HasMany

@@ -40,6 +40,9 @@ describe('cargaCatalogos clientes', () => {
 
 describe('etiquetaArticulo', () => {
   const t = ((key: string, params?: Record<string, string>) => {
+    if (key === 'pedidos.carga.articuloDisplaySinStock' && params) {
+      return `${params.codigo} - ${params.descripcion}`;
+    }
     if (key === 'pedidos.carga.articuloDisplayConBase' && params) {
       return `${params.codigo} - ${params.descripcion} — Disp. ${params.disponible} (${params.disponibleBase})`;
     }
@@ -67,5 +70,11 @@ describe('etiquetaArticulo', () => {
     expect(
       etiquetaArticulo({ ...articulo, disponibleNetoBase: 3 }, t),
     ).toBe('ART-01 - Tornillo hexagonal — Disp. 12,50 (3,00)');
+  });
+
+  it('omite disponible cuando el articulo no es stockeable', () => {
+    expect(
+      etiquetaArticulo({ ...articulo, stockeable: false }, t),
+    ).toBe('ART-01 - Tornillo hexagonal');
   });
 });

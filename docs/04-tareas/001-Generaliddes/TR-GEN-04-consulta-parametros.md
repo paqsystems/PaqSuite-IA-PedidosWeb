@@ -8,7 +8,7 @@
 | **Épica** | 001 — Generalidades / Configuración global |
 | **Prioridad** | Should |
 | **Dependencias** | TR-GEN-02-autorizacion-menu-api; TR-GEN-03-grillas-listados; `PQ_parametros_gral` + seed PedidosWeb |
-| **Estado** | Finalizado (Parte I — CC PQ #9) |
+| **Estado** | En Control Calidad |
 | **Última actualización** | 2026-07-02 (Parte I — CC PQ #9) |
 
 **Origen:** [HU-GEN-04-consulta-parametros](../../03-historias-usuario/001-Generaliddes/HU-GEN-04-consulta-parametros.md)  

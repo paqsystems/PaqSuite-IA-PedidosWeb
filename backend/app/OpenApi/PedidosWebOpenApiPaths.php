@@ -343,6 +343,8 @@ namespace App\OpenApi;
  *     @OA\Parameter(name="page", in="query", required=false, @OA\Schema(type="integer", default=1)),
  *     @OA\Parameter(name="page_size", in="query", required=false, @OA\Schema(type="integer", default=20, maximum=1000)),
  *     @OA\Parameter(name="cod_cliente", in="query", required=false, @OA\Schema(type="string")),
+ *     @OA\Parameter(name="fecha_desde", in="query", required=false, description="Filtro inclusive desde (YYYY-MM-DD). Sin fechas aplica DiasVentasDetalladas.", @OA\Schema(type="string", format="date")),
+ *     @OA\Parameter(name="fecha_hasta", in="query", required=false, description="Filtro inclusive hasta (YYYY-MM-DD).", @OA\Schema(type="string", format="date")),
  *     @OA\Response(response=200, description="Listado paginado", @OA\JsonContent(ref="#/components/schemas/ApiEnvelopeConsultaHistorialVentas")),
  *     @OA\Response(response=400, description="Tenant invalido"),
  *     @OA\Response(response=401, description="No autenticado"),

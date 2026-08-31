@@ -214,6 +214,7 @@ final class PedidosWebSchemaBootstrap
         }
 
         $this->addColumnIfMissing($table, 'equivalencia_ventas', 'decimal(18, 4) NULL');
+        $this->addColumnIfMissing($table, 'stockeable', 'bit NOT NULL DEFAULT 1');
     }
 
     private function ensureCabeceraColumns(): void

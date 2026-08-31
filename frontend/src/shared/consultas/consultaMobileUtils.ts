@@ -14,6 +14,11 @@ export function formatConsultaDate(value: string | null | undefined): string {
     return '—';
   }
 
+  const ymd = /^(\d{4})-(\d{2})-(\d{2})/.exec(value.trim());
+  if (ymd) {
+    return `${ymd[3]}/${ymd[2]}/${ymd[1]}`;
+  }
+
   const parsed = new Date(value);
   if (Number.isNaN(parsed.getTime())) {
     return value;
@@ -23,6 +28,7 @@ export function formatConsultaDate(value: string | null | undefined): string {
     day: '2-digit',
     month: '2-digit',
     year: 'numeric',
+    timeZone: 'UTC',
   }).format(parsed);
 }
 

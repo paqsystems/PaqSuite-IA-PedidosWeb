@@ -40,6 +40,12 @@ import {
   renglonesValidosParaGrabar,
 } from '../utils/renglonesCarga';
 import { fromCantidadUsuario, resolveEquivalenciaVentas } from '../utils/cargaUnidadesVenta';
+import {
+  computeLeyendasDirtyFlags,
+  createLeyendasSnapshot,
+  mapLeyendasDirtyToApi,
+  type LeyendasSnapshot,
+} from '../utils/leyendasDirtySession';
 import { resolveGrabacionErrorMessages } from '../utils/resolveGrabacionErrorMessages';
 
 const emptyCatalogos: CabeceraCatalogos = {
@@ -75,6 +81,7 @@ export function usePedidosCargaMobile() {
   const [clientesLoading, setClientesLoading] = useState(false);
   const [selectedCliente, setSelectedCliente] = useState<string | null>(null);
   const [cabecera, setCabecera] = useState<ComprobanteCabecera | null>(null);
+  const leyendasSnapshotRef = useRef<LeyendasSnapshot | null>(null);
   const [catalogos, setCatalogos] = useState<CabeceraCatalogos>(emptyCatalogos);
   const [parametrosCarga, setParametrosCarga] = useState<ParametrosCarga | null>(null);
   const [articuloSeleccionado, setArticuloSeleccionado] = useState<string | null>(null);
@@ -177,19 +184,26 @@ export function usePedidosCargaMobile() {
     );
   }, [estadoActual, modo, readOnly]);
 
+  const captureLeyendasSnapshot = useCallback((cabeceraValue: ComprobanteCabecera) => {
+    leyendasSnapshotRef.current = createLeyendasSnapshot(cabeceraValue);
+  }, []);
+
   const loadCabeceraForCliente = useCallback(async (codCliente: string) => {
     setCabeceraLoading(true);
     try {
       const result = await fetchCabeceraInicial(codCliente);
       setCabecera(result.cabecera);
+      captureLeyendasSnapshot(result.cabecera);
       setCatalogos(result.catalogos);
     } catch {
-      setCabecera(emptyComprobanteCabecera(codCliente));
+      const emptyCabecera = emptyComprobanteCabecera(codCliente);
+      setCabecera(emptyCabecera);
+      captureLeyendasSnapshot(emptyCabecera);
       setCatalogos(emptyCatalogos);
     } finally {
       setCabeceraLoading(false);
     }
-  }, []);
+  }, [captureLeyendasSnapshot]);
 
   const loadArticulosStock = useCallback(async () => {
     if (articulosStockLoadRef.current) {
@@ -372,6 +386,7 @@ export function usePedidosCargaMobile() {
           setCodPresupuestoOrigen(null);
           setSelectedCliente(copia.cabecera.codCliente ?? sessionContext.codCliente ?? null);
           setCabecera(copia.cabecera);
+          captureLeyendasSnapshot(copia.cabecera);
           setCatalogos(catalogosInicial);
           setRenglones(
             copia.renglones.length > 0 ? copia.renglones : [createEmptyRenglon(1)],
@@ -390,6 +405,7 @@ export function usePedidosCargaMobile() {
         setEstadoActual(comprobante.estado);
         setSelectedCliente(comprobante.codCliente ?? sessionContext.codCliente ?? null);
         setCabecera(comprobante.cabecera);
+        captureLeyendasSnapshot(comprobante.cabecera);
         setCatalogos(comprobante.catalogos);
         setRenglones(
           comprobante.renglones.length > 0 ? comprobante.renglones : [createEmptyRenglon(1)],
@@ -731,6 +747,9 @@ export function usePedidosCargaMobile() {
             descuento: bonificacionNetaCabecera,
           },
           renglones: renglonesGrabar,
+          leyendasDirty: mapLeyendasDirtyToApi(
+            computeLeyendasDirtyFlags(cabecera, leyendasSnapshotRef.current),
+          ),
         });
 
         const resultado = response.resultado;

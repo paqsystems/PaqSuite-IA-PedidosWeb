@@ -6,7 +6,7 @@
 | **SPEC origen** | [SPEC-101-07](../../05-open-spec/101-PedidosWeb/SPEC-101-07-consultas-api.md), [SPEC-101-11](../../05-open-spec/101-PedidosWeb/SPEC-101-11-consultas-ui.md) |
 | **Producto** | [consulta-deuda.md](../../02-producto/PedidosWeb/consulta-deuda.md) |
 | **Prioridad** | Must |
-| **Estado** | Finalizado (Parte I — CC PQ #4) |
+| **Estado** | En Control Calidad |
 | **B1** | Enriquecida (2026-06-01) |
 
 ## Narrativa

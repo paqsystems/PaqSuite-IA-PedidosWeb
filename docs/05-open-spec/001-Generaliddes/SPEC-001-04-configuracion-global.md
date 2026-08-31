@@ -4,7 +4,7 @@
 |-------|--------|
 | **HU relacionadas** | [HU-GEN-04-consulta-parametros](../../03-historias-usuario/001-Generaliddes/HU-GEN-04-consulta-parametros.md), lectura runtime (servicios existentes) |
 | **TR relacionada** | [TR-GEN-04-consulta-parametros](../../04-tareas/001-Generaliddes/TR-GEN-04-consulta-parametros.md) (**C1** 2026-06-03) |
-| **Estado** | Especificado |
+| **Estado** | En revisión |
 | **Revisión A1** | Apto con observaciones (2026-05-28) |
 | **Última actualización** | 2026-07-02 (Parte I — CC PQ #9) |
 

@@ -7,7 +7,7 @@
 | **Épica** | 101-PedidosWeb |
 | **Prioridad** | Must |
 | **Dependencias** | TR-SPEC-101-04-services-pedidos; TR-SPEC-101-05-controllers-rest; [TR-GEN-02-recuperacion-contrasena](../001-Generaliddes/TR-GEN-02-recuperacion-contrasena.md) (canal mail); [SPEC-001-04](../../05-open-spec/001-Generaliddes/SPEC-001-04-configuracion-global.md) (`DetallePorMail`, `MailDestinatariosAdicionales`, `Mail_DireccionRemitente`, `mailCCO`) |
-| **Estado** | Finalizado |
+| **Estado** | En Control Calidad |
 | **Última actualización** | 2026-06-09 (Parte I — CC PQ #1) |
 | **Última actualización** | 2026-06-02 |
 

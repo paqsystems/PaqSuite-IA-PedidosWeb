@@ -33,6 +33,14 @@ export type ComprobanteDetalle = {
   renglones: ComprobanteRenglon[];
 };
 
+export type LeyendasDirtyApiPayload = {
+  leyenda_1_dirty?: boolean;
+  leyenda_2_dirty?: boolean;
+  leyenda_3_dirty?: boolean;
+  leyenda_4_dirty?: boolean;
+  leyenda_5_dirty?: boolean;
+};
+
 export type GrabarComprobantePayload = {
   accionGrabacion: 'pedido' | 'presupuesto';
   codPedido?: string | null;
@@ -41,6 +49,7 @@ export type GrabarComprobantePayload = {
   codComprobanteOrigenCopia?: string | null;
   cabecera: ComprobanteCabecera;
   renglones: ComprobanteRenglon[];
+  leyendasDirty?: LeyendasDirtyApiPayload;
 };
 
 export type ParametrosCarga = {
@@ -73,6 +82,7 @@ export type ArticuloOption = {
   equivalenciaVentas?: number;
   disponibleNeto?: number;
   disponibleNetoBase?: number | null;
+  stockeable?: boolean;
 };
 
 export type GrabarComprobanteResult = {
@@ -272,6 +282,7 @@ export async function grabarComprobante(
     cod_comprobante_origen_copia: payload.codComprobanteOrigenCopia ?? undefined,
     cabecera: mapCabeceraToApi(payload.cabecera),
     renglones: payload.renglones.map(mapRenglonToApi),
+    leyendas_dirty: payload.leyendasDirty,
   };
 
   return apiRequest<GrabarComprobanteResult>('/comprobantes/grabar', {

@@ -3498,7 +3498,7 @@
                         "schema": {
                             "type": "integer",
                             "default": 20,
-                            "maximum": 100
+                            "maximum": 1000
                         }
                     },
                     {
@@ -3565,7 +3565,7 @@
                         "schema": {
                             "type": "integer",
                             "default": 20,
-                            "maximum": 100
+                            "maximum": 1000
                         }
                     },
                     {
@@ -3632,7 +3632,7 @@
                         "schema": {
                             "type": "integer",
                             "default": 20,
-                            "maximum": 100
+                            "maximum": 1000
                         }
                     },
                     {
@@ -3709,7 +3709,7 @@
                         "schema": {
                             "type": "integer",
                             "default": 20,
-                            "maximum": 100
+                            "maximum": 1000
                         }
                     },
                     {
@@ -3777,7 +3777,7 @@
                         "schema": {
                             "type": "integer",
                             "default": 20,
-                            "maximum": 100
+                            "maximum": 1000
                         }
                     },
                     {
@@ -3844,7 +3844,7 @@
                         "schema": {
                             "type": "integer",
                             "default": 20,
-                            "maximum": 100
+                            "maximum": 1000
                         }
                     },
                     {
@@ -3911,7 +3911,7 @@
                         "schema": {
                             "type": "integer",
                             "default": 20,
-                            "maximum": 100
+                            "maximum": 1000
                         }
                     },
                     {
@@ -3920,6 +3920,26 @@
                         "required": false,
                         "schema": {
                             "type": "string"
+                        }
+                    },
+                    {
+                        "name": "fecha_desde",
+                        "in": "query",
+                        "description": "Filtro inclusive desde (YYYY-MM-DD). Sin fechas aplica DiasVentasDetalladas.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "name": "fecha_hasta",
+                        "in": "query",
+                        "description": "Filtro inclusive hasta (YYYY-MM-DD).",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
                         }
                     }
                 ],
@@ -3978,7 +3998,7 @@
                         "schema": {
                             "type": "integer",
                             "default": 20,
-                            "maximum": 100
+                            "maximum": 1000
                         }
                     },
                     {

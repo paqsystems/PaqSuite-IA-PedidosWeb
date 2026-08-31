@@ -2,34 +2,47 @@ import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } fro
 import { ConsultaGrillaPivotShell } from '../../../shared/pivot';
 import { useTranslation } from 'react-i18next';
 import Popup from 'devextreme-react/popup';
+import DateBox from 'devextreme-react/date-box';
 import { Column } from 'devextreme-react/data-grid';
 import { isNativeApp } from '../../../shared/platform/isNativeApp';
 import { ConsultaKardexMobileView } from '../../../shared/consultas/ConsultaKardexMobileView';
 import { useGridLayouts } from '../../gridLayouts/hooks/useGridLayouts';
 import { DataGridDx, type DataGridDxHandle, type DataGridRowAction } from '../../../shared/ui/grids';
 import { GridRefreshButton } from '../components/GridRefreshButton';
+import { formatConsultaFechaProceso } from '../utils/formatConsultaFechaProceso';
+import { parseLocalCalendarDate } from '../utils/consultaFechaCalendario';
+import { formatHistorialFechaParam } from '../utils/formatHistorialFechaParam';
 import {
   fetchHistorialVentas,
   toHistorialDetalleRows,
   type ConsultaMeta,
   type HistorialVentasRow,
 } from '../api/consultaApi';
-import { formatConsultaFechaProceso } from '../utils/formatConsultaFechaProceso';
 import { getHistorialDetailFields, renderHistorialCard } from '../components/consultaMobileRenderers';
-
+import '../consultasShared.css';
 const proceso = 'pw_historialventas';
 const gridId = 'pw_historialventas';
 const pivotConsultaId = 'CONSULTA_PILOTO_PIVOT';
-
-const dateColumnProps = {
-  dataType: 'date' as const,
-  format: 'dd/MM/yyyy',
-};
 
 const decimalColumnProps = {
   dataType: 'number' as const,
   format: '#,##0.00',
 };
+
+function historialFechaColumn(
+  dataField: 'fechaEmision' | 'fechaRem',
+  caption: string,
+) {
+  return (
+    <Column
+      dataField={dataField}
+      caption={caption}
+      dataType="date"
+      format="dd/MM/yyyy"
+      calculateCellValue={(row: HistorialVentasRow) => parseLocalCalendarDate(row[dataField])}
+    />
+  );
+}
 
 function historialColumns(t: (key: string) => string) {
   return (
@@ -39,7 +52,7 @@ function historialColumns(t: (key: string) => string) {
       <Column dataField="nRemito" caption={t('consultas.column.nRemito')} />
       <Column dataField="tipo" caption={t('consultas.column.tipo')} />
       <Column dataField="numero" caption={t('consultas.column.numero')} />
-      <Column dataField="fechaEmision" caption={t('consultas.column.fechaEmision')} {...dateColumnProps} />
+      {historialFechaColumn('fechaEmision', t('consultas.column.fechaEmision'))}
       <Column dataField="condVta" caption={t('consultas.column.condVta')} dataType="number" />
       <Column dataField="porcDesc" caption={t('consultas.column.porcDesc')} {...decimalColumnProps} />
       <Column dataField="cotiz" caption={t('consultas.column.cotiz')} {...decimalColumnProps} />
@@ -56,7 +69,7 @@ function historialColumns(t: (key: string) => string) {
       <Column dataField="totSinImp" caption={t('consultas.column.totSinImp')} {...decimalColumnProps} />
       <Column dataField="nCompRem" caption={t('consultas.column.nCompRem')} />
       <Column dataField="cantRem" caption={t('consultas.column.cantRem')} {...decimalColumnProps} />
-      <Column dataField="fechaRem" caption={t('consultas.column.fechaRem')} {...dateColumnProps} />
+      {historialFechaColumn('fechaRem', t('consultas.column.fechaRem'))}
     </>
   );
 }
@@ -87,6 +100,55 @@ function HistorialVentasMobileView() {
   );
 }
 
+type HistorialVentasFiltrosFechaProps = {
+  fechaDesde: string | null;
+  fechaHasta: string | null;
+  onFechaDesdeChange: (value: string | null) => void;
+  onFechaHastaChange: (value: string | null) => void;
+};
+
+function resolveDateBoxCalendarValue(value: unknown): string | null {
+  return formatHistorialFechaParam(value as Date | string | number | null | undefined) ?? null;
+}
+
+function HistorialVentasFiltrosFecha({
+  fechaDesde,
+  fechaHasta,
+  onFechaDesdeChange,
+  onFechaHastaChange,
+}: HistorialVentasFiltrosFechaProps) {
+  const { t } = useTranslation();
+
+  return (
+    <div className="historialVentasFiltros" data-testid="historial-ventas-filtros">
+      <DateBox
+        label={t('consultas.historial.fechaDesde')}
+        labelMode="outside"
+        type="date"
+        displayFormat="dd/MM/yyyy"
+        dateSerializationFormat="yyyy-MM-dd"
+        useMaskBehavior={true}
+        showClearButton={true}
+        value={fechaDesde}
+        onValueChanged={(event) => onFechaDesdeChange(resolveDateBoxCalendarValue(event.value))}
+        inputAttr={{ 'data-testid': 'historial-fecha-desde' }}
+      />
+      <DateBox
+        label={t('consultas.historial.fechaHasta')}
+        labelMode="outside"
+        type="date"
+        displayFormat="dd/MM/yyyy"
+        dateSerializationFormat="yyyy-MM-dd"
+        useMaskBehavior={true}
+        showClearButton={true}
+        value={fechaHasta}
+        onValueChanged={(event) => onFechaHastaChange(resolveDateBoxCalendarValue(event.value))}
+        inputAttr={{ 'data-testid': 'historial-fecha-hasta' }}
+      />
+    </div>
+  );
+}
+
 function HistorialVentasWebView() {
   const { t, i18n } = useTranslation();
   const gridRef = useRef<DataGridDxHandle>(null);
@@ -102,6 +164,8 @@ function HistorialVentasWebView() {
   const [detalleVisible, setDetalleVisible] = useState(false);
   const [detalleRows, setDetalleRows] = useState<HistorialVentasRow[]>([]);
   const [refreshToken, setRefreshToken] = useState(0);
+  const [fechaDesde, setFechaDesde] = useState<string | null>(null);
+  const [fechaHasta, setFechaHasta] = useState<string | null>(null);
   const [drillDownFilters, setDrillDownFilters] = useState<Record<string, unknown> | null>(null);
 
   const fechaProcesoLabel = useMemo(() => {
@@ -131,7 +195,10 @@ function HistorialVentasWebView() {
       setIsLoading(true);
       setLoadError(null);
       try {
-        const result = await fetchHistorialVentas();
+        const result = await fetchHistorialVentas({
+          fechaDesde: formatHistorialFechaParam(fechaDesde),
+          fechaHasta: formatHistorialFechaParam(fechaHasta),
+        });
         if (mounted) {
           setRows(result.items);
           setMeta(result.meta);
@@ -154,7 +221,7 @@ function HistorialVentasWebView() {
     return () => {
       mounted = false;
     };
-  }, [refreshToken, t]);
+  }, [fechaDesde, fechaHasta, refreshToken, t]);
 
   const handleOpenDetalle = useCallback((row: HistorialVentasRow) => {
     setDetalleRows(toHistorialDetalleRows(row));
@@ -188,9 +255,20 @@ function HistorialVentasWebView() {
   return (
     <section data-testid="page-consulta-historial">
       <h2>{t('pages.consultaHistorial')}</h2>
+      <HistorialVentasFiltrosFecha
+        fechaDesde={fechaDesde}
+        fechaHasta={fechaHasta}
+        onFechaDesdeChange={setFechaDesde}
+        onFechaHastaChange={setFechaHasta}
+      />
       <p>{t('consultas.fechaProceso', { value: fechaProcesoLabel })}</p>
-      {meta?.dias_ventas_detalladas ? (
+      {!fechaDesde && !fechaHasta && meta?.dias_ventas_detalladas ? (
         <p>{t('consultas.historialPeriodo', { dias: meta.dias_ventas_detalladas })}</p>
+      ) : null}
+      {!isLoading && !loadError ? (
+        <p data-testid="historial-registros-cargados">
+          {t('consultas.historialRegistrosCargados', { count: rows.length })}
+        </p>
       ) : null}
       <ConsultaGrillaPivotShell
         consultaId={pivotConsultaId}
