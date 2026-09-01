@@ -104,8 +104,9 @@ Campos existentes:
 | cod_pedido | string | FK lógica a cabecera |
 | renglon | int | Número de renglón |
 | cod_articulo | string | Artículo |
-| cantidad | decimal recomendado | Cantidad; debe corregirse si está como int |
-| bonificacion | decimal | Descuento/bonificación de renglón |
+| cantidad | decimal recomendado | Cantidad en unidades de stock/precio; base de importes |
+| cantidad_venta | decimal(18,4) | Cantidad en unidades de venta (CC PQ #10); coherente con `equivalencia_ventas` del artículo |
+| bonificacion | decimal(6,2) | Bonificación/descuento de renglón (%). API interna: alias `porc_bonif` / `porcBonif` |
 | precio | decimal | Precio de venta |
 | precio_neto | decimal | Precio luego de descuentos |
 | precio_bruto | decimal | Precio antes de descuentos/IVA según regla |
@@ -117,6 +118,7 @@ Recomendaciones:
 - `cantidad` debe ser decimal, no int.
 - Conviene guardar importes calculados si el ERP o reportes lo requieren; si no, pueden recalcularse.
 - Deben conservarse renglones repetidos de un mismo artículo.
+- Los importes se calculan **siempre** desde `cantidad` (stock/precio), no desde `cantidad_venta`.
 
 Campos recomendados:
 
@@ -178,16 +180,18 @@ Clave primaria compuesta:
 
 Campos:
 
-| Campo | Descripción |
-|---|---|
-| cod_client | Cliente |
-| id_de | Id dirección |
-| cod_DE | Código dirección |
-| direccion | Dirección |
-| localidad | Localidad |
-| c_postal | Código postal |
-| cod_provin | Provincia |
-| habitual | Indica dirección habitual |
+| Campo | Tipo | Descripción |
+|---|---|---|
+| cod_client | — | Cliente |
+| id_de | — | Id dirección |
+| cod_DE | — | Código dirección |
+| direccion | — | Dirección |
+| localidad | — | Localidad |
+| c_postal | — | Código postal |
+| cod_provin | — | Provincia |
+| habitual | **char(1)** | Dirección habitual. Valores típicos ERP: `S`/`N` (también se tolera `1`/`0`). **No** es `bit`. API/UI exponen boolean. |
+
+Default sugerido en CREATE: `'N'`.
 
 ### 3.2.1 pq_pedidosweb_clientescontactos
 
@@ -234,32 +238,45 @@ Regla: un login de vendedor corresponde a un solo vendedor.
 
 ### 3.4 pq_pedidosweb_articulos
 
+Maestro de artículos consumido por carga, stock, Excel y asistente.
+
+**DDL canónico (alta de empresa / CREATE):** `backend/scripts/sql/create-pq-pedidosweb-articulos.sql`  
+**ALTER idempotentes (tenant existente):** `alter-pq-pedidosweb-carga-unidades-venta.sql`, `alter-pq-pedidosweb-stockeable.sql`, `alter-pq-pedidosweb-articulos-descripcion-varchar60.sql`
+
 Clave primaria:
 
-- codigo
+- `codigo` (`varchar(15)`)
 
-Campos:
+Campos (tipos canónicos SQL Server):
 
-| Campo | Descripción |
-|---|---|
-| codigo | Código artículo |
-| descripcion | Descripción (`varchar(60)`) |
-| bonificacion | Bonificación por defecto |
-| usa_esc | Usa escala |
-| base | Código base para presentaciones |
-| valor1 | Valor escala 1 |
-| valor2 | Valor escala 2 |
-| porc_iva | Porcentaje IVA |
+| Campo | Tipo | Null | Default | Descripción |
+|---|---|---|---|---|
+| codigo | varchar(15) | NOT NULL | — | Código artículo (PK) |
+| descripcion | varchar(60) | NULL | NULL | Descripción |
+| bonificacion | decimal(6, 2) | NULL | NULL | Bonificación por defecto del artículo |
+| usa_esc | char(1) | NULL | — | Marca de escala; valor **`B`** = artículo BASE (excluido del lookup de carga) |
+| base | varchar(15) | NULL | — | Código base para presentaciones / agregados de stock |
+| valor1 | varchar(15) | NULL | — | Código de valor de escala 1 (`pq_pedidosweb_escalas_detalle.cod_valor`) |
+| valor2 | varchar(15) | NULL | — | Código de valor de escala 2 |
+| porc_iva | numeric(6, 2) | NULL | — | Porcentaje IVA |
+| equivalencia_ventas | decimal(18, 4) | NOT NULL | `1` | Factor unidades venta ↔ stock/precio (CC PQ #10). Runtime: si ≤ 0 → tratar como 1 |
+| stockeable | bit | NOT NULL | `1` | `1` = stockeable; `0` = no stockeable (sin stock en listbox; fuera de consulta stock) (CC PQ #12) |
 
 Relación con escalas (§3.5–3.6):
 
-- Si `usa_esc = true`, `valor1` y `valor2` referencian `pq_pedidosweb_escalas_detalle.cod_valor`.
+- Cuando el artículo usa escala (`usa_esc` distinto de nulo/vacío y **no** es `B`), `valor1` y `valor2` referencian `pq_pedidosweb_escalas_detalle.cod_valor`.
 - `base` sigue siendo el código de presentación para agregados de stock (consulta stock); no confundir con `cod_escala`.
 
 Regla de stock base:
 
-- Si base está vacío, se muestra stock propio.
-- Si base tiene valor, se muestra stock propio y sumatoria de artículos con la misma base.
+- Si `base` está vacío, se muestra stock propio.
+- Si `base` tiene valor, se muestra stock propio y sumatoria de artículos con la misma base.
+
+Reglas runtime:
+
+- Lookup de carga **excluye** `usa_esc = 'B'` (artículos BASE).
+- Artículos con `stockeable = 0` pueden aparecer en carga **sin** disponible; la consulta de stock los **excluye**.
+- Parámetro `IncluyeArticulosNoStockeables` es **informativo** (origen ERP); el filtro operativo usa la columna `stockeable`.
 
 ### 3.5 pq_pedidosweb_escalas_cabecera
 
@@ -301,7 +318,7 @@ Campos:
 Relaciones:
 
 - Detalle **N:1** cabecera por `cod_escala`.
-- Referenciado desde `pq_pedidosweb_articulos.valor1` / `valor2` cuando `usa_esc = true`.
+- Referenciado desde `pq_pedidosweb_articulos.valor1` / `valor2` (`varchar(15)`) cuando el artículo usa escala (`usa_esc` no nulo y distinto de `B`).
 
 ### 3.7 pq_pedidosweb_stock
 
@@ -751,8 +768,13 @@ Para claves compuestas, Laravel requiere tratamiento especial: definir repositor
 1. Cambiar `pq_pedidosweb_pedidosdetalle.cantidad` a decimal si actualmente es int.
 2. Agregar campos de auditoría liviana a cabecera si no existen.
 3. Definir número visible secuencial por empresa y tipo de comprobante.
-4. Crear tablas de tratativas, resultados, motivos de cierre y logs integración.
-5. `estado = -1` solo modificación web; vigencia con `fechahora_ultima_actividad` + `MinutosWeb`.
-6. Confirmar tabla definitiva de parámetros generales dentro del esquema PaqSuite.
-7. Crear catálogo inicial de proveedores del asistente IA.
-8. Crear tabla dedicada para credenciales `BYOK` del asistente IA, separada de `users`.
+5. Crear tablas de tratativas, resultados, motivos de cierre y logs integración.
+6. `estado = -1` solo modificación web; vigencia con `fechahora_ultima_actividad` + `MinutosWeb`.
+7. Confirmar tabla definitiva de parámetros generales dentro del esquema PaqSuite.
+8. Crear catálogo inicial de proveedores del asistente IA.
+9. Crear tabla dedicada para credenciales `BYOK` del asistente IA, separada de `users`.
+10. En alta de empresa, crear `pq_pedidosweb_articulos` con el **DDL canónico** (`create-pq-pedidosweb-articulos.sql`): `codigo varchar(15)`, `usa_esc char(1)`, `valor1`/`valor2`/`base` `varchar(15)`, `equivalencia_ventas` y `stockeable` NOT NULL con default 1. No usar tipos inventados (`usa_esc bit`, `valor1 decimal`, etc.).
+
+---
+
+*Última revisión modelo artículos / detalle: 2026-08-31 (DDL canónico CC PQ #10/#12).*

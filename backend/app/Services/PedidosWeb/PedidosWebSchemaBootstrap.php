@@ -138,17 +138,31 @@ final class PedidosWebSchemaBootstrap
     {
         $table = 'pq_pedidosweb_pedidosdetalle';
 
-        if (
-            Schema::hasTable($table)
-            && Schema::hasColumn($table, 'bonificacion')
-            && ! Schema::hasColumn($table, 'porc_bonif')
-            && array_key_exists('porc_bonif', $attributes)
-        ) {
-            $attributes['bonificacion'] = $attributes['porc_bonif'];
-            unset($attributes['porc_bonif']);
+        if (! Schema::hasTable($table)) {
+            return $attributes;
+        }
+
+        $bonificacionValue = $attributes['bonificacion']
+            ?? $attributes['porc_bonif']
+            ?? $attributes['porcBonif']
+            ?? null;
+
+        if ($bonificacionValue !== null) {
+            if (Schema::hasColumn($table, 'bonificacion')) {
+                $attributes['bonificacion'] = $bonificacionValue;
+                unset($attributes['porc_bonif'], $attributes['porcBonif']);
+            } elseif (Schema::hasColumn($table, 'porc_bonif')) {
+                $attributes['porc_bonif'] = $bonificacionValue;
+                unset($attributes['bonificacion'], $attributes['porcBonif']);
+            }
         }
 
         return $this->filterAttributes($table, $attributes);
+    }
+
+    public function detalleBonificacionColumn(): string
+    {
+        return $this->resolveTableColumn('pq_pedidosweb_pedidosdetalle', 'bonificacion', 'porc_bonif');
     }
 
     public function ensureArticulosFeatureFixtures(): void
@@ -169,11 +183,13 @@ final class PedidosWebSchemaBootstrap
             [
                 'descripcion' => 'Articulo fixture '.$codigo,
                 'bonificacion' => 0,
-                'usa_esc' => false,
-                'base' => 'L',
-                'valor1' => 100,
-                'valor2' => 0,
+                'usa_esc' => null,
+                'base' => null,
+                'valor1' => null,
+                'valor2' => null,
                 'porc_iva' => 21,
+                'equivalencia_ventas' => 1,
+                'stockeable' => 1,
             ]
         );
     }
@@ -188,7 +204,7 @@ final class PedidosWebSchemaBootstrap
 
         $columns = [
             'descripcion_articulo' => 'nvarchar(100) NULL',
-            'porc_bonif' => 'decimal(18, 4) NULL',
+            'bonificacion' => 'decimal(6, 2) NULL',
             'precio_neto' => 'decimal(18, 4) NULL',
             'precio_bruto' => 'decimal(18, 4) NULL',
             'iva' => 'decimal(18, 2) NULL',
@@ -203,6 +219,18 @@ final class PedidosWebSchemaBootstrap
         foreach ($columns as $column => $definition) {
             $this->addColumnIfMissing($table, $column, $definition);
         }
+
+        if (
+            Schema::hasColumn($table, 'bonificacion')
+            && Schema::hasColumn($table, 'porc_bonif')
+        ) {
+            DB::statement(<<<'SQL'
+UPDATE d
+SET d.bonificacion = d.porc_bonif
+FROM dbo.pq_pedidosweb_pedidosdetalle AS d WITH (NOLOCK)
+WHERE d.bonificacion IS NULL AND d.porc_bonif IS NOT NULL
+SQL);
+        }
     }
 
     private function ensureArticulosColumns(): void
@@ -213,8 +241,8 @@ final class PedidosWebSchemaBootstrap
             return;
         }
 
-        $this->addColumnIfMissing($table, 'equivalencia_ventas', 'decimal(18, 4) NULL');
-        $this->addColumnIfMissing($table, 'stockeable', 'bit NOT NULL DEFAULT 1');
+        $this->addColumnIfMissing($table, 'equivalencia_ventas', 'decimal(18, 4) NOT NULL DEFAULT (1)');
+        $this->addColumnIfMissing($table, 'stockeable', 'bit NOT NULL DEFAULT (1)');
     }
 
     private function ensureCabeceraColumns(): void
