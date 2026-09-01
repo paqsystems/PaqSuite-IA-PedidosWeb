@@ -165,6 +165,31 @@ final class CargaAsistenteToolsTest extends TestCase
         $this->assertSame('denied', $result['actions'][0]['resultado'] ?? null);
     }
 
+    public function testSetCampoLibreRecortaLeyendaASesentaSinValidationError(): void
+    {
+        $tool = new CargaAsistenteCabeceraTool(new PedidosWebParameterService());
+        $largo = str_repeat('L', 61);
+
+        $result = $tool->setCampoLibre('leyenda1', $largo, $this->draftWithRenglones([], 'V'));
+
+        $this->assertSame('Campo actualizado.', $result['replyText']);
+        $this->assertSame('ok', $result['actions'][0]['resultado'] ?? null);
+        $this->assertNotSame('validationError', $result['actions'][0]['resultado'] ?? null);
+        $this->assertSame(str_repeat('L', 60), $result['actions'][0]['payload']['value'] ?? null);
+        $this->assertSame(60, mb_strlen((string) ($result['actions'][0]['payload']['value'] ?? '')));
+    }
+
+    public function testSetCampoLibreConservaLeyendaDeSesenta(): void
+    {
+        $tool = new CargaAsistenteCabeceraTool(new PedidosWebParameterService());
+        $exacto = str_repeat('K', 60);
+
+        $result = $tool->setCampoLibre('leyenda2', $exacto, $this->draftWithRenglones([], 'V'));
+
+        $this->assertSame('ok', $result['actions'][0]['resultado'] ?? null);
+        $this->assertSame($exacto, $result['actions'][0]['payload']['value'] ?? null);
+    }
+
     public function testChooseOptionAplicaEquivalenciaVentasAlAgregar(): void
     {
         config()->set('paqsuite_pedidosweb.defaults.CargaUnidadesVenta', 1);

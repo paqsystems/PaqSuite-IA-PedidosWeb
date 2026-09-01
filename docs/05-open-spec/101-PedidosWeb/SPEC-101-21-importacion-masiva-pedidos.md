@@ -4,7 +4,7 @@
 |-------|--------|
 | **SPEC madre** | [PedidosWeb_SPEC_MVP.md](PedidosWeb_SPEC_MVP.md) |
 | **Producto** | [importacion-masiva-pedidos.md](../../02-producto/PedidosWeb/importacion-masiva-pedidos.md) |
-| **Estado** | Finalizado (Parte I CC PQ #10/#11) |
+| **Estado** | En revisión |
 | **Prioridad épica** | Should (extensión post-MVP; reutiliza plantilla / motor GEN-07 y grabación 101-04/13) |
 | **Revisión A1** | [F-101-21-cierre-a1-importacion-masiva](../../04-tareas/101-PedidosWeb/F-101-21-cierre-a1-importacion-masiva.md) |
 | **Última actualización** | 2026-08-31 |

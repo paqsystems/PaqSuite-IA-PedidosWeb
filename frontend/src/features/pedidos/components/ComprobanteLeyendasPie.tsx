@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 import TextBox from 'devextreme-react/text-box';
 import { isDevExtremeUserChange } from '../../../shared/ui/devextremeUserChange';
 import type { ComprobanteCabecera } from '../types/comprobanteCabecera';
+import { leyendaMaxCaracteres, recortarLeyendaCabecera } from '../utils/recortarLeyendaCabecera';
 
 type ComprobanteLeyendasPieProps = {
   cabecera: ComprobanteCabecera;
@@ -30,16 +31,15 @@ export function ComprobanteLeyendasPie({ cabecera, readOnly, onChange }: Comprob
               label={t(field.labelKey)}
               value={cabecera[field.key] ?? ''}
               readOnly={readOnly}
+              maxLength={leyendaMaxCaracteres}
               onValueChanged={(event) => {
                 if (!isDevExtremeUserChange(event)) {
                   return;
                 }
 
-                const valor = String(event.value ?? '').trim();
-
                 onChange({
                   ...cabecera,
-                  [field.key]: valor !== '' ? valor : null,
+                  [field.key]: recortarLeyendaCabecera(event.value),
                 });
               }}
               inputAttr={{ 'data-testid': field.testId }}

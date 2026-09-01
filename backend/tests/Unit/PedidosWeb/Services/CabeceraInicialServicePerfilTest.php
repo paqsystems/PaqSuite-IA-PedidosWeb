@@ -57,4 +57,27 @@ final class CabeceraInicialServicePerfilTest extends TestCase
 
         $this->assertSame('', $parameterService->getCodPerfilPedidos());
     }
+
+    #[Test]
+    public function resolveLeyendaClienteRecortaASesenta(): void
+    {
+        config()->set('paqsuite_pedidosweb.readFromErp', false);
+        config()->set('paqsuite_pedidosweb.defaults.ClienteLeyenda1', 1);
+
+        $service = new CabeceraInicialService(
+            $this->createMock(PedidosWebVisibilityGuard::class),
+            new PedidosWebParameterService(),
+        );
+
+        $cliente = new \App\Models\PqPedidoswebCliente();
+        $cliente->leyenda_1 = str_repeat('c', 61);
+
+        $method = new ReflectionMethod(CabeceraInicialService::class, 'resolveLeyendaCliente');
+        $method->setAccessible(true);
+
+        $result = $method->invoke($service, $cliente, 1);
+
+        $this->assertSame(str_repeat('c', 60), $result);
+        $this->assertSame(60, mb_strlen((string) $result));
+    }
 }

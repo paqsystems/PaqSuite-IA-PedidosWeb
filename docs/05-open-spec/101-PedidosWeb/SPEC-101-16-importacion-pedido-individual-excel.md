@@ -4,7 +4,7 @@
 |-------|--------|
 | **SPEC madre** | [PedidosWeb_SPEC_MVP.md](PedidosWeb_SPEC_MVP.md) |
 | **Producto** | [Importación Pedido Individual desde Excel.md](../../02-producto/PedidosWeb/Importación%20Pedido%20Individual%20desde%20Excel.md) |
-| **Estado** | Finalizado (Parte I CC PQ #10/#11) |
+| **Estado** | En revisión |
 | **Prioridad épica** | Should (extensión post-MVP; motor GEN-07 ya implementado) |
 | **Revisión A1** | Apto con observaciones (2026-06-17) |
 | **Última actualización** | 2026-08-31 |

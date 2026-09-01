@@ -188,11 +188,11 @@ CREATE TABLE pq_pedidosweb_clientes (
     cod_login nvarchar(50) NULL,
     e_mail nvarchar(120) NULL,
     razon_soci nvarchar(120) NULL,
-    leyenda_1 nvarchar(255) NULL,
-    leyenda_2 nvarchar(255) NULL,
-    leyenda_3 nvarchar(255) NULL,
-    leyenda_4 nvarchar(255) NULL,
-    leyenda_5 nvarchar(255) NULL
+    leyenda_1 nvarchar(60) NULL,
+    leyenda_2 nvarchar(60) NULL,
+    leyenda_3 nvarchar(60) NULL,
+    leyenda_4 nvarchar(60) NULL,
+    leyenda_5 nvarchar(60) NULL
 )
 SQL);
 
@@ -315,11 +315,11 @@ CREATE TABLE pq_pedidosweb_pedidoscabecera (
     fecha_modif datetime NULL,
     total decimal(18,2) NULL,
     total_iva decimal(18,2) NULL,
-    leyenda_1 nvarchar(255) NULL,
-    leyenda_2 nvarchar(255) NULL,
-    leyenda_3 nvarchar(255) NULL,
-    leyenda_4 nvarchar(255) NULL,
-    leyenda_5 nvarchar(255) NULL,
+    leyenda_1 nvarchar(60) NULL,
+    leyenda_2 nvarchar(60) NULL,
+    leyenda_3 nvarchar(60) NULL,
+    leyenda_4 nvarchar(60) NULL,
+    leyenda_5 nvarchar(60) NULL,
     descuento decimal(18,4) NULL,
     bonif_1 decimal(18,4) NULL,
     bonif_2 decimal(18,4) NULL,

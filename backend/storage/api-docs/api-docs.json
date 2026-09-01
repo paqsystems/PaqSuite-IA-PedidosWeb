@@ -8447,22 +8447,27 @@
                     },
                     "leyenda_1": {
                         "type": "string",
+                        "maxLength": 60,
                         "nullable": true
                     },
                     "leyenda_2": {
                         "type": "string",
+                        "maxLength": 60,
                         "nullable": true
                     },
                     "leyenda_3": {
                         "type": "string",
+                        "maxLength": 60,
                         "nullable": true
                     },
                     "leyenda_4": {
                         "type": "string",
+                        "maxLength": 60,
                         "nullable": true
                     },
                     "leyenda_5": {
                         "type": "string",
+                        "maxLength": 60,
                         "nullable": true
                     }
                 },
@@ -8738,6 +8743,7 @@
                         "example": "CABA"
                     },
                     "habitual": {
+                        "description": "Dirección habitual. En BD: char(1) S/N; en API: boolean.",
                         "type": "boolean",
                         "example": true
                     }

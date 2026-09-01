@@ -11,6 +11,12 @@ use Tests\TestCase;
 
 final class PedidoServiceLeyendasSyncTest extends TestCase
 {
+    protected function setUp(): void
+    {
+        parent::setUp();
+        config()->set('paqsuite_pedidosweb.readFromErp', false);
+    }
+
     #[Test]
     public function syncClienteLeyendasActualizaSoloLeyendasDirtyYHabilitadas(): void
     {
@@ -80,6 +86,40 @@ final class PedidoServiceLeyendasSyncTest extends TestCase
 
         $this->assertNotNull($cliente);
         $this->assertSame('Valor original', $cliente->leyenda_1);
+    }
+
+    #[Test]
+    public function syncClienteLeyendasRecortaValorLargoASesenta(): void
+    {
+        if (! Schema::hasTable('pq_pedidosweb_clientes')) {
+            $this->markTestSkipped('Tabla pq_pedidosweb_clientes no disponible.');
+        }
+
+        config()->set('paqsuite_pedidosweb.defaults.ClienteLeyenda1', 1);
+
+        PqPedidoswebCliente::query()->where('cod_client', 'CLI-LEY-60')->delete();
+
+        PqPedidoswebCliente::query()->create([
+            'cod_client' => 'CLI-LEY-60',
+            'nombre' => 'Cliente recorte leyenda',
+            'leyenda_1' => 'Corta',
+        ]);
+
+        $this->invokeSyncClienteLeyendasSiDirty(
+            [
+                'cod_cliente' => 'CLI-LEY-60',
+                'leyenda_1' => str_repeat('d', 61),
+            ],
+            [
+                'leyenda_1_dirty' => true,
+            ],
+        );
+
+        $cliente = PqPedidoswebCliente::query()->where('cod_client', 'CLI-LEY-60')->first();
+
+        $this->assertNotNull($cliente);
+        $this->assertSame(str_repeat('d', 60), $cliente->leyenda_1);
+        $this->assertSame(60, mb_strlen((string) $cliente->leyenda_1));
     }
 
     /**

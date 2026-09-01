@@ -173,11 +173,19 @@ Ejecutar en el **cliente SQL** conectado a RDS (SSMS, Azure Data Studio, DBeaver
 ### Orden recomendado (nueva empresa)
 
 ```text
-1) backend/scripts/sql/create-pivot-tables.sql
-2) backend/scripts/sql/seed-pivot-catalog.sql
-3) backend/scripts/sql/create-excel-tables.sql
-4) backend/scripts/sql/seed-excel-catalog-pedidosweb.sql
+1) backend/scripts/sql/create-pq-pedidosweb-articulos.sql   # DDL canónico maestro artículos (si la tabla la crea PedidosWeb y no el ERP)
+2) backend/scripts/sql/create-pivot-tables.sql
+3) backend/scripts/sql/seed-pivot-catalog.sql
+4) backend/scripts/sql/create-excel-tables.sql
+5) backend/scripts/sql/seed-excel-catalog-pedidosweb.sql
+6) backend/scripts/sql/alter-pq-pedidosweb-carga-unidades-venta.sql   # si la tabla artículos/detalle ya existía sin columnas CC #10
+7) backend/scripts/sql/alter-pq-pedidosweb-stockeable.sql             # stockeable + param IncluyeArticulosNoStockeables
+8) backend/scripts/sql/alter-pq-pedidosweb-clientescontactos.sql      # contactos API (CC #11), si aplica
+9) backend/scripts/sql/alter-pq-pedidosweb-clientesde-habitual-char1.sql # habitual char(1) si quedó como bit
+10) backend/scripts/sql/alter-pq-pedidosweb-leyendas-60.sql              # CC #13 leyendas nvarchar(60) cabecera + clientes
 ```
+
+> **Artículos:** el CREATE canónico está en `create-pq-pedidosweb-articulos.sql` (`codigo varchar(15)`, `usa_esc char(1)`, `base`/`valor1`/`valor2` `varchar(15)`, `equivalencia_ventas` y `stockeable` NOT NULL default 1). **No** recrear con tipos incorrectos (`usa_esc bit`, `valor1 decimal`, `codigo nvarchar(50)`, etc.). Modelo de datos: [PedidosWeb_Modelo_Datos_Final.md](02-producto/PedidosWeb/PedidosWeb_Modelo_Datos_Final.md) §3.4.
 
 ### Chat Asistente IA (si faltan tablas)
 
@@ -192,8 +200,21 @@ SQL manual alternativo: `backend/scripts/sql/rename-pq-asistente-ia-tables-trans
 
 ### Artículos ERP (`pq_pedidosweb_articulos`)
 
-- `2026_07_03_100000_alter_pq_pedidosweb_articulos_descripcion_varchar60` — `descripcion` VARCHAR(60)
-- SQL manual: `backend/scripts/sql/alter-pq-pedidosweb-articulos-descripcion-varchar60.sql`
+**CREATE canónico (tabla nueva):**
+
+- SQL: `backend/scripts/sql/create-pq-pedidosweb-articulos.sql`
+- Tipos: `codigo varchar(15)` PK; `descripcion varchar(60)`; `bonificacion decimal(6,2)`; `usa_esc char(1)`; `base`/`valor1`/`valor2` `varchar(15)`; `porc_iva numeric(6,2)`; `equivalencia_ventas decimal(18,4) NOT NULL DEFAULT 1`; `stockeable bit NOT NULL DEFAULT 1`
+
+**ALTER en tablas existentes:**
+
+| Cambio | Migración Laravel | SQL manual |
+|--------|-------------------|------------|
+| `descripcion` VARCHAR(60) | `2026_07_03_100000_alter_pq_pedidosweb_articulos_descripcion_varchar60` | `alter-pq-pedidosweb-articulos-descripcion-varchar60.sql` |
+| `equivalencia_ventas` + `cantidad_venta` (detalle) | `2026_07_30_100000_add_carga_unidades_venta_columns` | `alter-pq-pedidosweb-carga-unidades-venta.sql` |
+| `stockeable` + param `IncluyeArticulosNoStockeables` | `2026_08_28_100000_add_stockeable_to_articulos` | `alter-pq-pedidosweb-stockeable.sql` |
+| `leyenda_1..5` nvarchar(60) cabecera + clientes (CC #13) | `2026_09_01_100000_alter_pq_pedidosweb_leyendas_nvarchar60` | `alter-pq-pedidosweb-leyendas-60.sql` |
+
+Documentación de modelo: [PedidosWeb_Modelo_Datos_Final.md](02-producto/PedidosWeb/PedidosWeb_Modelo_Datos_Final.md) §3.4 · OpenSpec [SPEC-101-02-modelos.md](05-open-spec/101-PedidosWeb/SPEC-101-02-modelos.md).
 
 ### Tablas que crea cada bloque
 
@@ -252,6 +273,7 @@ Activar funcionalidad en el backend (Forge → Environment):
 PIVOTS_ENABLED=true
 PIVOT_LAYOUTS_ENABLED=true
 EXCEL_IMPORT_ENABLED=true
+ADMIN_SECURITY_UI_ENABLED=true   # opcional: ABM Roles/Permisos
 ```
 
 Redeploy backend (y frontend si cambian variables `VITE_*`).
@@ -327,6 +349,10 @@ Verificar esquema de `pq_pivots_config` (debe tener PK en `pivot_id`). Usar migr
 
 | Recurso | Ruta |
 |---------|------|
+| DDL artículos (canónico) | `backend/scripts/sql/create-pq-pedidosweb-articulos.sql` |
+| ALTER artículos CC #10/#12 | `alter-pq-pedidosweb-carga-unidades-venta.sql`, `alter-pq-pedidosweb-stockeable.sql` |
+| ALTER leyendas CC #13 | `alter-pq-pedidosweb-leyendas-60.sql` |
+| Modelo de datos PedidosWeb | `docs/02-producto/PedidosWeb/PedidosWeb_Modelo_Datos_Final.md` |
 | DDL pivots | `backend/scripts/sql/create-pivot-tables.sql` |
 | Seed pivots | `backend/scripts/sql/seed-pivot-catalog.sql` |
 | DDL Excel | `backend/scripts/sql/create-excel-tables.sql` |
@@ -336,4 +362,4 @@ Verificar esquema de `pq_pivots_config` (debe tener PK en `pivot_id`). Usar migr
 
 ---
 
-*Última actualización: 2026-06-23 — entornos Forge + RDS SQL Server + frontend Vercel.*
+*Última actualización: 2026-09-01 — CC PQ #13 leyendas `nvarchar(60)` (`alter-pq-pedidosweb-leyendas-60.sql`).*

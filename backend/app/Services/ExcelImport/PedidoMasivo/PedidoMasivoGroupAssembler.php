@@ -5,6 +5,7 @@ namespace App\Services\ExcelImport\PedidoMasivo;
 use App\Models\User;
 use App\Services\ExcelImport\PedidoExcel\PedidoExcelImportCabeceraSignature;
 use App\Services\PedidosWeb\CabeceraInicialService;
+use App\Support\LeyendaCabeceraLimits;
 use Illuminate\Support\Str;
 
 final class PedidoMasivoGroupAssembler
@@ -116,11 +117,11 @@ final class PedidoMasivoGroupAssembler
             'cod_perfil' => $this->isFilled($row['cod_perfil'] ?? null)
                 ? (string) $row['cod_perfil']
                 : (string) ($cabeceraBase['cod_perfil'] ?? ''),
-            'leyenda_1' => $row['leyenda1'] ?? $cabeceraBase['leyenda_1'] ?? null,
-            'leyenda_2' => $row['leyenda2'] ?? $cabeceraBase['leyenda_2'] ?? null,
-            'leyenda_3' => $row['leyenda3'] ?? $cabeceraBase['leyenda_3'] ?? null,
-            'leyenda_4' => $row['leyenda4'] ?? $cabeceraBase['leyenda_4'] ?? null,
-            'leyenda_5' => $row['leyenda5'] ?? $cabeceraBase['leyenda_5'] ?? null,
+            'leyenda_1' => LeyendaCabeceraLimits::recortarLeyendaCabecera($row['leyenda1'] ?? $cabeceraBase['leyenda_1'] ?? null),
+            'leyenda_2' => LeyendaCabeceraLimits::recortarLeyendaCabecera($row['leyenda2'] ?? $cabeceraBase['leyenda_2'] ?? null),
+            'leyenda_3' => LeyendaCabeceraLimits::recortarLeyendaCabecera($row['leyenda3'] ?? $cabeceraBase['leyenda_3'] ?? null),
+            'leyenda_4' => LeyendaCabeceraLimits::recortarLeyendaCabecera($row['leyenda4'] ?? $cabeceraBase['leyenda_4'] ?? null),
+            'leyenda_5' => LeyendaCabeceraLimits::recortarLeyendaCabecera($row['leyenda5'] ?? $cabeceraBase['leyenda_5'] ?? null),
         ];
     }
 

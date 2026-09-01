@@ -6,7 +6,7 @@
 | **SPEC origen** | [SPEC-101-21-importacion-masiva-pedidos](../../05-open-spec/101-PedidosWeb/SPEC-101-21-importacion-masiva-pedidos.md) |
 | **Épica** | 101 — PedidosWeb / Importación masiva |
 | **Prioridad** | **Should** |
-| **Estado** | Finalizado (Parte I CC PQ #10/#11) |
+| **Estado** | En Control Calidad |
 | **Última actualización** | 2026-08-31 |
 | **B1** | **Cerrado** (2026-07-19) |
 | **TR** | [TR-SPEC-101-21-proceso-excel-pedido-masivo](../../04-tareas/101-PedidosWeb/TR-SPEC-101-21-proceso-excel-pedido-masivo.md) |

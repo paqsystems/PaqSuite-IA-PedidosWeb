@@ -213,6 +213,41 @@ final class PedidosWebEndpointsHappyPathTest extends TestCase
     }
 
     #[Test]
+    public function comprobanteGrabarRecortaLeyendaLargaASesenta(): void
+    {
+        $leyendaLarga = str_repeat('g', 61);
+        $payload = [
+            'accionGrabacion' => 'pedido',
+            'cabecera' => [
+                'cod_cliente' => 'CLIMVP001',
+                'leyenda_1' => $leyendaLarga,
+            ],
+            'renglones' => [
+                [
+                    'cod_articulo' => 'ART-HP-001',
+                    'descripcion_articulo' => 'Articulo feature test',
+                    'cantidad' => 1,
+                    'precio' => 100,
+                    'porc_bonif' => 0,
+                    'porc_iva' => 21,
+                ],
+            ],
+        ];
+
+        $response = $this->postJson('/api/v1/comprobantes/grabar', $payload, $this->authHeadersFor(self::SUPERVISOR));
+        $response->assertOk()->assertJsonPath('error', 0);
+
+        $codPedido = (string) $response->json('resultado.cod_pedido');
+        $cabecera = \Illuminate\Support\Facades\DB::table('pq_pedidosweb_pedidoscabecera')
+            ->where('cod_pedido', $codPedido)
+            ->first();
+
+        $this->assertNotNull($cabecera);
+        $this->assertSame(str_repeat('g', 60), $cabecera->leyenda_1);
+        $this->assertSame(60, mb_strlen((string) $cabecera->leyenda_1));
+    }
+
+    #[Test]
     public function pedidosStoreReturns200(): void
     {
         $response = $this->postJson('/api/v1/pedidos', $this->sampleGrabacionPayload(), $this->authHeadersFor(self::SUPERVISOR));

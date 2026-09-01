@@ -7,7 +7,7 @@
 | **Épica** | 101 — PedidosWeb / Asistente IA en carga |
 | **Prioridad** | **Should** |
 | **Dependencias** | [TR-SPEC-101-18](TR-SPEC-101-18-asistente-carga-ia-shell.md); TR-SPEC-101-04; TR-SPEC-101-10; HU-101-004…010 |
-| **Estado** | Finalizado (Parte I CC PQ #10/#11) |
+| **Estado** | En Control Calidad |
 | **Última actualización** | 2026-08-31 |
 
 **Normas:** [`../_NORMAS-TRANSVERSALES-TR.md`](../_NORMAS-TRANSVERSALES-TR.md)  

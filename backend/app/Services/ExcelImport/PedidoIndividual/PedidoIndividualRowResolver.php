@@ -11,6 +11,7 @@ use App\Services\PedidosWeb\CabeceraInicialService;
 use App\Services\PedidosWeb\CargaUnidadesVentaConverter;
 use App\Services\PedidosWeb\PedidosWebParameterService;
 use App\Services\Visibility\PedidosWebVisibilityGuard;
+use App\Support\LeyendaCabeceraLimits;
 
 final class PedidoIndividualRowResolver
 {
@@ -215,11 +216,11 @@ final class PedidoIndividualRowResolver
             'fecha_entrega' => $row['fecha_entrega'] ?? $cabecera['fecha_entrega'] ?? null,
             'observaciones' => (string) ($row['observaciones'] ?? $cabecera['observaciones'] ?? ''),
             'cod_perfil' => (string) ($row['cod_perfil'] ?? $cabecera['cod_perfil'] ?? $this->parameterService->getCodPerfilPedidos()),
-            'leyenda1' => $row['leyenda1'] ?? $cabecera['leyenda_1'] ?? null,
-            'leyenda2' => $row['leyenda2'] ?? $cabecera['leyenda_2'] ?? null,
-            'leyenda3' => $row['leyenda3'] ?? $cabecera['leyenda_3'] ?? null,
-            'leyenda4' => $row['leyenda4'] ?? $cabecera['leyenda_4'] ?? null,
-            'leyenda5' => $row['leyenda5'] ?? $cabecera['leyenda_5'] ?? null,
+            'leyenda1' => LeyendaCabeceraLimits::recortarLeyendaCabecera($row['leyenda1'] ?? $cabecera['leyenda_1'] ?? null),
+            'leyenda2' => LeyendaCabeceraLimits::recortarLeyendaCabecera($row['leyenda2'] ?? $cabecera['leyenda_2'] ?? null),
+            'leyenda3' => LeyendaCabeceraLimits::recortarLeyendaCabecera($row['leyenda3'] ?? $cabecera['leyenda_3'] ?? null),
+            'leyenda4' => LeyendaCabeceraLimits::recortarLeyendaCabecera($row['leyenda4'] ?? $cabecera['leyenda_4'] ?? null),
+            'leyenda5' => LeyendaCabeceraLimits::recortarLeyendaCabecera($row['leyenda5'] ?? $cabecera['leyenda_5'] ?? null),
         ];
     }
 
