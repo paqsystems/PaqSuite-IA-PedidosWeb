@@ -101,6 +101,8 @@ final class OpenApiDocumentationTest extends TestCase
         $this->assertArrayHasKey('cod_cliente', $cabeceraSchema);
         $this->assertArrayHasKey('lista_precios', $cabeceraSchema);
         $this->assertArrayHasKey('bonif_1', $cabeceraSchema);
+        $this->assertSame(60, $cabeceraSchema['leyenda_1']['maxLength'] ?? null);
+        $this->assertSame(60, $cabeceraSchema['leyenda_5']['maxLength'] ?? null);
 
         $renglonSchema = $spec['components']['schemas']['ComprobanteRenglonRequest']['properties'] ?? null;
         $this->assertIsArray($renglonSchema);

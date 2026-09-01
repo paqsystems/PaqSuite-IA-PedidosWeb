@@ -48,7 +48,7 @@ Campos existentes principales:
 | fecha_modif | datetime | Última modificación |
 | total | decimal | Total del comprobante |
 | total_iva | decimal | Total de IVA |
-| leyenda_1..5 | string | Leyendas comerciales |
+| leyenda_1..5 | nvarchar(60) | Leyendas comerciales (máximo 60 caracteres Unicode) |
 | descuento | decimal | Bonificación neta equivalente |
 | bonif_1 | decimal | Bonificación cabecera 1 |
 | bonif_2 | decimal | Bonificación cabecera 2 |
@@ -157,7 +157,7 @@ Campos:
 | cod_login | Login asociado si el usuario es cliente |
 | e_mail | Mail cliente |
 | razon_soci | Razón social (consulta deuda y mails) |
-|     leyenda_1..5 | Leyendas por defecto |
+|     leyenda_1..5 | Leyendas por defecto (`nvarchar(60)`) |
 
 Relaciones:
 

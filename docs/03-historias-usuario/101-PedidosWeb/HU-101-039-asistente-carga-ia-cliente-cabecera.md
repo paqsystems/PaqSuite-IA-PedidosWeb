@@ -6,7 +6,7 @@
 | **SPEC origen** | [SPEC-101-19](../../05-open-spec/101-PedidosWeb/SPEC-101-19-asistente-carga-ia-mutaciones.md) |
 | **Épica** | 101 — PedidosWeb / Asistente IA en carga |
 | **Prioridad** | **Should** |
-| **Estado** | **Especificado** |
+| **Estado** | En Control Calidad |
 | **B1** | Enriquecida (2026-07-13) |
 | **TR** | [TR-SPEC-101-19](../../04-tareas/101-PedidosWeb/TR-SPEC-101-19-asistente-carga-ia-mutaciones.md) |
 | **Dependencias** | HU-101-037; HU-101-004; HU-101-005; SPEC-101-10 |

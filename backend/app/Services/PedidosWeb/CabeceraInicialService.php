@@ -11,6 +11,7 @@ use App\Models\PqPedidoswebPerfil;
 use App\Models\PqPedidoswebTransporte;
 use App\Models\User;
 use App\Services\Visibility\PedidosWebVisibilityGuard;
+use App\Support\LeyendaCabeceraLimits;
 use Illuminate\Support\Facades\Schema;
 
 final class CabeceraInicialService
@@ -104,11 +105,11 @@ final class CabeceraInicialService
             'descuento' => (float) ($pedido->descuento ?? 0),
             'observaciones' => $pedido->observaciones,
             'cod_perfil' => $pedido->cod_perfil,
-            'leyenda_1' => $pedido->leyenda_1,
-            'leyenda_2' => $pedido->leyenda_2,
-            'leyenda_3' => $pedido->leyenda_3,
-            'leyenda_4' => $pedido->leyenda_4,
-            'leyenda_5' => $pedido->leyenda_5,
+            'leyenda_1' => LeyendaCabeceraLimits::recortarLeyendaCabecera($pedido->leyenda_1),
+            'leyenda_2' => LeyendaCabeceraLimits::recortarLeyendaCabecera($pedido->leyenda_2),
+            'leyenda_3' => LeyendaCabeceraLimits::recortarLeyendaCabecera($pedido->leyenda_3),
+            'leyenda_4' => LeyendaCabeceraLimits::recortarLeyendaCabecera($pedido->leyenda_4),
+            'leyenda_5' => LeyendaCabeceraLimits::recortarLeyendaCabecera($pedido->leyenda_5),
             'fecha_entrega' => optional($pedido->fecha_entrega)?->toIso8601String(),
         ];
     }
@@ -221,7 +222,7 @@ final class CabeceraInicialService
                 'id_de' => (int) $row->id_de,
                 'direccion' => trim((string) $row->direccion),
                 'localidad' => (string) ($row->localidad ?? ''),
-                'habitual' => (bool) $row->habitual,
+                'habitual' => PqPedidoswebClienteDireccionEntrega::isHabitualFlag($row->habitual),
             ])
             ->values()
             ->all();
@@ -271,9 +272,9 @@ final class CabeceraInicialService
         }
 
         $attribute = "leyenda_{$numero}";
-        $valor = trim((string) ($cliente->{$attribute} ?? ''));
+        $valor = LeyendaCabeceraLimits::recortarLeyendaCabecera($cliente->{$attribute} ?? null);
 
-        return $valor !== '' ? $valor : null;
+        return $valor;
     }
 
     /**
@@ -312,7 +313,7 @@ final class CabeceraInicialService
     private function resolveDireccionHabitual(PqPedidoswebCliente $cliente): array
     {
         $direccion = $cliente->direccionesEntrega
-            ->sortByDesc(static fn ($row) => (int) $row->habitual)
+            ->sortByDesc(static fn ($row) => PqPedidoswebClienteDireccionEntrega::isHabitualFlag($row->habitual) ? 1 : 0)
             ->first();
 
         if ($direccion === null) {

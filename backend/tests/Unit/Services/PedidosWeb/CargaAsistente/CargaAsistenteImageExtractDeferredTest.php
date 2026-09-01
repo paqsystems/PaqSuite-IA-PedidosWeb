@@ -69,4 +69,40 @@ final class CargaAsistenteImageExtractDeferredTest extends TestCase
         );
         $this->assertStringContainsString('1 renglón(es)', $result['replyText']);
     }
+
+    public function testBuildCabeceraStepsRecortaLeyendaDeImagen(): void
+    {
+        $tool = new CargaAsistenteImageExtractTool(
+            $this->createMock(ChatAssistantLlmGateway::class),
+            app(CargaAsistenteArticuloTool::class),
+            app(CargaAsistenteClienteTool::class),
+            app(CargaAsistenteCabeceraTool::class),
+            app(PedidosWebParameterService::class),
+        );
+
+        $method = new \ReflectionMethod(CargaAsistenteImageExtractTool::class, 'buildCabeceraStepsFromParsed');
+        $method->setAccessible(true);
+
+        $steps = $method->invoke($tool, [
+            'leyenda1' => str_repeat('I', 61),
+            'leyenda2' => str_repeat('J', 60),
+        ]);
+
+        $leyenda1 = null;
+        $leyenda2 = null;
+        foreach ($steps as $step) {
+            if (($step['op'] ?? '') !== 'setCampoLibre') {
+                continue;
+            }
+            if (($step['field'] ?? '') === 'leyenda1') {
+                $leyenda1 = $step['value'] ?? null;
+            }
+            if (($step['field'] ?? '') === 'leyenda2') {
+                $leyenda2 = $step['value'] ?? null;
+            }
+        }
+
+        $this->assertSame(str_repeat('I', 60), $leyenda1);
+        $this->assertSame(str_repeat('J', 60), $leyenda2);
+    }
 }
