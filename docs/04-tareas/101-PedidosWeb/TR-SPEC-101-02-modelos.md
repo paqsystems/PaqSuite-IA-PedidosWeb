@@ -7,7 +7,7 @@
 | **Épica** | 101-PedidosWeb |
 | **Prioridad** | Must |
 | **Dependencias** | Stub tenant operativo ([SPEC-101-01](../../05-open-spec/101-PedidosWeb/SPEC-101-01-backend-base.md) — etapa posterior AMB-C07); [PedidosWeb_Modelo_Datos_Final.md](../../02-producto/PedidosWeb/PedidosWeb_Modelo_Datos_Final.md) |
-| **Estado** | Finalizado (Parte I CC PQ #10/#11) |
+| **Estado** | En Control Calidad |
 | **Última actualización** | 2026-08-31 |
 
 **Origen:** [SPEC-101-02](../../05-open-spec/101-PedidosWeb/SPEC-101-02-modelos.md), [PedidosWeb_SPEC_MVP.md](../../05-open-spec/101-PedidosWeb/PedidosWeb_SPEC_MVP.md) §7  
@@ -102,6 +102,7 @@ Feature: Modelos Eloquent PedidosWeb
 6. **RN-06**: Modelos de tablas nuevas MVP pueden usar `$timestamps` si el DDL lo define (tratativas, logs).
 7. **RN-07 (CC PQ #12):** `pq_pedidosweb_articulos.stockeable` — `bit NOT NULL DEFAULT 1`; modelo `Articulo` expone propiedad `stockeable` (cast boolean); consumido por stock/consultas y API artículos (TR-101-07, TR-101-10).
 8. **RN-08 (CC PQ #10):** `pq_pedidosweb_articulos.equivalencia_ventas` decimal NOT NULL default 1 (o nullable + default runtime 1); `pq_pedidosweb_pedidosdetalle.cantidad_venta` decimal; backfill = `cantidad`; casts en modelos `Articulo` y `PedidoDetalle`.
+9. **RN-09:** `pq_pedidosweb_pedidosdetalle.bonificacion` **decimal(6,2)** (canónico ERP). Payload portal/API mantiene alias `porc_bonif` / `porcBonif`; `PedidosWebSchemaBootstrap::mapDetalleAttributes` persiste en la columna disponible.
 9. **RN-09 (CC PQ #11):** Tabla `pq_pedidosweb_clientescontactos` (`id` IDENTITY PK, `cod_client`, `cod_contacto`, `nombre`, `telefono`, `mail`, UNIQUE compuesta); relación `Cliente hasMany contactos`; lectura API vía misma vía Eloquent que GET `/clientes` (excepción SP documentada, alineada TR-GEN-02).
 
 ---
@@ -115,9 +116,9 @@ Feature: Modelos Eloquent PedidosWeb
 | `PedidoCabecera` | `pq_pedidosweb_pedidoscabecera` | `cod_pedido` |
 | `PedidoDetalle` | `pq_pedidosweb_pedidosdetalle` | compuesta `cod_pedido`, `renglon` |
 | `Cliente` | `pq_pedidosweb_clientes` | `cod_client` |
-| `ClienteDireccionEntrega` | `pq_pedidosweb_clientesde` | compuesta |
+| `ClienteDireccionEntrega` | `pq_pedidosweb_clientesde` | PK compuesta (`cod_client`, `id_de`); **`habitual` `char(1)`** (`S`/`N`; API boolean) |
 | `Vendedor` | `pq_pedidosweb_vendedores` | `cod_vended` |
-| `Articulo` | `pq_pedidosweb_articulos` | `codigo`; columna **`stockeable`** bit NOT NULL DEFAULT 1 |
+| `Articulo` | `pq_pedidosweb_articulos` | PK `codigo varchar(15)`; `usa_esc char(1)`; `base`/`valor1`/`valor2` `varchar(15)`; **`stockeable`** bit NOT NULL DEFAULT 1; **`equivalencia_ventas`** decimal(18,4) NOT NULL DEFAULT 1 |
 | `EscalasCabecera` | `pq_pedidosweb_escalas_cabecera` | `cod_escala` |
 | `EscalasDetalle` | `pq_pedidosweb_escalas_detalle` | compuesta `cod_escala`, `cod_valor` |
 | `Stock` | `pq_pedidosweb_stock` | `cod_articulo` |

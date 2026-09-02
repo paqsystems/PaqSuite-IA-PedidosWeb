@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Services\ChatAssistant\Llm\ChatAssistantLlmGateway;
 use App\Services\PedidosWeb\CargaUnidadesVentaConverter;
 use App\Services\PedidosWeb\PedidosWebParameterService;
+use App\Support\LeyendaCabeceraLimits;
 
 final class CargaAsistenteImageExtractTool
 {
@@ -606,8 +607,8 @@ PROMPT;
             if (! array_key_exists($key, $parsed) || $parsed[$key] === null) {
                 continue;
             }
-            $value = trim((string) $parsed[$key]);
-            if ($value === '') {
+            $value = LeyendaCabeceraLimits::recortarLeyendaCabecera($parsed[$key]);
+            if ($value === null) {
                 continue;
             }
             $steps[] = ['op' => 'setCampoLibre', 'field' => $key, 'value' => $value];

@@ -46,6 +46,7 @@ Este archivo **no sustituye** SPEC, HU ni TR: es la **entrada** del circuito de 
 
 | # | Fecha | Estado | Resumen |
 |---|-------|--------|---------|
+| 13 | 01/09/2026 | Especificado (Parte G/D/E/F 01/09/2026) | Leyendas 1–5 de cabecera limitadas a 60 caracteres (modelo, carga, Excel, asistente IA) |
 | 12 | 28/08/2026 | Finalizado (Parte I 30/08/2026; re-unificación CC #10/#11 31/08/2026) | Saldo deuda en carga; unidades/precio neto modal; no stockeables; sync leyendas; colores deuda; rango fechas historial |
 | 11 | 18/08/2026 | Finalizado (Parte I 31/08/2026) | Contactos de cliente (`pq_pedidosweb_clientescontactos`) en API `GET /clientes` (listado + unitario); sin UI PedidosWeb |
 | 10 | 30/07/2026 | Finalizado (Parte I 31/08/2026) | `CargaUnidadesVenta` — cantidad dual stock/venta; Excel, mail, asistente; `cantidad_venta` en Detalle de Pedidos |
@@ -58,6 +59,57 @@ Este archivo **no sustituye** SPEC, HU ni TR: es la **entrada** del circuito de 
 | 1 | 04/06/2026 | Finalizado (Parte I) | 10 familias HU — CC PQ; updates unificados 09/06/2026 |
 | 2 | 05/06/2026 | Finalizado (Parte I) | GEN-03 layouts/export Excel formateado — CC PQ #2; unificado 09/06/2026 |
 | 3 | 09/06/2026 | Finalizado (Parte I) | Cartel cargando, layouts totales, performance carga, parámetros — unificado 09/06/2026 |
+
+---
+
+## Control de Calidad #13
+
+### Referencia del control
+
+| Campo | Valor |
+|-------|--------|
+| **Fecha** | 01/09/2026 |
+| **Responsable** | Pablo Quarracino (PQ) |
+| **Estado** | Especificado |
+
+### Hallazgos
+
+Limitar tamaño de las 5 leyendas en los pedidos
+
+### Errores encontrados - Mejoras solicitadas
+
+#### Leyendas de Pedidos - Tamaño limitado
+
+- Las leyendas 1 a 5 de la cabecera de pedidos, debe estar limitado a 60 caracteres.
+- corregir  : a) modelo de datos, b) Carga de Pedidos, c) Importación desde excel (individual y masiva), d) Carga desde asistente IA. 
+- Relevar si no hay otro item a corregir
+
+*Procesado* → [SPEC-101-02](../05-open-spec/101-PedidosWeb/SPEC-101-02-modelos.md) · [SPEC-101-04](../05-open-spec/101-PedidosWeb/SPEC-101-04-services-pedidos.md) · [SPEC-101-10](../05-open-spec/101-PedidosWeb/SPEC-101-10-pantalla-carga.md) · [SPEC-101-16](../05-open-spec/101-PedidosWeb/SPEC-101-16-importacion-pedido-individual-excel.md) · [SPEC-101-21](../05-open-spec/101-PedidosWeb/SPEC-101-21-importacion-masiva-pedidos.md) · [SPEC-101-19](../05-open-spec/101-PedidosWeb/SPEC-101-19-asistente-carga-ia-mutaciones.md) · [HU-101-005](../03-historias-usuario/101-PedidosWeb/HU-101-005-inicializacion-cabecera.md) · [HU-101-009](../03-historias-usuario/101-PedidosWeb/HU-101-009-grabar-pedido.md) · [HU-101-010](../03-historias-usuario/101-PedidosWeb/HU-101-010-grabar-presupuesto.md) · [HU-101-029](../03-historias-usuario/101-PedidosWeb/HU-101-029-proceso-excel-pedido-individual.md) · [HU-101-043](../03-historias-usuario/101-PedidosWeb/HU-101-043-proceso-excel-pedido-masivo.md) · [HU-101-039](../03-historias-usuario/101-PedidosWeb/HU-101-039-asistente-carga-ia-cliente-cabecera.md) · [HU-101-040](../03-historias-usuario/101-PedidosWeb/HU-101-040-asistente-carga-ia-articulos-grabar.md) — Parte G 01/09/2026 · **Parte F** [F-CC-PQ-13-cierre-formal](../04-tareas/101-PedidosWeb/F-CC-PQ-13-cierre-formal.md) 01/09/2026 · **tope:** 60 caracteres Unicode · **exceso:** recortar (no rechazar) en API, Excel e IA · **DDL:** `pedidoscabecera` + `clientes.leyenda_1..5` `nvarchar(60)` · **UI:** `maxLength` DevExtreme (web + native)
+
+**Relevamiento (otros puntos):**
+
+| Superficie | ¿Corregir? | Motivo |
+|------------|------------|--------|
+| Maestro `pq_pedidosweb_clientes.leyenda_1..5` | **Sí** | Inicializan cabecera (`ClienteLeyendaN`) y se sincronizan al grabar (CC #12) |
+| Validación grabar pedido/presupuesto (API) | **Sí** | Recortar a 60; OpenAPI documenta longitud persistida |
+| Mobile carga | **Sí** (mismo componente) | `ComprobanteLeyendasPie` compartido |
+| Extracto imagen asistente (K) | **Sí** | Hidratar recortado a 60 |
+| Consultas (columnas leyenda) | No | Solo lectura; tras ALTER no hay valores > 60 |
+| Mail | No | No incluye leyendas |
+| Copia / conversión | No extra | Copian valor ya acotado |
+| Observaciones | No | Fuera del pedido del CC |
+
+Alineación ERP: `Parametro.Leyenda` es `varchar(60)`.
+
+### Verificación ciclo OpenSpec (01/09/2026)
+
+| Parte | Documento | Veredicto |
+|-------|-----------|-----------|
+| G | Updates en `docs/.../updates/` (SPEC/HU/TR) | Hecho 01/09/2026 |
+| D | Implementación código | Hecho 01/09/2026 |
+| E | Tests | Hecho 01/09/2026 — [E-CC-PQ-13-tests.md](../04-tareas/101-PedidosWeb/E-CC-PQ-13-tests.md) |
+| F | Cierre formal | Hecho 01/09/2026 — [F-CC-PQ-13-cierre-formal.md](../04-tareas/101-PedidosWeb/F-CC-PQ-13-cierre-formal.md) |
+| I | Unificación | Pendiente |
 
 ---
 

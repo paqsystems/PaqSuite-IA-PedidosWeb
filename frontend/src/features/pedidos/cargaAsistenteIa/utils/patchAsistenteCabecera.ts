@@ -1,5 +1,6 @@
 import type { ComprobanteCabecera } from '../../types/comprobanteCabecera';
 import { calcularBonificacionNeta } from '../../utils/renglonesCarga';
+import { recortarLeyendaCabecera } from '../../utils/recortarLeyendaCabecera';
 
 function coerceFieldValue(field: string, value: unknown): unknown {
   if (
@@ -24,6 +25,16 @@ function coerceFieldValue(field: string, value: unknown): unknown {
   }
 
   if (
+    field === 'leyenda1' ||
+    field === 'leyenda2' ||
+    field === 'leyenda3' ||
+    field === 'leyenda4' ||
+    field === 'leyenda5'
+  ) {
+    return recortarLeyendaCabecera(value);
+  }
+
+  if (
     field === 'expreso' ||
     field === 'expresoDire' ||
     field === 'codTranspor' ||
@@ -31,12 +42,7 @@ function coerceFieldValue(field: string, value: unknown): unknown {
     field === 'listaPreciosDescripcion' ||
     field === 'direccionEntrega' ||
     field === 'fechaEntrega' ||
-    field === 'observaciones' ||
-    field === 'leyenda1' ||
-    field === 'leyenda2' ||
-    field === 'leyenda3' ||
-    field === 'leyenda4' ||
-    field === 'leyenda5'
+    field === 'observaciones'
   ) {
     if (value === null || value === undefined) {
       return field === 'direccionEntrega' ||

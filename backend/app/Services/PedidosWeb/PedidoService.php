@@ -11,6 +11,7 @@ use App\Models\PqPedidoswebCliente;
 use App\Models\PqPedidoswebPedidoCabecera;
 use App\Models\PqPedidoswebPedidoDetalle;
 use App\Models\User;
+use App\Support\LeyendaCabeceraLimits;
 use App\Support\SqlServerIsolation;
 use App\Services\Auth\CommercialProfileResolver;
 use App\Services\Visibility\PedidosWebVisibilityGuard;
@@ -43,7 +44,7 @@ final class PedidoService
         $this->ensureClientSchema();
 
         $accionGrabacion = (string) ($payload['accionGrabacion'] ?? '');
-        $cabeceraPayload = (array) ($payload['cabecera'] ?? []);
+        $cabeceraPayload = LeyendaCabeceraLimits::recortarLeyendasEnMapa((array) ($payload['cabecera'] ?? []));
         $renglonesPayload = (array) ($payload['renglones'] ?? []);
 
         if (! in_array($accionGrabacion, ['pedido', 'presupuesto'], true)) {
@@ -780,7 +781,7 @@ final class PedidoService
             }
 
             $field = "leyenda_{$numero}";
-            $updates[$field] = $cabeceraPayload[$field] ?? null;
+            $updates[$field] = LeyendaCabeceraLimits::recortarLeyendaCabecera($cabeceraPayload[$field] ?? null);
         }
 
         if ($updates === []) {

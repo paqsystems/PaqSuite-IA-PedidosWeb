@@ -387,7 +387,7 @@ final class PedidosWebDevDataSeeder
             [
                 'cod_articulo' => $codArticulo,
                 'cantidad' => $cantidad,
-                'porc_bonif' => 0,
+                'bonificacion' => 0,
                 'precio' => $precio,
                 'precio_neto' => $precio,
                 'precio_bruto' => $precio,

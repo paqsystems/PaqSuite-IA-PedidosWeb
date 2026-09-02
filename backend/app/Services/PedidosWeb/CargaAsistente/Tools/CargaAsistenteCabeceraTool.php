@@ -8,6 +8,7 @@ use App\Models\PqPedidoswebListaPrecios;
 use App\Models\PqPedidoswebPerfil;
 use App\Models\PqPedidoswebTransporte;
 use App\Services\PedidosWeb\PedidosWebParameterService;
+use App\Support\LeyendaCabeceraLimits;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Schema;
@@ -77,6 +78,10 @@ final class CargaAsistenteCabeceraTool
                 return $this->denied();
             }
             $value = trim((string) $value);
+        }
+
+        if (preg_match('/^leyenda[1-5]$/', $field) === 1) {
+            $value = LeyendaCabeceraLimits::recortarLeyendaCabecera($value);
         }
 
         $isCabeceraField = in_array($field, self::CABECERA_FIELDS, true);

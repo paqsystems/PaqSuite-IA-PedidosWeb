@@ -707,11 +707,11 @@ namespace App\OpenApi;
  *     @OA\Property(property="expreso", type="string", nullable=true, example="Andreani"),
  *     @OA\Property(property="expreso_dire", type="string", nullable=true, example="Av. Siempre Viva 742"),
  *     @OA\Property(property="fecha_entrega", type="string", nullable=true, example="2026-08-10"),
- *     @OA\Property(property="leyenda_1", type="string", nullable=true),
- *     @OA\Property(property="leyenda_2", type="string", nullable=true),
- *     @OA\Property(property="leyenda_3", type="string", nullable=true),
- *     @OA\Property(property="leyenda_4", type="string", nullable=true),
- *     @OA\Property(property="leyenda_5", type="string", nullable=true)
+ *     @OA\Property(property="leyenda_1", type="string", nullable=true, maxLength=60),
+ *     @OA\Property(property="leyenda_2", type="string", nullable=true, maxLength=60),
+ *     @OA\Property(property="leyenda_3", type="string", nullable=true, maxLength=60),
+ *     @OA\Property(property="leyenda_4", type="string", nullable=true, maxLength=60),
+ *     @OA\Property(property="leyenda_5", type="string", nullable=true, maxLength=60)
  * )
  *
  * @OA\Schema(
@@ -835,7 +835,7 @@ namespace App\OpenApi;
  *     @OA\Property(property="id_de", type="integer", example=10),
  *     @OA\Property(property="direccion", type="string", example="Av. Siempre Viva 742"),
  *     @OA\Property(property="localidad", type="string", example="CABA"),
- *     @OA\Property(property="habitual", type="boolean", example=true)
+ *     @OA\Property(property="habitual", type="boolean", example=true, description="Dirección habitual. En BD: char(1) S/N; en API: boolean.")
  * )
  *
  * @OA\Schema(

@@ -7,7 +7,7 @@
 | **Épica** | 101 — PedidosWeb |
 | **Prioridad** | **Should** |
 | **Dependencias** | TR-GEN-07-plantilla-excel; TR-GEN-07-carga-staging-excel; TR-GEN-07-grilla-procesamiento-excel; TR-GEN-07-ui-embebida-host; TR-SPEC-101-04 (servicios pedido); TR-SPEC-101-06 (visibilidad); SPEC-001-04 (parámetros) |
-| **Estado** | Finalizado (Parte I CC PQ #10/#11) |
+| **Estado** | En Control Calidad |
 | **Última actualización** | 2026-08-31 |
 
 **Origen:** [HU-101-029](../../03-historias-usuario/101-PedidosWeb/HU-101-029-proceso-excel-pedido-individual.md)  

@@ -7,7 +7,7 @@
 | **Épica** | 101 — PedidosWeb |
 | **Prioridad** | **Should** |
 | **Dependencias** | TR-GEN-07-* (motor Excel); [TR-SPEC-101-16-proceso-excel-pedido-individual](TR-SPEC-101-16-proceso-excel-pedido-individual.md) (columnas/i18n/handler base); TR-SPEC-101-06; SPEC-001-04 |
-| **Estado** | **C1 cerrado** — apto D1 |
+| **Estado** | En Control Calidad |
 | **Última actualización** | 2026-07-19 (Parte C1) |
 
 **Origen:** HU-101-043  

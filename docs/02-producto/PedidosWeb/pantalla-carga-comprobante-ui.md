@@ -175,10 +175,11 @@ Ubicación UI: después de **Vendedor**, antes de **Condición de venta**.
 | Regla | Detalle |
 |-------|---------|
 | Ubicación | Columna **izquierda** del cuerpo (§4.1), no debajo de totales |
-| Controles | 5 × `TextBox` editables (si no es solo lectura) |
+| Controles | 5 × `TextBox` editables (si no es solo lectura); `maxLength={60}` (`leyendaMaxCaracteres`) |
 | Inicialización | Parámetros ERP `ClienteLeyenda1` … `ClienteLeyenda5` (API `parametros-carga`) |
 | Origen valores | Si `ClienteLeyendaN` = true → `pq_pedidosweb_clientes.leyenda_N` en cabecera inicial; si false → vacío |
-| Persistencia | `leyenda_1` … `leyenda_5` en grabación (`mapCabeceraToApi`) |
+| Persistencia | `leyenda_1` … `leyenda_5` en grabación (`mapCabeceraToApi`); API recorta a 60 si llega un valor más largo |
+| Máximo | **60** caracteres Unicode (alineado a `Parametro.Leyenda` del ERP) |
 
 `data-testid`: `leyendas-pie`, `leyenda-1` … `leyenda-5`.
 
