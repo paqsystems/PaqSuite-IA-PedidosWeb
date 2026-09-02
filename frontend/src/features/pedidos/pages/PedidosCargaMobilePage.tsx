@@ -27,10 +27,12 @@ import type { ComprobanteRenglon } from '../api/comprobanteApi';
 import {
   calcularImporteNetoConIvaRenglon,
   createEmptyRenglon,
+  eliminarRenglonDeLista,
   formatImporteMoneda,
   nextRenglonNumber,
   renglonesValidosParaGrabar,
 } from '../utils/renglonesCarga';
+import { cantidadVisibleParaUsuario } from '../utils/cargaUnidadesVenta';
 import './PedidosCargaMobilePage.css';
 
 const monedaSimbolo = '$';
@@ -144,7 +146,7 @@ export function PedidosCargaMobilePage() {
 
   const handleAsistenteRemoveRenglon = useCallback(
     (renglon: number) => {
-      carga.setRenglones((current) => current.filter((row) => row.renglon !== renglon));
+      carga.setRenglones((current) => eliminarRenglonDeLista(current, renglon));
     },
     [carga.setRenglones],
   );
@@ -345,7 +347,12 @@ export function PedidosCargaMobilePage() {
               </div>
               <div className="pedidosCargaMobilePage__renglonMetrics">
                 <span>
-                  {t('pedidos.carga.grid.cantidad')}: {renglon.cantidad}
+                  {t('pedidos.carga.grid.cantidad')}:{' '}
+                  {cantidadVisibleParaUsuario(
+                    renglon.cantidad,
+                    renglon.cantidadVenta,
+                    carga.parametrosCarga?.cargaUnidadesVenta ?? false,
+                  )}
                 </span>
                 <span>
                   {t('pedidos.carga.grid.precio')}: {formatImporteMoneda(monedaSimbolo, renglon.precio)}

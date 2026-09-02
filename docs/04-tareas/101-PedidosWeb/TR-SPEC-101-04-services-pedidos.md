@@ -8,7 +8,7 @@
 | **Prioridad** | Must |
 | **Dependencias** | [TR-SPEC-101-02-modelos](TR-SPEC-101-02-modelos.md), [TR-SPEC-101-03-repositories](TR-SPEC-101-03-repositories.md); lectura parámetros [SPEC-001-04](../../05-open-spec/001-Generaliddes/SPEC-001-04-configuracion-global.md) (defaults temporales documentados); visibilidad [SPEC-101-06](../../05-open-spec/101-PedidosWeb/SPEC-101-06-seguridad-visibilidad.md) / TR-GEN-02-visibilidad |
 | **Estado** | En Control Calidad |
-| **Última actualización** | 2026-08-31 |
+| **Última actualización** | 2026-09-02 |
 
 **Origen:** [SPEC-101-04](../../05-open-spec/101-PedidosWeb/SPEC-101-04-services-pedidos.md), [PedidosWeb_SPEC_MVP.md](../../05-open-spec/101-PedidosWeb/PedidosWeb_SPEC_MVP.md) §5, §5.1, §5.3, §12  
 **Referencia SPEC:** [SPEC-101-04-services-pedidos](../../05-open-spec/101-PedidosWeb/SPEC-101-04-services-pedidos.md)  
@@ -75,6 +75,9 @@ para **garantizar coherencia con el ERP, trazabilidad y ausencia de DELETE en pr
 - **AC-CC12-T-L2:** Edición sin dirty en leyendas no modifica maestro cliente.
 - **AC-CC10-T-S1:** Helper `CargaUnidadesVentaConverter` (inputs: `cantidadUsuario`, `equivalenciaVentas`, `cargaUnidadesVenta`; outputs: `cantidad`, `cantidadVenta`) con tests unitarios.
 - **AC-CC10-T-S2:** Grabación de renglones persiste ambos campos; importes usan `cantidad`; reutilizable desde Excel y asistente.
+- **AC-CC10-T-S3:** Al grabar/editar, `materializeSegunParametro` recalcula el par según `CargaUnidadesVenta` y `equivalencia_ventas` del artículo; no se confía en `cantidad` obsoleta si el usuario cambió unidades de venta.
+- **AC-CC10-T-S4:** GET detalle hidrata `equivalencia_ventas` por artículo para que la edición UI convierta bien.
+- **AC-03-T-R1:** `syncDetalle` reemplaza el detalle: `deleteByCodPedido` físico + insert de los renglones enviados; un renglón quitado en edición no permanece en BD.
 
 ### Escenarios Gherkin
 
@@ -194,6 +197,10 @@ Fuente: producto §10.1, [SPEC-101-10](../../05-open-spec/101-PedidosWeb/SPEC-10
 - `equivalenciaVentas` 0 o null → tratar como 1.
 - Importes y totales usan `cantidad` (no `cantidadVenta`).
 - Reutilizar desde Excel (TR-101-16) y asistente (TR-101-19).
+- **Edición / grabación:** `PedidoService` llama `materializeSegunParametro` **antes** de calcular importes. Si `CargaUnidadesVenta=true`, la cantidad de usuario es `cantidad_venta` (aunque el payload traiga `cantidad` stock anterior). Equivalencia se lee del maestro artículo (fallback 1).
+- **GET detalle:** cada renglón incluye `equivalencia_ventas` del artículo.
+
+**RN-21:** `PedidoDetalleRepository::syncDetalle` borra todos los renglones del `cod_pedido` (`DB::table` delete físico) e inserta solo los enviados. Quitar un renglón en UI + grabar deja de persistir esa fila.
 
 ---
 
@@ -292,6 +299,8 @@ Errores de dominio: excepción con `error` entero (2000 negocio, 4000 not found)
 | No delete presupuesto | método ausente o excepción |
 | Totales/IVA | 2 escenarios redondeo + lista con/sin IVA |
 | Copia | nuevo GUID distinto; origen_comprobante |
+| CargaUnidadesVenta | `materializeSegunParametro` no usa `cantidad` stock obsoleta; GET `equivalencia_ventas` |
+| syncDetalle | grabar edición con menos renglones elimina filas físicas |
 
 Herramienta: PHPUnit; mocks de repositories y `ParametrosService`.
 
@@ -409,3 +418,14 @@ Conversión cantidad usuario ↔ cantidad/cantidadVenta según parámetro `Carga
 | T3 | PHPUnit false/true; equiv 0→1 | tests unitarios |
 
 Unificación delta CC PQ #10 (archivo `TR-SPEC-101-04-services-pedidos-update.md` eliminado en Parte I).
+
+## Incidente cliente 2026-09-02 — recálculo `CargaUnidadesVenta` y renglones eliminados
+
+Al editar un renglón con `CargaUnidadesVenta=true`, el importe debía usar `cantidad = cantidad_venta × equivalencia` de la cantidad **modificada**, no la stock original. `syncDetalle` debe eliminar físicamente renglones que ya no vienen en el payload.
+
+| ID | Tarea | Evidencia |
+|----|-------|-----------|
+| T1 | `CargaUnidadesVentaConverter::materializeSegunParametro` | `CargaUnidadesVentaConverterTest` |
+| T2 | Grabación materializa par antes de `CalculoTotalesService` | `PedidoService::materializeCantidadesRenglones` |
+| T3 | GET detalle expone `equivalencia_ventas` | `PedidoService` + schema `ComprobanteDetalleLinea` |
+| T4 | `deleteByCodPedido` vía `DB::table`; grabar edición con menos renglones | `PedidoDetalleRepository` + `comprobanteGrabarEdicionReemplazaRenglonesEliminados` |

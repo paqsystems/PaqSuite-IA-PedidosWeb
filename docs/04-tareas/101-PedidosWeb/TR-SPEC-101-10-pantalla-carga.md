@@ -8,7 +8,7 @@
 | **Prioridad** | Must |
 | **Dependencias** | TR-SPEC-101-05 (controllers), TR-SPEC-101-04 (services), TR-SPEC-101-06, TR-SPEC-101-09; SPEC-001-04 (parámetros `Modifica*`); TR-SPEC-101-13 (mail post-grabación) |
 | **Estado** | En Control Calidad |
-| **Última actualización** | 2026-08-31 |
+| **Última actualización** | 2026-09-02 |
 
 **Origen:** HU-101-004 … HU-101-011, HU-101-009, HU-101-010, HU-101-013, HU-101-024, HU-101-026  
 **Referencia SPEC:** [SPEC-101-10-pantalla-carga](../../05-open-spec/101-PedidosWeb/SPEC-101-10-pantalla-carga.md)  
@@ -53,6 +53,8 @@ para **operar según la matriz de transiciones del producto §10.1 sin pantallas
 - **AC-CC12-T-C4:** Listbox artículos: ocultar stock si `stockeable=false` (API artículos expone flag).
 - **AC-CC10-T-U1:** Modal renglón: un solo `NumberBox` «cantidad»; al confirmar materializa `cantidad` y `cantidadVenta` vía API/BE (helper TR-101-04).
 - **AC-CC10-T-U2:** Modo `CargaUnidadesVenta` false/true: precarga al editar y payload coherente; rama mobile carga misma semántica.
+- **AC-CC10-T-U3:** Al editar renglón (alta o pedido existente), el `NumberBox` de cantidad actualiza importes en vivo desde la cantidad modificada × equivalencia (`applyCantidadUsuarioToRenglon`); GET/catálogo hidratan `equivalenciaVentas`.
+- **AC-CC10-T-U4:** Eliminar renglón en grilla/kardex actualiza el estado React (updater funcional); al grabar no se reenvía el renglón quitado.
 
 ### Escenarios Gherkin
 
@@ -129,7 +131,8 @@ Leídos en runtime (SPEC-001-04) según `functionalProfile`:
 8. **RN-08 (CC PQ #12):** Modal renglón: equivalencia unidades visible si parámetro `CargaUnidadesVenta`; precio unitario neto en edición.
 9. **RN-09 (CC PQ #12):** Leyendas 1–5: snapshot inicial + flags `leyendaNDirty` en payload grabar (sync maestro TR-101-04).
 10. **RN-10 (CC PQ #12):** Listbox/browse artículos: no mostrar stock disponible si `stockeable=false` en ítem API.
-11. **RN-11 (CC PQ #10):** Modal renglón: lectura `CargaUnidadesVenta` (cabecera inicial / parámetros runtime); un control cantidad visible; conversión delegada a backend; producto `pantalla-carga-comprobante-ui.md`.
+11. **RN-11 (CC PQ #10):** Modal renglón: lectura `CargaUnidadesVenta` (cabecera inicial / parámetros runtime); un control cantidad visible; conversión en UI **y** backend; al editar, importes usan la cantidad modificada × `equivalencia_ventas`.
+12. **RN-12:** Quitar renglón (web/mobile/asistente) saca la fila del estado; grabar envía solo renglones restantes (TR-101-04 RN-21).
 
 ---
 
@@ -519,3 +522,11 @@ UI cantidad única con conversión unidades venta en modal renglón.
 | T3 | Vitest conversión; mobile branch | tests FE |
 
 Unificación delta CC PQ #10 (archivo `TR-SPEC-101-10-pantalla-carga-update.md` eliminado en Parte I).
+
+## Incidente cliente 2026-09-02 — importe al editar renglón y renglón eliminado
+
+| ID | Tarea | Evidencia |
+|----|-------|-----------|
+| T1 | Modal: cantidad usuario local + importes desde par convertido | `PedidosCargaRenglonEditDialog.tsx` |
+| T2 | Hidratar `equivalenciaVentas` (GET + catálogo artículos) | `comprobanteApi.mapRenglonFromApi`, `enrichRenglonesEquivalenciaVentas` |
+| T3 | Eliminar renglón con updater funcional (`eliminarRenglonDeLista`) | `PedidosCargaRenglonesGrid.tsx`, mobile, asistente |
