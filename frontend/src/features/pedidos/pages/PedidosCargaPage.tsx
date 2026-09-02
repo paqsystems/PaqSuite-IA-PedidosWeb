@@ -60,13 +60,14 @@ import {
   calcularBonificacionNeta,
   calcularTotalesComprobante,
   createEmptyRenglon,
+  eliminarRenglonDeLista,
   formatImporteMoneda,
   nextRenglonNumber,
   normalizarPorcIvaAlmacenado,
   renglonesValidosParaGrabar,
   tieneRenglonesCargados,
 } from '../utils/renglonesCarga';
-import { fromCantidadUsuario, resolveEquivalenciaVentas } from '../utils/cargaUnidadesVenta';
+import { fromCantidadUsuario, enrichRenglonesEquivalenciaVentas, resolveEquivalenciaVentas } from '../utils/cargaUnidadesVenta';
 import {
   computeLeyendasDirtyFlags,
   createLeyendasSnapshot,
@@ -212,6 +213,14 @@ function PedidosCargaWebPage() {
     () => ordenarArticulosPorDescripcion(mergeArticulosStockPrecios(articulosStock, articulosPrecios)),
     [articulosPrecios, articulosStock],
   );
+
+  useEffect(() => {
+    if (articulosOrdenados.length === 0) {
+      return;
+    }
+
+    setRenglones((current) => enrichRenglonesEquivalenciaVentas(current, articulosOrdenados));
+  }, [articulosOrdenados]);
 
   const articuloSeleccionadoData = useMemo(() => {
     if (!articuloSeleccionado) {
@@ -1015,7 +1024,7 @@ function PedidosCargaWebPage() {
   );
 
   const handleAsistenteRemoveRenglon = useCallback((renglon: number) => {
-    setRenglones((current) => current.filter((row) => row.renglon !== renglon));
+    setRenglones((current) => eliminarRenglonDeLista(current, renglon));
   }, []);
 
   const handleAsistenteUpdateCabeceraField = useCallback((field: string, value: unknown) => {

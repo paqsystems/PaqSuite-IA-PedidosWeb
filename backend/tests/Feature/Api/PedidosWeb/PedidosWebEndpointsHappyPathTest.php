@@ -213,6 +213,56 @@ final class PedidosWebEndpointsHappyPathTest extends TestCase
     }
 
     #[Test]
+    public function comprobanteGrabarEdicionReemplazaRenglonesEliminados(): void
+    {
+        $createPayload = [
+            'accionGrabacion' => 'pedido',
+            'cabecera' => [
+                'cod_cliente' => 'CLIMVP001',
+            ],
+            'renglones' => [
+                [
+                    'renglon' => 1,
+                    'cod_articulo' => 'ART-HP-001',
+                    'descripcion_articulo' => 'Articulo A',
+                    'cantidad' => 1,
+                    'precio' => 100,
+                    'porc_bonif' => 0,
+                    'porc_iva' => 21,
+                ],
+                [
+                    'renglon' => 2,
+                    'cod_articulo' => 'ART-HP-SEED',
+                    'descripcion_articulo' => 'Articulo B',
+                    'cantidad' => 2,
+                    'precio' => 50,
+                    'porc_bonif' => 0,
+                    'porc_iva' => 21,
+                ],
+            ],
+        ];
+
+        $createResponse = $this->postJson('/api/v1/comprobantes/grabar', $createPayload, $this->authHeadersFor(self::SUPERVISOR));
+        $createResponse->assertOk()->assertJsonPath('error', 0);
+        $codPedido = (string) $createResponse->json('resultado.cod_pedido');
+
+        $updatePayload = $createPayload;
+        $updatePayload['cod_pedido'] = $codPedido;
+        $updatePayload['renglones'] = [$createPayload['renglones'][0]];
+
+        $this->postJson('/api/v1/comprobantes/grabar', $updatePayload, $this->authHeadersFor(self::SUPERVISOR))
+            ->assertOk()
+            ->assertJsonPath('error', 0);
+
+        $detalles = \Illuminate\Support\Facades\DB::table('pq_pedidosweb_pedidosdetalle')
+            ->where('cod_pedido', $codPedido)
+            ->get();
+
+        $this->assertCount(1, $detalles);
+        $this->assertSame('ART-HP-001', $detalles->first()->cod_articulo);
+    }
+
+    #[Test]
     public function comprobanteGrabarRecortaLeyendaLargaASesenta(): void
     {
         $leyendaLarga = str_repeat('g', 61);
