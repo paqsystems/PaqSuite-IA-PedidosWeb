@@ -3,9 +3,9 @@
 namespace App\Services\PedidosWeb;
 
 use App\Models\PqPedidoswebArticulo;
+use App\Support\SqlSchemaPresence;
 use App\Support\SqlServerReadHint;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
 
 /**
  * Lookup de artículos para carga de comprobante — una sola consulta SQL.
@@ -40,18 +40,18 @@ final class ArticuloCargaLookupService
         array $codigos = [],
         bool $soloCatalogo = false,
     ): array {
-        if (! Schema::hasTable('pq_pedidosweb_articulos')) {
+        if (! SqlSchemaPresence::hasTable('pq_pedidosweb_articulos')) {
             return [];
         }
 
         $pageSize = min(10000, max(1, $pageSize));
         $codigos = $this->normalizeCodigos($codigos);
         $solicitudPorCodigos = $codigos !== [];
-        $incluirDisponible = ! $soloCatalogo && Schema::hasTable('pq_pedidosweb_stock');
-        $hasListaPreciosTable = Schema::hasTable('pq_pedidosweb_listaprecios_articulos');
+        $incluirDisponible = ! $soloCatalogo && SqlSchemaPresence::hasTable('pq_pedidosweb_stock');
+        $hasListaPreciosTable = SqlSchemaPresence::hasTable('pq_pedidosweb_listaprecios_articulos');
         $hasPedidosTables = $incluirDisponible
-            && Schema::hasTable('pq_pedidosweb_pedidosdetalle')
-            && Schema::hasTable('pq_pedidosweb_pedidoscabecera');
+            && SqlSchemaPresence::hasTable('pq_pedidosweb_pedidosdetalle')
+            && SqlSchemaPresence::hasTable('pq_pedidosweb_pedidoscabecera');
 
         if ($incluirDisponible) {
             [$sql, $bindings] = $this->buildSqlConDisponible(
@@ -166,10 +166,10 @@ SQL;
             ." THEN (ISNULL(s_base.stock, 0) - ISNULL(s_base.comprometido, 0) - {$comprometidoBaseWebExpr})"
             .' ELSE NULL END';
 
-        $equivExpr = Schema::hasColumn('pq_pedidosweb_articulos', 'equivalencia_ventas')
+        $equivExpr = SqlSchemaPresence::hasColumn('pq_pedidosweb_articulos', 'equivalencia_ventas')
             ? 'a.equivalencia_ventas'
             : '1';
-        $stockeableExpr = Schema::hasColumn('pq_pedidosweb_articulos', 'stockeable')
+        $stockeableExpr = SqlSchemaPresence::hasColumn('pq_pedidosweb_articulos', 'stockeable')
             ? 'CAST(ISNULL(a.stockeable, 1) AS bit)'
             : '1';
 
@@ -225,10 +225,10 @@ SQL;
                 .' ON lp.cod_articulo = a.codigo AND lp.cod_lista = ?'
             : '';
 
-        $equivExpr = Schema::hasColumn('pq_pedidosweb_articulos', 'equivalencia_ventas')
+        $equivExpr = SqlSchemaPresence::hasColumn('pq_pedidosweb_articulos', 'equivalencia_ventas')
             ? 'a.equivalencia_ventas'
             : '1';
-        $stockeableExpr = Schema::hasColumn('pq_pedidosweb_articulos', 'stockeable')
+        $stockeableExpr = SqlSchemaPresence::hasColumn('pq_pedidosweb_articulos', 'stockeable')
             ? 'CAST(ISNULL(a.stockeable, 1) AS bit)'
             : '1';
 

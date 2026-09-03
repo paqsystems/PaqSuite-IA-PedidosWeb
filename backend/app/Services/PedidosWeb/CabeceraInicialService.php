@@ -12,7 +12,7 @@ use App\Models\PqPedidoswebTransporte;
 use App\Models\User;
 use App\Services\Visibility\PedidosWebVisibilityGuard;
 use App\Support\LeyendaCabeceraLimits;
-use Illuminate\Support\Facades\Schema;
+use App\Support\SqlSchemaPresence;
 
 final class CabeceraInicialService
 {
@@ -127,7 +127,7 @@ final class CabeceraInicialService
      */
     public function listPerfiles(): array
     {
-        if (! Schema::hasTable('pq_pedidosweb_perfil')) {
+        if (! SqlSchemaPresence::hasTable('pq_pedidosweb_perfil')) {
             return [];
         }
 
@@ -147,7 +147,7 @@ final class CabeceraInicialService
      */
     public function listCondicionesVenta(): array
     {
-        if (! Schema::hasTable('pq_pedidosweb_condventa')) {
+        if (! SqlSchemaPresence::hasTable('pq_pedidosweb_condventa')) {
             return [];
         }
 
@@ -167,7 +167,7 @@ final class CabeceraInicialService
      */
     public function listTransportes(): array
     {
-        if (! Schema::hasTable('pq_pedidosweb_transportes')) {
+        if (! SqlSchemaPresence::hasTable('pq_pedidosweb_transportes')) {
             return [];
         }
 
@@ -187,7 +187,7 @@ final class CabeceraInicialService
      */
     public function listListasPrecios(): array
     {
-        if (! Schema::hasTable('pq_pedidosweb_listaprecios')) {
+        if (! SqlSchemaPresence::hasTable('pq_pedidosweb_listaprecios')) {
             return [];
         }
 
@@ -209,7 +209,7 @@ final class CabeceraInicialService
      */
     public function listDireccionesEntrega(string $codCliente): array
     {
-        if (! Schema::hasTable('pq_pedidosweb_clientesde')) {
+        if (! SqlSchemaPresence::hasTable('pq_pedidosweb_clientesde')) {
             return [];
         }
 

@@ -4,7 +4,7 @@ namespace App\Services\PedidosWeb;
 
 use App\Models\PqParametrosGral;
 use App\Support\ParametrosGralTipoValor;
-use Illuminate\Support\Facades\Schema;
+use App\Support\SqlSchemaPresence;
 
 final class PedidosWebParameterService
 {
@@ -322,7 +322,7 @@ final class PedidosWebParameterService
         }
 
         try {
-            return Schema::hasTable('PQ_parametros_gral');
+            return SqlSchemaPresence::hasTable('PQ_parametros_gral');
         } catch (\Throwable) {
             return false;
         }

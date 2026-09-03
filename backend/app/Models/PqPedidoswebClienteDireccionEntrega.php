@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Concerns\HasCompositePrimaryKey;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -31,8 +32,39 @@ class PqPedidoswebClienteDireccionEntrega extends Model
 
     protected $casts = [
         'id_de' => 'integer',
-        'habitual' => 'boolean',
     ];
+
+    /**
+     * Columna canónica: {@code char(1)} (`S`/`N`, también tolera `1`/`0`/`Y`).
+     * En PHP/API se expone como boolean.
+     */
+    protected function habitual(): Attribute
+    {
+        return Attribute::make(
+            get: static fn (mixed $value): bool => self::isHabitualFlag($value),
+            set: static fn (mixed $value): string => self::normalizeHabitualFlag($value),
+        );
+    }
+
+    public static function isHabitualFlag(mixed $value): bool
+    {
+        if (is_bool($value)) {
+            return $value;
+        }
+
+        if (is_int($value) || is_float($value)) {
+            return (int) $value === 1;
+        }
+
+        $normalized = strtoupper(trim((string) $value));
+
+        return in_array($normalized, ['1', 'S', 'Y', 'T', 'TRUE'], true);
+    }
+
+    public static function normalizeHabitualFlag(mixed $value): string
+    {
+        return self::isHabitualFlag($value) ? 'S' : 'N';
+    }
 
     protected function getCompositeKeyNames(): array
     {

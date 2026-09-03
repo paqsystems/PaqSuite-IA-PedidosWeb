@@ -33,7 +33,7 @@ export function PedidosCargaErroresGrabacionDialog({
       wrapperAttr={{ class: 'pedidosCargaDialogPopup' }}
       elementAttr={{ 'data-testid': testId }}
     >
-      <div className="pedidosCargaErroresGrabacionDialog">
+      <div className="pedidosCargaErroresGrabacionDialog" role="alert">
         <p className="pedidosCargaErroresGrabacionDialog__intro">{t(introKey)}</p>
         <ul
           className="pedidosCargaErroresGrabacionDialog__list"
