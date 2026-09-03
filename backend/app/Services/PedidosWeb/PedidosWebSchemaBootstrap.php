@@ -2,8 +2,8 @@
 
 namespace App\Services\PedidosWeb;
 
+use App\Support\SqlSchemaPresence;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
 
 final class PedidosWebSchemaBootstrap
 {
@@ -32,14 +32,14 @@ final class PedidosWebSchemaBootstrap
      */
     public function filterAttributes(string $table, array $attributes): array
     {
-        if (! Schema::hasTable($table)) {
+        if (! SqlSchemaPresence::hasTable($table)) {
             return $attributes;
         }
 
         $filtered = [];
 
         foreach ($attributes as $key => $value) {
-            if (Schema::hasColumn($table, (string) $key)) {
+            if (SqlSchemaPresence::hasColumn($table, (string) $key)) {
                 $filtered[$key] = $value;
             }
         }
@@ -49,28 +49,28 @@ final class PedidosWebSchemaBootstrap
 
     public function cabeceraSupportsNumeroVisible(): bool
     {
-        return Schema::hasTable('pq_pedidosweb_pedidoscabecera')
-            && Schema::hasColumn('pq_pedidosweb_pedidoscabecera', 'nro_visible');
+        return SqlSchemaPresence::hasTable('pq_pedidosweb_pedidoscabecera')
+            && SqlSchemaPresence::hasColumn('pq_pedidosweb_pedidoscabecera', 'nro_visible');
     }
 
     public function ventaDetalladaUsesErpColumns(): bool
     {
-        return Schema::hasTable('pq_pedidosweb_ventadetallada')
-            && Schema::hasColumn('pq_pedidosweb_ventadetallada', 'id_gva53');
+        return SqlSchemaPresence::hasTable('pq_pedidosweb_ventadetallada')
+            && SqlSchemaPresence::hasColumn('pq_pedidosweb_ventadetallada', 'id_gva53');
     }
 
     /** @deprecated Use ventaDetalladaUsesErpColumns(); ERP export uses cod_cli / fecha_emi. */
     public function ventaDetalladaUsesLegacyColumns(): bool
     {
-        return Schema::hasTable('pq_pedidosweb_ventadetallada')
-            && ! Schema::hasColumn('pq_pedidosweb_ventadetallada', 'fecha')
-            && Schema::hasColumn('pq_pedidosweb_ventadetallada', 'fecha_emi');
+        return SqlSchemaPresence::hasTable('pq_pedidosweb_ventadetallada')
+            && ! SqlSchemaPresence::hasColumn('pq_pedidosweb_ventadetallada', 'fecha')
+            && SqlSchemaPresence::hasColumn('pq_pedidosweb_ventadetallada', 'fecha_emi');
     }
 
     public function deudaUsesErpColumns(): bool
     {
-        return Schema::hasTable('pq_pedidosweb_deuda')
-            && Schema::hasColumn('pq_pedidosweb_deuda', 't_comp');
+        return SqlSchemaPresence::hasTable('pq_pedidosweb_deuda')
+            && SqlSchemaPresence::hasColumn('pq_pedidosweb_deuda', 't_comp');
     }
 
     /**
@@ -95,8 +95,8 @@ final class PedidosWebSchemaBootstrap
 
     public function clienteRazonSocialColumn(): string
     {
-        if (Schema::hasTable('pq_pedidosweb_clientes')
-            && Schema::hasColumn('pq_pedidosweb_clientes', 'razon_soci')) {
+        if (SqlSchemaPresence::hasTable('pq_pedidosweb_clientes')
+            && SqlSchemaPresence::hasColumn('pq_pedidosweb_clientes', 'razon_soci')) {
             return 'razon_soci';
         }
 
@@ -119,15 +119,15 @@ final class PedidosWebSchemaBootstrap
 
     private function resolveTableColumn(string $table, string $preferred, string $fallback): string
     {
-        if (! Schema::hasTable($table)) {
+        if (! SqlSchemaPresence::hasTable($table)) {
             return $fallback;
         }
 
-        if (Schema::hasColumn($table, $preferred)) {
+        if (SqlSchemaPresence::hasColumn($table, $preferred)) {
             return $preferred;
         }
 
-        return Schema::hasColumn($table, $fallback) ? $fallback : $fallback;
+        return SqlSchemaPresence::hasColumn($table, $fallback) ? $fallback : $fallback;
     }
 
     /**
@@ -138,7 +138,7 @@ final class PedidosWebSchemaBootstrap
     {
         $table = 'pq_pedidosweb_pedidosdetalle';
 
-        if (! Schema::hasTable($table)) {
+        if (! SqlSchemaPresence::hasTable($table)) {
             return $attributes;
         }
 
@@ -148,10 +148,10 @@ final class PedidosWebSchemaBootstrap
             ?? null;
 
         if ($bonificacionValue !== null) {
-            if (Schema::hasColumn($table, 'bonificacion')) {
+            if (SqlSchemaPresence::hasColumn($table, 'bonificacion')) {
                 $attributes['bonificacion'] = $bonificacionValue;
                 unset($attributes['porc_bonif'], $attributes['porcBonif']);
-            } elseif (Schema::hasColumn($table, 'porc_bonif')) {
+            } elseif (SqlSchemaPresence::hasColumn($table, 'porc_bonif')) {
                 $attributes['porc_bonif'] = $bonificacionValue;
                 unset($attributes['bonificacion'], $attributes['porcBonif']);
             }
@@ -167,7 +167,7 @@ final class PedidosWebSchemaBootstrap
 
     public function ensureArticulosFeatureFixtures(): void
     {
-        if (! Schema::hasTable('pq_pedidosweb_articulos')) {
+        if (! SqlSchemaPresence::hasTable('pq_pedidosweb_articulos')) {
             return;
         }
 
@@ -198,7 +198,7 @@ final class PedidosWebSchemaBootstrap
     {
         $table = 'pq_pedidosweb_pedidosdetalle';
 
-        if (! Schema::hasTable($table)) {
+        if (! SqlSchemaPresence::hasTable($table)) {
             return;
         }
 
@@ -221,8 +221,8 @@ final class PedidosWebSchemaBootstrap
         }
 
         if (
-            Schema::hasColumn($table, 'bonificacion')
-            && Schema::hasColumn($table, 'porc_bonif')
+            SqlSchemaPresence::hasColumn($table, 'bonificacion')
+            && SqlSchemaPresence::hasColumn($table, 'porc_bonif')
         ) {
             DB::statement(<<<'SQL'
 UPDATE d
@@ -237,7 +237,7 @@ SQL);
     {
         $table = 'pq_pedidosweb_articulos';
 
-        if (! Schema::hasTable($table)) {
+        if (! SqlSchemaPresence::hasTable($table)) {
             return;
         }
 
@@ -249,7 +249,7 @@ SQL);
     {
         $table = 'pq_pedidosweb_pedidoscabecera';
 
-        if (! Schema::hasTable($table)) {
+        if (! SqlSchemaPresence::hasTable($table)) {
             return;
         }
 
@@ -274,7 +274,7 @@ SQL);
     {
         $table = 'pq_pedidosweb_clientes';
 
-        if (! Schema::hasTable($table)) {
+        if (! SqlSchemaPresence::hasTable($table)) {
             return;
         }
 
@@ -356,16 +356,17 @@ SQL);
 
     private function createTableIfMissing(string $tableName, string $createSql): void
     {
-        if (Schema::hasTable($tableName)) {
+        if (SqlSchemaPresence::hasTable($tableName)) {
             return;
         }
 
         DB::statement("IF OBJECT_ID(N'{$tableName}', N'U') IS NULL BEGIN {$createSql} END");
+        SqlSchemaPresence::forget($tableName);
     }
 
     private function ensureMotivosCierreSeed(): void
     {
-        if (! Schema::hasTable('pq_pedidosweb_motivos_cierre')) {
+        if (! SqlSchemaPresence::hasTable('pq_pedidosweb_motivos_cierre')) {
             return;
         }
 
@@ -395,10 +396,11 @@ SQL);
 
     private function addColumnIfMissing(string $table, string $column, string $definition): void
     {
-        if (Schema::hasColumn($table, $column)) {
+        if (SqlSchemaPresence::hasColumn($table, $column)) {
             return;
         }
 
         DB::statement("ALTER TABLE [{$table}] ADD [{$column}] {$definition}");
+        SqlSchemaPresence::forget($table);
     }
 }

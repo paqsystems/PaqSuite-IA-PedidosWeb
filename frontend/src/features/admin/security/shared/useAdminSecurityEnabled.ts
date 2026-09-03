@@ -1,12 +1,16 @@
 import { useEffect, useState } from 'react';
 import { fetchPublicConfig } from '../../../config/api/publicConfigApi';
 
-export function useAdminSecurityEnabled(): {
+export type AdminSecurityEnabledState = {
   enabled: boolean;
   isLoading: boolean;
-} {
+  loadError: boolean;
+};
+
+export function useAdminSecurityEnabled(): AdminSecurityEnabledState {
   const [enabled, setEnabled] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
 
   useEffect(() => {
     let mounted = true;
@@ -15,11 +19,13 @@ export function useAdminSecurityEnabled(): {
       .then((config) => {
         if (mounted) {
           setEnabled(config.securityAdminEnabled);
+          setLoadError(false);
         }
       })
       .catch(() => {
         if (mounted) {
           setEnabled(false);
+          setLoadError(true);
         }
       })
       .finally(() => {
@@ -33,5 +39,5 @@ export function useAdminSecurityEnabled(): {
     };
   }, []);
 
-  return { enabled, isLoading };
+  return { enabled, isLoading, loadError };
 }

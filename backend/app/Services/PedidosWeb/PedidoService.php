@@ -12,11 +12,11 @@ use App\Models\PqPedidoswebPedidoCabecera;
 use App\Models\PqPedidoswebPedidoDetalle;
 use App\Models\User;
 use App\Support\LeyendaCabeceraLimits;
+use App\Support\SqlSchemaPresence;
 use App\Support\SqlServerIsolation;
 use App\Services\Auth\CommercialProfileResolver;
 use App\Services\Visibility\PedidosWebVisibilityGuard;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 
 final class PedidoService
@@ -174,37 +174,39 @@ final class PedidoService
      */
     public function iniciarEdicion(string $codPedido, User $user): array
     {
-        $this->pedidosWebVisibilityGuard->ensureComprobanteVisible($user, $codPedido);
-        $pedido = $this->pedidoRepository->findByCodPedido($codPedido, true);
+        return SqlServerIsolation::transaction(function () use ($codPedido, $user): array {
+            $this->pedidosWebVisibilityGuard->ensureComprobanteVisible($user, $codPedido);
+            $pedido = $this->pedidoRepository->findByCodPedido($codPedido, true);
 
-        if ($pedido === null) {
-            throw new PedidosWebBusinessException(4000, 'business.notFound', 404);
-        }
+            if ($pedido === null) {
+                throw new PedidosWebBusinessException(4000, 'business.notFound', 404);
+            }
 
-        if ((int) $pedido->estado === -1 && $this->hasEdicionActiva($pedido, $user)) {
-            throw new PedidosWebBusinessException(4000, 'business.edicionEnCurso', 409);
-        }
+            if ((int) $pedido->estado === -1 && $this->hasEdicionActiva($pedido, $user)) {
+                throw new PedidosWebBusinessException(4000, 'business.edicionEnCurso', 409);
+            }
 
-        if (! in_array((int) $pedido->estado, [0, -1], true)) {
-            throw new PedidosWebBusinessException(2000, 'business.estadoNoEditable', 422);
-        }
+            if (! in_array((int) $pedido->estado, [0, -1], true)) {
+                throw new PedidosWebBusinessException(2000, 'business.estadoNoEditable', 422);
+            }
 
-        $timestamp = now()->format('Ymd H:i:s');
+            $timestamp = now()->format('Ymd H:i:s');
 
-        $this->pedidoRepository->updateCabecera($codPedido, [
-            'estado' => -1,
-            'cod_usuario_web' => $user->codigo,
-            'fechahora_inicio_proceso' => $timestamp,
-            'fechahora_ultima_actividad' => $timestamp,
-            'fecha_modif' => $timestamp,
-            'usuario_modificacion' => $user->codigo,
-        ]);
+            $this->pedidoRepository->updateCabecera($codPedido, [
+                'estado' => -1,
+                'cod_usuario_web' => $user->codigo,
+                'fechahora_inicio_proceso' => $timestamp,
+                'fechahora_ultima_actividad' => $timestamp,
+                'fecha_modif' => $timestamp,
+                'usuario_modificacion' => $user->codigo,
+            ]);
 
-        return [
-            'cod_pedido' => $codPedido,
-            'estado' => -1,
-            'fechahora_ultima_actividad' => $timestamp,
-        ];
+            return [
+                'cod_pedido' => $codPedido,
+                'estado' => -1,
+                'fechahora_ultima_actividad' => $timestamp,
+            ];
+        });
     }
 
     /**
@@ -272,8 +274,6 @@ final class PedidoService
      */
     public function getComprobante(string $codPedido, User $user): array
     {
-        $this->ensureClientSchema();
-
         $this->pedidosWebVisibilityGuard->ensureComprobanteVisible($user, $codPedido);
         $pedido = $this->pedidoRepository->findWithDetalle($codPedido);
 
@@ -782,7 +782,7 @@ final class PedidoService
     {
         $codigos = $this->collectCodigosArticulo($detalles);
 
-        if ($codigos === [] || ! Schema::hasTable('pq_pedidosweb_articulos')) {
+        if ($codigos === [] || ! SqlSchemaPresence::hasTable('pq_pedidosweb_articulos')) {
             return ['descripciones' => [], 'equivalencias' => []];
         }
 
@@ -829,8 +829,8 @@ final class PedidoService
 
     private function articulosTienenEquivalenciaVentas(): bool
     {
-        return Schema::hasTable('pq_pedidosweb_articulos')
-            && Schema::hasColumn('pq_pedidosweb_articulos', 'equivalencia_ventas');
+        return SqlSchemaPresence::hasTable('pq_pedidosweb_articulos')
+            && SqlSchemaPresence::hasColumn('pq_pedidosweb_articulos', 'equivalencia_ventas');
     }
 
     /**

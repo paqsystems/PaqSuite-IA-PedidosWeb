@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import { Navigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAdminSecurityEnabled } from './useAdminSecurityEnabled';
 
 type AdminSecurityGateProps = {
@@ -7,14 +7,29 @@ type AdminSecurityGateProps = {
 };
 
 export function AdminSecurityGate({ children }: AdminSecurityGateProps) {
-  const { enabled, isLoading } = useAdminSecurityEnabled();
+  const { t } = useTranslation();
+  const { enabled, isLoading, loadError } = useAdminSecurityEnabled();
 
   if (isLoading) {
     return <section data-testid="admin-security-loading" />;
   }
 
+  if (loadError) {
+    return (
+      <section data-testid="admin-security-config-error">
+        <h2>{t('admin.security.title')}</h2>
+        <p role="alert">{t('admin.security.configError')}</p>
+      </section>
+    );
+  }
+
   if (!enabled) {
-    return <Navigate to="/dashboard" replace />;
+    return (
+      <section data-testid="admin-security-disabled">
+        <h2>{t('admin.security.title')}</h2>
+        <p role="alert">{t('admin.security.disabled')}</p>
+      </section>
+    );
   }
 
   return children;
