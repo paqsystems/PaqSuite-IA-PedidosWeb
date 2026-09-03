@@ -2,8 +2,8 @@
 
 | Campo | Valor |
 |-------|--------|
-| **Versión documento** | 2026-06-22 (grillas, pivot, parámetros, chat IA, inactividad) |
-| **Guías complementarias PedidosWeb** | [PedidosWeb.md](./PedidosWeb.md) · [Validaciones](./PedidosWeb-validaciones-errores.md) · [Circuito](./PedidosWeb-circuito-estados.md) · [Chat IA](./Chat-Asistente-IA.md) |
+| **Versión documento** | 2026-09-01 (apariencia Aplicar/Confirmar, pestañas, app móvil, admin opcional, corpus chat) |
+| **Guías complementarias PedidosWeb** | [PedidosWeb.md](./PedidosWeb.md) · [Validaciones](./PedidosWeb-validaciones-errores.md) · [Circuito](./PedidosWeb-circuito-estados.md) · [Chat IA](./Chat-Asistente-IA.md) · [App móvil](./PedidosWeb-app-movil.md) · [Parámetros](./PedidosWeb-parametros-erp.md) |
 
 ## 1. Introducción
 
@@ -14,7 +14,7 @@ Está pensado para dos públicos:
 - usuarios finales que necesitan saber cómo ingresar, navegar y resolver acciones habituales;
 - soporte funcional que necesita identificar el comportamiento esperado, interpretar bloqueos y orientar al usuario.
 
-El contenido cubre el uso general del portal en su modalidad monoempresa: ingreso al sistema, sesión de trabajo e **inactividad**, navegación principal, idioma, apariencia, ayuda global, **Chat Asistente IA**, cambio de contraseña, recuperación de acceso, **grillas de listados** (consultas y procesos tabulares), **vista pivot** en informes analíticos (cuando el tenant la tiene habilitada), **consulta de parámetros** (solo lectura) y **preferencias de usuario** (incluida configuración del asistente).
+El contenido cubre el uso general del portal en su modalidad **una empresa por instalación**: ingreso al sistema, sesión de trabajo e **inactividad**, navegación principal, idioma, apariencia, ayuda, **Chat Asistente IA**, cambio de contraseña, recuperación de acceso, **grillas**, **vista pivot** (cuando el tenant la tiene habilitada), **consulta de parámetros**, **preferencias** y la diferencia con la **app móvil**.
 
 ## 2. Alcance
 
@@ -33,6 +33,9 @@ Este documento incluye:
 - la **vista pivot** en informes que la admiten (alternar con grilla, diseños guardados y exportación);
 - el **Chat Asistente IA** (nueva pestaña, configuración BYOK, consultas sobre manuales);
 - **Preferencias** del usuario (apariencia, idioma persistente, configuraciones del asistente).
+- Cómo se abre un proceso (**misma pestaña** o **pestaña nueva**, solo en web).
+- Diferencias de la **app móvil** (login con empresa, sin Excel/pivot/admin).
+- Administración de **roles y permisos** en el portal, **solo si** la empresa lo habilitó.
 
 Este documento no incluye:
 
@@ -164,6 +167,12 @@ Dentro del área principal, muchos procesos muestran una **grilla**: una tabla c
 
 ### Ingreso al sistema
 
+**En la web:** usuario y contraseña. La empresa ya está determinada por la dirección del portal (no hay selector de empresa después del login).
+
+**En la app móvil:** primero **empresa (tenant)**, después usuario y contraseña. Detalle: [PedidosWeb-app-movil.md](./PedidosWeb-app-movil.md).
+
+Luego:
+
 1. Abrir la pantalla de acceso.
 2. Seleccionar el idioma deseado, si se quiere operar en un idioma distinto al predeterminado.
 3. Ingresar las credenciales solicitadas.
@@ -194,8 +203,11 @@ Dentro del área principal, muchos procesos muestran una **grilla**: una tabla c
 1. Abrir el menú del avatar.
 2. Ingresar a la opción de apariencia.
 3. Seleccionar la apariencia deseada.
-4. Confirmar el cambio si la pantalla lo solicita.
-5. Verificar que el nuevo estilo se aplique a toda la interfaz.
+4. **Aplicar** previsualiza el estilo **sin cerrar** el diálogo: puede seguir probando.
+5. **Confirmar** guarda la preferencia y cierra.
+6. **Cancelar** o la **X** revierten cualquier previsualización que no haya confirmado.
+
+Si solo pulsa Aplicar y cierra mal, puede no persistir el cambio. Use **Confirmar** para dejarlo guardado.
 
 ### Cambio de contraseña
 
@@ -241,8 +253,8 @@ Dentro del área principal, muchos procesos muestran una **grilla**: una tabla c
 
 - **Perfil:** acceso a información personal, si el producto lo habilita.
 - **Apariencia:** cambia el estilo visual del portal.
-- **Apertura en nueva pestaña:** ajusta cómo se abren los procesos, si la opción está disponible.
-- **Asistente IA:** abre el chat de ayuda en una nueva pestaña (ver sección 20).
+- **Apertura en nueva pestaña:** si está encendida (solo **web**), al elegir un proceso del menú se abre en otra pestaña del navegador. En la **app móvil** esta preferencia **no existe**: todo queda dentro de la app.
+- **Asistente IA:** abre el chat de ayuda (en web, **nueva pestaña**; en móvil, dentro de la app). Ver sección 20.
 - **Preferencias:** idioma, apariencia y configuración del asistente IA.
 - **Cambiar contraseña:** permite actualizar la clave.
 - **Cerrar sesión:** finaliza el acceso actual.
@@ -641,6 +653,22 @@ Porque puede haber vencido o ya haber sido usado. En ese caso debe generarse una
 ### ¿Cerrar la sesión es obligatorio?
 
 Es recomendable, especialmente si se trabaja en un equipo compartido o de uso común.
+
+### ¿Por qué Aplicar no me dejó el tema para siempre?
+
+**Aplicar** solo previsualiza. Hay que pulsar **Confirmar**.
+
+### ¿Por qué en el teléfono no veo «abrir en pestaña nueva»?
+
+En la app móvil la navegación es siempre dentro de la aplicación. Ver [PedidosWeb-app-movil.md](./PedidosWeb-app-movil.md).
+
+### ¿En el teléfono pongo la empresa en el engranaje?
+
+No. La **empresa** se ingresa en la **pantalla de acceso** (primer campo). El engranaje es para la URL del servidor, si sistemas se lo pidió.
+
+### ¿Hay un ABM de roles en el portal?
+
+Solo si la empresa habilitó **Seguridad** en el menú (roles y permisos). En muchas instalaciones el alta de usuarios sigue en el ERP. Esa función **no** está en la app móvil.
 
 ## 16. Grillas y listados
 
@@ -1052,7 +1080,7 @@ Formule preguntas **concretas** (pantalla + acción + mensaje de error si lo hay
 
 ### 20.6 Corpus documental (Fase 1)
 
-El asistente prioriza `docs/99-manual-usuario/` y documentación operativa estable de `02-producto/PedidosWeb/`. Para validaciones y errores de grabación, el documento más completo es [PedidosWeb-validaciones-errores.md](./PedidosWeb-validaciones-errores.md).
+El asistente prioriza los manuales de `docs/99-manual-usuario/` (este archivo, [PedidosWeb.md](./PedidosWeb.md), validaciones, circuito, Excel, app móvil, cierre, parámetros, ambos asistentes IA) y, si hace falta, documentación operativa estable de producto. Para validaciones de grabación, el más completo es [PedidosWeb-validaciones-errores.md](./PedidosWeb-validaciones-errores.md). Índice: [README.md](./README.md).
 
 ### 20.7 Preguntas frecuentes del chat
 
@@ -1067,3 +1095,19 @@ No en tiempo real. Use **General → Consulta de parámetros** para valores de s
 **¿Puedo usar Ollama sin costo de API externa?**
 
 Sí, si configura endpoint local y el servicio está disponible en su red.
+
+## 21. App móvil (resumen)
+
+La app no es un producto distinto: mismos pedidos y mismos permisos. Cambia la **presentación** (kardex, carga compacta) y **quita** Excel, pivot, ABM de seguridad y pestañas nuevas.
+
+Guía completa: [PedidosWeb-app-movil.md](./PedidosWeb-app-movil.md).
+
+## 22. Seguridad: roles y permisos (opcional)
+
+Si en el menú aparece el grupo **Seguridad** (Administración de roles / permisos), su empresa habilitó el ABM web. Permite mantener roles y la matriz de qué procesos puede consultar, dar de alta, modificar o eliminar cada rol.
+
+- Requiere permiso de administración.
+- **No** está en la app móvil.
+- En muchas empresas los usuarios se siguen creando en el ERP; este ABM no reemplaza necesariamente ese circuito.
+
+Si el grupo **no** aparece, no es un error: la función está apagada a propósito.

@@ -10,7 +10,7 @@ return [
 
     'excelImportEnabled' => (bool) env('EXCEL_IMPORT_ENABLED', false),
 
-    'securityAdminEnabled' => (bool) env('ADMIN_SECURITY_UI_ENABLED', false),
+    'securityAdminEnabled' => filter_var(env('ADMIN_SECURITY_UI_ENABLED', false), FILTER_VALIDATE_BOOLEAN),
 
     'menuItems' => [
         ['menuKey' => 'grupoPedidos', 'procedimiento' => 'grp_pedidos', 'text' => 'Pedidos', 'orden' => 10, 'tipoProceso' => 'G'],

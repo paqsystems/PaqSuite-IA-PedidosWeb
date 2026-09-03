@@ -2,10 +2,10 @@
 
 | Campo | Valor |
 |-------|--------|
-| **Versión documento** | MVP Fase 1 — 2026-08-31 (Parte I CC #10/#11; CC #12 re-unificado) |
+| **Versión documento** | 2026-09-01 — corpus exhaustivo Chat Asistente IA (leyendas 60, Excel masivo, móvil, parámetros, cierre) |
 | **Ámbito** | Módulo comercial PedidosWeb |
 | **Manual transversal** | [Generalidades.md](./Generalidades.md) (login, sesión, menú, grillas, idioma, chat IA) |
-| **Guías complementarias** | [Circuito y estados](./PedidosWeb-circuito-estados.md) · [Validaciones y errores](./PedidosWeb-validaciones-errores.md) · [Chat Asistente IA](./Chat-Asistente-IA.md) · [Asistente IA de carga](./PedidosWeb-asistente-carga-ia.md) |
+| **Guías complementarias** | [Circuito y estados](./PedidosWeb-circuito-estados.md) · [Validaciones y errores](./PedidosWeb-validaciones-errores.md) · [Importación Excel](./PedidosWeb-importacion-excel.md) · [App móvil](./PedidosWeb-app-movil.md) · [Cierre de presupuestos](./PedidosWeb-cierre-presupuestos.md) · [Parámetros ERP](./PedidosWeb-parametros-erp.md) · [Chat Asistente IA](./Chat-Asistente-IA.md) · [Asistente IA de carga](./PedidosWeb-asistente-carga-ia.md) |
 | **Público** | Usuarios finales (vendedor, supervisor, cliente) y soporte funcional/técnico |
 
 ---
@@ -27,7 +27,11 @@ Este manual se complementa con documentos de **referencia rápida** pensados par
 | Documento | Cuándo consultarlo |
 |-----------|-------------------|
 | [PedidosWeb-circuito-estados.md](./PedidosWeb-circuito-estados.md) | Estados, conversiones, bloqueo -1, cierre de presupuestos |
-| [PedidosWeb-validaciones-errores.md](./PedidosWeb-validaciones-errores.md) | Catálogo completo de validaciones, mensajes y causas al grabar, importar o **copiar** |
+| [PedidosWeb-validaciones-errores.md](./PedidosWeb-validaciones-errores.md) | Catálogo de validaciones al grabar, importar, copiar o grabar lote masivo |
+| [PedidosWeb-importacion-excel.md](./PedidosWeb-importacion-excel.md) | Plantilla, pedido individual en carga, **importación masiva** e historial |
+| [PedidosWeb-app-movil.md](./PedidosWeb-app-movil.md) | App Android/iOS: login con empresa, kardex, qué no existe en el teléfono |
+| [PedidosWeb-cierre-presupuestos.md](./PedidosWeb-cierre-presupuestos.md) | Cerrar/rechazar, convertir a pedido, menú Tratativas |
+| [PedidosWeb-parametros-erp.md](./PedidosWeb-parametros-erp.md) | Qué hace cada parámetro que se ve en Consulta de parámetros |
 | [Chat-Asistente-IA.md](./Chat-Asistente-IA.md) | Configuración BYOK, límites y alcance del chat de ayuda |
 | [PedidosWeb-asistente-carga-ia.md](./PedidosWeb-asistente-carga-ia.md) | Asistente operativo en la carga (texto, dictado, imagen, pedido compuesto) |
 
@@ -38,20 +42,22 @@ Este manual se complementa con documentos de **referencia rápida** pensados par
 ### Incluye
 
 - Dashboard operativo (KPIs y mes en curso por estado).
-- Carga, edición, copia y conversión de pedidos y presupuestos.
-- **Importación desde Excel** de pedido individual en carga (si el tenant la tiene habilitada).
+- Carga, edición, copia y conversión de pedidos y presupuestos (web y **app móvil**).
+- **Importación desde Excel** de pedido **individual** en carga y **importación masiva** de varios comprobantes (solo web, si el tenant las tiene habilitadas).
 - Consultas de comprobantes (ingresados, pendientes, presupuestos).
-- Consulta **Detalle de pedidos** (cabecera + renglones en una grilla).
-- Consultas comerciales: deuda, cheques, historial de ventas, stock (con **vista pivot** opcional si el tenant la tiene habilitada).
-- Cierre de presupuestos.
+- Consulta **Detalle de pedidos** (cabecera + renglones en una grilla; en móvil, kardex).
+- Consultas comerciales: deuda, cheques, historial de ventas, stock (con **vista pivot** opcional en **web** si el tenant la tiene habilitada).
+- Cierre de presupuestos con motivo; conversión a pedido.
 - Logs de integración (consulta).
 - Notificaciones por mail al grabar (según parámetros ERP).
+- Asistente IA **de carga** (operar el comprobante) y Chat Asistente IA (ayuda por estos manuales).
 
 ### No incluye
 
-- Administración de usuarios, roles o permisos (ERP / herramientas internas).
-- ABM de parámetros generales (ver [Generalidades §18](./Generalidades.md)).
-- Resolución multi-empresa / selección de tenant (etapa posterior).
+- Administración de usuarios, roles o permisos en el uso habitual (el ERP las mantiene; un ABM web de seguridad puede existir si la empresa lo encendió — [Generalidades](./Generalidades.md)).
+- ABM de parámetros generales (ver [Generalidades §18](./Generalidades.md) y [PedidosWeb-parametros-erp.md](./PedidosWeb-parametros-erp.md)).
+- Pivot, Excel e historial de importación **en la app móvil**.
+- Reabrir o borrar físicamente un presupuesto cerrado.
 
 ---
 
@@ -116,18 +122,21 @@ Tras el login, el menú lateral agrupa los procesos PedidosWeb. Los ítems visib
 |-----------------|---------------|
 | **Dashboard** | Indicadores operativos |
 | **Pedidos → Carga** | Alta/edición de pedidos y presupuestos |
+| **Pedidos → Importación masiva** | Varios comprobantes desde un Excel (solo web) |
 | **Pedidos → Ingresados** | Consulta pedidos estado ingresado |
 | **Pedidos → Pendientes** | Consulta pedidos pendientes |
-| **Pedidos → Detalle** | Consulta plana cabecera + renglones (grilla y pivot opcional) |
+| **Pedidos → Detalle** | Consulta plana cabecera + renglones (grilla y pivot opcional en web) |
 | **Presupuestos → Ingresados** | Presupuestos activos y cerrados |
-| **Informes → Deuda** | Situación de deuda de clientes (grilla y pivot opcional) |
-| **Informes → Cheques** | Cheques en cartera (grilla y pivot opcional) |
-| **Informes → Historial ventas** | Ventas detalladas por período (grilla y pivot opcional) |
-| **Informes → Stock** | Disponibilidad de artículos (grilla y pivot opcional) |
-| **Gestión presupuestos → Tratativas** | Seguimiento de presupuestos (alcance Should) |
+| **Informes → Deuda** | Situación de deuda de clientes (grilla y pivot opcional en web) |
+| **Informes → Cheques** | Cheques en cartera (grilla y pivot opcional en web) |
+| **Informes → Historial ventas** | Ventas detalladas por período (grilla y pivot opcional en web) |
+| **Informes → Stock** | Disponibilidad de artículos (grilla y pivot opcional en web) |
+| **Gestión presupuestos → Tratativas** | Seguimiento comercial mínimo; la pantalla puede estar preliminar — [cierre de presupuestos](./PedidosWeb-cierre-presupuestos.md) |
 | **Integración → Logs** | Consulta de logs técnicos |
+| **General → Consulta de parámetros** | Solo lectura de flags ERP — [Generalidades §18](./Generalidades.md) |
+| **General → Historial importaciones Excel** | Auditoría de lotes Excel (si el tenant lo habilita) |
 
-**General → Consulta de parámetros** se documenta en [Generalidades §18](./Generalidades.md).
+En la **app móvil** el menú oculta Excel, pivot y administración de seguridad. Detalle: [PedidosWeb-app-movil.md](./PedidosWeb-app-movil.md).
 
 ---
 
@@ -398,11 +407,15 @@ Si esperaba ver leyendas del cliente y los campos están vacíos:
 
 Las leyendas son **editables** en carga (salvo modo solo lectura) aunque no se hayan inicializado desde el cliente.
 
-Si una leyenda se **inicializa desde el cliente** y usted la **modifica en esa sesión**, al grabar el pedido o presupuesto el sistema **actualiza también el maestro de clientes** con el texto nuevo. Si no toca la leyenda en esa sesión (por ejemplo al editar un pedido viejo), el maestro **no** se cambia, aunque el texto del comprobante sea distinto al del cliente hoy.
+**Tope de longitud:** cada leyenda (1 a 5) admite como máximo **60 caracteres**. El campo en pantalla no deja escribir de más. Si el texto llega más largo por **Excel**, **asistente IA** o una integración, el sistema **recorta** a 60; **no rechaza** el comprobante por ese motivo. El maestro de clientes usa el mismo tope.
+
+Si una leyenda se **inicializa desde el cliente** y usted la **modifica en esa sesión**, al grabar el pedido o presupuesto el sistema **actualiza también el maestro de clientes** con el texto nuevo (ya recortado a 60 si hacía falta). Si no toca la leyenda en esa sesión (por ejemplo al editar un pedido viejo), el maestro **no** se cambia, aunque el texto del comprobante sea distinto al del cliente hoy.
 
 ### 6.14 Importación desde Excel (pedido individual)
 
-Cuando el tenant tiene habilitada la importación Excel en carga, aparece una **barra superior** con acceso a plantilla e importación.
+Manual completo (plantilla, masiva e historial): [PedidosWeb-importacion-excel.md](./PedidosWeb-importacion-excel.md).
+
+Cuando el tenant tiene habilitada la importación Excel en carga, aparece una **barra superior** con acceso a plantilla e importación. **No está en la app móvil.**
 
 **Cuándo está disponible**
 
@@ -435,7 +448,7 @@ Cuando el tenant tiene habilitada la importación Excel en carga, aparece una **
 | ¿Qué pasa si la **cabecera difiere** entre filas (cliente, lista, transporte, etc.)? | **Error de inconsistencia** y se **cancela toda la importación** (sin ingreso parcial). Los datos de cabecera deben ser **idénticos en todas las filas**; solo pueden variar artículo, cantidad, precio lista y bonificación de renglón. |
 | ¿Tras importar se **graba** automáticamente o se puede **seguir editando**? | El Excel **inicializa** cabecera y renglones en la pantalla de carga. **No graba** el comprobante. Puede **editar**, **cambiar** datos o **agregar más renglones** antes de pulsar Grabar pedido o Grabar presupuesto. |
 
-**Errores de importación:** catálogo completo en [PedidosWeb-validaciones-errores.md §8](./PedidosWeb-validaciones-errores.md#8-importación-excel--errores-por-fila-y-por-lote).
+**Errores de importación:** catálogo completo en [PedidosWeb-validaciones-errores.md §9](./PedidosWeb-validaciones-errores.md#9-importación-excel--errores-por-fila-y-por-lote). Varios comprobantes en un solo archivo: **Pedidos → Importación masiva** ([manual Excel](./PedidosWeb-importacion-excel.md#5-importación-masiva)).
 
 ### 6.15 Renglones — grilla, popup y reglas
 
@@ -483,7 +496,17 @@ Al pie del formulario hay un panel **colapsable** (Asistente IA) para operar el 
 
 **Pedido pegado o dictado largo:** puede enviar de una vez cliente, cabecera y renglones (varias líneas o un solo párrafo con palabras clave `cliente`, `artículo`/`art`/`item`/`it`, etc.). Si el cliente no se determina, **no se cargan** el resto de datos de ese mensaje. Si el asistente pide elegir una opción, al responder continúa con el resto diferido.
 
-**Manual completo:** [PedidosWeb-asistente-carga-ia.md](./PedidosWeb-asistente-carga-ia.md). Definición de producto: [asistente-ia-carga-pedidos-presupuestos.md](../02-producto/PedidosWeb/asistente-ia-carga-pedidos-presupuestos.md). El chat documental del menú avatar **no** muta el comprobante (§18 FAQ).
+**Manual completo:** [PedidosWeb-asistente-carga-ia.md](./PedidosWeb-asistente-carga-ia.md). El chat documental del menú avatar **no** muta el comprobante.
+
+### 6.18 Importación masiva (varios comprobantes)
+
+Ruta: **Pedidos → Importación masiva** (permiso propio; **solo web**).
+
+Sirve para un Excel con **varios** clientes o varias cabeceras. El sistema arma una **grilla de borrador** (en el navegador): cada grupo es un pedido o presupuesto, usted marca el tipo, consulta en solo lectura y pulsa **Grabar** el lote. Un error en una fila **no** cancela las demás. Si cierra la pestaña sin grabar, **pierde** el borrador.
+
+No reemplaza la carga individual: si quiere **editar renglones** antes de grabar un único comprobante, use Excel en **Carga** (§6.14).
+
+Guía paso a paso: [PedidosWeb-importacion-excel.md](./PedidosWeb-importacion-excel.md).
 
 ---
 
@@ -628,11 +651,15 @@ En la **carga de pedidos** (§6.7), el combobox muestra **código, descripción 
 
 Desde **Presupuestos ingresados**, acción **Cerrar** (según permisos):
 
-1. Seleccionar un presupuesto activo.
-2. Elegir **motivo de cierre** (catálogo ERP).
+1. Seleccionar un presupuesto **activo (99)**.
+2. Elegir **motivo de cierre** (catálogo ERP, motivos negativos).
 3. Confirmar.
 
-El presupuesto pasa a estado **cerrado (98)** y deja de editarse como activo. No se elimina físicamente.
+El presupuesto pasa a estado **cerrado (98)** y deja de editarse como activo. **No se elimina** físicamente.
+
+La **conversión a pedido** cierra el presupuesto con el motivo **exitoso** parametrizado, sin que usted lo elija. El menú **Tratativas** puede existir como pantalla preliminar.
+
+Manual dedicado: [PedidosWeb-cierre-presupuestos.md](./PedidosWeb-cierre-presupuestos.md). Circuito: [PedidosWeb-circuito-estados.md](./PedidosWeb-circuito-estados.md).
 
 ---
 
@@ -641,6 +668,12 @@ El presupuesto pasa a estado **cerrado (98)** y deja de editarse como activo. No
 Ruta: **Integración → Logs de integración**.
 
 Consulta técnica de eventos de integración (fechas, tipos, mensajes). Solo lectura para soporte y supervisión. Filtros por rango de fechas y tipo de evento.
+
+---
+
+## 11.1 App móvil
+
+En el teléfono o tablet: login con **empresa + usuario + contraseña**; las consultas son **tarjetas** (no grilla de escritorio); la carga de pedidos está disponible; **no** hay Excel, pivot ni ABM de seguridad. Guía: [PedidosWeb-app-movil.md](./PedidosWeb-app-movil.md).
 
 ---
 
@@ -927,31 +960,48 @@ Depende de cuál use:
 - **Chat documental** (menú avatar): no ve ni modifica el comprobante. Ver [Chat-Asistente-IA.md](./Chat-Asistente-IA.md).
 - **Asistente IA al pie de la carga** (§6.17): sí opera sobre el borrador abierto (cliente, cabecera, renglones, consultas y grabar), con las mismas reglas y permisos de la pantalla.
 
+### ¿Cómo cargo muchos pedidos de un Excel con varios clientes?
+
+**Pedidos → Importación masiva**, no la barra de Carga. Ver [PedidosWeb-importacion-excel.md](./PedidosWeb-importacion-excel.md).
+
+### ¿Por qué no veo Importación masiva / Excel en el teléfono?
+
+En la **app móvil** no existen. Use la web. Ver [PedidosWeb-app-movil.md](./PedidosWeb-app-movil.md).
+
+### ¿Las leyendas tienen límite de tamaño?
+
+Sí: **60 caracteres** por leyenda. El excedente se recorta; no impide grabar. Ver §6.13.
+
+### ¿Dónde veo qué hace un parámetro?
+
+**General → Consulta de parámetros** (valores de su empresa) y [PedidosWeb-parametros-erp.md](./PedidosWeb-parametros-erp.md) (significado).
+
 ---
 
 ## 19. Resumen operativo
 
-PedidosWeb concentra la operatoria comercial web en cuatro ejes:
+PedidosWeb concentra la operatoria comercial en estos ejes:
 
 1. **Dashboard** — KPIs operativos y mes en curso por estado.
-2. **Carga** — pedidos y presupuestos con cabecera completa y renglones.
-3. **Consultas** — comprobantes, detalle plano e informes comerciales (grilla y pivot opcional).
-4. **Soporte** — logs de integración y consulta de parámetros (General).
+2. **Carga** — pedidos y presupuestos (web y app); Excel individual o masivo solo en web.
+3. **Consultas** — comprobantes, detalle e informes (grilla/pivot en web; kardex en móvil).
+4. **Cierre de presupuestos** — motivo negativo o conversión a pedido.
+5. **Soporte** — logs de integración y consulta de parámetros.
 
 Grillas, pivot, idioma y acceso se rigen por [Generalidades.md](./Generalidades.md). Permisos y parámetros ERP determinan qué ve y qué puede modificar cada usuario.
 
 ---
 
-## Referencias técnicas (soporte)
+## Referencias (soporte y corpus)
 
 | Tema | Documento |
 |------|-----------|
 | Circuito y estados | [PedidosWeb-circuito-estados.md](./PedidosWeb-circuito-estados.md) |
 | Validaciones y errores | [PedidosWeb-validaciones-errores.md](./PedidosWeb-validaciones-errores.md) |
+| Excel individual y masivo | [PedidosWeb-importacion-excel.md](./PedidosWeb-importacion-excel.md) |
+| App móvil | [PedidosWeb-app-movil.md](./PedidosWeb-app-movil.md) |
+| Cierre y tratativas | [PedidosWeb-cierre-presupuestos.md](./PedidosWeb-cierre-presupuestos.md) |
+| Parámetros (significado) | [PedidosWeb-parametros-erp.md](./PedidosWeb-parametros-erp.md) |
 | Chat Asistente IA | [Chat-Asistente-IA.md](./Chat-Asistente-IA.md) |
-| Carga UI | [pantalla-carga-comprobante-ui.md](../02-producto/PedidosWeb/pantalla-carga-comprobante-ui.md) |
-| Consultas cabecera | [consulta-comprobantes-cabecera.md](../02-producto/PedidosWeb/consulta-comprobantes-cabecera.md) |
-| Detalle pedidos | [consulta-detalle-pedidos.md](../02-producto/PedidosWeb/consulta-detalle-pedidos.md) |
-| Dashboard | [patron-dashboard-operativo-ui.md](../02-producto/PedidosWeb/patron-dashboard-operativo-ui.md) |
-| Importación Excel | [Importación Pedido Individual desde Excel.md](../02-producto/PedidosWeb/Importación%20Pedido%20Individual%20desde%20Excel.md) |
-| Historias de usuario | [101-PedidosWeb/README.md](../03-historias-usuario/101-PedidosWeb/README.md) |
+| Asistente IA de carga | [PedidosWeb-asistente-carga-ia.md](./PedidosWeb-asistente-carga-ia.md) |
+| Generalidades | [Generalidades.md](./Generalidades.md) |

@@ -75,6 +75,11 @@ import {
   type LeyendasSnapshot,
 } from '../utils/leyendasDirtySession';
 import { resolveGrabacionErrorMessages } from '../utils/resolveGrabacionErrorMessages';
+import {
+  resolveCargaErrorDialogMessages,
+  resolvePedidosCargaErroresDialogCopy,
+  type PedidosCargaErroresDialogContext,
+} from '../utils/resolvePedidosCargaErroresDialogCopy';
 import { CargaAsistenteIaPanel } from '../cargaAsistenteIa/components/CargaAsistenteIaPanel';
 import {
   buildCargaAsistenteDraftContext,
@@ -120,6 +125,7 @@ function PedidosCargaWebPage() {
   const ultimaAccionGrabacionRef = useRef<'pedido' | 'presupuesto' | null>(null);
   const isHydratingComprobanteRef = useRef(false);
   const hydratingFromExcelImportRef = useRef(false);
+  const erroresDialogClosingRef = useRef(false);
   const articulosStockLoadRef = useRef<Promise<void> | null>(null);
   const articulosPreciosLoadRef = useRef<Promise<void> | null>(null);
   const articulosListaPreciosRef = useRef<number | null>(null);
@@ -157,7 +163,8 @@ function PedidosCargaWebPage() {
   const [saveError, setSaveError] = useState<string | null>(null);
   const [erroresGrabacionVisible, setErroresGrabacionVisible] = useState(false);
   const [erroresGrabacionMessages, setErroresGrabacionMessages] = useState<string[]>([]);
-  const [erroresDialogContext, setErroresDialogContext] = useState<'grabacion' | 'copia'>('grabacion');
+  const [erroresDialogContext, setErroresDialogContext] =
+    useState<PedidosCargaErroresDialogContext>('grabacion');
   const [clienteSelectKey, setClienteSelectKey] = useState(0);
   const [clienteSortField, setClienteSortField] = useState<ClienteSortField>('razonSocial');
   const [autoOpenRenglonId, setAutoOpenRenglonId] = useState<number | null>(null);
@@ -320,6 +327,17 @@ function PedidosCargaWebPage() {
     leyendasSnapshotRef.current = createLeyendasSnapshot(cabeceraValue);
   }, []);
 
+  const openErroresDialog = useCallback(
+    (context: PedidosCargaErroresDialogContext, messages: string[]) => {
+      erroresDialogClosingRef.current = false;
+      setSaveError(null);
+      setErroresDialogContext(context);
+      setErroresGrabacionMessages(messages);
+      setErroresGrabacionVisible(true);
+    },
+    [],
+  );
+
   const loadCabeceraForCliente = useCallback(async (codCliente: string) => {
     if (hydratingFromExcelImportRef.current) {
       return;
@@ -331,15 +349,20 @@ function PedidosCargaWebPage() {
       setCabecera(result.cabecera);
       captureLeyendasSnapshot(result.cabecera);
       setCatalogos(result.catalogos);
-    } catch {
+      setSaveError(null);
+    } catch (error) {
       const emptyCabecera = emptyComprobanteCabecera(codCliente);
       setCabecera(emptyCabecera);
       captureLeyendasSnapshot(emptyCabecera);
       setCatalogos(emptyCatalogos);
+      openErroresDialog(
+        'cabecera',
+        resolveCargaErrorDialogMessages(error, t, 'pedidos.carga.errorCargaCabecera'),
+      );
     } finally {
       setCabeceraLoading(false);
     }
-  }, [captureLeyendasSnapshot]);
+  }, [captureLeyendasSnapshot, openErroresDialog, t]);
 
   const loadArticulosStock = useCallback(async (options?: { force?: boolean }) => {
     if (!options?.force && articulosStockLoadRef.current) {
@@ -556,7 +579,10 @@ function PedidosCargaWebPage() {
         }
 
         setClientes([]);
-        setSaveError(t('pedidos.carga.errorCargaClientes'));
+        openErroresDialog(
+          'clientes',
+          [t('pedidos.carga.errorCargaClientes')],
+        );
       } finally {
         if (mounted) {
           setClientesLoading(false);
@@ -575,6 +601,7 @@ function PedidosCargaWebPage() {
     isImportacionMasivaReadonly,
     loadCabeceraForCliente,
     modo,
+    openErroresDialog,
     sessionContext.codCliente,
     sessionContext.user.id,
     t,
@@ -677,20 +704,17 @@ function PedidosCargaWebPage() {
         }
       } catch (error) {
         if (mounted) {
-          if (modo === 'copia') {
-            const messages = resolveGrabacionErrorMessages(error, t);
-            setErroresDialogContext('copia');
-            setErroresGrabacionMessages(
-              messages.length > 0 ? messages : [t('pedidos.carga.errorCargaComprobante')],
-            );
-            setErroresGrabacionVisible(true);
-            setSaveError(null);
-          } else {
+          const context: PedidosCargaErroresDialogContext =
+            modo === 'copia' ? 'copia' : 'comprobante';
+          openErroresDialog(
+            context,
+            resolveCargaErrorDialogMessages(error, t, 'pedidos.carga.errorCargaComprobante'),
+          );
+          if (context === 'comprobante') {
             setSelectedCliente(null);
             setCabecera(null);
             setCatalogos(emptyCatalogos);
             setRenglones([createEmptyRenglon(1)]);
-            setSaveError(t('pedidos.carga.errorCargaComprobante'));
           }
         }
       } finally {
@@ -712,7 +736,15 @@ function PedidosCargaWebPage() {
     return () => {
       mounted = false;
     };
-  }, [comprobanteId, isImportacionMasivaReadonly, modo, searchParams, sessionContext.codCliente, t]);
+  }, [
+    comprobanteId,
+    isImportacionMasivaReadonly,
+    modo,
+    openErroresDialog,
+    searchParams,
+    sessionContext.codCliente,
+    t,
+  ]);
 
   useEffect(
     () => () => {
@@ -871,6 +903,18 @@ function PedidosCargaWebPage() {
     selectedCliente,
     sessionContext.codCliente,
   ]);
+
+  const handleErroresDialogClose = useCallback(() => {
+    if (erroresDialogClosingRef.current) {
+      return;
+    }
+
+    erroresDialogClosingRef.current = true;
+    setErroresGrabacionVisible(false);
+    if (resolvePedidosCargaErroresDialogCopy(erroresDialogContext).navigateBackOnClose) {
+      navigate(-1);
+    }
+  }, [erroresDialogContext, navigate]);
 
   const handleCancelar = useCallback(async () => {
     const codPedido = codPedidoEdicionRef.current;
@@ -1207,10 +1251,7 @@ function PedidosCargaWebPage() {
     } catch (error) {
       const messages = resolveGrabacionErrorMessages(error, t);
       if (messages.length > 0) {
-        setErroresDialogContext('grabacion');
-        setErroresGrabacionMessages(messages);
-        setErroresGrabacionVisible(true);
-        setSaveError(null);
+        openErroresDialog('grabacion', messages);
       } else {
         setSaveError(t('pedidos.carga.errorGrabacion'));
       }
@@ -1220,6 +1261,7 @@ function PedidosCargaWebPage() {
   };
 
   const cabeceraReady = cabecera !== null && selectedCliente !== null;
+  const erroresDialogCopy = resolvePedidosCargaErroresDialogCopy(erroresDialogContext);
 
   const handleExcelImportComplete = useCallback(
     async (result: ExcelImportHostResult) => {
@@ -1255,8 +1297,11 @@ function PedidosCargaWebPage() {
         setAutoOpenRenglonId(null);
         setSuccessMessage(t('pedidos.carga.excelImport.importSuccess'));
         setSuccessToastVisible(true);
-      } catch {
-        setSaveError(t('pedidos.carga.errorCargaComprobante'));
+      } catch (error) {
+        openErroresDialog(
+          'cabecera',
+          resolveCargaErrorDialogMessages(error, t, 'pedidos.carga.errorCargaCabecera'),
+        );
       } finally {
         window.requestAnimationFrame(() => {
           window.requestAnimationFrame(() => {
@@ -1265,7 +1310,7 @@ function PedidosCargaWebPage() {
         });
       }
     },
-    [t],
+    [captureLeyendasSnapshot, openErroresDialog, t],
   );
 
   return (
@@ -1652,25 +1697,10 @@ function PedidosCargaWebPage() {
       <PedidosCargaErroresGrabacionDialog
         visible={erroresGrabacionVisible}
         messages={erroresGrabacionMessages}
-        titleKey={
-          erroresDialogContext === 'copia'
-            ? 'pedidos.carga.erroresCopiaTitulo'
-            : 'pedidos.carga.erroresGrabacionTitulo'
-        }
-        introKey={
-          erroresDialogContext === 'copia'
-            ? 'pedidos.carga.erroresCopiaIntro'
-            : 'pedidos.carga.erroresGrabacionIntro'
-        }
-        testId={
-          erroresDialogContext === 'copia' ? 'dialog-errores-copia' : 'dialog-errores-grabacion'
-        }
-        onClose={() => {
-          setErroresGrabacionVisible(false);
-          if (erroresDialogContext === 'copia') {
-            navigate(-1);
-          }
-        }}
+        titleKey={erroresDialogCopy.titleKey}
+        introKey={erroresDialogCopy.introKey}
+        testId={erroresDialogCopy.testId}
+        onClose={handleErroresDialogClose}
       />
 
       <Toast

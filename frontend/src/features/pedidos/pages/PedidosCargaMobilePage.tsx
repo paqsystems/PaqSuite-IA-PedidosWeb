@@ -33,6 +33,7 @@ import {
   renglonesValidosParaGrabar,
 } from '../utils/renglonesCarga';
 import { cantidadVisibleParaUsuario } from '../utils/cargaUnidadesVenta';
+import { resolvePedidosCargaErroresDialogCopy } from '../utils/resolvePedidosCargaErroresDialogCopy';
 import './PedidosCargaMobilePage.css';
 
 const monedaSimbolo = '$';
@@ -48,6 +49,7 @@ export function PedidosCargaMobilePage() {
   const { t } = useTranslation();
   const sessionContext = useRequiredSessionContext();
   const carga = usePedidosCargaMobile();
+  const erroresDialogCopy = resolvePedidosCargaErroresDialogCopy(carga.erroresDialogContext);
 
   const stepIndex = carga.stepOrder.indexOf(carga.step);
 
@@ -526,21 +528,9 @@ export function PedidosCargaMobilePage() {
       <PedidosCargaErroresGrabacionDialog
         visible={carga.erroresGrabacionVisible}
         messages={carga.erroresGrabacionMessages}
-        titleKey={
-          carga.erroresDialogContext === 'copia'
-            ? 'pedidos.carga.erroresCopiaTitulo'
-            : 'pedidos.carga.erroresGrabacionTitulo'
-        }
-        introKey={
-          carga.erroresDialogContext === 'copia'
-            ? 'pedidos.carga.erroresCopiaIntro'
-            : 'pedidos.carga.erroresGrabacionIntro'
-        }
-        testId={
-          carga.erroresDialogContext === 'copia'
-            ? 'dialog-errores-copia'
-            : 'dialog-errores-grabacion'
-        }
+        titleKey={erroresDialogCopy.titleKey}
+        introKey={erroresDialogCopy.introKey}
+        testId={erroresDialogCopy.testId}
         onClose={carga.handleErroresDialogClose}
       />
     </section>
