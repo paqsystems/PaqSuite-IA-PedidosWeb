@@ -88,4 +88,29 @@ final class CargaUnidadesVentaConverter
 
         return self::fromCantidadUsuario($cantidadUsuario, $equivalenciaVentas, $cargaUnidadesVenta);
     }
+
+    /**
+     * Recalcula el par según el parámetro vigente.
+     * Con CargaUnidadesVenta=true la cantidad de usuario es cantidad_venta;
+     * no se confía en un `cantidad` (stock) potencialmente obsoleto.
+     *
+     * @param  array<string, mixed>  $renglon
+     * @return array{cantidad: float, cantidad_venta: float}
+     */
+    public static function materializeSegunParametro(
+        array $renglon,
+        mixed $equivalenciaVentas,
+        bool $cargaUnidadesVenta,
+    ): array {
+        if ($cargaUnidadesVenta) {
+            $cantidadVentaRaw = $renglon['cantidad_venta'] ?? $renglon['cantidadVenta'] ?? null;
+            $cantidadUsuario = ($cantidadVentaRaw !== null && $cantidadVentaRaw !== '')
+                ? (float) $cantidadVentaRaw
+                : (float) ($renglon['cantidad'] ?? 0);
+
+            return self::fromCantidadUsuario($cantidadUsuario, $equivalenciaVentas, true);
+        }
+
+        return self::fromCantidadUsuario((float) ($renglon['cantidad'] ?? 0), $equivalenciaVentas, false);
+    }
 }

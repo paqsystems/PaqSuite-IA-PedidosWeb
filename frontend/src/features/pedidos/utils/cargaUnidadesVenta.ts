@@ -61,3 +61,34 @@ export function applyCantidadUsuarioToRenglon<
     cantidadVenta: pair.cantidadVenta,
   };
 }
+
+export function enrichRenglonesEquivalenciaVentas<
+  T extends { codArticulo: string; equivalenciaVentas?: number },
+>(
+  renglones: T[],
+  articulos: Array<{ codArticulo: string; equivalenciaVentas?: number }>,
+): T[] {
+  const equivByCodigo = new Map(
+    articulos.map((articulo) => [
+      articulo.codArticulo,
+      resolveEquivalenciaVentas(articulo.equivalenciaVentas),
+    ]),
+  );
+
+  let changed = false;
+  const next = renglones.map((renglon) => {
+    if (renglon.equivalenciaVentas != null && Number(renglon.equivalenciaVentas) > 0) {
+      return renglon;
+    }
+
+    const equivalenciaVentas = equivByCodigo.get(renglon.codArticulo);
+    if (equivalenciaVentas === undefined) {
+      return renglon;
+    }
+
+    changed = true;
+    return { ...renglon, equivalenciaVentas };
+  });
+
+  return changed ? next : renglones;
+}

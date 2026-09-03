@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   applyCantidadUsuarioToRenglon,
   cantidadVisibleParaUsuario,
+  enrichRenglonesEquivalenciaVentas,
   fromCantidadUsuario,
   resolveEquivalenciaVentas,
 } from './cargaUnidadesVenta';
@@ -26,13 +27,31 @@ describe('cargaUnidadesVenta', () => {
     expect(cantidadVisibleParaUsuario(10, 4, true)).toBe(4);
   });
 
-  it('applyCantidadUsuarioToRenglon actualiza el par', () => {
-    const result = applyCantidadUsuarioToRenglon(
-      { cantidad: 1, cantidadVenta: 1, equivalenciaVentas: 2 },
-      3,
-      true,
-    );
-    expect(result.cantidad).toBe(6);
-    expect(result.cantidadVenta).toBe(3);
+    it('applyCantidadUsuarioToRenglon actualiza el par', () => {
+      const result = applyCantidadUsuarioToRenglon(
+        { cantidad: 1, cantidadVenta: 1, equivalenciaVentas: 2 },
+        3,
+        true,
+      );
+      expect(result.cantidad).toBe(6);
+      expect(result.cantidadVenta).toBe(3);
+    });
+
+    it('applyCantidadUsuarioToRenglon en edición con equivalencia deriva stock desde bultos', () => {
+      const result = applyCantidadUsuarioToRenglon(
+        { cantidad: 20, cantidadVenta: 4, equivalenciaVentas: 5 },
+        8,
+        true,
+      );
+      expect(result.cantidad).toBe(40);
+      expect(result.cantidadVenta).toBe(8);
+    });
+
+    it('enrichRenglonesEquivalenciaVentas completa equivalencia faltante', () => {
+      const result = enrichRenglonesEquivalenciaVentas(
+        [{ codArticulo: 'A1', equivalenciaVentas: undefined }],
+        [{ codArticulo: 'A1', equivalenciaVentas: 5 }],
+      );
+      expect(result[0]?.equivalenciaVentas).toBe(5);
+    });
   });
-});

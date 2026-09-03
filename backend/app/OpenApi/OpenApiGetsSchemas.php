@@ -138,6 +138,7 @@ namespace App\OpenApi;
  *     @OA\Property(property="descripcion_articulo", type="string", example="ALMENDRA TOSTADA"),
  *     @OA\Property(property="cantidad", type="number", format="float", example=10),
  *     @OA\Property(property="cantidad_venta", type="number", format="float", example=10),
+ *     @OA\Property(property="equivalencia_ventas", type="number", format="float", example=5),
  *     @OA\Property(property="porc_bonif", type="number", format="float", example=3),
  *     @OA\Property(property="precio", type="number", format="float", example=123.5),
  *     @OA\Property(property="precio_neto", type="number", format="float", example=119.8),

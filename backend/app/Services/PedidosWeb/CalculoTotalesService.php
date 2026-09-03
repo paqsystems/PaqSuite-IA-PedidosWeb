@@ -16,7 +16,10 @@ final class CalculoTotalesService
         $factorCabecera = 1 - ($bonificacionNetaCabecera / 100);
 
         foreach ($renglones as $index => $renglon) {
-            $pair = CargaUnidadesVentaConverter::ensurePair($renglon);
+            $pair = CargaUnidadesVentaConverter::ensurePair(
+                $renglon,
+                $renglon['equivalencia_ventas'] ?? $renglon['equivalenciaVentas'] ?? 1,
+            );
             $cantidad = $pair['cantidad'];
             $cantidadVenta = $pair['cantidad_venta'];
             $precio = $this->toFloat($renglon['precio'] ?? 0);

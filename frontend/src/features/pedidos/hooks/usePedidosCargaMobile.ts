@@ -35,11 +35,12 @@ import {
   calcularBonificacionNeta,
   calcularTotalesComprobante,
   createEmptyRenglon,
+  eliminarRenglonDeLista,
   nextRenglonNumber,
   normalizarPorcIvaAlmacenado,
   renglonesValidosParaGrabar,
 } from '../utils/renglonesCarga';
-import { fromCantidadUsuario, resolveEquivalenciaVentas } from '../utils/cargaUnidadesVenta';
+import { fromCantidadUsuario, enrichRenglonesEquivalenciaVentas, resolveEquivalenciaVentas } from '../utils/cargaUnidadesVenta';
 import {
   computeLeyendasDirtyFlags,
   createLeyendasSnapshot,
@@ -122,6 +123,14 @@ export function usePedidosCargaMobile() {
     () => ordenarArticulosPorDescripcion(mergeArticulosStockPrecios(articulosStock, articulosPrecios)),
     [articulosPrecios, articulosStock],
   );
+
+  useEffect(() => {
+    if (articulosOrdenados.length === 0) {
+      return;
+    }
+
+    setRenglones((current) => enrichRenglonesEquivalenciaVentas(current, articulosOrdenados));
+  }, [articulosOrdenados]);
 
   const articuloSeleccionadoData = useMemo(() => {
     if (!articuloSeleccionado) {
@@ -575,7 +584,7 @@ export function usePedidosCargaMobile() {
   ]);
 
   const handleEliminarRenglon = useCallback((renglonId: number) => {
-    setRenglones((current) => current.filter((renglon) => renglon.renglon !== renglonId));
+    setRenglones((current) => eliminarRenglonDeLista(current, renglonId));
   }, []);
 
   const handleGuardarRenglon = useCallback((renglonActualizado: ComprobanteRenglon) => {
