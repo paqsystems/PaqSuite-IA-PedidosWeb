@@ -5,10 +5,11 @@ namespace App\Services\PedidosWeb\CargaAsistente;
 final class CargaAsistenteIntentDetector
 {
     /**
-     * Palabras/abreviaturas de renglón: artículo(s), art., producto(s), prod., item(s), it.
-     * Orden: formas largas antes que art/it para no partir mal el match.
+     * Palabras/abreviaturas de renglón: artículo(s), art., producto(s), prod., item(s), it.,
+     * codigo(s)/código(s), cod./cód. (D1-26 + D1-27).
+     * Orden: formas largas antes que art/it/cod para no partir mal el match.
      */
-    private const ARTICULO_KEYWORD_REGEX = 'articulos?|artículos?|productos?|items?|art\.?|prod\.?|it\.?';
+    private const ARTICULO_KEYWORD_REGEX = 'articulos?|artículos?|productos?|items?|codigos?|códigos?|art\.?|prod\.?|it\.?|cod\.?|cód\.?';
 
     /**
      * @param  array<string, mixed>|null  $pendingChoice
@@ -137,10 +138,24 @@ final class CargaAsistenteIntentDetector
                     'borrar item',
                     'quita item',
                     'sacar item',
+                    'eliminar codigo',
+                    'eliminar código',
+                    'elimina codigo',
+                    'elimina código',
+                    'borrar codigo',
+                    'borrar código',
+                    'quita codigo',
+                    'quita código',
+                    'sacar codigo',
+                    'sacar código',
                     'eliminar art',
                     'elimina art',
                     'borrar art',
                     'quita art',
+                    'eliminar cod',
+                    'elimina cod',
+                    'borrar cod',
+                    'quita cod',
                 ],
                 $this->articuloKeywordList(),
                 [
@@ -217,8 +232,16 @@ final class CargaAsistenteIntentDetector
                         'modificar item',
                         'cambiar item',
                         'actualizar item',
+                        'modificar codigo',
+                        'modificar código',
+                        'cambiar codigo',
+                        'cambiar código',
+                        'actualizar codigo',
+                        'actualizar código',
                         'modificar art',
                         'cambiar art',
+                        'modificar cod',
+                        'cambiar cod',
                     ],
                     $this->articuloKeywordList(),
                     [
@@ -607,7 +630,7 @@ final class CargaAsistenteIntentDetector
             $value = trim($matches[1]);
         }
 
-        // Cortar ante artículo/producto/item (dictado en una línea: “cliente X artículo Y…”).
+        // Cortar ante artículo/producto/item/codigo (dictado en una línea: “cliente X artículo Y…”).
         $cutArticulo = preg_split(
             '/\s+(?:'.self::ARTICULO_KEYWORD_REGEX.')\b/iu',
             $value,
@@ -744,12 +767,20 @@ final class CargaAsistenteIntentDetector
             'producto',
             'items',
             'item',
+            'codigos',
+            'códigos',
+            'codigo',
+            'código',
             'art.',
             'art',
             'prod.',
             'prod',
             'it.',
             'it',
+            'cod.',
+            'cod',
+            'cód.',
+            'cód',
         ];
     }
 
@@ -793,7 +824,8 @@ final class CargaAsistenteIntentDetector
             $working = trim(str_replace($matches[0], '', $working));
         }
 
-        // Preferir descripción entre comillas.
+        // D1-28: si hay comillas (p. ej. entre sinónimo de artículo y cantidad), el contenido
+        // tal cual es el q de lookup (código o descripción; conserva espacios).
         if (preg_match('/["“”\']([^"“”\']+)["“”\']/u', $working, $quoted) === 1) {
             $q = trim($quoted[1]);
         } else {

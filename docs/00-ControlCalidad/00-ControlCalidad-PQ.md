@@ -46,6 +46,7 @@ Este archivo **no sustituye** SPEC, HU ni TR: es la **entrada** del circuito de 
 
 | # | Fecha | Estado | Resumen |
 |---|-------|--------|---------|
+| 14 | 08/09/2026 | Especificado (Parte G/D/E/F 08/09/2026) | Asistente IA carga: alias `codigo` + búsqueda literal entre comillas (espacios) |
 | 13 | 01/09/2026 | Especificado (Parte G/D/E/F 01/09/2026) | Leyendas 1–5 de cabecera limitadas a 60 caracteres (modelo, carga, Excel, asistente IA) |
 | 12 | 28/08/2026 | Finalizado (Parte I 30/08/2026; re-unificación CC #10/#11 31/08/2026) | Saldo deuda en carga; unidades/precio neto modal; no stockeables; sync leyendas; colores deuda; rango fechas historial |
 | 11 | 18/08/2026 | Finalizado (Parte I 31/08/2026) | Contactos de cliente (`pq_pedidosweb_clientescontactos`) en API `GET /clientes` (listado + unitario); sin UI PedidosWeb |
@@ -59,6 +60,41 @@ Este archivo **no sustituye** SPEC, HU ni TR: es la **entrada** del circuito de 
 | 1 | 04/06/2026 | Finalizado (Parte I) | 10 familias HU — CC PQ; updates unificados 09/06/2026 |
 | 2 | 05/06/2026 | Finalizado (Parte I) | GEN-03 layouts/export Excel formateado — CC PQ #2; unificado 09/06/2026 |
 | 3 | 09/06/2026 | Finalizado (Parte I) | Cartel cargando, layouts totales, performance carga, parámetros — unificado 09/06/2026 |
+
+---
+
+## Control de Calidad #14
+
+### Referencia del control
+
+| Campo | Valor |
+|-------|--------|
+| **Fecha** | 08/09/2026 |
+| **Responsable** | Pablo Quarracino (PQ) |
+| **Estado** | Especificado |
+
+### Hallazgos
+
+optimizar asistente IA en carga de pedidos
+
+### Errores encontrados - Mejoras solicitadas
+
+#### Carga de Pedidos - Asistente IA - Optimizaciones
+
+- utilizar "codigo" y sus abreviaturas como sinónimo de "articulo","producto","item"
+- si entre articulo (o sinonimos) y cantidad (o abreviaturas) aparece un texto entre comillas, considerar su contenido tal cual para buscar en codigo o descripción del artículo. esto permite buscar un texto con espacios en blanco
+
+*Procesado* → [SPEC-101-19-update-01](../05-open-spec/updates/101-PedidosWeb/SPEC-101-19-asistente-carga-ia-mutaciones-update-01.md) · [HU-101-040-update-01](../03-historias-usuario/updates/101-PedidosWeb/HU-101-040-asistente-carga-ia-articulos-grabar-update-01.md) · [TR-SPEC-101-19-update-01](../04-tareas/updates/101-PedidosWeb/TR-SPEC-101-19-asistente-carga-ia-mutaciones-update-01.md) — Parte G 08/09/2026 · **Parte F** [F-CC-PQ-14-cierre-formal](../04-tareas/101-PedidosWeb/F-CC-PQ-14-cierre-formal.md) 08/09/2026 · **D1-27:** alias `codigo`/`código`/`cod.`/`cod`/`cód.`/`cód` · **D1-28:** comillas entre sinónimo de artículo y cantidad → `q` literal (código o descripción; espacios)
+
+### Verificación ciclo OpenSpec (08/09/2026)
+
+| Parte | Documento | Veredicto |
+|-------|-----------|-----------|
+| G | Updates `-update-01` SPEC/HU/TR 101-19 / 040 | Hecho 08/09/2026 |
+| D | Implementación código | Hecho 08/09/2026 — `CargaAsistenteIntentDetector` D1-27/D1-28 |
+| E | Tests | Hecho 08/09/2026 — [E-CC-PQ-14-tests.md](../04-tareas/101-PedidosWeb/E-CC-PQ-14-tests.md) |
+| F | Cierre formal | Hecho 08/09/2026 — [F-CC-PQ-14-cierre-formal.md](../04-tareas/101-PedidosWeb/F-CC-PQ-14-cierre-formal.md) |
+| I | Unificación | Pendiente |
 
 ---
 

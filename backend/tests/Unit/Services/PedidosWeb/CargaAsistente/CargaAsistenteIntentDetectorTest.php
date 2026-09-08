@@ -337,4 +337,79 @@ TXT;
         $this->assertTrue((bool) $ultimo['params']['ultimo']);
         $this->assertSame(1500.0, $ultimo['params']['precio']);
     }
+
+    public function testDetectsCodigoAliasAsArticuloSynonym(): void
+    {
+        $detector = new CargaAsistenteIntentDetector();
+
+        $codigo = $detector->detect('codigo ABC-01 cantidad 3', null);
+        $this->assertSame('addRenglon', $codigo['intent']);
+        $this->assertSame(3.0, $codigo['params']['cantidad']);
+        $this->assertSame('ABC-01', $codigo['params']['q']);
+
+        $codPunto = $detector->detect('cod. XYZ-99 cant: 5', null);
+        $this->assertSame('addRenglon', $codPunto['intent']);
+        $this->assertSame(5.0, $codPunto['params']['cantidad']);
+        $this->assertSame('XYZ-99', $codPunto['params']['q']);
+
+        $codSinPunto = $detector->detect('cod ABC-02 cantidad 2', null);
+        $this->assertSame('addRenglon', $codSinPunto['intent']);
+        $this->assertSame(2.0, $codSinPunto['params']['cantidad']);
+        $this->assertSame('ABC-02', $codSinPunto['params']['q']);
+
+        $conAcento = $detector->detect('código DEF-1 cantidad 4', null);
+        $this->assertSame('addRenglon', $conAcento['intent']);
+        $this->assertSame(4.0, $conAcento['params']['cantidad']);
+        $this->assertSame('DEF-1', $conAcento['params']['q']);
+
+        $codAcento = $detector->detect('cód GHI cantidad 1', null);
+        $this->assertSame('addRenglon', $codAcento['intent']);
+        $this->assertSame(1.0, $codAcento['params']['cantidad']);
+        $this->assertSame('GHI', $codAcento['params']['q']);
+    }
+
+    public function testExtractsQuotedQueryBetweenCodigoAndCantidadPreservingSpaces(): void
+    {
+        $detector = new CargaAsistenteIntentDetector();
+
+        $dobles = $detector->detect(
+            'codigo "texto con espacios" cantidad 10',
+            null,
+        );
+        $this->assertSame('addRenglon', $dobles['intent']);
+        $this->assertSame('texto con espacios', $dobles['params']['q']);
+        $this->assertSame(10.0, $dobles['params']['cantidad']);
+
+        $tipograficas = $detector->detect(
+            'articulo “ajo en polvo 25 kg” cantidad 100',
+            null,
+        );
+        $this->assertSame('addRenglon', $tipograficas['intent']);
+        $this->assertSame('ajo en polvo 25 kg', $tipograficas['params']['q']);
+        $this->assertSame(100.0, $tipograficas['params']['cantidad']);
+
+        $simples = $detector->detect(
+            "cod. 'almendra carmel 20/22' canti 10",
+            null,
+        );
+        $this->assertSame('addRenglon', $simples['intent']);
+        $this->assertSame('almendra carmel 20/22', $simples['params']['q']);
+        $this->assertSame(10.0, $simples['params']['cantidad']);
+    }
+
+    public function testMutateRenglonWithCodigoAliasAndQuotes(): void
+    {
+        $detector = new CargaAsistenteIntentDetector();
+
+        $remove = $detector->detect('eliminar codigo almendra', null);
+        $this->assertSame('mutateRenglon', $remove['intent']);
+        $this->assertSame('remove', $remove['params']['operation']);
+        $this->assertStringContainsString('almendra', mb_strtolower((string) $remove['params']['q']));
+
+        $update = $detector->detect('cambiar cantidad del codigo "almendra tostada" a 150', null);
+        $this->assertSame('mutateRenglon', $update['intent']);
+        $this->assertSame('update', $update['params']['operation']);
+        $this->assertSame(150.0, $update['params']['cantidad']);
+        $this->assertSame('almendra tostada', mb_strtolower((string) $update['params']['q']));
+    }
 }
