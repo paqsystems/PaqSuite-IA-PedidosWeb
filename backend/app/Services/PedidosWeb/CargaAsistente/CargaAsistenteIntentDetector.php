@@ -825,9 +825,11 @@ final class CargaAsistenteIntentDetector
         }
 
         // D1-28: si hay comillas (p. ej. entre sinónimo de artículo y cantidad), el contenido
-        // tal cual es el q de lookup (código o descripción; conserva espacios).
+        // tal cual es el q de lookup (código o descripción; conserva espacios internos).
+        $fromQuotes = false;
         if (preg_match('/["“”\']([^"“”\']+)["“”\']/u', $working, $quoted) === 1) {
             $q = trim($quoted[1]);
+            $fromQuotes = true;
         } else {
             $q = $this->extractAfterPatterns($working, [
                 '/agregar\s+(?:'.self::ARTICULO_KEYWORD_REGEX.')?\s*(.+)/iu',
@@ -848,7 +850,10 @@ final class CargaAsistenteIntentDetector
         }
 
         $q = trim($q, " \t\"'`");
-        $q = trim(preg_replace('/\s+/u', ' ', $q) ?? $q);
+        // Solo colapsar espacios en texto libre; códigos pegados del maestro usan padding (AC08       1000).
+        if (! $fromQuotes) {
+            $q = trim(preg_replace('/\s+/u', ' ', $q) ?? $q);
+        }
 
         return [
             'q' => $q,

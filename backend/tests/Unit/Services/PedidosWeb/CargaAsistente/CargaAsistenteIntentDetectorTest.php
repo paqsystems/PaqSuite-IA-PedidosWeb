@@ -412,4 +412,37 @@ TXT;
         $this->assertSame(150.0, $update['params']['cantidad']);
         $this->assertSame('almendra tostada', mb_strtolower((string) $update['params']['q']));
     }
+
+    public function testPreservesInternalSpacesInQuotedArticuloCodigo(): void
+    {
+        $detector = new CargaAsistenteIntentDetector();
+        $detected = $detector->detect('art "AC08       1000" cant 100', null);
+
+        $this->assertSame('addRenglon', $detected['intent']);
+        $this->assertSame('AC08       1000', $detected['params']['q']);
+        $this->assertSame(100.0, $detected['params']['cantidad']);
+    }
+
+    public function testCompositePedidoPreservesQuotedCodigoPadding(): void
+    {
+        $detector = new CargaAsistenteIntentDetector();
+        $message = <<<'TXT'
+cliente 10171
+perfil 500
+art "AC08       1000" cant 100
+codigo "ALLC" cantidad 10
+cod "ANP05      2268" cant 80
+TXT;
+
+        $detected = $detector->detect($message, null);
+        $this->assertSame('compositePedido', $detected['intent']);
+        $addRenglones = array_values(array_filter(
+            $detected['params']['items'],
+            static fn (array $item): bool => ($item['intent'] ?? '') === 'addRenglon',
+        ));
+        $this->assertCount(3, $addRenglones);
+        $this->assertSame('AC08       1000', $addRenglones[0]['params']['q']);
+        $this->assertSame('ALLC', $addRenglones[1]['params']['q']);
+        $this->assertSame('ANP05      2268', $addRenglones[2]['params']['q']);
+    }
 }
