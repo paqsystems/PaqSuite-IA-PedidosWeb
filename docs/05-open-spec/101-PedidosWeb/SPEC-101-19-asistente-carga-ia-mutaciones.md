@@ -6,7 +6,7 @@
 | **Producto** | [asistente-ia-carga-pedidos-presupuestos.md](../../02-producto/PedidosWeb/asistente-ia-carga-pedidos-presupuestos.md) |
 | **Estado** | En revisión |
 | **Prioridad épica** | Should |
-| **Última actualización** | 2026-08-31 |
+| **Última actualización** | 2026-09-08 |
 | **Revisión A1** | [F-101-18-20-cierre-a1-asistente-carga-ia.md](../../04-tareas/101-PedidosWeb/F-101-18-20-cierre-a1-asistente-carga-ia.md) |
 | **Slices relacionados** | [SPEC-101-18](SPEC-101-18-asistente-carga-ia-shell.md) (canal) · [SPEC-101-20](SPEC-101-20-asistente-carga-ia-consultas.md) (consultas) |
 | **Capacidades producto** | **A** cliente · **B** cabecera lookups · **C** campos libres · **D** artículos · **I** cambio cliente · **J** grabar · **K** (aplicación de extracto validado) |
@@ -205,3 +205,4 @@ Observaciones no bloqueantes (TR): equivalentes i18n de D1-18 en en/pt/fr/it; fa
 | 2026-07-14 | D1-25 pedido compuesto multilínea + diferidos; D1-26 alias art/item/it/canti/Descto/Direccion; imagen K cabecera ampliada; F1/F rev. |
 | 2026-07-30 | CC PQ #10 | Asistente: cantidad = modal según `CargaUnidadesVenta` |
 | 2026-08-31 | Parte I | Unificación `SPEC-101-19-asistente-carga-ia-mutaciones-update`. Sin updates abiertos |
+| 2026-09-08 | CC PQ #14 | Parte G: SPEC/HU/TR `-update-01` — D1-27 alias `codigo*` · D1-28 comillas literales entre artículo y cantidad |

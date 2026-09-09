@@ -340,11 +340,16 @@ export function CargaAsistenteIaPanel({
       setIsSubmitting(true);
 
       try {
+        // Si el usuario escribe una instrucción nueva (no elige 1–10), no reenviar pendingChoice:
+        // evita quedar atrapado tras needsChoice/needsRefine del turno anterior.
+        const isChoiceReply = /^\s*([1-9]|10)\s*$/u.test(message);
+        const pendingToSend = isChoiceReply ? pendingChoice : null;
+
         const resultado = await postCargaAsistenteTurn({
           message,
           modality,
           draftContext: buildDraftContext(),
-          pendingChoice,
+          pendingChoice: pendingToSend ?? undefined,
           images: images.length > 0 ? images : undefined,
           credentialId: selectedCredentialId,
         });

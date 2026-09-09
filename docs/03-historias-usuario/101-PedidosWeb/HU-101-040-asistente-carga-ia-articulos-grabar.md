@@ -7,7 +7,7 @@
 | **Épica** | 101 — PedidosWeb / Asistente IA en carga |
 | **Prioridad** | **Should** |
 | **Estado** | En Control Calidad |
-| **Última actualización** | 2026-08-31 |
+| **Última actualización** | 2026-09-08 |
 | **B1** | Enriquecida (2026-07-13) |
 | **TR** | [TR-SPEC-101-19](../../04-tareas/101-PedidosWeb/TR-SPEC-101-19-asistente-carga-ia-mutaciones.md) |
 | **Dependencias** | HU-101-037; HU-101-038 (entrada imagen); HU-101-006…010; SPEC-101-10 |
