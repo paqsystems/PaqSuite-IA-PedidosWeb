@@ -734,6 +734,11 @@ final class CargaAsistenteArticuloTool
             return [];
         }
 
+        $exact = $this->findExactCodigoMatch($q, $codLista);
+        if ($exact !== null) {
+            return [$exact];
+        }
+
         $variants = $this->buildArticuloSearchVariants($q);
         $best = [];
 
@@ -755,13 +760,22 @@ final class CargaAsistenteArticuloTool
                 continue;
             }
 
+            $exactInRaw = $this->pickExactCodigoFromRows($raw, $q);
+            if ($exactInRaw !== null) {
+                return [$exactInRaw];
+            }
+
             if ($tokens === []) {
                 $candidate = array_slice($raw, 0, 11);
             } else {
                 $filtered = array_values(array_filter(
                     $raw,
-                    function (array $row) use ($tokens): bool {
+                    function (array $row) use ($tokens, $q): bool {
                         $codigo = (string) ($row['codArticulo'] ?? '');
+                        if ($this->codigoMatchesQuery($codigo, $q)) {
+                            return true;
+                        }
+
                         $descripcion = (string) ($row['descripcion'] ?? '');
                         $haystackText = $this->normalizeArticuloToken($descripcion);
                         $haystackAll = $this->normalizeArticuloHaystack($codigo, $descripcion);
@@ -773,6 +787,11 @@ final class CargaAsistenteArticuloTool
                             }
 
                             if (preg_match('/^\d+$/u', $normalizedToken) === 1) {
+                                // Dígitos del código (padding maestro) no exigen pack en descripción.
+                                $compactCodigo = $this->normalizeArticuloToken($codigo);
+                                if (str_contains($compactCodigo, $normalizedToken)) {
+                                    continue;
+                                }
                                 // Evitar falsos positivos por dígitos del código (ej. AF01 vs pack "1").
                                 if (! $this->descriptionContainsPackNumber($descripcion, $normalizedToken)) {
                                     return false;
@@ -796,12 +815,22 @@ final class CargaAsistenteArticuloTool
                     continue;
                 }
 
+                $exactFiltered = $this->pickExactCodigoFromRows($filtered, $q);
+                if ($exactFiltered !== null) {
+                    return [$exactFiltered];
+                }
+
                 // No colapsar a “descripción exacta”: si hay varios que matchean tokens
                 // (ej. BRAZO NOAR 15/40 CM), hay que ofrecer elección.
                 $candidate = array_slice($filtered, 0, 11);
             }
 
             $candidate = $this->preferCloserArticuloCandidates($variant, $candidate);
+
+            $exactCandidate = $this->pickExactCodigoFromRows($candidate, $q);
+            if ($exactCandidate !== null) {
+                return [$exactCandidate];
+            }
 
             if (count($candidate) === 1) {
                 return $candidate;
@@ -812,7 +841,94 @@ final class CargaAsistenteArticuloTool
             }
         }
 
+        $exactBest = $this->pickExactCodigoFromRows($best, $q);
+        if ($exactBest !== null) {
+            return [$exactBest];
+        }
+
         return $best;
+    }
+
+    /**
+     * Match por código exacto (con padding de espacios) o compacto sin espacios.
+     *
+     * @return array<string, mixed>|null
+     */
+    private function findExactCodigoMatch(string $q, int $codLista): ?array
+    {
+        $rawExact = $this->excludeUsaEscBase(
+            $this->articuloCargaLookupService->buscar($q, 50, $codLista),
+        );
+        $exact = $this->pickExactCodigoFromRows($rawExact, $q);
+        if ($exact !== null) {
+            return $exact;
+        }
+
+        $seed = $this->resolveCodigoPrefixSeed($q);
+        if ($seed === '' || $seed === $q) {
+            return null;
+        }
+
+        $rawSeed = $this->excludeUsaEscBase(
+            $this->articuloCargaLookupService->buscar($seed, 100, $codLista),
+        );
+
+        return $this->pickExactCodigoFromRows($rawSeed, $q);
+    }
+
+    /**
+     * @param  list<array<string, mixed>>  $rows
+     * @return array<string, mixed>|null
+     */
+    private function pickExactCodigoFromRows(array $rows, string $q): ?array
+    {
+        $compactMatches = [];
+
+        foreach ($rows as $row) {
+            $codigo = (string) ($row['codArticulo'] ?? '');
+            if ($this->codigoEqualsQuery($codigo, $q)) {
+                return $row;
+            }
+            if ($this->codigoCompactEquals($codigo, $q)) {
+                $compactMatches[] = $row;
+            }
+        }
+
+        if (count($compactMatches) === 1) {
+            return $compactMatches[0];
+        }
+
+        return null;
+    }
+
+    private function codigoMatchesQuery(string $codigo, string $q): bool
+    {
+        return $this->codigoEqualsQuery($codigo, $q) || $this->codigoCompactEquals($codigo, $q);
+    }
+
+    private function codigoEqualsQuery(string $codigo, string $q): bool
+    {
+        return mb_strtoupper(rtrim($codigo)) === mb_strtoupper(rtrim($q));
+    }
+
+    private function codigoCompactEquals(string $codigo, string $q): bool
+    {
+        $compactCodigo = preg_replace('/\s+/u', '', $codigo) ?? $codigo;
+        $compactQ = preg_replace('/\s+/u', '', $q) ?? $q;
+        if ($compactQ === '' || $compactCodigo === '') {
+            return false;
+        }
+
+        return mb_strtoupper($compactCodigo) === mb_strtoupper($compactQ);
+    }
+
+    private function resolveCodigoPrefixSeed(string $q): string
+    {
+        if (preg_match('/^([A-Za-z0-9]+)/u', trim($q), $matches) === 1) {
+            return (string) $matches[1];
+        }
+
+        return trim($q);
     }
 
     /**
@@ -914,6 +1030,11 @@ final class CargaAsistenteArticuloTool
             $variants[] = $glued;
         }
 
+        $collapsed = preg_replace('/\s+/u', ' ', $q);
+        if (is_string($collapsed) && $collapsed !== '' && $collapsed !== $q) {
+            $variants[] = $collapsed;
+        }
+
         $compact = preg_replace('/\s+/u', '', $q);
         if (is_string($compact) && $compact !== '' && $compact !== $q) {
             $variants[] = $compact;
@@ -972,7 +1093,7 @@ final class CargaAsistenteArticuloTool
     {
         $q = trim($q);
         $q = trim($q, " \t\"'`");
-        $q = preg_replace('/\s+/u', ' ', $q) ?? $q;
+        // No colapsar espacios internos: códigos maestro tipo "AC08       1000" deben conservarse.
         // "POLVO 25kg" / "POLVO 25 kg" → "POLVO25 kg" (alineado a maestro).
         $q = preg_replace(
             '/(\S+)\s+(\d+)\s*(kg|g|gr|lt|l|ml|un|u|uds?)\b/iu',

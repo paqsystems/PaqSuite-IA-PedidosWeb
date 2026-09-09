@@ -8,7 +8,7 @@
 | **Prioridad** | **Should** |
 | **Dependencias** | [TR-SPEC-101-18](TR-SPEC-101-18-asistente-carga-ia-shell.md); TR-SPEC-101-04; TR-SPEC-101-10; HU-101-004…010 |
 | **Estado** | En Control Calidad |
-| **Última actualización** | 2026-08-31 |
+| **Última actualización** | 2026-09-08 |
 
 **Normas:** [`../_NORMAS-TRANSVERSALES-TR.md`](../_NORMAS-TRANSVERSALES-TR.md)  
 **Cierre C1:** [F-101-18-20-cierre-c1](F-101-18-20-cierre-c1-asistente-carga-ia.md)
