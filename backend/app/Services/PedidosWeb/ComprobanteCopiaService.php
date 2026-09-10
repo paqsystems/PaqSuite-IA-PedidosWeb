@@ -6,6 +6,7 @@ use App\Contracts\PedidosWeb\ArticuloRepositoryInterface;
 use App\Contracts\PedidosWeb\PedidoRepositoryInterface;
 use App\Exceptions\PedidosWebBusinessException;
 use App\Models\PqPedidoswebPedidoCabecera;
+use App\Support\LeyendaCabeceraLimits;
 
 final class ComprobanteCopiaService
 {
@@ -69,8 +70,14 @@ final class ComprobanteCopiaService
             'cod_vended' => $comprobante->cod_vended,
             'cod_condvta' => $comprobante->cod_condvta,
             'cod_transpor' => $comprobante->cod_transpor,
+            'id_de' => $comprobante->id_de !== null ? (int) $comprobante->id_de : null,
             'lista_precios' => $comprobante->lista_precios,
             'descuento' => (float) $comprobante->descuento,
+            'leyenda_1' => LeyendaCabeceraLimits::recortarLeyendaCabecera($comprobante->leyenda_1),
+            'leyenda_2' => LeyendaCabeceraLimits::recortarLeyendaCabecera($comprobante->leyenda_2),
+            'leyenda_3' => LeyendaCabeceraLimits::recortarLeyendaCabecera($comprobante->leyenda_3),
+            'leyenda_4' => LeyendaCabeceraLimits::recortarLeyendaCabecera($comprobante->leyenda_4),
+            'leyenda_5' => LeyendaCabeceraLimits::recortarLeyendaCabecera($comprobante->leyenda_5),
         ];
     }
 

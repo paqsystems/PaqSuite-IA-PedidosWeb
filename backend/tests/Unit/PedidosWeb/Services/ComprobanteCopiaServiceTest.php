@@ -34,6 +34,55 @@ final class ComprobanteCopiaServiceTest extends TestCase
     }
 
     #[Test]
+    public function copiarBorradorCopiaIdDeYLeyendas(): void
+    {
+        $cabecera = $this->buildCabeceraOrigen('PED-DIR-LEY', 0, 100);
+        $cabecera->id_de = 3;
+        $cabecera->leyenda_1 = 'Retira cliente';
+        $cabecera->leyenda_2 = 'L2';
+        $cabecera->leyenda_3 = 'L3';
+        $cabecera->leyenda_4 = 'L4';
+        $cabecera->leyenda_5 = 'L5';
+
+        $service = $this->buildService($cabecera, actualizarPrecioCopia: false);
+        $borrador = $service->copiarBorrador('PED-DIR-LEY', 'pedido');
+
+        $this->assertSame(3, $borrador['cabecera']['id_de']);
+        $this->assertSame('Retira cliente', $borrador['cabecera']['leyenda_1']);
+        $this->assertSame('L2', $borrador['cabecera']['leyenda_2']);
+        $this->assertSame('L3', $borrador['cabecera']['leyenda_3']);
+        $this->assertSame('L4', $borrador['cabecera']['leyenda_4']);
+        $this->assertSame('L5', $borrador['cabecera']['leyenda_5']);
+    }
+
+    #[Test]
+    public function copiarBorradorRecortaLeyendasA60(): void
+    {
+        $cabecera = $this->buildCabeceraOrigen('PED-LEY-60', 0, 100);
+        $cabecera->leyenda_1 = str_repeat('A', 61);
+
+        $service = $this->buildService($cabecera, actualizarPrecioCopia: false);
+        $borrador = $service->copiarBorrador('PED-LEY-60', 'pedido');
+
+        $this->assertSame(60, mb_strlen((string) $borrador['cabecera']['leyenda_1']));
+        $this->assertSame(str_repeat('A', 60), $borrador['cabecera']['leyenda_1']);
+    }
+
+    #[Test]
+    public function copiarBorradorSinIdDeNiLeyendasNoFalla(): void
+    {
+        $cabecera = $this->buildCabeceraOrigen('PED-SIN-DIR', 0, 100);
+        $cabecera->id_de = null;
+        $cabecera->leyenda_1 = null;
+
+        $service = $this->buildService($cabecera, actualizarPrecioCopia: false);
+        $borrador = $service->copiarBorrador('PED-SIN-DIR', 'pedido');
+
+        $this->assertNull($borrador['cabecera']['id_de']);
+        $this->assertNull($borrador['cabecera']['leyenda_1']);
+    }
+
+    #[Test]
     public function copiarBorradorLanzaNotFoundSiOrigenInexistente(): void
     {
         $repository = $this->createMock(PedidoRepositoryInterface::class);
