@@ -46,6 +46,7 @@ Este archivo **no sustituye** SPEC, HU ni TR: es la **entrada** del circuito de 
 
 | # | Fecha | Estado | Resumen |
 |---|-------|--------|---------|
+| 15 | 09/09/2026 | Especificado (Parte G/D/E/F 09/09/2026) | Copiar comprobante: incluir `id_de` (dirección entrega) + leyendas 1–5 |
 | 14 | 08/09/2026 | Especificado (Parte G/D/E/F 08/09/2026) | Asistente IA carga: alias `codigo` + búsqueda literal entre comillas (espacios) |
 | 13 | 01/09/2026 | Especificado (Parte G/D/E/F 01/09/2026) | Leyendas 1–5 de cabecera limitadas a 60 caracteres (modelo, carga, Excel, asistente IA) |
 | 12 | 28/08/2026 | Finalizado (Parte I 30/08/2026; re-unificación CC #10/#11 31/08/2026) | Saldo deuda en carga; unidades/precio neto modal; no stockeables; sync leyendas; colores deuda; rango fechas historial |
@@ -60,6 +61,40 @@ Este archivo **no sustituye** SPEC, HU ni TR: es la **entrada** del circuito de 
 | 1 | 04/06/2026 | Finalizado (Parte I) | 10 familias HU — CC PQ; updates unificados 09/06/2026 |
 | 2 | 05/06/2026 | Finalizado (Parte I) | GEN-03 layouts/export Excel formateado — CC PQ #2; unificado 09/06/2026 |
 | 3 | 09/06/2026 | Finalizado (Parte I) | Cartel cargando, layouts totales, performance carga, parámetros — unificado 09/06/2026 |
+
+---
+
+## Control de Calidad #15
+
+### Referencia del control
+
+| Campo | Valor |
+|-------|--------|
+| **Fecha** | 09/09/2026 |
+| **Responsable** | Pablo Quarracino (PQ) |
+| **Estado** | Especificado |
+
+### Hallazgos
+
+Atributos faltantes al copiar pedidos
+
+### Errores encontrados - Mejoras solicitadas
+
+#### Copiado de pedidos - no se copian todos los atributos
+
+- al copiar un pedido, no se pasan los siguientes atributos : Direccion_entrega, leyendas 1 a 5.
+
+*Procesado* → [SPEC-101-04-update-01](../05-open-spec/updates/101-PedidosWeb/SPEC-101-04-services-pedidos-update-01.md) · [HU-101-026-update-01](../03-historias-usuario/updates/101-PedidosWeb/HU-101-026-copiar-comprobante-update-01.md) · [TR-SPEC-101-04-update-01](../04-tareas/updates/101-PedidosWeb/TR-SPEC-101-04-services-pedidos-update-01.md) — Parte G 09/09/2026 · **Parte F** [F-CC-PQ-15-cierre-formal](../04-tareas/101-PedidosWeb/F-CC-PQ-15-cierre-formal.md) 09/09/2026 · **D1-29:** copiar `id_de` (dirección de entrega) · **D1-30:** copiar `leyenda_1`…`leyenda_5` con recorte a 60
+
+### Verificación ciclo OpenSpec (09/09/2026)
+
+| Parte | Documento | Veredicto |
+|-------|-----------|-----------|
+| G | Updates `-update-01` SPEC/HU/TR 101-04 / 026 | Hecho 09/09/2026 |
+| D | Implementación código | Hecho 09/09/2026 — `ComprobanteCopiaService::mapCabecera` |
+| E | Tests | Hecho 09/09/2026 — [E-CC-PQ-15-tests.md](../04-tareas/101-PedidosWeb/E-CC-PQ-15-tests.md) (obs.: timeout SQL Server en agente) |
+| F | Cierre formal | Hecho 09/09/2026 — [F-CC-PQ-15-cierre-formal.md](../04-tareas/101-PedidosWeb/F-CC-PQ-15-cierre-formal.md) |
+| I | Unificación | Pendiente |
 
 ---
 
