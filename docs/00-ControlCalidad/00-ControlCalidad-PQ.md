@@ -46,10 +46,10 @@ Este archivo **no sustituye** SPEC, HU ni TR: es la **entrada** del circuito de 
 
 | # | Fecha | Estado | Resumen |
 |---|-------|--------|---------|
-| 16 | 12/09/2026 | Especificado (Parte G/D/E/F 12/09/2026) | Suspender logout por inactividad hasta adopción SDK Framework |
-| 15 | 09/09/2026 | Especificado (Parte G/D/E/F 09/09/2026) | Copiar comprobante: incluir `id_de` (dirección entrega) + leyendas 1–5 |
-| 14 | 08/09/2026 | Especificado (Parte G/D/E/F 08/09/2026) | Asistente IA carga: alias `codigo` + búsqueda literal entre comillas (espacios) |
-| 13 | 01/09/2026 | Especificado (Parte G/D/E/F 01/09/2026) | Leyendas 1–5 de cabecera limitadas a 60 caracteres (modelo, carga, Excel, asistente IA) |
+| 16 | 12/09/2026 | Finalizado (Parte I 12/09/2026) | Suspender logout por inactividad hasta adopción SDK Framework |
+| 15 | 09/09/2026 | Finalizado (Parte I completa 13/09/2026) | Copiar comprobante: incluir `id_de` (dirección entrega) + leyendas 1–5 |
+| 14 | 08/09/2026 | Finalizado (Parte I completa 13/09/2026) | Asistente IA carga: alias `codigo` + búsqueda literal entre comillas (espacios) |
+| 13 | 01/09/2026 | Finalizado (Parte I completa 13/09/2026) | Leyendas 1–5 de cabecera limitadas a 60 caracteres (modelo, carga, Excel, asistente IA) |
 | 12 | 28/08/2026 | Finalizado (Parte I 30/08/2026; re-unificación CC #10/#11 31/08/2026) | Saldo deuda en carga; unidades/precio neto modal; no stockeables; sync leyendas; colores deuda; rango fechas historial |
 | 11 | 18/08/2026 | Finalizado (Parte I 31/08/2026) | Contactos de cliente (`pq_pedidosweb_clientescontactos`) en API `GET /clientes` (listado + unitario); sin UI PedidosWeb |
 | 10 | 30/07/2026 | Finalizado (Parte I 31/08/2026) | `CargaUnidadesVenta` — cantidad dual stock/venta; Excel, mail, asistente; `cantidad_venta` en Detalle de Pedidos |
@@ -73,7 +73,7 @@ Este archivo **no sustituye** SPEC, HU ni TR: es la **entrada** del circuito de 
 |-------|--------|
 | **Fecha** | 09/09/2026 |
 | **Responsable** | Pablo Quarracino (PQ) |
-| **Estado** | Especificado |
+| **Estado** | Finalizado |
 
 ### Hallazgos
 
@@ -85,17 +85,17 @@ Atributos faltantes al copiar pedidos
 
 - al copiar un pedido, no se pasan los siguientes atributos : Direccion_entrega, leyendas 1 a 5.
 
-*Procesado* → [SPEC-101-04-update-01](../05-open-spec/updates/101-PedidosWeb/SPEC-101-04-services-pedidos-update-01.md) · [HU-101-026-update-01](../03-historias-usuario/updates/101-PedidosWeb/HU-101-026-copiar-comprobante-update-01.md) · [TR-SPEC-101-04-update-01](../04-tareas/updates/101-PedidosWeb/TR-SPEC-101-04-services-pedidos-update-01.md) — Parte G 09/09/2026 · **Parte F** [F-CC-PQ-15-cierre-formal](../04-tareas/101-PedidosWeb/F-CC-PQ-15-cierre-formal.md) 09/09/2026 · **D1-29:** copiar `id_de` (dirección de entrega) · **D1-30:** copiar `leyenda_1`…`leyenda_5` con recorte a 60
+*Procesado* → unificado en [SPEC-101-04](../05-open-spec/101-PedidosWeb/SPEC-101-04-services-pedidos.md) · [HU-101-026](../03-historias-usuario/101-PedidosWeb/HU-101-026-copiar-comprobante.md) · [TR-SPEC-101-04](../04-tareas/101-PedidosWeb/TR-SPEC-101-04-services-pedidos.md) — Parte G/D/E/F 09/09/2026 · **Parte I** 13/09/2026 · **D1-29:** copiar `id_de` · **D1-30:** copiar `leyenda_1`…`leyenda_5` con recorte a 60
 
 ### Verificación ciclo OpenSpec (09/09/2026)
 
 | Parte | Documento | Veredicto |
 |-------|-----------|-----------|
-| G | Updates `-update-01` SPEC/HU/TR 101-04 / 026 | Hecho 09/09/2026 |
+| G | Updates `-update-01` SPEC/HU/TR 101-04 / 026 | Hecho 09/09/2026 (luego unificados en Parte I) |
 | D | Implementación código | Hecho 09/09/2026 — `ComprobanteCopiaService::mapCabecera` |
 | E | Tests | Hecho 09/09/2026 — [E-CC-PQ-15-tests.md](../04-tareas/101-PedidosWeb/E-CC-PQ-15-tests.md) (obs.: timeout SQL Server en agente) |
 | F | Cierre formal | Hecho 09/09/2026 — [F-CC-PQ-15-cierre-formal.md](../04-tareas/101-PedidosWeb/F-CC-PQ-15-cierre-formal.md) |
-| I | Unificación | Pendiente |
+| I | Unificación | Hecho 13/09/2026 — SPEC (12/09) + HU/TR fusionados y eliminados |
 
 ---
 
@@ -107,7 +107,7 @@ Atributos faltantes al copiar pedidos
 |-------|--------|
 | **Fecha** | 12/09/2026 |
 | **Responsable** | Pablo Quarracino (PQ) |
-| **Estado** | Especificado |
+| **Estado** | Finalizado |
 
 ### Hallazgos
 
@@ -119,17 +119,17 @@ Cancelar momentáneamente el logout por inactividad
 
 - Cancelar momentáneamente el logout por inactividad. Se restablecerá cuando se integre este proyecto con el SDK de Framework
 
-*Procesado* → [SPEC-001-02-update](../05-open-spec/updates/001-Generaliddes/SPEC-001-02-acceso-y-seguridad-update.md) · [HU-GEN-02-expiracion-inactividad-update](../03-historias-usuario/updates/001-Generaliddes/HU-GEN-02-expiracion-inactividad-update.md) · [TR-GEN-02-expiracion-inactividad-update](../04-tareas/updates/001-Generaliddes/TR-GEN-02-expiracion-inactividad-update.md) — Parte G 12/09/2026 · **Parte F** [F-CC-PQ-16-cierre-formal](../04-tareas/001-Generaliddes/F-CC-PQ-16-cierre-formal.md) 12/09/2026 · **D1-31:** `inactivityLogoutEnabled=false` en host hasta SDK Framework
+*Procesado* → unificado en [SPEC-001-02](../05-open-spec/001-Generaliddes/SPEC-001-02-acceso-y-seguridad.md) · [HU-GEN-02-expiracion-inactividad](../03-historias-usuario/001-Generaliddes/HU-GEN-02-expiracion-inactividad.md) · [TR-GEN-02-expiracion-inactividad](../04-tareas/001-Generaliddes/TR-GEN-02-expiracion-inactividad.md) — Parte G/D/E/F 12/09/2026 · **Parte I** 12/09/2026 · **D1-31:** `inactivityLogoutEnabled=false` hasta SDK Framework
 
 ### Verificación ciclo OpenSpec (12/09/2026)
 
 | Parte | Documento | Veredicto |
 |-------|-----------|-----------|
-| G | Updates SPEC/HU/TR GEN-02 inactividad | Hecho 12/09/2026 |
+| G | Updates SPEC/HU/TR GEN-02 inactividad | Hecho 12/09/2026 (luego unificados en Parte I) |
 | D | Implementación código | Hecho 12/09/2026 — `SessionLifecycleManager` + flag |
 | E | Tests | Hecho 12/09/2026 — [E-CC-PQ-16-tests.md](../04-tareas/001-Generaliddes/E-CC-PQ-16-tests.md) |
 | F | Cierre formal | Hecho 12/09/2026 — [F-CC-PQ-16-cierre-formal.md](../04-tareas/001-Generaliddes/F-CC-PQ-16-cierre-formal.md) |
-| I | Unificación | Pendiente |
+| I | Unificación | Hecho 12/09/2026 — updates fusionados y eliminados |
 
 ---
 
@@ -141,7 +141,7 @@ Cancelar momentáneamente el logout por inactividad
 |-------|--------|
 | **Fecha** | 08/09/2026 |
 | **Responsable** | Pablo Quarracino (PQ) |
-| **Estado** | Especificado |
+| **Estado** | Finalizado |
 
 ### Hallazgos
 
@@ -154,17 +154,17 @@ optimizar asistente IA en carga de pedidos
 - utilizar "codigo" y sus abreviaturas como sinónimo de "articulo","producto","item"
 - si entre articulo (o sinonimos) y cantidad (o abreviaturas) aparece un texto entre comillas, considerar su contenido tal cual para buscar en codigo o descripción del artículo. esto permite buscar un texto con espacios en blanco
 
-*Procesado* → [SPEC-101-19-update-01](../05-open-spec/updates/101-PedidosWeb/SPEC-101-19-asistente-carga-ia-mutaciones-update-01.md) · [HU-101-040-update-01](../03-historias-usuario/updates/101-PedidosWeb/HU-101-040-asistente-carga-ia-articulos-grabar-update-01.md) · [TR-SPEC-101-19-update-01](../04-tareas/updates/101-PedidosWeb/TR-SPEC-101-19-asistente-carga-ia-mutaciones-update-01.md) — Parte G 08/09/2026 · **Parte F** [F-CC-PQ-14-cierre-formal](../04-tareas/101-PedidosWeb/F-CC-PQ-14-cierre-formal.md) 08/09/2026 · **D1-27:** alias `codigo`/`código`/`cod.`/`cod`/`cód.`/`cód` · **D1-28:** comillas entre sinónimo de artículo y cantidad → `q` literal (código o descripción; espacios)
+*Procesado* → unificado en [SPEC-101-19](../05-open-spec/101-PedidosWeb/SPEC-101-19-asistente-carga-ia-mutaciones.md) · [HU-101-040](../03-historias-usuario/101-PedidosWeb/HU-101-040-asistente-carga-ia-articulos-grabar.md) · [TR-SPEC-101-19](../04-tareas/101-PedidosWeb/TR-SPEC-101-19-asistente-carga-ia-mutaciones.md) — Parte G/D/E/F 08/09/2026 · **Parte I** 13/09/2026 · **D1-27:** alias `codigo`/`código`/`cod.`/`cod`/`cód.`/`cód` · **D1-28:** comillas entre sinónimo de artículo y cantidad → `q` literal
 
 ### Verificación ciclo OpenSpec (08/09/2026)
 
 | Parte | Documento | Veredicto |
 |-------|-----------|-----------|
-| G | Updates `-update-01` SPEC/HU/TR 101-19 / 040 | Hecho 08/09/2026 |
+| G | Updates `-update-01` SPEC/HU/TR 101-19 / 040 | Hecho 08/09/2026 (luego unificados en Parte I) |
 | D | Implementación código | Hecho 08/09/2026 — `CargaAsistenteIntentDetector` D1-27/D1-28 |
 | E | Tests | Hecho 08/09/2026 — [E-CC-PQ-14-tests.md](../04-tareas/101-PedidosWeb/E-CC-PQ-14-tests.md) |
 | F | Cierre formal | Hecho 08/09/2026 — [F-CC-PQ-14-cierre-formal.md](../04-tareas/101-PedidosWeb/F-CC-PQ-14-cierre-formal.md) |
-| I | Unificación | Pendiente |
+| I | Unificación | Hecho 13/09/2026 — SPEC (12/09) + HU/TR fusionados y eliminados |
 
 ---
 
@@ -176,7 +176,7 @@ optimizar asistente IA en carga de pedidos
 |-------|--------|
 | **Fecha** | 01/09/2026 |
 | **Responsable** | Pablo Quarracino (PQ) |
-| **Estado** | Especificado |
+| **Estado** | Finalizado |
 
 ### Hallazgos
 
@@ -190,7 +190,7 @@ Limitar tamaño de las 5 leyendas en los pedidos
 - corregir  : a) modelo de datos, b) Carga de Pedidos, c) Importación desde excel (individual y masiva), d) Carga desde asistente IA. 
 - Relevar si no hay otro item a corregir
 
-*Procesado* → [SPEC-101-02](../05-open-spec/101-PedidosWeb/SPEC-101-02-modelos.md) · [SPEC-101-04](../05-open-spec/101-PedidosWeb/SPEC-101-04-services-pedidos.md) · [SPEC-101-10](../05-open-spec/101-PedidosWeb/SPEC-101-10-pantalla-carga.md) · [SPEC-101-16](../05-open-spec/101-PedidosWeb/SPEC-101-16-importacion-pedido-individual-excel.md) · [SPEC-101-21](../05-open-spec/101-PedidosWeb/SPEC-101-21-importacion-masiva-pedidos.md) · [SPEC-101-19](../05-open-spec/101-PedidosWeb/SPEC-101-19-asistente-carga-ia-mutaciones.md) · [HU-101-005](../03-historias-usuario/101-PedidosWeb/HU-101-005-inicializacion-cabecera.md) · [HU-101-009](../03-historias-usuario/101-PedidosWeb/HU-101-009-grabar-pedido.md) · [HU-101-010](../03-historias-usuario/101-PedidosWeb/HU-101-010-grabar-presupuesto.md) · [HU-101-029](../03-historias-usuario/101-PedidosWeb/HU-101-029-proceso-excel-pedido-individual.md) · [HU-101-043](../03-historias-usuario/101-PedidosWeb/HU-101-043-proceso-excel-pedido-masivo.md) · [HU-101-039](../03-historias-usuario/101-PedidosWeb/HU-101-039-asistente-carga-ia-cliente-cabecera.md) · [HU-101-040](../03-historias-usuario/101-PedidosWeb/HU-101-040-asistente-carga-ia-articulos-grabar.md) — Parte G 01/09/2026 · **Parte F** [F-CC-PQ-13-cierre-formal](../04-tareas/101-PedidosWeb/F-CC-PQ-13-cierre-formal.md) 01/09/2026 · **tope:** 60 caracteres Unicode · **exceso:** recortar (no rechazar) en API, Excel e IA · **DDL:** `pedidoscabecera` + `clientes.leyenda_1..5` `nvarchar(60)` · **UI:** `maxLength` DevExtreme (web + native)
+*Procesado* → unificado en [SPEC-101-02](../05-open-spec/101-PedidosWeb/SPEC-101-02-modelos.md) · [SPEC-101-04](../05-open-spec/101-PedidosWeb/SPEC-101-04-services-pedidos.md) · [SPEC-101-10](../05-open-spec/101-PedidosWeb/SPEC-101-10-pantalla-carga.md) · [SPEC-101-16](../05-open-spec/101-PedidosWeb/SPEC-101-16-importacion-pedido-individual-excel.md) · [SPEC-101-21](../05-open-spec/101-PedidosWeb/SPEC-101-21-importacion-masiva-pedidos.md) · [SPEC-101-19](../05-open-spec/101-PedidosWeb/SPEC-101-19-asistente-carga-ia-mutaciones.md) · [HU-101-005](../03-historias-usuario/101-PedidosWeb/HU-101-005-inicializacion-cabecera.md) · [HU-101-009](../03-historias-usuario/101-PedidosWeb/HU-101-009-grabar-pedido.md) · [HU-101-010](../03-historias-usuario/101-PedidosWeb/HU-101-010-grabar-presupuesto.md) · [HU-101-029](../03-historias-usuario/101-PedidosWeb/HU-101-029-proceso-excel-pedido-individual.md) · [HU-101-043](../03-historias-usuario/101-PedidosWeb/HU-101-043-proceso-excel-pedido-masivo.md) · [HU-101-039](../03-historias-usuario/101-PedidosWeb/HU-101-039-asistente-carga-ia-cliente-cabecera.md) · [HU-101-040](../03-historias-usuario/101-PedidosWeb/HU-101-040-asistente-carga-ia-articulos-grabar.md) · TRs 101-02/04/10/16/19/21 — Parte G/D/E/F 01/09/2026 · **Parte I** 13/09/2026 · **tope:** 60 caracteres Unicode · **exceso:** recortar (no rechazar)
 
 **Relevamiento (otros puntos):**
 
@@ -211,11 +211,11 @@ Alineación ERP: `Parametro.Leyenda` es `varchar(60)`.
 
 | Parte | Documento | Veredicto |
 |-------|-----------|-----------|
-| G | Updates en `docs/.../updates/` (SPEC/HU/TR) | Hecho 01/09/2026 |
+| G | Updates en `docs/.../updates/` (SPEC/HU/TR) | Hecho 01/09/2026 (luego unificados en Parte I) |
 | D | Implementación código | Hecho 01/09/2026 |
 | E | Tests | Hecho 01/09/2026 — [E-CC-PQ-13-tests.md](../04-tareas/101-PedidosWeb/E-CC-PQ-13-tests.md) |
 | F | Cierre formal | Hecho 01/09/2026 — [F-CC-PQ-13-cierre-formal.md](../04-tareas/101-PedidosWeb/F-CC-PQ-13-cierre-formal.md) |
-| I | Unificación | Pendiente |
+| I | Unificación | Hecho 13/09/2026 — SPEC (12/09) + HU/TR fusionados y eliminados |
 
 ---
 

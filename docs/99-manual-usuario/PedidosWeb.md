@@ -679,9 +679,11 @@ En el teléfono o tablet: login con **empresa + usuario + contraseña**; las con
 
 ## 12. Sesión e inactividad
 
-La sesión expira tras un período de **inactividad** configurable (**MinutosWeb** en parámetros ERP — ver **General → Consulta de parámetros**). Cada acción del usuario (navegación, interacción con pantallas, operaciones exitosas) **renueva** el contador.
+**Estado actual (CC PQ #16):** el cierre automático de sesión por **inactividad** está **suspendido** hasta la integración con el SDK de Framework. La sesión no se cierra sola por falta de uso; sí con **Cerrar sesión** o si el acceso deja de ser válido.
 
-Si la sesión expira, el sistema redirige al login con mensaje informativo. Detalle en [Generalidades §11](./Generalidades.md) (comportamientos de sesión).
+El parámetro **MinutosWeb** (Consulta de parámetros) sigue definiendo la ventana de bloqueo de un pedido en edición (**-1**) para otros usuarios.
+
+Cuando el cierre por inactividad se reactive, la sesión expirará tras ese período sin interacción y cada acción renovará el contador. Detalle en [Generalidades](./Generalidades.md) (comportamientos de sesión / sesión expirada).
 
 ---
 

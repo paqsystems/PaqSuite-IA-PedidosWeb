@@ -6,8 +6,8 @@
 | **SPEC origen** | [SPEC-101-19](../../05-open-spec/101-PedidosWeb/SPEC-101-19-asistente-carga-ia-mutaciones.md) |
 | **Épica** | 101 — PedidosWeb / Asistente IA en carga |
 | **Prioridad** | **Should** |
-| **Estado** | En Control Calidad |
-| **Última actualización** | 2026-09-08 |
+| **Estado** | Finalizado |
+| **Última actualización** | 2026-09-13 (Parte I) |
 | **B1** | Enriquecida (2026-07-13) |
 | **TR** | [TR-SPEC-101-19](../../04-tareas/101-PedidosWeb/TR-SPEC-101-19-asistente-carga-ia-mutaciones.md) |
 | **Dependencias** | HU-101-037; HU-101-038 (entrada imagen); HU-101-006…010; SPEC-101-10 |
@@ -63,6 +63,9 @@ SPEC-101-19 D, J, K: lookup de artículos igual que carga; cantidad omitida = **
 4. Respetar `NOmodificaPedido`, estados no editables, CC PQ de grabado vigentes.
 5. Duplicado de artículo → misma regla que grilla (no segundo renglón del mismo código).
 6. **CC PQ #10:** Cantidad informada por texto, voz o imagen se interpreta igual que en el modal de renglón según `CargaUnidadesVenta`; cantidad omitida = 1 según el parámetro; `addRenglon` / modify y apply extracto imagen (K) aplican el mismo helper de conversión.
+7. **RN-CC13-K01:** En apply extracto (K), cada `leyenda1`…`leyenda5` se recorta a 60 caracteres y se aplica como candidato válido.
+8. **RN-CC14-D01 (D1-27):** Los prefijos `codigo(s)` / `código(s)`, `cod.` / `cod`, `cód.` / `cód` son sinónimos de artículo/producto/item para disparar alta o mutación de renglón.
+9. **RN-CC14-D02 (D1-28):** Si entre un sinónimo de artículo y uno de cantidad (`cantidad` / `canti` / `cant` / `cant.`) hay texto entre comillas, ese contenido literal es el criterio de búsqueda sobre código o descripción; cantidad, precio y bonificación se interpretan fuera de las comillas.
 
 ## Criterios de aceptación
 
@@ -91,6 +94,11 @@ SPEC-101-19 D, J, K: lookup de artículos igual que carga; cantidad omitida = **
 - [ ] **CA-CC10-A01:** `addRenglon` / modify aplican helper de conversión.
 - [ ] **CA-CC10-A02:** Apply extracto imagen (K) aplica la misma conversión.
 - [ ] **CA-CC10-A03:** Cantidad omitida = 1 se interpreta según el parámetro.
+- [ ] **CA-CC13-K01:** Extracto con `leyenda1` de 61 caracteres → el campo se hidrata con 60 caracteres; renglones válidos también se aplican.
+- [ ] **CA-CC14-D01:** `codigo ABC-01 cantidad 3` agrega el renglón igual que `artículo ABC-01 cantidad 3` (match único).
+- [ ] **CA-CC14-D02:** `cod. "ajo en polvo 25 kg" cant: 100` → `q` literal `ajo en polvo 25 kg`; cantidad 100.
+- [ ] **CA-CC14-D03:** `código "almendra carmel 20/22" canti 10` busca en código o descripción con los espacios; no tokeniza el tramo entre comillas.
+- [ ] **CA-CC14-D04:** Prefijos `art.` / `item` / `producto` con el mismo patrón de comillas + cantidad siguen comportándose igual (regresión).
 
 ## Casos negativos
 
@@ -132,6 +140,18 @@ Feature: Articulos y grabar via asistente
     When pide "elimina el articulo arroz"
     Then ve una lista numerada de esos renglones con cant precio y bonif
     And no recibe el mensaje de demasiados resultados del maestro
+
+  Scenario: Prefijo codigo dispara alta
+    Given un comprobante con cliente y LLM
+    When pide "codigo ABC-01 cantidad 2"
+    And ABC-01 es match unico
+    Then se agrega un renglon con cantidad 2
+
+  Scenario: Comillas conservan espacios
+    Given un comprobante con cliente y LLM
+    When pide "articulo \"ajo en polvo 25 kg\" cantidad 100"
+    Then el texto de busqueda q es exactamente "ajo en polvo 25 kg"
+    And la cantidad es 100
 ```
 
 ## Supuestos explícitos
@@ -150,6 +170,10 @@ Ninguna bloqueante.
 ## Historial CC PQ #10 (30/07/2026) — Parte I 31/08/2026
 
 Cantidad del asistente según `CargaUnidadesVenta` (RN-6, CA-CC10-A01…A03). Unificación delta `HU-101-040-asistente-carga-ia-articulos-grabar-update` (archivo eliminado en Parte I).
+
+## Historial CC PQ #13 y #14 (01/09/2026–08/09/2026) — Parte I 13/09/2026
+
+Recorte de leyendas extraídas a 60 caracteres; alias de código y búsqueda literal entre comillas, con decisiones D1-27 y D1-28 (RN-CC13-K01, RN-CC14-D01…D02, CA-CC13-K01, CA-CC14-D01…D04). Unificación, en orden, de `HU-101-040-asistente-carga-ia-articulos-grabar-update` y `HU-101-040-asistente-carga-ia-articulos-grabar-update-01`.
 
 ## Veredicto B1
 

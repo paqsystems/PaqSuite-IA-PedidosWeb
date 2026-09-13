@@ -4,9 +4,9 @@
 |-------|--------|
 | **HU relacionadas** | `docs/03-historias-usuario/001-Generaliddes/HU-GEN-02-*.md` (8 HU; índice en README) |
 | **TR relacionadas** | `docs/04-tareas/001-Generaliddes/TR-GEN-02-*.md` (8 TR; índice en README) |
-| **Estado** | En revisión |
+| **Estado** | Finalizado |
 | **Revisión A1** | Apto con observaciones (2026-05-28) |
-| **Última actualización** | 2026-09-12 (SPEC-update CC PQ #16 — suspensión logout inactividad) |
+| **Última actualización** | 2026-09-12 (Parte I — CC PQ #16 suspensión logout inactividad) |
 
 ## Objetivo
 
@@ -22,6 +22,7 @@ Implementable en MVP.
 |------|----------|
 | Perfiles funcionales y visibilidad de datos | Tabla en **producto** `PedidosWeb_Definicion_Conceptual_Final_OpenSpec.md` **§7.1–7.3** |
 | Minutos de inactividad (sesión web) | Parámetro de producto **`MinutosWeb`** (§10.6 parámetros); consumo en SPEC-001-04 |
+| Logout por inactividad (CC PQ #16 / D1-31) | **Suspendido** en el host (`inactivityLogoutEnabled=false`) hasta adoptar SDK Framework (GEN sesión). Motor y contrato `MinutosWeb` / `inactivityTimeoutMinutes` se conservan. Logout manual y 401 por token inválido no cambian. |
 | Matriz permisos / endpoints | Entregable en implementación; roles vía seed (`Pq_Permiso`), no ABM UI en MVP |
 
 ## Fuente de verdad de producto (obligatoria)
@@ -41,11 +42,24 @@ Toda respuesta `/api/v1/*` usa el envelope MONO **`error` / `respuesta` / `resul
 
 - Login y ciclo de sesión.
 - Recuperación y cambio de contraseña.
-- **Expiración de sesión por inactividad** (parámetro `MinutosWeb` en producto).
+- **Expiración de sesión por inactividad** (parámetro `MinutosWeb` en producto) — **vigencia operativa suspendida** en host hasta SDK Framework (CC PQ #16 / D1-31); ver decisión en tabla anterior.
 - Modelo usuarios, roles y permisos (seed; sin ABM seguridad en UI).
 - Relación menú ↔ autorización (backend + API menú).
 - Visibilidad por perfil funcional según producto §7.3.
 - **API clientes — nodo `contactos` (CC PQ #11):** exposición para consumidores terceros; PedidosWeb **no** usa el nodo en UI (carga, consultas, mail, asistente, selector).
+
+### Suspensión temporal — logout por inactividad (CC PQ #16)
+
+**Suspender momentáneamente** el cierre de sesión por inactividad en PedidosWeb (detector frontend / `SessionLifecycleManager`), sin eliminar el código ni el contrato `MinutosWeb` / `inactivityTimeoutMinutes`. Se **restablece** al integrar el SDK de Framework (GEN de sesión / login compartido) poniendo `inactivityLogoutEnabled=true`.
+
+| Criterio | Verificación |
+|----------|--------------|
+| **CA-CC16-01** | Usuario autenticado permanece en sesión aunque pase el umbral `MinutosWeb` / `inactivityTimeoutMinutes` sin actividad |
+| **CA-CC16-02** | Logout manual (avatar) sigue cerrando sesión |
+| **CA-CC16-03** | Request protegida con token inválido sigue forzando login (401) |
+| **CA-CC16-04** | Interruptor único documentado (`inactivityLogoutEnabled`) para reactivar al adoptar SDK Framework |
+
+Fuera de este cambio: semántica backend de `MinutosWeb`, borrado del motor `sessionInactivity`, implementación del GEN Framework, cambios al logout manual.
 
 ### API clientes — contactos (CC PQ #11)
 
@@ -130,11 +144,12 @@ Soporte consolidado: `docs/04-tareas/001-Generaliddes/F-GEN-01-02-cierre-formal.
 
 ### Pendiente para cierre total de la SPEC
 
-- `HU-GEN-02-expiracion-inactividad` / `TR-GEN-02-expiracion-inactividad`
 - `HU-GEN-02-modelo-roles-permisos-seed` / `TR-GEN-02-modelo-roles-permisos-seed`
 - `HU-GEN-02-autorizacion-menu-api` / `TR-GEN-02-autorizacion-menu-api`
 - `HU-GEN-02-politicas-endpoints` / `TR-GEN-02-politicas-endpoints`
 - `HU-GEN-02-visibilidad-datos-pedidosweb` / `TR-GEN-02-visibilidad-datos-pedidosweb`
+
+`HU-GEN-02-expiracion-inactividad` / `TR-GEN-02-expiracion-inactividad`: **Finalizado** (Parte I 12/09/2026; suspensión operativa D1-31 documentada).
 
 ### Criterio de lectura de estado
 
@@ -146,3 +161,4 @@ Esta SPEC ya tiene slices implementados y verificados en F, pero **no** se consi
 |-------|--------|---------|
 | 18/08/2026 | CC PQ #11 | Nodo `contactos` en API clientes (listado + GET unitario) |
 | 31/08/2026 | Parte I | Unificación `SPEC-001-02-acceso-y-seguridad-update`. Sin updates abiertos |
+| 12/09/2026 | CC PQ #16 · Parte I | Suspensión logout por inactividad hasta SDK Framework (D1-31); unificado `SPEC-001-02-…-update` |

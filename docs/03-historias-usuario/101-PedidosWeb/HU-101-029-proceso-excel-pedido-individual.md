@@ -6,8 +6,8 @@
 | **SPEC origen** | [SPEC-101-16-importacion-pedido-individual-excel](../../05-open-spec/101-PedidosWeb/SPEC-101-16-importacion-pedido-individual-excel.md) |
 | **Épica** | 101 — PedidosWeb / Carga comprobantes |
 | **Prioridad** | **Should** |
-| **Estado** | En Control Calidad |
-| **Última actualización** | 2026-08-31 |
+| **Estado** | Finalizado |
+| **Última actualización** | 2026-09-13 (Parte I) |
 | **B1** | **Cerrado** (2026-06-17) |
 | **C1** | **Apto** (2026-06-17) — [F-101-16-cierre-c1](../../04-tareas/101-PedidosWeb/F-101-16-cierre-c1.md) |
 | **TR** | [TR-SPEC-101-16-proceso-excel-pedido-individual](../../04-tareas/101-PedidosWeb/TR-SPEC-101-16-proceso-excel-pedido-individual.md) |
@@ -94,6 +94,9 @@ Los **títulos de columna** en plantilla y validación estructural usan **i18n**
 13. **RN-13:** Payload fila válida incluye cabecera resuelta + `cod_articulo`, `cantidad`, `precio`, `porc_bonif`, `porc_iva`, `descripcion_articulo`.
 14. **RN-14 (CC PQ #6 en import):** Tras resolver defaults, cabecera debe tener valores válidos en catálogo (perfil, condición, transporte, dirección, lista, vendedor); al menos un renglón válido en el archivo; cliente no inhabilitado.
 15. **RN-15 (CC PQ #10):** Columna Excel `cantidad` se interpreta según `CargaUnidadesVenta` (misma regla que modal renglón); renglones hidratados tienen `cantidad` y `cantidad_venta` coherentes; importes desde `cantidad`.
+16. **RN-CC13-X01:** `leyenda1`…`leyenda5` se recortan a 60 caracteres en el resolver PedidosWeb.
+17. **RN-CC13-X02:** Superar el largo no genera error de fila ni bloquea el lote.
+18. **RN-CC13-X03:** El catálogo no usa `largo_maximo = 60`, porque GEN-07 rechazaría el valor en vez de recortarlo.
 
 ## Criterios de aceptación
 
@@ -115,6 +118,8 @@ Los **títulos de columna** en plantilla y validación estructural usan **i18n**
 - [ ] **CA-16:** Feature API: lote feliz + error validación para `PEDIDO_INDIVIDUAL`.
 - [ ] **CA-CC10-X01:** Columna Excel `cantidad` se interpreta según `CargaUnidadesVenta` (misma regla que modal renglón).
 - [ ] **CA-CC10-X02:** Renglones hidratados tienen `cantidad` y `cantidad_venta` coherentes; importes desde `cantidad`.
+- [ ] **CA-CC13-X01:** Archivo con leyenda 1 de 61 caracteres → lote válido.
+- [ ] **CA-CC13-X02:** El valor hidratado en carga tiene 60 caracteres (prefijo).
 
 ## Casos negativos
 
@@ -206,6 +211,10 @@ Feature: Proceso Excel PEDIDO_INDIVIDUAL
 ## Historial CC PQ #10 (30/07/2026) — Parte I 31/08/2026
 
 Interpretación de `cantidad` en Excel según `CargaUnidadesVenta` (RN-15, CA-CC10-X01…X02). Unificación delta `HU-101-029-proceso-excel-pedido-individual-update` (archivo eliminado en Parte I).
+
+## Historial CC PQ #13 (01/09/2026) — Parte I 13/09/2026
+
+Recorte no bloqueante de leyendas a 60 caracteres en Excel individual, sin `largo_maximo` de catálogo (RN-CC13-X01…X03, CA-CC13-X01…X02). Unificación de `HU-101-029-proceso-excel-pedido-individual-update`.
 
 ## Veredicto B1
 

@@ -7,8 +7,8 @@
 | **Épica** | 101-PedidosWeb |
 | **Prioridad** | Must |
 | **Dependencias** | Stub tenant operativo ([SPEC-101-01](../../05-open-spec/101-PedidosWeb/SPEC-101-01-backend-base.md) — etapa posterior AMB-C07); [PedidosWeb_Modelo_Datos_Final.md](../../02-producto/PedidosWeb/PedidosWeb_Modelo_Datos_Final.md) |
-| **Estado** | En Control Calidad |
-| **Última actualización** | 2026-08-31 |
+| **Estado** | Finalizado |
+| **Última actualización** | 2026-09-13 (Parte I) |
 
 **Origen:** [SPEC-101-02](../../05-open-spec/101-PedidosWeb/SPEC-101-02-modelos.md), [PedidosWeb_SPEC_MVP.md](../../05-open-spec/101-PedidosWeb/PedidosWeb_SPEC_MVP.md) §7  
 **Referencia SPEC:** [SPEC-101-02-modelos](../../05-open-spec/101-PedidosWeb/SPEC-101-02-modelos.md)  
@@ -35,6 +35,7 @@ para **que repositories y services consuman una capa de persistencia tipada sin 
 - Tablas consulta ERP: cheques, deuda, ventadetallada (y resumencuenta si aplica consultas).
 - Tablas nuevas MVP: tratativas, tratativas_resultados, motivos_cierre, presupuestos_cierres, logs_integracion.
 - Campos de auditoría y bloqueo en cabecera: `usuario_creacion`, `fecha_creacion`, `usuario_modificacion`, `fechahora_inicio_proceso`, **`fechahora_ultima_actividad`**, **`cod_presupuesto_origen`**, `cod_pedido_origen`, `origen_comprobante`, `nro_visible`.
+- `leyenda_1`…`leyenda_5` en clientes y cabecera con tipo canónico **`nvarchar(60)`**, aplicable mediante DDL idempotente sin DROP.
 - `$table`, `$primaryKey` / claves compuestas, `$fillable` o `$guarded` acotado, `$casts` (decimal, datetime, bit).
 - Relaciones Eloquent mínimas (`hasMany`, `belongsTo`) documentadas en código.
 - Conexión tenant (`pq_pedidosweb_{cliente}`) vía middleware existente; modelos sin lógica de negocio.
@@ -66,6 +67,10 @@ para **que repositories y services consuman una capa de persistencia tipada sin 
 - **AC-CC11-T-M1:** Tabla `pq_pedidosweb_clientescontactos` con UNIQUE (`cod_client`, `cod_contacto`).
 - **AC-CC11-T-M2:** Modelo `PqPedidoswebClienteContacto` + `PqPedidoswebCliente::contactos()` hasMany; sin lógica de negocio en modelo.
 - **AC-CC11-T-M3:** DDL idempotente CREATE si falta; sin DROP de tablas existentes.
+- **AC-CC13-T-M1:** `leyenda_1`…`leyenda_5` de clientes y cabecera tienen `CHARACTER_MAXIMUM_LENGTH = 60`.
+- **AC-CC13-T-M2:** Los valores preexistentes mayores a 60 quedan recortados con `LEFT(..., 60)` antes del ALTER.
+- **AC-CC13-T-M3:** `PedidosWebDevSchemaBootstrap` crea las diez columnas como `nvarchar(60)`.
+- **AC-CC13-T-M4:** El script de alteración puede reejecutarse sin error.
 
 ### Escenarios Gherkin
 
@@ -104,6 +109,7 @@ Feature: Modelos Eloquent PedidosWeb
 8. **RN-08 (CC PQ #10):** `pq_pedidosweb_articulos.equivalencia_ventas` decimal NOT NULL default 1 (o nullable + default runtime 1); `pq_pedidosweb_pedidosdetalle.cantidad_venta` decimal; backfill = `cantidad`; casts en modelos `Articulo` y `PedidoDetalle`.
 9. **RN-09:** `pq_pedidosweb_pedidosdetalle.bonificacion` **decimal(6,2)** (canónico ERP). Payload portal/API mantiene alias `porc_bonif` / `porcBonif`; `PedidosWebSchemaBootstrap::mapDetalleAttributes` persiste en la columna disponible.
 9. **RN-09 (CC PQ #11):** Tabla `pq_pedidosweb_clientescontactos` (`id` IDENTITY PK, `cod_client`, `cod_contacto`, `nombre`, `telefono`, `mail`, UNIQUE compuesta); relación `Cliente hasMany contactos`; lectura API vía misma vía Eloquent que GET `/clientes` (excepción SP documentada, alineada TR-GEN-02).
+10. **RN-10 (CC PQ #13):** Las diez columnas de leyendas se normalizan a `nvarchar(60)` sin DROP; el script solo altera columnas cuya longitud sea mayor y recorta datos previamente para evitar fallos.
 
 ---
 
@@ -156,6 +162,7 @@ Según [PedidosWeb_Modelo_Datos_Final.md](../../02-producto/PedidosWeb/PedidosWe
 4. **CC PQ #12:** `ALTER` idempotente `pq_pedidosweb_articulos.stockeable` bit NOT NULL DEFAULT 1 (`alter-pq-pedidosweb-stockeable.sql`); bootstrap schema dev si aplica.
 5. **CC PQ #10:** `equivalencia_ventas` en artículos; `cantidad_venta` en detalle + backfill; bootstrap schema dev sin DROP.
 6. **CC PQ #11:** CREATE idempotente `pq_pedidosweb_clientescontactos`; modelo + relación; bootstrap/ensure-schema si aplica.
+7. **CC PQ #13:** `backend/scripts/sql/alter-pq-pedidosweb-leyendas-60.sql` recorta con `LEFT` y altera a `nvarchar(60)` solo cuando corresponde; los CREATE de clientes y cabecera en `PedidosWebDevSchemaBootstrap` usan la misma longitud.
 
 ---
 
@@ -205,6 +212,7 @@ No aplica. Los consumidores son repositories (TR-101-03) y services (TR-101-04).
 | T6 | Backend | Tablas consulta ERP (cheques, deuda, ventadetallada) | AC-03 |
 | T7 | Tests | Smoke integración modelos en conexión tenant | AC-07 |
 | T8 | Docs | README interno módulo: convención claves compuestas | AC-08 documentado |
+| T9 | Datos | Aplicar DDL idempotente de leyendas y alinear bootstrap dev | AC-CC13-T-M1…M4 |
 
 ---
 
@@ -212,6 +220,7 @@ No aplica. Los consumidores son repositories (TR-101-03) y services (TR-101-04).
 
 - **Unit:** opcional — tests de casts/fillable en modelos puros (bajo valor; priorizar smoke).
 - **Integration:** insert/select cabecera+detalle en tenant test; relación `hasMany` carga N renglones.
+- **DDL:** inspeccionar las diez columnas; comprobar longitud 60, recorte de valores largos y reejecución idempotente.
 - **E2E:** no aplica en slice 101-02.
 
 ---
@@ -292,7 +301,7 @@ Columnas unidades venta en artículos y detalle pedido.
 | T2 | Modelos + casts | `PqPedidoswebArticulo`, `PqPedidoswebPedidoDetalle` |
 | T3 | Backfill `cantidad_venta` | script deploy |
 
-Unificación delta CC PQ #10 (archivo `TR-SPEC-101-02-modelos-update.md` eliminado en Parte I).
+Unificación delta CC PQ #10 incorporada previamente en esta TR base.
 
 ## CC PQ #11 — Parte I 31/08/2026
 
@@ -305,3 +314,15 @@ Tabla y modelo contactos de cliente.
 | T3 | Bootstrap dev CREATE si falta | `PedidosWebDevSchemaBootstrap` (si aplica) |
 
 Unificación delta CC PQ #11 (archivo `TR-SPEC-101-02-modelos-update-01.md` eliminado en Parte I).
+
+## CC PQ #13 — Parte I 13/09/2026
+
+Longitud canónica de leyendas en clientes y cabecera: `nvarchar(60)`, con recorte previo de datos, ALTER idempotente y bootstrap dev alineado, sin DROP.
+
+| ID | Tarea | Evidencia |
+|----|-------|-----------|
+| T1 | DDL idempotente para las diez columnas | `backend/scripts/sql/alter-pq-pedidosweb-leyendas-60.sql` |
+| T2 | CREATE dev con longitud 60 | `PedidosWebDevSchemaBootstrap` |
+| T3 | Inspección de longitud y reejecución | test/script de esquema |
+
+Unificación delta CC PQ #13 (archivo `TR-SPEC-101-02-modelos-update.md` eliminado en Parte I 2026-09-13).
