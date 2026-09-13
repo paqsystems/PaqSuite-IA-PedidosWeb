@@ -6,9 +6,9 @@
 | **SPEC origen** | [SPEC-001-02-acceso-y-seguridad.md](../../05-open-spec/001-Generaliddes/SPEC-001-02-acceso-y-seguridad.md) |
 | **Épica** | 001 — Generaliddes / Acceso y seguridad |
 | **Prioridad** | Must |
-| **Estado** | Finalizado |
+| **Estado** | En Control Calidad |
 | **B1** | Enriquecida (2026-05-28) |
-| **Última actualización** | 2026-06-09 (Parte I — CC PQ #1) |
+| **Última actualización** | 2026-09-12 (HU-update CC PQ #16) |
 | **Dependencias** | HU-GEN-02-login-sesion; SPEC-001-04 (parámetro `MinutosWeb`) |
 
 ## Trazabilidad SPEC
