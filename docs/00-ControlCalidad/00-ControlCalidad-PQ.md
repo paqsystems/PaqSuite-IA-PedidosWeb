@@ -46,6 +46,7 @@ Este archivo **no sustituye** SPEC, HU ni TR: es la **entrada** del circuito de 
 
 | # | Fecha | Estado | Resumen |
 |---|-------|--------|---------|
+| 16 | 12/09/2026 | Especificado (Parte G/D/E/F 12/09/2026) | Suspender logout por inactividad hasta adopción SDK Framework |
 | 15 | 09/09/2026 | Especificado (Parte G/D/E/F 09/09/2026) | Copiar comprobante: incluir `id_de` (dirección entrega) + leyendas 1–5 |
 | 14 | 08/09/2026 | Especificado (Parte G/D/E/F 08/09/2026) | Asistente IA carga: alias `codigo` + búsqueda literal entre comillas (espacios) |
 | 13 | 01/09/2026 | Especificado (Parte G/D/E/F 01/09/2026) | Leyendas 1–5 de cabecera limitadas a 60 caracteres (modelo, carga, Excel, asistente IA) |
@@ -94,6 +95,40 @@ Atributos faltantes al copiar pedidos
 | D | Implementación código | Hecho 09/09/2026 — `ComprobanteCopiaService::mapCabecera` |
 | E | Tests | Hecho 09/09/2026 — [E-CC-PQ-15-tests.md](../04-tareas/101-PedidosWeb/E-CC-PQ-15-tests.md) (obs.: timeout SQL Server en agente) |
 | F | Cierre formal | Hecho 09/09/2026 — [F-CC-PQ-15-cierre-formal.md](../04-tareas/101-PedidosWeb/F-CC-PQ-15-cierre-formal.md) |
+| I | Unificación | Pendiente |
+
+---
+
+## Control de Calidad #16
+
+### Referencia del control
+
+| Campo | Valor |
+|-------|--------|
+| **Fecha** | 12/09/2026 |
+| **Responsable** | Pablo Quarracino (PQ) |
+| **Estado** | Especificado |
+
+### Hallazgos
+
+Cancelar momentáneamente el logout por inactividad
+
+### Errores encontrados - Mejoras solicitadas
+
+#### Cancelación de Logout por inactividad.
+
+- Cancelar momentáneamente el logout por inactividad. Se restablecerá cuando se integre este proyecto con el SDK de Framework
+
+*Procesado* → [SPEC-001-02-update](../05-open-spec/updates/001-Generaliddes/SPEC-001-02-acceso-y-seguridad-update.md) · [HU-GEN-02-expiracion-inactividad-update](../03-historias-usuario/updates/001-Generaliddes/HU-GEN-02-expiracion-inactividad-update.md) · [TR-GEN-02-expiracion-inactividad-update](../04-tareas/updates/001-Generaliddes/TR-GEN-02-expiracion-inactividad-update.md) — Parte G 12/09/2026 · **Parte F** [F-CC-PQ-16-cierre-formal](../04-tareas/001-Generaliddes/F-CC-PQ-16-cierre-formal.md) 12/09/2026 · **D1-31:** `inactivityLogoutEnabled=false` en host hasta SDK Framework
+
+### Verificación ciclo OpenSpec (12/09/2026)
+
+| Parte | Documento | Veredicto |
+|-------|-----------|-----------|
+| G | Updates SPEC/HU/TR GEN-02 inactividad | Hecho 12/09/2026 |
+| D | Implementación código | Hecho 12/09/2026 — `SessionLifecycleManager` + flag |
+| E | Tests | Hecho 12/09/2026 — [E-CC-PQ-16-tests.md](../04-tareas/001-Generaliddes/E-CC-PQ-16-tests.md) |
+| F | Cierre formal | Hecho 12/09/2026 — [F-CC-PQ-16-cierre-formal.md](../04-tareas/001-Generaliddes/F-CC-PQ-16-cierre-formal.md) |
 | I | Unificación | Pendiente |
 
 ---
