@@ -7,8 +7,8 @@
 | **Epica** | 001-Generaliddes |
 | **Prioridad** | Must |
 | **Dependencias** | TR-GEN-02-modelo-roles-permisos-seed, TR-GEN-02-login-sesion |
-| **Estado** | Finalizado |
-| **Ultima actualizacion** | 2026-06-09 (Parte I — CC PQ #1) |
+| **Estado** | En Control Calidad |
+| **Ultima actualizacion** | 2026-09-12 (TR-update CC PQ #16) |
 
 **Origen:** [HU-GEN-02-expiracion-inactividad](../../03-historias-usuario/001-Generaliddes/HU-GEN-02-expiracion-inactividad.md)  
 **Referencia SPEC:** [SPEC-001-02-acceso-y-seguridad](../../05-open-spec/001-Generaliddes/SPEC-001-02-acceso-y-seguridad.md)  

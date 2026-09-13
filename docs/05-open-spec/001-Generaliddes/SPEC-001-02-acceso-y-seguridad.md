@@ -4,9 +4,9 @@
 |-------|--------|
 | **HU relacionadas** | `docs/03-historias-usuario/001-Generaliddes/HU-GEN-02-*.md` (8 HU; índice en README) |
 | **TR relacionadas** | `docs/04-tareas/001-Generaliddes/TR-GEN-02-*.md` (8 TR; índice en README) |
-| **Estado** | Finalizado (Parte I CC PQ #10/#11) |
+| **Estado** | En revisión |
 | **Revisión A1** | Apto con observaciones (2026-05-28) |
-| **Última actualización** | 2026-08-31 |
+| **Última actualización** | 2026-09-12 (SPEC-update CC PQ #16 — suspensión logout inactividad) |
 
 ## Objetivo
 

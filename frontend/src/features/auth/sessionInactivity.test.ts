@@ -2,12 +2,17 @@ import { describe, expect, it, vi } from 'vitest';
 import {
   bindInactivityActivityListeners,
   createInactivityController,
+  inactivityLogoutEnabled,
   resolveInactivityTimeoutMinutes,
   resolveInactivityTimeoutMs,
   shouldTrackInactivityKey,
 } from './sessionInactivity';
 
 describe('sessionInactivity', () => {
+  it('mantiene suspendido el logout por inactividad hasta SDK Framework (CC PQ #16)', () => {
+    expect(inactivityLogoutEnabled).toBe(false);
+  });
+
   it('usa 10 minutos cuando el valor no existe o es invalido', () => {
     expect(resolveInactivityTimeoutMinutes(undefined)).toBe(10);
     expect(resolveInactivityTimeoutMinutes(null)).toBe(10);
