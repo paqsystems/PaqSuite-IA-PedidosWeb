@@ -18,6 +18,7 @@ Ver también [docs/Migraciones-en-forge.md](../../../docs/Migraciones-en-forge.m
 | 8 | `alter-pq-pedidosweb-clientescontactos.sql` | Contactos API (CC #11) |
 | 9 | `alter-pq-pedidosweb-clientesde-habitual-char1.sql` | `clientesde.habitual` → **char(1)** (`S`/`N`) |
 | 10 | `alter-pq-pedidosweb-pedidosdetalle-bonificacion.sql` | `pedidosdetalle.bonificacion` → **decimal(6,2)** |
+| 11 | `alter-pq-pedidosweb-articulos-especial.sql` | Solo si falta `especial` (CC PQ #17) |
 
 ## Artículos — tipos canónicos (no sustituir)
 
@@ -31,5 +32,6 @@ Fuente: ERP / PQ. Documentación: `docs/02-producto/PedidosWeb/PedidosWeb_Modelo
 - `porc_iva` numeric(6,2)  
 - `equivalencia_ventas` decimal(18,4) NOT NULL DEFAULT 1  
 - `stockeable` bit NOT NULL DEFAULT 1  
+- `especial` bit NOT NULL DEFAULT 0 (CC PQ #17)
 
 **Prohibido** en CREATE nuevos: `usa_esc bit`, `valor1`/`valor2` decimal, `codigo nvarchar(50)`.

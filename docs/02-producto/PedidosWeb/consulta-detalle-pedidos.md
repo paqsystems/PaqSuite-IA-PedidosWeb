@@ -52,6 +52,7 @@ Todas las columnas de [consulta-comprobantes-cabecera.md](./consulta-comprobante
 |------------|-----------|--------|
 | `codArticulo` | `d.cod_articulo` | |
 | `descripcionArticulo` | `a.descripcion` o `d.descripcion_articulo` si congelada | Preferir descripción congelada en detalle si existe |
+| `especial` | `a.especial` | Cadena de 1 carácter: `""` (NO) o `"*"` (SÍ) — CC PQ #17 |
 | `cantidad` | `d.cantidad` | decimal |
 | `cantidadVenta` | `d.cantidad_venta` | decimal; unidades de venta (CC PQ #10) |
 | `descuento` / `porcBonif` | `d.porc_bonif` | % bonificación renglón |
@@ -62,7 +63,7 @@ Todas las columnas de [consulta-comprobantes-cabecera.md](./consulta-comprobante
 | `ivaNeto` | `d.iva` | Importe IVA del renglón |
 | `importeNetoConIva` | `d.importe_total` | Neto con IVA |
 
-Columnas de detalle **visibles inicialmente sugeridas:** `codArticulo`, `descripcionArticulo`, `cantidad`, `cantidadVenta`, `descuento`, `precioLista`, `precioNeto`, `importeBruto`, `importeNeto`, `ivaNeto`, `importeNetoConIva`.
+Columnas de detalle **visibles inicialmente sugeridas:** `codArticulo`, `descripcionArticulo`, `especial`, `cantidad`, `cantidadVenta`, `descuento`, `precioLista`, `precioNeto`, `importeBruto`, `importeNeto`, `ivaNeto`, `importeNetoConIva`.
 
 ---
 

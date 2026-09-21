@@ -118,6 +118,38 @@ final class PedidosWebEndpointsHappyPathTest extends TestCase
     }
 
     #[Test]
+    public function consultaDetallePedidosIncluyeEspecialArticulo(): void
+    {
+        if (! \Illuminate\Support\Facades\Schema::hasColumn('pq_pedidosweb_articulos', 'especial')) {
+            $this->markTestSkipped('Columna especial no disponible en pq_pedidosweb_articulos.');
+        }
+
+        $codPedido = $this->uniqueComprobanteCod('PHPDETESP');
+        $this->insertComprobanteConDetalle($codPedido, 0);
+
+        \Illuminate\Support\Facades\DB::table('pq_pedidosweb_articulos')
+            ->where('codigo', 'ART-HP-SEED')
+            ->update(['especial' => 1]);
+
+        $response = $this->getJson('/api/v1/consultas/detalle-pedidos', $this->authHeadersFor(self::SUPERVISOR));
+
+        $response
+            ->assertOk()
+            ->assertJsonPath('error', 0)
+            ->assertJsonStructure([
+                'resultado' => [
+                    'items' => [['especial']],
+                ],
+            ]);
+
+        $item = collect($response->json('resultado.items'))
+            ->firstWhere('codPedido', $codPedido);
+
+        $this->assertNotNull($item);
+        $this->assertSame('*', $item['especial']);
+    }
+
+    #[Test]
     public function dashboardOperativoIncluyeUnidadesEnKpis(): void
     {
         $this->getJson('/api/v1/dashboard/operativo', $this->authHeadersFor(self::SUPERVISOR))

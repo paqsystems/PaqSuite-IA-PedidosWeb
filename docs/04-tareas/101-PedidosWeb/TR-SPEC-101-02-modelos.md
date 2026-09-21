@@ -7,8 +7,8 @@
 | **Épica** | 101-PedidosWeb |
 | **Prioridad** | Must |
 | **Dependencias** | Stub tenant operativo ([SPEC-101-01](../../05-open-spec/101-PedidosWeb/SPEC-101-01-backend-base.md) — etapa posterior AMB-C07); [PedidosWeb_Modelo_Datos_Final.md](../../02-producto/PedidosWeb/PedidosWeb_Modelo_Datos_Final.md) |
-| **Estado** | Finalizado |
-| **Última actualización** | 2026-09-13 (Parte I) |
+| **Estado** | En Control Calidad |
+| **Última actualización** | 2026-09-21 (Parte I) |
 
 **Origen:** [SPEC-101-02](../../05-open-spec/101-PedidosWeb/SPEC-101-02-modelos.md), [PedidosWeb_SPEC_MVP.md](../../05-open-spec/101-PedidosWeb/PedidosWeb_SPEC_MVP.md) §7  
 **Referencia SPEC:** [SPEC-101-02-modelos](../../05-open-spec/101-PedidosWeb/SPEC-101-02-modelos.md)  
@@ -71,6 +71,9 @@ para **que repositories y services consuman una capa de persistencia tipada sin 
 - **AC-CC13-T-M2:** Los valores preexistentes mayores a 60 quedan recortados con `LEFT(..., 60)` antes del ALTER.
 - **AC-CC13-T-M3:** `PedidosWebDevSchemaBootstrap` crea las diez columnas como `nvarchar(60)`.
 - **AC-CC13-T-M4:** El script de alteración puede reejecutarse sin error.
+- **AC-CC17-T-M1:** Columna `especial` presente en `pq_pedidosweb_articulos` del tenant.
+- **AC-CC17-T-M2:** Default `0` en filas existentes al agregar columna.
+- **AC-CC17-T-M3:** Modelo `PqPedidoswebArticulo` con cast `boolean` en `especial`.
 
 ### Escenarios Gherkin
 
@@ -326,3 +329,15 @@ Longitud canónica de leyendas en clientes y cabecera: `nvarchar(60)`, con recor
 | T3 | Inspección de longitud y reejecución | test/script de esquema |
 
 Unificación delta CC PQ #13 (archivo `TR-SPEC-101-02-modelos-update.md` eliminado en Parte I 2026-09-13).
+
+## CC PQ #17 — Parte I 21/09/2026
+
+Columna `especial` en maestro artículos: DDL idempotente, CREATE canónico, bootstrap y cast boolean.
+
+| ID | Tarea | Evidencia |
+|----|-------|-----------|
+| T1 | `ALTER` idempotente `especial` | `alter-pq-pedidosweb-articulos-especial.sql` |
+| T2 | CREATE canónico + bootstrap | `create-pq-pedidosweb-articulos.sql`, `PedidosWebSchemaBootstrap` |
+| T3 | Modelo + cast | `PqPedidoswebArticulo.php` |
+
+Unificación delta CC PQ #17 (archivo `TR-SPEC-101-02-modelos-update.md` eliminado en Parte I 2026-09-21).

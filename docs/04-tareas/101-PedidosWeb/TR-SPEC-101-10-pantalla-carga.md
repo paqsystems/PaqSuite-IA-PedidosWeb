@@ -7,8 +7,8 @@
 | **Épica** | 101 — PedidosWeb |
 | **Prioridad** | Must |
 | **Dependencias** | TR-SPEC-101-05 (controllers), TR-SPEC-101-04 (services), TR-SPEC-101-06, TR-SPEC-101-09; SPEC-001-04 (parámetros `Modifica*`); TR-SPEC-101-13 (mail post-grabación) |
-| **Estado** | Finalizado |
-| **Última actualización** | 2026-09-13 (Parte I) |
+| **Estado** | En Control Calidad |
+| **Última actualización** | 2026-09-21 (Parte I) |
 
 **Origen:** HU-101-004 … HU-101-011, HU-101-009, HU-101-010, HU-101-013, HU-101-024, HU-101-026  
 **Referencia SPEC:** [SPEC-101-10-pantalla-carga](../../05-open-spec/101-PedidosWeb/SPEC-101-10-pantalla-carga.md)  
@@ -59,6 +59,9 @@ para **operar según la matriz de transiciones del producto §10.1 sin pantallas
 - **AC-CC13-T-C2:** Vitest verifica el límite de los cinco controles.
 - **AC-CC13-T-C3:** Se preservan `data-testid` `leyenda-1`…`leyenda-5` y `leyendas-pie`.
 - **AC-CC13-T-C4:** El límite aplica tanto web como native al compartir `ComprobanteLeyendasPie`.
+- **AC-CC17-T-C1:** API browse expone `especial` boolean en `ArticuloOption`.
+- **AC-CC17-T-C2:** Sufijo literal ` (*)` solo si `especial=true` (`formatArticuloCargaDisplay`).
+- **AC-CC17-T-C3:** Vitest `cargaCatalogos.test.ts` cubre sufijo con/sin base y no stockeable.
 
 ### Escenarios Gherkin
 
@@ -138,6 +141,7 @@ Leídos en runtime (SPEC-001-04) según `functionalProfile`:
 11. **RN-11 (CC PQ #10):** Modal renglón: lectura `CargaUnidadesVenta` (cabecera inicial / parámetros runtime); un control cantidad visible; conversión en UI **y** backend; al editar, importes usan la cantidad modificada × `equivalencia_ventas`.
 12. **RN-12:** Quitar renglón (web/mobile/asistente) saca la fila del estado; grabar envía solo renglones restantes (TR-101-04 RN-21).
 13. **RN-13 (CC PQ #13):** `ComprobanteLeyendasPie.tsx` usa `leyendaMaxCaracteres = 60` en cada `TextBox`; no se reemplazan controles DevExtreme ni se alteran sus testids. El backend sigue aplicando el recorte definitivo.
+14. **RN-14 (CC PQ #17):** Lookup/browse artículos: append ` (*)` al final del display cuando `especial=true`; API expone `especial: boolean`; mobile reutiliza el mismo formatter.
 
 ---
 
@@ -548,3 +552,15 @@ Los cinco campos de leyenda del componente compartido web/native limitan la entr
 | T3 | Regresión de propiedades DevExtreme | Vitest del componente |
 
 Unificación delta CC PQ #13 (archivo `TR-SPEC-101-10-pantalla-carga-update.md` eliminado en Parte I 2026-09-13).
+
+## CC PQ #17 — Parte I 21/09/2026
+
+Sufijo ` (*)` en listbox browse de artículos especiales (web + native).
+
+| ID | Tarea | Evidencia |
+|----|-------|-----------|
+| T1 | API browse `especial` | `ArticuloCargaLookupService.php` |
+| T2 | Display FE | `cargaCatalogos.ts`, `comprobanteApi.ts` |
+| T3 | Tests Vitest + E2E | `cargaCatalogos.test.ts`, `mvp-section9.spec.ts` |
+
+Unificación delta CC PQ #17 (archivo `TR-SPEC-101-10-pantalla-carga-update.md` eliminado en Parte I 2026-09-21).

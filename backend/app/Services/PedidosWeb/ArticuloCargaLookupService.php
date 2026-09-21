@@ -30,7 +30,9 @@ final class ArticuloCargaLookupService
      *     bonificacion: float,
      *     precio: float,
      *     disponibleNeto: float,
-     *     disponibleNetoBase: float|null
+     *     disponibleNetoBase: float|null,
+     *     stockeable: bool,
+     *     especial: bool
      * }>
      */
     public function buscar(
@@ -92,6 +94,7 @@ final class ArticuloCargaLookupService
                         ? round((float) $disponibleNetoBase, 2)
                         : null,
                     'stockeable' => filter_var($row->stockeable ?? true, FILTER_VALIDATE_BOOLEAN),
+                    'especial' => filter_var($row->especial ?? false, FILTER_VALIDATE_BOOLEAN),
                 ];
             })
             ->values()
@@ -172,6 +175,9 @@ SQL;
         $stockeableExpr = SqlSchemaPresence::hasColumn('pq_pedidosweb_articulos', 'stockeable')
             ? 'CAST(ISNULL(a.stockeable, 1) AS bit)'
             : '1';
+        $especialExpr = SqlSchemaPresence::hasColumn('pq_pedidosweb_articulos', 'especial')
+            ? 'CAST(ISNULL(a.especial, 0) AS bit)'
+            : '0';
 
         $sql = ($ctes !== [] ? 'WITH '.implode(",\n", $ctes)."\n" : '')
             ."SELECT TOP ({$pageSize})\n"
@@ -181,6 +187,7 @@ SQL;
             ."    a.bonificacion,\n"
             ."    {$equivExpr} AS equivalencia_ventas,\n"
             ."    {$stockeableExpr} AS stockeable,\n"
+            ."    {$especialExpr} AS especial,\n"
             ."    {$precioExpr} AS precio,\n"
             ."    {$disponibleExpr} AS disponible_neto,\n"
             ."    {$disponibleBaseExpr} AS disponible_neto_base\n"
@@ -231,6 +238,9 @@ SQL;
         $stockeableExpr = SqlSchemaPresence::hasColumn('pq_pedidosweb_articulos', 'stockeable')
             ? 'CAST(ISNULL(a.stockeable, 1) AS bit)'
             : '1';
+        $especialExpr = SqlSchemaPresence::hasColumn('pq_pedidosweb_articulos', 'especial')
+            ? 'CAST(ISNULL(a.especial, 0) AS bit)'
+            : '0';
 
         $sql = "SELECT TOP ({$pageSize})\n"
             ."    a.codigo,\n"
@@ -239,6 +249,7 @@ SQL;
             ."    a.bonificacion,\n"
             ."    {$equivExpr} AS equivalencia_ventas,\n"
             ."    {$stockeableExpr} AS stockeable,\n"
+            ."    {$especialExpr} AS especial,\n"
             ."    {$precioExpr} AS precio,\n"
             ."    CAST(0 AS DECIMAL(18, 4)) AS disponible_neto,\n"
             .'    CAST(NULL AS DECIMAL(18, 4)) AS disponible_neto_base'."\n"

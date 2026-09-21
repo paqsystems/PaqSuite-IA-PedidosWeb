@@ -3,9 +3,9 @@
 | Campo | Valor |
 |-------|--------|
 | **SPEC madre** | [PedidosWeb_SPEC_MVP.md](PedidosWeb_SPEC_MVP.md) |
-| **Estado** | Finalizado |
+| **Estado** | En revisión |
 | **Prioridad épica** | Must |
-| **Última actualización** | 2026-09-12 (Parte I) |
+| **Última actualización** | 2026-09-21 (Parte I) |
 
 ## Objetivo
 
@@ -16,6 +16,7 @@ Modelos Eloquent para tablas operativas y maestras ERP en base tenant, sin lógi
 - `pq_pedidosweb_pedidoscabecera`, `pq_pedidosweb_pedidosdetalle`
 - Maestras: clientes, **clientescontactos**, clientesde (`habitual` **char(1)** `S`/`N`, API boolean), vendedores, artículos, **escalas (cabecera/detalle)**, stock, listas, precios, condiciones, transportes
 - Artículos: columna **`stockeable`** (`bit NOT NULL`, default `1`). `false`/`0` = no stockeable: no mostrar stock en listbox de carga y excluir de consulta stock (CC PQ #12). Alimentación vía sync ERP; sin ABM web. DDL canónico: `backend/scripts/sql/create-pq-pedidosweb-articulos.sql`.
+- Artículos: columna **`especial`** (`bit NOT NULL`, default `0`). `true`/`1` = artículo destacado en listbox carga (` (*)`) y consulta detalle pedidos (`*`) (CC PQ #17). Alimentación vía sync ERP; sin ABM web. DDL idempotente: `backend/scripts/sql/alter-pq-pedidosweb-articulos-especial.sql`.
 - Artículos: columna **`equivalencia_ventas`** (`decimal(18,4) NOT NULL`, default `1`). Si valor leído es `0` o nulo en runtime → tratar como **1** al convertir (CC PQ #10).
 - Artículos (resto canónico): `codigo varchar(15)` PK; `descripcion varchar(60)`; `bonificacion decimal(6,2)`; `usa_esc char(1)`; `base`/`valor1`/`valor2` `varchar(15)`; `porc_iva numeric(6,2)`.
 - Detalle: columna **`cantidad_venta`** (decimal). Persistir siempre junto con `cantidad`; backfill filas existentes `cantidad_venta = cantidad` (CC PQ #10).
@@ -48,6 +49,7 @@ Modelos Eloquent para tablas operativas y maestras ERP en base tenant, sin lógi
 - [x] CC PQ #10: columnas `equivalencia_ventas` + `cantidad_venta`
 - [x] CC PQ #11: tabla `pq_pedidosweb_clientescontactos` + modelo Eloquent
 - [x] CC PQ #13: leyendas 1–5 de cabecera y clientes en `nvarchar(60)`, con recorte previo e idempotencia DDL
+- [x] CC PQ #17: columna `especial` en `pq_pedidosweb_articulos` (default `0`, cast boolean)
 
 ## Historial de cambios
 
@@ -59,3 +61,4 @@ Modelos Eloquent para tablas operativas y maestras ERP en base tenant, sin lógi
 | 18/08/2026 | CC PQ #11 | Tabla contactos de cliente |
 | 31/08/2026 | Parte I | Unificación `SPEC-101-02-modelos-update` + `…-update-01`. Sin updates abiertos |
 | 12/09/2026 | Parte I · CC PQ #13 | Unificación del nuevo `SPEC-101-02-modelos-update`: leyendas 1–5 de cabecera y clientes a `nvarchar(60)`, con recorte previo y bootstrap alineado |
+| 21/09/2026 | Parte I · CC PQ #17 | Unificación `SPEC-101-02-modelos-update`: columna `especial` en artículos |

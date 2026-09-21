@@ -3,9 +3,9 @@
 | Campo | Valor |
 |-------|--------|
 | **SPEC madre** | [PedidosWeb_SPEC_MVP.md](PedidosWeb_SPEC_MVP.md) |
-| **Estado** | Finalizado |
+| **Estado** | En revisión |
 | **Prioridad épica** | Must |
-| **Última actualización** | 2026-09-12 (Parte I) |
+| **Última actualización** | 2026-09-21 (Parte I) |
 
 ## Objetivo
 
@@ -84,6 +84,7 @@ HU-101-005…010, copia (B), HU-101-011, HU-101-012 (solo pedido delete)
 - [x] CC PQ #12: saldo deuda + modal; equivalencia unidades y precio neto en modal renglón; dirty leyendas; no stockeables sin stock en listbox
 - [x] CC PQ #10: cantidad dual según `CargaUnidadesVenta` (un solo control editable)
 - [x] CC PQ #13: ninguna leyenda admite más de 60 caracteres en web ni native; grabación envía como máximo 60
+- [x] CC PQ #17: sufijo ` (*)` en listbox browse cuando `especial=true` (web + native)
 
 ## In scope — CC PQ #5 / #6 (listbox artículos)
 
@@ -96,6 +97,8 @@ En el **lookup/browse** de artículos (`GET /articulos` sin `codigos`), servicio
 | Consulta stock (`GET /consultas/stock`) | Mismas fórmulas §4–§5 (`StockConsultaService`) |
 
 Display ítem: `{codigo} - {descripcion} — Disp. {disponibleNeto}` y `({disponibleNetoBase})` si hay base. Entre paréntesis va **disponible neto base**, no `comprometidoBaseWeb`.
+
+**CC PQ #17:** si `articulos.especial = 1`, append literal **` (*)`** al final de la línea del ítem (tras disponible/base), en las tres plantillas §3.1. API browse expone `especial: boolean` en `ArticuloOption`. Mobile reutiliza el mismo `displayExpr`.
 
 Fuente de verdad UI: [pantalla-carga-comprobante-ui.md](../../02-producto/PedidosWeb/pantalla-carga-comprobante-ui.md) §3.
 
@@ -124,3 +127,4 @@ Fuente de verdad UI: [pantalla-carga-comprobante-ui.md](../../02-producto/Pedido
 | 30/07/2026 | CC PQ #10 | Cantidad dual según `CargaUnidadesVenta` |
 | 31/08/2026 | Parte I | Unificación `SPEC-101-10-pantalla-carga-update`. Sin updates abiertos |
 | 12/09/2026 | Parte I · CC PQ #13 | Unificación del nuevo `SPEC-101-10-pantalla-carga-update`: `maxLength={60}` en leyendas 1–5 para web y native |
+| 21/09/2026 | Parte I · CC PQ #17 | Unificación `SPEC-101-10-pantalla-carga-update`: sufijo ` (*)` en lookup artículos especiales |

@@ -3,9 +3,9 @@
 | Campo | Valor |
 |-------|--------|
 | **SPEC madre** | [PedidosWeb_SPEC_MVP.md](PedidosWeb_SPEC_MVP.md) |
-| **Estado** | Finalizado (Parte I CC PQ #10/#11) |
+| **Estado** | En revisión |
 | **Prioridad épica** | Must |
-| **Última actualización** | 2026-08-31 |
+| **Última actualización** | 2026-09-21 (Parte I) |
 
 ## Objetivo
 
@@ -26,6 +26,7 @@ Endpoints de consulta con visibilidad, paginación y preparación para exportaci
 - **`fecha_proceso`** en metadata: presentación UI `dd/MM/yyyy HH:mm` (i18n, sin segundos)
 - **Precio neto unitario** (`precioNeto` desde `precio_neto`) en consulta detalle (HU-101-028)
 - **Cantidad venta** (`cantidadVenta` desde `cantidad_venta`) en consulta **Detalle de Pedidos** (`GET .../consultas/detalle-pedidos`, HU-101-028) — CC PQ #10. **Fuera:** listados cabecera (ingresados / pendientes / presupuestos).
+- **Especial artículo** (`especial` string: `""` o `"*"`) en consulta **Detalle de Pedidos** — CC PQ #17. Origen: `pq_pedidosweb_articulos.especial` vía join del renglón.
 
 ## Fuera de scope
 
@@ -48,6 +49,7 @@ HU-101-015…018, HU-101-021…023
 - [x] CC PQ #1: nombre comercial, `fecha_proceso` minutos, `precioNeto` detalle
 - [x] CC PQ #12: rango fechas historial + exclusión no stockeables en stock
 - [x] CC PQ #10: `cantidadVenta` en detalle pedidos
+- [x] CC PQ #17: `especial` (`""` / `"*"`) en detalle pedidos
 
 ## Historial de cambios
 
@@ -59,3 +61,4 @@ HU-101-015…018, HU-101-021…023
 | 30/08/2026 | Parte I | Unificación `SPEC-101-07-consultas-api-update-01` (CC PQ #12) |
 | 30/07/2026 | CC PQ #10 | `cantidadVenta` en detalle pedidos (no cabecera) |
 | 31/08/2026 | Parte I | Unificación `SPEC-101-07-consultas-api-update`. Sin updates abiertos |
+| 21/09/2026 | Parte I · CC PQ #17 | Unificación `SPEC-101-07-consultas-api-update`: campo `especial` en detalle pedidos |

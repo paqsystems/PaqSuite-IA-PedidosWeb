@@ -241,7 +241,7 @@ Regla: un login de vendedor corresponde a un solo vendedor.
 Maestro de artículos consumido por carga, stock, Excel y asistente.
 
 **DDL canónico (alta de empresa / CREATE):** `backend/scripts/sql/create-pq-pedidosweb-articulos.sql`  
-**ALTER idempotentes (tenant existente):** `alter-pq-pedidosweb-carga-unidades-venta.sql`, `alter-pq-pedidosweb-stockeable.sql`, `alter-pq-pedidosweb-articulos-descripcion-varchar60.sql`
+**ALTER idempotentes (tenant existente):** `alter-pq-pedidosweb-carga-unidades-venta.sql`, `alter-pq-pedidosweb-stockeable.sql`, `alter-pq-pedidosweb-articulos-especial.sql`, `alter-pq-pedidosweb-articulos-descripcion-varchar60.sql`
 
 Clave primaria:
 
@@ -261,6 +261,7 @@ Campos (tipos canónicos SQL Server):
 | porc_iva | numeric(6, 2) | NULL | — | Porcentaje IVA |
 | equivalencia_ventas | decimal(18, 4) | NOT NULL | `1` | Factor unidades venta ↔ stock/precio (CC PQ #10). Runtime: si ≤ 0 → tratar como 1 |
 | stockeable | bit | NOT NULL | `1` | `1` = stockeable; `0` = no stockeable (sin stock en listbox; fuera de consulta stock) (CC PQ #12) |
+| especial | bit | NOT NULL | `0` | `1` = artículo destacado en listbox carga (` (*)`) y consulta detalle pedidos (`*`) (CC PQ #17) |
 
 Relación con escalas (§3.5–3.6):
 

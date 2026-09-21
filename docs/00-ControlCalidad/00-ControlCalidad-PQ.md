@@ -46,6 +46,7 @@ Este archivo **no sustituye** SPEC, HU ni TR: es la **entrada** del circuito de 
 
 | # | Fecha | Estado | Resumen |
 |---|-------|--------|---------|
+| 17 | 20/09/2026 | Finalizado (Parte I 21/09/2026) | Atributo `especial` en artículos — columna detalle pedidos + sufijo listbox carga |
 | 16 | 12/09/2026 | Finalizado (Parte I 12/09/2026) | Suspender logout por inactividad hasta adopción SDK Framework |
 | 15 | 09/09/2026 | Finalizado (Parte I completa 13/09/2026) | Copiar comprobante: incluir `id_de` (dirección entrega) + leyendas 1–5 |
 | 14 | 08/09/2026 | Finalizado (Parte I completa 13/09/2026) | Asistente IA carga: alias `codigo` + búsqueda literal entre comillas (espacios) |
@@ -130,6 +131,54 @@ Cancelar momentáneamente el logout por inactividad
 | E | Tests | Hecho 12/09/2026 — [E-CC-PQ-16-tests.md](../04-tareas/001-Generaliddes/E-CC-PQ-16-tests.md) |
 | F | Cierre formal | Hecho 12/09/2026 — [F-CC-PQ-16-cierre-formal.md](../04-tareas/001-Generaliddes/F-CC-PQ-16-cierre-formal.md) |
 | I | Unificación | Hecho 12/09/2026 — updates fusionados y eliminados |
+
+---
+
+## Control de Calidad #17
+
+### Referencia del control
+
+| Campo | Valor |
+|-------|--------|
+| **Fecha** | 20/09/2026 |
+| **Responsable** | Pablo Quarracino (PQ) |
+| **Estado** | Finalizado |
+
+### Hallazgos
+
+Agregar un atributo en los artículos para destacarlos en carga e informes.
+
+### Errores encontrados - Mejoras solicitadas
+
+#### Modelo de datos → tabla de artículos: agregar atributo
+
+Agregar el atributo booleano `especial`.
+
+*Procesado* → unificado en [SPEC-101-02](../05-open-spec/101-PedidosWeb/SPEC-101-02-modelos.md) · [TR-SPEC-101-02](../04-tareas/101-PedidosWeb/TR-SPEC-101-02-modelos.md) — Parte G/D/E/F/I 21/09/2026 · **D1-32:** `especial` `bit NOT NULL` default `0` en `pq_pedidosweb_articulos`
+
+#### Consulta Detallada
+
+Agregar el nuevo atributo booleano `especial` como columna disponible.
+Mostrarlo como una cadena de un carácter, con los valores `""` (NO) y `"*"` (SÍ).
+
+*Procesado* → unificado en [SPEC-101-07](../05-open-spec/101-PedidosWeb/SPEC-101-07-consultas-api.md) · [SPEC-101-11](../05-open-spec/101-PedidosWeb/SPEC-101-11-consultas-ui.md) · [HU-101-028](../03-historias-usuario/101-PedidosWeb/HU-101-028-consulta-detalle-pedidos.md) · [TR-SPEC-101-07](../04-tareas/101-PedidosWeb/TR-SPEC-101-07-consultas-api.md) · [TR-SPEC-101-11](../04-tareas/101-PedidosWeb/TR-SPEC-101-11-consultas-ui.md) — Parte G/D/E/F/I 21/09/2026 · **D1-33:** columna `especial` en informe **Detalle de pedidos** (`pw_detallepedidos` / HU-101-028)
+
+#### Carga de pedidos → lista de artículos
+
+Agregar en el lookup de artículos, después de código, descripción, stock y stock base,
+el atributo con el mismo esquema de la consulta: `""` (NO) y `" (*)"` (SÍ).
+
+*Procesado* → unificado en [SPEC-101-10](../05-open-spec/101-PedidosWeb/SPEC-101-10-pantalla-carga.md) · [HU-101-006](../03-historias-usuario/101-PedidosWeb/HU-101-006-carga-renglones.md) · [TR-SPEC-101-10](../04-tareas/101-PedidosWeb/TR-SPEC-101-10-pantalla-carga.md) — Parte G/D/E/F/I 21/09/2026 · **D1-34:** sufijo ` (*)` en listbox browse cuando `especial=true`
+
+### Verificación ciclo OpenSpec (21/09/2026)
+
+| Parte | Documento | Veredicto |
+|-------|-----------|-----------|
+| G | Updates en `docs/.../updates/` (SPEC/HU/TR 101-02/07/10/11) | Hecho 21/09/2026 |
+| D | Implementación código | Hecho 21/09/2026 — DDL `especial`, API detalle/lookup, UI grilla + sufijo listbox |
+| E | Tests | Hecho 21/09/2026 — [E-CC-PQ-17-tests.md](../04-tareas/101-PedidosWeb/E-CC-PQ-17-tests.md) (Vitest 12 + E2E 2; PHPUnit unit 4) |
+| F | Cierre formal | Hecho 21/09/2026 — [F-CC-PQ-17-cierre-formal.md](../04-tareas/101-PedidosWeb/F-CC-PQ-17-cierre-formal.md) |
+| I | Unificación | Hecho 21/09/2026 — [I-CC-PQ-17-cierre-formal.md](../04-tareas/101-PedidosWeb/I-CC-PQ-17-cierre-formal.md) |
 
 ---
 
