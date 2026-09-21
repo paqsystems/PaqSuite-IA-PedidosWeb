@@ -6,8 +6,8 @@
 | **SPEC origen** | [SPEC-101-21-importacion-masiva-pedidos](../../05-open-spec/101-PedidosWeb/SPEC-101-21-importacion-masiva-pedidos.md) |
 | **Épica** | 101 — PedidosWeb / Importación masiva |
 | **Prioridad** | **Should** |
-| **Estado** | En Control Calidad |
-| **Última actualización** | 2026-08-31 |
+| **Estado** | Finalizado |
+| **Última actualización** | 2026-09-13 (Parte I) |
 | **B1** | **Cerrado** (2026-07-19) |
 | **TR** | [TR-SPEC-101-21-proceso-excel-pedido-masivo](../../04-tareas/101-PedidosWeb/TR-SPEC-101-21-proceso-excel-pedido-masivo.md) |
 | **Dependencias** | HU-GEN-07-* (motor Excel); [HU-101-029](HU-101-029-proceso-excel-pedido-individual.md) (columnas / i18n `PEDIDO_INDIVIDUAL`); SPEC-001-04; SPEC-101-06 |
@@ -92,6 +92,8 @@ SPEC-101-21 §2–§3 define el proceso GEN-07 **`PEDIDO_MASIVO`**: mismas colum
 13. **RN-13:** APIs del proceso exigen `pw_importacionmasiva`.
 14. **RN-14:** No se graba comprobante en BD en esta HU; solo validación/enriquecimiento/agrupación.
 15. **RN-15 (CC PQ #10):** `PEDIDO_MASIVO` interpreta `cantidad` igual que individual / modal (`CargaUnidadesVenta`).
+16. **RN-CC13-M01:** Al armar cada grupo, `leyenda1`…`leyenda5` se recortan a 60 caracteres.
+17. **RN-CC13-M02:** Una leyenda de más de 60 caracteres no impide aplicar el lote a la grilla.
 
 ## Criterios de aceptación
 
@@ -115,6 +117,8 @@ SPEC-101-21 §2–§3 define el proceso GEN-07 **`PEDIDO_MASIVO`**: mismas colum
 - [ ] **CA-18:** Payload de grupo listo para que el host arme fila de grilla (cabecera + renglones + vendedor).
 - [ ] **CA-19:** Tests unit handler (agrupación feliz + ≥3 errores) y feature API lote.
 - [ ] **CA-CC10-X04:** `PEDIDO_MASIVO` interpreta `cantidad` igual que individual / modal (`CargaUnidadesVenta`).
+- [ ] **CA-CC13-M01:** Excel masivo con una leyenda de más de 60 caracteres → la grilla de trabajo se carga.
+- [ ] **CA-CC13-M02:** La cabecera del grupo contiene esa leyenda recortada a 60 caracteres.
 
 ## Casos negativos
 
@@ -170,6 +174,10 @@ Bajo. Residual: forma exacta del enriquecimiento staging vs respuesta agrupada (
 ## Historial CC PQ #10 (30/07/2026) — Parte I 31/08/2026
 
 Interpretación de `cantidad` en `PEDIDO_MASIVO` según `CargaUnidadesVenta` (RN-15, CA-CC10-X04). Unificación delta `HU-101-043-proceso-excel-pedido-masivo-update` (archivo eliminado en Parte I).
+
+## Historial CC PQ #13 (01/09/2026) — Parte I 13/09/2026
+
+Recorte no bloqueante de leyendas a 60 caracteres al armar grupos de importación masiva (RN-CC13-M01…M02, CA-CC13-M01…M02). Unificación de `HU-101-043-proceso-excel-pedido-masivo-update`.
 
 ## Veredicto B1
 

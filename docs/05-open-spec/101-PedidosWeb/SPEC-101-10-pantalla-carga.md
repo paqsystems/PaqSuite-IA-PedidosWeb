@@ -5,7 +5,7 @@
 | **SPEC madre** | [PedidosWeb_SPEC_MVP.md](PedidosWeb_SPEC_MVP.md) |
 | **Estado** | En revisión |
 | **Prioridad épica** | Must |
-| **Última actualización** | 2026-08-31 |
+| **Última actualización** | 2026-09-21 (Parte I) |
 
 ## Objetivo
 
@@ -31,6 +31,7 @@ Pantalla **única** pedido/presupuesto: mismo flujo transaccional; cabecera, ren
   - `CargaUnidadesVenta = true`: usuario edita → `cantidad_venta`; persistir `cantidad = cantidad_venta * equiv`; importes desde `cantidad` (derivada).
   - Al abrir edición y en grilla de renglones: mostrar la cantidad «de usuario» coherente con el parámetro (sin duplicar columnas). Misma semántica en rama native (`isNativeApp()`).
 - **Leyendas dirty:** snapshot de `leyenda_1…5` al abrir/inicializar; al grabar enviar flags dirty para SPEC-101-04.
+- **Leyendas 1–5 con máximo 60 (CC PQ #13):** `ComprobanteLeyendasPie` usa `TextBox` DevExtreme con `maxLength={60}` para cada leyenda. Aplica igual en web y native porque `PedidosCargaMobileCabeceraStep` reutiliza el componente; conserva `data-testid="leyendas-pie"` y `leyenda-1`…`leyenda-5`. Al pegar texto más largo, el control lo limita a 60.
 - **Listbox artículos:** ítems con `stockeable = false` pueden aparecer, **sin** mostrar stock/disponible.
 
 ## Permisos precio y descuento (parámetros ERP)
@@ -82,6 +83,8 @@ HU-101-005…010, copia (B), HU-101-011, HU-101-012 (solo pedido delete)
 - [x] CC PQ #6 17/06/2026: disponible base en listbox = agregado SUM por `articulos.base` (§5 consulta stock), no stock del código base aislado
 - [x] CC PQ #12: saldo deuda + modal; equivalencia unidades y precio neto en modal renglón; dirty leyendas; no stockeables sin stock en listbox
 - [x] CC PQ #10: cantidad dual según `CargaUnidadesVenta` (un solo control editable)
+- [x] CC PQ #13: ninguna leyenda admite más de 60 caracteres en web ni native; grabación envía como máximo 60
+- [x] CC PQ #17: sufijo ` (*)` en listbox browse cuando `especial=true` (web + native)
 
 ## In scope — CC PQ #5 / #6 (listbox artículos)
 
@@ -94,6 +97,8 @@ En el **lookup/browse** de artículos (`GET /articulos` sin `codigos`), servicio
 | Consulta stock (`GET /consultas/stock`) | Mismas fórmulas §4–§5 (`StockConsultaService`) |
 
 Display ítem: `{codigo} - {descripcion} — Disp. {disponibleNeto}` y `({disponibleNetoBase})` si hay base. Entre paréntesis va **disponible neto base**, no `comprometidoBaseWeb`.
+
+**CC PQ #17:** si `articulos.especial = 1`, append literal **` (*)`** al final de la línea del ítem (tras disponible/base), en las tres plantillas §3.1. API browse expone `especial: boolean` en `ArticuloOption`. Mobile reutiliza el mismo `displayExpr`.
 
 Fuente de verdad UI: [pantalla-carga-comprobante-ui.md](../../02-producto/PedidosWeb/pantalla-carga-comprobante-ui.md) §3.
 
@@ -121,3 +126,5 @@ Fuente de verdad UI: [pantalla-carga-comprobante-ui.md](../../02-producto/Pedido
 | 30/08/2026 | Parte I | Unificación `SPEC-101-10-pantalla-carga-update-01` (CC PQ #12) |
 | 30/07/2026 | CC PQ #10 | Cantidad dual según `CargaUnidadesVenta` |
 | 31/08/2026 | Parte I | Unificación `SPEC-101-10-pantalla-carga-update`. Sin updates abiertos |
+| 12/09/2026 | Parte I · CC PQ #13 | Unificación del nuevo `SPEC-101-10-pantalla-carga-update`: `maxLength={60}` en leyendas 1–5 para web y native |
+| 21/09/2026 | Parte I · CC PQ #17 | Unificación `SPEC-101-10-pantalla-carga-update`: sufijo ` (*)` en lookup artículos especiales |

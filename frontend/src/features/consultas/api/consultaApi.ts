@@ -105,6 +105,7 @@ export type DetallePedidoConsultaRow = ComprobanteConsultaRow & {
   importeNeto: number;
   ivaNeto: number;
   importeNetoConIva: number;
+  especial: string;
 };
 
 export type StockConsultaRow = {
@@ -245,6 +246,7 @@ type ApiDetallePedidoItem = ApiComprobanteConsultaItem & {
   importeNeto?: number;
   ivaNeto?: number;
   importeNetoConIva?: number;
+  especial?: string;
 };
 
 type ApiStockItem = {
@@ -402,6 +404,7 @@ function mapDetallePedidoItem(item: ApiDetallePedidoItem): DetallePedidoConsulta
     importeNeto: item.importeNeto ?? 0,
     ivaNeto: item.ivaNeto ?? 0,
     importeNetoConIva: item.importeNetoConIva ?? 0,
+    especial: item.especial ?? '',
   };
 }
 

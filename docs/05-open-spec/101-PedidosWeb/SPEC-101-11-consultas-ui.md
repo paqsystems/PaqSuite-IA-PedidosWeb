@@ -3,9 +3,9 @@
 | Campo | Valor |
 |-------|--------|
 | **SPEC madre** | [PedidosWeb_SPEC_MVP.md](PedidosWeb_SPEC_MVP.md) |
-| **Estado** | Finalizado (Parte I CC PQ #10/#11) |
+| **Estado** | En revisión |
 | **Prioridad épica** | Must |
-| **Última actualización** | 2026-08-31 |
+| **Última actualización** | 2026-09-21 (Parte I) |
 
 ## Objetivo
 
@@ -26,6 +26,7 @@ Pantallas de consulta con `DataGridDx`, layouts, exportación **Excel**, accione
 - Acción **Copiar** en pedidos pendientes (mismo patrón HU-101-026)
 - Columna **Precio neto unitario** en detalle pedidos (HU-101-028)
 - Columna **cantidad venta** (`cantidadVenta`, decimal `#,##0.00`, i18n `consultas.detalle.column.cantidadVenta`) en **Detalle de Pedidos** — CC PQ #10; visible junto a `cantidad` (no la reemplaza). Kardex mobile si aplica.
+- Columna **especial** (`especial`, string `""` o `"*"`, i18n `consultas.detalle.column.especial`) en **Detalle de Pedidos** — CC PQ #17; visible junto a columnas de artículo. Kardex mobile si aplica.
 - Export Excel (GEN-03); acciones ver/editar/eliminar según permisos (**eliminar** solo pedido 0)
 - Pivot: diseños `pq_pivots_config`, plantilla inicial, refresh, export Excel pivot (GEN-08) cuando flags activos
 - PDF: **fuera** — ver SPEC-001-06
@@ -52,6 +53,7 @@ HU-101-015…018, HU-101-021…023, HU-101-028
 - [x] CC PQ #4: cuatro informes con toggle grilla/pivot; catálogo pivot; E2E detalle + deuda
 - [x] CC PQ #12: colores saldo deuda; rango fechas historial; stock sin no-stockeables
 - [x] CC PQ #10: columna `cantidadVenta` en detalle pedidos
+- [x] CC PQ #17: columna `especial` en detalle pedidos (web + kardex mobile)
 
 ## Historial de cambios
 
@@ -65,3 +67,4 @@ HU-101-015…018, HU-101-021…023, HU-101-028
 | 30/08/2026 | Parte I | Unificación `SPEC-101-11-consultas-ui-update-01` (CC PQ #12) |
 | 30/07/2026 | CC PQ #10 | Columna UI `cantidadVenta` (solo Detalle de Pedidos) |
 | 31/08/2026 | Parte I | Unificación `SPEC-101-11-consultas-ui-update`. Sin updates abiertos |
+| 21/09/2026 | Parte I · CC PQ #17 | Unificación `SPEC-101-11-consultas-ui-update`: columna `especial` en detalle pedidos |

@@ -5,8 +5,8 @@
 | **ID** | HU-101-026-copiar-comprobante |
 | **SPEC origen** | [SPEC-101-04-services-pedidos](../../05-open-spec/101-PedidosWeb/SPEC-101-04-services-pedidos.md), [SPEC-101-10](../../05-open-spec/101-PedidosWeb/SPEC-101-10-pantalla-carga.md) |
 | **Prioridad** | Must (AMB-C04) |
-| **Estado** | Finalizado (Parte I — CC PQ #9) |
-| **Última actualización** | 2026-07-02 (Parte I — CC PQ #9) |
+| **Estado** | Finalizado |
+| **Última actualización** | 2026-09-13 (Parte I) |
 | **B1** | Enriquecida (2026-06-01) |
 
 ## Narrativa
@@ -33,6 +33,10 @@ para **agilizar cargas repetitivas conservando importes históricos o aplicando 
 8. **RN-C04:** Con `true`, artículo sin precio en lista o precio cero: validar **por separado** según `ArticulosSinPrecio` (sin fila) y `ArticulosPrecioCero` (precio 0). Si no se admite → rechazar copia (`business.precioCeroNoPermitido`, 422); modal en UI; no abrir carga.
 9. **RN-C05:** Recalcular importes con `CalculoTotalesService` cuando se actualizan precios desde lista.
 10. **RN-C06:** Conversión presupuesto→pedido **no** usa `ActualizarPrecioCopia`.
+11. **RN-CC15-C01 (D1-29):** El borrador de copia incluye `id_de` (dirección de entrega) del comprobante origen.
+12. **RN-CC15-C02 (D1-30):** El borrador incluye `leyenda_1`…`leyenda_5` del origen, con tope de 60 caracteres (recorte, no rechazo).
+13. **RN-CC15-C03:** Si el origen no tiene dirección o leyendas, el borrador queda sin esos valores; la copia no falla por ese motivo.
+14. La incorporación de dirección y leyendas no modifica la política de precios `ActualizarPrecioCopia`.
 
 ## Criterios de aceptación
 
@@ -45,6 +49,37 @@ para **agilizar cargas repetitivas conservando importes históricos o aplicando 
 - [x] **CA-C03:** Con `ActualizarPrecioCopia = true`, artículo sin precio en lista o precio cero y parámetros restrictivos → error modal; no abre carga.
 - [x] **CA-C04:** Copiar desde pedido pendiente (`1`) y presupuesto activo (`99`) cumple las mismas reglas que pedido ingresado (`0`).
 - [x] **CA-C05:** Conversión presupuesto→pedido no usa `ActualizarPrecioCopia`.
+- [ ] **CA-CC15-C01:** Copiar un pedido con dirección de entrega seleccionada abre carga con la misma dirección.
+- [ ] **CA-CC15-C02:** Copiar un pedido con leyendas 1–5 abre carga con esas leyendas visibles/editables.
+- [ ] **CA-CC15-C03:** Copiar un pedido sin dirección ni leyendas sigue abriendo carga sin error.
+- [ ] **CA-CC15-C04:** Tras copiar, grabar persiste dirección y leyendas como en un alta normal.
+
+## Escenarios Gherkin CC PQ #15
+
+```gherkin
+Feature: Copia de dirección y leyendas
+
+  Scenario: Copia traslada dirección y leyendas
+    Given un pedido origen con id_de = 3 y leyenda_1 = "Retira cliente"
+    When el usuario ejecuta Copiar
+    Then el borrador tiene id_de = 3
+    And el borrador tiene leyenda_1 = "Retira cliente"
+
+  Scenario: Origen sin dirección ni leyendas
+    Given un pedido origen sin id_de ni leyendas
+    When el usuario ejecuta Copiar
+    Then el borrador abre sin error
+    And id_de y leyendas quedan vacíos o nulos
+```
+
+## Fuera de alcance CC PQ #15
+
+- Re-inicializar leyendas desde maestro cliente al copiar (se usan las del comprobante origen).
+- Cambios de UI del SelectBox de dirección o de los campos de leyenda.
+
+## Historial CC PQ #15 (09/09/2026) — Parte I 13/09/2026
+
+Copia de dirección de entrega y leyendas 1–5 desde el comprobante origen, incluyendo decisiones D1-29 y D1-30 (RN-CC15-C01…C03, CA-CC15-C01…C04). Unificación de `HU-101-026-copiar-comprobante-update-01`.
 
 ## Historial CC PQ #9 (02/07/2026) — Parte I 02/07/2026
 

@@ -5,8 +5,8 @@
 | **ID** | HU-101-009-grabar-pedido |
 | **SPEC origen** | [SPEC-101-04-services-pedidos](../../05-open-spec/101-PedidosWeb/SPEC-101-04-services-pedidos.md), [SPEC-101-10](../../05-open-spec/101-PedidosWeb/SPEC-101-10-pantalla-carga.md) |
 | **Prioridad** | Must |
-| **Estado** | En Control Calidad |
-| **Última actualización** | 2026-08-31 |
+| **Estado** | Finalizado |
+| **Última actualización** | 2026-09-13 (Parte I) |
 | **B1** | Enriquecida (2026-06-01) |
 | **Dependencias** | HU-101-006…008; HU-101-019 |
 
@@ -25,6 +25,8 @@ para **dejar un pedido ingresado (0), actualizar uno existente o convertir un pr
 5. En conversión desde presupuesto: **`cod_presupuesto_origen`** en cabecera pedido y **`cod_pedido_generado`** en `presupuestos_cierres`.
 6. Auditoría liviana; mail (HU-101-019); post-grabación según `CargaRecurrente`.
 7. **CC PQ #12:** Al grabar pedido, si una leyenda N dirty y `ClienteLeyendaN=true`, actualiza `clientes.leyenda_N`. Si la leyenda no se modificó en la sesión, no actualiza el maestro.
+8. **RN-CC13-G01:** `leyenda_1` … `leyenda_5` admiten nulo/vacío; si hay texto, persistir los primeros 60 caracteres Unicode sin fallar la grabación por longitud.
+9. **RN-CC13-G02:** Si una leyenda dirty actualiza el maestro cliente, el valor escrito también se recorta a 60 caracteres.
 
 ## Criterios de aceptación
 
@@ -34,6 +36,12 @@ para **dejar un pedido ingresado (0), actualizar uno existente o convertir un pr
 - [ ] **CA-04:** E2E §9 madre: paso grabar pedido + mail (mock/log).
 - [x] **CA-CC12-G01:** Al grabar pedido, si una leyenda N dirty y `ClienteLeyendaN=true`, actualiza `clientes.leyenda_N`.
 - [x] **CA-CC12-G02:** Si la leyenda no se modificó en la sesión, no actualiza el maestro (escenario d del CC).
+- [ ] **CA-CC13-G01:** POST grabar pedido con `leyenda_1` de 61 caracteres → éxito (si el resto es válido); en BD quedan 60.
+- [ ] **CA-CC13-G02:** POST con 60 caracteres → se persiste el texto completo.
+
+## Historial CC PQ #13 (01/09/2026) — Parte I 13/09/2026
+
+Recorte defensivo de leyendas a 60 caracteres al grabar pedido y al sincronizar el maestro cliente (RN-CC13-G01…G02, CA-CC13-G01…G02). Unificación de `HU-101-009-grabar-pedido-update`.
 
 ## Historial CC PQ #12 (28/08/2026) — Parte I 30/08/2026
 

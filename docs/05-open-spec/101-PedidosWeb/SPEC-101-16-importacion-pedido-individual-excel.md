@@ -4,10 +4,10 @@
 |-------|--------|
 | **SPEC madre** | [PedidosWeb_SPEC_MVP.md](PedidosWeb_SPEC_MVP.md) |
 | **Producto** | [Importación Pedido Individual desde Excel.md](../../02-producto/PedidosWeb/Importación%20Pedido%20Individual%20desde%20Excel.md) |
-| **Estado** | En revisión |
+| **Estado** | Finalizado |
 | **Prioridad épica** | Should (extensión post-MVP; motor GEN-07 ya implementado) |
 | **Revisión A1** | Apto con observaciones (2026-06-17) |
-| **Última actualización** | 2026-08-31 |
+| **Última actualización** | 2026-09-12 (Parte I) |
 | **HU relacionadas** | [HU-101-029](../../03-historias-usuario/101-PedidosWeb/HU-101-029-proceso-excel-pedido-individual.md), [HU-101-030](../../03-historias-usuario/101-PedidosWeb/HU-101-030-importacion-excel-pantalla-carga.md) |
 | **TR relacionadas** | [TR-SPEC-101-16-proceso-excel-pedido-individual](../../04-tareas/101-PedidosWeb/TR-SPEC-101-16-proceso-excel-pedido-individual.md), [TR-SPEC-101-16-importacion-excel-pantalla-carga](../../04-tareas/101-PedidosWeb/TR-SPEC-101-16-importacion-excel-pantalla-carga.md) |
 
@@ -108,6 +108,7 @@ Tipos de dato sugeridos: `codigo` / `texto` / `decimal` (cantidad, precios, boni
 | **Visibilidad cliente** | Vendedor/supervisor: `cod_cliente` debe estar en cartera asignada. Cliente: debe coincidir con cliente de sesión. |
 | **Artículo** | Código existente, no `usa_esc = 'B'`, visible según reglas de carga (SPEC-101-10). |
 | **Cantidad** | `> 0`. Columna Excel **`cantidad`**: mismo tratamiento que modal de renglón según `CargaUnidadesVenta` (CC PQ #10) — helper conversión canónico SPEC-101-10/101-04; materializar `cantidad` + `cantidad_venta`; importes desde `cantidad`. Sin columna Excel `cantidad_venta`. Aplica import desde pantalla carga (HU-101-030). |
+| **Leyendas 1–5** | Si `leyenda1`…`leyenda5` superan 60 caracteres Unicode, el handler las recorta a 60 con el helper canónico de SPEC-101-04 y continúa el lote; no genera error de fila. El recorte ocurre después del parseo GEN-07. Mantener `largo_maximo` del catálogo en 255 o null para evitar rechazo estructural previo. |
 | **Catálogos** | Perfil, condición, transporte, dirección, lista deben existir y ser válidos para el cliente cuando se informan o se resuelven por default. |
 | **Nivel** | Si parámetro `NivelExtremo` = true → solo `0` o `100`. |
 | **Precio cero** | Si `Articulopreciocero` o `Articulossinprecio` = false → ningún renglón con precio resuelto = 0. |
@@ -213,6 +214,8 @@ sequenceDiagram
 - [ ] **CA-07:** Importación exitosa: cabecera y N renglones en grilla; bonificación neta y totales coherentes con carga manual para el mismo dato.
 - [ ] **CA-08:** Tras importación, grabación pedido/presupuesto exitosa con mismas validaciones que HU-101-009/010.
 - [ ] **CA-09:** Lote registrado en historial Excel (`PQ_EXCEL_IMPORTACIONES`).
+- [x] **CA-CC13-01:** Celda de leyenda con 61 caracteres mantiene la fila válida y entrega 60 caracteres al formulario.
+- [x] **CA-CC13-02:** El lote no falla por longitud de leyenda.
 
 ## Decisiones humanas (cerradas en Parte A)
 
@@ -405,3 +408,7 @@ Ninguna bloqueante para **Parte B**.
 ## Historial CC PQ #10 (30/07/2026) — Parte I 31/08/2026
 
 Columna Excel `cantidad` = semántica modal renglón según `CargaUnidadesVenta`; helper compartido SPEC-101-10/101-04. Unificación `SPEC-101-16-importacion-pedido-individual-excel-update`. Sin updates abiertos.
+
+## Historial CC PQ #13 (01/09/2026) — Parte I 12/09/2026
+
+Unificación del nuevo `SPEC-101-16-importacion-pedido-individual-excel-update`: leyendas del proceso `PEDIDO_INDIVIDUAL` recortadas a 60 en el handler, sin rechazo GEN-07 ni fallo del lote.

@@ -293,6 +293,7 @@
     "consultas.detalle.column.cantidadVenta": "Quantité vente",
     "consultas.detalle.column.codArticulo": "Code article",
     "consultas.detalle.column.descripcionArticulo": "Description article",
+    "consultas.detalle.column.especial": "Spécial",
     "consultas.detalle.column.descuento": "Remise",
     "consultas.detalle.column.importeBruto": "Montant brut",
     "consultas.detalle.column.importeNeto": "Montant net",

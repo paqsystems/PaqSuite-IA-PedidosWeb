@@ -178,20 +178,29 @@ final class PedidosWebSchemaBootstrap
 
     private function upsertArticuloFixture(string $codigo): void
     {
-        DB::table('pq_pedidosweb_articulos')->updateOrInsert(
-            ['codigo' => $codigo],
-            [
-                'descripcion' => 'Articulo fixture '.$codigo,
-                'bonificacion' => 0,
-                'usa_esc' => null,
-                'base' => null,
-                'valor1' => null,
-                'valor2' => null,
-                'porc_iva' => 21,
-                'equivalencia_ventas' => 1,
-                'stockeable' => 1,
-            ]
-        );
+        $exists = DB::table('pq_pedidosweb_articulos')
+            ->where('codigo', $codigo)
+            ->exists();
+
+        if ($exists) {
+            return;
+        }
+
+        $payload = $this->filterAttributes('pq_pedidosweb_articulos', [
+            'codigo' => $codigo,
+            'descripcion' => 'Articulo fixture '.$codigo,
+            'bonificacion' => 0,
+            'usa_esc' => '0',
+            'base' => 'L',
+            'valor1' => '100',
+            'valor2' => '0',
+            'porc_iva' => 21,
+            'equivalencia_ventas' => 1,
+            'stockeable' => 1,
+            'especial' => 0,
+        ]);
+
+        DB::table('pq_pedidosweb_articulos')->insert($payload);
     }
 
     private function ensureDetalleColumns(): void
@@ -243,6 +252,7 @@ SQL);
 
         $this->addColumnIfMissing($table, 'equivalencia_ventas', 'decimal(18, 4) NOT NULL DEFAULT (1)');
         $this->addColumnIfMissing($table, 'stockeable', 'bit NOT NULL DEFAULT (1)');
+        $this->addColumnIfMissing($table, 'especial', 'bit NOT NULL DEFAULT (0)');
     }
 
     private function ensureCabeceraColumns(): void

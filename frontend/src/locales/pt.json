@@ -293,6 +293,7 @@
     "consultas.detalle.column.cantidadVenta": "Quantidade venda",
     "consultas.detalle.column.codArticulo": "Cód. artigo",
     "consultas.detalle.column.descripcionArticulo": "Descrição artigo",
+    "consultas.detalle.column.especial": "Especial",
     "consultas.detalle.column.descuento": "Desconto",
     "consultas.detalle.column.importeBruto": "Importe bruto",
     "consultas.detalle.column.importeNeto": "Importe líquido",

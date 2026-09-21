@@ -7,8 +7,8 @@
 | **Épica** | 101-PedidosWeb |
 | **Prioridad** | Must |
 | **Dependencias** | [TR-SPEC-101-02-modelos](TR-SPEC-101-02-modelos.md), [TR-SPEC-101-03-repositories](TR-SPEC-101-03-repositories.md); lectura parámetros [SPEC-001-04](../../05-open-spec/001-Generaliddes/SPEC-001-04-configuracion-global.md) (defaults temporales documentados); visibilidad [SPEC-101-06](../../05-open-spec/101-PedidosWeb/SPEC-101-06-seguridad-visibilidad.md) / TR-GEN-02-visibilidad |
-| **Estado** | En Control Calidad |
-| **Última actualización** | 2026-09-02 |
+| **Estado** | Finalizado |
+| **Última actualización** | 2026-09-13 (Parte I) |
 
 **Origen:** [SPEC-101-04](../../05-open-spec/101-PedidosWeb/SPEC-101-04-services-pedidos.md), [PedidosWeb_SPEC_MVP.md](../../05-open-spec/101-PedidosWeb/PedidosWeb_SPEC_MVP.md) §5, §5.1, §5.3, §12  
 **Referencia SPEC:** [SPEC-101-04-services-pedidos](../../05-open-spec/101-PedidosWeb/SPEC-101-04-services-pedidos.md)  
@@ -43,6 +43,8 @@ para **garantizar coherencia con el ERP, trazabilidad y ausencia de DELETE en pr
 - Auditoría liviana: `usuario_creacion`, `fecha_creacion`, `usuario_modificacion`, `fecha_modif`.
 - Disparo de evento/domain hook para mail (HU-101-019) — **sin** implementar envío SMTP aquí (SPEC-101-13).
 - DTOs de entrada/salida de dominio consumibles por controllers.
+- Normalización no rechazante de `leyenda_1`…`leyenda_5` a 60 caracteres antes de persistir o sincronizar el cliente, mediante helper compartido por carga manual, Excel e IA.
+- Copia de comprobante: incluir `id_de` y las cinco leyendas recortadas en la cabecera del borrador.
 
 **Out of scope:**
 
@@ -78,6 +80,14 @@ para **garantizar coherencia con el ERP, trazabilidad y ausencia de DELETE en pr
 - **AC-CC10-T-S3:** Al grabar/editar, `materializeSegunParametro` recalcula el par según `CargaUnidadesVenta` y `equivalencia_ventas` del artículo; no se confía en `cantidad` obsoleta si el usuario cambió unidades de venta.
 - **AC-CC10-T-S4:** GET detalle hidrata `equivalencia_ventas` por artículo para que la edición UI convierta bien.
 - **AC-03-T-R1:** `syncDetalle` reemplaza el detalle: `deleteByCodPedido` físico + insert de los renglones enviados; un renglón quitado en edición no permanece en BD.
+- **AC-CC13-T-G1:** Antes de persistir o sincronizar cliente, las cinco leyendas pasan por un helper `mb_substr(..., 0, 60)`.
+- **AC-CC13-T-G2:** Grabar una leyenda de 61 caracteres tiene éxito y persiste 60; no se agrega una validación `max:60` que rechace el payload.
+- **AC-CC13-T-G3:** OpenAPI declara `maxLength: 60` para `leyenda_N`.
+- **AC-CC13-T-G4:** `CabeceraInicialService::resolveLeyendaCliente` devuelve como máximo 60 caracteres.
+- **AC-CC15-T-C1:** El borrador de copia conserva `id_de` y `leyenda_1`…`leyenda_5` del origen.
+- **AC-CC15-T-C2:** Las leyendas largas del origen se recortan a 60 en el borrador.
+- **AC-CC15-T-C3:** Origen sin dirección o leyendas produce campos null/ausentes coherentes, sin error.
+- **AC-CC15-T-C4:** La suite de precios y `ActualizarPrecioCopia` continúa sin regresiones.
 
 ### Escenarios Gherkin
 
@@ -202,6 +212,10 @@ Fuente: producto §10.1, [SPEC-101-10](../../05-open-spec/101-PedidosWeb/SPEC-10
 
 **RN-21:** `PedidoDetalleRepository::syncDetalle` borra todos los renglones del `cod_pedido` (`DB::table` delete físico) e inserta solo los enviados. Quitar un renglón en UI + grabar deja de persistir esa fila.
 
+**RN-22 (CC PQ #13):** `LeyendaCabeceraLimits::MAX_CARACTERES = 60` (o helper equivalente) recorta en backend, incluyendo Unicode, sin emitir 4xx por longitud. Se reutiliza en grabación, sincronización de cliente, cabecera inicial, Excel e IA.
+
+**RN-23 (CC PQ #15):** `ComprobanteCopiaService::mapCabecera` incluye `id_de` y las cinco leyendas. No resuelve el texto descriptivo de la dirección ni sincroniza el maestro cliente durante la copia.
+
 ---
 
 ## 4) Impacto en Datos
@@ -242,7 +256,7 @@ Fuente: producto §10.1, [SPEC-101-10](../../05-open-spec/101-PedidosWeb/SPEC-10
 | `cancelarEdicionPedido(codPedido, usuario)` | — | estado 0, limpia bloqueo |
 | `eliminarPedido(codPedido, usuario)` | — | delete físico o error |
 | `cerrarPresupuestoRechazo(CerrarPresupuestoDto)` | cod, id_motivo, obs | estado 98 |
-| `copiarComprobante(CopiarComprobanteDto)` | cod origen, tipo destino | DTO precargado (sin persistir) o persist según diseño |
+| `copiarComprobante(CopiarComprobanteDto)` | cod origen, tipo destino | DTO precargado con `id_de` y leyendas 1–5 recortadas (sin persistir) |
 | `calcularTotales(CabeceraDto, RenglonDto[])` | — | totales para preview |
 
 Errores de dominio: excepción con `error` entero (2000 negocio, 4000 not found) — mapeo HTTP en TR-101-05.
@@ -299,6 +313,8 @@ Errores de dominio: excepción con `error` entero (2000 negocio, 4000 not found)
 | No delete presupuesto | método ausente o excepción |
 | Totales/IVA | 2 escenarios redondeo + lista con/sin IVA |
 | Copia | nuevo GUID distinto; origen_comprobante |
+| Leyendas | helper: null, 60, 61 y Unicode; grabación larga exitosa; cabecera inicial recortada |
+| Copia dirección/leyendas | conserva `id_de`; recorta leyendas; tolera null; regresión `ActualizarPrecioCopia` |
 | CargaUnidadesVenta | `materializeSegunParametro` no usa `cantidad` stock obsoleta; GET `equivalencia_ventas` |
 | syncDetalle | grabar edición con menos renglones elimina filas físicas |
 
@@ -417,7 +433,7 @@ Conversión cantidad usuario ↔ cantidad/cantidadVenta según parámetro `Carga
 | T2 | Integración grabación renglones | `PedidoService` / validación renglón |
 | T3 | PHPUnit false/true; equiv 0→1 | tests unitarios |
 
-Unificación delta CC PQ #10 (archivo `TR-SPEC-101-04-services-pedidos-update.md` eliminado en Parte I).
+Unificación delta CC PQ #10 incorporada previamente en esta TR base.
 
 ## Incidente cliente 2026-09-02 — recálculo `CargaUnidadesVenta` y renglones eliminados
 
@@ -429,3 +445,27 @@ Al editar un renglón con `CargaUnidadesVenta=true`, el importe debía usar `can
 | T2 | Grabación materializa par antes de `CalculoTotalesService` | `PedidoService::materializeCantidadesRenglones` |
 | T3 | GET detalle expone `equivalencia_ventas` | `PedidoService` + schema `ComprobanteDetalleLinea` |
 | T4 | `deleteByCodPedido` vía `DB::table`; grabar edición con menos renglones | `PedidoDetalleRepository` + `comprobanteGrabarEdicionReemplazaRenglonesEliminados` |
+
+## CC PQ #13 — Parte I 13/09/2026
+
+Las leyendas de cabecera se recortan a 60 mediante un helper compartido antes de persistir, sincronizar cliente o resolver cabecera inicial. El contrato OpenAPI refleja `maxLength: 60`, pero la validación no rechaza textos más largos.
+
+| ID | Tarea | Evidencia |
+|----|-------|-----------|
+| T1 | Helper único y normalización de grabación/sync | `PedidoService` o mapper de cabecera |
+| T2 | Cabecera inicial y schema OpenAPI alineados | `CabeceraInicialService`, `ComprobanteGrabacionPayload` |
+| T3 | Unit y feature de recorte no rechazante | tests de helper y grabación |
+
+Unificación delta CC PQ #13 (archivo `TR-SPEC-101-04-services-pedidos-update.md` eliminado en Parte I 2026-09-13).
+
+## CC PQ #15 — Parte I 13/09/2026
+
+La copia de comprobantes completa la cabecera del borrador con dirección de entrega y leyendas del origen, reutilizando el límite de 60 caracteres.
+
+| ID | Tarea | Evidencia |
+|----|-------|-----------|
+| T1 | Mapear `id_de` y leyendas en borrador | `ComprobanteCopiaService::mapCabecera` |
+| T2 | Recortar leyendas con helper compartido | `LeyendaCabeceraLimits` o equivalente |
+| T3 | Regresión de copia y valores nulos | `ComprobanteCopiaServiceTest` |
+
+Unificación delta CC PQ #15 (archivo `TR-SPEC-101-04-services-pedidos-update-01.md` eliminado en Parte I 2026-09-13).

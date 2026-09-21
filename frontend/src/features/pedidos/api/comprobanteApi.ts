@@ -83,6 +83,7 @@ export type ArticuloOption = {
   disponibleNeto?: number;
   disponibleNetoBase?: number | null;
   stockeable?: boolean;
+  especial?: boolean;
 };
 
 export type GrabarComprobanteResult = {
