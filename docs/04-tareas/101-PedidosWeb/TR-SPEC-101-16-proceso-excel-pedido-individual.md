@@ -7,8 +7,8 @@
 | **Épica** | 101 — PedidosWeb |
 | **Prioridad** | **Should** |
 | **Dependencias** | TR-GEN-07-plantilla-excel; TR-GEN-07-carga-staging-excel; TR-GEN-07-grilla-procesamiento-excel; TR-GEN-07-ui-embebida-host; TR-SPEC-101-04 (servicios pedido); TR-SPEC-101-06 (visibilidad); SPEC-001-04 (parámetros) |
-| **Estado** | En Control Calidad |
-| **Última actualización** | 2026-08-31 |
+| **Estado** | Finalizado |
+| **Última actualización** | 2026-09-13 (Parte I) |
 
 **Origen:** [HU-101-029](../../03-historias-usuario/101-PedidosWeb/HU-101-029-proceso-excel-pedido-individual.md)  
 **Producto:** [Importación Pedido Individual desde Excel.md](../../02-producto/PedidosWeb/Importación%20Pedido%20Individual%20desde%20Excel.md)  
@@ -25,7 +25,7 @@ Proceso de importación Excel `PEDIDO_INDIVIDUAL` con validación de negocio Ped
 Como usuario autorizado en carga de pedidos, quiero descargar plantilla e importar filas validadas con defaults de cabecera/renglón, para recibir un payload listo al host sin errores parciales.
 
 ### In scope / Out of scope
-- **In scope:** seeder catálogo; extensión i18n GEN-07 (plantilla, parser, export errores, captions grilla); handler negocio; validación lote (mismo cliente, coherencia cabecera); tests unit/feature.
+- **In scope:** seeder catálogo; extensión i18n GEN-07 (plantilla, parser, export errores, captions grilla); handler negocio; validación lote (mismo cliente, coherencia cabecera); recorte no rechazante de leyendas a 60 al resolver la fila; tests unit/feature.
 - **Out of scope:** integración `PedidosCargaPage` → [TR-SPEC-101-16-importacion-excel-pantalla-carga](TR-SPEC-101-16-importacion-excel-pantalla-carga.md); importación masiva; migrar `ARTICULOS_ALTA` a i18n.
 
 ---
@@ -48,6 +48,8 @@ Heredados de HU-101-029 (CA-01 … CA-16). Resumen ejecutable:
 | CA-16 | Feature lote feliz + error validación |
 | **AC-CC10-T-X1** | `processRow` convierte cantidad vía helper TR-101-04 (false/true) |
 | **AC-CC10-T-X3** | Masivo (TR-101-21) convierte en pipeline equivalente |
+| **AC-CC13-T-X1** | El catálogo mantiene `largo_maximo` 255 o null para leyendas; GEN-07 no rechaza textos mayores a 60 |
+| **AC-CC13-T-X2** | Una fila con leyenda de 61 caracteres es válida y el payload resuelto contiene 60 |
 
 ### Escenarios Gherkin
 
@@ -69,6 +71,7 @@ Heredados de HU-101-029 (CA-01 … CA-16). Resumen ejecutable:
 | RN-09 … RN-12 | Repositorios artículo/cliente/catálogos |
 | RN-13 | `processRow` persiste JSON enriquecido en `PQ_EXCEL_IMPORTACIONES_FILAS` |
 | RN-14 | Validar cabecera resuelta completa antes de marcar fila válida |
+| RN-15 | `PedidoIndividualRowResolver` recorta `leyenda1`…`leyenda5` con el helper de TR-101-04; no cambia globalmente `ExcelImportParserService::castTexto` |
 
 ### Campos cabecera — coherencia entre filas
 
@@ -113,6 +116,8 @@ Valor no vacío cuando el parámetro correspondiente = `0` → error fila con cl
 | `ExcelColumnI18nResolver` | Título columna + comentarios por locale/proceso |
 | `PedidosWebExcelImportCatalogSeeder` | Catálogo proceso + 23 campos |
 | `ExcelImportLotAwareHandler` (interfaz opcional) | Hook validación cross-fila post-parse |
+
+Al mapear leyendas hacia la cabecera, `PedidoIndividualRowResolver` aplica el helper compartido de 60 caracteres. Las definiciones del catálogo conservan su largo actual para que la fila no sea rechazada antes de la normalización de negocio.
 
 ### Seeder — atributos proceso
 
@@ -310,6 +315,7 @@ Integración toolbar carga → TR-030.
 ## 8) Estrategia de tests
 
 - **Unit:** `ExcelColumnI18nResolverTest`; `PedidoIndividualExcelImportHandlerTest` (defaults, permisos, BASE, inhabilitado); `PedidoIndividualLotValidatorTest`.
+- **Unit leyendas:** resolver/handler con 60 y 61 caracteres; la fila larga queda válida y normalizada a 60.
 - **Feature:** `ExcelImportPedidoIndividualFeatureTest` — plantilla locale, lote feliz 2 filas, error `cod_cliente` distinto, error columna obligatoria vacía.
 - **Herramienta:** `BuildsExcelImportWorkbooks` trait — workbook con encabezados i18n.
 
@@ -368,3 +374,15 @@ Conversión cantidad en `processRow` individual (y masivo TR-101-21) vía helper
 | T3 | Masivo smoke (TR-101-21) | handler masivo |
 
 Unificación delta CC PQ #10 (archivo `TR-SPEC-101-16-importacion-excel-update.md` eliminado en Parte I).
+
+## CC PQ #13 — Parte I 13/09/2026
+
+La importación individual acepta leyendas largas en GEN-07 y las recorta a 60 al resolver la cabecera, con el mismo helper de grabación.
+
+| ID | Tarea | Evidencia |
+|----|-------|-----------|
+| T1 | Mantener catálogo sin límite 60 | `PedidosWebExcelImportCatalogSeeder` |
+| T2 | Recortar al resolver la fila | `PedidoIndividualRowResolver` |
+| T3 | Verificar lote válido y salida de 60 caracteres | tests de resolver/handler |
+
+Unificación delta CC PQ #13 (archivo `TR-SPEC-101-16-proceso-excel-pedido-individual-update.md` eliminado en Parte I 2026-09-13).

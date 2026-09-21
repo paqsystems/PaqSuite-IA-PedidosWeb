@@ -4,10 +4,10 @@
 |-------|--------|
 | **SPEC madre** | [PedidosWeb_SPEC_MVP.md](PedidosWeb_SPEC_MVP.md) |
 | **Producto** | [importacion-masiva-pedidos.md](../../02-producto/PedidosWeb/importacion-masiva-pedidos.md) |
-| **Estado** | En revisión |
+| **Estado** | Finalizado |
 | **Prioridad épica** | Should (extensión post-MVP; reutiliza plantilla / motor GEN-07 y grabación 101-04/13) |
 | **Revisión A1** | [F-101-21-cierre-a1-importacion-masiva](../../04-tareas/101-PedidosWeb/F-101-21-cierre-a1-importacion-masiva.md) |
-| **Última actualización** | 2026-08-31 |
+| **Última actualización** | 2026-09-12 (Parte I) |
 | **HU relacionadas** | [HU-101-043](../../03-historias-usuario/101-PedidosWeb/HU-101-043-proceso-excel-pedido-masivo.md) · [HU-101-044](../../03-historias-usuario/101-PedidosWeb/HU-101-044-pantalla-importacion-masiva.md) · [HU-101-045](../../03-historias-usuario/101-PedidosWeb/HU-101-045-consultar-borrador-importacion-masiva.md) |
 | **TR relacionadas** | [21a](../../04-tareas/101-PedidosWeb/TR-SPEC-101-21-proceso-excel-pedido-masivo.md) · [21b](../../04-tareas/101-PedidosWeb/TR-SPEC-101-21-pantalla-importacion-masiva.md) · [21c](../../04-tareas/101-PedidosWeb/TR-SPEC-101-21-consultar-borrador-importacion-masiva.md) |
 
@@ -112,6 +112,7 @@ Validaciones de importación (no exhaustivo; hereda 101-16 donde aplique):
 | Nivel | Rango de negocio 0–100; si `NivelExtremo` → solo `0`/`100` |
 | Permisos `Modifica*` | Columnas no editables por el usuario deben venir vacías (igual 101-16) |
 | Artículo / cantidad / precio cero / cliente inhabilitado | Igual criterios 101-16. Columna `cantidad`: misma semántica que importación individual / modal renglón (`CargaUnidadesVenta`, CC PQ #10); reutilizar helper/pipeline SPEC-101-16; renglones con ambos campos materializados. |
+| Leyendas 1–5 | Igual que individual: texto mayor a 60 caracteres Unicode se recorta a 60 en el armado de cabecera con el helper canónico, sin invalidar el grupo ni el lote. Mantener `largo_maximo` del catálogo en 255 o null para que GEN-07 no rechace antes del recorte. |
 
 ### 3. Agrupación y armado de borrador
 
@@ -119,7 +120,7 @@ Validaciones de importación (no exhaustivo; hereda 101-16 donde aplique):
 2. Resolver defaults por fila (mismo espíritu que `PedidoIndividual` + `CabeceraInicialService`).
 3. Asignar **vendedor del cliente**: `cod_vended` y nombre desde maestro cliente (join vendedor).
 4. Agrupar filas por clave `(cod_cliente, cod_vended, firmaCabeceraCompleta)` (valores crudos normalizados). Cabeceras distintas → grupos distintos (varios pedidos del mismo cliente permitidos).
-5. Por cada grupo: un comprobante borrador con cabecera (primera fila / valores resueltos coherentes) + renglones del grupo.
+5. Por cada grupo: un comprobante borrador con cabecera (primera fila / valores resueltos coherentes, leyendas ya recortadas a 60) + renglones del grupo.
 6. Ordenar filas de grilla por **primera aparición** del grupo en el Excel (AMB-05).
 7. Calcular totales sin IVA / con IVA con las **mismas funciones** que carga / import individual (`renglonesCarga` / servicios 101-04).
 8. Tipo `esPedido = true` para todas las filas nuevas.
@@ -268,6 +269,7 @@ sequenceDiagram
 - [ ] **CA-12:** Salida con borrador → modal cancelar / grabar todo / retornar; grabar todo solo cierra proceso si 100 % OK.
 - [ ] **CA-13:** Borrador no aparece tras logout / nueva sesión (solo memoria).
 - [ ] **CA-14:** Mobile: proceso no disponible.
+- [x] **CA-CC13-01:** Excel masivo con leyenda mayor a 60 produce grupos válidos y una leyenda persistible de 60 caracteres.
 
 ## Definición de listo (Partes posteriores)
 
@@ -339,3 +341,4 @@ Decisiones C1: `grupos[]`; store OR permiso; sessionStorage al Consultar. Orden 
 | 2026-07-19 | **C1 cerrado** — Apto; autoriza D1 |
 | 2026-07-30 | CC PQ #10 | Masiva: columna `cantidad` = semántica individual/modal |
 | 2026-08-31 | Parte I | Unificación `SPEC-101-21-importacion-masiva-pedidos-update`. Sin updates abiertos |
+| 2026-09-12 | Parte I · CC PQ #13 | Unificación del nuevo `SPEC-101-21-importacion-masiva-pedidos-update`: recorte de leyendas a 60 sin rechazo del lote ni del parser GEN-07 |

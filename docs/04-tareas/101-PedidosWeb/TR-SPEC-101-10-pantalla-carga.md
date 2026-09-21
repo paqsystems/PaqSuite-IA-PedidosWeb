@@ -8,7 +8,7 @@
 | **Prioridad** | Must |
 | **Dependencias** | TR-SPEC-101-05 (controllers), TR-SPEC-101-04 (services), TR-SPEC-101-06, TR-SPEC-101-09; SPEC-001-04 (parámetros `Modifica*`); TR-SPEC-101-13 (mail post-grabación) |
 | **Estado** | En Control Calidad |
-| **Última actualización** | 2026-09-02 |
+| **Última actualización** | 2026-09-21 (Parte I) |
 
 **Origen:** HU-101-004 … HU-101-011, HU-101-009, HU-101-010, HU-101-013, HU-101-024, HU-101-026  
 **Referencia SPEC:** [SPEC-101-10-pantalla-carga](../../05-open-spec/101-PedidosWeb/SPEC-101-10-pantalla-carga.md)  
@@ -28,7 +28,7 @@ quiero **cargar o editar pedidos y presupuestos en una sola pantalla con botones
 para **operar según la matriz de transiciones del producto §10.1 sin pantallas separadas**.
 
 ### In scope / Out of scope
-- **In scope:** UI DevExtreme; cabecera/renglones/totales; 6 transiciones §10.1; entrada nuevo/edición/copia/consulta; selector cliente (formato y orden CC PQ); permisos precio/descuento vía parámetros ERP `Modifica*`; exclusión artículos BASE (`usa_esc = 'B'`); columna precio neto unitario; `data-testid` estables; integración API SPEC-101-05.
+- **In scope:** UI DevExtreme; cabecera/renglones/totales; 6 transiciones §10.1; entrada nuevo/edición/copia/consulta; selector cliente (formato y orden CC PQ); permisos precio/descuento vía parámetros ERP `Modifica*`; exclusión artículos BASE (`usa_esc = 'B'`); columna precio neto unitario; leyendas 1–5 limitadas a 60 caracteres en el componente compartido web/native; `data-testid` estables; integración API SPEC-101-05.
 - **Out of scope:** DELETE presupuesto; tratativas (101-12 Should); ABM parámetros ERP; eliminación pedido fuera de estado 0 (HU-101-012 en flujo consulta).
 
 ---
@@ -55,6 +55,13 @@ para **operar según la matriz de transiciones del producto §10.1 sin pantallas
 - **AC-CC10-T-U2:** Modo `CargaUnidadesVenta` false/true: precarga al editar y payload coherente; rama mobile carga misma semántica.
 - **AC-CC10-T-U3:** Al editar renglón (alta o pedido existente), el `NumberBox` de cantidad actualiza importes en vivo desde la cantidad modificada × equivalencia (`applyCantidadUsuarioToRenglon`); GET/catálogo hidratan `equivalenciaVentas`.
 - **AC-CC10-T-U4:** Eliminar renglón en grilla/kardex actualiza el estado React (updater funcional); al grabar no se reenvía el renglón quitado.
+- **AC-CC13-T-C1:** Los cinco `TextBox` DevExtreme de leyendas reciben `maxLength={60}` mediante `leyendaMaxCaracteres`.
+- **AC-CC13-T-C2:** Vitest verifica el límite de los cinco controles.
+- **AC-CC13-T-C3:** Se preservan `data-testid` `leyenda-1`…`leyenda-5` y `leyendas-pie`.
+- **AC-CC13-T-C4:** El límite aplica tanto web como native al compartir `ComprobanteLeyendasPie`.
+- **AC-CC17-T-C1:** API browse expone `especial` boolean en `ArticuloOption`.
+- **AC-CC17-T-C2:** Sufijo literal ` (*)` solo si `especial=true` (`formatArticuloCargaDisplay`).
+- **AC-CC17-T-C3:** Vitest `cargaCatalogos.test.ts` cubre sufijo con/sin base y no stockeable.
 
 ### Escenarios Gherkin
 
@@ -133,6 +140,8 @@ Leídos en runtime (SPEC-001-04) según `functionalProfile`:
 10. **RN-10 (CC PQ #12):** Listbox/browse artículos: no mostrar stock disponible si `stockeable=false` en ítem API.
 11. **RN-11 (CC PQ #10):** Modal renglón: lectura `CargaUnidadesVenta` (cabecera inicial / parámetros runtime); un control cantidad visible; conversión en UI **y** backend; al editar, importes usan la cantidad modificada × `equivalencia_ventas`.
 12. **RN-12:** Quitar renglón (web/mobile/asistente) saca la fila del estado; grabar envía solo renglones restantes (TR-101-04 RN-21).
+13. **RN-13 (CC PQ #13):** `ComprobanteLeyendasPie.tsx` usa `leyendaMaxCaracteres = 60` en cada `TextBox`; no se reemplazan controles DevExtreme ni se alteran sus testids. El backend sigue aplicando el recorte definitivo.
+14. **RN-14 (CC PQ #17):** Lookup/browse artículos: append ` (*)` al final del display cuando `especial=true`; API expone `especial: boolean`; mobile reutiliza el mismo formatter.
 
 ---
 
@@ -444,6 +453,7 @@ Usar `elementAttr` / `inputAttr` DevExtreme; no acoplar tests al DOM interno DX.
 ## 8) Estrategia de Tests
 
 - **Unit:** matriz transiciones; validación campos según `Modifica*`.
+- **Unit UI:** render del pie de leyendas y verificación de `maxLength={60}` en los cinco `TextBox`.
 - **Integration:** POST pedido/presupuesto 401/403/404/422; conversión T6 cierra 98.
 - **E2E:** flujo prioritario SPEC madre; escenario precio deshabilitado cliente; copia comprobante.
 
@@ -521,7 +531,7 @@ UI cantidad única con conversión unidades venta en modal renglón.
 | T2 | Modal un solo NumberBox + payload dual | modal renglón DX |
 | T3 | Vitest conversión; mobile branch | tests FE |
 
-Unificación delta CC PQ #10 (archivo `TR-SPEC-101-10-pantalla-carga-update.md` eliminado en Parte I).
+Unificación delta CC PQ #10 incorporada previamente en esta TR base.
 
 ## Incidente cliente 2026-09-02 — importe al editar renglón y renglón eliminado
 
@@ -530,3 +540,27 @@ Unificación delta CC PQ #10 (archivo `TR-SPEC-101-10-pantalla-carga-update.md` 
 | T1 | Modal: cantidad usuario local + importes desde par convertido | `PedidosCargaRenglonEditDialog.tsx` |
 | T2 | Hidratar `equivalenciaVentas` (GET + catálogo artículos) | `comprobanteApi.mapRenglonFromApi`, `enrichRenglonesEquivalenciaVentas` |
 | T3 | Eliminar renglón con updater funcional (`eliminarRenglonDeLista`) | `PedidosCargaRenglonesGrid.tsx`, mobile, asistente |
+
+## CC PQ #13 — Parte I 13/09/2026
+
+Los cinco campos de leyenda del componente compartido web/native limitan la entrada a 60 caracteres mediante `TextBox` DevExtreme, sin cambiar testids ni agregar HTML nativo.
+
+| ID | Tarea | Evidencia |
+|----|-------|-----------|
+| T1 | Constante camelCase y `maxLength` en cinco controles | `ComprobanteLeyendasPie.tsx` |
+| T2 | Preservar testids públicos | `leyenda-1`…`leyenda-5`, `leyendas-pie` |
+| T3 | Regresión de propiedades DevExtreme | Vitest del componente |
+
+Unificación delta CC PQ #13 (archivo `TR-SPEC-101-10-pantalla-carga-update.md` eliminado en Parte I 2026-09-13).
+
+## CC PQ #17 — Parte I 21/09/2026
+
+Sufijo ` (*)` en listbox browse de artículos especiales (web + native).
+
+| ID | Tarea | Evidencia |
+|----|-------|-----------|
+| T1 | API browse `especial` | `ArticuloCargaLookupService.php` |
+| T2 | Display FE | `cargaCatalogos.ts`, `comprobanteApi.ts` |
+| T3 | Tests Vitest + E2E | `cargaCatalogos.test.ts`, `mvp-section9.spec.ts` |
+
+Unificación delta CC PQ #17 (archivo `TR-SPEC-101-10-pantalla-carga-update.md` eliminado en Parte I 2026-09-21).

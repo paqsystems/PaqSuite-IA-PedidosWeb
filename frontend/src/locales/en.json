@@ -198,6 +198,7 @@
     "consultas.detalle.column.cantidadVenta": "Sales quantity",
     "consultas.detalle.column.codArticulo": "Item code",
     "consultas.detalle.column.descripcionArticulo": "Item description",
+    "consultas.detalle.column.especial": "Special",
     "consultas.detalle.column.descuento": "Discount",
     "consultas.detalle.column.importeBruto": "Gross amount",
     "consultas.detalle.column.importeNeto": "Net amount",

@@ -7,8 +7,8 @@
 | **Epica** | 001-Generaliddes |
 | **Prioridad** | Must |
 | **Dependencias** | TR-GEN-02-modelo-roles-permisos-seed, TR-GEN-02-login-sesion |
-| **Estado** | En Control Calidad |
-| **Ultima actualizacion** | 2026-09-12 (TR-update CC PQ #16) |
+| **Estado** | Finalizado |
+| **Ultima actualizacion** | 2026-09-12 (Parte I — CC PQ #16) |
 
 **Origen:** [HU-GEN-02-expiracion-inactividad](../../03-historias-usuario/001-Generaliddes/HU-GEN-02-expiracion-inactividad.md)  
 **Referencia SPEC:** [SPEC-001-02-acceso-y-seguridad](../../05-open-spec/001-Generaliddes/SPEC-001-02-acceso-y-seguridad.md)  
@@ -27,18 +27,23 @@ Como usuario autenticado, quiero que la sesion cierre tras inactividad configura
 ### In scope / Out of scope
 - In scope: lectura de `MinutosWeb`, detector de inactividad frontend y rechazo backend de sesion expirada.
 - In scope: limpieza de estado local y redireccion a login.
+- In scope (CC PQ #16): interruptor `inactivityLogoutEnabled` para suspender/reactivar el timer en el host.
 - Out of scope: SSO, revocacion global de sesiones y politicas avanzadas de refresh.
+- Out of scope (CC PQ #16): implementar el motor de inactividad del SDK Framework.
 
 ---
 
 ## 2) Criterios de Aceptacion (AC)
 
-- **AC-01**: Superado `MinutosWeb`, la sesion se cierra automaticamente.
+- **AC-01**: Superado `MinutosWeb`, la sesion se cierra automaticamente (**cuando** `inactivityLogoutEnabled === true`).
 - **AC-02**: Actividad del usuario reinicia contador de inactividad.
-- **AC-03**: API protegida con sesion expirada responde 401.
+- **AC-03**: API protegida con sesion expirada / token invalido responde 401.
 - **AC-04**: Se documenta default cuando `MinutosWeb` no exista.
-- **AC-05**: Flujo queda cubierto con pruebas E2E de timeout reducido.
+- **AC-05**: Flujo queda cubierto con pruebas E2E (expiracion positiva o no-expiracion segun flag).
 - **AC-06**: Tras expiración, shell y procesos quedan inaccesibles hasta nuevo login.
+- **AC-CC16-T-C1**: Con flag off, `useInactivityTimeout` no arma el controlador / no dispara `onExpire`.
+- **AC-CC16-T-C2**: E2E con timeout corto **no** redirige a login por inactividad mientras el flag esté off.
+- **AC-CC16-T-C3**: Logout manual / 401 de token siguen OK.
 
 ### Escenarios Gherkin
 
@@ -79,6 +84,7 @@ Feature: Expiracion por inactividad
    - **No** reinician el contador: `mousemove` continuo, `focus`/`blur` aislados sin tecla ni puntero, visibilidad de pestaña, polling automático sin interacción del usuario.
 3. **RN-03**: Sesion expirada fuerza 401 en endpoints protegidos.
 4. **RN-04**: Si falta `MinutosWeb`, usar default trazable en documentacion.
+5. **RN-CC16 / D1-31**: Mientras `inactivityLogoutEnabled === false`, el shell autenticado **no** dispara logout por timer. Logout manual y 401 por token invalido no cambian. Reactivar el flag al adoptar SDK Framework.
 
 ---
 
@@ -498,3 +504,15 @@ Corrección: el temporizador no consideraba interacciones DevExtreme (botones, m
 | T3 | Incluir `Tab` en `keydown` | Revoca R-C1-03 original |
 | T4 | Tests regresión | `sessionInactivity.test.ts` (capture + scroll + Tab) |
 | T5 | Regla Cursor | `.cursor/rules/sesion-inactividad-expiracion.mdc` |
+
+## Historial CC PQ #16 (12/09/2026) — Parte I 12/09/2026
+
+Suspensión temporal del logout por inactividad hasta adopción SDK Framework.
+
+| ID | Tarea | Evidencia |
+|----|-------|-----------|
+| T1 | Constante `inactivityLogoutEnabled=false` (D1-31) | `frontend/src/features/auth/sessionInactivity.ts` |
+| T2 | Gate en shell autenticado | `SessionLifecycleManager.tsx` → `enabled: inactivityLogoutEnabled && …` |
+| T3 | E2E no-expiración | `frontend/tests/e2e/smoke.spec.ts` — «inactividad suspendida…» |
+| T4 | Unit flag | `sessionInactivity.test.ts` |
+| T5 | Docs / regla | SPEC/HU unificados; `.cursor/rules/sesion-inactividad-expiracion.mdc` |

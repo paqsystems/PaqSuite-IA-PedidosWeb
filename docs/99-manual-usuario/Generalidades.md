@@ -506,22 +506,27 @@ Control sugerido para soporte:
 
 ### Sesión expirada por inactividad
 
-Causa probable:
+**Estado actual (CC PQ #16, 12/09/2026):** el cierre automático de sesión por inactividad está **suspendido** en PedidosWeb hasta que el producto integre el SDK de Framework. Mientras tanto, la sesión **no** se cierra sola por falta de interacción; sí puede cerrarse con **Cerrar sesión** o si el sistema rechaza el acceso (token inválido).
+
+Causa probable (cuando el cierre por inactividad vuelva a estar activo):
 
 - superó el tiempo sin interacción definido en **Minutos de inactividad web** (`MinutosWeb`).
 
 Interpretación funcional:
 
-- la sesión cerró por seguridad; el trabajo no guardado en pantallas abiertas puede perderse.
+- con el cierre por inactividad activo, la sesión cierra por seguridad; el trabajo no guardado en pantallas abiertas puede perderse.
+- el parámetro `MinutosWeb` sigue existiendo y también afecta la ventana de bloqueo de pedidos en edición (-1).
 
 Acción recomendada para el usuario:
 
-- volver a ingresar;
-- si tenía un pedido en edición (-1), otro usuario podrá retomarlo tras expirar MinutosWeb o si usted puede volver a entrar y cancelar.
+- volver a ingresar si la sesión se cerró;
+- si tenía un pedido en edición (-1), otro usuario podrá retomarlo tras expirar MinutosWeb o si usted puede volver a entrar y cancelar;
+- mientras la suspensión esté vigente, conviene igual **grabar** el trabajo antes de ausentarse.
 
 Control sugerido para soporte:
 
-- confirmar valor de MinutosWeb en Consulta de parámetros;
+- confirmar si la suspensión por CC #16 sigue vigente en ese entorno;
+- confirmar valor de MinutosWeb en Consulta de parámetros (bloqueo -1);
 - orientar sobre grabar o cancelar antes de ausentarse.
 
 ### Chat sin configuración válida
@@ -554,7 +559,7 @@ Acción recomendada:
 - El cambio de contraseña actualiza la cuenta cuando los datos son correctos.
 - La recuperación de contraseña permite volver a acceder sin intervención manual cuando el usuario dispone del correo correspondiente.
 - El cierre de sesión devuelve al usuario a la pantalla de acceso y finaliza el uso actual del portal.
-- La sesión **expira por inactividad** según parámetro ERP *MinutosWeb*; cada interacción renueva el contador. Un pedido en edición (-1) puede quedar bloqueado para otros hasta grabar, cancelar o expirar esa ventana.
+- La sesión **no cierra sola por inactividad** mientras esté vigente la suspensión CC PQ #16 (hasta SDK Framework). El parámetro *MinutosWeb* sigue aplicando a la ventana de bloqueo de pedidos en edición (-1). Cuando se reactive el cierre por inactividad, cada interacción renovará el contador.
 - Las grillas de listados ofrecen la misma experiencia transversal: filtros, orden, columnas, agrupación, totalizadores, layouts, exportación y acciones por fila según permisos.
 
 ## 12. Casos habituales
@@ -903,7 +908,7 @@ Los puntos que usuario y soporte deben recordar son:
 - el cambio de contraseña puede ser obligatorio;
 - la recuperación de contraseña debe hacerse sobre la cuenta y el correo correctos;
 - cerrar sesión sigue siendo la forma recomendada de finalizar el uso del portal;
-- la sesión **expira por inactividad** según parámetro ERP; conviene grabar el trabajo antes de ausentarse;
+- mientras dure la suspensión CC #16, la sesión **no** cierra sola por inactividad; igualmente conviene grabar el trabajo antes de ausentarse;
 - en grillas, filtros y layouts modifican la **vista**, no los permisos ni los datos;
 - exportar y totalizar respetan lo visible en pantalla al momento de la acción;
 - el botón **+** de alta aparece solo en procesos ABM autorizados;

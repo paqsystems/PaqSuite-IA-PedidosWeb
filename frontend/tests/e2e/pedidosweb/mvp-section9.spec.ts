@@ -255,6 +255,7 @@ async function mockPedidosWebApi(page: import('@playwright/test').Page) {
               bonificacion: 0,
               disponibleNeto: 150,
               disponibleNetoBase: null,
+              especial: true,
             },
           ],
         },
@@ -413,6 +414,26 @@ test('dashboard §9 paso 8: muestra KPIs con unidades y resumen mensual', async 
   await expect(page.getByTestId('dashboardMesEnCurso-0-importe')).toContainText('20.00');
   await expect(page.getByTestId('dashboardMesEnCurso-0-unidades')).toContainText('8');
   await expect(page.getByTestId('dashboardMesEnCurso-99-cantidad')).toContainText('1');
+});
+
+test('carga: lookup articulos muestra sufijo especial', async ({ page }) => {
+  test.setTimeout(60_000);
+  await mockPedidosWebApi(page);
+  await login(page);
+
+  await page.getByTestId('menuSidebarItem-cargaPedidosPresupuestos').click();
+  await expect(page.getByTestId('page-pedidos-carga')).toBeVisible();
+
+  await seleccionarClienteDemo(page);
+
+  const articuloInput = page.getByTestId('articulo-select');
+  await expect(articuloInput).toBeVisible({ timeout: 15_000 });
+  await articuloInput.click();
+
+  const articuloOverlay = page.locator('.dx-dropdowneditor-overlay').last();
+  await expect(
+    articuloOverlay.locator('.dx-list-item').filter({ hasText: 'ART-001 - Artículo demo — Disp.' }),
+  ).toContainText('(*)', { timeout: 15_000 });
 });
 
 test('carga: grabar pedido muestra confirmación y toast mail fallido', async ({ page }) => {

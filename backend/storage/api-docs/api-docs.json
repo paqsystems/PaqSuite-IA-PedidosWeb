@@ -5463,6 +5463,11 @@
                         "format": "float",
                         "example": 10
                     },
+                    "equivalencia_ventas": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 5
+                    },
                     "porc_bonif": {
                         "type": "number",
                         "format": "float",
@@ -6801,6 +6806,11 @@
                                 "type": "number",
                                 "format": "float",
                                 "example": 10
+                            },
+                            "especial": {
+                                "description": "Marca artículo especial: vacío o asterisco",
+                                "type": "string",
+                                "example": "*"
                             },
                             "porcBonif": {
                                 "type": "number",

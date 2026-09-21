@@ -77,4 +77,22 @@ describe('etiquetaArticulo', () => {
       etiquetaArticulo({ ...articulo, stockeable: false }, t),
     ).toBe('ART-01 - Tornillo hexagonal');
   });
+
+  it('agrega sufijo (*) cuando el articulo es especial', () => {
+    expect(
+      etiquetaArticulo({ ...articulo, especial: true }, t),
+    ).toBe('ART-01 - Tornillo hexagonal — Disp. 12,50 (*)');
+  });
+
+  it('agrega sufijo (*) con base cuando el articulo es especial', () => {
+    expect(
+      etiquetaArticulo({ ...articulo, disponibleNetoBase: 3, especial: true }, t),
+    ).toBe('ART-01 - Tornillo hexagonal — Disp. 12,50 (3,00) (*)');
+  });
+
+  it('agrega sufijo (*) sin stock cuando el articulo es especial y no stockeable', () => {
+    expect(
+      etiquetaArticulo({ ...articulo, stockeable: false, especial: true }, t),
+    ).toBe('ART-01 - Tornillo hexagonal (*)');
+  });
 });

@@ -4,9 +4,9 @@
 |-------|--------|
 | **SPEC madre** | [PedidosWeb_SPEC_MVP.md](PedidosWeb_SPEC_MVP.md) |
 | **Producto** | [asistente-ia-carga-pedidos-presupuestos.md](../../02-producto/PedidosWeb/asistente-ia-carga-pedidos-presupuestos.md) |
-| **Estado** | En revisión |
+| **Estado** | Finalizado |
 | **Prioridad épica** | Should |
-| **Última actualización** | 2026-09-08 |
+| **Última actualización** | 2026-09-12 (Parte I) |
 | **Revisión A1** | [F-101-18-20-cierre-a1-asistente-carga-ia.md](../../04-tareas/101-PedidosWeb/F-101-18-20-cierre-a1-asistente-carga-ia.md) |
 | **Slices relacionados** | [SPEC-101-18](SPEC-101-18-asistente-carga-ia-shell.md) (canal) · [SPEC-101-20](SPEC-101-20-asistente-carga-ia-consultas.md) (consultas) |
 | **Capacidades producto** | **A** cliente · **B** cabecera lookups · **C** campos libres · **D** artículos · **I** cambio cliente · **J** grabar · **K** (aplicación de extracto validado) |
@@ -46,6 +46,8 @@ Cada acción del asistente **equivale** a la misma operación que el usuario har
 | D1-24 | Mutar renglón existente | Busca en **detalle del borrador** (no maestro). Comillas o descripción al **final**. 0 → informar `q` buscada. 2–10 → lista D1-13. Conjugados: elimina/borra/quita/saca (+ infinitivos). |
 | D1-25 | Pedido compuesto multilínea | Si el mensaje tiene ≥2 líneas con etiquetas de carga, intent `compositePedido`: parse línea a línea (A–D), aplicar en orden; ante `needsChoice`/`needsConfirm`, diferir resto en `deferredCompositeItems` y continuar tras la respuesta. |
 | D1-26 | Alias renglón / cabecera | Prefijos renglón: artículo(s), art., art, producto(s), prod., item(s), it., it. Cantidad: `cantidad`/`canti`/`cant`. Cabecera: `Descto`/`Descuento`/`Desc`/`Dto` + 1\|2\|3 → `bonifN`. `Direccion:` suelta → `expresoDire`. |
+| D1-27 | Alias `codigo` (CC PQ #14) | `codigo(s)` / `código(s)`, `cod.` / `cod`, `cód.` / `cód` son prefijos de renglón equivalentes a artículo/producto/item y disparan `addRenglon` o el parseo de renglón. |
+| D1-28 | Comillas entre artículo y cantidad (CC PQ #14) | Si entre un sinónimo de artículo —incluidos D1-27— y `cantidad` / `canti` / `cant` / `cant.` aparece texto entre comillas dobles, tipográficas o simples, su contenido íntegro, sin tokenizar espacios, es el `q` literal del lookup por código o descripción. Cantidad, precio y bonificación se extraen fuera del tramo citado. |
 
 ## Alcance (in scope)
 
@@ -76,7 +78,7 @@ Campos ejemplo: perfil, condición de venta, transporte, dirección entrega, lis
 |----------|--------|
 | Nivel | Respetar `NivelExtremo` (0/100 si aplica) |
 | Observaciones | Texto libre |
-| Leyenda 1…5 | Usuario indica atributo + valor |
+| Leyenda 1…5 | Usuario indica atributo + valor; `setCampoLibre` recorta a los primeros 60 caracteres Unicode con el helper canónico y no produce `validationError` por longitud (CC PQ #13). |
 | Bonif. cabecera 1/2/3 | Aplicar directo; permiso `ModificaBonCli*`; perfil **C** denied; bonif3 ∈ [-99.99, 99.99]; alias Descto/Descuento N (D1-26) |
 | Expreso / dirección expreso | Texto libre; permiso `ModificaExpreso*`; solo lectura → denied (turn); `Direccion:` suelta → expresoDire (D1-26) |
 | Transporte | Lookup catálogo → `codTranspor`; 0 none / 1 apply / 2–10 lista / >10 refine |
@@ -93,7 +95,7 @@ Confirmar valor aplicado. Rechazar en solo lectura.
 | Regla | Detalle |
 |-------|---------|
 | Universo | Mismo lookup de carga; excluir `usa_esc = 'B'`; lista de precios válida cuando aplique precio; **2–10 candidatos por tokens → lista** (no auto-pick del más corto) |
-| Parseo frase | Qty / precio / bonif-descuento fuera del texto de búsqueda (D1-19, D1-20); prefijos art/item/it y `canti` (D1-26) |
+| Parseo frase | Qty / precio / bonif-descuento fuera del texto de búsqueda (D1-19, D1-20); prefijos art/item/it y `canti` (D1-26), alias `codigo*` (D1-27) y criterio literal entre comillas antes de cantidad (D1-28) |
 | Pedido compuesto | Multilínea con etiquetas → aplicar todas las acciones permitidas en orden; diferir tras choice (D1-25) |
 | Búsqueda | Código o descripción; multi-palabra → AND por tokens (D1-22) |
 | 0 / 1 / 2–10 / >10 | None i18n / auto-add / lista / refine i18n **distinto** (D1-21) |
@@ -128,7 +130,7 @@ Si hay cliente y/o renglones/cabecera y se pide otro cliente:
 Tras lectura/visión en SPEC-101-18:
 
 1. Validar candidatos contra maestros y permisos (A–D).
-2. Hidratar **automáticamente** en el borrador **solo** lo validado (sin confirmación global), incluyendo cabecera ampliada cuando el extracto la traiga (perfil, cond., fecha, expreso, lista, bonif 1–3, leyendas 1–5, observaciones) con los mismos `Modifica*`.
+2. Hidratar **automáticamente** en el borrador **solo** lo validado (sin confirmación global), incluyendo cabecera ampliada cuando el extracto la traiga (perfil, cond., fecha, expreso, lista, bonif 1–3, leyendas 1–5, observaciones) con los mismos `Modifica*`. Una leyenda válida de más de 60 caracteres se aplica recortada, no se rechaza.
 3. Dudoso/inválido → lista numerada o errores; no forzar.
 4. **No** grabar hasta intención J.
 5. Si hay choice de cliente/catálogo, diferir cabecera/renglones restantes (mismo espíritu D1-25).
@@ -165,6 +167,11 @@ Cada acción es un comando tipado ejecutado en backend (o orquestado FE→APIs e
 - [ ] **CA-I01:** Cambio cliente con datos pide confirmación.
 - [ ] **CA-J01:** Grabar pedido/presupuesto = mismo flujo botones.
 - [ ] **CA-K01:** Extracto imagen válido hidrata borrador; inválido no se carga.
+- [x] **CA-CC13-C01:** leyenda de 61 caracteres se aplica con sus primeros 60, sin error.
+- [x] **CA-CC13-K01:** extracto de imagen con leyenda mayor a 60 hidrata el campo recortado.
+- [x] **CA-CC14-D01:** `codigo` / `cod.` / `cód` dispara alta de renglón como artículo/item.
+- [x] **CA-CC14-D02:** `codigo "almendra carmel 20/22" cantidad 10` conserva `q = almendra carmel 20/22` y cantidad 10.
+- [x] **CA-CC14-D03:** el parseo vigente sin comillas conserva su comportamiento.
 
 ## HU / TR
 
@@ -206,3 +213,4 @@ Observaciones no bloqueantes (TR): equivalentes i18n de D1-18 en en/pt/fr/it; fa
 | 2026-07-30 | CC PQ #10 | Asistente: cantidad = modal según `CargaUnidadesVenta` |
 | 2026-08-31 | Parte I | Unificación `SPEC-101-19-asistente-carga-ia-mutaciones-update`. Sin updates abiertos |
 | 2026-09-08 | CC PQ #14 | Parte G: SPEC/HU/TR `-update-01` — D1-27 alias `codigo*` · D1-28 comillas literales entre artículo y cantidad |
+| 2026-09-12 | Parte I · CC PQ #13/#14 | Unificación, en orden, del nuevo `…-update` (leyendas a 60 en C/K y multilínea) y `…-update-01` (D1-27/D1-28 y CA-CC14-D01…D03) |

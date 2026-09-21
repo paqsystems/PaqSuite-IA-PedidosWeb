@@ -7,8 +7,8 @@
 | **Épica** | 101 — PedidosWeb / Asistente IA en carga |
 | **Prioridad** | **Should** |
 | **Dependencias** | [TR-SPEC-101-18](TR-SPEC-101-18-asistente-carga-ia-shell.md); TR-SPEC-101-04; TR-SPEC-101-10; HU-101-004…010 |
-| **Estado** | En Control Calidad |
-| **Última actualización** | 2026-09-08 |
+| **Estado** | Finalizado |
+| **Última actualización** | 2026-09-13 (Parte I) |
 
 **Normas:** [`../_NORMAS-TRANSVERSALES-TR.md`](../_NORMAS-TRANSVERSALES-TR.md)  
 **Cierre C1:** [F-101-18-20-cierre-c1](F-101-18-20-cierre-c1-asistente-carga-ia.md)
@@ -39,6 +39,14 @@ Extiende el registry de tools del turno (TR-18) con capacidades **A, B, C, D, I,
 | CC #10 | — | Tools add/modify/image: cantidad vía helper TR-101-04 |
 | **AC-CC10-T-A1** | Tools texto convierten cantidad false/true |
 | **AC-CC10-T-A2** | Extracto imagen convierte cantidad |
+| **AC-CC13-T-A1** | Leyenda de tool/intent con 61 caracteres se aplica recortada a 60, sin `validationError` |
+| **AC-CC13-T-A2** | Leyenda de 60 caracteres se conserva completa |
+| **AC-CC13-T-A3** | Extracto imagen normaliza a 60 las leyendas de `applyImageExtract.cabecera` |
+| **AC-CC14-T-D1** | `codigo`, `código`, `cod.`/`cod` y `cód.`/`cód` disparan alta de renglón como la familia artículo |
+| **AC-CC14-T-D2** | `codigo "texto con espacios" cantidad 10` conserva el texto literal como `q` y extrae cantidad 10 |
+| **AC-CC14-T-D3** | Se aceptan comillas dobles, simples y tipográficas |
+| **AC-CC14-T-D4** | Los alias anteriores `art.`/`item`/`it` y sus casos con comillas no regresionan |
+| **AC-CC14-T-D5** | Los alias `codigo*` también resuelven mutaciones sobre el detalle del borrador |
 
 ---
 
@@ -56,13 +64,13 @@ Todas pasan por `POST .../carga/asistente/turn`. El service registra tools; el L
 | `selectCliente` | `{ codCliente, cabeceraInicial }` | setCliente + init cabecera |
 | `setCabeceraField` | `{ field, value }` | Update cabecera + side-effects UI |
 | `setCabeceraFields` / `patchCabecera` | `{ fields: {…} }` | Patch múltiple (lista+moneda/IVA, etc.) |
-| `setCampoLibre` | `{ field: "nivel\|observaciones\|leyendaN\|bonificacionN\|expreso\|…", value }` | Update campo |
+| `setCampoLibre` | `{ field: "nivel\|observaciones\|leyendaN\|bonificacionN\|expreso\|…", value }` | Update campo; leyendas recortadas a 60 en executor |
 | `addRenglon` | `{ codArticulo, cantidad, precio?, porcBonif?, descripcion? }` | Push renglón + recalc |
 | `updateRenglon` | `{ renglon, patch: { cantidad?, precio?, porcBonif? } }` | Patch renglón existente + recalc |
 | `removeRenglon` | `{ renglon }` | Quitar renglón del borrador + recalc |
 | `clearDraftForClienteChange` | `{}` | Limpiar luego selectCliente |
 | `grabarPedido` / `grabarPresupuesto` | `{ body }` o flag `invokeLocalGrabar: true` | Disparar mismo handler botones |
-| `applyImageExtract` | `{ cabecera?, renglonesValidos[], errores[] }` | Hidratar parcial |
+| `applyImageExtract` | `{ cabecera?, renglonesValidos[], errores[] }` | Hidratar parcial; leyendas de cabecera recortadas a 60 |
 | `denied` / `validationError` | `{ messageKey, details? }` | Toast/hilo; sin mutar |
 | `needsRefine` (renglón) | `{ kind: "renglonExistente", q?, hint }` | Mostrar no encontrado **con `q` buscada** |
 
@@ -84,6 +92,9 @@ Todas pasan por `POST .../carga/asistente/turn`. El service registra tools; el L
 | T-19-12 | Pedido compuesto: `IntentDetector` → `compositePedido` (≥2 segmentos etiquetados); `TurnService::executeCompositeItems`; diferir en `pendingChoice.deferredCompositeItems`; reanudar en `chooseOption`/`confirmChangeCliente` vía `withDeferredWork` |
 | T-19-13 | Alias: `ARTICULO_KEYWORD_REGEX` (art/item/it/prod…); cantidad `canti`/`cant`; cabecera `Descto` N→`bonifN`; `Direccion:`→`expresoDire` |
 | T-19-14 | Imagen K: prompt + `buildCabeceraStepsFromParsed` (perfil/cond/fecha/expreso/lista/bonif/leyendas/obs) + diferido `cabeceraSteps` |
+| T-19-15 | Leyendas: executor PHP de campo libre, patch de cabecera e imagen reutiliza el helper de TR-101-04; no confía en el LLM ni rechaza por longitud |
+| T-19-16 | Alias artículo: `ARTICULO_KEYWORD_REGEX`, `articuloKeywordList` y patrones mutate/composite incluyen `codigo`/`código`/`cod*`; formas largas preceden a abreviaturas |
+| T-19-17 | Parseo `q`: el tramo entre comillas ubicado entre keyword de artículo/código y cantidad prevalece y se conserva literal, incluyendo comillas simples y tipográficas |
 
 ---
 
@@ -129,7 +140,7 @@ Estado `pendingChoice.kind = "changeClienteConfirm"`.
 |-------|---------|
 | Tools | `SelectClienteTool`, `SetCabeceraTool`, `SetCampoLibreTool`, `AddRenglonTool`, `ChangeClienteTool`, `GrabarIntentTool`, `ImageExtractTool` |
 | Services reuso | Clientes, CabeceraInicial, Articulos lookup, ParametrosCarga, (opcional) Grabar |
-| Parseo D | `IntentDetector` / helper: `extractArticuloFrase` (qty, precio, porcBonif, query limpia); `setBonificacionRenglon` / sinónimo descuento; `extractMutateArticuloQuery` (comillas / final); conjugados remove |
+| Parseo D | `IntentDetector` / helper: `extractArticuloFrase` (qty, precio, porcBonif, query limpia); familia artículo incluye alias `codigo`/`código`/`cod*`; preferencia por texto literal entre comillas; `setBonificacionRenglon` / sinónimo descuento; `extractMutateArticuloQuery` (comillas / final); conjugados remove |
 | Lookup D | Alta: filtro AND tokens + maestro; **2–10 matches → `needsChoice`** (ordenar por cercanía, sin colapsar a uno). Mutate: **solo detalle**; label choice cant·precio·bonif; i18n `renglonNoEncontradoConQ` |
 | Permisos D / turno | `ModificaPrecio*` / `ModificaBonArt*` en alta y update; extracto imagen: strip precio/bonif sin permiso. `TurnService` fuerza `perfilUsuario` desde perfil comercial autenticado |
 | Cabecera C | Tool set transporte/cond/perfil/lista/fecha/dir/bonif/expreso |
@@ -183,6 +194,10 @@ Estado `pendingChoice.kind = "changeClienteConfirm"`.
 | `Descto 3: 4` | `setCampoLibre` field=bonif3 |
 | `Direccion: calle` | field=expresoDire |
 | `art.` / `item` / `it` + cant | `addRenglon` |
+| `codigo` / `cod.` / `cód` + cant | `addRenglon` con el mismo extract |
+| `codigo "texto con espacios" cantidad 10` | q literal `texto con espacios`, cantidad 10 |
+| alias `codigo*` en eliminar/cambiar | lookup solo sobre renglones del borrador |
+| leyenda de 61 por tool o imagen | action aplicada con 60 caracteres, sin error |
 
 ---
 
@@ -208,4 +223,28 @@ Tools mutación: conversión cantidad compartida con carga manual.
 | T1 | `addRenglon` / modify / image apply → helper TR-101-04 | `CargaAsistenteTools` |
 | T2 | PHPUnit false/true + default equiv 1 | `CargaAsistenteToolsTest` |
 
-Unificación delta CC PQ #10 (archivo `TR-SPEC-101-19-asistente-carga-ia-mutaciones-update.md` eliminado en Parte I).
+Unificación delta CC PQ #10 incorporada previamente en esta TR base.
+
+## CC PQ #13 — Parte I 13/09/2026
+
+El executor del asistente normaliza las cinco leyendas a 60 caracteres en campo libre, patch de cabecera y extracto de imagen. El recorte es backend obligatorio y no genera rechazo por longitud.
+
+| ID | Tarea | Evidencia |
+|----|-------|-----------|
+| T1 | Recorte en executor/patch de cabecera | tools de mutación del asistente |
+| T2 | Recorte en `applyImageExtract` | executor de imagen |
+| T3 | Casos 60/61 sin `validationError` | tests unitarios |
+
+Unificación delta CC PQ #13 (archivo `TR-SPEC-101-19-asistente-carga-ia-mutaciones-update.md` eliminado en Parte I 2026-09-13).
+
+## CC PQ #14 — Parte I 13/09/2026
+
+El detector incorpora la familia `codigo`/`código`/`cod*` para altas y mutaciones, y preserva como consulta literal el contenido entre comillas antes de la cantidad.
+
+| ID | Tarea | Evidencia |
+|----|-------|-----------|
+| T1 | Extender regex y lista de keywords | `CargaAsistenteIntentDetector` |
+| T2 | Priorizar tramo entre comillas | parseo `q` de alta/mutate/composite |
+| T3 | Regresión de alias, comillas y cantidad | `CargaAsistenteIntentDetectorTest` |
+
+Unificación delta CC PQ #14 (archivo `TR-SPEC-101-19-asistente-carga-ia-mutaciones-update-01.md` eliminado en Parte I 2026-09-13).

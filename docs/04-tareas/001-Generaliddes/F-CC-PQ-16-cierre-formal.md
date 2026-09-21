@@ -10,7 +10,7 @@ Verificación **F1 + F** sobre suspensión temporal del logout por inactividad h
 
 **Fecha verificación F1/F:** 12/09/2026  
 **Parte E:** [E-CC-PQ-16-tests.md](E-CC-PQ-16-tests.md)  
-**TR:** [TR-GEN-02-expiracion-inactividad-update](../updates/001-Generaliddes/TR-GEN-02-expiracion-inactividad-update.md)
+**TR:** [TR-GEN-02-expiracion-inactividad](TR-GEN-02-expiracion-inactividad.md)
 
 ---
 
@@ -60,4 +60,8 @@ D1-31 enlazado en CC, SPEC-update, HU-update y TR-update.
 
 ## Veredicto F
 
-**Aprobado** — suspensión operativa lista; reactivación pendiente de adopción SDK Framework (Parte I / trabajo futuro).
+**Aprobado** — suspensión operativa lista; reactivación pendiente de adopción SDK Framework.
+
+## Parte I (12/09/2026)
+
+Updates SPEC/HU/TR fusionados en bases y eliminados. CC #16 → **Finalizado**.

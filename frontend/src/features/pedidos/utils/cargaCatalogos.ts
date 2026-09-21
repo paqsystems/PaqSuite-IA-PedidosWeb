@@ -51,15 +51,24 @@ function formatDisponibleCarga(valor: number): string {
   });
 }
 
+const sufijoArticuloEspecial = ' (*)';
+
+function appendSufijoArticuloEspecial(etiqueta: string, articulo: ArticuloOption): string {
+  return articulo.especial ? `${etiqueta}${sufijoArticuloEspecial}` : etiqueta;
+}
+
 /** Código, descripción y — si aplica — disponible neto. */
 export function etiquetaArticulo(articulo: ArticuloOption, t: TFunction): string {
   const stockeable = articulo.stockeable !== false;
 
   if (!stockeable) {
-    return t('pedidos.carga.articuloDisplaySinStock', {
-      codigo: articulo.codArticulo,
-      descripcion: articulo.descripcion,
-    });
+    return appendSufijoArticuloEspecial(
+      t('pedidos.carga.articuloDisplaySinStock', {
+        codigo: articulo.codArticulo,
+        descripcion: articulo.descripcion,
+      }),
+      articulo,
+    );
   }
 
   const params = {
@@ -69,13 +78,16 @@ export function etiquetaArticulo(articulo: ArticuloOption, t: TFunction): string
   };
 
   if (articulo.disponibleNetoBase !== null && articulo.disponibleNetoBase !== undefined) {
-    return t('pedidos.carga.articuloDisplayConBase', {
-      ...params,
-      disponibleBase: formatDisponibleCarga(articulo.disponibleNetoBase),
-    });
+    return appendSufijoArticuloEspecial(
+      t('pedidos.carga.articuloDisplayConBase', {
+        ...params,
+        disponibleBase: formatDisponibleCarga(articulo.disponibleNetoBase),
+      }),
+      articulo,
+    );
   }
 
-  return t('pedidos.carga.articuloDisplay', params);
+  return appendSufijoArticuloEspecial(t('pedidos.carga.articuloDisplay', params), articulo);
 }
 
 export function formatArticuloCargaDisplay(articulo: ArticuloOption, t: TFunction): string {
