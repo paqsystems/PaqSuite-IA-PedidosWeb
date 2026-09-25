@@ -285,6 +285,82 @@ Sin el flag, la UI y a veces el menú no exponen el proceso aunque el código ex
 4. Para un bug o mejora: no parchear a ciegas. Si cambia el “qué”, hay SPEC-update (Parte G / L). Si solo es implementación de una TR ya apta, Parte D.
 5. Respetar visibilidad: un endpoint nuevo que liste clientes o comprobantes **debe** filtrar por el universo del usuario (JOIN/EXISTS; nunca `whereIn` de miles de códigos).
 
+## 1.13 Mobile — APK lab/debug vs producción (variables y build)
+
+El APK **no elige el entorno en runtime** por sí solo: la URL base de la API queda **embebida en el bundle** al compilar con `npm run build:mobile`. El usuario puede **sobrescribir** esa URL desde el engranaje de configuración en el dispositivo (Preferences), pero el tenant **siempre** se ingresa en el login — no se configura en el engranaje.
+
+Referencia operativa extendida: `docs/_base/01-mobile/03-comandos-generacion-aplicaciones.md` y `docs/_base/01-mobile/05-runbook-primera-prueba-android-emulador.md`.
+
+### Variables de entorno (build time)
+
+Vite carga, en modo `mobile`, el archivo `frontend/.env.mobile` (plantilla: `frontend/.env.mobile.example`). También se pueden pasar por línea de comandos antes de `npm run build:mobile`.
+
+| Variable | ¿Afecta al APK native? | Uso |
+|----------|------------------------|-----|
+| **`VITE_MOBILE_API_BASE_URL`** | **Sí — principal** | URL por defecto de la API en la app instalada. Si falta, el código usa `https://backend.pedidosweb.paqsystems.com/api/v1` (`mobileRuntime.ts`). |
+| `VITE_DEVEXTREME_LICENSE` | Sí (build) | Obligatoria para compilar; no define lab vs prod. Copiar de `frontend/.env`. |
+| `VITE_TENANT_DEFAULT_CLIENT` | Casi no en native | Fallback web; en mobile el tenant lo elige el usuario en login. |
+| `VITE_API_BASE_URL` | No en native | Solo web (`/api/v1` con proxy Vite). **No** sustituye a `VITE_MOBILE_API_BASE_URL` en Capacitor. |
+
+**Valores típicos de `VITE_MOBILE_API_BASE_URL`:**
+
+| Entorno | URL de ejemplo (PedidosWeb) |
+|---------|----------------------------|
+| **Producción** | `https://backend.pedidosweb.paqsystems.com/api/v1` |
+| **Staging / dev Forge** | `https://backenddevpedidoswebpaqsystems.on-forge.com/api/v1` (patrón MONO: `docs/_base/00-urls-deploy-proyecto.md`) |
+| **Lab local — emulador Android** | `http://10.0.2.2:8088/api/v1` (`10.0.2.2` = localhost del host desde el emulador) |
+| **Lab local — teléfono físico (misma LAN)** | `http://192.168.x.x:8088/api/v1` (IP LAN de la PC; backend con `php artisan serve --host=0.0.0.0 --port=8088`) |
+
+El header `X-Paq-Cliente` lo envía el cliente HTTP con el **tenant del login**; no hay variable de build para fijar el tenant en producción.
+
+### Override en el dispositivo (sin recompilar)
+
+Desde el engranaje de login (`MobileConfigPopup`): el usuario puede guardar otra **URL base API** y probar conexión (`GET /api/v1/health`). Ese valor vive en `@capacitor/preferences` y **tiene prioridad** sobre `VITE_MOBILE_API_BASE_URL`. Sirve para apuntar un APK de producción a un backend de lab puntual, o al revés, sin generar otro APK.
+
+### Tipo de build Gradle (debug vs release)
+
+Además de la URL embebida, el **tipo de APK** importa para lab local con HTTP:
+
+| Comando Gradle | APK | Firma | HTTP local (`http://`) |
+|----------------|-----|-------|-------------------------|
+| `.\gradlew assembleDebug` | Debug | Debug keystore (instalable para pruebas) | Permitido vía `frontend/android/app/src/debug/AndroidManifest.xml` (`usesCleartextTraffic`) |
+| `.\gradlew assembleRelease` | Release | Requiere keystore de release (o firmar después) | **No** usar HTTP plano hacia lab; cleartext no aplica en release para tienda |
+
+Para **lab contra backend local en HTTP**, generar **`assembleDebug`** con `VITE_MOBILE_API_BASE_URL` apuntando a `10.0.2.2` o la IP LAN. Para **producción HTTPS**, usar **`assembleRelease`** (o debug firmado solo para smoke interno).
+
+### Secuencia de build (resumen)
+
+```powershell
+cd frontend
+
+# 1) Definir entorno (ejemplo producción)
+#    Crear/editar .env.mobile o exportar variables:
+$env:VITE_MOBILE_API_BASE_URL = "https://backend.pedidosweb.paqsystems.com/api/v1"
+$env:VITE_DEVEXTREME_LICENSE = "<valor de frontend/.env>"
+
+# 2) Compilar web para Capacitor
+npm run build:mobile
+npx cap sync android
+
+# 3) APK
+cd android
+.\gradlew assembleRelease   # producción / prueba contra prod
+# .\gradlew assembleDebug   # lab local HTTP o Run en Android Studio
+```
+
+Salida habitual:
+
+- Debug: `frontend/android/app/build/outputs/apk/debug/app-debug.apk`
+- Release (sin firmar): `.../release/app-release-unsigned.apk` — hay que **firmar** antes de instalar (keystore de release o, solo para pruebas internas, keystore debug con `apksigner`).
+
+Artefactos copiados para distribución interna: convención `frontend/dist-apk/PedidosWeb-{prod|debug}-{fecha}.apk`.
+
+### Qué no confundir
+
+- **APK debug vs release** ≠ **backend lab vs prod**. Son decisiones independientes: un APK release puede apuntar a lab si `VITE_MOBILE_API_BASE_URL` (o el override del engranaje) apunta ahí.
+- **`capacitor.config.ts`**: `allowMixedContent` y `androidScheme: 'https'` facilitan smoke en WebView; no reemplazan `VITE_MOBILE_API_BASE_URL`.
+- **Play Store**: exige `.aab` release firmado con keystore de producción; no subir APK firmado solo con debug keystore.
+
 ---
 
 # Parte 2 — Prestaciones del funcionamiento
@@ -438,7 +514,7 @@ Si `ADMIN_SECURITY_UI_ENABLED` está activo, el menú **Seguridad** permite ABM 
 
 ## 2.13 Mobile (Capacitor)
 
-Misma API, mismo frontend compilado a Android/iOS.
+Misma API, mismo frontend compilado a Android/iOS. Para generar APK de **lab** o **producción** (variables `VITE_MOBILE_API_BASE_URL`, `assembleDebug` / `assembleRelease`), ver **§1.13**.
 
 | Release | Qué incluye |
 |---------|-------------|
@@ -570,6 +646,7 @@ No forma parte del alcance declarado de GALO en este anexo: presupuestos, tratat
 | Estados y conversiones | `docs/99-manual-usuario/PedidosWeb-circuito-estados.md` |
 | Envelope API | `docs/00-contexto/_mono/00-arquitectura-api/envelope-respuestas.md` |
 | Metodología OpenSpec | `docs/_base/_OPEN-SPEC-METODOLOGIA.md` |
+| APK Android lab vs prod | Este manual **§1.13**; `docs/_base/01-mobile/03-comandos-generacion-aplicaciones.md` |
 | Contrato vivo de endpoints | `/api/documentation` (Swagger) |
 
 Este manual describe el sistema **tal como está implementado al 1 de septiembre de 2026**. Si un SPEC-update o un control de calidad cambia el alcance, prevalecen el SPEC unificado y OpenAPI.

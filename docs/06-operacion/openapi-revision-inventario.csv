@@ -1,0 +1,98 @@
+metodo,path,tagActualOpenApi,tagPropuesto,summary,estadoCobertura,envelope200,calidadResultado,calidadRequestBody,severidad,accionSugerida
+POST,/api/v1/auth/login,Auth,,"Inicio de sesion",documentado,ApiEnvelopeLogin,estructura_tipada,body_tipado,ok,OK
+POST,/api/v1/auth/logout,Auth,,"Cierre de sesion",documentado,ApiEnvelopeEmpty,envelope_vacio_ok,n/a,ok,OK
+GET,/api/v1/auth/me,Auth,,"Contexto de sesion del usuario autenticado",documentado,ApiEnvelopeSessionContext,estructura_tipada,n/a,ok,OK
+POST,/api/v1/auth/password/change,Auth,,"Cambio de contraseña autenticado",documentado,ApiEnvelopeSessionContext,estructura_tipada,body_tipado,ok,OK
+POST,/api/v1/auth/password/forgot,Auth,,"Solicitud de recuperacion de contraseña",documentado,ApiEnvelopeEmpty,envelope_vacio_ok,body_tipado,ok,OK
+POST,/api/v1/auth/password/reset,Auth,,"Confirmacion de recuperacion de contraseña",documentado,ApiEnvelopeEmpty,envelope_vacio_ok,body_tipado,ok,OK
+GET,/api/v1/chat-assistant/me/configuration,ChatAssistant,,"Configuración personal activa del Chat Asistente IA",documentado,ApiEnvelopeChatAssistantConfiguration,estructura_tipada,n/a,ok,OK
+PUT,/api/v1/chat-assistant/me/configuration,ChatAssistant,,"Guardar configuración personal del Chat Asistente IA",documentado,ApiEnvelopeChatAssistantConfigurationSaved,estructura_tipada,body_tipado,ok,OK
+PATCH,/api/v1/chat-assistant/me/configuration/status,ChatAssistant,,"Habilitar o deshabilitar la configuración del Chat Asistente IA",documentado,ApiEnvelopeChatAssistantConfiguration,estructura_tipada,body_tipado,ok,OK
+GET,/api/v1/chat-assistant/me/configurations,ChatAssistant,,"Listar configuraciones personales del Chat Asistente IA",documentado,none,sin_schema_json,n/a,alto,"Completar estructura de resultado o examples"
+POST,/api/v1/chat-assistant/me/configurations,ChatAssistant,,"Crear configuración personal del Chat Asistente IA",documentado,none,sin_schema_json,body_tipado,alto,"Completar estructura de resultado o examples"
+DELETE,/api/v1/chat-assistant/me/configurations/{credentialId},ChatAssistant,,"Eliminar configuración personal del Chat Asistente IA",documentado,none,sin_schema_json,n/a,alto,"Completar estructura de resultado o examples"
+PUT,/api/v1/chat-assistant/me/configurations/{credentialId},ChatAssistant,,"Actualizar configuración personal del Chat Asistente IA",documentado,none,sin_schema_json,body_tipado,alto,"Completar estructura de resultado o examples"
+PATCH,/api/v1/chat-assistant/me/configurations/{credentialId}/status,ChatAssistant,,"Habilitar o deshabilitar una configuración específica",documentado,none,sin_schema_json,body_tipado,alto,"Completar estructura de resultado o examples"
+POST,/api/v1/chat-assistant/messages,ChatAssistant,,"Enviar consulta al Chat Asistente IA",documentado,ApiEnvelopeChatAssistantMessageReply,estructura_tipada,body_tipado,ok,OK
+GET,/api/v1/chat-assistant/providers,ChatAssistant,,"Catálogo de proveedores IA activos",documentado,ApiEnvelopeChatAssistantProviderCatalog,estructura_tipada,n/a,ok,OK
+GET,/api/v1/excel-import/historial,ExcelImport,,"Historial de importaciones Excel",documentado,ApiEnvelope,ApiEnvelope_generico_sin_estructura,n/a,critico,"Crear ApiEnvelopeXxx con estructura de resultado"
+GET,/api/v1/excel-import/lotes/{guidImportacion},ExcelImport,,"Detalle de lote de importacion",documentado,ApiEnvelope,ApiEnvelope_generico_sin_estructura,n/a,critico,"Crear ApiEnvelopeXxx con estructura de resultado"
+POST,/api/v1/excel-import/lotes/{guidImportacion}/cancelar,ExcelImport,,"Cancelar lote de importacion",documentado,ApiEnvelope,ApiEnvelope_generico_sin_estructura,n/a,critico,"Crear ApiEnvelopeXxx con estructura de resultado"
+GET,/api/v1/excel-import/procesos/{codigoProceso},ExcelImport,,,documentado,none,sin_schema_json,n/a,alto,"Completar estructura de resultado o examples"
+POST,/api/v1/excel-import/procesos/{codigoProceso}/archivo/hojas,ExcelImport,,"Listar hojas de un archivo Excel",documentado,ApiEnvelope,ApiEnvelope_generico_sin_estructura,n/a,critico,"Crear ApiEnvelopeXxx con estructura de resultado"
+POST,/api/v1/excel-import/procesos/{codigoProceso}/lotes,ExcelImport,,"Crear lote de importacion Excel",documentado,ApiEnvelope,ApiEnvelope_generico_sin_estructura,n/a,critico,"Crear ApiEnvelopeXxx con estructura de resultado"
+GET,/api/v1/excel-import/procesos/{codigoProceso}/plantilla,ExcelImport,,,documentado,none,sin_schema_json,n/a,alto,"Completar estructura de resultado o examples"
+GET,/api/v1/user/menu,Menu,,"Menu autorizado del usuario",documentado,ApiEnvelopeMenuList,estructura_tipada,n/a,ok,OK
+GET,/api/v1/articulos,PedidosWeb,,"Autocompletar articulos para carga de comprobantes",documentado,ApiEnvelope,ApiEnvelope_generico_sin_estructura,n/a,critico,"Crear ApiEnvelopeXxx con estructura de resultado"
+GET,/api/v1/clientes/{codCliente}/cabecera-inicial,PedidosWeb,,"Inicializar cabecera de comprobante desde cliente (HU-101-005)",documentado,ApiEnvelope,ApiEnvelope_generico_sin_estructura,n/a,critico,"Crear ApiEnvelopeXxx con estructura de resultado"
+POST,/api/v1/comprobantes/copiar,PedidosWeb,,"Copiar comprobante existente a pedido o presupuesto",documentado,ApiEnvelope,ApiEnvelope_generico_sin_estructura,body_tipado,critico,"Crear ApiEnvelopeXxx con estructura de resultado"
+POST,/api/v1/comprobantes/grabar,PedidosWeb,,"Grabar pedido o presupuesto (contrato unificado)",documentado,ApiEnvelope,ApiEnvelope_generico_sin_estructura,body_object_vacio,critico,"Tipar request body + resultado"
+GET,/api/v1/config/parametros,PedidosWeb,,"Consulta de parametros generales (solo lectura)",documentado,ApiEnvelope,ApiEnvelope_generico_sin_estructura,n/a,critico,"Crear ApiEnvelopeXxx con estructura de resultado"
+GET,/api/v1/config/parametros-carga,PedidosWeb,,"Parametros Modifica* y flags UI para pantalla de carga",documentado,ApiEnvelope,ApiEnvelope_generico_sin_estructura,n/a,critico,"Crear ApiEnvelopeXxx con estructura de resultado"
+GET,/api/v1/consultas/cheques,PedidosWeb,,"Consulta cheques del cliente",documentado,ApiEnvelope,ApiEnvelope_generico_sin_estructura,n/a,critico,"Crear ApiEnvelopeXxx con estructura de resultado"
+GET,/api/v1/consultas/detalle-pedidos,PedidosWeb,,"Consulta detalle de pedidos (cabecera + renglon)",documentado,ApiEnvelope,ApiEnvelope_generico_sin_estructura,n/a,critico,"Crear ApiEnvelopeXxx con estructura de resultado"
+GET,/api/v1/consultas/deuda,PedidosWeb,,"Consulta deuda del cliente",documentado,ApiEnvelope,ApiEnvelope_generico_sin_estructura,n/a,critico,"Crear ApiEnvelopeXxx con estructura de resultado"
+GET,/api/v1/consultas/historial-ventas,PedidosWeb,,"Historial de ventas del cliente",documentado,ApiEnvelope,ApiEnvelope_generico_sin_estructura,n/a,critico,"Crear ApiEnvelopeXxx con estructura de resultado"
+GET,/api/v1/consultas/pedidos-ingresados,PedidosWeb,,"Consulta pedidos ingresados",documentado,ApiEnvelope,ApiEnvelope_generico_sin_estructura,n/a,critico,"Crear ApiEnvelopeXxx con estructura de resultado"
+GET,/api/v1/consultas/pedidos-pendientes,PedidosWeb,,"Consulta pedidos pendientes",documentado,ApiEnvelope,ApiEnvelope_generico_sin_estructura,n/a,critico,"Crear ApiEnvelopeXxx con estructura de resultado"
+GET,/api/v1/consultas/presupuestos,PedidosWeb,,"Consulta presupuestos",documentado,ApiEnvelope,ApiEnvelope_generico_sin_estructura,n/a,critico,"Crear ApiEnvelopeXxx con estructura de resultado"
+GET,/api/v1/consultas/stock,PedidosWeb,,"Consulta stock de articulos",documentado,ApiEnvelope,ApiEnvelope_generico_sin_estructura,n/a,critico,"Crear ApiEnvelopeXxx con estructura de resultado"
+GET,/api/v1/dashboard/operativo,PedidosWeb,,"Dashboard operativo PedidosWeb",documentado,ApiEnvelope,ApiEnvelope_generico_sin_estructura,n/a,critico,"Crear ApiEnvelopeXxx con estructura de resultado"
+GET,/api/v1/integracion/logs,PedidosWeb,,"Logs de integracion (mail, etc.)",documentado,ApiEnvelope,ApiEnvelope_generico_sin_estructura,n/a,critico,"Crear ApiEnvelopeXxx con estructura de resultado"
+GET,/api/v1/motivos-cierre,PedidosWeb,,"Catalogo de motivos de cierre de presupuesto",documentado,ApiEnvelope,ApiEnvelope_generico_sin_estructura,n/a,critico,"Crear ApiEnvelopeXxx con estructura de resultado"
+POST,/api/v1/pedidos,PedidosWeb,,"Alta de pedido",documentado,ApiEnvelope,ApiEnvelope_generico_sin_estructura,body_object_vacio,critico,"Tipar request body + resultado"
+POST,/api/v1/pedidos/carga/asistente/turn,PedidosWeb,,"Turno del Asistente IA en carga de pedidos/presupuestos",documentado,ApiEnvelopeCargaAsistenteTurn,estructura_tipada,body_object_vacio,critico,"Tipar request body + resultado"
+DELETE,/api/v1/pedidos/{cod_pedido},PedidosWeb,,"Eliminar pedido en estado 0",documentado,ApiEnvelopeEmpty,envelope_vacio_ok,n/a,ok,OK
+GET,/api/v1/pedidos/{cod_pedido},PedidosWeb,,"Obtener pedido con detalle",documentado,ApiEnvelope,ApiEnvelope_generico_sin_estructura,n/a,critico,"Crear ApiEnvelopeXxx con estructura de resultado"
+PUT,/api/v1/pedidos/{cod_pedido},PedidosWeb,,"Modificar pedido existente",documentado,ApiEnvelope,ApiEnvelope_generico_sin_estructura,body_object_vacio,critico,"Tipar request body + resultado"
+POST,/api/v1/pedidos/{cod_pedido}/edicion/actividad,PedidosWeb,,"Renovar timestamp de actividad en edicion",documentado,ApiEnvelope,ApiEnvelope_generico_sin_estructura,n/a,critico,"Crear ApiEnvelopeXxx con estructura de resultado"
+POST,/api/v1/pedidos/{cod_pedido}/edicion/cancelar,PedidosWeb,,"Cancelar edicion y volver a estado 0",documentado,ApiEnvelope,ApiEnvelope_generico_sin_estructura,n/a,critico,"Crear ApiEnvelopeXxx con estructura de resultado"
+POST,/api/v1/pedidos/{cod_pedido}/edicion/iniciar,PedidosWeb,,"Iniciar edicion concurrente del pedido",documentado,ApiEnvelope,ApiEnvelope_generico_sin_estructura,n/a,critico,"Crear ApiEnvelopeXxx con estructura de resultado"
+POST,/api/v1/presupuestos,PedidosWeb,,"Alta de presupuesto",documentado,ApiEnvelope,ApiEnvelope_generico_sin_estructura,body_object_vacio,critico,"Tipar request body + resultado"
+PUT,/api/v1/presupuestos/{cod_pedido},PedidosWeb,,"Modificar presupuesto existente",documentado,ApiEnvelope,ApiEnvelope_generico_sin_estructura,body_object_vacio,critico,"Tipar request body + resultado"
+POST,/api/v1/presupuestos/{cod}/cerrar,PedidosWeb,,"Cerrar presupuesto por rechazo",documentado,ApiEnvelope,ApiEnvelope_generico_sin_estructura,body_tipado,critico,"Crear ApiEnvelopeXxx con estructura de resultado"
+GET,/api/v1/presupuestos/{cod}/tratativas,PedidosWeb,,"Listar tratativas de un presupuesto",documentado,ApiEnvelope,ApiEnvelope_generico_sin_estructura,n/a,critico,"Crear ApiEnvelopeXxx con estructura de resultado"
+POST,/api/v1/presupuestos/{cod}/tratativas,PedidosWeb,,"Registrar tratativa en presupuesto",documentado,ApiEnvelope,ApiEnvelope_generico_sin_estructura,body_tipado,critico,"Crear ApiEnvelopeXxx con estructura de resultado"
+POST,/api/v1/pivots/consultas/{consultaId}/data,Pivots,,,documentado,none,sin_schema_json,body_sin_properties,alto,"Completar estructura de resultado o examples"
+GET,/api/v1/pivots/consultas/{consultaId}/metadata,Pivots,,,documentado,none,sin_schema_json,n/a,alto,"Completar estructura de resultado o examples"
+POST,/api/v1/pivots/consultas/{consultaId}/validate-structure,Pivots,,,documentado,none,sin_schema_json,body_sin_properties,alto,"Completar estructura de resultado o examples"
+GET,/api/v1/users/me/preferences,Preferences,,"Preferencias del usuario autenticado",documentado,ApiEnvelopeUserPreferences,estructura_tipada,n/a,ok,OK
+PATCH,/api/v1/users/me/preferences,Preferences,,"Actualizar preferencia abrir en nueva pestaña",documentado,ApiEnvelopeOpenInNewTabUpdated,estructura_tipada,body_tipado,ok,OK
+PATCH,/api/v1/users/me/preferences/locale,Preferences,,"Actualizar idioma del usuario",documentado,ApiEnvelopeLocaleUpdated,estructura_tipada,body_tipado,ok,OK
+PATCH,/api/v1/users/me/preferences/theme,Preferences,,"Actualizar tema del usuario",documentado,ApiEnvelopeThemeUpdated,estructura_tipada,body_tipado,ok,OK
+GET,/api/v1/health,System,,"Health check del servicio",documentado,ApiEnvelopeHealth,estructura_tipada,n/a,ok,OK
+GET,/api/v1/clientes,Visibilidad,,"Clientes visibles según perfil funcional",documentado,ApiEnvelopeVisibleClients,estructura_tipada,n/a,ok,OK
+GET,/api/v1/comprobantes/{id},Visibilidad,,"Comprobante visible según perfil funcional",documentado,ApiEnvelopeVisibleComprobante,estructura_tipada,n/a,ok,OK
+GET,/api/v1/dashboard/resumen,Visibilidad,,"Resumen visible del dashboard",documentado,ApiEnvelopeDashboardResumen,estructura_tipada,n/a,ok,OK
+GET,/api/v1/admin/permisos,"(sin documentar)",,,faltante_en_openapi,,path_ausente,n/a,faltante,"Agregar path OpenAPI + schema resultado tipado"
+POST,/api/v1/admin/permisos,"(sin documentar)",,,faltante_en_openapi,,path_ausente,n/a,faltante,"Agregar path OpenAPI + schema resultado tipado"
+POST,/api/v1/admin/permisos/batch,"(sin documentar)",,,faltante_en_openapi,,path_ausente,n/a,faltante,"Agregar path OpenAPI + schema resultado tipado"
+DELETE,/api/v1/admin/permisos/{id},"(sin documentar)",,,faltante_en_openapi,,path_ausente,n/a,faltante,"Agregar path OpenAPI + schema resultado tipado"
+PUT,/api/v1/admin/permisos/{id},"(sin documentar)",,,faltante_en_openapi,,path_ausente,n/a,faltante,"Agregar path OpenAPI + schema resultado tipado"
+GET,/api/v1/admin/roles,"(sin documentar)",,,faltante_en_openapi,,path_ausente,n/a,faltante,"Agregar path OpenAPI + schema resultado tipado"
+POST,/api/v1/admin/roles,"(sin documentar)",,,faltante_en_openapi,,path_ausente,n/a,faltante,"Agregar path OpenAPI + schema resultado tipado"
+DELETE,/api/v1/admin/roles/{id},"(sin documentar)",,,faltante_en_openapi,,path_ausente,n/a,faltante,"Agregar path OpenAPI + schema resultado tipado"
+PUT,/api/v1/admin/roles/{id},"(sin documentar)",,,faltante_en_openapi,,path_ausente,n/a,faltante,"Agregar path OpenAPI + schema resultado tipado"
+GET,/api/v1/admin/roles/{id}/atributos,"(sin documentar)",,,faltante_en_openapi,,path_ausente,n/a,faltante,"Agregar path OpenAPI + schema resultado tipado"
+PUT,/api/v1/admin/roles/{id}/atributos,"(sin documentar)",,,faltante_en_openapi,,path_ausente,n/a,faltante,"Agregar path OpenAPI + schema resultado tipado"
+GET,/api/v1/admin/usuarios,"(sin documentar)",,,faltante_en_openapi,,path_ausente,n/a,faltante,"Agregar path OpenAPI + schema resultado tipado"
+GET,/api/v1/config/public,"(sin documentar)",,,faltante_en_openapi,,path_ausente,n/a,faltante,"Agregar path OpenAPI + schema resultado tipado"
+GET,/api/v1/dashboard/resumen-mensual,"(sin documentar)",,,faltante_en_openapi,,path_ausente,n/a,faltante,"Agregar path OpenAPI + schema resultado tipado"
+GET,/api/v1/excel-import/lotes/{guidImportacion}/columnas,"(sin documentar)",,,faltante_en_openapi,,path_ausente,n/a,faltante,"Agregar path OpenAPI + schema resultado tipado"
+GET,/api/v1/excel-import/lotes/{guidImportacion}/export-errores,"(sin documentar)",,,faltante_en_openapi,,path_ausente,n/a,faltante,"Agregar path OpenAPI + schema resultado tipado"
+GET,/api/v1/excel-import/lotes/{guidImportacion}/filas,"(sin documentar)",,,faltante_en_openapi,,path_ausente,n/a,faltante,"Agregar path OpenAPI + schema resultado tipado"
+GET,/api/v1/excel-import/lotes/{guidImportacion}/filas/validas,"(sin documentar)",,,faltante_en_openapi,,path_ausente,n/a,faltante,"Agregar path OpenAPI + schema resultado tipado"
+POST,/api/v1/excel-import/lotes/{guidImportacion}/procesar,"(sin documentar)",,,faltante_en_openapi,,path_ausente,n/a,faltante,"Agregar path OpenAPI + schema resultado tipado"
+GET,/api/v1/grid-layouts,"(sin documentar)",,,faltante_en_openapi,,path_ausente,n/a,faltante,"Agregar path OpenAPI + schema resultado tipado"
+POST,/api/v1/grid-layouts,"(sin documentar)",,,faltante_en_openapi,,path_ausente,n/a,faltante,"Agregar path OpenAPI + schema resultado tipado"
+GET,/api/v1/grid-layouts/active,"(sin documentar)",,,faltante_en_openapi,,path_ausente,n/a,faltante,"Agregar path OpenAPI + schema resultado tipado"
+PUT,/api/v1/grid-layouts/active,"(sin documentar)",,,faltante_en_openapi,,path_ausente,n/a,faltante,"Agregar path OpenAPI + schema resultado tipado"
+DELETE,/api/v1/grid-layouts/{id},"(sin documentar)",,,faltante_en_openapi,,path_ausente,n/a,faltante,"Agregar path OpenAPI + schema resultado tipado"
+PUT,/api/v1/grid-layouts/{id},"(sin documentar)",,,faltante_en_openapi,,path_ausente,n/a,faltante,"Agregar path OpenAPI + schema resultado tipado"
+GET,/api/v1/pivot-configs,"(sin documentar)",,,faltante_en_openapi,,path_ausente,n/a,faltante,"Agregar path OpenAPI + schema resultado tipado"
+POST,/api/v1/pivot-configs,"(sin documentar)",,,faltante_en_openapi,,path_ausente,n/a,faltante,"Agregar path OpenAPI + schema resultado tipado"
+GET,/api/v1/pivot-configs/active,"(sin documentar)",,,faltante_en_openapi,,path_ausente,n/a,faltante,"Agregar path OpenAPI + schema resultado tipado"
+PUT,/api/v1/pivot-configs/active,"(sin documentar)",,,faltante_en_openapi,,path_ausente,n/a,faltante,"Agregar path OpenAPI + schema resultado tipado"
+DELETE,/api/v1/pivot-configs/{configId},"(sin documentar)",,,faltante_en_openapi,,path_ausente,n/a,faltante,"Agregar path OpenAPI + schema resultado tipado"
+PUT,/api/v1/pivot-configs/{configId},"(sin documentar)",,,faltante_en_openapi,,path_ausente,n/a,faltante,"Agregar path OpenAPI + schema resultado tipado"
+GET,/api/v1/presupuestos/{cod_pedido},"(sin documentar)",,,faltante_en_openapi,,path_ausente,n/a,faltante,"Agregar path OpenAPI + schema resultado tipado"
