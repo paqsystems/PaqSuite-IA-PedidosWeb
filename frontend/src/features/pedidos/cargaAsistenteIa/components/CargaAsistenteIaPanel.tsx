@@ -87,6 +87,18 @@ function createAttachmentId(): string {
   return `carga-adjunto-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 }
 
+function isPendingChoiceReply(message: string, pendingChoice: CargaAsistentePendingChoice): boolean {
+  if (/^\s*([1-9]|10)\s*$/u.test(message)) {
+    return true;
+  }
+
+  if (pendingChoice?.kind !== 'changeClienteConfirm') {
+    return false;
+  }
+
+  return /^\s*(?:s[ií]|no|confirmo|aceptado|cancelar)\s*$/iu.test(message);
+}
+
 function aliasAsistenteErrorKey(key: string): string {
   const aliases: Record<string, string> = {
     'chatAssistant.imageTooLarge': 'chatAssistant.images.tooLarge',
@@ -342,7 +354,7 @@ export function CargaAsistenteIaPanel({
       try {
         // Si el usuario escribe una instrucción nueva (no elige 1–10), no reenviar pendingChoice:
         // evita quedar atrapado tras needsChoice/needsRefine del turno anterior.
-        const isChoiceReply = /^\s*([1-9]|10)\s*$/u.test(message);
+        const isChoiceReply = isPendingChoiceReply(message, pendingChoice);
         const pendingToSend = isChoiceReply ? pendingChoice : null;
 
         const resultado = await postCargaAsistenteTurn({
