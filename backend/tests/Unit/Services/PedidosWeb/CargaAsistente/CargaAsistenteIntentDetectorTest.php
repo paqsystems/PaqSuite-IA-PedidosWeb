@@ -28,6 +28,19 @@ final class CargaAsistenteIntentDetectorTest extends TestCase
         $this->assertSame(3.0, $detected['params']['cantidad']);
     }
 
+    public function testDetectsClientChangeConfirmationWithAndWithoutAccent(): void
+    {
+        $detector = new CargaAsistenteIntentDetector();
+        $pendingChoice = [
+            'kind' => 'changeClienteConfirm',
+            'candidate' => ['codCliente' => 'C2'],
+        ];
+
+        $this->assertSame('confirmChangeCliente', $detector->detect('si', $pendingChoice)['intent']);
+        $this->assertSame('confirmChangeCliente', $detector->detect('sí', $pendingChoice)['intent']);
+        $this->assertSame('rejectChangeCliente', $detector->detect('no', $pendingChoice)['intent']);
+    }
+
     public function testExtractsQuotedDescripcionAndPrecioWithoutEatingWords(): void
     {
         $detector = new CargaAsistenteIntentDetector();

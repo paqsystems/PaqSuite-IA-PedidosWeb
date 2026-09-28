@@ -89,7 +89,7 @@ export function PedidosCargaMobilePage() {
           equivalenciaVentas: pair.equivalenciaVentas,
           precio: payload.precio ?? 0,
           porcBonif: payload.porcBonif ?? 0,
-          porcIva: 21,
+          porcIva: payload.porcIva ?? 21,
         };
 
         return [...sinVacios, nuevoRenglon];

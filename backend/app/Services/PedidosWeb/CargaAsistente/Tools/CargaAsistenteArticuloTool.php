@@ -68,6 +68,7 @@ final class CargaAsistenteArticuloTool
                     'n' => $index + 1,
                     'label' => trim($articulo['codArticulo'].' — '.$articulo['descripcion']),
                     'code' => $articulo['codArticulo'],
+                    'porcIva' => $articulo['porcIva'] ?? null,
                     'precio' => $articulo['precio'] ?? null,
                     'bonificacion' => $articulo['bonificacion'] ?? null,
                     'descripcion' => $articulo['descripcion'] ?? '',
@@ -379,6 +380,10 @@ final class CargaAsistenteArticuloTool
             $payload['porcBonif'] = (float) $articulo['porcBonif'];
         }
 
+        if (array_key_exists('porcIva', $articulo) && $articulo['porcIva'] !== null) {
+            $payload['porcIva'] = (float) $articulo['porcIva'];
+        }
+
         return [
             'replyText' => 'pedidos.carga.asistente.articuloAgregado',
             'actions' => [
@@ -665,6 +670,7 @@ final class CargaAsistenteArticuloTool
             'codArticulo' => $codArticulo,
             'descripcion' => (string) ($selected['descripcion'] ?? $selected['label'] ?? ''),
             'precio' => $selected['precio'] ?? null,
+            'porcIva' => $selected['porcIva'] ?? null,
             'bonificacion' => $selected['bonificacion'] ?? null,
             'equivalenciaVentas' => CargaUnidadesVentaConverter::resolveEquivalenciaVentas(
                 $selected['equivalenciaVentas'] ?? 1,
