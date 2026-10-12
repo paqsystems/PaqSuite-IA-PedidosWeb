@@ -1,5 +1,8 @@
 # SPEC-001-10 - Chat Asistente IA
 
+Jira: PIAPEDWEB-11
+
+
 | Campo | Valor |
 |-------|--------|
 | **HU relacionadas** | `HU-GEN-10-*` (a generar) |

@@ -1,5 +1,8 @@
 # SPEC-101-10 — Pantalla de carga pedido/presupuesto
 
+Jira: PIAPEDWEB-22
+
+
 | Campo | Valor |
 |-------|--------|
 | **SPEC madre** | [PedidosWeb_SPEC_MVP.md](PedidosWeb_SPEC_MVP.md) |

@@ -1,5 +1,8 @@
 # SPEC-101-20 — Asistente IA en carga: consultas conversacionales
 
+Jira: PIAPEDWEB-32
+
+
 | Campo | Valor |
 |-------|--------|
 | **SPEC madre** | [PedidosWeb_SPEC_MVP.md](PedidosWeb_SPEC_MVP.md) |

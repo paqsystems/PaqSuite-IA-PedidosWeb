@@ -1,5 +1,8 @@
 # SPEC-101-11 — Consultas UI
 
+Jira: PIAPEDWEB-23
+
+
 | Campo | Valor |
 |-------|--------|
 | **SPEC madre** | [PedidosWeb_SPEC_MVP.md](PedidosWeb_SPEC_MVP.md) |
