@@ -1,5 +1,8 @@
 # SPEC-101-01 — Backend base y tenancy
 
+Jira: PIAPEDWEB-13
+
+
 | Campo | Valor |
 |-------|--------|
 | **SPEC madre** | [PedidosWeb_SPEC_MVP.md](PedidosWeb_SPEC_MVP.md) |

@@ -35,11 +35,12 @@ import {
   calcularBonificacionNeta,
   calcularTotalesComprobante,
   createEmptyRenglon,
+  eliminarRenglonDeLista,
   nextRenglonNumber,
   normalizarPorcIvaAlmacenado,
   renglonesValidosParaGrabar,
 } from '../utils/renglonesCarga';
-import { fromCantidadUsuario, resolveEquivalenciaVentas } from '../utils/cargaUnidadesVenta';
+import { fromCantidadUsuario, enrichRenglonesEquivalenciaVentas, resolveEquivalenciaVentas } from '../utils/cargaUnidadesVenta';
 import {
   computeLeyendasDirtyFlags,
   createLeyendasSnapshot,
@@ -47,6 +48,11 @@ import {
   type LeyendasSnapshot,
 } from '../utils/leyendasDirtySession';
 import { resolveGrabacionErrorMessages } from '../utils/resolveGrabacionErrorMessages';
+import {
+  resolveCargaErrorDialogMessages,
+  resolvePedidosCargaErroresDialogCopy,
+  type PedidosCargaErroresDialogContext,
+} from '../utils/resolvePedidosCargaErroresDialogCopy';
 
 const emptyCatalogos: CabeceraCatalogos = {
   condicionesVenta: [],
@@ -70,6 +76,7 @@ export function usePedidosCargaMobile() {
   const codPedidoEdicionRef = useRef<string | null>(null);
   const ultimaAccionGrabacionRef = useRef<'pedido' | 'presupuesto' | null>(null);
   const isHydratingComprobanteRef = useRef(false);
+  const erroresDialogClosingRef = useRef(false);
   const articulosStockLoadRef = useRef<Promise<void> | null>(null);
   const articulosPreciosLoadRef = useRef<Promise<void> | null>(null);
   const articulosListaPreciosRef = useRef<number | null>(null);
@@ -105,7 +112,8 @@ export function usePedidosCargaMobile() {
   const [confirmacionVisible, setConfirmacionVisible] = useState(false);
   const [erroresGrabacionVisible, setErroresGrabacionVisible] = useState(false);
   const [erroresGrabacionMessages, setErroresGrabacionMessages] = useState<string[]>([]);
-  const [erroresDialogContext, setErroresDialogContext] = useState<'grabacion' | 'copia'>('grabacion');
+  const [erroresDialogContext, setErroresDialogContext] =
+    useState<PedidosCargaErroresDialogContext>('grabacion');
   const [autoOpenRenglonId, setAutoOpenRenglonId] = useState<number | null>(null);
   const [renglonEnEdicion, setRenglonEnEdicion] = useState<ComprobanteRenglon | null>(null);
   const [editDialogVisible, setEditDialogVisible] = useState(false);
@@ -122,6 +130,14 @@ export function usePedidosCargaMobile() {
     () => ordenarArticulosPorDescripcion(mergeArticulosStockPrecios(articulosStock, articulosPrecios)),
     [articulosPrecios, articulosStock],
   );
+
+  useEffect(() => {
+    if (articulosOrdenados.length === 0) {
+      return;
+    }
+
+    setRenglones((current) => enrichRenglonesEquivalenciaVentas(current, articulosOrdenados));
+  }, [articulosOrdenados]);
 
   const articuloSeleccionadoData = useMemo(() => {
     if (!articuloSeleccionado) {
@@ -188,6 +204,17 @@ export function usePedidosCargaMobile() {
     leyendasSnapshotRef.current = createLeyendasSnapshot(cabeceraValue);
   }, []);
 
+  const openErroresDialog = useCallback(
+    (context: PedidosCargaErroresDialogContext, messages: string[]) => {
+      erroresDialogClosingRef.current = false;
+      setSaveError(null);
+      setErroresDialogContext(context);
+      setErroresGrabacionMessages(messages);
+      setErroresGrabacionVisible(true);
+    },
+    [],
+  );
+
   const loadCabeceraForCliente = useCallback(async (codCliente: string) => {
     setCabeceraLoading(true);
     try {
@@ -195,15 +222,20 @@ export function usePedidosCargaMobile() {
       setCabecera(result.cabecera);
       captureLeyendasSnapshot(result.cabecera);
       setCatalogos(result.catalogos);
-    } catch {
+      setSaveError(null);
+    } catch (error) {
       const emptyCabecera = emptyComprobanteCabecera(codCliente);
       setCabecera(emptyCabecera);
       captureLeyendasSnapshot(emptyCabecera);
       setCatalogos(emptyCatalogos);
+      openErroresDialog(
+        'cabecera',
+        resolveCargaErrorDialogMessages(error, t, 'pedidos.carga.errorCargaCabecera'),
+      );
     } finally {
       setCabeceraLoading(false);
     }
-  }, [captureLeyendasSnapshot]);
+  }, [captureLeyendasSnapshot, openErroresDialog, t]);
 
   const loadArticulosStock = useCallback(async () => {
     if (articulosStockLoadRef.current) {
@@ -316,7 +348,7 @@ export function usePedidosCargaMobile() {
       } catch {
         if (mounted) {
           setClientes([]);
-          setSaveError(t('pedidos.carga.errorCargaClientes'));
+          openErroresDialog('clientes', [t('pedidos.carga.errorCargaClientes')]);
         }
       } finally {
         if (mounted) {
@@ -330,7 +362,7 @@ export function usePedidosCargaMobile() {
     return () => {
       mounted = false;
     };
-  }, [comprobanteId, isClienteProfile, loadCabeceraForCliente, modo, sessionContext.codCliente, sessionContext.user.id, t]);
+  }, [comprobanteId, isClienteProfile, loadCabeceraForCliente, modo, openErroresDialog, sessionContext.codCliente, sessionContext.user.id, t]);
 
   useEffect(() => {
     void loadArticulosStock();
@@ -428,17 +460,12 @@ export function usePedidosCargaMobile() {
         }
       } catch (error) {
         if (mounted) {
-          if (modo === 'copia') {
-            const messages = resolveGrabacionErrorMessages(error, t);
-            setErroresDialogContext('copia');
-            setErroresGrabacionMessages(
-              messages.length > 0 ? messages : [t('pedidos.carga.errorCargaComprobante')],
-            );
-            setErroresGrabacionVisible(true);
-            setSaveError(null);
-          } else {
-            setSaveError(t('pedidos.carga.errorCargaComprobante'));
-          }
+          const context: PedidosCargaErroresDialogContext =
+            modo === 'copia' ? 'copia' : 'comprobante';
+          openErroresDialog(
+            context,
+            resolveCargaErrorDialogMessages(error, t, 'pedidos.carga.errorCargaComprobante'),
+          );
         }
       } finally {
         if (mounted) {
@@ -453,7 +480,7 @@ export function usePedidosCargaMobile() {
     return () => {
       mounted = false;
     };
-  }, [comprobanteId, modo, searchParams, sessionContext.codCliente, t]);
+  }, [comprobanteId, modo, openErroresDialog, searchParams, sessionContext.codCliente, t]);
 
   useEffect(
     () => () => {
@@ -575,7 +602,7 @@ export function usePedidosCargaMobile() {
   ]);
 
   const handleEliminarRenglon = useCallback((renglonId: number) => {
-    setRenglones((current) => current.filter((renglon) => renglon.renglon !== renglonId));
+    setRenglones((current) => eliminarRenglonDeLista(current, renglonId));
   }, []);
 
   const handleGuardarRenglon = useCallback((renglonActualizado: ComprobanteRenglon) => {
@@ -666,8 +693,13 @@ export function usePedidosCargaMobile() {
   }, [resetParaNuevoComprobante]);
 
   const handleErroresDialogClose = useCallback(() => {
+    if (erroresDialogClosingRef.current) {
+      return;
+    }
+
+    erroresDialogClosingRef.current = true;
     setErroresGrabacionVisible(false);
-    if (erroresDialogContext === 'copia') {
+    if (resolvePedidosCargaErroresDialogCopy(erroresDialogContext).navigateBackOnClose) {
       navigate(-1);
     }
   }, [erroresDialogContext, navigate]);
@@ -772,10 +804,7 @@ export function usePedidosCargaMobile() {
       } catch (error) {
         const messages = resolveGrabacionErrorMessages(error, t);
         if (messages.length > 0) {
-          setErroresDialogContext('grabacion');
-          setErroresGrabacionMessages(messages);
-          setErroresGrabacionVisible(true);
-          setSaveError(null);
+          openErroresDialog('grabacion', messages);
         } else {
           setSaveError(t('pedidos.carga.errorGrabacion'));
         }
@@ -793,6 +822,7 @@ export function usePedidosCargaMobile() {
       comprobanteId,
       estadoActual,
       modo,
+      openErroresDialog,
       readOnly,
       renglones,
       selectedCliente,

@@ -1,9 +1,10 @@
 /*
   PedidosWeb — CC PQ #12
-  - pq_pedidosweb_articulos.stockeable
+  - pq_pedidosweb_articulos.stockeable (bit NOT NULL DEFAULT 1) — DDL canónico
   - parámetro IncluyeArticulosNoStockeables (informativo)
 
   Idempotente: solo agrega columna / INSERT param si faltan.
+  CREATE completo: create-pq-pedidosweb-articulos.sql
 */
 
 SET NOCOUNT ON;

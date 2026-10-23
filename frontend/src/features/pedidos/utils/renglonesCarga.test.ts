@@ -7,6 +7,7 @@ import {
   calcularImporteNetoRenglon,
   calcularPrecioNetoUnitario,
   calcularTotalesComprobante,
+  eliminarRenglonDeLista,
   factorPorcIva,
   normalizarPorcIvaAlmacenado,
 } from './renglonesCarga';
@@ -51,5 +52,15 @@ describe('renglonesCarga importes', () => {
     expect(totales.subtotal).toBe(1800);
     expect(totales.iva).toBe(378);
     expect(totales.total).toBe(2178);
+  });
+
+  it('eliminarRenglonDeLista quita por número aunque el tipo difiera', () => {
+    const remaining = eliminarRenglonDeLista(
+      [renglonBase, { ...renglonBase, renglon: 2, codArticulo: 'AC02' }],
+      2 as unknown as number,
+    );
+
+    expect(remaining).toHaveLength(1);
+    expect(remaining[0]?.renglon).toBe(1);
   });
 });

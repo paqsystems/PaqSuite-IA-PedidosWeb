@@ -12,6 +12,7 @@ use App\Models\PqPedidoswebPedidoCabecera;
 use App\Models\PqPedidoswebPedidoDetalle;
 use App\Models\User;
 use App\Support\LeyendaCabeceraLimits;
+use App\Support\SqlSchemaPresence;
 use App\Support\SqlServerIsolation;
 use App\Services\Auth\CommercialProfileResolver;
 use App\Services\Visibility\PedidosWebVisibilityGuard;
@@ -52,6 +53,7 @@ final class PedidoService
         }
 
         $this->assertVisibleWritePayload($user, $payload);
+        $renglonesPayload = $this->materializeCantidadesRenglones($renglonesPayload);
         $this->assertGrabacionValidaOrThrow($user, $cabeceraPayload, $renglonesPayload);
 
         $bonificacionNetaCabecera = $this->calculoTotalesService->resolveBonificacionNetaCabecera($cabeceraPayload);
@@ -172,37 +174,39 @@ final class PedidoService
      */
     public function iniciarEdicion(string $codPedido, User $user): array
     {
-        $this->pedidosWebVisibilityGuard->ensureComprobanteVisible($user, $codPedido);
-        $pedido = $this->pedidoRepository->findByCodPedido($codPedido, true);
+        return SqlServerIsolation::transaction(function () use ($codPedido, $user): array {
+            $this->pedidosWebVisibilityGuard->ensureComprobanteVisible($user, $codPedido);
+            $pedido = $this->pedidoRepository->findByCodPedido($codPedido, true);
 
-        if ($pedido === null) {
-            throw new PedidosWebBusinessException(4000, 'business.notFound', 404);
-        }
+            if ($pedido === null) {
+                throw new PedidosWebBusinessException(4000, 'business.notFound', 404);
+            }
 
-        if ((int) $pedido->estado === -1 && $this->hasEdicionActiva($pedido, $user)) {
-            throw new PedidosWebBusinessException(4000, 'business.edicionEnCurso', 409);
-        }
+            if ((int) $pedido->estado === -1 && $this->hasEdicionActiva($pedido, $user)) {
+                throw new PedidosWebBusinessException(4000, 'business.edicionEnCurso', 409);
+            }
 
-        if (! in_array((int) $pedido->estado, [0, -1], true)) {
-            throw new PedidosWebBusinessException(2000, 'business.estadoNoEditable', 422);
-        }
+            if (! in_array((int) $pedido->estado, [0, -1], true)) {
+                throw new PedidosWebBusinessException(2000, 'business.estadoNoEditable', 422);
+            }
 
-        $timestamp = now()->format('Ymd H:i:s');
+            $timestamp = now()->format('Ymd H:i:s');
 
-        $this->pedidoRepository->updateCabecera($codPedido, [
-            'estado' => -1,
-            'cod_usuario_web' => $user->codigo,
-            'fechahora_inicio_proceso' => $timestamp,
-            'fechahora_ultima_actividad' => $timestamp,
-            'fecha_modif' => $timestamp,
-            'usuario_modificacion' => $user->codigo,
-        ]);
+            $this->pedidoRepository->updateCabecera($codPedido, [
+                'estado' => -1,
+                'cod_usuario_web' => $user->codigo,
+                'fechahora_inicio_proceso' => $timestamp,
+                'fechahora_ultima_actividad' => $timestamp,
+                'fecha_modif' => $timestamp,
+                'usuario_modificacion' => $user->codigo,
+            ]);
 
-        return [
-            'cod_pedido' => $codPedido,
-            'estado' => -1,
-            'fechahora_ultima_actividad' => $timestamp,
-        ];
+            return [
+                'cod_pedido' => $codPedido,
+                'estado' => -1,
+                'fechahora_ultima_actividad' => $timestamp,
+            ];
+        });
     }
 
     /**
@@ -270,8 +274,6 @@ final class PedidoService
      */
     public function getComprobante(string $codPedido, User $user): array
     {
-        $this->ensureClientSchema();
-
         $this->pedidosWebVisibilityGuard->ensureComprobanteVisible($user, $codPedido);
         $pedido = $this->pedidoRepository->findWithDetalle($codPedido);
 
@@ -281,7 +283,7 @@ final class PedidoService
 
         $pedido->loadMissing(['cliente', 'cliente.vendedor', 'vendedor', 'listaPrecios', 'condicionVenta', 'transporte']);
         $cliente = $pedido->cliente;
-        $descripcionesPorCodigo = $this->resolveDescripcionesArticulos($pedido->detalles);
+        $articulosMeta = $this->resolveArticulosMeta($pedido->detalles);
 
         return [
             'cabecera' => [
@@ -305,10 +307,12 @@ final class PedidoService
                     'cod_articulo' => (string) $row->cod_articulo,
                     'descripcion_articulo' => $this->resolveDescripcionArticuloDetalle(
                         $row,
-                        $descripcionesPorCodigo,
+                        $articulosMeta['descripciones'],
                     ),
                     'cantidad' => (float) $row->cantidad,
                     'cantidad_venta' => (float) ($row->cantidad_venta ?? $row->cantidad),
+                    'equivalencia_ventas' => $articulosMeta['equivalencias'][(string) $row->cod_articulo]
+                        ?? CargaUnidadesVentaConverter::resolveEquivalenciaVentas(1),
                     'porc_bonif' => (float) $row->porc_bonif,
                     'precio' => (float) $row->precio,
                     'precio_neto' => (float) $row->precio_neto,
@@ -716,30 +720,117 @@ final class PedidoService
     }
 
     /**
-     * @param  iterable<int, PqPedidoswebPedidoDetalle>  $detalles
-     * @return array<string, string>
+     * Recalcula cantidad/cantidad_venta según CargaUnidadesVenta y equivalencia del artículo.
+     *
+     * @param  list<array<string, mixed>>  $renglonesPayload
+     * @return list<array<string, mixed>>
      */
-    private function resolveDescripcionesArticulos(iterable $detalles): array
+    private function materializeCantidadesRenglones(array $renglonesPayload): array
+    {
+        $cargaUnidadesVenta = $this->parameterService->getCargaUnidadesVenta();
+        $equivalencias = $this->resolveEquivalenciasVentasPorCodigo($renglonesPayload);
+
+        return array_map(static function (array $renglon) use ($cargaUnidadesVenta, $equivalencias): array {
+            $codArticulo = trim((string) ($renglon['cod_articulo'] ?? $renglon['codArticulo'] ?? ''));
+            $equivalenciaVentas = $equivalencias[$codArticulo]
+                ?? $renglon['equivalencia_ventas']
+                ?? $renglon['equivalenciaVentas']
+                ?? 1;
+            $pair = CargaUnidadesVentaConverter::materializeSegunParametro(
+                $renglon,
+                $equivalenciaVentas,
+                $cargaUnidadesVenta,
+            );
+
+            return [
+                ...$renglon,
+                'cantidad' => $pair['cantidad'],
+                'cantidad_venta' => $pair['cantidad_venta'],
+                'equivalencia_ventas' => CargaUnidadesVentaConverter::resolveEquivalenciaVentas($equivalenciaVentas),
+            ];
+        }, $renglonesPayload);
+    }
+
+    /**
+     * @param  list<array<string, mixed>>  $renglonesPayload
+     * @return array<string, float>
+     */
+    private function resolveEquivalenciasVentasPorCodigo(array $renglonesPayload): array
+    {
+        $codigos = $this->collectCodigosArticulo($renglonesPayload);
+
+        if ($codigos === [] || ! $this->articulosTienenEquivalenciaVentas()) {
+            return [];
+        }
+
+        return PqPedidoswebArticulo::query()
+            ->whereIn('codigo', $codigos)
+            ->get(['codigo', 'equivalencia_ventas'])
+            ->mapWithKeys(static fn ($row): array => [
+                trim((string) $row->codigo) => CargaUnidadesVentaConverter::resolveEquivalenciaVentas(
+                    $row->equivalencia_ventas ?? 1,
+                ),
+            ])
+            ->all();
+    }
+
+    /**
+     * @param  iterable<int, PqPedidoswebPedidoDetalle|array<string, mixed>>  $detalles
+     * @return array{descripciones: array<string, string>, equivalencias: array<string, float>}
+     */
+    private function resolveArticulosMeta(iterable $detalles): array
+    {
+        $codigos = $this->collectCodigosArticulo($detalles);
+
+        if ($codigos === [] || ! SqlSchemaPresence::hasTable('pq_pedidosweb_articulos')) {
+            return ['descripciones' => [], 'equivalencias' => []];
+        }
+
+        $columns = ['codigo', 'descripcion'];
+        $incluyeEquivalencia = $this->articulosTienenEquivalenciaVentas();
+        if ($incluyeEquivalencia) {
+            $columns[] = 'equivalencia_ventas';
+        }
+
+        $descripciones = [];
+        $equivalencias = [];
+
+        foreach (PqPedidoswebArticulo::query()->whereIn('codigo', $codigos)->get($columns) as $row) {
+            $codigo = trim((string) $row->codigo);
+            $descripciones[$codigo] = trim((string) ($row->descripcion ?? ''));
+            $equivalencias[$codigo] = $incluyeEquivalencia
+                ? CargaUnidadesVentaConverter::resolveEquivalenciaVentas($row->equivalencia_ventas ?? 1)
+                : 1.0;
+        }
+
+        return ['descripciones' => $descripciones, 'equivalencias' => $equivalencias];
+    }
+
+    /**
+     * @param  iterable<int, PqPedidoswebPedidoDetalle|array<string, mixed>>  $rows
+     * @return list<string>
+     */
+    private function collectCodigosArticulo(iterable $rows): array
     {
         $codigos = [];
 
-        foreach ($detalles as $detalle) {
-            $codigo = trim((string) $detalle->cod_articulo);
+        foreach ($rows as $row) {
+            $codigo = is_array($row)
+                ? trim((string) ($row['cod_articulo'] ?? $row['codArticulo'] ?? ''))
+                : trim((string) $row->cod_articulo);
 
             if ($codigo !== '') {
                 $codigos[$codigo] = $codigo;
             }
         }
 
-        if ($codigos === []) {
-            return [];
-        }
+        return array_values($codigos);
+    }
 
-        return PqPedidoswebArticulo::query()
-            ->whereIn('codigo', array_values($codigos))
-            ->pluck('descripcion', 'codigo')
-            ->map(static fn (mixed $descripcion): string => trim((string) $descripcion))
-            ->all();
+    private function articulosTienenEquivalenciaVentas(): bool
+    {
+        return SqlSchemaPresence::hasTable('pq_pedidosweb_articulos')
+            && SqlSchemaPresence::hasColumn('pq_pedidosweb_articulos', 'equivalencia_ventas');
     }
 
     /**

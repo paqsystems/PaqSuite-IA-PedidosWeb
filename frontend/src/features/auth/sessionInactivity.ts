@@ -1,5 +1,11 @@
 const defaultInactivityTimeoutMinutes = 10;
 
+/**
+ * CC PQ #16 (12/09/2026) — D1-31: logout por inactividad suspendido en el host
+ * hasta adoptar el SDK de Framework (GEN sesión). Poner en `true` al restablecer.
+ */
+export const inactivityLogoutEnabled = false;
+
 export function resolveInactivityTimeoutMinutes(inactivityTimeoutMinutes: number | null | undefined): number {
   if (typeof inactivityTimeoutMinutes !== 'number' || Number.isNaN(inactivityTimeoutMinutes)) {
     return defaultInactivityTimeoutMinutes;

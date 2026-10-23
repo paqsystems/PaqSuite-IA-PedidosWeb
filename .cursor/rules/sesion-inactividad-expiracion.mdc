@@ -10,6 +10,7 @@ globs:
 # Sesión — expiración por inactividad
 
 - Fuente de verdad: `docs/04-tareas/001-Generaliddes/TR-GEN-02-expiracion-inactividad.md` (RN-02, §6.1, D1-4).
+- **CC PQ #16 (12/09/2026):** logout por inactividad **suspendido** en el host (`inactivityLogoutEnabled=false` en `sessionInactivity.ts`) hasta adoptar SDK Framework. Motor y contrato `MinutosWeb` se conservan; al restablecer, poner el flag en `true` y recuperar E2E de expiración positiva.
 - Motor: `createInactivityController` + `useInactivityTimeout` en shell autenticado (`SessionLifecycleManager`).
 - Umbral: `sessionContext.inactivityTimeoutMinutes` (`MinutosWeb`); fallback `10`.
 

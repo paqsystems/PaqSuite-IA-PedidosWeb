@@ -5,6 +5,7 @@ import NumberBox from 'devextreme-react/number-box';
 import Popup from 'devextreme-react/popup';
 import TextBox from 'devextreme-react/text-box';
 import type { ComprobanteRenglon } from '../api/comprobanteApi';
+import { isDevExtremeUserChange } from '../../../shared/ui/devextremeUserChange';
 import { bonificacionCabeceraFormat } from '../constants/cabeceraCatalogos';
 import {
   applyCantidadUsuarioToRenglon,
@@ -48,22 +49,34 @@ export function PedidosCargaRenglonEditDialog({
 }: PedidosCargaRenglonEditDialogProps) {
   const { t } = useTranslation();
   const [draft, setDraft] = useState<ComprobanteRenglon | null>(null);
+  const [cantidadUsuario, setCantidadUsuario] = useState(0);
 
   useEffect(() => {
     if (visible && renglon) {
       setDraft({ ...renglon });
+      setCantidadUsuario(
+        cantidadVisibleParaUsuario(renglon.cantidad, renglon.cantidadVenta, cargaUnidadesVenta),
+      );
     }
-  }, [renglon, visible]);
+  }, [cargaUnidadesVenta, renglon, visible]);
 
-  const importes = useMemo(() => {
+  const draftConCantidad = useMemo(() => {
     if (!draft) {
       return null;
     }
 
-    const bruto = calcularImporteBrutoRenglon(draft);
-    const neto = calcularImporteNetoRenglon(draft, bonificacionNetaCabecera);
-    const iva = calcularImporteIvaRenglon(draft, bonificacionNetaCabecera);
-    const netoConIva = calcularImporteNetoConIvaRenglon(draft, bonificacionNetaCabecera);
+    return applyCantidadUsuarioToRenglon(draft, cantidadUsuario, cargaUnidadesVenta);
+  }, [cantidadUsuario, cargaUnidadesVenta, draft]);
+
+  const importes = useMemo(() => {
+    if (!draftConCantidad) {
+      return null;
+    }
+
+    const bruto = calcularImporteBrutoRenglon(draftConCantidad);
+    const neto = calcularImporteNetoRenglon(draftConCantidad, bonificacionNetaCabecera);
+    const iva = calcularImporteIvaRenglon(draftConCantidad, bonificacionNetaCabecera);
+    const netoConIva = calcularImporteNetoConIvaRenglon(draftConCantidad, bonificacionNetaCabecera);
 
     return {
       bruto: formatImporteMoneda(monedaSimbolo, bruto),
@@ -71,21 +84,16 @@ export function PedidosCargaRenglonEditDialog({
       iva: formatImporteMoneda(monedaSimbolo, iva),
       netoConIva: formatImporteMoneda(monedaSimbolo, netoConIva),
     };
-  }, [bonificacionNetaCabecera, draft, monedaSimbolo]);
+  }, [bonificacionNetaCabecera, draftConCantidad, monedaSimbolo]);
 
-  if (!draft || !importes) {
+  if (!draft || !draftConCantidad || !importes) {
     return null;
   }
 
   const canEdit = !readOnly;
-  const cantidadVisible = cantidadVisibleParaUsuario(
-    draft.cantidad,
-    draft.cantidadVenta,
-    cargaUnidadesVenta,
-  );
   const equivalenciaVentas = resolveEquivalenciaVentas(draft.equivalenciaVentas);
   const unidadesStockEquivalentes = cargaUnidadesVenta
-    ? Number((cantidadVisible * equivalenciaVentas).toFixed(4))
+    ? Number((cantidadUsuario * equivalenciaVentas).toFixed(4))
     : null;
   const precioNetoUnitario = calcularPrecioNetoUnitario(
     draft.precio,
@@ -94,11 +102,11 @@ export function PedidosCargaRenglonEditDialog({
   );
 
   const handleConfirm = () => {
-    if (!canEdit || draft.cantidad <= 0) {
+    if (!canEdit || draftConCantidad.cantidad <= 0) {
       return;
     }
 
-    onSave(draft);
+    onSave(draftConCantidad);
     onClose();
   };
 
@@ -141,18 +149,18 @@ export function PedidosCargaRenglonEditDialog({
           <NumberBox
             label={t('pedidos.carga.grid.cantidad')}
             labelMode="outside"
-            value={cantidadVisible}
+            value={cantidadUsuario}
             min={0.0001}
             readOnly={!canEdit}
             stylingMode="outlined"
             width="100%"
+            valueChangeEvent="keyup input change"
             onValueChanged={(event) => {
-              const cantidadUsuario = Number(event.value ?? 0);
-              setDraft((previous) =>
-                previous
-                  ? applyCantidadUsuarioToRenglon(previous, cantidadUsuario, cargaUnidadesVenta)
-                  : previous,
-              );
+              if (!isDevExtremeUserChange(event)) {
+                return;
+              }
+
+              setCantidadUsuario(Number(event.value ?? 0));
             }}
             inputAttr={{ 'data-testid': 'renglon-edit-cantidad' }}
           />
@@ -259,7 +267,7 @@ export function PedidosCargaRenglonEditDialog({
               text={t('pedidos.carga.renglon.guardar')}
               type="default"
               stylingMode="contained"
-              disabled={draft.cantidad <= 0}
+              disabled={draftConCantidad.cantidad <= 0}
               onClick={handleConfirm}
               elementAttr={{ 'data-testid': 'renglon-edit-guardar' }}
             />

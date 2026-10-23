@@ -95,6 +95,39 @@ final class CalculoTotalesServiceTest extends TestCase
     }
 
     #[Test]
+    public function calcularUsaCantidadMaterializadaCuandoAmbosCamposVienenInconsistentes(): void
+    {
+        $service = new CalculoTotalesService();
+        $pair = \App\Services\PedidosWeb\CargaUnidadesVentaConverter::materializeSegunParametro(
+            [
+                'cod_articulo' => 'ART001',
+                'cantidad' => 10,
+                'cantidad_venta' => 8,
+                'precio' => 100,
+                'porc_bonif' => 0,
+                'porc_iva' => 0,
+            ],
+            5,
+            true,
+        );
+
+        $result = $service->calcular([
+            [
+                'cod_articulo' => 'ART001',
+                'cantidad' => $pair['cantidad'],
+                'cantidad_venta' => $pair['cantidad_venta'],
+                'precio' => 100,
+                'porc_bonif' => 0,
+                'porc_iva' => 0,
+            ],
+        ]);
+
+        $this->assertSame(40.0, $result['renglones'][0]['cantidad']);
+        $this->assertSame(8.0, $result['renglones'][0]['cantidad_venta']);
+        $this->assertSame(4000.0, $result['renglones'][0]['importe_neto']);
+    }
+
+    #[Test]
     public function calcularDerivaCantidadVentaSiFaltaEnPayload(): void
     {
         $service = new CalculoTotalesService();

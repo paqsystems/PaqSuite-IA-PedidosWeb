@@ -175,7 +175,7 @@ test('sesion invalida redirige a login sin renderizar shell', async ({ page }) =
   await expect(page.getByTestId('shellHeader')).toHaveCount(0);
 });
 
-test('inactividad expira la sesion y vuelve al login con mensaje', async ({ page }) => {
+test('inactividad suspendida no expira la sesion (CC PQ #16)', async ({ page }) => {
   await mockAuthenticatedApi(page, {
     sessionPayload: {
       ...sessionPayload,
@@ -191,9 +191,11 @@ test('inactividad expira la sesion y vuelve al login con mensaje', async ({ page
   await expect(page).toHaveURL(/\/dashboard$/);
   await expect(page.getByTestId('shellHeader')).toBeVisible();
 
-  await expect(page).toHaveURL(/\/login$/, { timeout: 5000 });
-  await expect(page.getByTestId('login-form')).toBeVisible();
-  await expect(page.getByTestId('auth-error-session-expired')).toBeVisible();
+  // D1-31: inactivityLogoutEnabled=false — el timer no debe forzar login.
+  await page.waitForTimeout(2500);
+  await expect(page).toHaveURL(/\/dashboard$/);
+  await expect(page.getByTestId('shellHeader')).toBeVisible();
+  await expect(page.getByTestId('auth-error-session-expired')).toHaveCount(0);
 });
 
 test('shell usable en viewport movil con toggle sidebar', async ({ page }) => {

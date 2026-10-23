@@ -29,10 +29,16 @@ final class UserMenuTest extends TestCase
         $this->assertIsArray($items);
 
         $returnedProcedimientos = collect($this->flattenProcedimientos($items));
+        $securityAdminEnabled = (bool) config('paqsuite_mvp.securityAdminEnabled');
         foreach (config('paqsuite_mvp.menuItems', []) as $menuItem) {
+            $procedimiento = (string) $menuItem['procedimiento'];
+            if (! $securityAdminEnabled && in_array($procedimiento, ['grp_seguridad', 'pw_adminroles', 'pw_adminpermisos'], true)) {
+                continue;
+            }
+
             $this->assertTrue(
-                $returnedProcedimientos->contains($menuItem['procedimiento']),
-                "Falta procedimiento {$menuItem['procedimiento']} en menu supervisor"
+                $returnedProcedimientos->contains($procedimiento),
+                "Falta procedimiento {$procedimiento} en menu supervisor"
             );
         }
     }

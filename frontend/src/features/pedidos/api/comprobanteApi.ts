@@ -83,6 +83,7 @@ export type ArticuloOption = {
   disponibleNeto?: number;
   disponibleNetoBase?: number | null;
   stockeable?: boolean;
+  especial?: boolean;
 };
 
 export type GrabarComprobanteResult = {
@@ -108,6 +109,7 @@ type ApiComprobanteDetalleRow = {
   descripcion_articulo?: string;
   cantidad: number;
   cantidad_venta?: number;
+  equivalencia_ventas?: number;
   precio: number;
   porc_bonif: number;
   porc_iva: number;
@@ -135,6 +137,10 @@ function mapRenglonFromApi(row: ApiComprobanteDetalleRow): ComprobanteRenglon {
     descripcionArticulo: row.descripcion_articulo,
     cantidad,
     cantidadVenta,
+    equivalenciaVentas:
+      row.equivalencia_ventas !== undefined && row.equivalencia_ventas !== null
+        ? Number(row.equivalencia_ventas)
+        : undefined,
     precio: row.precio,
     porcBonif: row.porc_bonif,
     porcIva: normalizarPorcIvaAlmacenado(row.porc_iva),

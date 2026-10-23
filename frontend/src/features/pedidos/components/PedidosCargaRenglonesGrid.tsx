@@ -5,6 +5,7 @@ import type { ComprobanteRenglon } from '../api/comprobanteApi';
 import {
   calcularImporteNetoRenglon,
   calcularPrecioNetoUnitario,
+  eliminarRenglonDeLista,
   renglonesValidosParaGrabar,
 } from '../utils/renglonesCarga';
 import { cantidadVisibleParaUsuario } from '../utils/cargaUnidadesVenta';
@@ -21,7 +22,11 @@ type PedidosCargaRenglonesGridProps = {
   monedaSimbolo?: string;
   autoOpenRenglonId?: number | null;
   onAutoOpenConsumed?: () => void;
-  onRenglonesChange: (renglones: ComprobanteRenglon[]) => void;
+  onRenglonesChange: (
+    renglones:
+      | ComprobanteRenglon[]
+      | ((current: ComprobanteRenglon[]) => ComprobanteRenglon[]),
+  ) => void;
 };
 
 const gridId = 'grid-renglones-carga';
@@ -55,27 +60,32 @@ export function PedidosCargaRenglonesGrid({
   const gridRenderKey = useMemo(
     () =>
       renglonesVisibles
-        .map((renglon) => `${renglon.renglon}:${renglon.precio}:${renglon.cantidad}`)
+        .map(
+          (renglon) =>
+            `${renglon.renglon}:${renglon.precio}:${renglon.cantidad}:${renglon.cantidadVenta ?? ''}`,
+        )
         .join('|'),
     [renglonesVisibles],
   );
 
   const handleEliminar = useCallback(
     (renglonId: number) => {
-      onRenglonesChange(renglones.filter((renglon) => renglon.renglon !== renglonId));
+      onRenglonesChange((current) => eliminarRenglonDeLista(current, renglonId));
     },
-    [onRenglonesChange, renglones],
+    [onRenglonesChange],
   );
 
   const handleGuardarEdicion = useCallback(
     (renglonActualizado: ComprobanteRenglon) => {
-      onRenglonesChange(
-        renglones.map((renglon) =>
-          renglon.renglon === renglonActualizado.renglon ? { ...renglonActualizado } : renglon,
+      onRenglonesChange((current) =>
+        current.map((renglon) =>
+          Number(renglon.renglon) === Number(renglonActualizado.renglon)
+            ? { ...renglonActualizado }
+            : renglon,
         ),
       );
     },
-    [onRenglonesChange, renglones],
+    [onRenglonesChange],
   );
 
   const abrirEdicion = useCallback((renglon: ComprobanteRenglon) => {
@@ -105,7 +115,7 @@ export function PedidosCargaRenglonesGrid({
     <div data-testid={gridId} className="pedidosCargaRenglonesGrid">
       <DataGrid
         key={gridRenderKey}
-        dataSource={renglonesVisibles}
+        dataSource={renglonesVisibles.map((renglon) => ({ ...renglon }))}
         keyExpr="renglon"
         showBorders={true}
         disabled={isLoading}
@@ -136,8 +146,9 @@ export function PedidosCargaRenglonesGrid({
               hint={t('grid.action.delete')}
               onClick={(cell) => {
                 const row = cell.row?.data as ComprobanteRenglon | undefined;
-                if (row?.renglon !== undefined) {
-                  handleEliminar(row.renglon);
+                const renglonId = row?.renglon ?? cell.row?.key;
+                if (renglonId !== undefined) {
+                  handleEliminar(Number(renglonId));
                 }
               }}
             />

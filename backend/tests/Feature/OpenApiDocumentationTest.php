@@ -77,6 +77,17 @@ final class OpenApiDocumentationTest extends TestCase
             '/api/v1/consultas/cheques',
             '/api/v1/consultas/historial-ventas',
             '/api/v1/integracion/logs',
+            '/api/v1/integracion/maestros/{recurso}',
+            '/api/v1/integracion/maestros/provincias',
+            '/api/v1/integracion/maestros/condventa',
+            '/api/v1/integracion/maestros/transportes',
+            '/api/v1/integracion/maestros/perfiles',
+            '/api/v1/integracion/maestros/vendedores',
+            '/api/v1/integracion/maestros/listaprecios',
+            '/api/v1/integracion/maestros/escalas',
+            '/api/v1/integracion/maestros/articulos',
+            '/api/v1/integracion/maestros/listaprecios-articulos',
+            '/api/v1/integracion/maestros/descuentocantidad',
             '/api/v1/dashboard/operativo',
             '/api/v1/config/parametros-carga',
             '/api/v1/articulos',
@@ -201,6 +212,17 @@ final class OpenApiDocumentationTest extends TestCase
             'GET plantilla debe documentar response binario xlsx'
         );
 
+        $maestrosPostRef = $spec['paths']['/api/v1/integracion/maestros/{recurso}']['post']['responses']['200']['content']['application/json']['schema']['$ref'] ?? null;
+        $this->assertSame(
+            '#/components/schemas/ApiEnvelopeIntegracionMaestroLote',
+            $maestrosPostRef,
+            'POST integracion maestros debe tipar envelope de lote'
+        );
+        $this->assertContains(
+            'Integración maestros',
+            $spec['paths']['/api/v1/integracion/maestros/{recurso}']['post']['tags'] ?? [],
+        );
+
         $extraGets = [
             '/api/v1/config/public' => 'ApiEnvelopePublicConfig',
             '/api/v1/grid-layouts' => 'ApiEnvelopeGridLayoutsList',
@@ -252,6 +274,33 @@ final class OpenApiDocumentationTest extends TestCase
         $this->assertNotContains('ExcelImport', $tagNames);
         $this->assertNotContains('ChatAssistant', $tagNames);
         $this->assertNotContains('PedidosWeb', $tagNames);
+    }
+
+    public function testIntegracionMaestros22cTieneItemsTipadosPorRecurso(): void
+    {
+        $spec = $this->loadGeneratedSpec();
+        $schemas = $spec['components']['schemas'] ?? [];
+
+        foreach ([
+            'IntegracionMaestroClienteItem',
+            'IntegracionMaestroDireccionItem',
+            'IntegracionMaestroContactoItem',
+            'IntegracionMaestroParametroItem',
+        ] as $schema) {
+            $this->assertArrayHasKey($schema, $schemas);
+        }
+
+        $expectedRequests = [
+            '/api/v1/integracion/maestros/clientes' => 'IntegracionMaestroClientesLoteRequest',
+            '/api/v1/integracion/maestros/clientes-direcciones' => 'IntegracionMaestroDireccionesLoteRequest',
+            '/api/v1/integracion/maestros/clientes-contactos' => 'IntegracionMaestroContactosLoteRequest',
+            '/api/v1/integracion/maestros/parametros' => 'IntegracionMaestroParametrosLoteRequest',
+        ];
+
+        foreach ($expectedRequests as $path => $schema) {
+            $requestSchema = $spec['paths'][$path]['post']['requestBody']['content']['application/json']['schema']['$ref'] ?? null;
+            $this->assertSame('#/components/schemas/'.$schema, $requestSchema, "Request sin schema tipado: {$path}");
+        }
     }
 
     public function testGeneratedSpecDocumentsTransversalSecurityRules(): void

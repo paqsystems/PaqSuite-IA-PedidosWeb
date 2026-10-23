@@ -227,6 +227,7 @@ async function mockConsultasD1Api(page: import('@playwright/test').Page) {
               renglon: 1,
               codArticulo: 'ART-001',
               descripcionArticulo: 'Artículo demo',
+              especial: '*',
               cantidad: 2,
               porcBonif: 5,
               precioLista: 100,
@@ -282,6 +283,8 @@ test('consulta detalle pedidos: renglón visible y estado como texto', async ({ 
   await expect(page.getByText('Ingresado')).toBeVisible();
   await expect(page.getByText(/Fecha de proceso: \d{2}\/\d{2}\/\d{4} \d{2}:\d{2}/)).toBeVisible();
   await expect(page.getByRole('gridcell', { name: /95[.,]00/ })).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByRole('columnheader', { name: 'Especial' })).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByRole('gridcell', { name: '*' })).toBeVisible({ timeout: 15_000 });
   await expect(page.getByRole('button', { name: /editar/i })).toHaveCount(0);
   await expect(page.getByRole('button', { name: /eliminar/i })).toHaveCount(0);
 
@@ -321,6 +324,7 @@ test('consulta detalle pedidos: refresh recarga datos', async ({ page }) => {
               renglon: 1,
               codArticulo: 'ART-001',
               descripcionArticulo: 'Artículo demo',
+              especial: '*',
               cantidad: 2,
               porcBonif: 5,
               precioLista: 100,

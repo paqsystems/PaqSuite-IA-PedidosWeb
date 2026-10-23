@@ -65,5 +65,6 @@ class Kernel extends HttpKernel
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'paq.tenant' => \App\Http\Middleware\ValidatePaqTenant::class,
         'admin.security.enabled' => \App\Http\Middleware\EnsureAdminSecurityEnabled::class,
+        'integracion.importacion' => \App\Http\Middleware\EnsureIntegracionImportacion::class,
     ];
 }

@@ -31,15 +31,15 @@ class PqPedidoswebArticulo extends Model
         'porc_iva',
         'equivalencia_ventas',
         'stockeable',
+        'especial',
     ];
 
     protected $casts = [
-        'bonificacion' => 'decimal:4',
-        'valor1' => 'decimal:4',
-        'valor2' => 'decimal:4',
-        'porc_iva' => 'decimal:4',
+        'bonificacion' => 'decimal:2',
+        'porc_iva' => 'decimal:2',
         'equivalencia_ventas' => 'decimal:4',
         'stockeable' => 'boolean',
+        'especial' => 'boolean',
     ];
 
     public function stock(): HasMany

@@ -6,7 +6,7 @@
 | **SPEC origen** | [SPEC-101-07-consultas-api](../../05-open-spec/101-PedidosWeb/SPEC-101-07-consultas-api.md), [SPEC-101-11-consultas-ui](../../05-open-spec/101-PedidosWeb/SPEC-101-11-consultas-ui.md) |
 | **Producto** | [consulta-detalle-pedidos.md](../../02-producto/PedidosWeb/consulta-detalle-pedidos.md), §17.3.1 |
 | **Prioridad** | Must |
-| **Estado** | Finalizado (Parte I CC PQ #10/#11) |
+| **Estado** | En Control Calidad |
 | **Última actualización** | 2026-08-31 |
 | **B1** | Enriquecida (2026-06-03) |
 | **C** | Generada (2026-06-03) |
@@ -63,6 +63,7 @@ Fuente de verdad columnas, joins y contrato: **[consulta-detalle-pedidos.md](../
 6. **Descripción artículo:** preferir `descripcion_articulo` del detalle; fallback `articulos.descripcion`.
 7. **Estado en UI:** `consultas.comprobanteEstado.*` (mismas claves que consulta cabecera).
 8. **CC PQ #10:** API incluye `cantidadVenta`; grilla (y kardex mobile si aplica) muestra columna cantidad venta; no elimina `cantidad`.
+9. **CC PQ #17:** Columna **`especial`** disponible en grilla detalle pedidos. Valores mostrados: cadena vacía `""` (NO) o `"*"` (SÍ). Origen: `pq_pedidosweb_articulos.especial` del artículo del renglón.
 
 ## Decisiones cerradas (producto / B1)
 
@@ -100,6 +101,13 @@ Fuente de verdad columnas, joins y contrato: **[consulta-detalle-pedidos.md](../
 - [x] **CA-PVT-07:** E2E toggle pivot + field panel (`pivot-informes.spec.ts`).
 - [ ] **CA-CC10-D01:** API incluye `cantidadVenta`.
 - [ ] **CA-CC10-D02:** Grilla (y kardex mobile si aplica) muestra columna cantidad venta; no elimina `cantidad`.
+- [x] **CA-CC17-D01:** API `GET /consultas/detalle-pedidos` incluye `especial` (`""` o `"*"`).
+- [x] **CA-CC17-D02:** Grilla web muestra columna `especial` con i18n `consultas.detalle.column.especial`.
+- [x] **CA-CC17-D03:** Kardex mobile refleja el valor en tarjeta o detalle de fila.
+
+## Historial CC PQ #17 (20/09/2026) — Parte I 21/09/2026
+
+Columna `especial` en consulta detalle de pedidos (RN-9, CA-CC17-D01…D03). Unificación delta `HU-101-028-consulta-detalle-pedidos-update` (archivo eliminado en Parte I).
 
 ## Historial CC PQ #4 (10/06/2026) — Parte I 16/06/2026
 

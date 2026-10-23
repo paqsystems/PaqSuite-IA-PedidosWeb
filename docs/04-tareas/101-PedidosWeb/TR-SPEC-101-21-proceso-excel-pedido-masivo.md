@@ -7,8 +7,8 @@
 | **Épica** | 101 — PedidosWeb |
 | **Prioridad** | **Should** |
 | **Dependencias** | TR-GEN-07-* (motor Excel); [TR-SPEC-101-16-proceso-excel-pedido-individual](TR-SPEC-101-16-proceso-excel-pedido-individual.md) (columnas/i18n/handler base); TR-SPEC-101-06; SPEC-001-04 |
-| **Estado** | En Control Calidad |
-| **Última actualización** | 2026-07-19 (Parte C1) |
+| **Estado** | Finalizado |
+| **Última actualización** | 2026-09-13 (Parte I) |
 
 **Origen:** HU-101-043  
 **Producto:** [importacion-masiva-pedidos.md](../../02-producto/PedidosWeb/importacion-masiva-pedidos.md)  
@@ -25,7 +25,7 @@ Proceso Excel `PEDIDO_MASIVO`: catálogo, validación, defaults, vendedor de cli
 Como usuario con `pw_importacionmasiva`, quiero validar un Excel multi-cabecera y recibir grupos armados, para alimentar la grilla masiva sin parcial erróneo.
 
 ### In scope / Out of scope
-- **In:** seeder `PEDIDO_MASIVO`; handler + lot validator (coherencia **por grupo**); agrupación; payload de grupos; i18n reutilizado; tests unit/feature.
+- **In:** seeder `PEDIDO_MASIVO`; handler + lot validator (coherencia **por grupo**); agrupación; payload de grupos; i18n reutilizado; recorte no rechazante de leyendas a 60 al armar grupos; tests unit/feature.
 - **Out:** pantalla FE → TR-21b; Consultar → TR-21c; endpoint grabación lote; cambiar columnas de 101-16.
 
 ---
@@ -45,6 +45,8 @@ Heredados de HU-101-043 (CA-01 … CA-19). Resumen ejecutable:
 | CA-15 | Parser multilenguaje (regresión GEN-07) |
 | CA-18 | Contrato payload grupos (§5) |
 | CA-19 | Suite tests |
+| **AC-CC13-T-M1** | El catálogo masivo conserva `largo_maximo` 255 o null en leyendas; GEN-07 no rechaza por superar 60 |
+| **AC-CC13-T-M2** | Un lote con leyenda mayor a 60 entrega grupos válidos cuya cabecera contiene 60 caracteres |
 
 ### Escenarios Gherkin
 
@@ -68,6 +70,7 @@ Heredados de HU-101-043 (CA-01 … CA-19). Resumen ejecutable:
 | RN-11 | Multi-cliente permitido |
 | RN-12 | Payload grupo: cabecera resuelta + renglones + vendedor + campos para totales |
 | RN-13 | APIs GEN-07 del proceso gated por `pw_importacionmasiva` |
+| RN-14 | `PedidoMasivoGroupAssembler` recorta las cinco leyendas con el helper compartido de TR-101-04; no se modifica GEN-07 para rechazarlas |
 
 ### Diferencia vs `PEDIDO_INDIVIDUAL`
 
@@ -117,6 +120,8 @@ Incluir: resto de SPEC-101-16 §2 (mismo set que TR-16a).
 | `PedidoMasivoLotValidator` | Perfil C/V-S a nivel archivo; coherencia cruda **por grupo**; sin vendedor |
 | `PedidoMasivoGroupAssembler` | Tras process: agrupar por clave; orden 1ª aparición; armar DTO grupos |
 | Reuso | `PedidoIndividualRowResolver` / servicios de defaults (extraer shared si hace falta en D1) |
+
+Al armar cada cabecera de grupo, el assembler normaliza `leyenda1`…`leyenda5` a 60 caracteres. El catálogo mantiene su largo previo para que la normalización ocurra en negocio y no como error del parser.
 
 ### Visibilidad permiso Excel
 
@@ -203,7 +208,7 @@ Ninguno en este slice (salvo claves i18n de columnas ya existentes `PEDIDO_INDIV
 | Tipo | Cobertura |
 |------|-----------|
 | Unit | Agrupación 2 clientes; orden; coherencia grupo; sin vendedor; NivelExtremo |
-| Feature | Lote feliz multi-grupo; error parcial=false; 403 sin permiso; perfil C |
+| Feature | Lote feliz multi-grupo; leyenda larga aceptada y recortada a 60; error parcial=false; 403 sin permiso; perfil C |
 | Regresión | `PEDIDO_INDIVIDUAL` intacto |
 
 ---
@@ -224,3 +229,15 @@ Ninguno en este slice (salvo claves i18n de columnas ya existentes `PEDIDO_INDIV
 
 - Extraer shared `PedidoExcelImport*` solo si reduce duplicación sin riesgo de romper 16a.
 - Punto de enganche GEN-07 concreto (qué endpoint/campo) se fija en D1 sin cambiar el contrato funcional.
+
+## CC PQ #13 — Parte I 13/09/2026
+
+La importación masiva acepta leyendas largas en GEN-07 y las recorta a 60 al materializar la cabecera de cada grupo.
+
+| ID | Tarea | Evidencia |
+|----|-------|-----------|
+| T1 | Mantener catálogo sin límite 60 | seeder `PEDIDO_MASIVO` |
+| T2 | Recortar en armado de grupos | `PedidoMasivoGroupAssembler` |
+| T3 | Lote válido con salida normalizada | tests unit/feature |
+
+Unificación delta CC PQ #13 (archivo `TR-SPEC-101-21-proceso-excel-pedido-masivo-update.md` eliminado en Parte I 2026-09-13).

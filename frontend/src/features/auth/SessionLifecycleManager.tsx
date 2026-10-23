@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useAuth } from './AuthProvider';
 import { authExpiredEventName } from './authEvents';
 import type { AuthExpiredDetail } from './authEvents';
+import { inactivityLogoutEnabled } from './sessionInactivity';
 import { useInactivityTimeout } from './useInactivityTimeout';
 
 export function SessionLifecycleManager() {
@@ -22,7 +23,7 @@ export function SessionLifecycleManager() {
   }, [expireSession]);
 
   useInactivityTimeout({
-    enabled: isAuthenticated && sessionContext !== null,
+    enabled: inactivityLogoutEnabled && isAuthenticated && sessionContext !== null,
     inactivityTimeoutMinutes: sessionContext?.inactivityTimeoutMinutes,
     onExpire: () => {
       void expireSession({ reasonKey: 'auth.unauthenticated', revokeToken: true });

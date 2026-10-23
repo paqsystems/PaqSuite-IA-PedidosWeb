@@ -2,8 +2,8 @@
 
 | Campo | Valor |
 |-------|--------|
-| **Versión documento** | 2026-07-02 (errores al copiar comprobante; revisión 2026-06-22) |
-| **Ámbito** | Todas las validaciones que impiden grabar, importar, **copiar**, editar o eliminar comprobantes |
+| **Versión documento** | 2026-09-01 (leyendas 60, importación masiva, lote) |
+| **Ámbito** | Todas las validaciones que impiden grabar, importar (individual o masiva), **copiar**, editar o eliminar comprobantes |
 | **Manual principal** | [PedidosWeb.md](./PedidosWeb.md) |
 | **Circuito de estados** | [PedidosWeb-circuito-estados.md](./PedidosWeb-circuito-estados.md) |
 
@@ -15,6 +15,8 @@
 - Al grabar, si hay varios problemas, el sistema puede mostrar un **diálogo con lista** de errores (no solo el primero).
 - Los mensajes de negocio suelen indicar **qué corregir** antes de reintentar.
 - Al **copiar**, un rechazo muestra un **modal** dedicado (*No se pudo copiar el comprobante*); no abre la pantalla de carga. Ver §8.
+- Las **leyendas 1–5** no generan error por longitud: si superan **60 caracteres**, se **recortan**.
+- En **importación masiva**, un error **al grabar una fila** no anula las demás. Un error **al importar el archivo** sí impide cargar el lote a la grilla. Ver §15 y [PedidosWeb-importacion-excel.md](./PedidosWeb-importacion-excel.md).
 
 ---
 
@@ -291,4 +293,26 @@ Sí. Si los precios no cumplen los parámetros ERP según *Actualizar precios al
 
 ### ¿El chat asistente puede ver por qué falló mi grabación?
 
-Solo si describe el mensaje que ve en pantalla. El asistente no accede al comprobante ni al ERP; orienta según este manual.
+Solo si describe el mensaje que ve en pantalla. El asistente documental no accede al comprobante ni al ERP; orienta según este manual. El **Asistente IA de carga** sí opera el borrador abierto.
+
+---
+
+## 15. Importación masiva — errores de archivo y de grabación de lote
+
+Complementa §9 (reglas de plantilla comunes). Guía de uso: [PedidosWeb-importacion-excel.md](./PedidosWeb-importacion-excel.md).
+
+| Situación | ¿Qué se grabó? | Qué hacer |
+|-----------|----------------|-----------|
+| El archivo no entra a la grilla | Nada | Corregir plantilla, clientes de cartera, perfil cliente vs códigos del Excel; reimportar |
+| Una fila falla al **Grabar** el lote | Las otras pueden haberse grabado | Leer la columna **Error**; corregir (reimportar esa cabecera, eliminar la fila o reintentar Grabar); no asuma que falló todo |
+| Mail de una fila OK falló | El comprobante **sí** está grabado | Igual que §10 |
+| Perdió el borrador al cerrar el navegador | Solo lo que ya había grabado con éxito | Volver a importar lo pendiente |
+| No ve el proceso en el teléfono | No aplica en móvil | Usar la web |
+
+Errores de cabecera y renglones **al grabar cada fila** son los de §3–§5 (mismo validador que carga manual).
+
+---
+
+## 16. Leyendas demasiado largas
+
+No es un error de grabación. El portal recorta a **60 caracteres** por leyenda (carga, Excel, asistente IA). Si el texto del cliente en ERP era más largo, al sincronizar o grabar quedará acotado.

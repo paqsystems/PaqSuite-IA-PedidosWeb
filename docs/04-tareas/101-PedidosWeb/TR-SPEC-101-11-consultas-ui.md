@@ -7,8 +7,8 @@
 | **Épica** | 101-PedidosWeb |
 | **Prioridad** | Must |
 | **Dependencias** | TR-SPEC-101-07-consultas-api; TR-SPEC-101-09-frontend-base; [TR-GEN-03-grillas-listados](../001-Generaliddes/TR-GEN-03-grillas-listados.md); [TR-GEN-03-exportaciones](../001-Generaliddes/TR-GEN-03-exportaciones.md); [TR-GEN-03-layouts-grilla](../001-Generaliddes/TR-GEN-03-layouts-grilla.md) |
-| **Estado** | Finalizado (Parte I CC PQ #10/#11) |
-| **Última actualización** | 2026-08-31 |
+| **Estado** | En Control Calidad |
+| **Última actualización** | 2026-09-21 (Parte I) |
 
 **Origen:** HU-101-015, 016, 017, 018, 021, 022, 023, **028**  
 **Referencia SPEC:** [SPEC-101-11-consultas-ui](../../05-open-spec/101-PedidosWeb/SPEC-101-11-consultas-ui.md)  
@@ -55,6 +55,9 @@ Como **usuario comercial**, quiero **consultar pedidos, presupuestos, stock, deu
 - **AC-CC12-T-U2:** `HistorialVentasPage`: DateBox `fecha_desde`/`fecha_hasta`; pasar a `fetchHistorialVentas`.
 - **AC-CC12-T-U3:** Stock: grilla coherente con API (sin filas no-stockeables).
 - **AC-CC10-T-UI1:** Columna `cantidadVenta` visible en detalle pedidos (formato decimal); kardex mobile si aplica; i18n `consultas.detalle.column.cantidadVenta`.
+- **AC-CC17-T-U1:** Columna `especial` visible en grilla detalle pedidos.
+- **AC-CC17-T-U2:** i18n `consultas.detalle.column.especial` en idiomas activos.
+- **AC-CC17-T-U3:** Valores `""` y `"*"` se muestran tal cual (sin formatter booleano).
 
 ### Escenarios Gherkin
 
@@ -426,3 +429,15 @@ Columna `cantidadVenta` en consulta detalle pedidos (web + kardex mobile).
 | T3 | Vitest columnas | tests FE |
 
 Unificación delta CC PQ #10 (archivo `TR-SPEC-101-11-consultas-ui-update.md` eliminado en Parte I).
+
+## CC PQ #17 — Parte I 21/09/2026
+
+Columna `especial` en consulta detalle pedidos (web + kardex mobile).
+
+| ID | Tarea | Evidencia |
+|----|-------|-----------|
+| T1 | Columna grilla | `DetallePedidosConsultaColumns.tsx` |
+| T2 | i18n + mobile | locales `consultas.detalle.column.especial`, `consultaMobileRenderers.tsx` |
+| T3 | Vitest / E2E | `consultaColumns.test.tsx`, `consultas-d1.spec.ts` |
+
+Unificación delta CC PQ #17 (archivo `TR-SPEC-101-11-consultas-ui-update.md` eliminado en Parte I 2026-09-21).

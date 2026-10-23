@@ -5,8 +5,8 @@
 | **ID** | HU-101-005-inicializacion-cabecera |
 | **SPEC origen** | [SPEC-101-10-pantalla-carga](../../05-open-spec/101-PedidosWeb/SPEC-101-10-pantalla-carga.md) |
 | **Prioridad** | Must |
-| **Estado** | En Control Calidad |
-| **Última actualización** | 2026-08-31 |
+| **Estado** | Finalizado |
+| **Última actualización** | 2026-09-13 (Parte I) |
 | **B1** | Enriquecida (2026-06-01) |
 | **Dependencias** | HU-101-004; contexto SPEC-001-04 (parámetros §10.6 producto) |
 
@@ -33,6 +33,8 @@ Al seleccionar cliente, precargar según producto §10.4: vendedor, condición d
 9. **CC PQ #3:** Al cambiar **lista de precios** con renglones → recálculo batch de precios (API `codigos` CSV).
 10. **CC PQ #5 / #6 (listbox artículos):** `disponibleNeto = stock − comprometido − comprometido_web` (pedidos ingresados `estado = 0`). Si `articulos.base` ≠ vacío: `disponibleNetoBase = SUM(stock) − SUM(comprometido) − comprometido_base_web` sobre **todas** las presentaciones con la misma `base` ([consulta-stock.md](../../02-producto/PedidosWeb/consulta-stock.md) §5). Entre paréntesis en el ítem: solo `disponibleNetoBase`.
 11. **CC PQ #12:** Al inicializar cabecera con cliente, queda disponible el saldo/modal de deuda (coherente HU-101-004). Snapshot de leyendas 1–5 al abrir/inicializar para dirty tracking. En listbox de artículos, ítems `stockeable=false` no muestran stock/disponible.
+12. **RN-CC13-C01:** Cada leyenda 1–5 admite como máximo 60 caracteres Unicode.
+13. **RN-CC13-C02:** La cota aplica en carga nueva, edición y copia (misma UI web/native). Al inicializar desde cliente, el valor mostrado tampoco supera 60 caracteres.
 
 ## Criterios de aceptación
 
@@ -59,6 +61,13 @@ Al seleccionar cliente, precargar según producto §10.4: vendedor, condición d
 - [x] **CA-CC12-C01:** Al inicializar cabecera con cliente, queda disponible el saldo/modal de deuda (coherente HU-101-004-update-01).
 - [x] **CA-CC12-C02:** Snapshot de leyendas 1–5 al abrir/inicializar para dirty tracking.
 - [x] **CA-CC12-C03:** En listbox de artículos, ítems `stockeable=false` no muestran stock/disponible.
+- [ ] **CA-CC13-C01:** En carga web, `leyenda-1` … `leyenda-5` no aceptan más de 60 caracteres (`maxLength`).
+- [ ] **CA-CC13-C02:** Misma cota en native (`ComprobanteLeyendasPie` compartido).
+- [ ] **CA-CC13-C03:** Pegar un texto de 80 caracteres deja como máximo 60 en el control.
+
+## Historial CC PQ #13 (01/09/2026) — Parte I 13/09/2026
+
+Tope de 60 caracteres Unicode para leyendas 1–5 en carga web/native e inicialización desde cliente (RN-CC13-C01…C02, CA-CC13-C01…C03). Unificación de `HU-101-005-inicializacion-cabecera-update`.
 
 ## Historial CC PQ #12 (28/08/2026) — Parte I 30/08/2026
 

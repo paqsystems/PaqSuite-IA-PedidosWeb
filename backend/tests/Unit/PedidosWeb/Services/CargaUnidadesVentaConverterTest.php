@@ -86,4 +86,36 @@ final class CargaUnidadesVentaConverterTest extends TestCase
         $this->assertSame(6.0, $soloCantidadVenta['cantidad']);
         $this->assertSame(3.0, $soloCantidadVenta['cantidad_venta']);
     }
+
+    #[Test]
+    public function materializeSegunParametroEnModoVentaRecalculaCantidadDesdeCantidadVenta(): void
+    {
+        $pair = CargaUnidadesVentaConverter::materializeSegunParametro(
+            [
+                'cantidad' => 10,
+                'cantidad_venta' => 8,
+            ],
+            5,
+            true,
+        );
+
+        $this->assertSame(8.0, $pair['cantidad_venta']);
+        $this->assertSame(40.0, $pair['cantidad']);
+    }
+
+    #[Test]
+    public function materializeSegunParametroEnModoStockRecalculaCantidadVentaDesdeCantidad(): void
+    {
+        $pair = CargaUnidadesVentaConverter::materializeSegunParametro(
+            [
+                'cantidad' => 20,
+                'cantidad_venta' => 99,
+            ],
+            5,
+            false,
+        );
+
+        $this->assertSame(20.0, $pair['cantidad']);
+        $this->assertSame(4.0, $pair['cantidad_venta']);
+    }
 }

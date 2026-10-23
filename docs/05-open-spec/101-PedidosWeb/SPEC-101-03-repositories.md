@@ -1,5 +1,8 @@
 # SPEC-101-03 — Repositories
 
+Jira: PIAPEDWEB-15
+
+
 | Campo | Valor |
 |-------|--------|
 | **SPEC madre** | [PedidosWeb_SPEC_MVP.md](PedidosWeb_SPEC_MVP.md) |

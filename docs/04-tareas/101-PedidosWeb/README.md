@@ -36,6 +36,9 @@
 | 21a | [TR-SPEC-101-21-proceso-excel-pedido-masivo.md](TR-SPEC-101-21-proceso-excel-pedido-masivo.md) | **Should** | 043 |
 | 21b | [TR-SPEC-101-21-pantalla-importacion-masiva.md](TR-SPEC-101-21-pantalla-importacion-masiva.md) | **Should** | 044 |
 | 21c | [TR-SPEC-101-21-consultar-borrador-importacion-masiva.md](TR-SPEC-101-21-consultar-borrador-importacion-masiva.md) | **Should** | 045 |
+| 23a | [TR-SPEC-101-23-integracion-transacciones-plataforma.md](TR-SPEC-101-23-integracion-transacciones-plataforma.md) | **Must** | 049 / [PIAPEDWEB-43](https://paqsystems.atlassian.net/browse/PIAPEDWEB-43) |
+| 23b | [TR-SPEC-101-23-integracion-transacciones-saldos.md](TR-SPEC-101-23-integracion-transacciones-saldos.md) | **Must** | 050 / [PIAPEDWEB-44](https://paqsystems.atlassian.net/browse/PIAPEDWEB-44) |
+| 23c | [TR-SPEC-101-23-integracion-transacciones-historial-ventas.md](TR-SPEC-101-23-integracion-transacciones-historial-ventas.md) | **Must** | 051 / [PIAPEDWEB-45](https://paqsystems.atlassian.net/browse/PIAPEDWEB-45) |
 
 ## Slice SPEC-101-21 (Importación masiva)
 
@@ -48,6 +51,22 @@
 | **Parte C1** | **Apto** (2026-07-19) — [F-101-21-cierre-c1](F-101-21-cierre-c1-importacion-masiva.md) |
 | **Parte D1** | [D1-PLAN-101-21](D1-PLAN-101-21-importacion-masiva.md) — listo Parte D |
 | **Orden D1** | 21a → 21b → 21c |
+
+## Slice SPEC-101-23 (Importación transacciones ERP)
+
+| Campo | Valor |
+|-------|--------|
+| **SPEC** | [SPEC-101-23](../../05-open-spec/101-PedidosWeb/SPEC-101-23-importacion-transacciones-erp.md) |
+| **Parte C** | **Generada** (2026-10-22) — [F-101-23-cierre-c](F-101-23-cierre-c-importacion-transacciones-erp.md) |
+| **Parte C1** | **Apto con observaciones** (2026-10-22) — [F-101-23-cierre-c1](F-101-23-cierre-c1-importacion-transacciones-erp.md) |
+| **Parte D1** | **Plan generado** (2026-10-22) — [D1-PLAN-101-23](D1-PLAN-101-23-integracion-transacciones-erp.md) |
+| **Orden D1** | 23a → 23b → 23c; fecha de historial resuelta |
+
+| TR | HU | Título |
+|----|-----|--------|
+| [TR-23a](TR-SPEC-101-23-integracion-transacciones-plataforma.md) | 049 | Plataforma API |
+| [TR-23b](TR-SPEC-101-23-integracion-transacciones-saldos.md) | 050 | Stock, deuda y cheques |
+| [TR-23c](TR-SPEC-101-23-integracion-transacciones-historial-ventas.md) | 051 | Historial de ventas |
 
 ## Slice SPEC-101-18/19/20 (Asistente IA en carga)
 

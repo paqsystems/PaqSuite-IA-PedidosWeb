@@ -16,6 +16,7 @@ frontend/.env
 # PHPUnit / caches locales
 backend/.phpunit.result.cache
 backend/.phpunit.cache
+backend/storage/app/postman/integracion/
 
 # IDE
 .idea/

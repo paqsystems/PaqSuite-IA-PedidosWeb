@@ -62,4 +62,12 @@ describe('consulta columns CC', () => {
     expect(capturedFields).toContain('cantidadVenta');
     mounted.unmount();
   });
+
+  it('DetallePedidosConsultaColumns expone especial', () => {
+    capturedFields.length = 0;
+    const mounted = renderColumns(<DetallePedidosConsultaColumns t={t} />);
+
+    expect(capturedFields).toContain('especial');
+    mounted.unmount();
+  });
 });

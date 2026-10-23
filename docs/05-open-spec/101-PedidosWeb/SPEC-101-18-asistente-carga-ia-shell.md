@@ -1,5 +1,8 @@
 # SPEC-101-18 — Asistente IA en carga: shell, canal y entradas
 
+Jira: PIAPEDWEB-30
+
+
 | Campo | Valor |
 |-------|--------|
 | **SPEC madre** | [PedidosWeb_SPEC_MVP.md](PedidosWeb_SPEC_MVP.md) |

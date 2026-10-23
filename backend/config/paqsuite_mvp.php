@@ -10,7 +10,7 @@ return [
 
     'excelImportEnabled' => (bool) env('EXCEL_IMPORT_ENABLED', false),
 
-    'securityAdminEnabled' => (bool) env('ADMIN_SECURITY_UI_ENABLED', false),
+    'securityAdminEnabled' => filter_var(env('ADMIN_SECURITY_UI_ENABLED', false), FILTER_VALIDATE_BOOLEAN),
 
     'menuItems' => [
         ['menuKey' => 'grupoPedidos', 'procedimiento' => 'grp_pedidos', 'text' => 'Pedidos', 'orden' => 10, 'tipoProceso' => 'G'],
@@ -194,6 +194,22 @@ return [
             'locale' => 'es-AR',
             'theme' => 'light',
             'rolAtributos' => 'none',
+        ],
+        [
+            'codigo' => 'integracion.erp.mvp',
+            'name' => 'Integracion ERP MVP',
+            'email' => 'integracion.erp.mvp@paqsuite.local',
+            'rol' => 'Vendedor',
+            'hasPermiso' => true,
+            'codLogin' => null,
+            'commercialTable' => null,
+            'supervisor' => null,
+            'activo' => true,
+            'inhabilitado' => false,
+            'firstLogin' => false,
+            'locale' => 'es-AR',
+            'theme' => 'light',
+            'integracionErp' => true,
         ],
         [
             'codigo' => 'primerIngreso.mvp',

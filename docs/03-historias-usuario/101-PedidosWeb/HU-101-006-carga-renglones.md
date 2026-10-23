@@ -5,7 +5,7 @@
 | **ID** | HU-101-006-carga-renglones |
 | **SPEC origen** | [SPEC-101-10-pantalla-carga](../../05-open-spec/101-PedidosWeb/SPEC-101-10-pantalla-carga.md) |
 | **Prioridad** | Must |
-| **Estado** | Finalizado |
+| **Estado** | En Control Calidad |
 | **Última actualización** | 2026-08-31 |
 | **B1** | Enriquecida (2026-06-01) |
 | **Dependencias** | HU-101-005; HU-101-007, HU-101-008 |
@@ -36,6 +36,7 @@ para **armar el detalle del pedido o presupuesto**.
 7. **Precio neto unitario** = precio lista − descuento renglón − descuento cabecera; no editable; se persiste en `pq_pedidosweb_pedidosdetalle.precio_neto`.
 8. **CC PQ #10:** Modal/alta renglón con un solo campo «cantidad» interpretado según `CargaUnidadesVenta`: con parámetro `false` persiste `cantidad` ingresada y `cantidad_venta = cantidad / equiv` (`equiv`≤0 → 1); con `true` persiste `cantidad_venta` ingresada y `cantidad = cantidad_venta * equiv`; importes siempre desde `cantidad`; al editar, el valor mostrado corresponde al modo del parámetro; `equivalencia_ventas` del artículo; 0/null → 1.
 9. **CC PQ #12:** Con `CargaUnidadesVenta=true`, el modal muestra las unidades de stock equivalentes a las unidades de venta ingresadas (solo lectura). Sigue habiendo un solo campo editable «cantidad».
+10. **CC PQ #17:** El lookup/browse (`GET /articulos` sin `codigos`) muestra sufijo **` (*)`** al final de la línea del ítem cuando `pq_pedidosweb_articulos.especial = 1`; sin sufijo cuando `especial = 0`. Tras código, descripción, disponible y disponible base (§3.1). Mobile: mismo criterio en `displayExpr`.
 
 ## Fuera de alcance
 
@@ -60,6 +61,13 @@ para **armar el detalle del pedido o presupuesto**.
 - [ ] **CA-CC10-R02:** Con parámetro `false`: persiste `cantidad` ingresada y `cantidad_venta = cantidad / equiv` (`equiv`≤0 → 1).
 - [ ] **CA-CC10-R03:** Con parámetro `true`: persiste `cantidad_venta` ingresada y `cantidad = cantidad_venta * equiv`; importes desde `cantidad`.
 - [ ] **CA-CC10-R04:** Al editar, el valor mostrado corresponde al modo del parámetro.
+- [x] **CA-CC17-R01:** Artículo especial visible con ` (*)` en listbox web.
+- [x] **CA-CC17-R02:** Artículo no especial sin sufijo.
+- [x] **CA-CC17-R03:** Coherente con artículo sin base, con base y no stockeable.
+
+## Historial CC PQ #17 (20/09/2026) — Parte I 21/09/2026
+
+Sufijo ` (*)` en lookup browse cuando `especial=true` (RN-10, CA-CC17-R01…R03). Unificación delta `HU-101-006-carga-renglones-update` (archivo eliminado en Parte I).
 
 ## Historial CC PQ #12 (28/08/2026) — Parte I 30/08/2026
 

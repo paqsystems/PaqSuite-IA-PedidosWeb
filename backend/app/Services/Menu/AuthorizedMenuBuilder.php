@@ -39,7 +39,48 @@ final class AuthorizedMenuBuilder
             $authorizedMenus = $this->includeMenuAncestors($authorizedMenus, $enabledMenus);
         }
 
+        $authorizedMenus = $this->excludeAdminSecurityMenusWhenDisabled($authorizedMenus);
+
         return $this->buildTree($authorizedMenus);
+    }
+
+    /**
+     * Oculta Roles/Permisos (MVP + Framework) si ADMIN_SECURITY_UI_ENABLED está off.
+     *
+     * @param  Collection<int, PqMenu>  $authorizedMenus
+     * @return Collection<int, PqMenu>
+     */
+    private function excludeAdminSecurityMenusWhenDisabled(Collection $authorizedMenus): Collection
+    {
+        if ((bool) config('paqsuite_mvp.securityAdminEnabled')) {
+            return $authorizedMenus;
+        }
+
+        $blockedProcedimientos = [
+            'pw_adminroles',
+            'pw_adminpermisos',
+            'seguridad_roles',
+            'seguridad_permisos',
+            'grp_seguridad',
+        ];
+
+        return $authorizedMenus->filter(static function (PqMenu $menu) use ($blockedProcedimientos): bool {
+            $procedimiento = strtolower(trim((string) ($menu->procedimiento ?? '')));
+            if ($procedimiento !== '' && in_array($procedimiento, $blockedProcedimientos, true)) {
+                return false;
+            }
+
+            $routeName = trim((string) ($menu->routeName ?? ''));
+            if ($routeName === '/admin/roles' || str_starts_with($routeName, '/admin/roles/')) {
+                return false;
+            }
+
+            if ($routeName === '/admin/permisos' || str_starts_with($routeName, '/admin/permisos/')) {
+                return false;
+            }
+
+            return true;
+        });
     }
 
     /**

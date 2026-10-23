@@ -90,8 +90,11 @@ La [consulta de stock](./consulta-stock.md) usa las mismas fórmulas §4–§5.
 |------|----------------|
 | Sin base | `pedidos.carga.articuloDisplay` → `{{codigo}} - {{descripcion}} — Disp. {{disponible}}` |
 | Con base | `pedidos.carga.articuloDisplayConBase` → `{{codigo}} - {{descripcion}} — Disp. {{disponible}} ({{disponibleBase}})` |
+| Sin stock (no stockeable) | `pedidos.carga.articuloDisplaySinStock` → `{{codigo}} - {{descripcion}}` |
 
-Cantidades con 2 decimales (`es-AR`). Campos API en `ArticuloOption`: `disponibleNeto`, `disponibleNetoBase`.
+Si `articulos.especial = 1`, append literal **` (*)`** al final de la línea (CC PQ #17), en los tres casos anteriores.
+
+Cantidades con 2 decimales (`es-AR`). Campos API en `ArticuloOption`: `disponibleNeto`, `disponibleNetoBase`, `especial`.
 
 ---
 

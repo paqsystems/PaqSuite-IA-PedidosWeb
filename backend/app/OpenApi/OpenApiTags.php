@@ -11,6 +11,8 @@ namespace App\OpenApi;
  * @OA\Tag(name="Excel Import", description="Importación Excel por proceso, lotes y staging")
  * @OA\Tag(name="Framework", description="Health, menú, dashboards, config pública, grid layouts y logs")
  * @OA\Tag(name="Informes", description="Consultas e informes de solo lectura")
+ * @OA\Tag(name="Integración maestros", description="Importación ERP de catálogos, artículos y precios")
+ * @OA\Tag(name="Integración transacciones", description="Importación ERP de stock, deuda, cheques e historial")
  * @OA\Tag(name="Maestros y Tablas", description="Clientes, artículos y tablas referenciales de carga")
  * @OA\Tag(name="Parametros", description="Consulta de parámetros PedidosWeb")
  * @OA\Tag(name="Pedidos Web", description="Carga y edición de pedidos/presupuestos")

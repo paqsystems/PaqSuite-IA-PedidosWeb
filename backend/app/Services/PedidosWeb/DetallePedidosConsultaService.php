@@ -133,6 +133,7 @@ final class DetallePedidosConsultaService
                 'importeNeto' => (float) ($detalle->importe_neto ?? 0),
                 'ivaNeto' => (float) ($detalle->iva ?? 0),
                 'importeNetoConIva' => (float) ($detalle->importe_total ?? 0),
+                'especial' => $this->resolveEspecialArticulo($detalle),
             ];
         }
 
@@ -150,7 +151,19 @@ final class DetallePedidosConsultaService
             'importeNeto' => (float) ($detalle->importe_neto ?? 0),
             'ivaNeto' => (float) ($detalle->iva ?? 0),
             'importeNetoConIva' => (float) ($detalle->importe_total ?? 0),
+            'especial' => $this->resolveEspecialArticulo($detalle),
         ];
+    }
+
+    private function resolveEspecialArticulo(PqPedidoswebPedidoDetalle $detalle): string
+    {
+        $articulo = $detalle->articulo;
+
+        if ($articulo === null) {
+            return '';
+        }
+
+        return filter_var($articulo->especial ?? false, FILTER_VALIDATE_BOOLEAN) ? '*' : '';
     }
 
     private function resolveDescripcionArticulo(PqPedidoswebPedidoDetalle $detalle): string

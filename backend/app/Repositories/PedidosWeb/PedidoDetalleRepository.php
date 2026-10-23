@@ -6,6 +6,7 @@ use App\Contracts\PedidosWeb\PedidoDetalleRepositoryInterface;
 use App\Models\PqPedidoswebPedidoDetalle;
 use App\Services\PedidosWeb\PedidosWebSchemaBootstrap;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
 final class PedidoDetalleRepository implements PedidoDetalleRepositoryInterface
 {
@@ -37,7 +38,7 @@ final class PedidoDetalleRepository implements PedidoDetalleRepositoryInterface
 
     public function deleteByCodPedido(string $codPedido): int
     {
-        return PqPedidoswebPedidoDetalle::query()
+        return DB::table('pq_pedidosweb_pedidosdetalle')
             ->where('cod_pedido', $codPedido)
             ->delete();
     }

@@ -6,9 +6,9 @@ use App\Exceptions\AuthFlowException;
 use App\Models\PqPedidoswebClienteContacto;
 use App\Models\PqPedidoswebPedidoCabecera;
 use App\Models\User;
+use App\Support\SqlSchemaPresence;
 use App\Support\VisibilityErrorCodes;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\Schema;
 
 final class VisibilityDataService
 {
@@ -155,7 +155,7 @@ final class VisibilityDataService
      */
     private function contactosGroupedForUser(User $user): array
     {
-        if (! Schema::hasTable('pq_pedidosweb_clientescontactos')) {
+        if (! SqlSchemaPresence::hasTable('pq_pedidosweb_clientescontactos')) {
             return [];
         }
 
@@ -182,7 +182,7 @@ final class VisibilityDataService
      */
     private function contactosOfClient(string $codCliente): array
     {
-        if ($codCliente === '' || ! Schema::hasTable('pq_pedidosweb_clientescontactos')) {
+        if ($codCliente === '' || ! SqlSchemaPresence::hasTable('pq_pedidosweb_clientescontactos')) {
             return [];
         }
 

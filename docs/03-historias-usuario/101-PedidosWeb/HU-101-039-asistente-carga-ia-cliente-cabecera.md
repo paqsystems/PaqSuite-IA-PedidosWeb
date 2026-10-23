@@ -6,7 +6,8 @@
 | **SPEC origen** | [SPEC-101-19](../../05-open-spec/101-PedidosWeb/SPEC-101-19-asistente-carga-ia-mutaciones.md) |
 | **Épica** | 101 — PedidosWeb / Asistente IA en carga |
 | **Prioridad** | **Should** |
-| **Estado** | En Control Calidad |
+| **Estado** | Finalizado |
+| **Última actualización** | 2026-09-13 (Parte I) |
 | **B1** | Enriquecida (2026-07-13) |
 | **TR** | [TR-SPEC-101-19](../../04-tareas/101-PedidosWeb/TR-SPEC-101-19-asistente-carga-ia-mutaciones.md) |
 | **Dependencias** | HU-101-037; HU-101-004; HU-101-005; SPEC-101-10 |
@@ -62,6 +63,8 @@ SPEC-101-19 capacidades A, B, C, I: equivalencia con combobox cliente, `Cabecera
 4. Moneda vía IA solo si la UI permite editarla (D1-14).
 5. Confirmación I: frases D1-18 (ES) + i18n en TR.
 6. Tras confirmar cambio: limpiar + aplicar A.
+7. **RN-CC13-A01:** `setCampoLibre` / patch de `leyendaN` recorta a 60 caracteres y muta el borrador; no devuelve `validationError` por longitud.
+8. **RN-CC13-A02:** El mismo recorte se aplica a cada leyenda de un pedido compuesto multilínea.
 
 ## Criterios de aceptación
 
@@ -83,6 +86,8 @@ SPEC-101-19 capacidades A, B, C, I: equivalencia con combobox cliente, `Cabecera
 - [ ] **CA-13:** Respuesta `no`/`cancelar` → no cambia cliente ni datos.
 - [ ] **CA-14:** Sin confirmar (otro mensaje no afirmativo) → no cambia.
 - [ ] **CA-15:** Modo solo lectura → mutaciones A/B/C/I rechazadas.
+- [ ] **CA-CC13-A01:** Mensaje «leyenda 1:» + 61 caracteres → `leyenda1` del borrador queda en 60; sin error.
+- [ ] **CA-CC13-A02:** Mensaje con 60 caracteres → el campo se asigna completo.
 
 ## Casos negativos
 
@@ -131,6 +136,10 @@ Ninguna bloqueante.
 ## Riesgos de ambigüedad
 
 - Ambigüedad de lookup (varios transportes similares) se resuelve con lista ≤10; si >10 refine.
+
+## Historial CC PQ #13 (01/09/2026) — Parte I 13/09/2026
+
+Recorte no bloqueante de leyendas a 60 caracteres en mutaciones simples y pedidos compuestos del asistente (RN-CC13-A01…A02, CA-CC13-A01…A02). Unificación de `HU-101-039-asistente-carga-ia-cliente-cabecera-update`.
 
 ## Veredicto B1
 

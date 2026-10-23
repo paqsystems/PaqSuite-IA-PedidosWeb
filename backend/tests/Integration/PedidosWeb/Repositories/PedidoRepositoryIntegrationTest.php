@@ -149,7 +149,7 @@ final class PedidoRepositoryIntegrationTest extends TestCase
                     'localidad' => 'Localidad Test',
                     'c_postal' => '1000',
                     'cod_provin' => '01',
-                    'habitual' => true,
+                    'habitual' => 'S',
                 ]
             );
         }

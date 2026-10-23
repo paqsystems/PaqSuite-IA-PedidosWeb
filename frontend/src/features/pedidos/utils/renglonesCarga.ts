@@ -145,6 +145,15 @@ export function renglonesValidosParaGrabar(renglones: ComprobanteRenglon[]): Com
   return renglones.filter((renglon) => renglon.codArticulo.trim() !== '');
 }
 
+export function eliminarRenglonDeLista(
+  renglones: ComprobanteRenglon[],
+  renglonId: number,
+): ComprobanteRenglon[] {
+  const id = Number(renglonId);
+
+  return renglones.filter((renglon) => Number(renglon.renglon) !== id);
+}
+
 export function tieneRenglonesCargados(renglones: ComprobanteRenglon[]): boolean {
   return renglonesValidosParaGrabar(renglones).length > 0;
 }

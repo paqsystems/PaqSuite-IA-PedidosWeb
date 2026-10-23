@@ -12,6 +12,28 @@ use Tests\TestCase;
 final class ArticuloCargaLookupServiceTest extends TestCase
 {
     #[Test]
+    public function buscarBrowseExponeEspecialCuandoLaColumnaExiste(): void
+    {
+        if (! Schema::hasTable('pq_pedidosweb_articulos')) {
+            $this->markTestSkipped('Tabla pq_pedidosweb_articulos no disponible.');
+        }
+
+        if (! Schema::hasColumn('pq_pedidosweb_articulos', 'especial')) {
+            $this->markTestSkipped('Columna especial no disponible en pq_pedidosweb_articulos.');
+        }
+
+        $service = $this->app->make(ArticuloCargaLookupService::class);
+        $items = $service->buscar(q: null, pageSize: 1, codLista: 0);
+
+        if ($items === []) {
+            $this->markTestSkipped('Sin artículos para validar especial.');
+        }
+
+        $this->assertArrayHasKey('especial', $items[0]);
+        $this->assertIsBool($items[0]['especial']);
+    }
+
+    #[Test]
     public function buscarBrowseUsaUnaSolaQueryDesdeArticulos(): void
     {
         if (! Schema::hasTable('pq_pedidosweb_articulos')) {

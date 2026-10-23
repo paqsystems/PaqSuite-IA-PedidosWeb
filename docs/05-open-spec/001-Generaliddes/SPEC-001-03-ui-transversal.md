@@ -1,5 +1,8 @@
 # SPEC-001-03 - UI transversal
 
+Jira: PIAPEDWEB-4
+
+
 | Campo | Valor |
 |-------|--------|
 | **HU relacionadas** | [HU-GEN-03-grillas-listados](../../03-historias-usuario/001-Generaliddes/HU-GEN-03-grillas-listados.md), [HU-GEN-03-layouts-grilla](../../03-historias-usuario/001-Generaliddes/HU-GEN-03-layouts-grilla.md), [HU-GEN-03-patron-abm](../../03-historias-usuario/001-Generaliddes/HU-GEN-03-patron-abm.md), [HU-GEN-03-exportaciones](../../03-historias-usuario/001-Generaliddes/HU-GEN-03-exportaciones.md) |

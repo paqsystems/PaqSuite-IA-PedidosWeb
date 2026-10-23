@@ -7,6 +7,7 @@ export type CargaAsistenteAddRenglonPayload = {
   equivalenciaVentas?: number;
   precio?: number;
   porcBonif?: number;
+  porcIva?: number;
   descripcion?: string;
 };
 
@@ -84,6 +85,7 @@ export async function applyCargaAsistenteActions(
             : undefined,
         precio: payload.precio !== undefined ? Number(payload.precio) : undefined,
         porcBonif: payload.porcBonif !== undefined ? Number(payload.porcBonif) : undefined,
+        porcIva: payload.porcIva !== undefined ? Number(payload.porcIva) : undefined,
         descripcion:
           payload.descripcion !== undefined ? String(payload.descripcion) : undefined,
       });

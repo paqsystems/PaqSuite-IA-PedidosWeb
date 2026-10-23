@@ -21,6 +21,7 @@ export function DetallePedidosConsultaColumns({ t }: DetallePedidosConsultaColum
       <Column dataField="renglon" caption={t('consultas.detalle.column.renglon')} dataType="number" visible />
       <Column dataField="codArticulo" caption={t('consultas.detalle.column.codArticulo')} visible />
       <Column dataField="descripcionArticulo" caption={t('consultas.detalle.column.descripcionArticulo')} visible />
+      <Column dataField="especial" caption={t('consultas.detalle.column.especial')} visible />
       <Column dataField="cantidad" caption={t('consultas.detalle.column.cantidad')} {...decimalColumnProps} visible />
       <Column
         dataField="cantidadVenta"

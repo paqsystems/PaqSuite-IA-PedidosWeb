@@ -1,5 +1,8 @@
 # SPEC-001-07 - Importar Excel
 
+Jira: PIAPEDWEB-8
+
+
 | Campo | Valor |
 |-------|--------|
 | **HU relacionadas** | [HU-GEN-07-plantilla-excel](../../03-historias-usuario/001-Generaliddes/HU-GEN-07-plantilla-excel.md), [HU-GEN-07-carga-staging-excel](../../03-historias-usuario/001-Generaliddes/HU-GEN-07-carga-staging-excel.md), [HU-GEN-07-grilla-procesamiento-excel](../../03-historias-usuario/001-Generaliddes/HU-GEN-07-grilla-procesamiento-excel.md), [HU-GEN-07-historial-importaciones](../../03-historias-usuario/001-Generaliddes/HU-GEN-07-historial-importaciones.md) |

@@ -248,6 +248,7 @@ CREATE TABLE pq_pedidosweb_articulos (
     porc_iva numeric(6, 2) NULL,
     equivalencia_ventas decimal(18, 4) NOT NULL CONSTRAINT DF_pw_art_equiv_ventas DEFAULT (1),
     stockeable bit NOT NULL CONSTRAINT DF_pw_art_stockeable DEFAULT (1),
+    especial bit NOT NULL CONSTRAINT DF_pw_art_especial DEFAULT (0),
     CONSTRAINT PK_pq_pedidosweb_articulos PRIMARY KEY CLUSTERED (codigo ASC)
 )
 SQL);

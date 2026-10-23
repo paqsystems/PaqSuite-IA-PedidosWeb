@@ -7,8 +7,8 @@
 | **Épica** | 101 — PedidosWeb |
 | **Prioridad** | Must |
 | **Dependencias** | TR-SPEC-101-06 (visibilidad); SPEC-101-03 (repositories); contexto [SPEC-001-04](../../05-open-spec/001-Generaliddes/SPEC-001-04-configuracion-global.md) para `DiasVentasDetalladas` |
-| **Estado** | Finalizado (Parte I CC PQ #10/#11) |
-| **Última actualización** | 2026-08-31 |
+| **Estado** | En Control Calidad |
+| **Última actualización** | 2026-09-21 (Parte I) |
 
 **Origen:** HU-101-015, HU-101-016, HU-101-017, HU-101-018, HU-101-021, HU-101-022, HU-101-023, **HU-101-028**  
 **Referencia SPEC:** [SPEC-101-07-consultas-api](../../05-open-spec/101-PedidosWeb/SPEC-101-07-consultas-api.md)  
@@ -49,6 +49,8 @@ para **alimentar grillas DevExtreme (SPEC-101-11) y exportación Excel (GEN-03)*
 - **AC-CC12-T-A2:** Stock excluye artículos con `stockeable = 0`.
 - **AC-CC12-T-A3:** OpenAPI actualizado con params historial y regla stock.
 - **AC-CC10-T-API1:** Respuesta `GET .../detalle-pedidos` incluye `cantidadVenta` (mapeo desde `cantidad_venta`).
+- **AC-CC17-T-A1:** Respuesta `GET .../detalle-pedidos` incluye `especial` (`""` o `"*"`); OpenAPI documentado.
+- **AC-CC17-T-A2:** Sin impacto en otros endpoints de consulta.
 
 ### Escenarios Gherkin
 
@@ -90,6 +92,7 @@ Feature: Consultas API PedidosWeb
 10. **RN-10 (CC PQ #12):** Historial ventas: query `fecha_desde` / `fecha_hasta` opcionales filtran `fecha_emi`; si omitidas, rango por `DiasVentasDetalladas` (RN-06).
 11. **RN-11 (CC PQ #12):** Stock: excluir filas donde `pq_pedidosweb_articulos.stockeable = 0` (`StockConsultaService`).
 12. **RN-12 (CC PQ #10):** Detalle pedidos: exponer `cantidad_venta` como `cantidadVenta` camelCase en ítems; producto `consulta-detalle-pedidos.md`.
+13. **RN-13 (CC PQ #17):** Detalle pedidos: exponer `especial` como string `""` o `"*"` desde `articulo.especial`; sin artículo relacionado → `""`.
 
 ---
 
@@ -545,3 +548,15 @@ Campo `cantidadVenta` en consulta detalle pedidos.
 | T3 | Feature test campo presente | `PedidosWebEndpointsHappyPathTest` |
 
 Unificación delta CC PQ #10 (archivo `TR-SPEC-101-07-consultas-api-update.md` eliminado en Parte I).
+
+## CC PQ #17 — Parte I 21/09/2026
+
+Campo `especial` en consulta detalle pedidos.
+
+| ID | Tarea | Evidencia |
+|----|-------|-----------|
+| T1 | Mapper detalle | `DetallePedidosConsultaService::resolveEspecialArticulo` |
+| T2 | OpenAPI + producto | `OpenApiInformesSchemas`, `consulta-detalle-pedidos.md` |
+| T3 | Tests unit/feature | `DetallePedidosConsultaServiceTest`, `PedidosWebEndpointsHappyPathTest` |
+
+Unificación delta CC PQ #17 (archivo `TR-SPEC-101-07-consultas-api-update.md` eliminado en Parte I 2026-09-21).

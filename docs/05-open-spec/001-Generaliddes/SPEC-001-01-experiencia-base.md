@@ -1,5 +1,8 @@
 # SPEC-001-01 - Experiencia base
 
+Jira: PIAPEDWEB-1
+
+
 | Campo | Valor |
 |-------|--------|
 | **HU relacionadas** | `docs/03-historias-usuario/001-Generaliddes/HU-GEN-01-*.md` (6 HU; índice en README de la carpeta) |

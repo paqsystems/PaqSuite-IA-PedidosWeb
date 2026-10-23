@@ -1,5 +1,8 @@
 # SPEC-001-11 — Mobile Capacitor (MONO)
 
+Jira: PIAPEDWEB-12
+
+
 | Campo | Valor |
 |-------|--------|
 | **HU relacionadas** | A generar: `HU-GEN-11-mobile-capacitor-*.md` (índice en README 001) |
