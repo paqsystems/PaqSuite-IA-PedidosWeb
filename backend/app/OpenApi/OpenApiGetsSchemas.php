@@ -6,6 +6,103 @@ namespace App\OpenApi;
  * Schemas OpenAPI — GET tipados (Parametros, Maestros, Framework, Tratativas, PedidosWeb show, Excel, Chat, Pivots).
  *
  * @OA\Schema(
+ *     schema="IntegracionMaestroClienteItem",
+ *     type="object",
+ *     required={"codClient"},
+ *     @OA\Property(property="codClient", type="string", example="CL-001"),
+ *     @OA\Property(property="nombre", type="string", nullable=true),
+ *     @OA\Property(property="fantasia", type="string", nullable=true),
+ *     @OA\Property(property="codVended", type="string", nullable=true),
+ *     @OA\Property(property="listaPrecios", type="integer", nullable=true),
+ *     @OA\Property(property="codCondvta", type="integer", nullable=true),
+ *     @OA\Property(property="codTranspor", type="string", nullable=true),
+ *     @OA\Property(property="bonificacion", type="number", format="double", nullable=true),
+ *     @OA\Property(property="nivel", type="integer", nullable=true),
+ *     @OA\Property(property="expreso", type="string", nullable=true),
+ *     @OA\Property(property="expresoDire", type="string", nullable=true),
+ *     @OA\Property(property="eMail", type="string", nullable=true),
+ *     @OA\Property(property="razonSoci", type="string", nullable=true),
+ *     @OA\Property(property="leyenda1", type="string", maxLength=60, nullable=true),
+ *     @OA\Property(property="leyenda2", type="string", maxLength=60, nullable=true),
+ *     @OA\Property(property="leyenda3", type="string", maxLength=60, nullable=true),
+ *     @OA\Property(property="leyenda4", type="string", maxLength=60, nullable=true),
+ *     @OA\Property(property="leyenda5", type="string", maxLength=60, nullable=true),
+ *     @OA\Property(property="codLogin", type="string", nullable=true, description="Ignorado por la API"),
+ *     @OA\Property(property="eliminarSiAusente", type="boolean", default=false)
+ * )
+ *
+ * @OA\Schema(
+ *     schema="IntegracionMaestroDireccionItem",
+ *     type="object",
+ *     required={"codClient","idDe"},
+ *     @OA\Property(property="codClient", type="string", example="CL-001"),
+ *     @OA\Property(property="idDe", type="integer", example=1),
+ *     @OA\Property(property="codDe", type="string", nullable=true),
+ *     @OA\Property(property="direccion", type="string", nullable=true),
+ *     @OA\Property(property="localidad", type="string", nullable=true),
+ *     @OA\Property(property="cPostal", type="string", nullable=true),
+ *     @OA\Property(property="codProvin", type="string", nullable=true),
+ *     @OA\Property(property="habitual", oneOf={@OA\Schema(type="boolean"), @OA\Schema(type="string", enum={"S","N"})}, example=true)
+ * )
+ *
+ * @OA\Schema(
+ *     schema="IntegracionMaestroContactoItem",
+ *     type="object",
+ *     required={"codClient","codContacto","nombre"},
+ *     @OA\Property(property="codClient", type="string", example="CL-001"),
+ *     @OA\Property(property="codContacto", type="string", example="C1"),
+ *     @OA\Property(property="nombre", type="string"),
+ *     @OA\Property(property="telefono", type="string", nullable=true),
+ *     @OA\Property(property="mail", type="string", format="email", nullable=true)
+ * )
+ *
+ * @OA\Schema(
+ *     schema="IntegracionMaestroParametroItem",
+ *     type="object",
+ *     required={"clave"},
+ *     description="El valor debe enviarse en la propiedad correspondiente al tipo canónico: B=valorBool, I=valorInt, N=valorDecimal, S=valorString, T=valorText, D=valorDateTime.",
+ *     @OA\Property(property="clave", type="string", example="MinutosWeb"),
+ *     @OA\Property(property="valorBool", type="boolean", nullable=true),
+ *     @OA\Property(property="valorInt", type="integer", nullable=true),
+ *     @OA\Property(property="valorDecimal", type="number", format="double", nullable=true),
+ *     @OA\Property(property="valorString", type="string", nullable=true),
+ *     @OA\Property(property="valorText", type="string", nullable=true),
+ *     @OA\Property(property="valorDateTime", type="string", format="date-time", nullable=true)
+ * )
+ *
+ * @OA\Schema(
+ *     schema="IntegracionMaestroClientesLoteRequest",
+ *     allOf={
+ *         @OA\Schema(ref="#/components/schemas/IntegracionMaestroLoteRequest"),
+ *         @OA\Schema(type="object", @OA\Property(property="items", type="array", @OA\Items(ref="#/components/schemas/IntegracionMaestroClienteItem")))
+ *     }
+ * )
+ *
+ * @OA\Schema(
+ *     schema="IntegracionMaestroDireccionesLoteRequest",
+ *     allOf={
+ *         @OA\Schema(ref="#/components/schemas/IntegracionMaestroLoteRequest"),
+ *         @OA\Schema(type="object", @OA\Property(property="items", type="array", @OA\Items(ref="#/components/schemas/IntegracionMaestroDireccionItem")))
+ *     }
+ * )
+ *
+ * @OA\Schema(
+ *     schema="IntegracionMaestroContactosLoteRequest",
+ *     allOf={
+ *         @OA\Schema(ref="#/components/schemas/IntegracionMaestroLoteRequest"),
+ *         @OA\Schema(type="object", @OA\Property(property="items", type="array", @OA\Items(ref="#/components/schemas/IntegracionMaestroContactoItem")))
+ *     }
+ * )
+ *
+ * @OA\Schema(
+ *     schema="IntegracionMaestroParametrosLoteRequest",
+ *     allOf={
+ *         @OA\Schema(ref="#/components/schemas/IntegracionMaestroLoteRequest"),
+ *         @OA\Schema(type="object", @OA\Property(property="items", type="array", @OA\Items(ref="#/components/schemas/IntegracionMaestroParametroItem")))
+ *     }
+ * )
+ *
+ * @OA\Schema(
  *     schema="ParametrosCargaResultado",
  *     type="object",
  *     @OA\Property(property="modificaPrecio", type="boolean", example=true),
@@ -443,6 +540,84 @@ namespace App\OpenApi;
  *     allOf={
  *         @OA\Schema(ref="#/components/schemas/ApiEnvelope"),
  *         @OA\Schema(type="object", @OA\Property(property="resultado", ref="#/components/schemas/PivotMetadataResultado"))
+ *     }
+ * )
+ *
+ * @OA\Schema(
+ *     schema="IntegracionMaestroLoteRequest",
+ *     type="object",
+ *     required={"modo","fechaProceso","items"},
+ *     @OA\Property(property="modo", type="string", enum={"delta","snapshot"}, example="delta"),
+ *     @OA\Property(property="fechaProceso", type="string", format="date-time", example="2026-10-21T12:00:00-03:00"),
+ *     @OA\Property(property="origen", type="string", maxLength=50, example="tango"),
+ *     @OA\Property(property="items", type="array", @OA\Items(type="object"))
+ * )
+ *
+ * @OA\Schema(
+ *     schema="IntegracionMaestroItemError",
+ *     type="object",
+ *     @OA\Property(property="indice", type="integer", example=1),
+ *     @OA\Property(property="clave", type="string", nullable=true, example="X"),
+ *     @OA\Property(property="codigo", type="string", example="integracion.maestro.itemInvalido")
+ * )
+ *
+ * @OA\Schema(
+ *     schema="IntegracionMaestroLoteResultado",
+ *     type="object",
+ *     required={"recurso","modo","recibidos","aplicados","omitidos","rechazados","errores"},
+ *     @OA\Property(property="recurso", type="string", example="provincias"),
+ *     @OA\Property(property="modo", type="string", example="delta"),
+ *     @OA\Property(property="recibidos", type="integer", example=3),
+ *     @OA\Property(property="aplicados", type="integer", example=2),
+ *     @OA\Property(property="omitidos", type="integer", example=0),
+ *     @OA\Property(property="rechazados", type="integer", example=1),
+ *     @OA\Property(property="errores", type="array", @OA\Items(ref="#/components/schemas/IntegracionMaestroItemError"))
+ * )
+ *
+ * @OA\Schema(
+ *     schema="ApiEnvelopeIntegracionMaestroLote",
+ *     allOf={
+ *         @OA\Schema(ref="#/components/schemas/ApiEnvelope"),
+ *         @OA\Schema(type="object", @OA\Property(property="resultado", ref="#/components/schemas/IntegracionMaestroLoteResultado"))
+ *     }
+ * )
+ *
+ * @OA\Schema(
+ *     schema="IntegracionTransaccionLoteRequest",
+ *     type="object",
+ *     required={"modo","fechaProceso","items"},
+ *     @OA\Property(property="modo", type="string", enum={"delta","snapshot"}, example="delta"),
+ *     @OA\Property(property="fechaProceso", type="string", format="date-time", example="2026-10-22T12:00:00-03:00"),
+ *     @OA\Property(property="origen", type="string", nullable=true, maxLength=50, example="tango"),
+ *     @OA\Property(property="items", type="array", @OA\Items(type="object", additionalProperties=true))
+ * )
+ *
+ * @OA\Schema(
+ *     schema="IntegracionTransaccionItemError",
+ *     type="object",
+ *     @OA\Property(property="indice", type="integer", example=1),
+ *     @OA\Property(property="clave", type="string", nullable=true, example="A-001"),
+ *     @OA\Property(property="codigo", type="string", example="integracion.transaccion.itemInvalido")
+ * )
+ *
+ * @OA\Schema(
+ *     schema="IntegracionTransaccionLoteResultado",
+ *     type="object",
+ *     required={"recurso","modo","recibidos","aplicados","omitidos","rechazados","errores"},
+ *     @OA\Property(property="recurso", type="string", example="stock"),
+ *     @OA\Property(property="modo", type="string", example="delta"),
+ *     @OA\Property(property="recibidos", type="integer", example=3),
+ *     @OA\Property(property="aplicados", type="integer", example=2),
+ *     @OA\Property(property="omitidos", type="integer", example=0),
+ *     @OA\Property(property="rechazados", type="integer", example=1),
+ *     @OA\Property(property="errores", type="array", @OA\Items(ref="#/components/schemas/IntegracionTransaccionItemError"))
+ * )
+ *
+ * @OA\Schema(
+ *     schema="ApiEnvelopeIntegracionTransaccionLote",
+ *     allOf={
+ *         @OA\Schema(ref="#/components/schemas/ApiEnvelope"),
+ *         @OA\Schema(type="object", @OA\Property(property="resultado", ref="#/components/schemas/IntegracionTransaccionLoteResultado"))
  *     }
  * )
  */

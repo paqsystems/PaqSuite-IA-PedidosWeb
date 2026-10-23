@@ -38,6 +38,34 @@
 | 19 | [SPEC-101-19-asistente-carga-ia-mutaciones.md](SPEC-101-19-asistente-carga-ia-mutaciones.md) | **Should** — Asistente IA carga mutaciones — **A1+B1+C1** 2026-07-13; listo D1 |
 | 20 | [SPEC-101-20-asistente-carga-ia-consultas.md](SPEC-101-20-asistente-carga-ia-consultas.md) | **Should** — Asistente IA carga consultas — **A1+B1+C1** 2026-07-13; listo D1 |
 | 21 | [SPEC-101-21-importacion-masiva-pedidos.md](SPEC-101-21-importacion-masiva-pedidos.md) | **Should** — Importación masiva — **A1 + B1 + C + C1**; autoriza D1 |
+| 22 | [SPEC-101-22-importacion-maestros-erp.md](SPEC-101-22-importacion-maestros-erp.md) | **Must** — APIs ERP → maestros — **C1 apto** (2026-10-21); autoriza D1 |
+| 23 | [SPEC-101-23-importacion-transacciones-erp.md](SPEC-101-23-importacion-transacciones-erp.md) | **Must** — APIs ERP → transacciones — **C1 apto con observaciones**; autoriza D1 |
+
+## Épica Importación maestros ERP (101-22)
+
+| Campo | Valor |
+|-------|--------|
+| **Producto** | [APIs-Importacion-datos-maestros.md](../../02-producto/PedidosWeb/APIs-Importacion-datos-maestros.md) |
+| **Jira** | [PIAPEDWEB-34](https://paqsystems.atlassian.net/browse/PIAPEDWEB-34) |
+| **A** | **Hecha** — SPEC-101-22 (2026-10-20) |
+| **A1** | **Apto con observaciones** — [F-101-22-cierre-a1](../../04-tareas/101-PedidosWeb/F-101-22-cierre-a1-importacion-maestros-erp.md) |
+| **B1** | **Cerrado** — HU-101-046…048 — [F-101-22-cierre-b1](../../04-tareas/101-PedidosWeb/F-101-22-cierre-b1-importacion-maestros-erp.md) |
+| **Hermano** | [SPEC-101-23](SPEC-101-23-importacion-transacciones-erp.md) (producto [APIs-Importacion-transacciones.md](../../02-producto/PedidosWeb/APIs-Importacion-transacciones.md)) |
+| **C** | **Generada** — TR 22a/22b/22c — [F-101-22-cierre-c](../../04-tareas/101-PedidosWeb/F-101-22-cierre-c-importacion-maestros-erp.md) |
+| **C1** | **Apto con observaciones** — [F-101-22-cierre-c1](../../04-tareas/101-PedidosWeb/F-101-22-cierre-c1-importacion-maestros-erp.md) |
+| **D1 (22a)** | [D1-PLAN-101-22-integracion-maestros-plataforma](../../04-tareas/101-PedidosWeb/D1-PLAN-101-22-integracion-maestros-plataforma.md) — listo Parte D |
+| **Estado** | **Implementando 22b** — 22a/22b en código; pendiente 22c |
+
+## Épica Importación transacciones ERP (101-23)
+
+| Campo | Valor |
+|-------|--------|
+| **Producto** | [APIs-Importacion-transacciones.md](../../02-producto/PedidosWeb/APIs-Importacion-transacciones.md) |
+| **Jira** | [PIAPEDWEB-35](https://paqsystems.atlassian.net/browse/PIAPEDWEB-35) |
+| **A** | **Hecha** — SPEC-101-23 (2026-10-21) |
+| **A1** | **Apto con observaciones** — [F-101-23-cierre-a1](../../04-tareas/101-PedidosWeb/F-101-23-cierre-a1-importacion-transacciones-erp.md) |
+| **Hermano** | [SPEC-101-22](SPEC-101-22-importacion-maestros-erp.md) — reutiliza contrato §4 / auth |
+| **Estado** | **Autoriza Parte B**; **sin implementación** |
 
 ## Épica Importación masiva (101-21)
 

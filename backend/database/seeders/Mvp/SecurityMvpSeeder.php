@@ -24,21 +24,33 @@ final class SecurityMvpSeeder extends Seeder
         $monoEmpresaId = (int) config('paqsuite_seed.monoEmpresaId', 0);
 
         foreach (config('paqsuite_mvp.users', []) as $userSeed) {
+            $existingUser = User::query()
+                ->where('codigo', $userSeed['codigo'])
+                ->first();
+            $userAttributes = [
+                'name_user' => $userSeed['name'],
+                'email' => $userSeed['email'],
+                'activo' => $userSeed['activo'],
+                'inhabilitado' => $userSeed['inhabilitado'],
+                'first_login' => $userSeed['firstLogin'],
+                'locale' => $userSeed['locale'],
+                'theme' => $userSeed['theme'],
+                'menu_abrir_nueva_pestana' => $userSeed['openInNewTab'] ?? null,
+            ];
+
+            if (
+                $existingUser === null
+                || blank($existingUser->password_hash)
+                || (bool) config('paqsuite_seed.refreshPasswords', false)
+            ) {
+                $userAttributes['password_hash'] = $passwordHash;
+            }
+
             $user = $this->seedUpsertService->upsertByNaturalKey(
                 new User(),
                 ['codigo' => $userSeed['codigo']],
-                [
-                    'name_user' => $userSeed['name'],
-                    'email' => $userSeed['email'],
-                    'password_hash' => $passwordHash,
-                    'activo' => $userSeed['activo'],
-                    'inhabilitado' => $userSeed['inhabilitado'],
-                    'first_login' => $userSeed['firstLogin'],
-                    'locale' => $userSeed['locale'],
-                    'theme' => $userSeed['theme'],
-                    'menu_abrir_nueva_pestana' => $userSeed['openInNewTab'] ?? null,
-                ],
-                ['name_user', 'email', 'activo', 'inhabilitado', 'first_login', 'locale', 'theme', 'menu_abrir_nueva_pestana'],
+                $userAttributes,
+                array_keys($userAttributes),
             );
 
             if ($userSeed['hasPermiso'] && $userSeed['rol'] !== null) {
@@ -56,8 +68,34 @@ final class SecurityMvpSeeder extends Seeder
 
                 $this->syncCommercialLink($user, $userSeed);
                 $this->syncRolAtributos($rol, $userSeed);
+
+                if (! empty($userSeed['integracionErp'])) {
+                    $this->syncIntegracionErpAtributos($rol);
+                }
             }
         }
+    }
+
+    private function syncIntegracionErpAtributos(PqRol $rol): void
+    {
+        $procedimiento = (string) config('paqsuite_visibility.procedimientos.integracionMaestros');
+
+        if ($procedimiento === '') {
+            return;
+        }
+
+        PqRolAtributo::query()->updateOrCreate(
+            [
+                'id_rol' => $rol->id,
+                'procedimiento' => $procedimiento,
+            ],
+            [
+                'permiso_alta' => true,
+                'permiso_baja' => false,
+                'permiso_modi' => false,
+                'permiso_repo' => false,
+            ],
+        );
     }
 
     /**
