@@ -66,74 +66,6 @@ Este archivo **no sustituye** SPEC, HU ni TR: es la **entrada** del circuito de 
 
 ---
 
-## Control de Calidad #15
-
-### Referencia del control
-
-| Campo | Valor |
-|-------|--------|
-| **Fecha** | 09/09/2026 |
-| **Responsable** | Pablo Quarracino (PQ) |
-| **Estado** | Finalizado |
-
-### Hallazgos
-
-Atributos faltantes al copiar pedidos
-
-### Errores encontrados - Mejoras solicitadas
-
-#### Copiado de pedidos - no se copian todos los atributos
-
-- al copiar un pedido, no se pasan los siguientes atributos : Direccion_entrega, leyendas 1 a 5.
-
-*Procesado* → unificado en [SPEC-101-04](../05-open-spec/101-PedidosWeb/SPEC-101-04-services-pedidos.md) · [HU-101-026](../03-historias-usuario/101-PedidosWeb/HU-101-026-copiar-comprobante.md) · [TR-SPEC-101-04](../04-tareas/101-PedidosWeb/TR-SPEC-101-04-services-pedidos.md) — Parte G/D/E/F 09/09/2026 · **Parte I** 13/09/2026 · **D1-29:** copiar `id_de` · **D1-30:** copiar `leyenda_1`…`leyenda_5` con recorte a 60
-
-### Verificación ciclo OpenSpec (09/09/2026)
-
-| Parte | Documento | Veredicto |
-|-------|-----------|-----------|
-| G | Updates `-update-01` SPEC/HU/TR 101-04 / 026 | Hecho 09/09/2026 (luego unificados en Parte I) |
-| D | Implementación código | Hecho 09/09/2026 — `ComprobanteCopiaService::mapCabecera` |
-| E | Tests | Hecho 09/09/2026 — [E-CC-PQ-15-tests.md](../04-tareas/101-PedidosWeb/E-CC-PQ-15-tests.md) (obs.: timeout SQL Server en agente) |
-| F | Cierre formal | Hecho 09/09/2026 — [F-CC-PQ-15-cierre-formal.md](../04-tareas/101-PedidosWeb/F-CC-PQ-15-cierre-formal.md) |
-| I | Unificación | Hecho 13/09/2026 — SPEC (12/09) + HU/TR fusionados y eliminados |
-
----
-
-## Control de Calidad #16
-
-### Referencia del control
-
-| Campo | Valor |
-|-------|--------|
-| **Fecha** | 12/09/2026 |
-| **Responsable** | Pablo Quarracino (PQ) |
-| **Estado** | Finalizado |
-
-### Hallazgos
-
-Cancelar momentáneamente el logout por inactividad
-
-### Errores encontrados - Mejoras solicitadas
-
-#### Cancelación de Logout por inactividad.
-
-- Cancelar momentáneamente el logout por inactividad. Se restablecerá cuando se integre este proyecto con el SDK de Framework
-
-*Procesado* → unificado en [SPEC-001-02](../05-open-spec/001-Generaliddes/SPEC-001-02-acceso-y-seguridad.md) · [HU-GEN-02-expiracion-inactividad](../03-historias-usuario/001-Generaliddes/HU-GEN-02-expiracion-inactividad.md) · [TR-GEN-02-expiracion-inactividad](../04-tareas/001-Generaliddes/TR-GEN-02-expiracion-inactividad.md) — Parte G/D/E/F 12/09/2026 · **Parte I** 12/09/2026 · **D1-31:** `inactivityLogoutEnabled=false` hasta SDK Framework
-
-### Verificación ciclo OpenSpec (12/09/2026)
-
-| Parte | Documento | Veredicto |
-|-------|-----------|-----------|
-| G | Updates SPEC/HU/TR GEN-02 inactividad | Hecho 12/09/2026 (luego unificados en Parte I) |
-| D | Implementación código | Hecho 12/09/2026 — `SessionLifecycleManager` + flag |
-| E | Tests | Hecho 12/09/2026 — [E-CC-PQ-16-tests.md](../04-tareas/001-Generaliddes/E-CC-PQ-16-tests.md) |
-| F | Cierre formal | Hecho 12/09/2026 — [F-CC-PQ-16-cierre-formal.md](../04-tareas/001-Generaliddes/F-CC-PQ-16-cierre-formal.md) |
-| I | Unificación | Hecho 12/09/2026 — updates fusionados y eliminados |
-
----
-
 ## Control de Calidad #17
 
 ### Referencia del control
@@ -179,6 +111,74 @@ el atributo con el mismo esquema de la consulta: `""` (NO) y `" (*)"` (SÍ).
 | E | Tests | Hecho 21/09/2026 — [E-CC-PQ-17-tests.md](../04-tareas/101-PedidosWeb/E-CC-PQ-17-tests.md) (Vitest 12 + E2E 2; PHPUnit unit 4) |
 | F | Cierre formal | Hecho 21/09/2026 — [F-CC-PQ-17-cierre-formal.md](../04-tareas/101-PedidosWeb/F-CC-PQ-17-cierre-formal.md) |
 | I | Unificación | Hecho 21/09/2026 — [I-CC-PQ-17-cierre-formal.md](../04-tareas/101-PedidosWeb/I-CC-PQ-17-cierre-formal.md) |
+
+---
+
+## Control de Calidad #16
+
+### Referencia del control
+
+| Campo | Valor |
+|-------|--------|
+| **Fecha** | 12/09/2026 |
+| **Responsable** | Pablo Quarracino (PQ) |
+| **Estado** | Finalizado |
+
+### Hallazgos
+
+Cancelar momentáneamente el logout por inactividad
+
+### Errores encontrados - Mejoras solicitadas
+
+#### Cancelación de Logout por inactividad.
+
+- Cancelar momentáneamente el logout por inactividad. Se restablecerá cuando se integre este proyecto con el SDK de Framework
+
+*Procesado* → unificado en [SPEC-001-02](../05-open-spec/001-Generaliddes/SPEC-001-02-acceso-y-seguridad.md) · [HU-GEN-02-expiracion-inactividad](../03-historias-usuario/001-Generaliddes/HU-GEN-02-expiracion-inactividad.md) · [TR-GEN-02-expiracion-inactividad](../04-tareas/001-Generaliddes/TR-GEN-02-expiracion-inactividad.md) — Parte G/D/E/F 12/09/2026 · **Parte I** 12/09/2026 · **D1-31:** `inactivityLogoutEnabled=false` hasta SDK Framework
+
+### Verificación ciclo OpenSpec (12/09/2026)
+
+| Parte | Documento | Veredicto |
+|-------|-----------|-----------|
+| G | Updates SPEC/HU/TR GEN-02 inactividad | Hecho 12/09/2026 (luego unificados en Parte I) |
+| D | Implementación código | Hecho 12/09/2026 — `SessionLifecycleManager` + flag |
+| E | Tests | Hecho 12/09/2026 — [E-CC-PQ-16-tests.md](../04-tareas/001-Generaliddes/E-CC-PQ-16-tests.md) |
+| F | Cierre formal | Hecho 12/09/2026 — [F-CC-PQ-16-cierre-formal.md](../04-tareas/001-Generaliddes/F-CC-PQ-16-cierre-formal.md) |
+| I | Unificación | Hecho 12/09/2026 — updates fusionados y eliminados |
+
+---
+
+## Control de Calidad #15
+
+### Referencia del control
+
+| Campo | Valor |
+|-------|--------|
+| **Fecha** | 09/09/2026 |
+| **Responsable** | Pablo Quarracino (PQ) |
+| **Estado** | Finalizado |
+
+### Hallazgos
+
+Atributos faltantes al copiar pedidos
+
+### Errores encontrados - Mejoras solicitadas
+
+#### Copiado de pedidos - no se copian todos los atributos
+
+- al copiar un pedido, no se pasan los siguientes atributos : Direccion_entrega, leyendas 1 a 5.
+
+*Procesado* → unificado en [SPEC-101-04](../05-open-spec/101-PedidosWeb/SPEC-101-04-services-pedidos.md) · [HU-101-026](../03-historias-usuario/101-PedidosWeb/HU-101-026-copiar-comprobante.md) · [TR-SPEC-101-04](../04-tareas/101-PedidosWeb/TR-SPEC-101-04-services-pedidos.md) — Parte G/D/E/F 09/09/2026 · **Parte I** 13/09/2026 · **D1-29:** copiar `id_de` · **D1-30:** copiar `leyenda_1`…`leyenda_5` con recorte a 60
+
+### Verificación ciclo OpenSpec (09/09/2026)
+
+| Parte | Documento | Veredicto |
+|-------|-----------|-----------|
+| G | Updates `-update-01` SPEC/HU/TR 101-04 / 026 | Hecho 09/09/2026 (luego unificados en Parte I) |
+| D | Implementación código | Hecho 09/09/2026 — `ComprobanteCopiaService::mapCabecera` |
+| E | Tests | Hecho 09/09/2026 — [E-CC-PQ-15-tests.md](../04-tareas/101-PedidosWeb/E-CC-PQ-15-tests.md) (obs.: timeout SQL Server en agente) |
+| F | Cierre formal | Hecho 09/09/2026 — [F-CC-PQ-15-cierre-formal.md](../04-tareas/101-PedidosWeb/F-CC-PQ-15-cierre-formal.md) |
+| I | Unificación | Hecho 13/09/2026 — SPEC (12/09) + HU/TR fusionados y eliminados |
 
 ---
 

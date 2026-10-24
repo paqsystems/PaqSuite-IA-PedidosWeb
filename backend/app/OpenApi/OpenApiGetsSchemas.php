@@ -103,6 +103,295 @@ namespace App\OpenApi;
  * )
  *
  * @OA\Schema(
+ *     schema="IntegracionMaestroProvinciaItem",
+ *     type="object",
+ *     required={"codProvin"},
+ *     @OA\Property(property="codProvin", type="string", example="B"),
+ *     @OA\Property(property="descripcion", type="string", nullable=true, example="Buenos Aires")
+ * )
+ *
+ * @OA\Schema(
+ *     schema="IntegracionMaestroCondicionVentaItem",
+ *     type="object",
+ *     required={"codigo"},
+ *     @OA\Property(property="codigo", type="integer", example=1),
+ *     @OA\Property(property="descripcion", type="string", nullable=true, example="Contado"),
+ *     @OA\Property(property="dias", type="integer", nullable=true, example=0)
+ * )
+ *
+ * @OA\Schema(
+ *     schema="IntegracionMaestroTransporteItem",
+ *     type="object",
+ *     required={"codigo"},
+ *     @OA\Property(property="codigo", type="string", example="TR01"),
+ *     @OA\Property(property="descripcion", type="string", nullable=true, example="Retiro en planta")
+ * )
+ *
+ * @OA\Schema(
+ *     schema="IntegracionMaestroPerfilItem",
+ *     type="object",
+ *     required={"codPerfil"},
+ *     @OA\Property(property="codPerfil", type="string", example="P01"),
+ *     @OA\Property(property="descripcion", type="string", nullable=true, example="Perfil estándar")
+ * )
+ *
+ * @OA\Schema(
+ *     schema="IntegracionMaestroVendedorItem",
+ *     type="object",
+ *     required={"codVended"},
+ *     @OA\Property(property="codVended", type="string", example="VEN01"),
+ *     @OA\Property(property="nombre", type="string", nullable=true, example="Vendedor Uno"),
+ *     @OA\Property(property="supervisor", type="boolean", nullable=true, example=false),
+ *     @OA\Property(property="codLogin", type="string", nullable=true, description="Ignorado por la API")
+ * )
+ *
+ * @OA\Schema(
+ *     schema="IntegracionMaestroListaPrecioItem",
+ *     type="object",
+ *     required={"codLista"},
+ *     @OA\Property(property="codLista", type="integer", example=1),
+ *     @OA\Property(property="descripcion", type="string", nullable=true, example="Lista general"),
+ *     @OA\Property(property="moneda", type="integer", nullable=true, example=1),
+ *     @OA\Property(property="incluyeIva", type="boolean", nullable=true, example=false)
+ * )
+ *
+ * @OA\Schema(
+ *     schema="IntegracionMaestroEscalaValorItem",
+ *     type="object",
+ *     required={"codValor"},
+ *     @OA\Property(property="codValor", type="string", example="U"),
+ *     @OA\Property(property="descValor", type="string", nullable=true, example="Unidad")
+ * )
+ *
+ * @OA\Schema(
+ *     schema="IntegracionMaestroEscalaItem",
+ *     type="object",
+ *     required={"codEscala"},
+ *     @OA\Property(property="codEscala", type="string", example="01"),
+ *     @OA\Property(property="descripEs", type="string", nullable=true, example="Unidades"),
+ *     @OA\Property(property="nroEscala", type="integer", nullable=true, example=1),
+ *     @OA\Property(property="valores", type="array", @OA\Items(ref="#/components/schemas/IntegracionMaestroEscalaValorItem")),
+ *     @OA\Property(property="eliminarSiAusente", type="boolean", default=false)
+ * )
+ *
+ * @OA\Schema(
+ *     schema="IntegracionMaestroArticuloItem",
+ *     type="object",
+ *     required={"codigo"},
+ *     @OA\Property(property="codigo", type="string", example="ART001"),
+ *     @OA\Property(property="descripcion", type="string", nullable=true, example="Artículo de prueba"),
+ *     @OA\Property(property="bonificacion", type="number", format="double", nullable=true, example=0),
+ *     @OA\Property(property="usaEsc", type="boolean", nullable=true, example=false),
+ *     @OA\Property(property="base", type="string", nullable=true, example=""),
+ *     @OA\Property(property="valor1", type="number", format="double", nullable=true, example=0),
+ *     @OA\Property(property="valor2", type="number", format="double", nullable=true, example=0),
+ *     @OA\Property(property="porcIva", type="number", format="double", nullable=true, example=21),
+ *     @OA\Property(property="equivalenciaVentas", type="number", format="double", nullable=true, example=1),
+ *     @OA\Property(property="stockeable", type="boolean", nullable=true, example=true),
+ *     @OA\Property(property="especial", type="boolean", nullable=true, example=false),
+ *     @OA\Property(property="eliminarSiAusente", type="boolean", default=false)
+ * )
+ *
+ * @OA\Schema(
+ *     schema="IntegracionMaestroListaPrecioArticuloItem",
+ *     type="object",
+ *     required={"codLista","codArticulo"},
+ *     @OA\Property(property="codLista", type="integer", example=1),
+ *     @OA\Property(property="codArticulo", type="string", example="ART001"),
+ *     @OA\Property(property="precio", type="number", format="double", nullable=true, example=123.5),
+ *     @OA\Property(property="fechaVigencia", type="string", format="date", nullable=true, example="2026-10-23")
+ * )
+ *
+ * @OA\Schema(
+ *     schema="IntegracionMaestroDescuentoCantidadItem",
+ *     type="object",
+ *     required={"codArticu","cantidad"},
+ *     @OA\Property(property="codArticu", type="string", example="ART001"),
+ *     @OA\Property(property="cantidad", type="number", format="double", example=10),
+ *     @OA\Property(property="porcentaje", type="number", format="double", nullable=true, example=5)
+ * )
+
+ * @OA\Schema(
+ *     schema="IntegracionTransaccionStockItem",
+ *     type="object",
+ *     required={"codArticulo","stock","comprometido"},
+ *     @OA\Property(property="codArticulo", type="string", example="ART001"),
+ *     @OA\Property(property="stock", type="number", format="double", example=100.5),
+ *     @OA\Property(property="comprometido", type="number", format="double", example=10)
+ * )
+ *
+ * @OA\Schema(
+ *     schema="IntegracionTransaccionDeudaItem",
+ *     type="object",
+ *     required={"codCliente","tComp","nComp","fechaEmis","fechaVto","saldo"},
+ *     @OA\Property(property="codCliente", type="string", example="CL-001"),
+ *     @OA\Property(property="tComp", type="string", example="FC"),
+ *     @OA\Property(property="nComp", type="string", example="0001-00001234"),
+ *     @OA\Property(property="fechaEmis", type="string", format="date", example="2026-10-20"),
+ *     @OA\Property(property="fechaVto", type="string", format="date", example="2026-11-20"),
+ *     @OA\Property(property="saldo", type="number", format="double", example=1500.25)
+ * )
+ *
+ * @OA\Schema(
+ *     schema="IntegracionTransaccionChequeItem",
+ *     type="object",
+ *     required={"interno","numero","codCliente","banco","fecha","importe","origen","estado"},
+ *     @OA\Property(property="interno", type="string", example="1001"),
+ *     @OA\Property(property="numero", type="string", example="456789"),
+ *     @OA\Property(property="codCliente", type="string", example="CL-001"),
+ *     @OA\Property(property="banco", type="string", example="Galicia"),
+ *     @OA\Property(property="fecha", type="string", format="date", example="2026-10-20"),
+ *     @OA\Property(property="importe", type="number", format="double", example=25000.5),
+ *     @OA\Property(property="origen", type="string", example="Cartera"),
+ *     @OA\Property(property="estado", type="string", example="En cartera")
+ * )
+ *
+ * @OA\Schema(
+ *     schema="IntegracionTransaccionHistorialVentaItem",
+ *     type="object",
+ *     required={"idGva53","codCliente","tipo","numero","fechaEmision"},
+ *     @OA\Property(property="idGva53", type="integer", example=1001),
+ *     @OA\Property(property="codCliente", type="string", example="CL-001"),
+ *     @OA\Property(property="tipo", type="string", example="FC"),
+ *     @OA\Property(property="numero", type="string", example="0001-00001234"),
+ *     @OA\Property(property="fechaEmision", type="string", format="date", example="2026-10-20"),
+ *     @OA\Property(property="codArticu", type="string", nullable=true, example="ART001"),
+ *     @OA\Property(property="nRemito", type="string", nullable=true, example="R-001"),
+ *     @OA\Property(property="condVta", type="integer", nullable=true, example=1),
+ *     @OA\Property(property="porcDesc", type="number", format="double", nullable=true, example=0),
+ *     @OA\Property(property="cotiz", type="number", format="double", nullable=true, example=1),
+ *     @OA\Property(property="moneda", type="string", nullable=true, example="ARS"),
+ *     @OA\Property(property="totalComp", type="number", format="double", nullable=true, example=10000),
+ *     @OA\Property(property="codTransp", type="string", nullable=true, example="TR01"),
+ *     @OA\Property(property="nomTransp", type="string", nullable=true, example="Retiro"),
+ *     @OA\Property(property="descripcion", type="string", nullable=true, example="Artículo de prueba"),
+ *     @OA\Property(property="codDep", type="string", nullable=true, example="01"),
+ *     @OA\Property(property="um", type="string", nullable=true, example="UN"),
+ *     @OA\Property(property="cantidad", type="number", format="double", nullable=true, example=10),
+ *     @OA\Property(property="precio", type="number", format="double", nullable=true, example=123.5),
+ *     @OA\Property(property="totSinImp", type="number", format="double", nullable=true, example=1235),
+ *     @OA\Property(property="nCompRem", type="string", nullable=true, example=""),
+ *     @OA\Property(property="cantRem", type="number", format="double", nullable=true, example=0),
+ *     @OA\Property(property="fechaRem", type="string", format="date", nullable=true, example="2026-10-21")
+ * )
+ *
+ * @OA\Schema(
+ *     schema="IntegracionMaestroProvinciasLoteRequest",
+ *     allOf={
+ *         @OA\Schema(ref="#/components/schemas/IntegracionMaestroLoteRequest"),
+ *         @OA\Schema(type="object", @OA\Property(property="items", type="array", @OA\Items(ref="#/components/schemas/IntegracionMaestroProvinciaItem")))
+ *     }
+ * )
+ *
+ * @OA\Schema(
+ *     schema="IntegracionMaestroCondventaLoteRequest",
+ *     allOf={
+ *         @OA\Schema(ref="#/components/schemas/IntegracionMaestroLoteRequest"),
+ *         @OA\Schema(type="object", @OA\Property(property="items", type="array", @OA\Items(ref="#/components/schemas/IntegracionMaestroCondicionVentaItem")))
+ *     }
+ * )
+ *
+ * @OA\Schema(
+ *     schema="IntegracionMaestroTransportesLoteRequest",
+ *     allOf={
+ *         @OA\Schema(ref="#/components/schemas/IntegracionMaestroLoteRequest"),
+ *         @OA\Schema(type="object", @OA\Property(property="items", type="array", @OA\Items(ref="#/components/schemas/IntegracionMaestroTransporteItem")))
+ *     }
+ * )
+ *
+ * @OA\Schema(
+ *     schema="IntegracionMaestroPerfilesLoteRequest",
+ *     allOf={
+ *         @OA\Schema(ref="#/components/schemas/IntegracionMaestroLoteRequest"),
+ *         @OA\Schema(type="object", @OA\Property(property="items", type="array", @OA\Items(ref="#/components/schemas/IntegracionMaestroPerfilItem")))
+ *     }
+ * )
+ *
+ * @OA\Schema(
+ *     schema="IntegracionMaestroVendedoresLoteRequest",
+ *     allOf={
+ *         @OA\Schema(ref="#/components/schemas/IntegracionMaestroLoteRequest"),
+ *         @OA\Schema(type="object", @OA\Property(property="items", type="array", @OA\Items(ref="#/components/schemas/IntegracionMaestroVendedorItem")))
+ *     }
+ * )
+ *
+ * @OA\Schema(
+ *     schema="IntegracionMaestroListapreciosLoteRequest",
+ *     allOf={
+ *         @OA\Schema(ref="#/components/schemas/IntegracionMaestroLoteRequest"),
+ *         @OA\Schema(type="object", @OA\Property(property="items", type="array", @OA\Items(ref="#/components/schemas/IntegracionMaestroListaPrecioItem")))
+ *     }
+ * )
+ *
+ * @OA\Schema(
+ *     schema="IntegracionMaestroEscalasLoteRequest",
+ *     allOf={
+ *         @OA\Schema(ref="#/components/schemas/IntegracionMaestroLoteRequest"),
+ *         @OA\Schema(type="object", @OA\Property(property="items", type="array", @OA\Items(ref="#/components/schemas/IntegracionMaestroEscalaItem")))
+ *     }
+ * )
+ *
+ * @OA\Schema(
+ *     schema="IntegracionMaestroArticulosLoteRequest",
+ *     allOf={
+ *         @OA\Schema(ref="#/components/schemas/IntegracionMaestroLoteRequest"),
+ *         @OA\Schema(type="object", @OA\Property(property="items", type="array", @OA\Items(ref="#/components/schemas/IntegracionMaestroArticuloItem")))
+ *     }
+ * )
+ *
+ * @OA\Schema(
+ *     schema="IntegracionMaestroListapreciosArticulosLoteRequest",
+ *     allOf={
+ *         @OA\Schema(ref="#/components/schemas/IntegracionMaestroLoteRequest"),
+ *         @OA\Schema(type="object", @OA\Property(property="items", type="array", @OA\Items(ref="#/components/schemas/IntegracionMaestroListaPrecioArticuloItem")))
+ *     }
+ * )
+ *
+ * @OA\Schema(
+ *     schema="IntegracionMaestroDescuentocantidadLoteRequest",
+ *     allOf={
+ *         @OA\Schema(ref="#/components/schemas/IntegracionMaestroLoteRequest"),
+ *         @OA\Schema(type="object", @OA\Property(property="items", type="array", @OA\Items(ref="#/components/schemas/IntegracionMaestroDescuentoCantidadItem")))
+ *     }
+ * )
+ *
+ * @OA\Schema(
+ *     schema="IntegracionTransaccionStockLoteRequest",
+ *     allOf={
+ *         @OA\Schema(ref="#/components/schemas/IntegracionTransaccionLoteRequest"),
+ *         @OA\Schema(type="object", @OA\Property(property="items", type="array", @OA\Items(ref="#/components/schemas/IntegracionTransaccionStockItem")))
+ *     }
+ * )
+ *
+ * @OA\Schema(
+ *     schema="IntegracionTransaccionDeudaLoteRequest",
+ *     allOf={
+ *         @OA\Schema(ref="#/components/schemas/IntegracionTransaccionLoteRequest"),
+ *         @OA\Schema(type="object", @OA\Property(property="items", type="array", @OA\Items(ref="#/components/schemas/IntegracionTransaccionDeudaItem")))
+ *     }
+ * )
+ *
+ * @OA\Schema(
+ *     schema="IntegracionTransaccionChequesLoteRequest",
+ *     allOf={
+ *         @OA\Schema(ref="#/components/schemas/IntegracionTransaccionLoteRequest"),
+ *         @OA\Schema(type="object", @OA\Property(property="items", type="array", @OA\Items(ref="#/components/schemas/IntegracionTransaccionChequeItem")))
+ *     }
+ * )
+ *
+ * @OA\Schema(
+ *     schema="IntegracionTransaccionHistorialVentasLoteRequest",
+ *     allOf={
+ *         @OA\Schema(ref="#/components/schemas/IntegracionTransaccionLoteRequest"),
+ *         @OA\Schema(
+ *             type="object",
+ *             @OA\Property(property="modo", type="string", enum={"delta"}, example="delta"),
+ *             @OA\Property(property="items", type="array", @OA\Items(ref="#/components/schemas/IntegracionTransaccionHistorialVentaItem"))
+ *         )
+ *     }
+ * )
+ *
+ * @OA\Schema(
  *     schema="ParametrosCargaResultado",
  *     type="object",
  *     @OA\Property(property="modificaPrecio", type="boolean", example=true),

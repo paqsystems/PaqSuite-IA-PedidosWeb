@@ -77,7 +77,6 @@ final class OpenApiDocumentationTest extends TestCase
             '/api/v1/consultas/cheques',
             '/api/v1/consultas/historial-ventas',
             '/api/v1/integracion/logs',
-            '/api/v1/integracion/maestros/{recurso}',
             '/api/v1/integracion/maestros/provincias',
             '/api/v1/integracion/maestros/condventa',
             '/api/v1/integracion/maestros/transportes',
@@ -88,6 +87,14 @@ final class OpenApiDocumentationTest extends TestCase
             '/api/v1/integracion/maestros/articulos',
             '/api/v1/integracion/maestros/listaprecios-articulos',
             '/api/v1/integracion/maestros/descuentocantidad',
+            '/api/v1/integracion/maestros/clientes',
+            '/api/v1/integracion/maestros/clientes-direcciones',
+            '/api/v1/integracion/maestros/clientes-contactos',
+            '/api/v1/integracion/maestros/parametros',
+            '/api/v1/integracion/transacciones/stock',
+            '/api/v1/integracion/transacciones/deuda',
+            '/api/v1/integracion/transacciones/cheques',
+            '/api/v1/integracion/transacciones/historial-ventas',
             '/api/v1/dashboard/operativo',
             '/api/v1/config/parametros-carga',
             '/api/v1/articulos',
@@ -212,16 +219,32 @@ final class OpenApiDocumentationTest extends TestCase
             'GET plantilla debe documentar response binario xlsx'
         );
 
-        $maestrosPostRef = $spec['paths']['/api/v1/integracion/maestros/{recurso}']['post']['responses']['200']['content']['application/json']['schema']['$ref'] ?? null;
-        $this->assertSame(
-            '#/components/schemas/ApiEnvelopeIntegracionMaestroLote',
-            $maestrosPostRef,
-            'POST integracion maestros debe tipar envelope de lote'
-        );
-        $this->assertContains(
-            'Integración maestros',
-            $spec['paths']['/api/v1/integracion/maestros/{recurso}']['post']['tags'] ?? [],
-        );
+        foreach ([
+            '/api/v1/integracion/maestros/provincias',
+            '/api/v1/integracion/maestros/condventa',
+            '/api/v1/integracion/maestros/transportes',
+            '/api/v1/integracion/maestros/perfiles',
+            '/api/v1/integracion/maestros/vendedores',
+            '/api/v1/integracion/maestros/listaprecios',
+            '/api/v1/integracion/maestros/escalas',
+            '/api/v1/integracion/maestros/articulos',
+            '/api/v1/integracion/maestros/listaprecios-articulos',
+            '/api/v1/integracion/maestros/descuentocantidad',
+            '/api/v1/integracion/maestros/clientes',
+            '/api/v1/integracion/maestros/clientes-direcciones',
+            '/api/v1/integracion/maestros/clientes-contactos',
+            '/api/v1/integracion/maestros/parametros',
+        ] as $path) {
+            $this->assertSame(
+                '#/components/schemas/ApiEnvelopeIntegracionMaestroLote',
+                $spec['paths'][$path]['post']['responses']['200']['content']['application/json']['schema']['$ref'] ?? null,
+                "POST {$path} debe tipar envelope de lote"
+            );
+            $this->assertContains(
+                'Integración maestros',
+                $spec['paths'][$path]['post']['tags'] ?? [],
+            );
+        }
 
         $extraGets = [
             '/api/v1/config/public' => 'ApiEnvelopePublicConfig',
@@ -301,6 +324,99 @@ final class OpenApiDocumentationTest extends TestCase
             $requestSchema = $spec['paths'][$path]['post']['requestBody']['content']['application/json']['schema']['$ref'] ?? null;
             $this->assertSame('#/components/schemas/'.$schema, $requestSchema, "Request sin schema tipado: {$path}");
         }
+    }
+
+    public function testIntegracionOpenApiTipaTodosLosItemsDeMaestrosYTransacciones(): void
+    {
+        $spec = $this->loadGeneratedSpec();
+        $schemas = $spec['components']['schemas'] ?? [];
+
+        $expectedRequests = [
+            '/api/v1/integracion/maestros/provincias' => [
+                'request' => 'IntegracionMaestroProvinciasLoteRequest',
+                'item' => 'IntegracionMaestroProvinciaItem',
+            ],
+            '/api/v1/integracion/maestros/condventa' => [
+                'request' => 'IntegracionMaestroCondventaLoteRequest',
+                'item' => 'IntegracionMaestroCondicionVentaItem',
+            ],
+            '/api/v1/integracion/maestros/transportes' => [
+                'request' => 'IntegracionMaestroTransportesLoteRequest',
+                'item' => 'IntegracionMaestroTransporteItem',
+            ],
+            '/api/v1/integracion/maestros/perfiles' => [
+                'request' => 'IntegracionMaestroPerfilesLoteRequest',
+                'item' => 'IntegracionMaestroPerfilItem',
+            ],
+            '/api/v1/integracion/maestros/vendedores' => [
+                'request' => 'IntegracionMaestroVendedoresLoteRequest',
+                'item' => 'IntegracionMaestroVendedorItem',
+            ],
+            '/api/v1/integracion/maestros/listaprecios' => [
+                'request' => 'IntegracionMaestroListapreciosLoteRequest',
+                'item' => 'IntegracionMaestroListaPrecioItem',
+            ],
+            '/api/v1/integracion/maestros/escalas' => [
+                'request' => 'IntegracionMaestroEscalasLoteRequest',
+                'item' => 'IntegracionMaestroEscalaItem',
+            ],
+            '/api/v1/integracion/maestros/articulos' => [
+                'request' => 'IntegracionMaestroArticulosLoteRequest',
+                'item' => 'IntegracionMaestroArticuloItem',
+            ],
+            '/api/v1/integracion/maestros/listaprecios-articulos' => [
+                'request' => 'IntegracionMaestroListapreciosArticulosLoteRequest',
+                'item' => 'IntegracionMaestroListaPrecioArticuloItem',
+            ],
+            '/api/v1/integracion/maestros/descuentocantidad' => [
+                'request' => 'IntegracionMaestroDescuentocantidadLoteRequest',
+                'item' => 'IntegracionMaestroDescuentoCantidadItem',
+            ],
+            '/api/v1/integracion/maestros/clientes' => [
+                'request' => 'IntegracionMaestroClientesLoteRequest',
+                'item' => 'IntegracionMaestroClienteItem',
+            ],
+            '/api/v1/integracion/maestros/clientes-direcciones' => [
+                'request' => 'IntegracionMaestroDireccionesLoteRequest',
+                'item' => 'IntegracionMaestroDireccionItem',
+            ],
+            '/api/v1/integracion/maestros/clientes-contactos' => [
+                'request' => 'IntegracionMaestroContactosLoteRequest',
+                'item' => 'IntegracionMaestroContactoItem',
+            ],
+            '/api/v1/integracion/maestros/parametros' => [
+                'request' => 'IntegracionMaestroParametrosLoteRequest',
+                'item' => 'IntegracionMaestroParametroItem',
+            ],
+            '/api/v1/integracion/transacciones/stock' => [
+                'request' => 'IntegracionTransaccionStockLoteRequest',
+                'item' => 'IntegracionTransaccionStockItem',
+            ],
+            '/api/v1/integracion/transacciones/deuda' => [
+                'request' => 'IntegracionTransaccionDeudaLoteRequest',
+                'item' => 'IntegracionTransaccionDeudaItem',
+            ],
+            '/api/v1/integracion/transacciones/cheques' => [
+                'request' => 'IntegracionTransaccionChequesLoteRequest',
+                'item' => 'IntegracionTransaccionChequeItem',
+            ],
+            '/api/v1/integracion/transacciones/historial-ventas' => [
+                'request' => 'IntegracionTransaccionHistorialVentasLoteRequest',
+                'item' => 'IntegracionTransaccionHistorialVentaItem',
+            ],
+        ];
+
+        foreach ($expectedRequests as $path => $expected) {
+            $this->assertArrayHasKey($expected['request'], $schemas);
+            $this->assertArrayHasKey($expected['item'], $schemas);
+            $requestRef = $spec['paths'][$path]['post']['requestBody']['content']['application/json']['schema']['$ref'] ?? null;
+            $this->assertSame('#/components/schemas/'.$expected['request'], $requestRef, "Request sin schema tipado: {$path}");
+        }
+
+        $historialSchema = $schemas['IntegracionTransaccionHistorialVentasLoteRequest']['allOf'] ?? [];
+        $historialJson = json_encode($historialSchema);
+        $this->assertStringContainsString('"delta"', (string) $historialJson);
+        $this->assertStringNotContainsString('"snapshot"', (string) $historialJson);
     }
 
     public function testGeneratedSpecDocumentsTransversalSecurityRules(): void
