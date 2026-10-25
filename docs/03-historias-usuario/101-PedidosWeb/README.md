@@ -13,6 +13,8 @@ Convención: **`HU-101-NNN-tema.md`** derivadas de [PedidosWeb_SPEC_MVP.md](../.
 **B1 (2026-10-21):** SPEC-101-22 — HU-101-046…048 **B1 cerrado** ([F-101-22-cierre-b1](../../04-tareas/101-PedidosWeb/F-101-22-cierre-b1-importacion-maestros-erp.md)); estado **Especificado**.
 **B (2026-10-22):** SPEC-101-23 — HU-101-049…051 **generadas**; Jira [PIAPEDWEB-40](https://paqsystems.atlassian.net/browse/PIAPEDWEB-40), [PIAPEDWEB-41](https://paqsystems.atlassian.net/browse/PIAPEDWEB-41), [PIAPEDWEB-42](https://paqsystems.atlassian.net/browse/PIAPEDWEB-42).
 **B1 (2026-10-22):** SPEC-101-23 — HU-101-049…051 **B1 cerrado** ([F-101-23-cierre-b1](../../04-tareas/101-PedidosWeb/F-101-23-cierre-b1-importacion-transacciones-erp.md)); listas para Parte C.
+**B (2026-10-25):** SPEC-101-24 — HU-101-052…054 **generadas**.
+**B1 (2026-10-25):** SPEC-101-24 — HU-101-052…054 **B1 cerrado** ([F-101-24-cierre-b1](../../04-tareas/101-PedidosWeb/F-101-24-cierre-b1-importacion-medidas-erp.md)); listas para Parte C.
 **C (2026-06-17):** TR-16a y TR-16b generadas.  
 **C1 (2026-06-17):** Revisión C1 **Apto** — [F-101-16-cierre-c1](../../04-tareas/101-PedidosWeb/F-101-16-cierre-c1.md); listo **D1**.
 
@@ -124,6 +126,16 @@ Convención: **`HU-101-NNN-tema.md`** derivadas de [PedidosWeb_SPEC_MVP.md](../.
 | [HU-101-051](HU-101-051-integracion-transacciones-historial-ventas.md) | Must | [PIAPEDWEB-42](https://paqsystems.atlassian.net/browse/PIAPEDWEB-42) | Historial de ventas |
 
 **SPEC:** [SPEC-101-23](../../05-open-spec/101-PedidosWeb/SPEC-101-23-importacion-transacciones-erp.md) · **A1:** [F-101-23-cierre-a1](../../04-tareas/101-PedidosWeb/F-101-23-cierre-a1-importacion-transacciones-erp.md) · **B1:** [F-101-23-cierre-b1](../../04-tareas/101-PedidosWeb/F-101-23-cierre-b1-importacion-transacciones-erp.md) — autoriza **C**.
+
+## SPEC-101-24 — Importación medidas ERP
+
+| HU | Prioridad | Título |
+|----|-----------|--------|
+| [HU-101-052](HU-101-052-integracion-medidas-plataforma.md) | Must | Plataforma de recepción y consulta asíncrona |
+| [HU-101-053](HU-101-053-integracion-medidas-maestro.md) | Must | Sincronización del maestro `medidas` |
+| [HU-101-054](HU-101-054-integracion-medidas-postman.md) | Must | Pruebas Postman y contrato reproducible |
+
+**SPEC:** [SPEC-101-24](../../05-open-spec/101-PedidosWeb/SPEC-101-24-importacion-medidas-erp.md) · **A1:** Apto con observaciones; **B1:** [F-101-24-cierre-b1](../../04-tareas/101-PedidosWeb/F-101-24-cierre-b1-importacion-medidas-erp.md) — listo para Parte C.
 
 ## Dependencias transversales
 

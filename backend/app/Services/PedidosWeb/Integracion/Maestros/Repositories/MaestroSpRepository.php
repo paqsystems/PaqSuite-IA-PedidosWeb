@@ -9,7 +9,7 @@ final class MaestroSpRepository
 {
     /**
      * @param  array<string, mixed>  $item
-     * @return array{status: string, clave: string|null, error_code: string|null}
+     * @return array{status: string, clave: string|null, error_code: string|null, operation: string}
      */
     public function apply(
         string $procedure,
@@ -34,11 +34,12 @@ final class MaestroSpRepository
             'status' => (string) ($row->status ?? 'applied'),
             'clave' => isset($row->clave) ? (string) $row->clave : null,
             'error_code' => isset($row->error_code) ? (string) $row->error_code : null,
+            'operation' => (string) ($row->operation ?? 'modified'),
         ];
     }
 
     /**
-     * @return array<int, array{status: string, clave: string|null, error_code: string|null}>
+     * @return array<int, array{status: string, clave: string|null, error_code: string|null, operation: string}>
      */
     public function finalize(
         string $procedure,
@@ -58,6 +59,7 @@ final class MaestroSpRepository
             'status' => (string) ($row->status ?? 'omitted'),
             'clave' => isset($row->clave) ? (string) $row->clave : null,
             'error_code' => isset($row->error_code) ? (string) $row->error_code : null,
+            'operation' => (string) ($row->operation ?? 'deleted'),
         ], $rows);
     }
 

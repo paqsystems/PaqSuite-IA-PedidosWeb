@@ -23,7 +23,7 @@ Cuatro recursos: `clientes`, `clientes-direcciones`, `clientes-contactos`, `para
 - Whitelist cargada desde lista estática generada del seed [PQ_PARAMETROS_GRAL.PedidosWeb.seed.json](../../backend/seed/PQ_PARAMETROS_GRAL/PQ_PARAMETROS_GRAL.PedidosWeb.seed.json) (claves `clave` del JSON)
 - Recorte leyendas 1–5 a 60 chars (helper `IntegracionMaestroText::truncateUnicode60`)
 - Baja física de cliente solo si no existen referencias en pedidos, deuda, cheques ni ventas detalladas; en transacción se eliminan primero contactos, luego direcciones y finalmente el cliente.
-- OpenAPI 4 paths
+- OpenAPI del recurso `clientes` con nodos hijos `direcciones[]` y `contactos[]`; retirar paths separados
 - Feature tests
 
 ### Out of scope
@@ -51,14 +51,14 @@ Cuatro recursos: `clientes`, `clientes-direcciones`, `clientes-contactos`, `para
 
 | Recurso | Handler | SP | Snapshot |
 |---------|---------|-----|----------|
-| `clientes` | `ClientesMaestroHandler` | `pq_sp_integracion_maestros_clientes_apply` | true (replace; eliminarSiAusente) |
-| `clientes-direcciones` | `ClientesDireccionesMaestroHandler` | `pq_sp_integracion_maestros_clientes_direcciones_apply` | **false** |
-| `clientes-contactos` | `ClientesContactosMaestroHandler` | `pq_sp_integracion_maestros_clientes_contactos_apply` | **false** |
+| `clientes` | `ClientesMaestroHandler` | `pq_sp_integracion_maestros_clientes_apply` + SP hijos | true (replace; eliminarSiAusente) |
 | `parametros` | `ParametrosMaestroHandler` | `pq_sp_integracion_maestros_parametros_apply` | false (solo upsert claves enviadas) |
 
 ### 3.1 Clientes — JSON (camelCase)
 
 Campos modelo §3.1: `codClient`, `nombre`, `fantasia`, `codVended`, `listaPrecios`, `codCondvta`, `codTranspor`, `bonificacion`, `nivel`, `expreso`, `expresoDire`, `eMail`, `razonSoci`, `leyenda1`…`leyenda5`.
+
+El ítem también puede contener `direcciones[]` y `contactos[]`. En la etapa D serán el contrato único de alta/modificación de clientes y sus datos relacionados; no se enviarán requests separados por recurso.
 
 - Ignorar `codLogin`.
 - Pre-SP: truncar `leyenda1`…`leyenda5`.
@@ -119,9 +119,7 @@ Implementación whitelist:
 
 Paths:
 
-- `POST .../clientes`
-- `POST .../clientes-direcciones`
-- `POST .../clientes-contactos`
+- `POST .../clientes`, con `direcciones[]` y `contactos[]`
 - `POST .../parametros`
 
 Documentar ejemplo ítem parámetro y cliente en descriptions.
@@ -134,9 +132,8 @@ Documentar ejemplo ítem parámetro y cliente en descriptions.
 |-------|-----------|
 | `IntegracionMaestroClientesTest` | delta, leyendas, cod_login ignorado |
 | `IntegracionMaestroClientesDeleteTest` | eliminarSiAusente; elimina contactos/direcciones y rechaza cliente referenciado |
-| `IntegracionMaestroContactosDeltaPreservaTest` | contacto omitido permanece |
+| `IntegracionMaestroContactosDeltaPreservaTest` | contacto omitido permanece dentro del cliente |
 | `IntegracionMaestroParametrosWhitelistTest` | clave inválida rechazada |
-| `IntegracionMaestroDireccionesSnapshotRejectedTest` | 422 |
 
 Setup: seed mínimo vendedor + cliente en SQL o usar datos dev existentes (tests feature con `@group integracion`).
 
@@ -147,7 +144,7 @@ Setup: seed mínimo vendedor + cliente en SQL o usar datos dev existentes (tests
 Implementar **después** de TR-22b (catálogo mínimo cargado).
 
 ```text
-22a → 22b (provincias…vendedores) → 22c clientes → 22c direcciones/contactos → 22c parametros
+22a → 22b (condventa/articulos como pruebas iniciales) → resto de maestros → clientes con direcciones/contactos → parametros
 ```
 
 ---

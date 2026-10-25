@@ -28,7 +28,19 @@ namespace App\OpenApi;
  *     @OA\Property(property="leyenda4", type="string", maxLength=60, nullable=true),
  *     @OA\Property(property="leyenda5", type="string", maxLength=60, nullable=true),
  *     @OA\Property(property="codLogin", type="string", nullable=true, description="Ignorado por la API"),
- *     @OA\Property(property="eliminarSiAusente", type="boolean", default=false)
+ *     @OA\Property(property="eliminarSiAusente", type="boolean", default=false),
+ *     @OA\Property(
+ *         property="direcciones",
+ *         type="array",
+ *         description="Direcciones de entrega del cliente",
+ *         @OA\Items(ref="#/components/schemas/IntegracionMaestroDireccionItem")
+ *     ),
+ *     @OA\Property(
+ *         property="contactos",
+ *         type="array",
+ *         description="Contactos del cliente",
+ *         @OA\Items(ref="#/components/schemas/IntegracionMaestroContactoItem")
+ *     )
  * )
  *
  * @OA\Schema(
@@ -152,7 +164,14 @@ namespace App\OpenApi;
  *     @OA\Property(property="codLista", type="integer", example=1),
  *     @OA\Property(property="descripcion", type="string", nullable=true, example="Lista general"),
  *     @OA\Property(property="moneda", type="integer", nullable=true, example=1),
- *     @OA\Property(property="incluyeIva", type="boolean", nullable=true, example=false)
+ *     @OA\Property(property="incluyeIva", type="boolean", nullable=true, example=false),
+ *     @OA\Property(property="decimales", type="integer", nullable=true, example=2),
+ *     @OA\Property(
+ *         property="articulos",
+ *         type="array",
+ *         description="Precios de los artículos pertenecientes a la lista",
+ *         @OA\Items(ref="#/components/schemas/IntegracionMaestroListaPrecioArticuloItem")
+ *     )
  * )
  *
  * @OA\Schema(
@@ -195,11 +214,9 @@ namespace App\OpenApi;
  * @OA\Schema(
  *     schema="IntegracionMaestroListaPrecioArticuloItem",
  *     type="object",
- *     required={"codLista","codArticulo"},
- *     @OA\Property(property="codLista", type="integer", example=1),
+ *     required={"codArticulo"},
  *     @OA\Property(property="codArticulo", type="string", example="ART001"),
- *     @OA\Property(property="precio", type="number", format="double", nullable=true, example=123.5),
- *     @OA\Property(property="fechaVigencia", type="string", format="date", nullable=true, example="2026-10-23")
+ *     @OA\Property(property="precio", type="number", format="double", nullable=true, example=123.5)
  * )
  *
  * @OA\Schema(
@@ -853,13 +870,18 @@ namespace App\OpenApi;
  * @OA\Schema(
  *     schema="IntegracionMaestroLoteResultado",
  *     type="object",
- *     required={"recurso","modo","recibidos","aplicados","omitidos","rechazados","errores"},
+ *     required={"recurso","modo","recibidos","procesados","agregados","modificados","eliminados","agregadosErroneos","modificadosErroneos","eliminadosErroneos","errores"},
  *     @OA\Property(property="recurso", type="string", example="provincias"),
  *     @OA\Property(property="modo", type="string", example="delta"),
  *     @OA\Property(property="recibidos", type="integer", example=3),
- *     @OA\Property(property="aplicados", type="integer", example=2),
+ *     @OA\Property(property="procesados", type="integer", example=3),
+ *     @OA\Property(property="agregados", type="integer", example=1),
+ *     @OA\Property(property="modificados", type="integer", example=1),
+ *     @OA\Property(property="eliminados", type="integer", example=1),
+ *     @OA\Property(property="agregadosErroneos", type="integer", example=0),
+ *     @OA\Property(property="modificadosErroneos", type="integer", example=0),
+ *     @OA\Property(property="eliminadosErroneos", type="integer", example=0),
  *     @OA\Property(property="omitidos", type="integer", example=0),
- *     @OA\Property(property="rechazados", type="integer", example=1),
  *     @OA\Property(property="errores", type="array", @OA\Items(ref="#/components/schemas/IntegracionMaestroItemError"))
  * )
  *
@@ -868,6 +890,44 @@ namespace App\OpenApi;
  *     allOf={
  *         @OA\Schema(ref="#/components/schemas/ApiEnvelope"),
  *         @OA\Schema(type="object", @OA\Property(property="resultado", ref="#/components/schemas/IntegracionMaestroLoteResultado"))
+ *     }
+ * )
+ *
+ * @OA\Schema(
+ *     schema="IntegracionImportacionLoteRequest",
+ *     type="object",
+ *     required={"importacionId","numeroLote","ultimoEnvio","modo","fechaProceso","items"},
+ *     @OA\Property(property="importacionId", type="string", maxLength=100, example="ERP-IMP-20261024-0001"),
+ *     @OA\Property(property="numeroLote", type="integer", minimum=1, example=1),
+ *     @OA\Property(property="ultimoEnvio", type="boolean", example=false),
+ *     @OA\Property(property="modo", type="string", enum={"delta","snapshot"}, example="delta"),
+ *     @OA\Property(property="fechaProceso", type="string", format="date-time", example="2026-10-24T12:00:00-03:00"),
+ *     @OA\Property(property="origen", type="string", nullable=true, maxLength=50, example="tango"),
+ *     @OA\Property(property="items", type="array", @OA\Items(type="object", additionalProperties=true))
+ * )
+ *
+ * @OA\Schema(
+ *     schema="IntegracionImportacionResultado",
+ *     type="object",
+ *     @OA\Property(property="importacionId", type="string", example="ERP-IMP-20261024-0001"),
+ *     @OA\Property(property="recurso", type="string", example="condventa"),
+ *     @OA\Property(property="estado", type="string", enum={"received","staging","queued","processing","completed","failed"}),
+ *     @OA\Property(property="duracion", type="number", format="float", nullable=true, example=2.315),
+ *     @OA\Property(property="procesados", type="integer", nullable=true, example=100),
+ *     @OA\Property(property="agregados", type="integer", nullable=true, example=20),
+ *     @OA\Property(property="modificados", type="integer", nullable=true, example=70),
+ *     @OA\Property(property="eliminados", type="integer", nullable=true, example=10),
+ *     @OA\Property(property="agregadosErroneos", type="integer", nullable=true, example=0),
+ *     @OA\Property(property="modificadosErroneos", type="integer", nullable=true, example=0),
+ *     @OA\Property(property="eliminadosErroneos", type="integer", nullable=true, example=0),
+ *     @OA\Property(property="errores", type="array", nullable=true, @OA\Items(type="object", additionalProperties=true))
+ * )
+ *
+ * @OA\Schema(
+ *     schema="ApiEnvelopeIntegracionImportacion",
+ *     allOf={
+ *         @OA\Schema(ref="#/components/schemas/ApiEnvelope"),
+ *         @OA\Schema(type="object", @OA\Property(property="resultado", ref="#/components/schemas/IntegracionImportacionResultado"))
  *     }
  * )
  *

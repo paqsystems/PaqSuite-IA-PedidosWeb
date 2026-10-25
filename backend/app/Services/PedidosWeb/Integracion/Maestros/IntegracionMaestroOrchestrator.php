@@ -41,14 +41,6 @@ final class IntegracionMaestroOrchestrator
         /** @var array<int, array<string, mixed>> $items */
         $items = is_array($payload['items'] ?? null) ? $payload['items'] : [];
 
-        if ($modo === 'snapshot' && $items === []) {
-            throw new IntegracionMaestroAbortException(
-                IntegracionMaestroErrorCodes::snapshotVacio,
-                'integracion.maestro.snapshotVacio',
-                422,
-            );
-        }
-
         if ($modo === 'snapshot' && ! $handler->supportsSnapshot()) {
             throw new IntegracionMaestroAbortException(
                 IntegracionMaestroErrorCodes::modoNoSoportado,
@@ -109,6 +101,50 @@ final class IntegracionMaestroOrchestrator
                         'clave' => $result->clave,
                         'codigo' => $result->errorCode,
                     ];
+                }
+            }
+
+            if ($recurso !== 'clientes') {
+                continue;
+            }
+
+            foreach (['direcciones' => 'clientes-direcciones', 'contactos' => 'clientes-contactos'] as $childrenKey => $childResource) {
+                $childHandler = $this->registry->resolve($childResource);
+                $children = is_array($item[$childrenKey] ?? null) ? $item[$childrenKey] : [];
+                if ($childHandler === null || $children === []) {
+                    continue;
+                }
+
+                foreach ($children as $childIndex => $child) {
+                    $recibidos++;
+                    if (! is_array($child)) {
+                        $rechazados++;
+                        if (count($errores) < $maxErrores) {
+                            $errores[] = [
+                                'indice' => (string) $indice.'.'.(string) $childIndex,
+                                'clave' => null,
+                                'codigo' => 'integracion.maestro.itemInvalido',
+                            ];
+                        }
+                        continue;
+                    }
+
+                    $child['codClient'] ??= $item['codClient'] ?? $item['cod_client'] ?? null;
+                    $childResult = $childHandler->processItem($child, $context);
+                    if ($childResult->isApplied()) {
+                        $aplicados++;
+                    } elseif ($childResult->isOmitted()) {
+                        $omitidos++;
+                    } else {
+                        $rechazados++;
+                        if (count($errores) < $maxErrores && $childResult->errorCode !== null) {
+                            $errores[] = [
+                                'indice' => (string) $indice.'.'.(string) $childIndex,
+                                'clave' => $childResult->clave,
+                                'codigo' => $childResult->errorCode,
+                            ];
+                        }
+                    }
                 }
             }
         }

@@ -41,6 +41,7 @@ final class CatalogoMaestroHandler implements IntegracionMaestroHandlerInterface
                 return IntegracionMaestroItemResult::rejected(
                     'integracion.maestro.fkFaltante',
                     $claveNatural,
+                (string) ($result['operation'] ?? 'modified'),
                 );
             }
 
@@ -58,10 +59,18 @@ final class CatalogoMaestroHandler implements IntegracionMaestroHandlerInterface
             return IntegracionMaestroItemResult::rejected(
                 $result['error_code'] ?: 'integracion.maestro.itemInvalido',
                 $clave,
+                (string) ($result['operation'] ?? 'modified'),
             );
         }
 
-        return IntegracionMaestroItemResult::applied($clave);
+        if ($status === 'deleted') {
+            return IntegracionMaestroItemResult::deleted($clave);
+        }
+
+        return IntegracionMaestroItemResult::applied(
+            $clave,
+            (string) ($result['operation'] ?? 'modified'),
+        );
     }
 
     public function finalizeSnapshot(IntegracionMaestroLoteContext $context, array $processedKeys): array
@@ -74,10 +83,15 @@ final class CatalogoMaestroHandler implements IntegracionMaestroHandlerInterface
 
         return array_map(
             static function (array $result): IntegracionMaestroItemResult {
+                if ($result['status'] === 'deleted') {
+                    return IntegracionMaestroItemResult::deleted($result['clave']);
+                }
+
                 if ($result['status'] === 'rejected') {
                     return IntegracionMaestroItemResult::rejected(
                         $result['error_code'] ?: 'integracion.maestro.deleteReferenciado',
                         $result['clave'],
+                        'deleted',
                     );
                 }
 

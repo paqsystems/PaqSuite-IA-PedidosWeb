@@ -22,6 +22,22 @@ if ($companyRows->isEmpty()) {
     throw new RuntimeException('No hay empresas activas en PQ_Empresa.');
 }
 
+$clientDirectionsByCode = DB::table('pq_pedidosweb_clientesde')
+    ->orderBy('cod_client')
+    ->orderBy('id_de')
+    ->get()
+    ->groupBy('cod_client');
+$clientContactsByCode = DB::table('pq_pedidosweb_clientescontactos')
+    ->orderBy('cod_client')
+    ->orderBy('cod_contacto')
+    ->get()
+    ->groupBy('cod_client');
+$priceRowsByList = DB::table('pq_pedidosweb_listaprecios_articulos')
+    ->orderBy('cod_lista')
+    ->orderBy('cod_articulo')
+    ->get()
+    ->groupBy('cod_lista');
+
 $companyDirectory = preg_replace('/[^A-Za-z0-9._-]+/', '_', $tenant) ?: 'empresa';
 $companyPath = $outputRoot.'/'.$companyDirectory;
 if (! is_dir($companyPath) && ! mkdir($companyPath, 0777, true) && ! is_dir($companyPath)) {
@@ -79,6 +95,13 @@ $resources = [
                 'moneda' => $row->moneda,
                 'descripcion' => $row->descripcion,
                 'decimales' => (int) $row->decimales,
+                'articulos' => ($priceRowsByList->get($row->cod_lista) ?? collect())
+                    ->map(fn (object $price): array => [
+                        'codArticulo' => $price->cod_articulo,
+                        'precio' => (float) $price->precio,
+                    ])
+                    ->values()
+                    ->all(),
             ],
             'key' => fn (array $item): string => (string) $item['codLista'],
         ],
@@ -105,9 +128,20 @@ $resources = [
             },
             'key' => fn (array $item): string => (string) $item['codEscala'],
         ],
+        'medidas' => [
+            'table' => 'pq_pedidosweb_medidas',
+            'mode' => 'snapshot',
+            'map' => fn (object $row): array => [
+                'idMedida' => (int) $row->id_medida,
+                'codMedida' => (string) $row->cod_medida,
+                'descMedida' => $row->desc_medida,
+            ],
+            'key' => fn (array $item): string => $item['codMedida'],
+        ],
         'articulos' => [
             'table' => 'pq_pedidosweb_articulos',
             'mode' => 'snapshot',
+            'postmanBatchCount' => 3,
             'map' => fn (object $row): array => [
                 'codigo' => $row->codigo,
                 'descripcion' => $row->descripcion,
@@ -123,16 +157,6 @@ $resources = [
             ],
             'key' => fn (array $item): string => (string) $item['codigo'],
         ],
-        'listaprecios-articulos' => [
-            'table' => 'pq_pedidosweb_listaprecios_articulos',
-            'mode' => 'delta',
-            'map' => fn (object $row): array => [
-                'codLista' => (int) $row->cod_lista,
-                'codArticulo' => $row->cod_articulo,
-                'precio' => (float) $row->precio,
-            ],
-            'key' => fn (array $item): string => $item['codLista'].'|'.$item['codArticulo'],
-        ],
         'descuentocantidad' => [
             'table' => 'pq_pedidosweb_descuentocantidad',
             'mode' => 'delta',
@@ -142,58 +166,6 @@ $resources = [
                 'descuento' => (float) $row->descuento,
             ],
             'key' => fn (array $item): string => $item['codArticu'].'|'.$item['cantidad'],
-        ],
-        'clientes' => [
-            'table' => 'pq_pedidosweb_clientes',
-            'mode' => 'snapshot',
-            'map' => fn (object $row): array => [
-                'codClient' => $row->cod_client,
-                'nombre' => $row->nombre,
-                'fantasia' => $row->fantasia,
-                'codVended' => $row->cod_vended,
-                'listaPrecios' => $row->lista_precios !== null ? (int) $row->lista_precios : null,
-                'codCondvta' => $row->cod_condvta !== null ? (int) $row->cod_condvta : null,
-                'codTranspor' => $row->cod_transpor,
-                'bonificacion' => $row->bonificacion !== null ? (float) $row->bonificacion : null,
-                'nivel' => $row->nivel !== null ? (int) $row->nivel : null,
-                'expreso' => $row->expreso,
-                'expresoDire' => $row->expreso_dire,
-                'eMail' => $row->e_mail,
-                'razonSoci' => $row->razon_soci,
-                'leyenda1' => $row->leyenda_1,
-                'leyenda2' => $row->leyenda_2,
-                'leyenda3' => $row->leyenda_3,
-                'leyenda4' => $row->leyenda_4,
-                'leyenda5' => $row->leyenda_5,
-            ],
-            'key' => fn (array $item): string => (string) $item['codClient'],
-        ],
-        'clientes-direcciones' => [
-            'table' => 'pq_pedidosweb_clientesde',
-            'mode' => 'delta',
-            'map' => fn (object $row): array => [
-                'codClient' => $row->cod_client,
-                'idDe' => (int) $row->id_de,
-                'codDe' => $row->cod_DE,
-                'direccion' => $row->direccion,
-                'localidad' => $row->localidad,
-                'cPostal' => $row->c_postal,
-                'codProvin' => $row->cod_provin,
-                'habitual' => $row->habitual,
-            ],
-            'key' => fn (array $item): string => $item['codClient'].'|'.$item['idDe'],
-        ],
-        'clientes-contactos' => [
-            'table' => 'pq_pedidosweb_clientescontactos',
-            'mode' => 'delta',
-            'map' => fn (object $row): array => [
-                'codClient' => $row->cod_client,
-                'codContacto' => $row->cod_contacto,
-                'nombre' => $row->nombre,
-                'telefono' => $row->telefono,
-                'mail' => $row->mail,
-            ],
-            'key' => fn (array $item): string => $item['codClient'].'|'.$item['codContacto'],
         ],
         'parametros' => [
             'table' => 'PQ_PARAMETROS_GRAL',
@@ -209,6 +181,59 @@ $resources = [
                 return ['clave' => $row->Clave, $field => $value];
             },
             'key' => fn (array $item): string => (string) $item['clave'],
+        ],
+        'clientes' => [
+            'table' => 'pq_pedidosweb_clientes',
+            'mode' => 'snapshot',
+            'postmanBatchCount' => 2,
+            'map' => function (object $row) use ($clientDirectionsByCode, $clientContactsByCode): array {
+                $direcciones = ($clientDirectionsByCode->get($row->cod_client) ?? collect())
+                    ->map(fn (object $direccion): array => [
+                        'codClient' => $direccion->cod_client,
+                        'idDe' => (int) $direccion->id_de,
+                        'codDe' => $direccion->cod_DE,
+                        'direccion' => $direccion->direccion,
+                        'localidad' => $direccion->localidad,
+                        'cPostal' => $direccion->c_postal,
+                        'codProvin' => $direccion->cod_provin,
+                        'habitual' => $direccion->habitual,
+                    ])
+                    ->all();
+
+                $contactos = ($clientContactsByCode->get($row->cod_client) ?? collect())
+                    ->map(fn (object $contacto): array => [
+                        'codClient' => $contacto->cod_client,
+                        'codContacto' => $contacto->cod_contacto,
+                        'nombre' => $contacto->nombre,
+                        'telefono' => $contacto->telefono,
+                        'mail' => $contacto->mail,
+                    ])
+                    ->all();
+
+                return [
+                    'codClient' => $row->cod_client,
+                    'nombre' => $row->nombre,
+                    'fantasia' => $row->fantasia,
+                    'codVended' => $row->cod_vended,
+                    'listaPrecios' => $row->lista_precios !== null ? (int) $row->lista_precios : null,
+                    'codCondvta' => $row->cod_condvta !== null ? (int) $row->cod_condvta : null,
+                    'codTranspor' => $row->cod_transpor,
+                    'bonificacion' => $row->bonificacion !== null ? (float) $row->bonificacion : null,
+                    'nivel' => $row->nivel !== null ? (int) $row->nivel : null,
+                    'expreso' => $row->expreso,
+                    'expresoDire' => $row->expreso_dire,
+                    'eMail' => $row->e_mail,
+                    'razonSoci' => $row->razon_soci,
+                    'leyenda1' => $row->leyenda_1,
+                    'leyenda2' => $row->leyenda_2,
+                    'leyenda3' => $row->leyenda_3,
+                    'leyenda4' => $row->leyenda_4,
+                    'leyenda5' => $row->leyenda_5,
+                    'direcciones' => $direcciones,
+                    'contactos' => $contactos,
+                ];
+            },
+            'key' => fn (array $item): string => (string) $item['codClient'],
         ],
     ],
     'transacciones' => [
@@ -350,7 +375,12 @@ foreach ($resources as $kind => $kindResources) {
             continue;
         }
 
-        foreach (array_chunk($items, 1500) as $partIndex => $part) {
+        $batchCount = (int) ($definition['postmanBatchCount'] ?? 0);
+        $parts = $batchCount > 0
+            ? array_chunk($items, (int) ceil(count($items) / $batchCount))
+            : array_chunk($items, 1500);
+
+        foreach ($parts as $partIndex => $part) {
             $partNumber = str_pad((string) ($partIndex + 1), 3, '0', STR_PAD_LEFT);
             $fileName = $resource.'-'.$partNumber.'.json';
             $filePath = $kindPath.'/'.$fileName;

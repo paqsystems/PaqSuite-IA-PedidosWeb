@@ -39,6 +39,9 @@
 | 23a | [TR-SPEC-101-23-integracion-transacciones-plataforma.md](TR-SPEC-101-23-integracion-transacciones-plataforma.md) | **Must** | 049 / [PIAPEDWEB-43](https://paqsystems.atlassian.net/browse/PIAPEDWEB-43) |
 | 23b | [TR-SPEC-101-23-integracion-transacciones-saldos.md](TR-SPEC-101-23-integracion-transacciones-saldos.md) | **Must** | 050 / [PIAPEDWEB-44](https://paqsystems.atlassian.net/browse/PIAPEDWEB-44) |
 | 23c | [TR-SPEC-101-23-integracion-transacciones-historial-ventas.md](TR-SPEC-101-23-integracion-transacciones-historial-ventas.md) | **Must** | 051 / [PIAPEDWEB-45](https://paqsystems.atlassian.net/browse/PIAPEDWEB-45) |
+| 24a | [TR-SPEC-101-24-integracion-medidas-plataforma.md](TR-SPEC-101-24-integracion-medidas-plataforma.md) | **Must** | 052 |
+| 24b | [TR-SPEC-101-24-integracion-medidas-maestro.md](TR-SPEC-101-24-integracion-medidas-maestro.md) | **Must** | 053 |
+| 24c | [TR-SPEC-101-24-integracion-medidas-postman.md](TR-SPEC-101-24-integracion-medidas-postman.md) | **Must** | 054 |
 
 ## Slice SPEC-101-21 (Importación masiva)
 
@@ -67,6 +70,23 @@
 | [TR-23a](TR-SPEC-101-23-integracion-transacciones-plataforma.md) | 049 | Plataforma API |
 | [TR-23b](TR-SPEC-101-23-integracion-transacciones-saldos.md) | 050 | Stock, deuda y cheques |
 | [TR-23c](TR-SPEC-101-23-integracion-transacciones-historial-ventas.md) | 051 | Historial de ventas |
+
+## Slice SPEC-101-24 (Importación medidas ERP)
+
+| Campo | Valor |
+|---|---|
+| **SPEC** | [SPEC-101-24](../../05-open-spec/101-PedidosWeb/SPEC-101-24-importacion-medidas-erp.md) |
+| **Parte C** | **Generada** (2026-10-25) — [F-101-24-cierre-c](F-101-24-cierre-c-importacion-medidas-erp.md) |
+| **Parte C1** | **Apto con observaciones** (2026-10-25) — autoriza D1 |
+| **Parte D1** | **Plan generado** (2026-10-25) — [D1-PLAN-101-24](D1-PLAN-101-24-integracion-medidas-erp.md) |
+| **Parte D** | **Implementada** (2026-10-25) — medidas registradas en GEN-36, SP, tests y Postman local |
+| **Orden D1** | 24a → 24b → 24c |
+
+| TR | HU | Título |
+|---|---|---|
+| [TR-24a](TR-SPEC-101-24-integracion-medidas-plataforma.md) | 052 | Plataforma asíncrona |
+| [TR-24b](TR-SPEC-101-24-integracion-medidas-maestro.md) | 053 | Maestro `medidas` y stored procedures |
+| [TR-24c](TR-SPEC-101-24-integracion-medidas-postman.md) | 054 | Collection Postman y pruebas |
 
 ## Slice SPEC-101-18/19/20 (Asistente IA en carga)
 

@@ -76,6 +76,59 @@ final class IntegracionMaestroCatalogoFeatureTest extends TestCase
         ]);
     }
 
+    public function testMedidasActualizaIdTecnicoPorCodigoNatural(): void
+    {
+        $this->requireIntegrationSchema();
+        $headers = $this->integrationHeaders();
+
+        $this->postJson('/api/v1/integracion/maestros/medidas', $this->batch('delta', [
+            [
+                'idMedida' => 990001,
+                'codMedida' => 'D-UNIT',
+                'descMedida' => 'Unidad inicial',
+            ],
+        ]), $headers)->assertOk();
+
+        $this->postJson('/api/v1/integracion/maestros/medidas', $this->batch('delta', [
+            [
+                'idMedida' => 990002,
+                'codMedida' => 'D-UNIT',
+                'descMedida' => 'Unidad actualizada',
+            ],
+        ]), $headers)
+            ->assertOk()
+            ->assertJsonPath('resultado.aplicados', 1);
+
+        $this->assertDatabaseHas('pq_pedidosweb_medidas', [
+            'id_medida' => 990002,
+            'cod_medida' => 'D-UNIT',
+            'desc_medida' => 'Unidad actualizada',
+        ]);
+    }
+
+    public function testRecibeImportacionAsincronaDeMedidas(): void
+    {
+        $this->requireIntegrationSchema();
+
+        $response = $this->postJson('/api/v1/integracion/importaciones/medidas', [
+            'importacionId' => 'TEST-MEDIDAS-'.str_replace('.', '', (string) microtime(true)),
+            'numeroLote' => 1,
+            'ultimoEnvio' => true,
+            'modo' => 'delta',
+            'fechaProceso' => '2026-10-21T12:00:00-03:00',
+            'origen' => 'feature-test',
+            'items' => [[
+                'idMedida' => 990003,
+                'codMedida' => 'D-ASYNC',
+                'descMedida' => 'Unidad asincrónica',
+            ]],
+        ], $this->integrationHeaders());
+
+        $response->assertStatus(202)
+            ->assertJsonPath('error', 0)
+            ->assertJsonPath('resultado.numeroLote', 1);
+    }
+
     public function testListaArticuloSnapshotEsRechazado(): void
     {
         $this->requireIntegrationSchema();

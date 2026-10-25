@@ -18,5 +18,9 @@ final class IntegracionMaestroErrorCodes
 
     public const payloadProhibido = 1008;
 
+    public const conflictoImportacion = 1009;
+
+    public const importacionNoEncontrada = 1010;
+
     public const fatal = 9001;
 }

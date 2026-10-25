@@ -40,6 +40,7 @@
 | 21 | [SPEC-101-21-importacion-masiva-pedidos.md](SPEC-101-21-importacion-masiva-pedidos.md) | **Should** — Importación masiva — **A1 + B1 + C + C1**; autoriza D1 |
 | 22 | [SPEC-101-22-importacion-maestros-erp.md](SPEC-101-22-importacion-maestros-erp.md) | **Must** — APIs ERP → maestros — **C1 apto** (2026-10-21); autoriza D1 |
 | 23 | [SPEC-101-23-importacion-transacciones-erp.md](SPEC-101-23-importacion-transacciones-erp.md) | **Must** — APIs ERP → transacciones — **C1 apto con observaciones**; autoriza D1 |
+| 24 | [SPEC-101-24-importacion-medidas-erp.md](SPEC-101-24-importacion-medidas-erp.md) | **Must** — recurso `medidas` + consulta asíncrona; pendiente A1 |
 
 ## Épica Importación maestros ERP (101-22)
 

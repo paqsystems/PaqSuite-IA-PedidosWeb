@@ -67,6 +67,14 @@ return [
             'key' => ['codEscala'],
             'supports_snapshot' => true,
         ],
+        'medidas' => [
+            'handler' => CatalogoMaestroHandler::class,
+            'resource' => 'medidas',
+            'apply' => 'pq_sp_integracion_maestros_medidas_apply',
+            'finalize' => 'pq_sp_integracion_maestros_medidas_finalize_snapshot',
+            'key' => ['codMedida'],
+            'supports_snapshot' => true,
+        ],
         'articulos' => [
             'handler' => CatalogoMaestroHandler::class,
             'resource' => 'articulos',
@@ -98,6 +106,7 @@ return [
         'clientes-direcciones' => [
             'handler' => ClientesRelacionMaestroHandler::class,
             'resource' => 'clientes-direcciones',
+            'nested_only' => true,
             'apply' => 'pq_sp_integracion_maestros_clientes_direcciones_apply',
             'key' => ['codClient', 'idDe'],
             'supports_snapshot' => false,
@@ -105,6 +114,7 @@ return [
         'clientes-contactos' => [
             'handler' => ClientesRelacionMaestroHandler::class,
             'resource' => 'clientes-contactos',
+            'nested_only' => true,
             'apply' => 'pq_sp_integracion_maestros_clientes_contactos_apply',
             'key' => ['codClient', 'codContacto'],
             'supports_snapshot' => false,
@@ -119,6 +129,8 @@ return [
     ],
 
     'max_items_per_lote' => 1500,
+
+    'max_payload_bytes_per_lote' => 5 * 1024 * 1024,
 
     'max_errores_respuesta' => 50,
 

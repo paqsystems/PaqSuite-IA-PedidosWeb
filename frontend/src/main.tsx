@@ -1,5 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import '@paqsuite/react-core/auth.css';
+import '@paqsuite/react-core/shell.css';
 import './shared/ui/tokens/paqAuthTokens.css';
 import './features/i18n/i18n';
 import './init-devextreme-license';

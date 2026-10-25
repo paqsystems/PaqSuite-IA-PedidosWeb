@@ -69,6 +69,14 @@ BEGIN
     SET NOCOUNT ON;
     DECLARE @clave int = TRY_CONVERT(int, JSON_VALUE(@payload_json, '$.codigo'));
     IF @clave IS NULL THROW 51000, '[ITEM_REJECTED] codigo requerido', 1;
+    DECLARE @operation varchar(20) = CASE
+        WHEN EXISTS (
+            SELECT 1
+            FROM dbo.pq_pedidosweb_condventa dst WITH (NOLOCK)
+            WHERE dst.codigo = @clave
+        ) THEN 'modified'
+        ELSE 'added'
+    END;
     MERGE dbo.pq_pedidosweb_condventa AS dst
     USING (SELECT @clave codigo, JSON_VALUE(@payload_json, '$.descripcion') descripcion) src
       ON dst.codigo = src.codigo
@@ -76,7 +84,8 @@ BEGIN
     WHEN NOT MATCHED THEN INSERT (codigo, descripcion) VALUES (src.codigo, src.descripcion);
     DECLARE @stage_key nvarchar(200) = CONVERT(nvarchar(200), @clave);
     EXEC dbo.pq_sp_integracion_maestros_stage_insert @batch_id, @tenant, N'condventa', @stage_key, @fecha_proceso, @origen;
-    SELECT 'applied' status, CONVERT(nvarchar(200), @clave) clave, CAST(NULL AS varchar(100)) error_code;
+    SELECT 'applied' status, CONVERT(nvarchar(200), @clave) clave,
+           CAST(NULL AS varchar(100)) error_code, @operation operation;
 END;
 GO
 
@@ -200,18 +209,25 @@ BEGIN
     SET NOCOUNT ON;
     DECLARE @clave varchar(15) = JSON_VALUE(@payload_json, '$.codigo');
     IF NULLIF(@clave, '') IS NULL THROW 51000, '[ITEM_REJECTED] codigo requerido', 1;
+    DECLARE @eliminar_si_ausente bit = TRY_CONVERT(bit, JSON_VALUE(@payload_json, '$.eliminarSiAusente'));
+    DECLARE @operation varchar(20);
     IF TRY_CONVERT(bit, JSON_VALUE(@payload_json, '$.eliminarSiAusente')) = 1
        AND EXISTS (SELECT 1 FROM dbo.pq_pedidosweb_stock WITH (NOLOCK) WHERE cod_articulo = @clave)
     BEGIN
-        SELECT 'rejected' status, @clave clave, 'integracion.maestro.deleteReferenciado' error_code;
+        SELECT 'rejected' status, @clave clave, 'integracion.maestro.deleteReferenciado' error_code, 'deleted' operation;
         RETURN;
     END;
-    IF TRY_CONVERT(bit, JSON_VALUE(@payload_json, '$.eliminarSiAusente')) = 1
+    IF @eliminar_si_ausente = 1
     BEGIN
         DELETE FROM dbo.pq_pedidosweb_articulos WHERE codigo = @clave;
         EXEC dbo.pq_sp_integracion_maestros_stage_insert @batch_id, @tenant, N'articulos', @clave, @fecha_proceso, @origen;
-        SELECT 'applied' status, @clave clave, CAST(NULL AS varchar(100)) error_code;
+        SELECT 'applied' status, @clave clave, CAST(NULL AS varchar(100)) error_code, 'deleted' operation;
         RETURN;
+    END;
+    SET @operation = CASE
+        WHEN EXISTS (SELECT 1 FROM dbo.pq_pedidosweb_articulos WITH (NOLOCK) WHERE codigo = @clave)
+        THEN 'modified'
+        ELSE 'added'
     END;
     MERGE dbo.pq_pedidosweb_articulos AS dst
     USING (SELECT @clave codigo, JSON_VALUE(@payload_json, '$.descripcion') descripcion,
@@ -232,7 +248,7 @@ BEGIN
         VALUES (src.codigo, src.descripcion, src.bonificacion, src.usa_esc, src.base, src.valor1, src.valor2, src.porc_iva,
             COALESCE(src.equivalencia_ventas, 1), COALESCE(src.stockeable, 1), COALESCE(src.especial, 0));
     EXEC dbo.pq_sp_integracion_maestros_stage_insert @batch_id, @tenant, N'articulos', @clave, @fecha_proceso, @origen;
-    SELECT 'applied' status, @clave clave, CAST(NULL AS varchar(100)) error_code;
+    SELECT 'applied' status, @clave clave, CAST(NULL AS varchar(100)) error_code, @operation operation;
 END;
 GO
 
@@ -304,15 +320,43 @@ CREATE OR ALTER PROCEDURE dbo.pq_sp_integracion_maestros_condventa_finalize_snap
 AS
 BEGIN
     SET NOCOUNT ON;
-    DELETE dst FROM dbo.pq_pedidosweb_condventa dst
-    WHERE NOT EXISTS (SELECT 1 FROM dbo.pq_pedidosweb_integracion_maestros_stage st WITH (NOLOCK)
-                      WHERE st.batch_id = @batch_id AND st.recurso = N'condventa' AND st.clave_natural = CONVERT(nvarchar(200), dst.codigo))
-      AND NOT EXISTS (SELECT 1 FROM dbo.pq_pedidosweb_clientes ref WITH (NOLOCK) WHERE ref.cod_condvta = dst.codigo);
-    SELECT 'omitted' status, CONVERT(nvarchar(200), dst.codigo) clave, 'integracion.maestro.deleteReferenciado' error_code
-    FROM dbo.pq_pedidosweb_condventa dst
-    WHERE NOT EXISTS (SELECT 1 FROM dbo.pq_pedidosweb_integracion_maestros_stage st WITH (NOLOCK)
-                      WHERE st.batch_id = @batch_id AND st.recurso = N'condventa' AND st.clave_natural = CONVERT(nvarchar(200), dst.codigo))
-      AND EXISTS (SELECT 1 FROM dbo.pq_pedidosweb_clientes ref WITH (NOLOCK) WHERE ref.cod_condvta = dst.codigo);
+    DECLARE @deleted TABLE (codigo int PRIMARY KEY);
+    INSERT INTO @deleted (codigo)
+    SELECT dst.codigo
+    FROM dbo.pq_pedidosweb_condventa dst WITH (NOLOCK)
+    WHERE NOT EXISTS (
+        SELECT 1
+        FROM dbo.pq_pedidosweb_integracion_maestros_stage st WITH (NOLOCK)
+        WHERE st.batch_id = @batch_id
+          AND st.recurso = N'condventa'
+          AND st.clave_natural = CONVERT(nvarchar(200), dst.codigo)
+    )
+      AND NOT EXISTS (
+        SELECT 1
+        FROM dbo.pq_pedidosweb_clientes ref WITH (NOLOCK)
+        WHERE ref.cod_condvta = dst.codigo
+    );
+    DELETE dst
+    FROM dbo.pq_pedidosweb_condventa dst WITH (NOLOCK)
+    INNER JOIN @deleted d ON d.codigo = dst.codigo;
+    SELECT 'deleted' status, CONVERT(nvarchar(200), d.codigo) clave,
+           CAST(NULL AS varchar(100)) error_code, 'deleted' operation
+    FROM @deleted d;
+    SELECT 'omitted' status, CONVERT(nvarchar(200), dst.codigo) clave,
+           'integracion.maestro.deleteReferenciado' error_code, 'deleted' operation
+    FROM dbo.pq_pedidosweb_condventa dst WITH (NOLOCK)
+    WHERE NOT EXISTS (
+        SELECT 1
+        FROM dbo.pq_pedidosweb_integracion_maestros_stage st WITH (NOLOCK)
+        WHERE st.batch_id = @batch_id
+          AND st.recurso = N'condventa'
+          AND st.clave_natural = CONVERT(nvarchar(200), dst.codigo)
+    )
+      AND EXISTS (
+        SELECT 1
+        FROM dbo.pq_pedidosweb_clientes ref WITH (NOLOCK)
+        WHERE ref.cod_condvta = dst.codigo
+    );
 END;
 GO
 
@@ -374,6 +418,99 @@ BEGIN
     WHERE NOT EXISTS (SELECT 1 FROM dbo.pq_pedidosweb_integracion_maestros_stage val WITH (NOLOCK)
                       WHERE val.batch_id = @batch_id AND val.recurso = N'escalas_detalle'
                         AND val.clave_natural = det.cod_escala + N'|' + det.cod_valor);
+END;
+GO
+
+CREATE OR ALTER PROCEDURE dbo.pq_sp_integracion_maestros_medidas_apply
+    @batch_id uniqueidentifier, @tenant nvarchar(100), @modo varchar(20),
+    @fecha_proceso datetime2(3), @origen nvarchar(50), @payload_json nvarchar(max)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    DECLARE @id_medida int = TRY_CONVERT(int, JSON_VALUE(@payload_json, '$.idMedida'));
+    DECLARE @cod_medida_raw nvarchar(4000) = JSON_VALUE(@payload_json, '$.codMedida');
+    DECLARE @desc_medida_raw nvarchar(4000) = JSON_VALUE(@payload_json, '$.descMedida');
+
+    IF @id_medida IS NULL
+        OR NULLIF(LTRIM(RTRIM(@cod_medida_raw)), '') IS NULL
+        OR LEN(@cod_medida_raw) > 10
+        OR LEN(@desc_medida_raw) > 40
+        THROW 51000, '[ITEM_REJECTED] idMedida, codMedida o descMedida invalidos', 1;
+
+    DECLARE @cod_medida varchar(10) = CONVERT(varchar(10), @cod_medida_raw);
+    DECLARE @desc_medida varchar(40) = CONVERT(varchar(40), @desc_medida_raw);
+
+    IF EXISTS (
+        SELECT 1
+        FROM dbo.pq_pedidosweb_medidas dst WITH (NOLOCK)
+        WHERE dst.id_medida = @id_medida
+          AND dst.cod_medida <> @cod_medida
+    )
+    BEGIN
+        SELECT 'rejected' status, CONVERT(nvarchar(200), @cod_medida) clave,
+               'integracion.maestro.idMedidaDuplicado' error_code,
+               'modified' operation;
+        RETURN;
+    END;
+
+    DECLARE @operation varchar(20) = CASE
+        WHEN EXISTS (
+            SELECT 1
+            FROM dbo.pq_pedidosweb_medidas dst WITH (NOLOCK)
+            WHERE dst.cod_medida = @cod_medida
+        ) THEN 'modified'
+        ELSE 'added'
+    END;
+
+    MERGE dbo.pq_pedidosweb_medidas AS dst
+    USING (
+        SELECT @id_medida AS id_medida,
+               @cod_medida AS cod_medida,
+               @desc_medida AS desc_medida
+    ) AS src
+      ON dst.cod_medida = src.cod_medida
+    WHEN MATCHED THEN UPDATE SET
+        id_medida = src.id_medida,
+        desc_medida = COALESCE(src.desc_medida, dst.desc_medida)
+    WHEN NOT MATCHED THEN INSERT (id_medida, cod_medida, desc_medida)
+        VALUES (src.id_medida, src.cod_medida, src.desc_medida);
+
+    EXEC dbo.pq_sp_integracion_maestros_stage_insert
+        @batch_id, @tenant, N'medidas', @cod_medida, @fecha_proceso, @origen;
+
+    SELECT 'applied' status, CONVERT(nvarchar(200), @cod_medida) clave,
+           CAST(NULL AS varchar(100)) error_code, @operation operation;
+END;
+GO
+
+CREATE OR ALTER PROCEDURE dbo.pq_sp_integracion_maestros_medidas_finalize_snapshot
+    @batch_id uniqueidentifier, @tenant nvarchar(100), @recurso nvarchar(60), @origen nvarchar(50)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    DECLARE @deleted TABLE (cod_medida varchar(10) PRIMARY KEY);
+
+    INSERT INTO @deleted (cod_medida)
+    SELECT dst.cod_medida
+    FROM dbo.pq_pedidosweb_medidas dst WITH (NOLOCK)
+    WHERE NOT EXISTS (
+        SELECT 1
+        FROM dbo.pq_pedidosweb_integracion_maestros_stage st WITH (NOLOCK)
+        WHERE st.batch_id = @batch_id
+          AND st.recurso = N'medidas'
+          AND st.clave_natural = dst.cod_medida
+    );
+
+    DELETE dst
+    FROM dbo.pq_pedidosweb_medidas dst
+    INNER JOIN @deleted deleted_row
+        ON deleted_row.cod_medida = dst.cod_medida;
+
+    SELECT 'deleted' status, CONVERT(nvarchar(200), cod_medida) clave,
+           CAST(NULL AS varchar(100)) error_code, 'deleted' operation
+    FROM @deleted;
 END;
 GO
 

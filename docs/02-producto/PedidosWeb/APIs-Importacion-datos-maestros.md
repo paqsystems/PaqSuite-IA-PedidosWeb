@@ -4,7 +4,7 @@ Jira: PIAPEDWEB-34
 
 | Campo | Valor |
 |-------|--------|
-| **Estado** | OpenSpec — **Parte C** ([TR](../../04-tareas/101-PedidosWeb/F-101-22-cierre-c-importacion-maestros-erp.md)); pendiente C1 |
+| **Estado** | OpenSpec — **actualización 22d: listas de precios anidadas y resultado asíncrono** |
 | **OpenSpec** | [SPEC-101-22-importacion-maestros-erp.md](../../05-open-spec/101-PedidosWeb/SPEC-101-22-importacion-maestros-erp.md) |
 | **Ámbito** | PedidosWeb — **backend de integración** (sin pantalla de operador en el portal) |
 | **Origen de producto** | [Definición conceptual](./PedidosWeb_Definicion_Conceptual_Final_OpenSpec.md) §6.1 · [Modelo de datos](./PedidosWeb_Modelo_Datos_Final.md) §3 y §6 |
@@ -61,7 +61,7 @@ UI / APIs de consulta y carga (sin cambio de contrato para el usuario)
 2. Autenticación de **cuenta de integración** (no el login de vendedor/cliente del portal).
 3. Upsert por **clave natural** de cada tabla.
 4. Modo **delta** y modo **snapshot** según política §6.
-5. Respuesta por lote: recibidos / aplicados / omitidos / rechazados + detalle de errores (tope en TR).
+5. Respuesta eventual: recepción `202` y consulta `GET` del resultado final, con detalle completo de errores.
 6. Registro en `pq_pedidosweb_logs_integracion`.
 7. OpenAPI (tag **Integración maestros**) y tests de contrato.
 8. Orden de carga entre maestros (§7).
@@ -116,7 +116,7 @@ El SPEC de [transacciones](./APIs-Importacion-transacciones.md) **reutiliza este
 | `modo` | Sí | `delta` \| `snapshot` |
 | `fechaProceso` | Sí | Carátula del lote; se refleja en `fecha_proceso` / `uma_fecha` cuando existan |
 | `origen` | No | Texto corto (`tango`, `manual`, …) para el log |
-| `items` | Sí | Array del recurso; vacío = no-op en `delta`. Snapshot con `items: []` **rechazado** por defecto (MUST de seguridad) |
+| `items` | Sí | Array del recurso; vacío = no-op en `delta`. Snapshot con `items: []` **permitido** y representa un universo vacío; ejecuta las bajas previstas por el recurso |
 
 `resultado` típico:
 
@@ -125,16 +125,29 @@ El SPEC de [transacciones](./APIs-Importacion-transacciones.md) **reutiliza este
   "recurso": "clientes",
   "modo": "delta",
   "recibidos": 10,
-  "aplicados": 9,
+  "procesados": 9,
+  "agregados": 2,
+  "modificados": 6,
+  "eliminados": 1,
+  "agregadosErroneos": 0,
+  "modificadosErroneos": 0,
+  "eliminadosErroneos": 0,
   "omitidos": 0,
-  "rechazados": 1,
   "errores": [
     { "indice": 3, "clave": "CL-404", "codigo": "integracion.maestro.itemInvalido" }
   ]
 }
 ```
 
-HTTP **200** con `error: 0` si el lote se procesó aunque haya ítems rechazados (éxito parcial). HTTP **4xx/5xx** + `error ≠ 0` si el lote **no** se aplicó (auth, JSON inválido, tenant, modo desconocido, transacción abortada).
+La suma `agregados + modificados + eliminados + agregadosErroneos + modificadosErroneos + eliminadosErroneos` debe ser igual a `procesados`. `omitidos` no forma parte de esa suma: representa ítems que no generaron una operación, por ejemplo una baja impedida por referencia.
+
+La recepción de cada lote responde HTTP **202** con el identificador del ciclo. El resultado definitivo se consulta mediante:
+
+```text
+GET /api/v1/integracion/importaciones/{importacionId}
+```
+
+Mientras el ciclo no finaliza, `agregados`, `modificados`, `eliminados`, `agregadosErroneos`, `modificadosErroneos`, `eliminadosErroneos` y `errores` deben devolverse como `null`; no se exponen resultados parciales aunque la tabla técnica se actualice internamente. El estado final devuelve el detalle completo de errores. HTTP **4xx/5xx** + `error ≠ 0` se reserva para rechazo de recepción (auth, JSON inválido, tenant, concurrencia o ciclo inválido).
 
 Mensajes de `respuesta` y `codigo` de error: **claves i18n**.
 
@@ -158,14 +171,11 @@ Claves = PK documentada. Campos = modelo vigente; el SPEC listará JSON camelCas
 | `condventa` | `pq_pedidosweb_condventa` | `codigo` | |
 | `transportes` | `pq_pedidosweb_transportes` | `codigo` | |
 | `perfiles` | `pq_pedidosweb_perfil` | `cod_perfil` | El parámetro default de pedidos **no** se pisa salvo recurso `parametros`. |
-| `listaprecios` | `pq_pedidosweb_listaprecios` | `cod_lista` | Cabecera de lista. |
+| `listaprecios` | `pq_pedidosweb_listaprecios` + `pq_pedidosweb_listaprecios_articulos` | `cod_lista` y `cod_articulo` en hijos | Una lista contiene `articulos[]`; cada hijo tiene `codArticulo` y `precio`. Reemplaza a los dos endpoints anteriores. |
 | `escalas` | `pq_pedidosweb_escalas_cabecera` + detalle | `cod_escala` (+ `cod_valor` en hijos) | Lote anidado: cabecera + `valores[]`. |
 | `articulos` | `pq_pedidosweb_articulos` | `codigo` | Tipos canónicos (`usa_esc` char, `equivalencia_ventas`, `stockeable`, `especial`). |
-| `listaprecios-articulos` | `pq_pedidosweb_listaprecios_articulos` | `(cod_lista, cod_articulo)` | Exige lista y artículo o rechazo de fila. |
 | `descuentocantidad` | `pq_pedidosweb_descuentocantidad` | `(cod_articu, cantidad)` | |
-| `clientes` | `pq_pedidosweb_clientes` | `cod_client` | No tocar `cod_login`. Leyendas 1–5 recorte 60. |
-| `clientes-direcciones` | `pq_pedidosweb_clientesde` | `(cod_client, id_de)` | `habitual` char `S`/`N`. |
-| `clientes-contactos` | `pq_pedidosweb_clientescontactos` | `(cod_client, cod_contacto)` | Delta no borra contactos omitidos. |
+| `clientes` | `pq_pedidosweb_clientes` + `pq_pedidosweb_clientesde` + `pq_pedidosweb_clientescontactos` | `cod_client` y claves de hijos | El cliente contiene `direcciones[]` y `contactos[]`; no se exponen endpoints separados. |
 | `parametros` | `PQ_parametros_gral` (o contrato GEN-10 vigente) | código de parámetro | **Whitelist** de claves que el ERP puede pisar; no auth/plataforma. |
 
 ---
@@ -174,7 +184,8 @@ Claves = PK documentada. Campos = modelo vigente; el SPEC listará JSON camelCas
 
 | Recurso | `snapshot` | `delta` |
 |---------|------------|---------|
-| Catálogo chico (condventa, transportes, perfiles, provincias, listas cabecera, escalas) | Puede **desactivar o borrar** códigos ausentes **si no están referenciados**. Si hay FK lógica → omitido, no borrar. | Solo upsert; no borra. |
+| Catálogo chico (condventa, transportes, perfiles, provincias, escalas) | Puede **desactivar o borrar** códigos ausentes **si no están referenciados**. Si hay FK lógica → omitido, no borrar. | Solo upsert; no borra. |
+| Listas de precios | Para una lista ausente, eliminar primero sus precios hijos cuando sea factible. Luego, si la lista está referenciada, inhabilitarla/inactivarla si existe un atributo para ello; si no existe, conservarla. Si no está referenciada, eliminarla. | Upsert de la lista y de sus `articulos[]`; no inferir bajas de precios hijos por ausencia dentro de una lista en esta primera versión. |
 | Clientes, artículos, vendedores | **No** borrar por ausencia salvo flag `eliminarSiAusente` **por ítem**. Para clientes, la baja física exige ausencia de referencias en pedidos, deuda, cheques y ventas detalladas; luego elimina contactos, direcciones y cliente en ese orden dentro de una transacción. Inhabilitación solo si el modelo ya tiene el campo. | Upsert. |
 | Contactos / direcciones | Snapshot **por cliente** (todos los DE/contactos de los `cod_client` del lote) opcional en SPEC. Default: delta. | Upsert. |
 | Parámetros | Solo claves de la whitelist presentes en el lote; no borrar el resto de `PQ_parametros_gral`. | Upsert de claves enviadas. |
@@ -187,12 +198,11 @@ Pedidos y presupuestos (`pq_pedidosweb_pedidoscabecera` / `detalle`) **no** se i
 
 El origen **debe** respetar este orden. El API **no** reordena. Si falta FK, la fila se rechaza.
 
-1. `provincias`, `condventa`, `transportes`, `perfiles`, `vendedores`
-2. `listaprecios` (cabecera), `escalas`
-3. `articulos`
-4. `listaprecios-articulos`, `descuentocantidad`
-5. `clientes` → `clientes-direcciones`, `clientes-contactos`
-6. `parametros` (independiente; puede ir primero o último)
+1. `condventa` (primera etapa de implementación)
+2. `articulos` (segunda etapa)
+3. `provincias`, `transportes`, `perfiles`, `vendedores`, `listaprecios` con `articulos[]`, `escalas`, `descuentocantidad`
+4. `clientes` con `direcciones[]` y `contactos[]` en el mismo ítem
+5. `parametros` (independiente; puede ir primero o último)
 
 Después de este ciclo: [transacciones](./APIs-Importacion-transacciones.md) (stock tras artículos; deuda/cheques/historial tras clientes).
 
@@ -251,6 +261,27 @@ La pantalla **Logs de integración** (`pw_logsintegracion`) consulta esos regist
 **Cerradas en A1** (2026-10-20) — ver [F-101-22-cierre-a1](../../04-tareas/101-PedidosWeb/F-101-22-cierre-a1-importacion-maestros-erp.md) y decisiones en [SPEC-101-22](../../05-open-spec/101-PedidosWeb/SPEC-101-22-importacion-maestros-erp.md).
 
 Resumen: Sanctum usuario técnico + `pw_integracion_importacion`; sin campo inhabilitado nuevo; un endpoint por recurso; semántica delta/snapshot unificada; whitelist parámetros = seed PedidosWeb; sin `Idempotency-Key` en MVP.
+
+La actualización 22d agrega estas decisiones:
+
+- El endpoint de listas de precios es único: `POST /api/v1/integracion/importaciones/listaprecios`; `listaprecios-articulos` deja de exponerse.
+- El identificador `importacionId` lo genera el ERP. Se usa `ultimoEnvio`; no se agrega un endpoint de finalización.
+- Se acepta `202 Accepted` y procesamiento eventual. La consulta es `GET /api/v1/integracion/importaciones/{importacionId}`.
+- Se permite snapshot vacío. En ese caso el universo recibido es vacío y se ejecutan las bajas según las reglas de referencias.
+- La concurrencia por tenant y recurso se evita: si hay otro ciclo en proceso para el mismo recurso, la nueva recepción se rechaza y el ERP debe detener los lotes siguientes y registrar/avisar el error.
+- El límite inicial recomendado es **10 MiB por request** y hasta **1500 ítems de primer nivel**. El ERP debe partir por tamaño y cantidad; si la medición real lo exige, se ajustará sin cambiar la semántica.
+- Se conserva el JSON original de cada lote para auditoría y reintentos. Los errores se devuelven completos inicialmente; se incorporará paginación o descarga separada si la medición demuestra que el tamaño de la respuesta es impracticable.
+
+### 12.1. Etapas de implementación
+
+| Etapa | Alcance |
+|---|---|
+| A | Probar `condventa`, una sola pasada, con recepción `202`, consulta final, contadores y errores |
+| B | Probar `articulos`, incluyendo snapshot y sus reglas de baja |
+| C | Una vez aprobadas A y B, implementar el resto de maestros en conjunto |
+| D | Consolidar `clientes` con `direcciones[]` y `contactos[]` como nodos hijos; eliminar los endpoints separados de direcciones/contactos |
+
+El desarrollo de cada etapa debe actualizar OpenAPI, SP, tests y colección Postman antes de avanzar a la siguiente.
 
 ---
 

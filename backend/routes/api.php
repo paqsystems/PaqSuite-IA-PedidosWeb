@@ -219,6 +219,12 @@ Route::prefix('v1')->group(function (): void {
             Route::post('/integracion/maestros/{recurso}', [IntegracionMaestroController::class, 'store'])
                 ->middleware(['integracion.importacion', 'throttle:integracion-maestros'])
                 ->name('api.v1.integracion.maestros.store');
+            Route::post('/integracion/importaciones/{recurso}', [IntegracionMaestroController::class, 'receive'])
+                ->middleware(['integracion.importacion', 'throttle:integracion-maestros'])
+                ->name('api.v1.integracion.importaciones.store');
+            Route::get('/integracion/importaciones/{importacionId}', [IntegracionMaestroController::class, 'show'])
+                ->middleware(['integracion.importacion', 'throttle:integracion-maestros'])
+                ->name('api.v1.integracion.importaciones.show');
             Route::post('/integracion/transacciones/{recurso}', [IntegracionTransaccionController::class, 'store'])
                 ->middleware(['integracion.importacion', 'throttle:integracion-transacciones'])
                 ->name('api.v1.integracion.transacciones.store');

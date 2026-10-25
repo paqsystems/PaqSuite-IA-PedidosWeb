@@ -88,8 +88,6 @@ final class OpenApiDocumentationTest extends TestCase
             '/api/v1/integracion/maestros/listaprecios-articulos',
             '/api/v1/integracion/maestros/descuentocantidad',
             '/api/v1/integracion/maestros/clientes',
-            '/api/v1/integracion/maestros/clientes-direcciones',
-            '/api/v1/integracion/maestros/clientes-contactos',
             '/api/v1/integracion/maestros/parametros',
             '/api/v1/integracion/transacciones/stock',
             '/api/v1/integracion/transacciones/deuda',
@@ -231,8 +229,6 @@ final class OpenApiDocumentationTest extends TestCase
             '/api/v1/integracion/maestros/listaprecios-articulos',
             '/api/v1/integracion/maestros/descuentocantidad',
             '/api/v1/integracion/maestros/clientes',
-            '/api/v1/integracion/maestros/clientes-direcciones',
-            '/api/v1/integracion/maestros/clientes-contactos',
             '/api/v1/integracion/maestros/parametros',
         ] as $path) {
             $this->assertSame(
@@ -315,8 +311,6 @@ final class OpenApiDocumentationTest extends TestCase
 
         $expectedRequests = [
             '/api/v1/integracion/maestros/clientes' => 'IntegracionMaestroClientesLoteRequest',
-            '/api/v1/integracion/maestros/clientes-direcciones' => 'IntegracionMaestroDireccionesLoteRequest',
-            '/api/v1/integracion/maestros/clientes-contactos' => 'IntegracionMaestroContactosLoteRequest',
             '/api/v1/integracion/maestros/parametros' => 'IntegracionMaestroParametrosLoteRequest',
         ];
 
@@ -375,14 +369,6 @@ final class OpenApiDocumentationTest extends TestCase
             '/api/v1/integracion/maestros/clientes' => [
                 'request' => 'IntegracionMaestroClientesLoteRequest',
                 'item' => 'IntegracionMaestroClienteItem',
-            ],
-            '/api/v1/integracion/maestros/clientes-direcciones' => [
-                'request' => 'IntegracionMaestroDireccionesLoteRequest',
-                'item' => 'IntegracionMaestroDireccionItem',
-            ],
-            '/api/v1/integracion/maestros/clientes-contactos' => [
-                'request' => 'IntegracionMaestroContactosLoteRequest',
-                'item' => 'IntegracionMaestroContactoItem',
             ],
             '/api/v1/integracion/maestros/parametros' => [
                 'request' => 'IntegracionMaestroParametrosLoteRequest',

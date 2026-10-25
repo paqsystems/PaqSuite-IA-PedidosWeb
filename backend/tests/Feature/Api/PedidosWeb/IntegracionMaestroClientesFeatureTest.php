@@ -53,39 +53,36 @@ final class IntegracionMaestroClientesFeatureTest extends TestCase
         ]);
     }
 
-    public function testDireccionesSnapshotEsRechazado(): void
+    public function testClientesImportaDireccionesYContactosComoNodosHijos(): void
     {
         $this->requireIntegrationSchema();
 
         $response = $this->postJson(
-            '/api/v1/integracion/maestros/clientes-direcciones',
-            $this->batch('snapshot', [[
-                'codClient' => 'D-22C',
-                'idDe' => 1,
-                'habitual' => true,
-            ]]),
-            $this->integrationHeaders(),
-        )->assertStatus(422)
-            ->assertJsonPath('respuesta', 'integracion.maestro.modoNoSoportado');
-    }
-
-    public function testContactosDeltaConservaOmitidos(): void
-    {
-        $this->requireIntegrationSchema();
-
-        $response = $this->postJson(
-            '/api/v1/integracion/maestros/clientes-contactos',
+            '/api/v1/integracion/maestros/clientes',
             $this->batch('delta', [[
                 'codClient' => 'D-22C',
-                'codContacto' => 'C-22C',
-                'nombre' => 'Contacto 22c',
+                'nombre' => 'Cliente 22c',
+                'direcciones' => [[
+                    'idDe' => 1,
+                    'codDe' => 'DOM',
+                    'direccion' => 'Dirección 22c',
+                    'habitual' => true,
+                ]],
+                'contactos' => [[
+                    'codContacto' => 'C-22C',
+                    'nombre' => 'Contacto 22c',
+                ]],
             ]]),
             $this->integrationHeaders(),
-        );
-        $response->assertOk()
-            ->assertJsonPath('resultado.aplicados', 1)
+        )->assertOk()
+            ->assertJsonPath('resultado.aplicados', 3)
             ->assertJsonPath('resultado.rechazados', 0);
 
+        $this->assertDatabaseHas('pq_pedidosweb_clientesde', [
+            'cod_client' => 'D-22C',
+            'id_de' => 1,
+            'habitual' => 'S',
+        ]);
         $this->assertDatabaseHas('pq_pedidosweb_clientescontactos', [
             'cod_client' => 'D-22C',
             'cod_contacto' => 'C-22C',

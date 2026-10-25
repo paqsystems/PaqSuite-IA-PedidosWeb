@@ -12,7 +12,9 @@ final class IntegracionMaestroRegistry
 
     public function has(string $recurso): bool
     {
-        return array_key_exists($recurso, config('integracion_maestros.resources', []));
+        $definition = config('integracion_maestros.resources.'.$recurso);
+
+        return is_array($definition) && ! (bool) ($definition['nested_only'] ?? false);
     }
 
     public function resolve(string $recurso): ?IntegracionMaestroHandlerInterface

@@ -6,7 +6,7 @@
 | **SPEC relacionada** | [SPEC-101-22](../../05-open-spec/101-PedidosWeb/SPEC-101-22-importacion-maestros-erp.md) |
 | **Prioridad** | **Must** |
 | **Dependencias** | [TR-SPEC-101-22-integracion-maestros-plataforma](TR-SPEC-101-22-integracion-maestros-plataforma.md) (22a) |
-| **Estado** | **Parte E verificada** — pendiente F1 |
+| **Estado** | **Actualización 22d especificada** — listas de precios anidadas; pendiente D |
 | **C1** | [F-101-22-cierre-c1](F-101-22-cierre-c1-importacion-maestros-erp.md) (2026-10-21) |
 | **D1** | [D1-PLAN-101-22b-integracion-maestros-catalogo-articulos](D1-PLAN-101-22b-integracion-maestros-catalogo-articulos.md) (2026-10-21) |
 | **Última actualización** | 2026-10-21 |
@@ -22,7 +22,7 @@ Implementar **10 recursos** POST maestros con handlers PHP + **stored procedures
 - Scripts `CREATE/ALTER PROCEDURE` en `backend/scripts/sql/integracion-maestros/`
 - Handlers registrados en `IntegracionMaestroRegistry`
 - OpenAPI: un path documentado por recurso (reutiliza schemas 22a)
-- Feature tests por recurso representativo + snapshot condventa + rechazo snapshot en `listaprecios-articulos`
+- Feature tests por recurso representativo + snapshot condventa + listas de precios con `articulos[]`
 
 ### Out of scope
 
@@ -37,7 +37,7 @@ Implementar **10 recursos** POST maestros con handlers PHP + **stored procedures
 | CA-01…CA-03 | Feature provincias / condventa / vendedores |
 | CA-04…CA-05 | Feature escalas anidadas + snapshot detalle |
 | CA-06…CA-07 | Feature articulos delta parcial + eliminarSiAusente |
-| CA-08 | Feature listaprecios-articulos snapshot → 422 |
+| CA-08 | Verificar que `listaprecios` procesa sus precios mediante `items[]` anidado y que no se expone `listaprecios-articulos` como request independiente |
 | CA-09 | Feature descuentocantidad delta |
 | CA-10 | OpenAPI 10 paths |
 
@@ -54,10 +54,9 @@ Convención SP: `pq_sp_integracion_maestros_{recurso_snake}_{accion}`.
 | `transportes` | `TransportesMaestroHandler` | `pq_sp_integracion_maestros_transportes_apply` | true |
 | `perfiles` | `PerfilesMaestroHandler` | `pq_sp_integracion_maestros_perfiles_apply` | true |
 | `vendedores` | `VendedoresMaestroHandler` | `pq_sp_integracion_maestros_vendedores_apply` | true (replace; no delete ausentes) |
-| `listaprecios` | `ListapreciosMaestroHandler` | `pq_sp_integracion_maestros_listaprecios_apply` | true |
+| `listaprecios` | `ListapreciosMaestroHandler` | `pq_sp_integracion_maestros_listaprecios_apply` + SP de precios hijos | true |
 | `escalas` | `EscalasMaestroHandler` | `pq_sp_integracion_maestros_escalas_apply` + `_detalle_apply` | true |
 | `articulos` | `ArticulosMaestroHandler` | `pq_sp_integracion_maestros_articulos_apply` | true (replace; no delete ausentes) |
-| `listaprecios-articulos` | `ListapreciosArticulosMaestroHandler` | `pq_sp_integracion_maestros_listaprecios_articulos_apply` | **false** |
 | `descuentocantidad` | `DescuentocantidadMaestroHandler` | `pq_sp_integracion_maestros_descuentocantidad_apply` | **false** |
 
 Cada `@accion` SP recibe parámetros tipados (modo, clave natural, payload JSON o columnas explícitas — **preferir columnas explícitas** en TR de implementación). Snapshot catálogo chico: lógica post-lote en SP o SP `*_finalize_snapshot` invocado desde handler tras procesar ítems (documentar en script).
@@ -66,10 +65,11 @@ Cada `@accion` SP recibe parámetros tipados (modo, clave natural, payload JSON 
 
 | Grupo | Delta | Snapshot |
 |-------|-------|----------|
-| provincias, condventa, transportes, perfiles, listaprecios | MERGE campos enviados | DELETE códigos BD no presentes en lote si sin FK; FK → omitido |
+| provincias, condventa, transportes, perfiles | MERGE campos enviados | DELETE códigos BD no presentes en lote si sin FK; FK → omitido |
+| listaprecios | MERGE cabecera + upsert de `articulos[]` | Lista ausente: eliminar primero precios hijos; si está referenciada, inactivar si existe atributo; si no, conservar; sin referencia, eliminar |
 | escalas | MERGE cabecera + merge detalle por ítem | Detalle hijo = universo `valores[]` por cabecera del lote |
 | vendedores, articulos | MERGE | REPLACE campos enviados; `eliminarSiAusente` en ítem |
-| listaprecios-articulos, descuentocantidad | MERGE | **422** en handler antes de SP |
+| descuentocantidad | MERGE | **422** si se solicita snapshot |
 
 ### 3.2 JSON ítems (camelCase → SP)
 
@@ -88,6 +88,24 @@ SoT columnas: [PedidosWeb_Modelo_Datos_Final.md](../../02-producto/PedidosWeb/Pe
   "eliminarSiAusente": false
 }
 ```
+
+**Listas de precios**:
+
+```json
+{
+  "codLista": 1,
+  "incluyeIva": false,
+  "moneda": "1",
+  "descripcion": "Lista Ankas A",
+  "decimales": 2,
+  "articulos": [
+    { "codArticulo": "AB", "precio": 3824 },
+    { "codArticulo": "AC", "precio": 2361 }
+  ]
+}
+```
+
+En esta primera versión la ausencia de un artículo dentro de una lista presente no elimina su precio hijo; la baja masiva de precios hijos se ejecuta al procesar una lista ausente del snapshot.
 
 **Artículos** (campos mínimos): `codigo`, `descripcion`, `bonificacion`, `usaEsc`, `base`, `valor1`, `valor2`, `porcIva`, `equivalenciaVentas`, `stockeable`, `especial` (bool).
 
@@ -172,11 +190,11 @@ Requieren SQL Server con SP desplegados o skip marcado si CI sin SP.
 
 1. Tabla staging + scripts SP (10 familias + escalas detalle)
 2. Repositories + handlers
-3. Registry config
+3. Registry config; retirar `listaprecios-articulos` y registrar `articulos[]` en `listaprecios`
 4. OpenAPI paths
 5. Feature tests
 
-**Orden implementación:** 22a plataforma → provincias/condventa (smoke) → resto catálogo → articulos → listaprecios-articulos.
+**Orden implementación:** 22a plataforma → provincias/condventa (smoke) → resto catálogo → articulos → `listaprecios` con `items[]` anidado.
 
 ---
 
@@ -185,6 +203,6 @@ Requieren SQL Server con SP desplegados o skip marcado si CI sin SP.
 - [x] Todo acceso negocio vía SP
 - [x] Staging de snapshots aislado por `batch_id`, tenant y recurso
 - [x] Sin `whereIn` masivo (regla 77)
-- [x] `supportsSnapshot=false` en registry para listaprecios-articulos y descuentocantidad
+- [x] `supportsSnapshot=false` en registry para descuentocantidad
 - [x] OpenAPI 10 paths
 - [ ] Pedidos/presupuestos intactos (assert SQL count en test de integración)
