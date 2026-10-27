@@ -69,6 +69,8 @@ BEGIN
     DECLARE @stock decimal(18,4) = TRY_CONVERT(decimal(18,4), JSON_VALUE(@item, '$.stock'));
     DECLARE @comprometido decimal(18,4) = TRY_CONVERT(decimal(18,4), JSON_VALUE(@item, '$.comprometido'));
 
+    IF @batch IS NULL
+    BEGIN SELECT 'rejected' AS status, @codigo AS clave, 'integracion.transaccion.itemInvalido' AS error_code; RETURN; END;
     IF @codigo IS NULL OR @stock IS NULL OR @comprometido IS NULL
     BEGIN SELECT 'rejected' AS status, @codigo AS clave, 'integracion.transaccion.itemInvalido' AS error_code; RETURN; END;
     IF NOT EXISTS (SELECT 1 FROM pq_pedidosweb_articulos WITH (NOLOCK) WHERE codigo = @codigo)
@@ -135,6 +137,8 @@ BEGIN
     DECLARE @vto datetime = TRY_CONVERT(datetime, JSON_VALUE(@item, '$.fechaVto'));
     DECLARE @emis datetime = TRY_CONVERT(datetime, JSON_VALUE(@item, '$.fechaEmis'));
     DECLARE @saldo decimal(18,2) = TRY_CONVERT(decimal(18,2), JSON_VALUE(@item, '$.saldo'));
+    IF @batch IS NULL
+    BEGIN SELECT 'rejected' AS status, @cliente AS clave, 'integracion.transaccion.itemInvalido' AS error_code; RETURN; END;
     IF @cliente IS NULL OR @tipo IS NULL OR @numero IS NULL OR @vto IS NULL OR @saldo IS NULL
     BEGIN SELECT 'rejected' AS status, @cliente AS clave, 'integracion.transaccion.itemInvalido' AS error_code; RETURN; END;
     IF NOT EXISTS (SELECT 1 FROM pq_pedidosweb_clientes WITH (NOLOCK) WHERE cod_client = @cliente)
@@ -253,11 +257,11 @@ BEGIN
     SET NOCOUNT ON;
     DECLARE @id int = TRY_CONVERT(int, JSON_VALUE(@item, '$.idGva53'));
     DECLARE @cliente varchar(10) = JSON_VALUE(@item, '$.codCliente');
-    DECLARE @razon varchar(60) = JSON_VALUE(@item, '$.razonSocial');
+    DECLARE @razon varchar(60) = COALESCE(JSON_VALUE(@item, '$.razonSocial'), JSON_VALUE(@item, '$.razonSoci'));
     DECLARE @remito varchar(14) = JSON_VALUE(@item, '$.nRemito');
-    DECLARE @tipo varchar(3) = JSON_VALUE(@item, '$.tipo');
-    DECLARE @numero varchar(14) = JSON_VALUE(@item, '$.numero');
-    DECLARE @fecha datetime = TRY_CONVERT(datetime, JSON_VALUE(@item, '$.fechaEmision'));
+    DECLARE @tipo varchar(3) = COALESCE(JSON_VALUE(@item, '$.tipo'), JSON_VALUE(@item, '$.tComp'));
+    DECLARE @numero varchar(14) = COALESCE(JSON_VALUE(@item, '$.numero'), JSON_VALUE(@item, '$.nComp'));
+    DECLARE @fecha datetime = TRY_CONVERT(datetime, COALESCE(JSON_VALUE(@item, '$.fechaEmision'), JSON_VALUE(@item, '$.fechaEmi')));
     DECLARE @condicion int = TRY_CONVERT(int, JSON_VALUE(@item, '$.condVta'));
     DECLARE @porcentaje decimal(6,2) = TRY_CONVERT(decimal(6,2), JSON_VALUE(@item, '$.porcDesc'));
     DECLARE @cotizacion decimal(15,2) = TRY_CONVERT(decimal(15,2), JSON_VALUE(@item, '$.cotiz'));
@@ -265,13 +269,13 @@ BEGIN
     DECLARE @total decimal(15,2) = TRY_CONVERT(decimal(15,2), JSON_VALUE(@item, '$.totalComp'));
     DECLARE @cod_transp varchar(10) = JSON_VALUE(@item, '$.codTransp');
     DECLARE @nom_transp varchar(60) = JSON_VALUE(@item, '$.nomTransp');
-    DECLARE @cod_articu varchar(15) = JSON_VALUE(@item, '$.codArticulo');
-    DECLARE @descripcio varchar(60) = JSON_VALUE(@item, '$.descripcion');
+    DECLARE @cod_articu varchar(15) = COALESCE(JSON_VALUE(@item, '$.codArticulo'), JSON_VALUE(@item, '$.codArticu'));
+    DECLARE @descripcio varchar(60) = COALESCE(JSON_VALUE(@item, '$.descripcion'), JSON_VALUE(@item, '$.descripcio'));
     DECLARE @cod_dep varchar(10) = JSON_VALUE(@item, '$.codDep');
     DECLARE @um varchar(10) = JSON_VALUE(@item, '$.um');
     DECLARE @cantidad decimal(15,2) = TRY_CONVERT(decimal(15,2), JSON_VALUE(@item, '$.cantidad'));
     DECLARE @precio decimal(15,2) = TRY_CONVERT(decimal(15,2), JSON_VALUE(@item, '$.precio'));
-    DECLARE @tot_s_imp decimal(15,2) = TRY_CONVERT(decimal(15,2), JSON_VALUE(@item, '$.totSinImp'));
+    DECLARE @tot_s_imp decimal(15,2) = TRY_CONVERT(decimal(15,2), COALESCE(JSON_VALUE(@item, '$.totSinImp'), JSON_VALUE(@item, '$.totSImp')));
     DECLARE @n_comp_rem varchar(15) = JSON_VALUE(@item, '$.nCompRem');
     DECLARE @cant_rem decimal(15,2) = TRY_CONVERT(decimal(15,2), JSON_VALUE(@item, '$.cantRem'));
     DECLARE @fecha_rem datetime = TRY_CONVERT(datetime, JSON_VALUE(@item, '$.fechaRem'));

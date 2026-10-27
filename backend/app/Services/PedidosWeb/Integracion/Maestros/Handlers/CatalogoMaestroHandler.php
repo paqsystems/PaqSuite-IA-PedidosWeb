@@ -63,7 +63,10 @@ final class CatalogoMaestroHandler implements IntegracionMaestroHandlerInterface
             );
         }
 
-        if ($status === 'deleted') {
+        if (
+            $status === 'deleted'
+            || ($status === 'applied' && ($result['operation'] ?? '') === 'deleted')
+        ) {
             return IntegracionMaestroItemResult::deleted($clave);
         }
 

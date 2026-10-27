@@ -115,6 +115,20 @@ final class IntegracionMaestroOrchestrator
                     continue;
                 }
 
+                if ($childrenKey === 'direcciones'
+                    && IntegracionMaestroClientesDireccionesRules::habitualCount($children) > 1) {
+                    $recibidos += count($children);
+                    $rechazados += count($children);
+                    if (count($errores) < $maxErrores) {
+                        $errores[] = [
+                            'indice' => (int) $indice,
+                            'clave' => isset($item['codClient']) ? (string) $item['codClient'] : null,
+                            'codigo' => 'integracion.maestro.direccionHabitualDuplicada',
+                        ];
+                    }
+                    continue;
+                }
+
                 foreach ($children as $childIndex => $child) {
                     $recibidos++;
                     if (! is_array($child)) {

@@ -3,9 +3,11 @@
 namespace App\Services\PedidosWeb\Integracion\Transacciones\Handlers;
 
 use App\Services\PedidosWeb\Integracion\Transacciones\IntegracionTransaccionHandlerInterface;
+use App\Services\PedidosWeb\Integracion\Transacciones\IntegracionTransaccionItemNormalizer;
 use App\Services\PedidosWeb\Integracion\Transacciones\IntegracionTransaccionItemResult;
 use App\Services\PedidosWeb\Integracion\Transacciones\IntegracionTransaccionLoteContext;
 use App\Services\PedidosWeb\Integracion\Transacciones\Repositories\TransaccionSpRepository;
+use Illuminate\Database\QueryException;
 
 final class TransaccionJsonHandler implements IntegracionTransaccionHandlerInterface
 {
@@ -34,6 +36,7 @@ final class TransaccionJsonHandler implements IntegracionTransaccionHandlerInter
         array $item,
         IntegracionTransaccionLoteContext $context,
     ): IntegracionTransaccionItemResult {
+        $item = IntegracionTransaccionItemNormalizer::normalize($context->recurso, $item);
         $clave = $this->key($item);
 
         foreach ((array) ($this->definition['required'] ?? []) as $field) {
@@ -56,11 +59,22 @@ final class TransaccionJsonHandler implements IntegracionTransaccionHandlerInter
             }
         }
 
-        $result = $this->repository->apply(
-            (string) ($this->definition['apply'] ?? ''),
-            $context,
-            $item,
-        );
+        try {
+            $result = $this->repository->apply(
+                (string) ($this->definition['apply'] ?? ''),
+                $context,
+                $item,
+            );
+        } catch (QueryException $exception) {
+            if (str_contains(strtoupper($exception->getMessage()), '[ITEM_REJECTED]')) {
+                return IntegracionTransaccionItemResult::rejected(
+                    $clave,
+                    'integracion.transaccion.itemInvalido',
+                );
+            }
+
+            throw $exception;
+        }
 
         $status = $result['status'];
         $resultKey = $result['clave'] ?? $clave;
@@ -83,6 +97,20 @@ final class TransaccionJsonHandler implements IntegracionTransaccionHandlerInter
             return [];
         }
 
+        try {
+            $rows = $this->repository->finalize(
+                (string) ($this->definition['finalize'] ?? ''),
+                $context,
+            );
+        } catch (QueryException) {
+            return [
+                IntegracionTransaccionItemResult::rejected(
+                    null,
+                    'integracion.transaccion.snapshotAbortado',
+                ),
+            ];
+        }
+
         return array_map(
             static fn (array $row): IntegracionTransaccionItemResult => match ($row['status']) {
                 'rejected' => IntegracionTransaccionItemResult::rejected(
@@ -94,10 +122,7 @@ final class TransaccionJsonHandler implements IntegracionTransaccionHandlerInter
                     $row['error_code'],
                 ),
             },
-            $this->repository->finalize(
-                (string) ($this->definition['finalize'] ?? ''),
-                $context,
-            ),
+            $rows,
         );
     }
 

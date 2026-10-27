@@ -22,7 +22,7 @@ $resources = [
         'medidas' => true,
         'articulos' => true,
         'descuentocantidad' => false,
-        'parametros' => false,
+        'parametros' => true,
         'clientes' => true,
     ],
     'transacciones' => [

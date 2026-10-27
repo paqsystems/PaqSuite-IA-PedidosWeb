@@ -55,10 +55,6 @@ final class ImportationMaestroDomainAdapter implements ImportationDomainAdapter
 
             $processed++;
             $processedKeys[] = $result->clave;
-            if ($result->isDeleted()) {
-                $deleted++;
-                return;
-            }
             if ($result->isRejected()) {
                 $this->incrementErrorCounter($result->operation, $addedErrors, $updatedErrors, $deletedErrors);
                 $errors[] = [
@@ -66,6 +62,11 @@ final class ImportationMaestroDomainAdapter implements ImportationDomainAdapter
                     'clave' => $result->clave,
                     'codigo' => $result->errorCode ?? 'integracion.maestro.itemInvalido',
                 ];
+                return;
+            }
+
+            if ($result->isDeleted() || $result->operation === 'deleted') {
+                $deleted++;
                 return;
             }
 
@@ -112,6 +113,19 @@ final class ImportationMaestroDomainAdapter implements ImportationDomainAdapter
                         if ($childHandler === null || $children === []) {
                             continue;
                         }
+
+                        if ($childrenKey === 'direcciones'
+                            && IntegracionMaestroClientesDireccionesRules::habitualCount($children) > 1) {
+                            $processed += count($children);
+                            $updatedErrors += count($children);
+                            $errors[] = [
+                                'indice' => (int) $index,
+                                'clave' => isset($item['codClient']) ? (string) $item['codClient'] : null,
+                                'codigo' => 'integracion.maestro.direccionHabitualDuplicada',
+                            ];
+                            continue;
+                        }
+
                         foreach ($children as $childIndex => $child) {
                             if (! is_array($child)) {
                                 $updatedErrors++;

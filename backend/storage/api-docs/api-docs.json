@@ -6411,11 +6411,12 @@
                     },
                     "decimales": {
                         "type": "integer",
-                        "example": 2
+                        "example": 2,
+                        "nullable": true
                     },
                     "articulos": {
-                        "type": "array",
                         "description": "Precios de los artículos pertenecientes a la lista",
+                        "type": "array",
                         "items": {
                             "$ref": "#/components/schemas/IntegracionMaestroListaPrecioArticuloItem"
                         }
@@ -8268,15 +8269,14 @@
                     "recurso",
                     "modo",
                     "recibidos",
-                    "omitidos",
-                    "errores",
                     "procesados",
                     "agregados",
                     "modificados",
                     "eliminados",
                     "agregadosErroneos",
                     "modificadosErroneos",
-                    "eliminadosErroneos"
+                    "eliminadosErroneos",
+                    "errores"
                 ],
                 "properties": {
                     "recurso": {
@@ -8290,16 +8290,6 @@
                     "recibidos": {
                         "type": "integer",
                         "example": 3
-                    },
-                    "omitidos": {
-                        "type": "integer",
-                        "example": 0
-                    },
-                    "errores": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/IntegracionMaestroItemError"
-                        }
                     },
                     "procesados": {
                         "type": "integer",
@@ -8328,6 +8318,16 @@
                     "eliminadosErroneos": {
                         "type": "integer",
                         "example": 0
+                    },
+                    "omitidos": {
+                        "type": "integer",
+                        "example": 0
+                    },
+                    "errores": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/IntegracionMaestroItemError"
+                        }
                     }
                 },
                 "type": "object"

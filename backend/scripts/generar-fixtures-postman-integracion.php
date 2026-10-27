@@ -171,14 +171,33 @@ $resources = [
             'table' => 'PQ_PARAMETROS_GRAL',
             'mode' => 'delta',
             'map' => function (object $row): ?array {
+                $whitelist = (array) config('integracion_maestros_parametros_whitelist', []);
+                if ((string) $row->Programa !== 'PedidosWeb' || ! array_key_exists((string) $row->Clave, $whitelist)) {
+                    return null;
+                }
                 $types = ['B' => 'valorBool', 'I' => 'valorInt', 'N' => 'valorDecimal', 'S' => 'valorString', 'T' => 'valorText', 'D' => 'valorDateTime'];
                 $field = $types[(string) $row->tipo_valor] ?? null;
-                if ($field === null || (string) $row->Programa !== 'PedidosWeb') {
+                if ($field === null) {
                     return null;
                 }
                 $valueColumns = ['B' => 'Valor_Bool', 'I' => 'Valor_Int', 'N' => 'Valor_Decimal', 'S' => 'Valor_String', 'T' => 'Valor_Text', 'D' => 'Valor_DateTime'];
                 $value = $row->{$valueColumns[$row->tipo_valor]};
-                return ['clave' => $row->Clave, $field => $value];
+                if ($field === 'valorBool') {
+                    $value = filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) ?? false;
+                }
+                $item = [
+                    'clave' => $row->Clave,
+                    'tipoValor' => (string) $row->tipo_valor,
+                    $field => $value,
+                ];
+                if (isset($row->CAPTION) && $row->CAPTION !== null && $row->CAPTION !== '') {
+                    $item['caption'] = (string) $row->CAPTION;
+                }
+                if (isset($row->TOOLTIP) && $row->TOOLTIP !== null && (string) $row->TOOLTIP !== '') {
+                    $item['tooltip'] = (string) $row->TOOLTIP;
+                }
+
+                return $item;
             },
             'key' => fn (array $item): string => (string) $item['clave'],
         ],
@@ -281,10 +300,10 @@ $resources = [
             'map' => fn (object $row): array => [
                 'idGva53' => (int) $row->id_gva53,
                 'codCliente' => $row->cod_cli,
-                'razonSoci' => $row->razon_soci,
+                'razonSocial' => $row->razon_soci,
                 'nRemito' => $row->n_remito,
-                'tComp' => $row->t_comp,
-                'nComp' => $row->n_comp,
+                'tipo' => $row->t_comp,
+                'numero' => $row->n_comp,
                 'fechaEmision' => $row->fecha_emi,
                 'condVta' => $row->cond_vta,
                 'porcDesc' => $row->porc_desc !== null ? (float) $row->porc_desc : null,
@@ -293,13 +312,13 @@ $resources = [
                 'totalComp' => $row->total_comp !== null ? (float) $row->total_comp : null,
                 'codTransp' => $row->cod_transp,
                 'nomTransp' => $row->nom_transp,
-                'codArticu' => $row->cod_articu,
-                'descripcio' => $row->descripcio,
+                'codArticulo' => $row->cod_articu,
+                'descripcion' => $row->descripcio,
                 'codDep' => $row->cod_dep,
                 'um' => $row->um,
                 'cantidad' => $row->cantidad !== null ? (float) $row->cantidad : null,
                 'precio' => $row->precio !== null ? (float) $row->precio : null,
-                'totSImp' => $row->tot_s_imp !== null ? (float) $row->tot_s_imp : null,
+                'totSinImp' => $row->tot_s_imp !== null ? (float) $row->tot_s_imp : null,
                 'nCompRem' => $row->n_comp_rem,
                 'cantRem' => $row->cant_rem !== null ? (float) $row->cant_rem : null,
                 'fechaRem' => $row->fecha_rem,

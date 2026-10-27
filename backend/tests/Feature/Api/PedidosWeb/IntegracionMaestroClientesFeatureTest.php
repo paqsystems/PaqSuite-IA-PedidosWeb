@@ -149,6 +149,27 @@ final class IntegracionMaestroClientesFeatureTest extends TestCase
         $this->assertDatabaseHas('pq_pedidosweb_clientes', ['cod_client' => $cliente]);
     }
 
+    public function testClientesRechazanMasDeUnaDireccionHabitualEnElMismoItem(): void
+    {
+        $this->requireIntegrationSchema();
+
+        $this->postJson(
+            '/api/v1/integracion/maestros/clientes',
+            $this->batch('delta', [[
+                'codClient' => 'D-22C',
+                'nombre' => 'Cliente 22c',
+                'direcciones' => [
+                    ['idDe' => 1, 'direccion' => 'Uno', 'habitual' => true],
+                    ['idDe' => 2, 'direccion' => 'Dos', 'habitual' => true],
+                ],
+            ]]),
+            $this->integrationHeaders(),
+        )->assertOk()
+            ->assertJsonPath('resultado.aplicados', 1)
+            ->assertJsonPath('resultado.rechazados', 2)
+            ->assertJsonPath('resultado.errores.0.codigo', 'integracion.maestro.direccionHabitualDuplicada');
+    }
+
     public function testParametroFueraDeWhitelistEsRechazadoSinAbortarLote(): void
     {
         $this->requireIntegrationSchema();

@@ -13,6 +13,7 @@ return [
         'erroresTruncados' => 'Errores parciales: lista truncada.',
         'errorFatal' => 'Error al procesar el lote de maestros.',
         'itemInvalido' => 'Ítem del lote inválido.',
+        'direccionHabitualDuplicada' => 'Solo puede haber una dirección de entrega habitual por cliente.',
         'log' => [
             'procesado' => 'Lote de maestros procesado.',
         ],
