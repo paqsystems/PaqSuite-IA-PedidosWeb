@@ -1,5 +1,8 @@
 # SPEC-001-02-admin — Mantenimiento de roles y permisos (UI)
 
+Jira: PIAPEDWEB-3
+
+
 | Campo | Valor |
 |-------|--------|
 | **SPEC padre** | [SPEC-001-02-acceso-y-seguridad](SPEC-001-02-acceso-y-seguridad.md) |

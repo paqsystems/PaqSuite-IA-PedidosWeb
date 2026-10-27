@@ -1,5 +1,8 @@
 # SPEC-001-04 - Configuración global
 
+Jira: PIAPEDWEB-5
+
+
 | Campo | Valor |
 |-------|--------|
 | **HU relacionadas** | [HU-GEN-04-consulta-parametros](../../03-historias-usuario/001-Generaliddes/HU-GEN-04-consulta-parametros.md), lectura runtime (servicios existentes) |

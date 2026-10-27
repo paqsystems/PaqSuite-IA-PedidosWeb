@@ -1,5 +1,8 @@
 # SPEC-101-13 — Mails comerciales
 
+Jira: PIAPEDWEB-25
+
+
 | Campo | Valor |
 |-------|--------|
 | **SPEC madre** | [PedidosWeb_SPEC_MVP.md](PedidosWeb_SPEC_MVP.md) |

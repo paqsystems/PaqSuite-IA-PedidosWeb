@@ -4343,6 +4343,866 @@
                     }
                 ]
             }
+        },
+        "/api/v1/integracion/importaciones/{recurso}": {
+            "post": {
+                "tags": [
+                    "Integración importaciones"
+                ],
+                "summary": "Recibir lote asíncrono de importación",
+                "operationId": "integracionImportacionesReceive",
+                "parameters": [
+                    {
+                        "name": "recurso",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "condventa"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/IntegracionImportacionLoteRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "202": {
+                        "description": "Lote recibido"
+                    },
+                    "409": {
+                        "description": "Importación en conflicto"
+                    },
+                    "422": {
+                        "description": "Lote inválido"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/integracion/importaciones/{importacionId}": {
+            "get": {
+                "tags": [
+                    "Integración importaciones"
+                ],
+                "summary": "Consultar resultado de importación asíncrona",
+                "operationId": "integracionImportacionesResult",
+                "parameters": [
+                    {
+                        "name": "importacionId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "ERP-IMP-20261024-0001"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Estado de importación",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelopeIntegracionImportacion"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Importación inexistente"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/integracion/maestros/provincias": {
+            "post": {
+                "tags": [
+                    "Integración maestros"
+                ],
+                "summary": "Importar provincias",
+                "operationId": "integracionMaestrosProvincias",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/IntegracionMaestroProvinciasLoteRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Lote procesado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelopeIntegracionMaestroLote"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "403": {
+                        "description": "Sin permiso"
+                    },
+                    "422": {
+                        "description": "Lote inválido"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/integracion/maestros/condventa": {
+            "post": {
+                "tags": [
+                    "Integración maestros"
+                ],
+                "summary": "Importar condiciones de venta",
+                "operationId": "integracionMaestrosCondventa",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/IntegracionMaestroCondventaLoteRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Lote procesado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelopeIntegracionMaestroLote"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "403": {
+                        "description": "Sin permiso"
+                    },
+                    "422": {
+                        "description": "Lote inválido"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/integracion/maestros/transportes": {
+            "post": {
+                "tags": [
+                    "Integración maestros"
+                ],
+                "summary": "Importar transportes",
+                "operationId": "integracionMaestrosTransportes",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/IntegracionMaestroTransportesLoteRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Lote procesado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelopeIntegracionMaestroLote"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "403": {
+                        "description": "Sin permiso"
+                    },
+                    "422": {
+                        "description": "Lote inválido"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/integracion/maestros/perfiles": {
+            "post": {
+                "tags": [
+                    "Integración maestros"
+                ],
+                "summary": "Importar perfiles",
+                "operationId": "integracionMaestrosPerfiles",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/IntegracionMaestroPerfilesLoteRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Lote procesado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelopeIntegracionMaestroLote"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "403": {
+                        "description": "Sin permiso"
+                    },
+                    "422": {
+                        "description": "Lote inválido"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/integracion/maestros/vendedores": {
+            "post": {
+                "tags": [
+                    "Integración maestros"
+                ],
+                "summary": "Importar vendedores",
+                "operationId": "integracionMaestrosVendedores",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/IntegracionMaestroVendedoresLoteRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Lote procesado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelopeIntegracionMaestroLote"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "403": {
+                        "description": "Sin permiso"
+                    },
+                    "422": {
+                        "description": "Lote inválido"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/integracion/maestros/listaprecios": {
+            "post": {
+                "tags": [
+                    "Integración maestros"
+                ],
+                "summary": "Importar listas de precios",
+                "operationId": "integracionMaestrosListaprecios",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/IntegracionMaestroListapreciosLoteRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Lote procesado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelopeIntegracionMaestroLote"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "403": {
+                        "description": "Sin permiso"
+                    },
+                    "422": {
+                        "description": "Lote inválido"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/integracion/maestros/escalas": {
+            "post": {
+                "tags": [
+                    "Integración maestros"
+                ],
+                "summary": "Importar escalas",
+                "operationId": "integracionMaestrosEscalas",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/IntegracionMaestroEscalasLoteRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Lote procesado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelopeIntegracionMaestroLote"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "403": {
+                        "description": "Sin permiso"
+                    },
+                    "422": {
+                        "description": "Lote inválido"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/integracion/maestros/articulos": {
+            "post": {
+                "tags": [
+                    "Integración maestros"
+                ],
+                "summary": "Importar artículos",
+                "operationId": "integracionMaestrosArticulos",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/IntegracionMaestroArticulosLoteRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Lote procesado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelopeIntegracionMaestroLote"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "403": {
+                        "description": "Sin permiso"
+                    },
+                    "422": {
+                        "description": "Lote inválido"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/integracion/maestros/listaprecios-articulos": {
+            "post": {
+                "tags": [
+                    "Integración maestros"
+                ],
+                "summary": "Importar precios por artículo",
+                "operationId": "integracionMaestrosListapreciosArticulos",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/IntegracionMaestroListapreciosArticulosLoteRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Lote procesado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelopeIntegracionMaestroLote"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "403": {
+                        "description": "Sin permiso"
+                    },
+                    "422": {
+                        "description": "Lote inválido"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/integracion/maestros/descuentocantidad": {
+            "post": {
+                "tags": [
+                    "Integración maestros"
+                ],
+                "summary": "Importar descuentos por cantidad",
+                "operationId": "integracionMaestrosDescuentocantidad",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/IntegracionMaestroDescuentocantidadLoteRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Lote procesado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelopeIntegracionMaestroLote"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "403": {
+                        "description": "Sin permiso"
+                    },
+                    "422": {
+                        "description": "Lote inválido"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/integracion/maestros/clientes": {
+            "post": {
+                "tags": [
+                    "Integración maestros"
+                ],
+                "summary": "Importar clientes",
+                "operationId": "integracionMaestrosClientes",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/IntegracionMaestroClientesLoteRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Lote procesado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelopeIntegracionMaestroLote"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "403": {
+                        "description": "Sin permiso"
+                    },
+                    "422": {
+                        "description": "Lote inválido"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/integracion/maestros/parametros": {
+            "post": {
+                "tags": [
+                    "Integración maestros"
+                ],
+                "summary": "Importar parámetros PedidosWeb",
+                "operationId": "integracionMaestrosParametros",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/IntegracionMaestroParametrosLoteRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Lote procesado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelopeIntegracionMaestroLote"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "403": {
+                        "description": "Sin permiso"
+                    },
+                    "422": {
+                        "description": "Lote inválido"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/integracion/transacciones/stock": {
+            "post": {
+                "tags": [
+                    "Integración transacciones"
+                ],
+                "summary": "Importar stock",
+                "operationId": "integracionTransaccionesStock",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/IntegracionTransaccionStockLoteRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Lote procesado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelopeIntegracionTransaccionLote"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "403": {
+                        "description": "Sin permiso"
+                    },
+                    "422": {
+                        "description": "Lote inválido"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/integracion/transacciones/deuda": {
+            "post": {
+                "tags": [
+                    "Integración transacciones"
+                ],
+                "summary": "Importar deuda",
+                "operationId": "integracionTransaccionesDeuda",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/IntegracionTransaccionDeudaLoteRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Lote procesado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelopeIntegracionTransaccionLote"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "403": {
+                        "description": "Sin permiso"
+                    },
+                    "422": {
+                        "description": "Lote inválido"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/integracion/transacciones/cheques": {
+            "post": {
+                "tags": [
+                    "Integración transacciones"
+                ],
+                "summary": "Importar cheques",
+                "operationId": "integracionTransaccionesCheques",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/IntegracionTransaccionChequesLoteRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Lote procesado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelopeIntegracionTransaccionLote"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "403": {
+                        "description": "Sin permiso"
+                    },
+                    "422": {
+                        "description": "Lote inválido"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/integracion/transacciones/historial-ventas": {
+            "post": {
+                "tags": [
+                    "Integración transacciones"
+                ],
+                "summary": "Importar historial de ventas",
+                "operationId": "integracionTransaccionesHistorialVentas",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/IntegracionTransaccionHistorialVentasLoteRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Lote procesado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelopeIntegracionTransaccionLote"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "403": {
+                        "description": "Sin permiso"
+                    },
+                    "422": {
+                        "description": "Lote inválido"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
         }
     },
     "components": {
@@ -5122,10 +5982,1116 @@
                     }
                 ]
             },
+            "IntegracionMaestroClienteItem": {
+                "required": [
+                    "codClient"
+                ],
+                "properties": {
+                    "codClient": {
+                        "description": "Schemas OpenAPI — GET tipados (Parametros, Maestros, Framework, Tratativas, PedidosWeb show, Excel, Chat, Pivots).",
+                        "type": "string",
+                        "example": "CL-001"
+                    },
+                    "nombre": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "fantasia": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "codVended": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "listaPrecios": {
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "codCondvta": {
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "codTranspor": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "bonificacion": {
+                        "type": "number",
+                        "format": "double",
+                        "nullable": true
+                    },
+                    "nivel": {
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "expreso": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "expresoDire": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "eMail": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "razonSoci": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "leyenda1": {
+                        "type": "string",
+                        "maxLength": 60,
+                        "nullable": true
+                    },
+                    "leyenda2": {
+                        "type": "string",
+                        "maxLength": 60,
+                        "nullable": true
+                    },
+                    "leyenda3": {
+                        "type": "string",
+                        "maxLength": 60,
+                        "nullable": true
+                    },
+                    "leyenda4": {
+                        "type": "string",
+                        "maxLength": 60,
+                        "nullable": true
+                    },
+                    "leyenda5": {
+                        "type": "string",
+                        "maxLength": 60,
+                        "nullable": true
+                    },
+                    "codLogin": {
+                        "description": "Ignorado por la API",
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "eliminarSiAusente": {
+                        "type": "boolean",
+                        "default": false
+                    },
+                    "direcciones": {
+                        "description": "Direcciones de entrega del cliente",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/IntegracionMaestroDireccionItem"
+                        }
+                    },
+                    "contactos": {
+                        "description": "Contactos del cliente",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/IntegracionMaestroContactoItem"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "IntegracionMaestroDireccionItem": {
+                "required": [
+                    "codClient",
+                    "idDe"
+                ],
+                "properties": {
+                    "codClient": {
+                        "type": "string",
+                        "example": "CL-001"
+                    },
+                    "idDe": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "codDe": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "direccion": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "localidad": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "cPostal": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "codProvin": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "habitual": {
+                        "example": true,
+                        "oneOf": [
+                            {
+                                "type": "boolean"
+                            },
+                            {
+                                "type": "string",
+                                "enum": [
+                                    "S",
+                                    "N"
+                                ]
+                            }
+                        ]
+                    }
+                },
+                "type": "object"
+            },
+            "IntegracionMaestroContactoItem": {
+                "required": [
+                    "codClient",
+                    "codContacto",
+                    "nombre"
+                ],
+                "properties": {
+                    "codClient": {
+                        "type": "string",
+                        "example": "CL-001"
+                    },
+                    "codContacto": {
+                        "type": "string",
+                        "example": "C1"
+                    },
+                    "nombre": {
+                        "type": "string"
+                    },
+                    "telefono": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "mail": {
+                        "type": "string",
+                        "format": "email",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "IntegracionMaestroParametroItem": {
+                "description": "El valor debe enviarse en la propiedad correspondiente al tipo canónico: B=valorBool, I=valorInt, N=valorDecimal, S=valorString, T=valorText, D=valorDateTime.",
+                "required": [
+                    "clave"
+                ],
+                "properties": {
+                    "clave": {
+                        "type": "string",
+                        "example": "MinutosWeb"
+                    },
+                    "valorBool": {
+                        "type": "boolean",
+                        "nullable": true
+                    },
+                    "valorInt": {
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "valorDecimal": {
+                        "type": "number",
+                        "format": "double",
+                        "nullable": true
+                    },
+                    "valorString": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "valorText": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "valorDateTime": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "IntegracionMaestroClientesLoteRequest": {
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/IntegracionMaestroLoteRequest"
+                    },
+                    {
+                        "properties": {
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/IntegracionMaestroClienteItem"
+                                }
+                            }
+                        },
+                        "type": "object"
+                    }
+                ]
+            },
+            "IntegracionMaestroDireccionesLoteRequest": {
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/IntegracionMaestroLoteRequest"
+                    },
+                    {
+                        "properties": {
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/IntegracionMaestroDireccionItem"
+                                }
+                            }
+                        },
+                        "type": "object"
+                    }
+                ]
+            },
+            "IntegracionMaestroContactosLoteRequest": {
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/IntegracionMaestroLoteRequest"
+                    },
+                    {
+                        "properties": {
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/IntegracionMaestroContactoItem"
+                                }
+                            }
+                        },
+                        "type": "object"
+                    }
+                ]
+            },
+            "IntegracionMaestroParametrosLoteRequest": {
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/IntegracionMaestroLoteRequest"
+                    },
+                    {
+                        "properties": {
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/IntegracionMaestroParametroItem"
+                                }
+                            }
+                        },
+                        "type": "object"
+                    }
+                ]
+            },
+            "IntegracionMaestroProvinciaItem": {
+                "required": [
+                    "codProvin"
+                ],
+                "properties": {
+                    "codProvin": {
+                        "type": "string",
+                        "example": "B"
+                    },
+                    "descripcion": {
+                        "type": "string",
+                        "example": "Buenos Aires",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "IntegracionMaestroCondicionVentaItem": {
+                "required": [
+                    "codigo"
+                ],
+                "properties": {
+                    "codigo": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "descripcion": {
+                        "type": "string",
+                        "example": "Contado",
+                        "nullable": true
+                    },
+                    "dias": {
+                        "type": "integer",
+                        "example": 0,
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "IntegracionMaestroTransporteItem": {
+                "required": [
+                    "codigo"
+                ],
+                "properties": {
+                    "codigo": {
+                        "type": "string",
+                        "example": "TR01"
+                    },
+                    "descripcion": {
+                        "type": "string",
+                        "example": "Retiro en planta",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "IntegracionMaestroPerfilItem": {
+                "required": [
+                    "codPerfil"
+                ],
+                "properties": {
+                    "codPerfil": {
+                        "type": "string",
+                        "example": "P01"
+                    },
+                    "descripcion": {
+                        "type": "string",
+                        "example": "Perfil estándar",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "IntegracionMaestroVendedorItem": {
+                "required": [
+                    "codVended"
+                ],
+                "properties": {
+                    "codVended": {
+                        "type": "string",
+                        "example": "VEN01"
+                    },
+                    "nombre": {
+                        "type": "string",
+                        "example": "Vendedor Uno",
+                        "nullable": true
+                    },
+                    "supervisor": {
+                        "type": "boolean",
+                        "example": false,
+                        "nullable": true
+                    },
+                    "codLogin": {
+                        "description": "Ignorado por la API",
+                        "type": "string",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "IntegracionMaestroListaPrecioItem": {
+                "required": [
+                    "codLista"
+                ],
+                "properties": {
+                    "codLista": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "descripcion": {
+                        "type": "string",
+                        "example": "Lista general",
+                        "nullable": true
+                    },
+                    "moneda": {
+                        "type": "integer",
+                        "example": 1,
+                        "nullable": true
+                    },
+                    "incluyeIva": {
+                        "type": "boolean",
+                        "example": false,
+                        "nullable": true
+                    },
+                    "decimales": {
+                        "type": "integer",
+                        "example": 2,
+                        "nullable": true
+                    },
+                    "articulos": {
+                        "description": "Precios de los artículos pertenecientes a la lista",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/IntegracionMaestroListaPrecioArticuloItem"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "IntegracionMaestroEscalaValorItem": {
+                "required": [
+                    "codValor"
+                ],
+                "properties": {
+                    "codValor": {
+                        "type": "string",
+                        "example": "U"
+                    },
+                    "descValor": {
+                        "type": "string",
+                        "example": "Unidad",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "IntegracionMaestroEscalaItem": {
+                "required": [
+                    "codEscala"
+                ],
+                "properties": {
+                    "codEscala": {
+                        "type": "string",
+                        "example": "01"
+                    },
+                    "descripEs": {
+                        "type": "string",
+                        "example": "Unidades",
+                        "nullable": true
+                    },
+                    "nroEscala": {
+                        "type": "integer",
+                        "example": 1,
+                        "nullable": true
+                    },
+                    "valores": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/IntegracionMaestroEscalaValorItem"
+                        }
+                    },
+                    "eliminarSiAusente": {
+                        "type": "boolean",
+                        "default": false
+                    }
+                },
+                "type": "object"
+            },
+            "IntegracionMaestroArticuloItem": {
+                "required": [
+                    "codigo"
+                ],
+                "properties": {
+                    "codigo": {
+                        "type": "string",
+                        "example": "ART001"
+                    },
+                    "descripcion": {
+                        "type": "string",
+                        "example": "Artículo de prueba",
+                        "nullable": true
+                    },
+                    "bonificacion": {
+                        "type": "number",
+                        "format": "double",
+                        "example": 0,
+                        "nullable": true
+                    },
+                    "usaEsc": {
+                        "type": "boolean",
+                        "example": false,
+                        "nullable": true
+                    },
+                    "base": {
+                        "type": "string",
+                        "example": "",
+                        "nullable": true
+                    },
+                    "valor1": {
+                        "type": "number",
+                        "format": "double",
+                        "example": 0,
+                        "nullable": true
+                    },
+                    "valor2": {
+                        "type": "number",
+                        "format": "double",
+                        "example": 0,
+                        "nullable": true
+                    },
+                    "porcIva": {
+                        "type": "number",
+                        "format": "double",
+                        "example": 21,
+                        "nullable": true
+                    },
+                    "equivalenciaVentas": {
+                        "type": "number",
+                        "format": "double",
+                        "example": 1,
+                        "nullable": true
+                    },
+                    "stockeable": {
+                        "type": "boolean",
+                        "example": true,
+                        "nullable": true
+                    },
+                    "especial": {
+                        "type": "boolean",
+                        "example": false,
+                        "nullable": true
+                    },
+                    "eliminarSiAusente": {
+                        "type": "boolean",
+                        "default": false
+                    }
+                },
+                "type": "object"
+            },
+            "IntegracionMaestroListaPrecioArticuloItem": {
+                "required": [
+                    "codArticulo"
+                ],
+                "properties": {
+                    "codArticulo": {
+                        "type": "string",
+                        "example": "ART001"
+                    },
+                    "precio": {
+                        "type": "number",
+                        "format": "double",
+                        "example": 123.5,
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "IntegracionMaestroDescuentoCantidadItem": {
+                "required": [
+                    "codArticu",
+                    "cantidad"
+                ],
+                "properties": {
+                    "codArticu": {
+                        "type": "string",
+                        "example": "ART001"
+                    },
+                    "cantidad": {
+                        "type": "number",
+                        "format": "double",
+                        "example": 10
+                    },
+                    "porcentaje": {
+                        "type": "number",
+                        "format": "double",
+                        "example": 5,
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "IntegracionTransaccionStockItem": {
+                "required": [
+                    "codArticulo",
+                    "stock",
+                    "comprometido"
+                ],
+                "properties": {
+                    "codArticulo": {
+                        "type": "string",
+                        "example": "ART001"
+                    },
+                    "stock": {
+                        "type": "number",
+                        "format": "double",
+                        "example": 100.5
+                    },
+                    "comprometido": {
+                        "type": "number",
+                        "format": "double",
+                        "example": 10
+                    }
+                },
+                "type": "object"
+            },
+            "IntegracionTransaccionDeudaItem": {
+                "required": [
+                    "codCliente",
+                    "tComp",
+                    "nComp",
+                    "fechaEmis",
+                    "fechaVto",
+                    "saldo"
+                ],
+                "properties": {
+                    "codCliente": {
+                        "type": "string",
+                        "example": "CL-001"
+                    },
+                    "tComp": {
+                        "type": "string",
+                        "example": "FC"
+                    },
+                    "nComp": {
+                        "type": "string",
+                        "example": "0001-00001234"
+                    },
+                    "fechaEmis": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "2026-10-20"
+                    },
+                    "fechaVto": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "2026-11-20"
+                    },
+                    "saldo": {
+                        "type": "number",
+                        "format": "double",
+                        "example": 1500.25
+                    }
+                },
+                "type": "object"
+            },
+            "IntegracionTransaccionChequeItem": {
+                "required": [
+                    "interno",
+                    "numero",
+                    "codCliente",
+                    "banco",
+                    "fecha",
+                    "importe",
+                    "origen",
+                    "estado"
+                ],
+                "properties": {
+                    "interno": {
+                        "type": "string",
+                        "example": "1001"
+                    },
+                    "numero": {
+                        "type": "string",
+                        "example": "456789"
+                    },
+                    "codCliente": {
+                        "type": "string",
+                        "example": "CL-001"
+                    },
+                    "banco": {
+                        "type": "string",
+                        "example": "Galicia"
+                    },
+                    "fecha": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "2026-10-20"
+                    },
+                    "importe": {
+                        "type": "number",
+                        "format": "double",
+                        "example": 25000.5
+                    },
+                    "origen": {
+                        "type": "string",
+                        "example": "Cartera"
+                    },
+                    "estado": {
+                        "type": "string",
+                        "example": "En cartera"
+                    }
+                },
+                "type": "object"
+            },
+            "IntegracionTransaccionHistorialVentaItem": {
+                "required": [
+                    "idGva53",
+                    "codCliente",
+                    "tipo",
+                    "numero",
+                    "fechaEmision"
+                ],
+                "properties": {
+                    "idGva53": {
+                        "type": "integer",
+                        "example": 1001
+                    },
+                    "codCliente": {
+                        "type": "string",
+                        "example": "CL-001"
+                    },
+                    "tipo": {
+                        "type": "string",
+                        "example": "FC"
+                    },
+                    "numero": {
+                        "type": "string",
+                        "example": "0001-00001234"
+                    },
+                    "fechaEmision": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "2026-10-20"
+                    },
+                    "codArticu": {
+                        "type": "string",
+                        "example": "ART001",
+                        "nullable": true
+                    },
+                    "nRemito": {
+                        "type": "string",
+                        "example": "R-001",
+                        "nullable": true
+                    },
+                    "condVta": {
+                        "type": "integer",
+                        "example": 1,
+                        "nullable": true
+                    },
+                    "porcDesc": {
+                        "type": "number",
+                        "format": "double",
+                        "example": 0,
+                        "nullable": true
+                    },
+                    "cotiz": {
+                        "type": "number",
+                        "format": "double",
+                        "example": 1,
+                        "nullable": true
+                    },
+                    "moneda": {
+                        "type": "string",
+                        "example": "ARS",
+                        "nullable": true
+                    },
+                    "totalComp": {
+                        "type": "number",
+                        "format": "double",
+                        "example": 10000,
+                        "nullable": true
+                    },
+                    "codTransp": {
+                        "type": "string",
+                        "example": "TR01",
+                        "nullable": true
+                    },
+                    "nomTransp": {
+                        "type": "string",
+                        "example": "Retiro",
+                        "nullable": true
+                    },
+                    "descripcion": {
+                        "type": "string",
+                        "example": "Artículo de prueba",
+                        "nullable": true
+                    },
+                    "codDep": {
+                        "type": "string",
+                        "example": "01",
+                        "nullable": true
+                    },
+                    "um": {
+                        "type": "string",
+                        "example": "UN",
+                        "nullable": true
+                    },
+                    "cantidad": {
+                        "type": "number",
+                        "format": "double",
+                        "example": 10,
+                        "nullable": true
+                    },
+                    "precio": {
+                        "type": "number",
+                        "format": "double",
+                        "example": 123.5,
+                        "nullable": true
+                    },
+                    "totSinImp": {
+                        "type": "number",
+                        "format": "double",
+                        "example": 1235,
+                        "nullable": true
+                    },
+                    "nCompRem": {
+                        "type": "string",
+                        "example": "",
+                        "nullable": true
+                    },
+                    "cantRem": {
+                        "type": "number",
+                        "format": "double",
+                        "example": 0,
+                        "nullable": true
+                    },
+                    "fechaRem": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "2026-10-21",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "IntegracionMaestroProvinciasLoteRequest": {
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/IntegracionMaestroLoteRequest"
+                    },
+                    {
+                        "properties": {
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/IntegracionMaestroProvinciaItem"
+                                }
+                            }
+                        },
+                        "type": "object"
+                    }
+                ]
+            },
+            "IntegracionMaestroCondventaLoteRequest": {
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/IntegracionMaestroLoteRequest"
+                    },
+                    {
+                        "properties": {
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/IntegracionMaestroCondicionVentaItem"
+                                }
+                            }
+                        },
+                        "type": "object"
+                    }
+                ]
+            },
+            "IntegracionMaestroTransportesLoteRequest": {
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/IntegracionMaestroLoteRequest"
+                    },
+                    {
+                        "properties": {
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/IntegracionMaestroTransporteItem"
+                                }
+                            }
+                        },
+                        "type": "object"
+                    }
+                ]
+            },
+            "IntegracionMaestroPerfilesLoteRequest": {
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/IntegracionMaestroLoteRequest"
+                    },
+                    {
+                        "properties": {
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/IntegracionMaestroPerfilItem"
+                                }
+                            }
+                        },
+                        "type": "object"
+                    }
+                ]
+            },
+            "IntegracionMaestroVendedoresLoteRequest": {
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/IntegracionMaestroLoteRequest"
+                    },
+                    {
+                        "properties": {
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/IntegracionMaestroVendedorItem"
+                                }
+                            }
+                        },
+                        "type": "object"
+                    }
+                ]
+            },
+            "IntegracionMaestroListapreciosLoteRequest": {
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/IntegracionMaestroLoteRequest"
+                    },
+                    {
+                        "properties": {
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/IntegracionMaestroListaPrecioItem"
+                                }
+                            }
+                        },
+                        "type": "object"
+                    }
+                ]
+            },
+            "IntegracionMaestroEscalasLoteRequest": {
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/IntegracionMaestroLoteRequest"
+                    },
+                    {
+                        "properties": {
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/IntegracionMaestroEscalaItem"
+                                }
+                            }
+                        },
+                        "type": "object"
+                    }
+                ]
+            },
+            "IntegracionMaestroArticulosLoteRequest": {
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/IntegracionMaestroLoteRequest"
+                    },
+                    {
+                        "properties": {
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/IntegracionMaestroArticuloItem"
+                                }
+                            }
+                        },
+                        "type": "object"
+                    }
+                ]
+            },
+            "IntegracionMaestroListapreciosArticulosLoteRequest": {
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/IntegracionMaestroLoteRequest"
+                    },
+                    {
+                        "properties": {
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/IntegracionMaestroListaPrecioArticuloItem"
+                                }
+                            }
+                        },
+                        "type": "object"
+                    }
+                ]
+            },
+            "IntegracionMaestroDescuentocantidadLoteRequest": {
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/IntegracionMaestroLoteRequest"
+                    },
+                    {
+                        "properties": {
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/IntegracionMaestroDescuentoCantidadItem"
+                                }
+                            }
+                        },
+                        "type": "object"
+                    }
+                ]
+            },
+            "IntegracionTransaccionStockLoteRequest": {
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/IntegracionTransaccionLoteRequest"
+                    },
+                    {
+                        "properties": {
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/IntegracionTransaccionStockItem"
+                                }
+                            }
+                        },
+                        "type": "object"
+                    }
+                ]
+            },
+            "IntegracionTransaccionDeudaLoteRequest": {
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/IntegracionTransaccionLoteRequest"
+                    },
+                    {
+                        "properties": {
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/IntegracionTransaccionDeudaItem"
+                                }
+                            }
+                        },
+                        "type": "object"
+                    }
+                ]
+            },
+            "IntegracionTransaccionChequesLoteRequest": {
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/IntegracionTransaccionLoteRequest"
+                    },
+                    {
+                        "properties": {
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/IntegracionTransaccionChequeItem"
+                                }
+                            }
+                        },
+                        "type": "object"
+                    }
+                ]
+            },
+            "IntegracionTransaccionHistorialVentasLoteRequest": {
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/IntegracionTransaccionLoteRequest"
+                    },
+                    {
+                        "properties": {
+                            "modo": {
+                                "type": "string",
+                                "enum": [
+                                    "delta"
+                                ],
+                                "example": "delta"
+                            },
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/IntegracionTransaccionHistorialVentaItem"
+                                }
+                            }
+                        },
+                        "type": "object"
+                    }
+                ]
+            },
             "ParametrosCargaResultado": {
                 "properties": {
                     "modificaPrecio": {
-                        "description": "Schemas OpenAPI — GET tipados (Parametros, Maestros, Framework, Tratativas, PedidosWeb show, Excel, Chat, Pivots).",
                         "type": "boolean",
                         "example": true
                     },
@@ -6240,6 +8206,395 @@
                         "properties": {
                             "resultado": {
                                 "$ref": "#/components/schemas/PivotMetadataResultado"
+                            }
+                        },
+                        "type": "object"
+                    }
+                ]
+            },
+            "IntegracionMaestroLoteRequest": {
+                "required": [
+                    "modo",
+                    "fechaProceso",
+                    "items"
+                ],
+                "properties": {
+                    "modo": {
+                        "type": "string",
+                        "enum": [
+                            "delta",
+                            "snapshot"
+                        ],
+                        "example": "delta"
+                    },
+                    "fechaProceso": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2026-10-21T12:00:00-03:00"
+                    },
+                    "origen": {
+                        "type": "string",
+                        "maxLength": 50,
+                        "example": "tango"
+                    },
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "type": "object"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "IntegracionMaestroItemError": {
+                "properties": {
+                    "indice": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "clave": {
+                        "type": "string",
+                        "example": "X",
+                        "nullable": true
+                    },
+                    "codigo": {
+                        "type": "string",
+                        "example": "integracion.maestro.itemInvalido"
+                    }
+                },
+                "type": "object"
+            },
+            "IntegracionMaestroLoteResultado": {
+                "required": [
+                    "recurso",
+                    "modo",
+                    "recibidos",
+                    "procesados",
+                    "agregados",
+                    "modificados",
+                    "eliminados",
+                    "agregadosErroneos",
+                    "modificadosErroneos",
+                    "eliminadosErroneos",
+                    "errores"
+                ],
+                "properties": {
+                    "recurso": {
+                        "type": "string",
+                        "example": "provincias"
+                    },
+                    "modo": {
+                        "type": "string",
+                        "example": "delta"
+                    },
+                    "recibidos": {
+                        "type": "integer",
+                        "example": 3
+                    },
+                    "procesados": {
+                        "type": "integer",
+                        "example": 3
+                    },
+                    "agregados": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "modificados": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "eliminados": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "agregadosErroneos": {
+                        "type": "integer",
+                        "example": 0
+                    },
+                    "modificadosErroneos": {
+                        "type": "integer",
+                        "example": 0
+                    },
+                    "eliminadosErroneos": {
+                        "type": "integer",
+                        "example": 0
+                    },
+                    "omitidos": {
+                        "type": "integer",
+                        "example": 0
+                    },
+                    "errores": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/IntegracionMaestroItemError"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "ApiEnvelopeIntegracionMaestroLote": {
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/ApiEnvelope"
+                    },
+                    {
+                        "properties": {
+                            "resultado": {
+                                "$ref": "#/components/schemas/IntegracionMaestroLoteResultado"
+                            }
+                        },
+                        "type": "object"
+                    }
+                ]
+            },
+            "IntegracionImportacionLoteRequest": {
+                "required": [
+                    "importacionId",
+                    "numeroLote",
+                    "ultimoEnvio",
+                    "modo",
+                    "fechaProceso",
+                    "items"
+                ],
+                "properties": {
+                    "importacionId": {
+                        "type": "string",
+                        "maxLength": 100,
+                        "example": "ERP-IMP-20261024-0001"
+                    },
+                    "numeroLote": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "example": 1
+                    },
+                    "ultimoEnvio": {
+                        "type": "boolean",
+                        "example": false
+                    },
+                    "modo": {
+                        "type": "string",
+                        "enum": [
+                            "delta",
+                            "snapshot"
+                        ],
+                        "example": "delta"
+                    },
+                    "fechaProceso": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2026-10-24T12:00:00-03:00"
+                    },
+                    "origen": {
+                        "type": "string",
+                        "maxLength": 50,
+                        "example": "tango",
+                        "nullable": true
+                    },
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "IntegracionImportacionResultado": {
+                "properties": {
+                    "importacionId": {
+                        "type": "string",
+                        "example": "ERP-IMP-20261024-0001"
+                    },
+                    "recurso": {
+                        "type": "string",
+                        "example": "condventa"
+                    },
+                    "estado": {
+                        "type": "string",
+                        "enum": [
+                            "received",
+                            "staging",
+                            "queued",
+                            "processing",
+                            "completed",
+                            "failed"
+                        ]
+                    },
+                    "duracion": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 2.315,
+                        "nullable": true
+                    },
+                    "procesados": {
+                        "type": "integer",
+                        "example": 100,
+                        "nullable": true
+                    },
+                    "agregados": {
+                        "type": "integer",
+                        "example": 20,
+                        "nullable": true
+                    },
+                    "modificados": {
+                        "type": "integer",
+                        "example": 70,
+                        "nullable": true
+                    },
+                    "eliminados": {
+                        "type": "integer",
+                        "example": 10,
+                        "nullable": true
+                    },
+                    "agregadosErroneos": {
+                        "type": "integer",
+                        "example": 0,
+                        "nullable": true
+                    },
+                    "modificadosErroneos": {
+                        "type": "integer",
+                        "example": 0,
+                        "nullable": true
+                    },
+                    "eliminadosErroneos": {
+                        "type": "integer",
+                        "example": 0,
+                        "nullable": true
+                    },
+                    "errores": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "additionalProperties": true
+                        },
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "ApiEnvelopeIntegracionImportacion": {
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/ApiEnvelope"
+                    },
+                    {
+                        "properties": {
+                            "resultado": {
+                                "$ref": "#/components/schemas/IntegracionImportacionResultado"
+                            }
+                        },
+                        "type": "object"
+                    }
+                ]
+            },
+            "IntegracionTransaccionLoteRequest": {
+                "required": [
+                    "modo",
+                    "fechaProceso",
+                    "items"
+                ],
+                "properties": {
+                    "modo": {
+                        "type": "string",
+                        "enum": [
+                            "delta",
+                            "snapshot"
+                        ],
+                        "example": "delta"
+                    },
+                    "fechaProceso": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2026-10-22T12:00:00-03:00"
+                    },
+                    "origen": {
+                        "type": "string",
+                        "maxLength": 50,
+                        "example": "tango",
+                        "nullable": true
+                    },
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "IntegracionTransaccionItemError": {
+                "properties": {
+                    "indice": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "clave": {
+                        "type": "string",
+                        "example": "A-001",
+                        "nullable": true
+                    },
+                    "codigo": {
+                        "type": "string",
+                        "example": "integracion.transaccion.itemInvalido"
+                    }
+                },
+                "type": "object"
+            },
+            "IntegracionTransaccionLoteResultado": {
+                "required": [
+                    "recurso",
+                    "modo",
+                    "recibidos",
+                    "aplicados",
+                    "omitidos",
+                    "rechazados",
+                    "errores"
+                ],
+                "properties": {
+                    "recurso": {
+                        "type": "string",
+                        "example": "stock"
+                    },
+                    "modo": {
+                        "type": "string",
+                        "example": "delta"
+                    },
+                    "recibidos": {
+                        "type": "integer",
+                        "example": 3
+                    },
+                    "aplicados": {
+                        "type": "integer",
+                        "example": 2
+                    },
+                    "omitidos": {
+                        "type": "integer",
+                        "example": 0
+                    },
+                    "rechazados": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "errores": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/IntegracionTransaccionItemError"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "ApiEnvelopeIntegracionTransaccionLote": {
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/ApiEnvelope"
+                    },
+                    {
+                        "properties": {
+                            "resultado": {
+                                "$ref": "#/components/schemas/IntegracionTransaccionLoteResultado"
                             }
                         },
                         "type": "object"
@@ -8890,6 +11245,18 @@
         {
             "name": "Informes",
             "description": "Consultas e informes de solo lectura"
+        },
+        {
+            "name": "Integración importaciones",
+            "description": "Recepción asíncrona y consulta de importaciones ERP"
+        },
+        {
+            "name": "Integración maestros",
+            "description": "Importación ERP de catálogos, artículos y precios"
+        },
+        {
+            "name": "Integración transacciones",
+            "description": "Importación ERP de stock, deuda, cheques e historial"
         },
         {
             "name": "Maestros y Tablas",

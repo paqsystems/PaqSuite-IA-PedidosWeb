@@ -1,5 +1,8 @@
 # SPEC-101-16 — Importación pedido individual desde Excel
 
+Jira: PIAPEDWEB-28
+
+
 | Campo | Valor |
 |-------|--------|
 | **SPEC madre** | [PedidosWeb_SPEC_MVP.md](PedidosWeb_SPEC_MVP.md) |

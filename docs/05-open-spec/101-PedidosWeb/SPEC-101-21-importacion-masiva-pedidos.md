@@ -1,5 +1,8 @@
 # SPEC-101-21 — Importación masiva de pedidos / presupuestos
 
+Jira: PIAPEDWEB-33
+
+
 | Campo | Valor |
 |-------|--------|
 | **SPEC madre** | [PedidosWeb_SPEC_MVP.md](PedidosWeb_SPEC_MVP.md) |

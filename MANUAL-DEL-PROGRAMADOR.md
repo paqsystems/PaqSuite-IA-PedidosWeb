@@ -24,6 +24,8 @@ Si venís a **entender qué hace el producto**, andá a la Parte 2. Ahí está e
 
 Si venís a **integrar un sistema externo**, leé la Parte 1 (auth, tenant, envelope) y el **Anexo A (GALO)**. El contrato vivo de cada endpoint está en Swagger: `http://127.0.0.1:8088/api/documentation` (puerto local habitual del backend).
 
+Si tenés que **configurar lab local o un sitio en Forge (dev/prod)**, usá **§1.12** (variables por ambiente). Complemento operativo: `docs/Migraciones-en-forge.md` (flags post-migración y `VITE_*` en Vercel).
+
 Los manuales de usuario (operatoria para vendedores y clientes) viven en `docs/99-manual-usuario/`. Este archivo es el equivalente para quien escribe código o consume la API.
 
 ---
@@ -275,9 +277,102 @@ Algunas capacidades se encienden por tenant/deploy:
 | `EXCEL_IMPORT_ENABLED` | Importación Excel (individual en carga + masiva) |
 | `ADMIN_SECURITY_UI_ENABLED` | ABM de roles y permisos en web |
 
-Sin el flag, la UI y a veces el menú no exponen el proceso aunque el código exista.
+Sin el flag, la UI y a veces el menú no exponen el proceso aunque el código exista. La matriz completa lab vs Forge está en **§1.12**.
 
-## 1.12 Por dónde empezar si tenés que programar mañana
+## 1.12 Variables de entorno por ambiente (lab, Forge dev, Forge prod)
+
+PedidosWeb reparte configuración en **tres lugares**: `backend/.env` (Forge → *Environment* del sitio Laravel), `frontend/.env` (desarrollo local con Vite) y **variables de build en Vercel** (FE desplegado). En **mobile**, además: `frontend/.env.mobile` (o variables en línea de comandos) + override en Preferences del engranaje (§1.14).
+
+Plantillas: `backend/.env.example`, `frontend/.env.example`, `frontend/.env.mobile.example` (si existe en el clone).
+
+Constantes de producto MONO: `docs/05-open-spec/001-Generaliddes/SPEC-001-05-variantes-y-alcance.md` (`proyecto=pedidosweb`).
+
+### Topología recordatorio
+
+| Capa | Lab (tu PC) | Forge **develop** | Forge **main** (operativo) |
+|------|-------------|-------------------|----------------------------|
+| Frontend | `npm run dev` → `:3010` | Vercel rama `develop` (URL del proyecto) | Vercel `main` + custom `https://{cliente}.pedidosweb.paqsystems.com` |
+| Backend API | `php artisan serve` → `:8088` | URL del sitio Forge dev (ej. `https://backenddevpedidoswebpaqsystems.on-forge.com`) | `https://backend.pedidosweb.paqsystems.com` |
+| SPA canónico (referencia) | `http://localhost:3010` | Según deploy Vercel develop | `https://frontend.pedidosweb.paqsystems.com` |
+
+En **lab web**, el FE suele usar `VITE_API_BASE_URL=/api/v1` (ruta relativa) y Vite **proxifica** `/api` a `http://localhost:8088` (`frontend/vite.config.ts`). En **Vercel**, el FE llama al BE con **URL absoluta** en `VITE_API_BASE_URL` (incluir sufijo `/api/v1`).
+
+### Backend — `backend/.env`
+
+| Variable | Lab local | Forge dev | Forge prod |
+|----------|-----------|-----------|------------|
+| **`APP_ENV`** | `local` | `production` (habitual en Forge) | `production` |
+| **`APP_DEBUG`** | `true` | `true` solo si el equipo lo autoriza en dev | **`false`** |
+| **`APP_URL`** | `http://127.0.0.1:8088` | URL pública del sitio Forge dev | `https://backend.pedidosweb.paqsystems.com` |
+| **`APP_KEY`** | `php artisan key:generate` | Secreto estable en Forge | Idem |
+| **`FRONTEND_URL`** | `http://localhost:3010` | URL del SPA dev (Vercel develop) | `https://frontend.pedidosweb.paqsystems.com` o custom |
+| **`DB_CONNECTION`** / **`DB_*`** | `sqlsrv` hacia base tenant de lab (ej. compartida ERP) | Endpoint RDS / SQL del tenant en **Environment** | Idem prod |
+| **`DB_APP_NAME`** | `PedidosWeb` (SSMS) | Recomendado en Forge | Recomendado |
+| **`PAQSUITE_TENANCY`** | `single` | `single` | `single` |
+| **`PAQSUITE_DB`** | `unified` | `unified` | `unified` |
+| **`TENANT_HEADER_NAME`** | `X-Paq-Cliente` | Igual | Igual |
+| **`TENANT_DEFAULT_CLIENT`** | `desarrollo` | Código tenant del sitio | Código tenant del sitio |
+| **`TENANT_ALLOWED_CLIENTS`** | `desarrollo,demo` (ejemplo `.env.example`) | Lista acotada al deploy | Lista acotada al deploy |
+| **`MAIL_MAILER`** | `smtp` + Mailpit o `log` | SMTP real del entorno | Producción |
+| **`PIVOTS_ENABLED`** / **`PIVOT_LAYOUTS_ENABLED`** | `false` por defecto en `paqsuite_mvp.php`; `true` si probás pivots | Activar tras migraciones pivot (`docs/Migraciones-en-forge.md`) | Según producto |
+| **`EXCEL_IMPORT_ENABLED`** | `false` por defecto; `true` para smoke Excel | `true` tras tablas/catálogo Excel | Según rollout |
+| **`ADMIN_SECURITY_UI_ENABLED`** | `false` por defecto; `true` para ABM admin local | Opcional en dev | Opcional en prod |
+| **`ALLOW_PEDIDOSWEB_DESTRUCTIVE_BOOTSTRAP`** | **`false`** (nunca en base ERP compartida) | **`false`** | **`false`** |
+| **`CHAT_ASSISTANT_LLM_*`** | Solo lab (placeholders BYOK); **no** commitear claves | En prod el usuario usa Preferencias BYOK | Idem |
+| **`SANCTUM_STATEFUL_DOMAINS`** | `localhost:3010` | Dominios del FE desplegado | Dominios del FE |
+| **`L5_SWAGGER_CONST_HOST`** | `http://localhost:8088` (o puerto real) | URL pública del API | URL pública del API |
+
+Los flags de producto se leen vía `config/paqsuite_mvp.php` (`pivotsEnabled`, `excelImportEnabled`, `securityAdminEnabled`) y se exponen en `GET /api/v1/config/public` donde aplique.
+
+**Tras cambiar `.env` en Forge:**
+
+```bash
+php artisan config:cache
+php artisan route:cache   # si el deploy script lo usa
+php artisan queue:restart # si hay workers (Excel async, etc.)
+```
+
+**Deploy de catálogo:** además de `migrate`, el script de Forge debe incluir `php artisan paqsuite:seed-deploy` (menú MVP, procesos Excel, parámetros idempotentes). Detalle: `docs/Migraciones-en-forge.md`.
+
+### Frontend web — `frontend/.env` (lab) y Vercel (remoto)
+
+| Variable | Lab | Vercel develop | Vercel production |
+|----------|-----|----------------|-------------------|
+| **`VITE_API_BASE_URL`** | `/api/v1` (relativo → proxy Vite a `:8088`) | `https://<host-forge-dev>/api/v1` | `https://backend.pedidosweb.paqsystems.com/api/v1` (o host Forge prod del sitio) |
+| **`VITE_TENANT_DEFAULT_CLIENT`** | `desarrollo` | Tenant por defecto del ambiente dev | Tenant por defecto del ambiente prod (si el build lo usa) |
+| **`VITE_DEVEXTREME_LICENSE`** | Obligatoria (copiar de `.env.example` / smoke) | Misma LCP en env Vercel | Misma LCP en Production |
+| **`VITE_APP_VERSION`** | Opcional (UI) | Opcional | Opcional |
+
+El proxy local **no** usa `VITE_API_PROXY_TARGET` en este repo: el target está fijado en `vite.config.ts` (`http://localhost:8088`). Si el backend local usa otro puerto, ajustá ese archivo o levantá el API en `8088`.
+
+Cambios en Vercel → **redeploy** (Vite embebe las `VITE_*`).
+
+Ejemplo operativo (host Forge distinto por cliente/ambiente): ver bloque «Frontend (Vercel)» en `docs/Migraciones-en-forge.md`.
+
+### Mobile — build Capacitor (`.env.mobile` / CLI)
+
+| Variable | Lab / smoke | Producción |
+|----------|-------------|------------|
+| **`VITE_MOBILE_API_BASE_URL`** | `http://10.0.2.2:8088/api/v1` (emulador) o IP LAN | `https://backend.pedidosweb.paqsystems.com/api/v1` |
+| **`VITE_DEVEXTREME_LICENSE`** | Igual que web | Igual que web |
+
+Resolución en runtime: `frontend/src/shared/mobile/mobileRuntime.ts` (override Preferences → env → default prod). Ver **§1.14**.
+
+### Chequeo rápido
+
+| Ambiente | Qué mirar en DevTools → Network |
+|----------|----------------------------------|
+| **Lab** | `http://localhost:3010/api/v1/...` (proxy al `:8088`) |
+| **Vercel + Forge** | Requests al host Forge configurado en `VITE_API_BASE_URL`, **no** a `vercel.app` devolviendo `index.html` |
+| **Health** | `GET /api/v1/health` + header `X-Paq-Cliente` en rutas de negocio |
+
+Si las llamadas API aparecen como **documento HTML**, falta o está mal `VITE_API_BASE_URL` en el build de Vercel (`docs/Migraciones-en-forge.md`).
+
+CORS: con FE y BE en orígenes distintos, revisar `backend/config/cors.php` (dominios Vercel + `*.pedidosweb.paqsystems.com`).
+
+---
+
+## 1.13 Por dónde empezar si tenés que programar mañana
 
 1. Levantar backend y frontend; abrir OpenAPI y el health.
 2. Loguearte y recorrer el menú con un usuario **supervisor** (ves todo) y uno **vendedor** (ves recorte).
@@ -285,7 +380,7 @@ Sin el flag, la UI y a veces el menú no exponen el proceso aunque el código ex
 4. Para un bug o mejora: no parchear a ciegas. Si cambia el “qué”, hay SPEC-update (Parte G / L). Si solo es implementación de una TR ya apta, Parte D.
 5. Respetar visibilidad: un endpoint nuevo que liste clientes o comprobantes **debe** filtrar por el universo del usuario (JOIN/EXISTS; nunca `whereIn` de miles de códigos).
 
-## 1.13 Mobile — APK lab/debug vs producción (variables y build)
+## 1.14 Mobile — APK lab/debug vs producción (variables y build)
 
 El APK **no elige el entorno en runtime** por sí solo: la URL base de la API queda **embebida en el bundle** al compilar con `npm run build:mobile`. El usuario puede **sobrescribir** esa URL desde el engranaje de configuración en el dispositivo (Preferences), pero el tenant **siempre** se ingresa en el login — no se configura en el engranaje.
 
@@ -514,7 +609,7 @@ Si `ADMIN_SECURITY_UI_ENABLED` está activo, el menú **Seguridad** permite ABM 
 
 ## 2.13 Mobile (Capacitor)
 
-Misma API, mismo frontend compilado a Android/iOS. Para generar APK de **lab** o **producción** (variables `VITE_MOBILE_API_BASE_URL`, `assembleDebug` / `assembleRelease`), ver **§1.13**.
+Misma API, mismo frontend compilado a Android/iOS. Para generar APK de **lab** o **producción** (variables `VITE_MOBILE_API_BASE_URL`, `assembleDebug` / `assembleRelease`), ver **§1.12** (Forge) y **§1.14** (APK).
 
 | Release | Qué incluye |
 |---------|-------------|
@@ -646,7 +741,8 @@ No forma parte del alcance declarado de GALO en este anexo: presupuestos, tratat
 | Estados y conversiones | `docs/99-manual-usuario/PedidosWeb-circuito-estados.md` |
 | Envelope API | `docs/00-contexto/_mono/00-arquitectura-api/envelope-respuestas.md` |
 | Metodología OpenSpec | `docs/_base/_OPEN-SPEC-METODOLOGIA.md` |
-| APK Android lab vs prod | Este manual **§1.13**; `docs/_base/01-mobile/03-comandos-generacion-aplicaciones.md` |
+| Variables lab / Forge / Vercel | Este manual **§1.12**; `docs/Migraciones-en-forge.md` |
+| APK Android lab vs prod | Este manual **§1.14**; `docs/_base/01-mobile/03-comandos-generacion-aplicaciones.md` |
 | Contrato vivo de endpoints | `/api/documentation` (Swagger) |
 
 Este manual describe el sistema **tal como está implementado al 1 de septiembre de 2026**. Si un SPEC-update o un control de calidad cambia el alcance, prevalecen el SPEC unificado y OpenAPI.

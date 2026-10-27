@@ -1,5 +1,8 @@
 # SPEC-101-15 — Tests y hardening
 
+Jira: PIAPEDWEB-27
+
+
 | Campo | Valor |
 |-------|--------|
 | **SPEC madre** | [PedidosWeb_SPEC_MVP.md](PedidosWeb_SPEC_MVP.md) §12 |
