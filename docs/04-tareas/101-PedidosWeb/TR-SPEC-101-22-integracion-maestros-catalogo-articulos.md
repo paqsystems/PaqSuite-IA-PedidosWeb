@@ -6,7 +6,7 @@
 | **SPEC relacionada** | [SPEC-101-22](../../05-open-spec/101-PedidosWeb/SPEC-101-22-importacion-maestros-erp.md) |
 | **Prioridad** | **Must** |
 | **Dependencias** | [TR-SPEC-101-22-integracion-maestros-plataforma](TR-SPEC-101-22-integracion-maestros-plataforma.md) (22a) |
-| **Estado** | **Actualización 22d especificada** — listas de precios anidadas; pendiente D |
+| **Estado** | **Finalizado** (F/I 2026-10-29) — listas anidadas, aliases ERP, snapshot vendedores — [F-101-22-cierre-formal](F-101-22-cierre-formal.md) |
 | **C1** | [F-101-22-cierre-c1](F-101-22-cierre-c1-importacion-maestros-erp.md) (2026-10-21) |
 | **D1** | [D1-PLAN-101-22b-integracion-maestros-catalogo-articulos](D1-PLAN-101-22b-integracion-maestros-catalogo-articulos.md) (2026-10-21) |
 | **Última actualización** | 2026-10-21 |

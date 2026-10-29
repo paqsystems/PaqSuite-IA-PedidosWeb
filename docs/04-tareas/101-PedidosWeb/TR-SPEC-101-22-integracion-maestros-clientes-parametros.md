@@ -6,7 +6,7 @@
 | **SPEC relacionada** | [SPEC-101-22](../../05-open-spec/101-PedidosWeb/SPEC-101-22-importacion-maestros-erp.md) |
 | **Prioridad** | **Must** |
 | **Dependencias** | TR-22a plataforma · TR-22b catálogo (FK vendedores/listas/condiciones) |
-| **Estado** | **Parte D implementada** — pendiente E / F1 |
+| **Estado** | **Finalizado** (F/I 2026-10-29) — [F-101-22-cierre-formal](F-101-22-cierre-formal.md) |
 | **C1** | [F-101-22-cierre-c1](F-101-22-cierre-c1-importacion-maestros-erp.md) (2026-10-21) |
 | **Última actualización** | 2026-10-21 |
 

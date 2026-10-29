@@ -3,9 +3,11 @@
 | Campo | Valor |
 |---|---|
 | Alcance revisado | SPEC-101-22, SPEC-101-23 y SPEC-101-24; TR y código asociado a GEN-36 |
-| Fecha | 2026-10-25 |
-| Parte | F1 |
-| Estado | **No aprobado** |
+| Fecha | 2026-10-25 (rev. nota 2026-10-29) |
+| Parte | F1 (alcance **conjunto** GEN-36) |
+| Estado | **No aprobado** (conjunto) |
+
+> **Nota 2026-10-29:** SPEC-101-22 cerró por su propio F1 acotado — [D-VERIFICACION-101-22-importacion-maestros-erp.md](D-VERIFICACION-101-22-importacion-maestros-erp.md) (**Aprobado con observaciones**). Este informe sigue vigente para **101-23** y cierre global del motor GEN-36.
 
 ## Resultado
 

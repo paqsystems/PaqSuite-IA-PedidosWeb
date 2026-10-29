@@ -7,7 +7,8 @@ Jira: PIAPEDWEB-34
 | **SPEC madre** | [PedidosWeb_SPEC_MVP.md](PedidosWeb_SPEC_MVP.md) (extensión post-MVP integración ERP) |
 | **Producto** | [APIs-Importacion-datos-maestros.md](../../02-producto/PedidosWeb/APIs-Importacion-datos-maestros.md) |
 | **Hermano (otro SPEC)** | [APIs-Importacion-transacciones.md](../../02-producto/PedidosWeb/APIs-Importacion-transacciones.md) → **SPEC-101-23** (no mezclar alcance) |
-| **Estado** | **Implementando (22d)** — consolidación listas de precios y procesamiento eventual |
+| **Estado** | **Finalizado** (Parte I 2026-10-29) — [I-101-22](../../04-tareas/101-PedidosWeb/I-101-22-cierre-formal.md) |
+| **F1 / F** | [D-VERIFICACION-101-22](../../04-tareas/101-PedidosWeb/D-VERIFICACION-101-22-importacion-maestros-erp.md) · [F-101-22-cierre-formal](../../04-tareas/101-PedidosWeb/F-101-22-cierre-formal.md) |
 | **Prioridad épica** | **Must** (habilita sincronización ERP repetible; hoy solo bootstrap/scripts externos) |
 | **Revisión A1** | [F-101-22-cierre-a1-importacion-maestros-erp](../../04-tareas/101-PedidosWeb/F-101-22-cierre-a1-importacion-maestros-erp.md) (2026-10-20) |
 | **Última actualización** | 2026-10-25 (actualización 22d) |
@@ -25,7 +26,7 @@ Exponer una familia de endpoints `POST /api/v1/integracion/maestros/{recurso}` p
 
 El portal **no** administra esos catálogos por UI y **no** consulta SQL del ERP.
 
-**Adopción Framework:** GEN-19 (tenancy `X-Paq-Cliente`) · GEN-20 (`apiRequest` / `ApiResponse`, `error: 0`) · GEN-13 solo en el **orquestador ERP** (no cron en PedidosWeb). **No** GEN-14 (Excel). Persistencia de negocio por **SP** (regla 74): familia `pq_sp_integracion_maestros_*`.
+**Adopción Framework:** GEN-19 (tenancy `X-Paq-Cliente`) · GEN-20 (`apiRequest` / `ApiResponse`, `error: 0`) · **GEN-36** (recepción multi-lote async, staging, worker, GET resultado — implementación en host sobre contrato Framework) · GEN-13 solo en el **orquestador ERP** (no cron en PedidosWeb). **No** GEN-14 (Excel). Persistencia de negocio por **SP** (regla 74): familia `pq_sp_integracion_maestros_*`.
 
 ## Fuentes
 
@@ -294,8 +295,11 @@ Ninguna bloqueante. Detalle campo a campo y nombres OpenAPI → Parte C (TR).
 - [x] Parte A1 — [F-101-22-cierre-a1](../../04-tareas/101-PedidosWeb/F-101-22-cierre-a1-importacion-maestros-erp.md) — **apto con observaciones**
 - [x] Parte B / B1 — [F-101-22-cierre-b1](../../04-tareas/101-PedidosWeb/F-101-22-cierre-b1-importacion-maestros-erp.md) — HU-046…048
 - [x] Parte C — [F-101-22-cierre-c](../../04-tareas/101-PedidosWeb/F-101-22-cierre-c-importacion-maestros-erp.md) — TR 22a/22b/22c
-- [ ] Parte C1 — revisión ambigüedad TR
-- [ ] Parte D — implementación
+- [x] Parte C1 — [F-101-22-cierre-c1](../../04-tareas/101-PedidosWeb/F-101-22-cierre-c1-importacion-maestros-erp.md)
+- [x] Parte D — TR 22a/22b/22c implementadas (2026-10-29)
+- [x] Parte F1 — [D-VERIFICACION-101-22](../../04-tareas/101-PedidosWeb/D-VERIFICACION-101-22-importacion-maestros-erp.md)
+- [x] Parte F — [F-101-22-cierre-formal](../../04-tareas/101-PedidosWeb/F-101-22-cierre-formal.md)
+- [x] Parte I — [I-101-22-cierre-formal](../../04-tareas/101-PedidosWeb/I-101-22-cierre-formal.md)
 
 ## Historial de cambios
 
@@ -309,3 +313,4 @@ Ninguna bloqueante. Detalle campo a campo y nombres OpenAPI → Parte C (TR).
 | 2026-10-25 | Parte A (actualización 22d) | Consolidación de `listaprecios` con `articulos[]`, snapshot de listas ausentes, procesamiento asíncrono y resultado consultable |
 | 2026-10-25 | Aclaración funcional | Lotes JSON en staging; `ultimoEnvio=true` encola worker; GET por `id` devuelve estado y resultados al finalizar |
 | 2026-10-25 | Aclaración de payload | Cada lista del `items[]` principal contiene `codigo`, `descripcion` e `items[]` de artículos con `codigo` y `precio` |
+| 2026-10-29 | Parte F / I | Aliases ERP normalizados en host (`items[]`→`articulos[]`, `descripcion` escalas); finalize snapshot **vendedores**; QA LOTE-008/009/017 OK |

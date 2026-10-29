@@ -43,6 +43,22 @@
 | 24b | [TR-SPEC-101-24-integracion-medidas-maestro.md](TR-SPEC-101-24-integracion-medidas-maestro.md) | **Must** | 053 |
 | 24c | [TR-SPEC-101-24-integracion-medidas-postman.md](TR-SPEC-101-24-integracion-medidas-postman.md) | **Must** | 054 |
 
+## Slice SPEC-101-22 (Importación maestros ERP)
+
+| Campo | Valor |
+|-------|--------|
+| **SPEC** | [SPEC-101-22](../../05-open-spec/101-PedidosWeb/SPEC-101-22-importacion-maestros-erp.md) |
+| **Parte F1** | **Aprobado con observaciones** (2026-10-29) — [D-VERIFICACION-101-22](D-VERIFICACION-101-22-importacion-maestros-erp.md) |
+| **Parte F** | **Cerrada** (2026-10-29) — [F-101-22-cierre-formal](F-101-22-cierre-formal.md) |
+| **Parte I** | **Finalizado** (2026-10-29) — [I-101-22-cierre-formal](I-101-22-cierre-formal.md) |
+| **Jira** | [PIAPEDWEB-34](https://paqsystems.atlassian.net/browse/PIAPEDWEB-34) |
+
+| TR | HU | Título |
+|----|-----|--------|
+| [22a](TR-SPEC-101-22-integracion-maestros-plataforma.md) | 046 | Plataforma API async |
+| [22b](TR-SPEC-101-22-integracion-maestros-catalogo-articulos.md) | 047 | Catálogo, artículos, precios |
+| [22c](TR-SPEC-101-22-integracion-maestros-clientes-parametros.md) | 048 | Clientes y parámetros |
+
 ## Slice SPEC-101-21 (Importación masiva)
 
 | Campo | Valor |
