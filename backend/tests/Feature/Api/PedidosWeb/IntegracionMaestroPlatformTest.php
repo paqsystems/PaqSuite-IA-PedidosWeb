@@ -6,7 +6,6 @@ use App\Models\User;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
-use App\Models\PqPedidoswebLogIntegracion;
 use Tests\Support\SeedsIntegracionMaestrosFeatureData;
 use Tests\TestCase;
 
@@ -26,7 +25,11 @@ final class IntegracionMaestroPlatformTest extends TestCase
 
     public function testPostMaestrosSinTokenRetorna401(): void
     {
-        $this->postJson('/api/v1/integracion/maestros/provincias', $this->loteDelta([]), $this->tenantHeaders())
+        $this->postJson(
+            '/api/v1/integracion/maestros/provincias',
+            $this->importacionBatch('delta', []),
+            $this->tenantHeaders(),
+        )
             ->assertStatus(401)
             ->assertJsonPath('error', 2002);
     }
@@ -39,7 +42,11 @@ final class IntegracionMaestroPlatformTest extends TestCase
 
         $headers = $this->actingAsUserHeaders('vendedor.acotado.mvp');
 
-        $this->postJson('/api/v1/integracion/maestros/provincias', $this->loteDelta([]), $headers)
+        $this->postJson(
+            '/api/v1/integracion/maestros/provincias',
+            $this->importacionBatch('delta', []),
+            $headers,
+        )
             ->assertStatus(403)
             ->assertJsonPath('respuesta', 'integracion.maestro.forbidden');
     }
@@ -49,52 +56,41 @@ final class IntegracionMaestroPlatformTest extends TestCase
         $headers = $this->integrationHeaders();
         $headers['X-Paq-Cliente'] = 'tenant-inexistente';
 
-        $this->postJson('/api/v1/integracion/maestros/provincias', $this->loteDelta([]), $headers)
+        $this->postJson(
+            '/api/v1/integracion/maestros/provincias',
+            $this->importacionBatch('delta', []),
+            $headers,
+        )
             ->assertStatus(400)
             ->assertJsonPath('respuesta', 'tenant.invalid');
     }
 
-    public function testDeltaVacioRetorna200NoOp(): void
+    public function testDeltaVacioRetorna202YProcesaSinItems(): void
     {
+        if (! Schema::hasTable('pq_pedidosweb_integracion_maestros_stage')) {
+            $this->markTestSkipped('SP/staging de integración no desplegados.');
+        }
+
         $headers = $this->integrationHeaders();
+        $payload = $this->importacionBatch('delta', []);
+        $receipt = $this->postImportacionAsync('/api/v1/integracion/maestros/provincias', $payload, $headers);
+        $resultado = $this->getImportacionResultado((string) $receipt['importacionId'], $headers);
 
-        $response = $this->postJson('/api/v1/integracion/maestros/provincias', $this->loteDelta([]), $headers);
-        $response
-            ->assertOk()
-            ->assertJsonPath('error', 0)
-            ->assertJsonPath('resultado.recibidos', 0)
-            ->assertJsonPath('resultado.aplicados', 0);
-    }
-
-    public function testSnapshotVacioRetorna422(): void
-    {
-        $headers = $this->integrationHeaders();
-
-        $this->postJson('/api/v1/integracion/maestros/provincias', $this->loteSnapshot([]), $headers)
-            ->assertStatus(422)
-            ->assertJsonPath('respuesta', 'integracion.maestro.snapshotVacio');
+        $this->assertSame('completed', $resultado['estado'] ?? null);
+        $this->assertSame(0, $resultado['procesados'] ?? null);
     }
 
     public function testRecursoDesconocidoRetorna404(): void
     {
         $headers = $this->integrationHeaders();
 
-        $this->postJson('/api/v1/integracion/maestros/no-existe', $this->loteDelta([]), $headers)
-            ->assertStatus(404)
-            ->assertJsonPath('respuesta', 'integracion.maestro.recursoDesconocido');
-    }
-
-    public function testModoSnapshotNoSoportadoRetorna422(): void
-    {
-        $headers = $this->integrationHeaders();
-
         $this->postJson(
-            '/api/v1/integracion/maestros/listaprecios-articulos',
-            $this->loteSnapshot([['codLista' => '1', 'codArticulo' => 'A']]),
+            '/api/v1/integracion/maestros/no-existe',
+            $this->importacionBatch('delta', []),
             $headers,
         )
-            ->assertStatus(422)
-            ->assertJsonPath('respuesta', 'integracion.maestro.modoNoSoportado');
+            ->assertStatus(404)
+            ->assertJsonPath('respuesta', 'integracion.maestro.recursoDesconocido');
     }
 
     public function testLoteDemasiadoGrandeRetorna422(): void
@@ -102,33 +98,33 @@ final class IntegracionMaestroPlatformTest extends TestCase
         $headers = $this->integrationHeaders();
         $items = array_fill(0, 1501, ['codProvin' => '01']);
 
-        $this->postJson('/api/v1/integracion/maestros/provincias', $this->loteDelta($items), $headers)
+        $this->postJson(
+            '/api/v1/integracion/maestros/provincias',
+            $this->importacionBatch('delta', $items),
+            $headers,
+        )
             ->assertStatus(422)
             ->assertJsonPath('respuesta', 'integracion.maestro.loteDemasiadoGrande');
     }
 
     public function testDeltaParcialConStubProvincias(): void
     {
-        if (! Schema::hasTable('pq_pedidosweb_logs_integracion')) {
-            $this->markTestSkipped('Tabla logs integración no disponible.');
+        if (! Schema::hasTable('pq_pedidosweb_integracion_maestros_stage')) {
+            $this->markTestSkipped('SP/staging de integración no desplegados.');
         }
 
         $headers = $this->integrationHeaders();
-
-        $before = PqPedidoswebLogIntegracion::query()->count();
-
-        $response = $this->postJson('/api/v1/integracion/maestros/provincias', $this->loteDelta([
+        $payload = $this->importacionBatch('delta', [
             ['codProvin' => 'OK1'],
             ['nombrePro' => 'BAD sin clave'],
-        ]), $headers);
+        ]);
+        $receipt = $this->postImportacionAsync('/api/v1/integracion/maestros/provincias', $payload, $headers);
+        $resultado = $this->getImportacionResultado((string) $receipt['importacionId'], $headers);
 
-        $response->assertOk()
-            ->assertJsonPath('error', 0)
-            ->assertJsonPath('resultado.recibidos', 2)
-            ->assertJsonPath('resultado.aplicados', 1)
-            ->assertJsonPath('resultado.rechazados', 1);
-
-        $this->assertSame($before + 1, PqPedidoswebLogIntegracion::query()->count());
+        $this->assertSame('completed', $resultado['estado'] ?? null);
+        $this->assertSame(2, $resultado['procesados'] ?? null);
+        $this->assertSame(1, ($resultado['agregados'] ?? 0) + ($resultado['modificados'] ?? 0) + ($resultado['eliminados'] ?? 0));
+        $this->assertSame(1, ($resultado['agregadosErroneos'] ?? 0) + ($resultado['modificadosErroneos'] ?? 0) + ($resultado['eliminadosErroneos'] ?? 0));
     }
 
     public function testIntegracionErpUserTienePermisoAlta(): void
@@ -147,33 +143,5 @@ final class IntegracionMaestroPlatformTest extends TestCase
 
         $this->assertNotNull($atributo);
         $this->assertTrue((bool) $atributo->permiso_alta);
-    }
-
-    /**
-     * @param  array<int, array<string, mixed>>  $items
-     * @return array<string, mixed>
-     */
-    private function loteDelta(array $items): array
-    {
-        return [
-            'modo' => 'delta',
-            'fechaProceso' => '2026-10-21T12:00:00-03:00',
-            'origen' => 'test',
-            'items' => $items,
-        ];
-    }
-
-    /**
-     * @param  array<int, array<string, mixed>>  $items
-     * @return array<string, mixed>
-     */
-    private function loteSnapshot(array $items): array
-    {
-        return [
-            'modo' => 'snapshot',
-            'fechaProceso' => '2026-10-21T12:00:00-03:00',
-            'origen' => 'test',
-            'items' => $items,
-        ];
     }
 }

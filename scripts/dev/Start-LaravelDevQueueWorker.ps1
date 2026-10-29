@@ -7,16 +7,26 @@ function Get-PhpExecutable {
     return 'php'
 }
 
+function Get-DevQueueWorkerName {
+    param([Parameter(Mandatory = $true)] [string]$BackendPath)
+    $leaf = (Split-Path $BackendPath -Leaf) -replace '[^a-zA-Z0-9_-]', '-'
+    return "paqsuite-dev-$leaf"
+}
+
 function Test-QueueWorkerRunningForBackend {
     param(
         [Parameter(Mandatory = $true)]
         [string]$BackendPath
     )
 
+    $workerName = Get-DevQueueWorkerName -BackendPath $BackendPath
     Get-CimInstance Win32_Process -Filter "name='php.exe'" -ErrorAction SilentlyContinue |
         Where-Object {
             $_.CommandLine -match 'queue:work' -and
-            $_.CommandLine -match [regex]::Escape($BackendPath)
+            (
+                $_.CommandLine -match [regex]::Escape($workerName) -or
+                $_.CommandLine -match [regex]::Escape($BackendPath)
+            )
         } |
         Select-Object -First 1
 }
@@ -34,6 +44,7 @@ function Start-LaravelDevQueueWorker {
     )
 
     $backendPath = (Resolve-Path $BackendPath).Path
+    $workerName = Get-DevQueueWorkerName -BackendPath $backendPath
     $artisan = Join-Path $backendPath 'artisan'
     if (-not (Test-Path $artisan)) {
         Write-Warning "[$ProjectLabel] No hay artisan en $backendPath"
@@ -51,20 +62,30 @@ function Start-LaravelDevQueueWorker {
     try {
         $queueDriver = (php artisan config:show queue.default --no-ansi 2>$null).Trim()
         if ($queueDriver -eq 'sync') {
-            Write-Host "[$ProjectLabel] QUEUE_CONNECTION=sync — worker omitido (cola en línea)."
+            Write-Host ('[{0}] QUEUE_CONNECTION=sync — worker omitido (cola en línea).' -f $ProjectLabel)
             return
         }
 
+        # Argumentos separados: en Windows, --queue=default en un solo token a veces
+        # se parte y Laravel interpreta default como segundo argumento posicional.
         $argumentList = @(
-            $artisan,
-            'queue:work', $QueueConnection,
-            '--queue=' + $QueueName,
-            '--tries=' + $Tries,
-            '--timeout=' + $TimeoutSeconds,
-            '--sleep=1'
+            'artisan',
+            'queue:work',
+            $QueueConnection,
+            '--queue',
+            $QueueName,
+            '--tries',
+            [string] $Tries,
+            '--timeout',
+            [string] $TimeoutSeconds,
+            '--sleep',
+            '1',
+            '--name',
+            $workerName
         )
         Start-Process -FilePath $php -ArgumentList $argumentList -WorkingDirectory $backendPath -WindowStyle Minimized
-        Write-Host "[$ProjectLabel] Worker iniciado ($QueueConnection, cola $QueueName)."
+        $workerStartedMsg = '[{0}] Worker iniciado ({1}, cola {2}).' -f $ProjectLabel, $QueueConnection, $QueueName
+        Write-Host $workerStartedMsg
     }
     finally {
         Pop-Location

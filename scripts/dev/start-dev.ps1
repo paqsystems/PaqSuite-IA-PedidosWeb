@@ -60,7 +60,7 @@ else {
 }
 
 Write-Host ''
-Write-Host "Entorno $projectLabel:"
+Write-Host "Entorno ${projectLabel}:"
 Write-Host "  Frontend  http://localhost:$FrontendPort"
 Write-Host "  Backend   http://127.0.0.1:$BackendPort"
 Write-Host "  OpenAPI   http://127.0.0.1:$BackendPort/api/documentation"

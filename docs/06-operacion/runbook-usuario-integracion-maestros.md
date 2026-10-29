@@ -87,8 +87,8 @@ Las rutas síncronas `POST /api/v1/integracion/maestros/*` y
 | Recurso | Estado |
 |---------|--------|
 | `provincias`, `condventa`, `transportes`, `perfiles` | SP + delta/snapshot |
-| `vendedores`, `listaprecios`, `escalas`, `articulos` | SP + políticas específicas de snapshot |
-| `listaprecios-articulos`, `descuentocantidad` | SP solo delta; snapshot → 422 |
+| `vendedores`, `listaprecios` (precios en `articulos[]` anidado), `escalas`, `articulos` | SP + políticas específicas de snapshot |
+| `descuentocantidad` | SP solo delta; snapshot → 422 |
 | `clientes`, `clientes-direcciones`, `clientes-contactos`, `parametros` | Pendientes TR-22c |
 
 Los procedimientos se despliegan mediante

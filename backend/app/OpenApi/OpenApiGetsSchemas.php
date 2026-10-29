@@ -88,7 +88,7 @@ namespace App\OpenApi;
  * @OA\Schema(
  *     schema="IntegracionMaestroClientesLoteRequest",
  *     allOf={
- *         @OA\Schema(ref="#/components/schemas/IntegracionMaestroLoteRequest"),
+ *         @OA\Schema(ref="#/components/schemas/IntegracionImportacionLoteRequest"),
  *         @OA\Schema(type="object", @OA\Property(property="items", type="array", @OA\Items(ref="#/components/schemas/IntegracionMaestroClienteItem")))
  *     }
  * )
@@ -96,7 +96,7 @@ namespace App\OpenApi;
  * @OA\Schema(
  *     schema="IntegracionMaestroDireccionesLoteRequest",
  *     allOf={
- *         @OA\Schema(ref="#/components/schemas/IntegracionMaestroLoteRequest"),
+ *         @OA\Schema(ref="#/components/schemas/IntegracionImportacionLoteRequest"),
  *         @OA\Schema(type="object", @OA\Property(property="items", type="array", @OA\Items(ref="#/components/schemas/IntegracionMaestroDireccionItem")))
  *     }
  * )
@@ -104,7 +104,7 @@ namespace App\OpenApi;
  * @OA\Schema(
  *     schema="IntegracionMaestroContactosLoteRequest",
  *     allOf={
- *         @OA\Schema(ref="#/components/schemas/IntegracionMaestroLoteRequest"),
+ *         @OA\Schema(ref="#/components/schemas/IntegracionImportacionLoteRequest"),
  *         @OA\Schema(type="object", @OA\Property(property="items", type="array", @OA\Items(ref="#/components/schemas/IntegracionMaestroContactoItem")))
  *     }
  * )
@@ -112,7 +112,7 @@ namespace App\OpenApi;
  * @OA\Schema(
  *     schema="IntegracionMaestroParametrosLoteRequest",
  *     allOf={
- *         @OA\Schema(ref="#/components/schemas/IntegracionMaestroLoteRequest"),
+ *         @OA\Schema(ref="#/components/schemas/IntegracionImportacionLoteRequest"),
  *         @OA\Schema(type="object", @OA\Property(property="items", type="array", @OA\Items(ref="#/components/schemas/IntegracionMaestroParametroItem")))
  *     }
  * )
@@ -157,7 +157,8 @@ namespace App\OpenApi;
  *     @OA\Property(property="codVended", type="string", example="VEN01"),
  *     @OA\Property(property="nombre", type="string", nullable=true, example="Vendedor Uno"),
  *     @OA\Property(property="supervisor", type="boolean", nullable=true, example=false),
- *     @OA\Property(property="codLogin", type="string", nullable=true, description="Ignorado por la API")
+ *     @OA\Property(property="codLogin", type="string", nullable=true, description="Ignorado por la API"),
+ *     @OA\Property(property="eliminarSiAusente", type="boolean", default=false)
  * )
  *
  * @OA\Schema(
@@ -173,6 +174,12 @@ namespace App\OpenApi;
  *         property="articulos",
  *         type="array",
  *         description="Precios de los artículos pertenecientes a la lista",
+ *         @OA\Items(ref="#/components/schemas/IntegracionMaestroListaPrecioArticuloItem")
+ *     ),
+ *     @OA\Property(
+ *         property="items",
+ *         type="array",
+ *         description="Alias ERP (SPEC 22d): precios hijos con codigo/precio; se normaliza a articulos[]",
  *         @OA\Items(ref="#/components/schemas/IntegracionMaestroListaPrecioArticuloItem")
  *     )
  * )
@@ -191,6 +198,7 @@ namespace App\OpenApi;
  *     required={"codEscala"},
  *     @OA\Property(property="codEscala", type="string", example="01"),
  *     @OA\Property(property="descripEs", type="string", nullable=true, example="Unidades"),
+ *     @OA\Property(property="descripcion", type="string", nullable=true, description="Alias de descripEs"),
  *     @OA\Property(property="nroEscala", type="integer", nullable=true, example=1),
  *     @OA\Property(property="valores", type="array", @OA\Items(ref="#/components/schemas/IntegracionMaestroEscalaValorItem")),
  *     @OA\Property(property="eliminarSiAusente", type="boolean", default=false)
@@ -298,7 +306,7 @@ namespace App\OpenApi;
  * @OA\Schema(
  *     schema="IntegracionMaestroProvinciasLoteRequest",
  *     allOf={
- *         @OA\Schema(ref="#/components/schemas/IntegracionMaestroLoteRequest"),
+ *         @OA\Schema(ref="#/components/schemas/IntegracionImportacionLoteRequest"),
  *         @OA\Schema(type="object", @OA\Property(property="items", type="array", @OA\Items(ref="#/components/schemas/IntegracionMaestroProvinciaItem")))
  *     }
  * )
@@ -306,7 +314,7 @@ namespace App\OpenApi;
  * @OA\Schema(
  *     schema="IntegracionMaestroCondventaLoteRequest",
  *     allOf={
- *         @OA\Schema(ref="#/components/schemas/IntegracionMaestroLoteRequest"),
+ *         @OA\Schema(ref="#/components/schemas/IntegracionImportacionLoteRequest"),
  *         @OA\Schema(type="object", @OA\Property(property="items", type="array", @OA\Items(ref="#/components/schemas/IntegracionMaestroCondicionVentaItem")))
  *     }
  * )
@@ -314,7 +322,7 @@ namespace App\OpenApi;
  * @OA\Schema(
  *     schema="IntegracionMaestroTransportesLoteRequest",
  *     allOf={
- *         @OA\Schema(ref="#/components/schemas/IntegracionMaestroLoteRequest"),
+ *         @OA\Schema(ref="#/components/schemas/IntegracionImportacionLoteRequest"),
  *         @OA\Schema(type="object", @OA\Property(property="items", type="array", @OA\Items(ref="#/components/schemas/IntegracionMaestroTransporteItem")))
  *     }
  * )
@@ -322,7 +330,7 @@ namespace App\OpenApi;
  * @OA\Schema(
  *     schema="IntegracionMaestroPerfilesLoteRequest",
  *     allOf={
- *         @OA\Schema(ref="#/components/schemas/IntegracionMaestroLoteRequest"),
+ *         @OA\Schema(ref="#/components/schemas/IntegracionImportacionLoteRequest"),
  *         @OA\Schema(type="object", @OA\Property(property="items", type="array", @OA\Items(ref="#/components/schemas/IntegracionMaestroPerfilItem")))
  *     }
  * )
@@ -330,7 +338,7 @@ namespace App\OpenApi;
  * @OA\Schema(
  *     schema="IntegracionMaestroVendedoresLoteRequest",
  *     allOf={
- *         @OA\Schema(ref="#/components/schemas/IntegracionMaestroLoteRequest"),
+ *         @OA\Schema(ref="#/components/schemas/IntegracionImportacionLoteRequest"),
  *         @OA\Schema(type="object", @OA\Property(property="items", type="array", @OA\Items(ref="#/components/schemas/IntegracionMaestroVendedorItem")))
  *     }
  * )
@@ -338,7 +346,7 @@ namespace App\OpenApi;
  * @OA\Schema(
  *     schema="IntegracionMaestroListapreciosLoteRequest",
  *     allOf={
- *         @OA\Schema(ref="#/components/schemas/IntegracionMaestroLoteRequest"),
+ *         @OA\Schema(ref="#/components/schemas/IntegracionImportacionLoteRequest"),
  *         @OA\Schema(type="object", @OA\Property(property="items", type="array", @OA\Items(ref="#/components/schemas/IntegracionMaestroListaPrecioItem")))
  *     }
  * )
@@ -346,7 +354,7 @@ namespace App\OpenApi;
  * @OA\Schema(
  *     schema="IntegracionMaestroEscalasLoteRequest",
  *     allOf={
- *         @OA\Schema(ref="#/components/schemas/IntegracionMaestroLoteRequest"),
+ *         @OA\Schema(ref="#/components/schemas/IntegracionImportacionLoteRequest"),
  *         @OA\Schema(type="object", @OA\Property(property="items", type="array", @OA\Items(ref="#/components/schemas/IntegracionMaestroEscalaItem")))
  *     }
  * )
@@ -354,23 +362,15 @@ namespace App\OpenApi;
  * @OA\Schema(
  *     schema="IntegracionMaestroArticulosLoteRequest",
  *     allOf={
- *         @OA\Schema(ref="#/components/schemas/IntegracionMaestroLoteRequest"),
+ *         @OA\Schema(ref="#/components/schemas/IntegracionImportacionLoteRequest"),
  *         @OA\Schema(type="object", @OA\Property(property="items", type="array", @OA\Items(ref="#/components/schemas/IntegracionMaestroArticuloItem")))
- *     }
- * )
- *
- * @OA\Schema(
- *     schema="IntegracionMaestroListapreciosArticulosLoteRequest",
- *     allOf={
- *         @OA\Schema(ref="#/components/schemas/IntegracionMaestroLoteRequest"),
- *         @OA\Schema(type="object", @OA\Property(property="items", type="array", @OA\Items(ref="#/components/schemas/IntegracionMaestroListaPrecioArticuloItem")))
  *     }
  * )
  *
  * @OA\Schema(
  *     schema="IntegracionMaestroDescuentocantidadLoteRequest",
  *     allOf={
- *         @OA\Schema(ref="#/components/schemas/IntegracionMaestroLoteRequest"),
+ *         @OA\Schema(ref="#/components/schemas/IntegracionImportacionLoteRequest"),
  *         @OA\Schema(type="object", @OA\Property(property="items", type="array", @OA\Items(ref="#/components/schemas/IntegracionMaestroDescuentoCantidadItem")))
  *     }
  * )
@@ -378,7 +378,7 @@ namespace App\OpenApi;
  * @OA\Schema(
  *     schema="IntegracionTransaccionStockLoteRequest",
  *     allOf={
- *         @OA\Schema(ref="#/components/schemas/IntegracionTransaccionLoteRequest"),
+ *         @OA\Schema(ref="#/components/schemas/IntegracionImportacionLoteRequest"),
  *         @OA\Schema(type="object", @OA\Property(property="items", type="array", @OA\Items(ref="#/components/schemas/IntegracionTransaccionStockItem")))
  *     }
  * )
@@ -386,7 +386,7 @@ namespace App\OpenApi;
  * @OA\Schema(
  *     schema="IntegracionTransaccionDeudaLoteRequest",
  *     allOf={
- *         @OA\Schema(ref="#/components/schemas/IntegracionTransaccionLoteRequest"),
+ *         @OA\Schema(ref="#/components/schemas/IntegracionImportacionLoteRequest"),
  *         @OA\Schema(type="object", @OA\Property(property="items", type="array", @OA\Items(ref="#/components/schemas/IntegracionTransaccionDeudaItem")))
  *     }
  * )
@@ -394,7 +394,7 @@ namespace App\OpenApi;
  * @OA\Schema(
  *     schema="IntegracionTransaccionChequesLoteRequest",
  *     allOf={
- *         @OA\Schema(ref="#/components/schemas/IntegracionTransaccionLoteRequest"),
+ *         @OA\Schema(ref="#/components/schemas/IntegracionImportacionLoteRequest"),
  *         @OA\Schema(type="object", @OA\Property(property="items", type="array", @OA\Items(ref="#/components/schemas/IntegracionTransaccionChequeItem")))
  *     }
  * )
@@ -402,7 +402,7 @@ namespace App\OpenApi;
  * @OA\Schema(
  *     schema="IntegracionTransaccionHistorialVentasLoteRequest",
  *     allOf={
- *         @OA\Schema(ref="#/components/schemas/IntegracionTransaccionLoteRequest"),
+ *         @OA\Schema(ref="#/components/schemas/IntegracionImportacionLoteRequest"),
  *         @OA\Schema(
  *             type="object",
  *             @OA\Property(property="modo", type="string", enum={"delta"}, example="delta"),
@@ -853,16 +853,6 @@ namespace App\OpenApi;
  * )
  *
  * @OA\Schema(
- *     schema="IntegracionMaestroLoteRequest",
- *     type="object",
- *     required={"modo","fechaProceso","items"},
- *     @OA\Property(property="modo", type="string", enum={"delta","snapshot"}, example="delta"),
- *     @OA\Property(property="fechaProceso", type="string", format="date-time", example="2026-10-21T12:00:00-03:00"),
- *     @OA\Property(property="origen", type="string", maxLength=50, example="tango"),
- *     @OA\Property(property="items", type="array", @OA\Items(type="object"))
- * )
- *
- * @OA\Schema(
  *     schema="IntegracionMaestroItemError",
  *     type="object",
  *     @OA\Property(property="indice", type="integer", example=1),
@@ -900,13 +890,32 @@ namespace App\OpenApi;
  *     schema="IntegracionImportacionLoteRequest",
  *     type="object",
  *     required={"importacionId","numeroLote","ultimoEnvio","modo","fechaProceso","items"},
- *     @OA\Property(property="importacionId", type="string", maxLength=100, example="ERP-IMP-20261024-0001"),
+ *     @OA\Property(property="importacionId", type="string", maxLength=128, example="ERP-IMP-20261024-0001"),
  *     @OA\Property(property="numeroLote", type="integer", minimum=1, example=1),
- *     @OA\Property(property="ultimoEnvio", type="boolean", example=false),
- *     @OA\Property(property="modo", type="string", enum={"delta","snapshot"}, example="delta"),
+ *     @OA\Property(property="ultimoEnvio", type="boolean", example=true),
+ *     @OA\Property(property="modo", type="string", enum={"delta","snapshot"}, example="snapshot"),
  *     @OA\Property(property="fechaProceso", type="string", format="date-time", example="2026-10-24T12:00:00-03:00"),
- *     @OA\Property(property="origen", type="string", nullable=true, maxLength=50, example="tango"),
+ *     @OA\Property(property="origen", type="string", nullable=true, maxLength=50, example="postman-fixture-db"),
  *     @OA\Property(property="items", type="array", @OA\Items(type="object", additionalProperties=true))
+ * )
+ *
+ * @OA\Schema(
+ *     schema="IntegracionImportacionLoteReceipt",
+ *     type="object",
+ *     required={"importacionId","recurso","numeroLote","estado","duplicado"},
+ *     @OA\Property(property="importacionId", type="string", example="ERP-IMP-20261024-0001"),
+ *     @OA\Property(property="recurso", type="string", example="condventa"),
+ *     @OA\Property(property="numeroLote", type="integer", example=1),
+ *     @OA\Property(property="estado", type="string", enum={"received","queued"}, example="received"),
+ *     @OA\Property(property="duplicado", type="boolean", example=false)
+ * )
+ *
+ * @OA\Schema(
+ *     schema="ApiEnvelopeIntegracionImportacionLoteReceipt",
+ *     allOf={
+ *         @OA\Schema(ref="#/components/schemas/ApiEnvelope"),
+ *         @OA\Schema(type="object", @OA\Property(property="resultado", ref="#/components/schemas/IntegracionImportacionLoteReceipt"))
+ *     }
  * )
  *
  * @OA\Schema(
@@ -932,16 +941,6 @@ namespace App\OpenApi;
  *         @OA\Schema(ref="#/components/schemas/ApiEnvelope"),
  *         @OA\Schema(type="object", @OA\Property(property="resultado", ref="#/components/schemas/IntegracionImportacionResultado"))
  *     }
- * )
- *
- * @OA\Schema(
- *     schema="IntegracionTransaccionLoteRequest",
- *     type="object",
- *     required={"modo","fechaProceso","items"},
- *     @OA\Property(property="modo", type="string", enum={"delta","snapshot"}, example="delta"),
- *     @OA\Property(property="fechaProceso", type="string", format="date-time", example="2026-10-22T12:00:00-03:00"),
- *     @OA\Property(property="origen", type="string", nullable=true, maxLength=50, example="tango"),
- *     @OA\Property(property="items", type="array", @OA\Items(type="object", additionalProperties=true))
  * )
  *
  * @OA\Schema(

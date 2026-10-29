@@ -77,6 +77,7 @@ final class OpenApiDocumentationTest extends TestCase
             '/api/v1/consultas/cheques',
             '/api/v1/consultas/historial-ventas',
             '/api/v1/integracion/logs',
+            '/api/v1/integracion/importaciones/{importacionId}',
             '/api/v1/integracion/maestros/provincias',
             '/api/v1/integracion/maestros/condventa',
             '/api/v1/integracion/maestros/transportes',
@@ -85,7 +86,6 @@ final class OpenApiDocumentationTest extends TestCase
             '/api/v1/integracion/maestros/listaprecios',
             '/api/v1/integracion/maestros/escalas',
             '/api/v1/integracion/maestros/articulos',
-            '/api/v1/integracion/maestros/listaprecios-articulos',
             '/api/v1/integracion/maestros/descuentocantidad',
             '/api/v1/integracion/maestros/clientes',
             '/api/v1/integracion/maestros/parametros',
@@ -226,15 +226,14 @@ final class OpenApiDocumentationTest extends TestCase
             '/api/v1/integracion/maestros/listaprecios',
             '/api/v1/integracion/maestros/escalas',
             '/api/v1/integracion/maestros/articulos',
-            '/api/v1/integracion/maestros/listaprecios-articulos',
             '/api/v1/integracion/maestros/descuentocantidad',
             '/api/v1/integracion/maestros/clientes',
             '/api/v1/integracion/maestros/parametros',
         ] as $path) {
             $this->assertSame(
-                '#/components/schemas/ApiEnvelopeIntegracionMaestroLote',
-                $spec['paths'][$path]['post']['responses']['200']['content']['application/json']['schema']['$ref'] ?? null,
-                "POST {$path} debe tipar envelope de lote"
+                '#/components/schemas/ApiEnvelopeIntegracionImportacionLoteReceipt',
+                $spec['paths'][$path]['post']['responses']['202']['content']['application/json']['schema']['$ref'] ?? null,
+                "POST {$path} debe tipar acuse asíncrono 202"
             );
             $this->assertContains(
                 'Integración maestros',
@@ -357,10 +356,6 @@ final class OpenApiDocumentationTest extends TestCase
             '/api/v1/integracion/maestros/articulos' => [
                 'request' => 'IntegracionMaestroArticulosLoteRequest',
                 'item' => 'IntegracionMaestroArticuloItem',
-            ],
-            '/api/v1/integracion/maestros/listaprecios-articulos' => [
-                'request' => 'IntegracionMaestroListapreciosArticulosLoteRequest',
-                'item' => 'IntegracionMaestroListaPrecioArticuloItem',
             ],
             '/api/v1/integracion/maestros/descuentocantidad' => [
                 'request' => 'IntegracionMaestroDescuentocantidadLoteRequest',

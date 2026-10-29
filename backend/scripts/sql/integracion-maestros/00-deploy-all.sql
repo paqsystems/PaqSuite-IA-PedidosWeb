@@ -157,6 +157,36 @@ BEGIN
     SET NOCOUNT ON;
     DECLARE @clave nvarchar(20) = COALESCE(JSON_VALUE(@payload_json, '$.codVended'), JSON_VALUE(@payload_json, '$.cod_vended'));
     IF NULLIF(@clave, '') IS NULL THROW 51000, '[ITEM_REJECTED] codVended requerido', 1;
+
+    IF TRY_CONVERT(bit, JSON_VALUE(@payload_json, '$.eliminarSiAusente')) = 1
+    BEGIN
+        IF NOT EXISTS (
+            SELECT 1
+            FROM dbo.pq_pedidosweb_vendedores dst WITH (NOLOCK)
+            WHERE dst.cod_vended = @clave
+        )
+        BEGIN
+            EXEC dbo.pq_sp_integracion_maestros_stage_insert @batch_id, @tenant, N'vendedores', @clave, @fecha_proceso, @origen;
+            SELECT 'applied' status, @clave clave, CAST(NULL AS varchar(100)) error_code, 'modified' operation;
+            RETURN;
+        END;
+
+        IF EXISTS (
+            SELECT 1
+            FROM dbo.pq_pedidosweb_clientes ref WITH (NOLOCK)
+            WHERE ref.cod_vended = @clave
+        )
+        BEGIN
+            SELECT 'rejected' status, @clave clave, 'integracion.maestro.deleteReferenciado' error_code, 'deleted' operation;
+            RETURN;
+        END;
+
+        DELETE FROM dbo.pq_pedidosweb_vendedores WHERE cod_vended = @clave;
+        EXEC dbo.pq_sp_integracion_maestros_stage_insert @batch_id, @tenant, N'vendedores', @clave, @fecha_proceso, @origen;
+        SELECT 'applied' status, @clave clave, CAST(NULL AS varchar(100)) error_code, 'deleted' operation;
+        RETURN;
+    END;
+
     DECLARE @operation varchar(20) = CASE
         WHEN EXISTS (
             SELECT 1
@@ -178,6 +208,51 @@ BEGIN
         VALUES (src.cod_vended, src.nombre, COALESCE(src.supervisor, 0), src.mail_supervisor, src.e_mail);
     EXEC dbo.pq_sp_integracion_maestros_stage_insert @batch_id, @tenant, N'vendedores', @clave, @fecha_proceso, @origen;
     SELECT 'applied' status, @clave clave, CAST(NULL AS varchar(100)) error_code, @operation operation;
+END;
+GO
+
+CREATE OR ALTER PROCEDURE dbo.pq_sp_integracion_maestros_vendedores_finalize_snapshot
+    @batch_id uniqueidentifier, @tenant nvarchar(100), @recurso nvarchar(60), @origen nvarchar(50)
+AS
+BEGIN
+    SET NOCOUNT ON;
+    DECLARE @deleted TABLE (cod_vended nvarchar(20) PRIMARY KEY);
+    INSERT INTO @deleted (cod_vended)
+    SELECT dst.cod_vended
+    FROM dbo.pq_pedidosweb_vendedores dst WITH (NOLOCK)
+    WHERE NOT EXISTS (
+        SELECT 1
+        FROM dbo.pq_pedidosweb_integracion_maestros_stage st WITH (NOLOCK)
+        WHERE st.batch_id = @batch_id
+          AND st.recurso = N'vendedores'
+          AND st.clave_natural = dst.cod_vended
+    )
+      AND NOT EXISTS (
+        SELECT 1
+        FROM dbo.pq_pedidosweb_clientes ref WITH (NOLOCK)
+        WHERE ref.cod_vended = dst.cod_vended
+    );
+    DELETE dst
+    FROM dbo.pq_pedidosweb_vendedores dst
+    INNER JOIN @deleted d ON d.cod_vended = dst.cod_vended;
+    SELECT 'deleted' status, d.cod_vended clave,
+           CAST(NULL AS varchar(100)) error_code, 'deleted' operation
+    FROM @deleted d;
+    SELECT 'omitted' status, dst.cod_vended clave,
+           'integracion.maestro.deleteReferenciado' error_code, 'deleted' operation
+    FROM dbo.pq_pedidosweb_vendedores dst WITH (NOLOCK)
+    WHERE NOT EXISTS (
+        SELECT 1
+        FROM dbo.pq_pedidosweb_integracion_maestros_stage st WITH (NOLOCK)
+        WHERE st.batch_id = @batch_id
+          AND st.recurso = N'vendedores'
+          AND st.clave_natural = dst.cod_vended
+    )
+      AND EXISTS (
+        SELECT 1
+        FROM dbo.pq_pedidosweb_clientes ref WITH (NOLOCK)
+        WHERE ref.cod_vended = dst.cod_vended
+    );
 END;
 GO
 
@@ -208,6 +283,38 @@ BEGIN
         VALUES (src.cod_lista, COALESCE(src.incluye_iva, 0), COALESCE(src.moneda, 1), src.descripcion, COALESCE(src.decimales, 2));
     DECLARE @stage_key nvarchar(200) = CONVERT(nvarchar(200), @clave);
     EXEC dbo.pq_sp_integracion_maestros_stage_insert @batch_id, @tenant, N'listaprecios', @stage_key, @fecha_proceso, @origen;
+    IF EXISTS (SELECT 1 FROM OPENJSON(@payload_json, '$.articulos'))
+    BEGIN
+        IF EXISTS (
+            SELECT 1
+            FROM OPENJSON(@payload_json, '$.articulos') v
+            WHERE NULLIF(COALESCE(JSON_VALUE(v.value, '$.codArticulo'), JSON_VALUE(v.value, '$.codigo')), '') IS NOT NULL
+              AND NOT EXISTS (
+                SELECT 1
+                FROM dbo.pq_pedidosweb_articulos a WITH (NOLOCK)
+                WHERE a.codigo = COALESCE(JSON_VALUE(v.value, '$.codArticulo'), JSON_VALUE(v.value, '$.codigo'))
+              )
+        )
+            THROW 51000, '[ITEM_REJECTED] articulo inexistente', 1;
+        INSERT INTO dbo.pq_pedidosweb_integracion_maestros_stage(batch_id, tenant, recurso, clave_natural, fecha_proceso, origen)
+        SELECT @batch_id, @tenant, N'listaprecios-articulos',
+               @stage_key + N'|' + COALESCE(JSON_VALUE(v.value, '$.codArticulo'), JSON_VALUE(v.value, '$.codigo')),
+               @fecha_proceso, @origen
+        FROM OPENJSON(@payload_json, '$.articulos') v
+        WHERE NULLIF(COALESCE(JSON_VALUE(v.value, '$.codArticulo'), JSON_VALUE(v.value, '$.codigo')), '') IS NOT NULL;
+        MERGE dbo.pq_pedidosweb_listaprecios_articulos AS dst
+        USING (
+            SELECT @clave cod_lista,
+                   COALESCE(JSON_VALUE(v.value, '$.codArticulo'), JSON_VALUE(v.value, '$.codigo')) cod_articulo,
+                   TRY_CONVERT(decimal(18, 4), JSON_VALUE(v.value, '$.precio')) precio
+            FROM OPENJSON(@payload_json, '$.articulos') v
+            WHERE NULLIF(COALESCE(JSON_VALUE(v.value, '$.codArticulo'), JSON_VALUE(v.value, '$.codigo')), '') IS NOT NULL
+        ) src
+          ON dst.cod_lista = src.cod_lista AND dst.cod_articulo = src.cod_articulo
+        WHEN MATCHED THEN UPDATE SET precio = COALESCE(src.precio, dst.precio)
+        WHEN NOT MATCHED THEN INSERT (cod_lista, cod_articulo, precio)
+            VALUES (src.cod_lista, src.cod_articulo, COALESCE(src.precio, 0));
+    END;
     SELECT 'applied' status, CONVERT(nvarchar(200), @clave) clave, CAST(NULL AS varchar(100)) error_code, @operation operation;
 END;
 GO
@@ -229,7 +336,8 @@ BEGIN
         ELSE 'added'
     END;
     MERGE dbo.pq_pedidosweb_escalas_cabecera AS dst
-    USING (SELECT @clave cod_escala, JSON_VALUE(@payload_json, '$.descripEs') descrip_es,
+    USING (SELECT @clave cod_escala,
+        COALESCE(JSON_VALUE(@payload_json, '$.descripEs'), JSON_VALUE(@payload_json, '$.descripcion')) descrip_es,
         TRY_CONVERT(int, JSON_VALUE(@payload_json, '$.nroEscala')) nro_escala) src
       ON dst.cod_escala = src.cod_escala
     WHEN MATCHED THEN UPDATE SET descrip_es = COALESCE(src.descrip_es, dst.descrip_es), nro_escala = COALESCE(src.nro_escala, dst.nro_escala)

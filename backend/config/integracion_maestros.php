@@ -48,6 +48,7 @@ return [
             'handler' => CatalogoMaestroHandler::class,
             'resource' => 'vendedores',
             'apply' => 'pq_sp_integracion_maestros_vendedores_apply',
+            'finalize' => 'pq_sp_integracion_maestros_vendedores_finalize_snapshot',
             'key' => ['codVended'],
             'supports_snapshot' => true,
         ],
@@ -81,13 +82,6 @@ return [
             'apply' => 'pq_sp_integracion_maestros_articulos_apply',
             'key' => ['codigo'],
             'supports_snapshot' => true,
-        ],
-        'listaprecios-articulos' => [
-            'handler' => CatalogoMaestroHandler::class,
-            'resource' => 'listaprecios-articulos',
-            'apply' => 'pq_sp_integracion_maestros_listaprecios_articulos_apply',
-            'key' => ['codLista', 'codArticulo'],
-            'supports_snapshot' => false,
         ],
         'descuentocantidad' => [
             'handler' => CatalogoMaestroHandler::class,

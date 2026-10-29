@@ -2,13 +2,9 @@
 
 namespace App\Http\Controllers\Api\V1\PedidosWeb;
 
-use App\Exceptions\IntegracionMaestroAbortException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\PedidosWeb\IntegracionImportacionLoteRequest;
-use App\Http\Requests\PedidosWeb\IntegracionMaestroLoteRequest;
 use App\Http\Responses\ApiResponse;
-use App\Services\PedidosWeb\Integracion\Maestros\IntegracionMaestroLogWriter;
-use App\Services\PedidosWeb\Integracion\Maestros\IntegracionMaestroOrchestrator;
 use App\Services\PedidosWeb\Integracion\Maestros\IntegracionMaestroRegistry;
 use App\Services\PedidosWeb\Integracion\Transacciones\IntegracionTransaccionRegistry;
 use App\Support\IntegracionMaestroErrorCodes;
@@ -17,57 +13,14 @@ use Illuminate\Http\Request;
 use PaqSuite\LaravelCore\Importation\Dto\ImportationBatch;
 use PaqSuite\LaravelCore\Importation\ImportationException;
 use PaqSuite\LaravelCore\Importation\ImportationOrchestrator as FrameworkImportationOrchestrator;
+
 final class IntegracionMaestroController extends Controller
 {
     public function __construct(
-        private readonly IntegracionMaestroOrchestrator $orchestrator,
-        private readonly IntegracionMaestroLogWriter $logWriter,
         private readonly IntegracionMaestroRegistry $registry,
         private readonly IntegracionTransaccionRegistry $transactionRegistry,
         private readonly FrameworkImportationOrchestrator $frameworkOrchestrator,
     ) {}
-
-    public function store(string $recurso, IntegracionMaestroLoteRequest $request): JsonResponse
-    {
-        $validated = $request->validated();
-        if (! $this->registry->has($recurso)) {
-            return ApiResponse::error(
-                IntegracionMaestroErrorCodes::recursoDesconocido,
-                'integracion.maestro.recursoDesconocido',
-                404,
-            );
-        }
-
-        try {
-            $result = $this->orchestrator->process($recurso, $validated);
-        } catch (IntegracionMaestroAbortException $exception) {
-            $origen = isset($validated['origen']) ? (string) $validated['origen'] : null;
-            $this->logWriter->writeAborted($recurso, $exception->respuestaKey(), $origen);
-
-            return ApiResponse::error(
-                $exception->errorCode(),
-                $exception->respuestaKey(),
-                $exception->httpStatus(),
-            );
-        } catch (\Throwable) {
-            $origen = isset($validated['origen']) ? (string) $validated['origen'] : null;
-            $this->logWriter->writeAborted($recurso, 'integracion.maestro.errorFatal', $origen);
-
-            return ApiResponse::error(
-                IntegracionMaestroErrorCodes::fatal,
-                'integracion.maestro.errorFatal',
-                500,
-            );
-        }
-
-        $this->logWriter->write($result, isset($validated['origen']) ? (string) $validated['origen'] : null);
-
-        $respuesta = $result->erroresTruncados
-            ? 'integracion.maestro.erroresTruncados'
-            : 'ok';
-
-        return ApiResponse::success($result->toArray(), $respuesta);
-    }
 
     public function receive(
         string $recurso,
@@ -119,6 +72,7 @@ final class IntegracionMaestroController extends Controller
 
         return ApiResponse::success([
             'importacionId' => (string) $validated['importacionId'],
+            'recurso' => $recurso,
             'numeroLote' => (int) $validated['numeroLote'],
             'estado' => $receipt['queued'] ? 'queued' : 'received',
             'duplicado' => $receipt['duplicate'],
