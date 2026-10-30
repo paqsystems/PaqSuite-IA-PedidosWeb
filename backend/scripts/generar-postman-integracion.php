@@ -138,7 +138,7 @@ foreach ($resourceDefinitions as $resource => $supportsSnapshot) {
         $items = $fixture['items'] ?? [];
         $suffix = $fixture === null ? 'sin-datos' : $fixture['suffix'];
 
-        $requestItems['importaciones'][] = [
+        $requestItems[$kind][] = [
             'name' => $resource.' - recibir lote '.($fixtureIndex + 1).'/'.$fixtureCount,
         'request' => [
             'method' => 'POST',
@@ -162,9 +162,9 @@ foreach ($resourceDefinitions as $resource => $supportsSnapshot) {
                 'options' => ['raw' => ['language' => 'json']],
             ],
             'url' => [
-                'raw' => '{{backendUrl}}/api/v1/integracion/importaciones/'.$resource,
+                'raw' => '{{backendUrl}}/api/v1/integracion/'.$kind.'/'.$resource,
                 'host' => ['{{backendUrl}}'],
-                'path' => ['api', 'v1', 'integracion', 'importaciones', $resource],
+                'path' => ['api', 'v1', 'integracion', $kind, $resource],
             ],
             'description' => $isLastBatch
                 ? 'Último lote de '.$resource.' ('.$suffix.'); usar el mismo importacionId y procesar después de los lotes anteriores.'
@@ -249,7 +249,7 @@ $collection = [
         [
             'name' => 'Maestros',
             'description' => 'Importaciones asíncronas GEN-36 de maestros y transacciones.',
-            'item' => $requestItems['importaciones'],
+            'item' => $requestItems['maestros'],
         ],
         [
             'name' => 'Transacciones',
@@ -316,7 +316,7 @@ function findFixtures(?string $fixtureDirectory, string $kind, string $resource)
                         continue;
                     }
                     $pricesByList[$listKey][] = [
-                        'codigo' => $price['codArticulo'],
+                        'codArticulo' => $price['codArticulo'],
                         'precio' => $price['precio'],
                     ];
                 }
@@ -336,11 +336,7 @@ function findFixtures(?string $fixtureDirectory, string $kind, string $resource)
         if ($resource === 'listaprecios' && isset($pricesByList)) {
             foreach ($payload['items'] as &$list) {
                 $listKey = (string) ($list['codLista'] ?? '');
-                $list = [
-                    'codigo' => $list['codLista'] ?? null,
-                    'descripcion' => $list['descripcion'] ?? null,
-                    'items' => $pricesByList[$listKey] ?? [],
-                ];
+                $list['articulos'] = $pricesByList[$listKey] ?? [];
             }
             unset($list);
         }

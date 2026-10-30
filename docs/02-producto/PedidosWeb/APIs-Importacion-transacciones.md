@@ -4,7 +4,7 @@ Jira: PIAPEDWEB-35
 
 | Campo | Valor |
 |-------|--------|
-| **Estado** | OpenSpec — **A1 cerrado** ([acta](../../04-tareas/101-PedidosWeb/F-101-23-cierre-a1-importacion-transacciones-erp.md)); autoriza Parte B |
+| **Estado** | **Finalizado** (SPEC-101-23, 2026-10-29) — async **202** + GET `importacionId`; [I-101-23](../../04-tareas/101-PedidosWeb/I-101-23-cierre-formal.md) |
 | **Ámbito** | PedidosWeb — **backend de integración** (sin pantalla de operador en el portal) |
 | **Origen de producto** | [Definición conceptual](./PedidosWeb_Definicion_Conceptual_Final_OpenSpec.md) §6.1 · [Modelo de datos](./PedidosWeb_Modelo_Datos_Final.md) §4 |
 | **Contrato común** | [APIs-Importacion-datos-maestros.md](./APIs-Importacion-datos-maestros.md) **§4** (auth, envelope, lote, tenant). No redefinir. |

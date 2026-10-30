@@ -3,9 +3,11 @@
 | Campo | Valor |
 |---|---|
 | Alcance revisado | SPEC-101-22, SPEC-101-23 y SPEC-101-24; TR y código asociado a GEN-36 |
-| Fecha | 2026-10-25 |
-| Parte | F1 |
-| Estado | **No aprobado** |
+| Fecha | 2026-10-25 (rev. nota 2026-10-29) |
+| Parte | F1 (alcance **conjunto** GEN-36) |
+| Estado | **No aprobado** (conjunto) |
+
+> **Nota 2026-10-29:** SPEC-101-22 — [F1 acotado](D-VERIFICACION-101-22-importacion-maestros-erp.md). SPEC-101-23 — [F1 acotado](D-VERIFICACION-101-23-importacion-transacciones-erp.md). SPEC-101-24 — [F1 acotado](D-VERIFICACION-101-24-importacion-medidas-erp.md). Este informe **GEN-36 conjunto** sigue **No aprobado** hasta unificar Postman/CI polling e idempotencia transversal.
 
 ## Resultado
 
@@ -40,8 +42,7 @@ PASS — 4 tests, 7 assertions
 
 ## Hallazgos críticos
 
-1. **GEN-36 no está completo:** SPEC-101-23 permanece sin implementación; sus
-   TR siguen en estado previo a D.
+1. **GEN-36 conjunto:** los tres SPEC host (22/23/24) tienen **F1/F/I documental** con observaciones; falta **evidencia transversal** (Postman GET/polling, 409, medidas GET completo) para cerrar este informe global.
 2. **Falta evidencia de ciclo asíncrono completo para `medidas`:** el test
    existente verifica solamente el `202` de recepción. No verifica GET
    intermedio, GET final, snapshot, snapshot vacío, baja física, reintento

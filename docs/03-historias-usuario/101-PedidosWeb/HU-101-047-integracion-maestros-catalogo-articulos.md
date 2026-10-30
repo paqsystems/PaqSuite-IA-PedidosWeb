@@ -6,7 +6,7 @@
 | **SPEC origen** | [SPEC-101-22](../../05-open-spec/101-PedidosWeb/SPEC-101-22-importacion-maestros-erp.md) |
 | **Épica** | APIs importación maestros ERP → PedidosWeb |
 | **Prioridad** | **Must** |
-| **Estado** | Especificado |
+| **Estado** | **Finalizado** (Parte I SPEC-101-22, 2026-10-29) |
 | **B1** | Cerrado (2026-10-21) |
 | **TR** | [TR-SPEC-101-22-integracion-maestros-catalogo-articulos](../../04-tareas/101-PedidosWeb/TR-SPEC-101-22-integracion-maestros-catalogo-articulos.md) |
 | **Dependencias** | [HU-101-046](HU-101-046-integracion-maestros-plataforma.md) |

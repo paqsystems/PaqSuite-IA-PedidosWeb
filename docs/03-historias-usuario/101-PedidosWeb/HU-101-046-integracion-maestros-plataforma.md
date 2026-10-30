@@ -8,7 +8,7 @@ Jira: PIAPEDWEB-36
 | **SPEC origen** | [SPEC-101-22-importacion-maestros-erp](../../05-open-spec/101-PedidosWeb/SPEC-101-22-importacion-maestros-erp.md) |
 | **Épica** | APIs importación maestros ERP → PedidosWeb |
 | **Prioridad** | **Must** |
-| **Estado** | Especificado |
+| **Estado** | **Finalizado** (Parte I SPEC-101-22, 2026-10-29) |
 | **B1** | Cerrado (2026-10-21) |
 | **TR** | [TR-SPEC-101-22-integracion-maestros-plataforma](../../04-tareas/101-PedidosWeb/TR-SPEC-101-22-integracion-maestros-plataforma.md) |
 | **Dependencias** | GEN-19 tenancy · GEN-20 envelope · SPEC-101-08 (logs) |

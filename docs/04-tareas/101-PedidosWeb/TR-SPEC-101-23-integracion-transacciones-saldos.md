@@ -8,8 +8,8 @@ Jira: [PIAPEDWEB-44](https://paqsystems.atlassian.net/browse/PIAPEDWEB-44)
 | **SPEC relacionada** | [SPEC-101-23](../../05-open-spec/101-PedidosWeb/SPEC-101-23-importacion-transacciones-erp.md) |
 | **Prioridad** | **Must** |
 | **Dependencias** | TR-23a plataforma · maestros de artículos/clientes disponibles o fixtures equivalentes |
-| **Estado** | **C1 apto con observaciones** — autoriza D1 |
-| **Última actualización** | 2026-10-22 |
+| **Estado** | **Finalizado** (F/I 2026-10-29) |
+| **Última actualización** | 2026-10-29 |
 
 ## 1) Objetivo y alcance
 
@@ -204,3 +204,14 @@ Orden de smoke: `stock` → `deuda` → `cheques`.
 ## 10) Veredicto C1
 
 **Apto con observaciones para D1.** D1 debe cerrar columnas físicas y mecanismo de staging/TVP antes de implementar los SP; la atomicidad funcional queda fija por el SPEC.
+
+## 11) Parte D — implementación (2026-10-29)
+
+| Ítem | Evidencia |
+|------|-----------|
+| Config + handlers | `integracion_transacciones.php`, `TransaccionJsonHandler` |
+| SP deploy | `backend/scripts/sql/integracion-transacciones/00-deploy-all.sql` |
+| Adapter contadores | `ImportationTransaccionDomainAdapter` (duplicados, finalize snapshot) |
+| Tests | `IntegracionTransaccionSaldosFeatureTest.php` (item inválido stock; skip si falta tabla/SP) |
+
+Pendiente: QA ERP LOTE saldos y snapshot completo en tenant con maestros previos.

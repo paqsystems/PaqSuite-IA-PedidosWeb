@@ -26,25 +26,18 @@ final class IntegracionMaestroClientesFeatureTest extends TestCase
     public function testClientesDeltaIgnoraCodLoginYRecortaLeyendas(): void
     {
         $this->requireIntegrationSchema();
+        $headers = $this->integrationHeaders();
 
-        $response = $this->postJson(
-            '/api/v1/integracion/maestros/clientes',
-            $this->batch('delta', [[
-                'codClient' => 'D-22C',
-                'codVended' => 'V-22C',
-                'listaPrecios' => 1,
-                'codCondvta' => 1,
-                'codTranspor' => 'T-22C',
-                'nombre' => 'Cliente 22c',
-                'codLogin' => 'NO-DEBE-ESCRIBIR',
-                'leyenda1' => str_repeat('á', 80),
-            ]]),
-            $this->integrationHeaders(),
-        );
-
-        $response->assertOk()
-            ->assertJsonPath('resultado.aplicados', 1)
-            ->assertJsonPath('resultado.rechazados', 0);
+        $this->postClientes('delta', [[
+            'codClient' => 'D-22C',
+            'codVended' => 'V-22C',
+            'listaPrecios' => 1,
+            'codCondvta' => 1,
+            'codTranspor' => 'T-22C',
+            'nombre' => 'Cliente 22c',
+            'codLogin' => 'NO-DEBE-ESCRIBIR',
+            'leyenda1' => str_repeat('á', 80),
+        ]], $headers);
 
         $this->assertDatabaseHas('pq_pedidosweb_clientes', [
             'cod_client' => 'D-22C',
@@ -56,27 +49,22 @@ final class IntegracionMaestroClientesFeatureTest extends TestCase
     public function testClientesImportaDireccionesYContactosComoNodosHijos(): void
     {
         $this->requireIntegrationSchema();
+        $headers = $this->integrationHeaders();
 
-        $response = $this->postJson(
-            '/api/v1/integracion/maestros/clientes',
-            $this->batch('delta', [[
-                'codClient' => 'D-22C',
-                'nombre' => 'Cliente 22c',
-                'direcciones' => [[
-                    'idDe' => 1,
-                    'codDe' => 'DOM',
-                    'direccion' => 'Dirección 22c',
-                    'habitual' => true,
-                ]],
-                'contactos' => [[
-                    'codContacto' => 'C-22C',
-                    'nombre' => 'Contacto 22c',
-                ]],
-            ]]),
-            $this->integrationHeaders(),
-        )->assertOk()
-            ->assertJsonPath('resultado.aplicados', 3)
-            ->assertJsonPath('resultado.rechazados', 0);
+        $this->postClientes('delta', [[
+            'codClient' => 'D-22C',
+            'nombre' => 'Cliente 22c',
+            'direcciones' => [[
+                'idDe' => 1,
+                'codDe' => 'DOM',
+                'direccion' => 'Dirección 22c',
+                'habitual' => true,
+            ]],
+            'contactos' => [[
+                'codContacto' => 'C-22C',
+                'nombre' => 'Contacto 22c',
+            ]],
+        ]], $headers);
 
         $this->assertDatabaseHas('pq_pedidosweb_clientesde', [
             'cod_client' => 'D-22C',
@@ -93,6 +81,7 @@ final class IntegracionMaestroClientesFeatureTest extends TestCase
     {
         $this->requireIntegrationSchema();
         $cliente = 'DEL-22C';
+        $headers = $this->integrationHeaders();
 
         $this->seedClient($cliente);
         DB::table('pq_pedidosweb_clientesde')->updateOrInsert(
@@ -104,16 +93,10 @@ final class IntegracionMaestroClientesFeatureTest extends TestCase
             ['nombre' => 'Contacto de baja'],
         );
 
-        $this->postJson(
-            '/api/v1/integracion/maestros/clientes',
-            $this->batch('delta', [[
-                'codClient' => $cliente,
-                'eliminarSiAusente' => true,
-            ]]),
-            $this->integrationHeaders(),
-        )->assertOk()
-            ->assertJsonPath('resultado.aplicados', 1)
-            ->assertJsonPath('resultado.rechazados', 0);
+        $this->postClientes('delta', [[
+            'codClient' => $cliente,
+            'eliminarSiAusente' => true,
+        ]], $headers);
 
         $this->assertDatabaseMissing('pq_pedidosweb_clientescontactos', ['cod_client' => $cliente]);
         $this->assertDatabaseMissing('pq_pedidosweb_clientesde', ['cod_client' => $cliente]);
@@ -124,6 +107,7 @@ final class IntegracionMaestroClientesFeatureTest extends TestCase
     {
         $this->requireIntegrationSchema();
         $cliente = 'REF-22C';
+        $headers = $this->integrationHeaders();
 
         $this->seedClient($cliente);
         DB::table('pq_pedidosweb_deuda')->insert([
@@ -134,17 +118,13 @@ final class IntegracionMaestroClientesFeatureTest extends TestCase
             'saldo' => 10,
         ]);
 
-        $this->postJson(
-            '/api/v1/integracion/maestros/clientes',
-            $this->batch('delta', [[
-                'codClient' => $cliente,
-                'eliminarSiAusente' => true,
-            ]]),
-            $this->integrationHeaders(),
-        )->assertOk()
-            ->assertJsonPath('resultado.aplicados', 0)
-            ->assertJsonPath('resultado.rechazados', 1)
-            ->assertJsonPath('resultado.errores.0.codigo', 'integracion.maestro.deleteReferenciado');
+        $receipt = $this->postClientes('delta', [[
+            'codClient' => $cliente,
+            'eliminarSiAusente' => true,
+        ]], $headers);
+
+        $resultado = $this->getImportacionResultado((string) $receipt['importacionId'], $headers);
+        $this->assertSame('integracion.maestro.deleteReferenciado', $resultado['errores'][0]['codigo'] ?? null);
 
         $this->assertDatabaseHas('pq_pedidosweb_clientes', ['cod_client' => $cliente]);
     }
@@ -152,39 +132,37 @@ final class IntegracionMaestroClientesFeatureTest extends TestCase
     public function testClientesRechazanMasDeUnaDireccionHabitualEnElMismoItem(): void
     {
         $this->requireIntegrationSchema();
+        $headers = $this->integrationHeaders();
 
-        $this->postJson(
-            '/api/v1/integracion/maestros/clientes',
-            $this->batch('delta', [[
-                'codClient' => 'D-22C',
-                'nombre' => 'Cliente 22c',
-                'direcciones' => [
-                    ['idDe' => 1, 'direccion' => 'Uno', 'habitual' => true],
-                    ['idDe' => 2, 'direccion' => 'Dos', 'habitual' => true],
-                ],
-            ]]),
-            $this->integrationHeaders(),
-        )->assertOk()
-            ->assertJsonPath('resultado.aplicados', 1)
-            ->assertJsonPath('resultado.rechazados', 2)
-            ->assertJsonPath('resultado.errores.0.codigo', 'integracion.maestro.direccionHabitualDuplicada');
+        $receipt = $this->postClientes('delta', [[
+            'codClient' => 'D-22C',
+            'nombre' => 'Cliente 22c',
+            'direcciones' => [
+                ['idDe' => 1, 'direccion' => 'Uno', 'habitual' => true],
+                ['idDe' => 2, 'direccion' => 'Dos', 'habitual' => true],
+            ],
+        ]], $headers);
+
+        $resultado = $this->getImportacionResultado((string) $receipt['importacionId'], $headers);
+        $this->assertSame('integracion.maestro.direccionHabitualDuplicada', $resultado['errores'][0]['codigo'] ?? null);
     }
 
     public function testParametroFueraDeWhitelistEsRechazadoSinAbortarLote(): void
     {
         $this->requireIntegrationSchema();
+        $headers = $this->integrationHeaders();
 
-        $this->postJson(
+        $receipt = $this->postImportacionAsync(
             '/api/v1/integracion/maestros/parametros',
-            $this->batch('delta', [[
+            $this->importacionBatch('delta', [[
                 'clave' => 'ClaveInventada',
                 'valorString' => 'no permitido',
             ]]),
-            $this->integrationHeaders(),
-        )->assertOk()
-            ->assertJsonPath('resultado.aplicados', 0)
-            ->assertJsonPath('resultado.rechazados', 1)
-            ->assertJsonPath('resultado.errores.0.codigo', 'integracion.maestro.parametroNoPermitido');
+            $headers,
+        );
+
+        $resultado = $this->getImportacionResultado((string) $receipt['importacionId'], $headers);
+        $this->assertSame('integracion.maestro.parametroNoPermitido', $resultado['errores'][0]['codigo'] ?? null);
     }
 
     private function requireIntegrationSchema(): void
@@ -237,13 +215,12 @@ final class IntegracionMaestroClientesFeatureTest extends TestCase
      * @param  array<int, array<string, mixed>>  $items
      * @return array<string, mixed>
      */
-    private function batch(string $modo, array $items): array
+    private function postClientes(string $modo, array $items, array $headers): array
     {
-        return [
-            'modo' => $modo,
-            'fechaProceso' => '2026-10-22T12:00:00-03:00',
-            'origen' => 'feature-test',
-            'items' => $items,
-        ];
+        return $this->postImportacionAsync(
+            '/api/v1/integracion/maestros/clientes',
+            $this->importacionBatch($modo, $items),
+            $headers,
+        );
     }
 }

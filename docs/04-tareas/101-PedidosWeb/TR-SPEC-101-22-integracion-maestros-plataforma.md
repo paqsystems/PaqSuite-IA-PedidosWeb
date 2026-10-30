@@ -7,7 +7,7 @@
 | **Épica** | APIs importación maestros (PIAPEDWEB-34) |
 | **Prioridad** | **Must** |
 | **Dependencias** | TR-SPEC-101-06 (policies); SPEC-101-08 / `LogIntegracionService`; GEN-19 `paq.tenant`; GEN-20 `ApiResponse` |
-| **Estado** | **Parte D implementada** — pendiente E / F1 |
+| **Estado** | **Finalizado** (F/I 2026-10-29) — [F-101-22-cierre-formal](F-101-22-cierre-formal.md) |
 | **C1** | [F-101-22-cierre-c1](F-101-22-cierre-c1-importacion-maestros-erp.md) (2026-10-21) |
 | **D1** | [D1-PLAN-101-22-integracion-maestros-plataforma](D1-PLAN-101-22-integracion-maestros-plataforma.md) (2026-10-21) |
 | **Última actualización** | 2026-10-21 |

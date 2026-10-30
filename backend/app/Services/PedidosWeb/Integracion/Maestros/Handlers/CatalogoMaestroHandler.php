@@ -41,7 +41,7 @@ final class CatalogoMaestroHandler implements IntegracionMaestroHandlerInterface
                 return IntegracionMaestroItemResult::rejected(
                     'integracion.maestro.fkFaltante',
                     $claveNatural,
-                (string) ($result['operation'] ?? 'modified'),
+                    'modified',
                 );
             }
 
@@ -90,7 +90,10 @@ final class CatalogoMaestroHandler implements IntegracionMaestroHandlerInterface
                     return IntegracionMaestroItemResult::deleted($result['clave']);
                 }
 
-                if ($result['status'] === 'rejected') {
+                if (
+                    $result['status'] === 'rejected'
+                    || ($result['status'] === 'omitted' && ($result['error_code'] ?? '') !== '')
+                ) {
                     return IntegracionMaestroItemResult::rejected(
                         $result['error_code'] ?: 'integracion.maestro.deleteReferenciado',
                         $result['clave'],
@@ -110,17 +113,64 @@ final class CatalogoMaestroHandler implements IntegracionMaestroHandlerInterface
      */
     private function normalize(array $item): array
     {
-        if ($contextResource = ($this->definition['resource'] ?? null)) {
-            if ($contextResource === 'vendedores') {
-                unset($item['codLogin'], $item['cod_login']);
+        $contextResource = $this->definition['resource'] ?? null;
+
+        if ($contextResource === 'vendedores') {
+            unset($item['codLogin'], $item['cod_login']);
+        }
+
+        if ($contextResource === 'listaprecios') {
+            $item = $this->normalizeListapreciosItem($item);
+        }
+
+        if ($contextResource === 'escalas') {
+            if (! array_key_exists('descripEs', $item) && array_key_exists('descripcion', $item)) {
+                $item['descripEs'] = $item['descripcion'];
             }
         }
 
-        foreach (['supervisor', 'incluyeIva', 'stockeable', 'especial'] as $field) {
+        foreach (['supervisor', 'incluyeIva', 'stockeable', 'especial', 'eliminarSiAusente'] as $field) {
             if (array_key_exists($field, $item)) {
                 $item[$field] = filter_var($item[$field], FILTER_VALIDATE_BOOLEAN);
             }
         }
+
+        return $item;
+    }
+
+    /**
+     * @param  array<string, mixed>  $item
+     * @return array<string, mixed>
+     */
+    private function normalizeListapreciosItem(array $item): array
+    {
+        if (! array_key_exists('codLista', $item) && array_key_exists('codigo', $item)) {
+            $item['codLista'] = $item['codigo'];
+        }
+
+        $priceLines = $item['articulos'] ?? null;
+        if (! is_array($priceLines) && is_array($item['items'] ?? null)) {
+            $priceLines = $item['items'];
+        }
+
+        if (! is_array($priceLines)) {
+            return $item;
+        }
+
+        $item['articulos'] = array_values(array_map(
+            static function (mixed $line): mixed {
+                if (! is_array($line)) {
+                    return $line;
+                }
+
+                if (! array_key_exists('codArticulo', $line) && array_key_exists('codigo', $line)) {
+                    $line['codArticulo'] = $line['codigo'];
+                }
+
+                return $line;
+            },
+            $priceLines,
+        ));
 
         return $item;
     }

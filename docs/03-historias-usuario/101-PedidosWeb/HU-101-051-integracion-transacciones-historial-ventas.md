@@ -8,7 +8,7 @@ Jira: [PIAPEDWEB-42](https://paqsystems.atlassian.net/browse/PIAPEDWEB-42)
 | **SPEC origen** | [SPEC-101-23](../../05-open-spec/101-PedidosWeb/SPEC-101-23-importacion-transacciones-erp.md) |
 | **Épica** | APIs importación transacciones ERP → PedidosWeb |
 | **Prioridad** | **Must** |
-| **Estado** | Especificado |
+| **Estado** | **Finalizado** (Parte I SPEC-101-23, 2026-10-29) |
 | **B1** | Cerrado (2026-10-22) |
 | **Dependencias** | [HU-101-049](HU-101-049-integracion-transacciones-plataforma.md) · clientes disponibles |
 

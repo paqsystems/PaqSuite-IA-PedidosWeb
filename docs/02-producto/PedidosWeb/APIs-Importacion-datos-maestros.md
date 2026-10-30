@@ -4,14 +4,14 @@ Jira: PIAPEDWEB-34
 
 | Campo | Valor |
 |-------|--------|
-| **Estado** | OpenSpec — **actualización 22d: listas de precios anidadas y resultado asíncrono** |
+| **Estado** | **Finalizado** (SPEC-101-22, Parte I 2026-10-29) |
 | **OpenSpec** | [SPEC-101-22-importacion-maestros-erp.md](../../05-open-spec/101-PedidosWeb/SPEC-101-22-importacion-maestros-erp.md) |
 | **Ámbito** | PedidosWeb — **backend de integración** (sin pantalla de operador en el portal) |
 | **Origen de producto** | [Definición conceptual](./PedidosWeb_Definicion_Conceptual_Final_OpenSpec.md) §6.1 · [Modelo de datos](./PedidosWeb_Modelo_Datos_Final.md) §3 y §6 |
 | **Hermano** | [APIs-Importacion-transacciones.md](./APIs-Importacion-transacciones.md) — deuda, cheques, historial de ventas, stock (SPEC propio) |
 | **No confundir con** | Importación **Excel de pedidos** ([individual](./Importación%20Pedido%20Individual%20desde%20Excel.md), [masiva](./importacion-masiva-pedidos.md)) — GEN-14 |
 | **Observabilidad** | [Logs de integración](../../05-open-spec/101-PedidosWeb/SPEC-101-08-logs-integracion.md) (`pq_pedidosweb_logs_integracion`) |
-| **Framework** | GEN-20 envelope · GEN-19 tenancy (`X-Paq-Cliente`) · GEN-13 (tareas en el **ERP/orquestador**, no en PedidosWeb) · acceso de negocio por **SP** (regla 74) |
+| **Framework** | GEN-20 envelope · GEN-19 tenancy · **GEN-36** recepción async (202 + GET) en host · GEN-13 (orquestador ERP) · negocio por **SP** (regla 74) |
 | **Jira** | [PIAPEDWEB-34](https://paqsystems.atlassian.net/browse/PIAPEDWEB-34) |
 
 Este archivo es la **fuente del contrato transversal** (auth, envelope, lote) que reutiliza el documento de transacciones. El SPEC de maestros **no** implementa deuda/cheques/historial/stock.
