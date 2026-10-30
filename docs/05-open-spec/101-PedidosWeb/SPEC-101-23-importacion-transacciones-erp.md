@@ -7,10 +7,10 @@ Jira: PIAPEDWEB-35
 | **SPEC madre** | [PedidosWeb_SPEC_MVP.md](PedidosWeb_SPEC_MVP.md) (extensión post-MVP integración ERP) |
 | **Producto** | [APIs-Importacion-transacciones.md](../../02-producto/PedidosWeb/APIs-Importacion-transacciones.md) |
 | **Hermano (otro SPEC)** | [SPEC-101-22-importacion-maestros-erp.md](SPEC-101-22-importacion-maestros-erp.md) — contrato común producto **§4**; **no** mezclar alcance |
-| **Estado** | **D1 listo para Parte D** — precedencia de fechas cerrada |
+| **Estado** | **Finalizado** (Parte I, 2026-10-29) — [I-101-23-cierre-formal](../../04-tareas/101-PedidosWeb/I-101-23-cierre-formal.md) |
 | **Prioridad épica** | **Must** (alimenta consultas stock/deuda/cheques/historial) |
 | **Revisión A1** | [F-101-23-cierre-a1-importacion-transacciones-erp](../../04-tareas/101-PedidosWeb/F-101-23-cierre-a1-importacion-transacciones-erp.md) (2026-10-21) |
-| **Última actualización** | 2026-10-22 (Parte D1) |
+| **Última actualización** | 2026-10-29 (Parte F/I) |
 | **Ámbito** | Backend HTTP servidor-a-servidor; **sin** pantalla de operador |
 | **HU relacionadas** | [HU-101-049](../../03-historias-usuario/101-PedidosWeb/HU-101-049-integracion-transacciones-plataforma.md), [HU-101-050](../../03-historias-usuario/101-PedidosWeb/HU-101-050-integracion-transacciones-saldos.md), [HU-101-051](../../03-historias-usuario/101-PedidosWeb/HU-101-051-integracion-transacciones-historial-ventas.md) |
 | **TR relacionadas** | [TR-23a](../../04-tareas/101-PedidosWeb/TR-SPEC-101-23-integracion-transacciones-plataforma.md), [TR-23b](../../04-tareas/101-PedidosWeb/TR-SPEC-101-23-integracion-transacciones-saldos.md), [TR-23c](../../04-tareas/101-PedidosWeb/TR-SPEC-101-23-integracion-transacciones-historial-ventas.md) |
@@ -239,7 +239,13 @@ Ninguna bloqueante. Detalle OpenAPI campo a campo → Parte C.
 - [x] Parte C — [F-101-23-cierre-c](../../04-tareas/101-PedidosWeb/F-101-23-cierre-c-importacion-transacciones-erp.md) — **3 TR generadas; pendiente C1**
 - [x] Parte C1 — [F-101-23-cierre-c1](../../04-tareas/101-PedidosWeb/F-101-23-cierre-c1-importacion-transacciones-erp.md) — **apto con observaciones; autoriza D1**
 - [x] Parte D1 — [D1-PLAN-101-23](../../04-tareas/101-PedidosWeb/D1-PLAN-101-23-integracion-transacciones-erp.md) — **listo para Parte D**
-- [ ] Parte D
+- [x] Parte D — [F-101-23-cierre-d](../../04-tareas/101-PedidosWeb/F-101-23-cierre-d-importacion-transacciones-erp.md) (2026-10-29)
+- [x] Parte E — [E-101-23](../../04-tareas/101-PedidosWeb/E-101-23-importacion-transacciones-erp.md) — **aprobado con observaciones**
+- [x] Parte F1 — [D-VERIFICACION-101-23](../../04-tareas/101-PedidosWeb/D-VERIFICACION-101-23-importacion-transacciones-erp.md) — **aprobado con observaciones**
+- [x] Parte F — [F-101-23-cierre-formal](../../04-tareas/101-PedidosWeb/F-101-23-cierre-formal.md) (2026-10-29)
+- [x] Parte I — [I-101-23-cierre-formal](../../04-tareas/101-PedidosWeb/I-101-23-cierre-formal.md) — **Finalizado**
+
+**Estado SPEC:** **Finalizado** (2026-10-29)
 
 ## Historial de cambios
 
@@ -252,3 +258,4 @@ Ninguna bloqueante. Detalle OpenAPI campo a campo → Parte C.
 | 2026-10-22 | Parte C | TR-23a plataforma, TR-23b saldos y TR-23c historial; pendiente C1 |
 | 2026-10-22 | Parte C1 | Revisión de las 3 TR; apto con observaciones; autoriza D1 |
 | 2026-10-22 | Parte D1 | Plan 23a→23b→23c; carátula prevalece en `fecha_proceso` de historial |
+| 2026-10-29 | Parte D/E/F/I | Implementación async, tests, F1/F/I; épica PIAPEDWEB-35 Finalizado |

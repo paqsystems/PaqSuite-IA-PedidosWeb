@@ -9,7 +9,7 @@ Jira: [PIAPEDWEB-43](https://paqsystems.atlassian.net/browse/PIAPEDWEB-43)
 | **Épica** | APIs importación transacciones ERP ([PIAPEDWEB-35](https://paqsystems.atlassian.net/browse/PIAPEDWEB-35)) |
 | **Prioridad** | **Must** |
 | **Dependencias** | GEN-19 tenancy · GEN-20 envelope · contrato común de SPEC-101-22 · SPEC-101-08 logs |
-| **Estado** | **Parte D implementada** — pendiente F1/F |
+| **Estado** | **Finalizado** (F/I 2026-10-29) |
 | **Última actualización** | 2026-10-29 |
 
 ## 1) Objetivo y alcance

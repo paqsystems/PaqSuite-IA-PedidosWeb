@@ -23,8 +23,7 @@ php artisan test --filter=IntegracionTransaccion
 → 8 passed, 2 skipped (vendedor seed / tabla historial)
 ```
 
-## Pendiente (Parte E / F1)
+## Seguimiento post-cierre
 
-- QA ERP manual (stock, deuda, cheques, historial delta).
-- Redeploy `integracion-transacciones/00-deploy-all.sql` + worker en tenant.
-- F1 formal y cierre F/I de SPEC-101-23 (no incluido en este documento).
+- QA ERP manual (stock, deuda, cheques, historial delta) — OBS-F-23-01.
+- F1/F/I: [D-VERIFICACION-101-23](D-VERIFICACION-101-23-importacion-transacciones-erp.md), [F-101-23-cierre-formal](F-101-23-cierre-formal.md), [I-101-23-cierre-formal](I-101-23-cierre-formal.md).

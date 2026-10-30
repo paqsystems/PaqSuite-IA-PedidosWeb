@@ -8,7 +8,7 @@ Jira: [PIAPEDWEB-45](https://paqsystems.atlassian.net/browse/PIAPEDWEB-45)
 | **SPEC relacionada** | [SPEC-101-23](../../05-open-spec/101-PedidosWeb/SPEC-101-23-importacion-transacciones-erp.md) |
 | **Prioridad** | **Must** |
 | **Dependencias** | TR-23a plataforma · clientes disponibles o fixtures equivalentes |
-| **Estado** | **Parte D implementada** — pendiente QA ERP / F1 |
+| **Estado** | **Finalizado** (F/I 2026-10-29) |
 | **Última actualización** | 2026-10-29 |
 
 ## 1) Objetivo y alcance

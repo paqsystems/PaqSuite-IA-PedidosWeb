@@ -104,15 +104,10 @@ php artisan test tests/Feature/OpenApiDocumentationTest.php --filter=integracion
 
 ---
 
-## Pendiente antes de F1
+## Seguimiento post-F1 (2026-10-29)
 
-1. QA ERP: LOTE stock, deuda, cheques (delta + al menos un snapshot en `_dev`).
+F1/F/I cerrados con observaciones — ver [D-VERIFICACION-101-23-importacion-transacciones-erp.md](D-VERIFICACION-101-23-importacion-transacciones-erp.md).
+
+1. QA ERP: LOTE stock, deuda, cheques (delta + snapshot en `_dev` cuando aplique).
 2. Historial delta con ítems reales (`idGva53`, cliente existente).
-3. Postman TR-23c: polling GET hasta `completed` (hereda observación GEN-36).
-4. Parte **F1** formal SPEC-101-23.
-
----
-
-## Recomendación
-
-Avanzar a **F1** cuando QA ERP confirme los cuatro recursos; la Parte E automatizada queda **aprobada con observaciones** por skips de entorno y snapshot no ejecutado en BD compartida.
+3. Postman TR-23c: polling GET hasta `completed` en CI.
