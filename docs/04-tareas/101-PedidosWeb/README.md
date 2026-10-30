@@ -80,6 +80,7 @@
 | **Parte C1** | **Apto con observaciones** (2026-10-22) — [F-101-23-cierre-c1](F-101-23-cierre-c1-importacion-transacciones-erp.md) |
 | **Parte D1** | **Plan generado** (2026-10-22) — [D1-PLAN-101-23](D1-PLAN-101-23-integracion-transacciones-erp.md) |
 | **Parte D** | **Implementada** (2026-10-29) — [F-101-23-cierre-d](F-101-23-cierre-d-importacion-transacciones-erp.md); plataforma async, SP, tests, runbook |
+| **Parte E** | **Aprobado con observaciones** (2026-10-29) — [E-101-23-importacion-transacciones-erp.md](E-101-23-importacion-transacciones-erp.md) |
 | **Orden D1** | 23a → 23b → 23c; fecha de historial resuelta |
 
 | TR | HU | Título |

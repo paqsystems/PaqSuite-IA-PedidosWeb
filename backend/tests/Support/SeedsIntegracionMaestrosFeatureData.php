@@ -104,7 +104,11 @@ trait SeedsIntegracionMaestrosFeatureData
      */
     protected function actingAsUserHeaders(string $codigo): array
     {
-        $user = User::query()->where('codigo', $codigo)->firstOrFail();
+        $user = User::query()->where('codigo', $codigo)->first();
+        if ($user === null) {
+            $this->markTestSkipped("Usuario {$codigo} no disponible.");
+        }
+
         Sanctum::actingAs($user);
 
         return $this->tenantHeaders();
@@ -156,5 +160,43 @@ trait SeedsIntegracionMaestrosFeatureData
         $response->assertOk()->assertJsonPath('error', 0);
 
         return (array) $response->json('resultado');
+    }
+
+    protected function requireIntegrationSchema(): void
+    {
+        if (! Schema::hasTable('pq_pedidosweb_integracion_maestros_stage')) {
+            $this->markTestSkipped('SP/staging de integración no desplegados.');
+        }
+    }
+
+    /**
+     * @param  array<int, array<string, mixed>>  $items
+     * @return array<string, mixed>
+     */
+    protected function postMaestro(string $recurso, string $modo, array $items, array $headers): array
+    {
+        return $this->postImportacionAsync(
+            '/api/v1/integracion/maestros/'.$recurso,
+            $this->importacionBatch($modo, $items),
+            $headers,
+        );
+    }
+
+    /**
+     * @param  array<int, array<string, mixed>>  $items
+     * @return array<string, mixed>
+     */
+    protected function postTransaccion(
+        string $recurso,
+        string $modo,
+        array $items,
+        array $headers,
+        ?string $importacionId = null,
+    ): array {
+        return $this->postImportacionAsync(
+            '/api/v1/integracion/transacciones/'.$recurso,
+            $this->importacionBatch($modo, $items, $importacionId),
+            $headers,
+        );
     }
 }

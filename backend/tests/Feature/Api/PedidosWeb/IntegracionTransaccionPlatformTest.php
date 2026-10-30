@@ -124,4 +124,80 @@ final class IntegracionTransaccionPlatformTest extends TestCase
 
         $this->assertTrue((bool) $permiso);
     }
+
+    public function testTenantInvalidoRetorna400(): void
+    {
+        $headers = $this->integrationHeaders();
+        $headers['X-Paq-Cliente'] = 'tenant-inexistente';
+
+        $this->postJson(
+            '/api/v1/integracion/transacciones/stock',
+            $this->importacionBatch('delta', []),
+            $headers,
+        )
+            ->assertStatus(400)
+            ->assertJsonPath('respuesta', 'tenant.invalid');
+    }
+
+    public function testLoteDemasiadoGrandeRetorna422(): void
+    {
+        $headers = $this->integrationHeaders();
+        $items = array_fill(0, 1501, [
+            'codArticulo' => 'ART-X',
+            'stock' => 1,
+            'comprometido' => 0,
+        ]);
+
+        $this->postJson(
+            '/api/v1/integracion/transacciones/stock',
+            $this->importacionBatch('delta', $items),
+            $headers,
+        )
+            ->assertStatus(422)
+            ->assertJsonPath('respuesta', 'integracion.maestro.loteDemasiadoGrande');
+    }
+
+    public function testCuatroRutasTransaccionRetornan403SinPermisoIntegracion(): void
+    {
+        if (! Schema::hasTable('PQ_RolAtributo')) {
+            $this->markTestSkipped('Tablas de seguridad no disponibles.');
+        }
+
+        if (User::query()->where('codigo', 'vendedor.acotado.mvp')->doesntExist()) {
+            $this->markTestSkipped('Usuario vendedor.acotado.mvp no disponible.');
+        }
+
+        $headers = $this->actingAsUserHeaders('vendedor.acotado.mvp');
+        $payload = $this->importacionBatch('delta', []);
+
+        foreach (['stock', 'deuda', 'cheques', 'historial-ventas'] as $recurso) {
+            $this->postJson(
+                '/api/v1/integracion/transacciones/'.$recurso,
+                $payload,
+                $headers,
+            )
+                ->assertStatus(403)
+                ->assertJsonPath('respuesta', 'integracion.maestro.forbidden');
+        }
+    }
+
+    public function testRecepcion202ExponeEnvelopeGen20(): void
+    {
+        $this->requireIntegrationSchema();
+        $headers = $this->integrationHeaders();
+
+        $response = $this->postJson(
+            '/api/v1/integracion/transacciones/deuda',
+            $this->importacionBatch('delta', []),
+            $headers,
+        );
+
+        $response->assertStatus(202)
+            ->assertJsonPath('error', 0)
+            ->assertJsonStructure([
+                'error',
+                'respuesta',
+                'resultado' => ['importacionId', 'recurso', 'numeroLote', 'estado'],
+            ]);
+    }
 }

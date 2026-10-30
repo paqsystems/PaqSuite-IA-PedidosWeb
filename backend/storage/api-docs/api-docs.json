@@ -6352,6 +6352,10 @@
                         "description": "Ignorado por la API",
                         "type": "string",
                         "nullable": true
+                    },
+                    "eliminarSiAusente": {
+                        "type": "boolean",
+                        "default": false
                     }
                 },
                 "type": "object"
@@ -6391,6 +6395,13 @@
                         "items": {
                             "$ref": "#/components/schemas/IntegracionMaestroListaPrecioArticuloItem"
                         }
+                    },
+                    "items": {
+                        "description": "Alias ERP (SPEC 22d): precios hijos con codigo/precio; se normaliza a articulos[]",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/IntegracionMaestroListaPrecioArticuloItem"
+                        }
                     }
                 },
                 "type": "object"
@@ -6424,6 +6435,11 @@
                     "descripEs": {
                         "type": "string",
                         "example": "Unidades",
+                        "nullable": true
+                    },
+                    "descripcion": {
+                        "description": "Alias de descripEs",
+                        "type": "string",
                         "nullable": true
                     },
                     "nroEscala": {
