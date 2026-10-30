@@ -9,8 +9,8 @@ Jira: [PIAPEDWEB-43](https://paqsystems.atlassian.net/browse/PIAPEDWEB-43)
 | **Épica** | APIs importación transacciones ERP ([PIAPEDWEB-35](https://paqsystems.atlassian.net/browse/PIAPEDWEB-35)) |
 | **Prioridad** | **Must** |
 | **Dependencias** | GEN-19 tenancy · GEN-20 envelope · contrato común de SPEC-101-22 · SPEC-101-08 logs |
-| **Estado** | **C1 apto con observaciones** — autoriza D1 |
-| **Última actualización** | 2026-10-22 |
+| **Estado** | **Parte D implementada** — pendiente F1/F |
+| **Última actualización** | 2026-10-29 |
 
 ## 1) Objetivo y alcance
 
@@ -210,3 +210,27 @@ Cubrir 401, 403, tenant inválido, delta vacío, snapshot vacío, slug desconoci
 ## 10) Veredicto C1
 
 **Apto con observaciones para D1.** Las observaciones son de cableado técnico y no cambian el contrato funcional; D1 debe cerrar los nombres concretos y verificar la matriz/OpenAPI.
+
+## 11) Parte D — implementación (2026-10-29)
+
+Contrato alineado a maestros: recepción **202** + GET `importacionId` (no 200 síncrono).
+
+| Ítem | Evidencia |
+|------|-----------|
+| Rutas `POST .../integracion/transacciones/{recurso}` | `routes/api.php` + `IntegracionMaestroController` |
+| Registry transacciones | `integracion_transacciones.php`, `IntegracionTransaccionRegistry` |
+| Job async | `ProcessImportationMaestroJob` → `ImportationTransaccionDomainAdapter` |
+| 422 snapshot no soportado | `historial-ventas` en `receive()` |
+| OpenAPI | paths transacciones |
+| Tests plataforma | `IntegracionTransaccionPlatformTest.php` |
+| Runbook | [runbook-usuario-integracion-transacciones.md](../../06-operacion/runbook-usuario-integracion-transacciones.md) |
+
+### Checklist D (23a)
+
+- [x] Middleware + ability + rate limit (compartido maestros)
+- [x] Cuatro slugs en config
+- [x] 401/403/404/422 feature tests
+- [x] Delta vacío async 202 → GET completed
+- [ ] CA snapshot vacío 422 (solo recursos con snapshot; historial excluido)
+- [ ] Tope 1500 / truncado 50 errores (hereda request maestros — verificar test dedicado)
+- [x] OpenAPI paths

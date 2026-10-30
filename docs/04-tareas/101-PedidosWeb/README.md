@@ -79,6 +79,7 @@
 | **Parte C** | **Generada** (2026-10-22) — [F-101-23-cierre-c](F-101-23-cierre-c-importacion-transacciones-erp.md) |
 | **Parte C1** | **Apto con observaciones** (2026-10-22) — [F-101-23-cierre-c1](F-101-23-cierre-c1-importacion-transacciones-erp.md) |
 | **Parte D1** | **Plan generado** (2026-10-22) — [D1-PLAN-101-23](D1-PLAN-101-23-integracion-transacciones-erp.md) |
+| **Parte D** | **Implementada** (2026-10-29) — [F-101-23-cierre-d](F-101-23-cierre-d-importacion-transacciones-erp.md); plataforma async, SP, tests, runbook |
 | **Orden D1** | 23a → 23b → 23c; fecha de historial resuelta |
 
 | TR | HU | Título |
@@ -96,6 +97,7 @@
 | **Parte C1** | **Apto con observaciones** (2026-10-25) — autoriza D1 |
 | **Parte D1** | **Plan generado** (2026-10-25) — [D1-PLAN-101-24](D1-PLAN-101-24-integracion-medidas-erp.md) |
 | **Parte D** | **Implementada** (2026-10-25) — medidas registradas en GEN-36, SP, tests y Postman local |
+| **Parte F1/F/I** | **Cerrado** (2026-10-29) — [D-VERIFICACION-101-24](D-VERIFICACION-101-24-importacion-medidas-erp.md), [F-101-24](F-101-24-cierre-formal.md), [I-101-24](I-101-24-cierre-formal.md); QA ERP medidas OK |
 | **Orden D1** | 24a → 24b → 24c |
 
 | TR | HU | Título |

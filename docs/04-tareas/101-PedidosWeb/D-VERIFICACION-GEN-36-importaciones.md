@@ -42,7 +42,7 @@ PASS — 4 tests, 7 assertions
 
 ## Hallazgos críticos
 
-1. **GEN-36 no está completo:** SPEC-101-23 permanece sin implementación; sus
+1. **GEN-36 no está completo:** SPEC-101-23 tiene **Parte D** (2026-10-29) pero falta **F1/QA ERP**; sus
    TR siguen en estado previo a D.
 2. **Falta evidencia de ciclo asíncrono completo para `medidas`:** el test
    existente verifica solamente el `202` de recepción. No verifica GET

@@ -35,6 +35,14 @@ final class IntegracionMaestroController extends Controller
             );
         }
 
+        if (($validated['modo'] ?? '') === 'snapshot' && ! $this->resourceSupportsSnapshot($recurso)) {
+            return ApiResponse::error(
+                IntegracionMaestroErrorCodes::modoNoSoportado,
+                'integracion.maestro.modoNoSoportado',
+                422,
+            );
+        }
+
         try {
             $tenant = (string) $request->header(
                 (string) config('paqsuite_tenant.headerName', 'X-Paq-Cliente'),
@@ -110,5 +118,18 @@ final class IntegracionMaestroController extends Controller
             'eliminadosErroneos' => $result->deletedErrors,
             'errores' => $result->errors,
         ]);
+    }
+
+    private function resourceSupportsSnapshot(string $recurso): bool
+    {
+        if ($this->registry->has($recurso)) {
+            return $this->registry->supportsSnapshot($recurso);
+        }
+
+        if ($this->transactionRegistry->has($recurso)) {
+            return $this->transactionRegistry->supportsSnapshot($recurso);
+        }
+
+        return false;
     }
 }

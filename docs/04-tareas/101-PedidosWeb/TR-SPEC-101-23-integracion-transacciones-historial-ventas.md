@@ -8,8 +8,8 @@ Jira: [PIAPEDWEB-45](https://paqsystems.atlassian.net/browse/PIAPEDWEB-45)
 | **SPEC relacionada** | [SPEC-101-23](../../05-open-spec/101-PedidosWeb/SPEC-101-23-importacion-transacciones-erp.md) |
 | **Prioridad** | **Must** |
 | **Dependencias** | TR-23a plataforma · clientes disponibles o fixtures equivalentes |
-| **Estado** | **C1 apto con observaciones** — autoriza D1 |
-| **Última actualización** | 2026-10-22 |
+| **Estado** | **Parte D implementada** — pendiente QA ERP / F1 |
+| **Última actualización** | 2026-10-29 |
 
 ## 1) Objetivo y alcance
 
@@ -183,3 +183,14 @@ Casos mínimos:
 ## 10) Veredicto C1
 
 **Apto con observaciones para D1.** La precedencia de fechas queda cerrada: fecha del comprobante en `fechaEmision` y fecha de carátula en `fecha_proceso`. D1 debe completar el mapeo opcional antes de implementar.
+
+## 11) Parte D — implementación (2026-10-29)
+
+| Ítem | Evidencia |
+|------|-----------|
+| Recurso `historial-ventas` | `integracion_transacciones.php` (`supports_snapshot` false) |
+| SP apply | `pq_sp_integracion_transacciones_historial_ventas_apply` en deploy SQL |
+| 422 snapshot | `IntegracionMaestroController::receive()` + test plataforma |
+| Tests | `IntegracionTransaccionSaldosFeatureTest::testHistorialVentasDeltaVacioCompletaAsync` |
+
+Pendiente: QA ERP delta con ítems reales.

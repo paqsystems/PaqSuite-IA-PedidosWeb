@@ -36,6 +36,43 @@ final class ImportationTransaccionDomainAdapter implements ImportationDomainAdap
         $origin = null;
         $domainBatchId = $this->domainBatchId($resource, $importacionId, $tenantId);
 
+        $consumeResult = function (
+            IntegracionTransaccionItemResult $result,
+            int $index,
+        ) use (
+            &$processed,
+            &$added,
+            &$updated,
+            &$deleted,
+            &$addedErrors,
+            &$updatedErrors,
+            &$deletedErrors,
+            &$errors,
+            &$processedKeys,
+        ): void {
+            if ($result->isOmitted()) {
+                return;
+            }
+
+            $processed++;
+            if ($result->clave !== null) {
+                $processedKeys[] = $result->clave;
+            }
+
+            if ($result->isRejected()) {
+                $updatedErrors++;
+                $errors[] = [
+                    'indice' => $index,
+                    'clave' => $result->clave,
+                    'codigo' => $result->errorCode ?? 'integracion.transaccion.itemInvalido',
+                ];
+
+                return;
+            }
+
+            $updated++;
+        };
+
         foreach ($batches as $batch) {
             $mode = (string) ($batch['mode'] ?? $mode);
             $lastProcessDate = (string) ($batch['processDate'] ?? $lastProcessDate);
@@ -66,34 +103,21 @@ final class ImportationTransaccionDomainAdapter implements ImportationDomainAdap
 
                 $itemKey = $handler->keyForItem($item);
                 if ($itemKey !== null && isset($seenKeys[$itemKey])) {
-                    $result = IntegracionTransaccionItemResult::rejected(
-                        $itemKey,
-                        'integracion.transaccion.duplicado',
+                    $consumeResult(
+                        IntegracionTransaccionItemResult::rejected(
+                            $itemKey,
+                            'integracion.transaccion.duplicado',
+                        ),
+                        (int) $index,
                     );
-                } else {
-                    $result = $handler->processItem($item, $context);
-                    if ($itemKey !== null) {
-                        $seenKeys[$itemKey] = true;
-                    }
-                    $processedKeys[] = $result->clave;
-                }
-
-                if ($result->isOmitted()) {
                     continue;
                 }
 
-                $processed++;
-                if ($result->isApplied()) {
-                    $updated++;
-                    continue;
+                if ($itemKey !== null) {
+                    $seenKeys[$itemKey] = true;
                 }
 
-                $updatedErrors++;
-                $errors[] = [
-                    'indice' => (int) $index,
-                    'clave' => $result->clave,
-                    'codigo' => $result->errorCode ?? 'integracion.transaccion.itemInvalido',
-                ];
+                $consumeResult($handler->processItem($item, $context), (int) $index);
             }
         }
 
@@ -112,13 +136,15 @@ final class ImportationTransaccionDomainAdapter implements ImportationDomainAdap
                     continue;
                 }
 
-                $processed++;
-                $updatedErrors++;
-                $errors[] = [
-                    'indice' => $processed,
-                    'clave' => $result->clave,
-                    'codigo' => $result->errorCode ?? 'integracion.transaccion.snapshotAbortado',
-                ];
+                if ($result->isRejected()) {
+                    $processed++;
+                    $updatedErrors++;
+                    $errors[] = [
+                        'indice' => $processed,
+                        'clave' => $result->clave,
+                        'codigo' => $result->errorCode ?? 'integracion.transaccion.snapshotAbortado',
+                    ];
+                }
             }
         }
 
