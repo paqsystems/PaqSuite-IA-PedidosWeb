@@ -22,8 +22,10 @@ use App\Services\PedidosWeb\PedidoService;
 use App\Services\PedidosWeb\PedidosWebParameterService;
 use App\Services\PedidosWeb\PresupuestoCierreService;
 use App\Services\PedidosWeb\TratativaService;
+use App\Repositories\PedidosWebMenuQueryRepository;
 use App\Services\PedidosWeb\PedidosWebSchemaBootstrap;
 use Illuminate\Support\ServiceProvider;
+use PaqSuite\LaravelCore\Menu\MenuQueryRepository;
 
 final class PedidosWebServiceProvider extends ServiceProvider
 {
@@ -50,5 +52,6 @@ final class PedidosWebServiceProvider extends ServiceProvider
         $this->app->singleton(TratativaService::class);
         $this->app->singleton(PedidosWebSchemaBootstrap::class);
         $this->app->singleton(DashboardOperativoService::class);
+        $this->app->singleton(MenuQueryRepository::class, PedidosWebMenuQueryRepository::class);
     }
 }
