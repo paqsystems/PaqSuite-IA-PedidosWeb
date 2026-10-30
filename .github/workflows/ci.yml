@@ -44,7 +44,13 @@ jobs:
           key: composer-${{ runner.os }}-${{ hashFiles('backend/composer.lock') }}
 
       - name: Install dependencies
-        run: composer install --no-interaction --prefer-dist --no-progress
+        env:
+          CLOUDSMITH_READ_TOKEN: ${{ secrets.CLOUDSMITH_READ_TOKEN }}
+        run: |
+          if [ -n "${CLOUDSMITH_READ_TOKEN:-}" ]; then
+            export COMPOSER_AUTH=$(php -r 'echo json_encode(["http-basic"=>["dl.cloudsmith.io"=>["username"=>"token","password"=>getenv("CLOUDSMITH_READ_TOKEN")],"composer.cloudsmith.io"=>["username"=>"token","password"=>getenv("CLOUDSMITH_READ_TOKEN")]]]);')
+          fi
+          composer install --no-interaction --prefer-dist --no-progress
 
       - name: PHPUnit smoke (sin SQL Server)
         env:
@@ -75,14 +81,18 @@ jobs:
           cache-dependency-path: frontend/package-lock.json
 
       - name: Install dependencies
+        env:
+          CLOUDSMITH_READ_TOKEN: ${{ secrets.CLOUDSMITH_READ_TOKEN }}
         run: npm ci
 
       - name: Build
         env:
+          CLOUDSMITH_READ_TOKEN: ${{ secrets.CLOUDSMITH_READ_TOKEN }}
           VITE_DEVEXTREME_LICENSE: ${{ secrets.VITE_DEVEXTREME_LICENSE }}
         run: npm run build
 
       - name: Unit tests
         env:
+          CLOUDSMITH_READ_TOKEN: ${{ secrets.CLOUDSMITH_READ_TOKEN }}
           VITE_DEVEXTREME_LICENSE: ${{ secrets.VITE_DEVEXTREME_LICENSE }}
         run: npm run test
