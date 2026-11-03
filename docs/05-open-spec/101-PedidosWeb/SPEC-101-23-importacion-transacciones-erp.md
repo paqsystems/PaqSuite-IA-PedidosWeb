@@ -7,7 +7,7 @@ Jira: PIAPEDWEB-35
 | **SPEC madre** | [PedidosWeb_SPEC_MVP.md](PedidosWeb_SPEC_MVP.md) (extensión post-MVP integración ERP) |
 | **Producto** | [APIs-Importacion-transacciones.md](../../02-producto/PedidosWeb/APIs-Importacion-transacciones.md) |
 | **Hermano (otro SPEC)** | [SPEC-101-22-importacion-maestros-erp.md](SPEC-101-22-importacion-maestros-erp.md) — contrato común producto **§4**; **no** mezclar alcance |
-| **Estado** | **Finalizado** (Parte I, 2026-10-29) — [I-101-23-cierre-formal](../../04-tareas/101-PedidosWeb/I-101-23-cierre-formal.md) |
+| **Estado** | **Finalizado** (Parte I CC PQ #18, 02/11/2026) |
 | **Prioridad épica** | **Must** (alimenta consultas stock/deuda/cheques/historial) |
 | **Revisión A1** | [F-101-23-cierre-a1-importacion-transacciones-erp](../../04-tareas/101-PedidosWeb/F-101-23-cierre-a1-importacion-transacciones-erp.md) (2026-10-21) |
 | **Última actualización** | 2026-10-29 (Parte F/I) |
@@ -49,7 +49,7 @@ El portal **solo lee** esas tablas en UI. Este SPEC **no** cubre maestros ni par
 | Auth | **Mismo** token Sanctum + `pw_integracion_importacion` que 101-22. Vendedor portal **403** |
 | Contrato lote | **Idéntico** a maestros §4 en forma JSON. Envelope GEN-20. Éxito parcial HTTP **200** `error: 0` **solo en `delta`** (A1-C02). Snapshot atómico: aborto **422** |
 | Un endpoint por recurso | Path `{recurso}` = `stock` \| `deuda` \| `cheques` \| `historial-ventas` |
-| Modo stock / deuda / cheques | Habitual **`snapshot`**. `delta` permitido (upsert de claves enviadas; **no** recomendado en prod). `items: []` + snapshot → **422** |
+| Modo stock / deuda / cheques | **`snapshot`** (universo atómico) y **`delta`** (novedades en prod). Delta: upsert + baja explícita por ítem con `eliminarSiAusente`. `items: []` + snapshot → **422** |
 | Modo historial | Solo **`delta`**. `modo=snapshot` → **422** + `integracion.transaccion.modoNoSoportado`. No borrar filas fuera del lote |
 | Snapshot SQL | **Una transacción por request** de recurso snapshot (stock/deuda/cheques): replace-conjunto vía SP, **sin** `TRUNCATE`/`DROP` desde PHP |
 | `resumen-cuenta` | **Fuera de MVP** (update futuro si hay pantalla) |
@@ -67,7 +67,7 @@ El portal **solo lee** esas tablas en UI. Este SPEC **no** cubre maestros ni par
 |----|------|----------|
 | AMB-C-101-23-01 | Snapshot atómico | Un ítem inválido o clave duplicada en snapshot stock/deuda/cheques → **no escribe**. HTTP **422**, `error ≠ 0`, log `error` |
 | AMB-C-101-23-02 | 200 parcial | Solo `delta`. Snapshot nunca 200 si el universo no se aplicó |
-| AMB-C-101-23-03 | Delta saldos | Merge upsert (columnas omitidas no pisan); no borra ausentes |
+| AMB-C-101-23-03 | Delta saldos | Merge upsert (columnas omitidas no pisan); no borra ausentes salvo **`eliminarSiAusente: true`** en ítem (CC PQ #18) |
 | AMB-C-101-23-04 | Duplicados en `items[]` | Snapshot: aborta lote. Delta: primero aplica; siguientes misma clave `rechazados` |
 | AMB-C-101-23-05 | JSON extra | `comprometidoWeb` / `*Base` / `disponibleNeto*` → ítem rechazado. Otras claves desconocidas **ignoradas** |
 
@@ -127,6 +127,7 @@ Prefijo: `POST /api/v1/integracion/transacciones/{recurso}`
 | Prohibido persistir | `comprometidoWeb`, `stockBase`, `comprometidoBase`, `disponibleNeto*` (la consulta los calcula) |
 | `stockeable = 0` | Ítem **aceptado** si viene; la consulta stock los excluye |
 | Snapshot | El SP deja el conjunto de filas de stock del tenant **igual** al lote (claves no enviadas **salen**). `items: []` rechazado |
+| Delta baja | `eliminarSiAusente: true` + `codArticulo` elimina fila; rechazado si `comprometido > 0`. En snapshot → ítem rechazado (`eliminarSoloDelta`) |
 
 ### 4. Deuda
 
@@ -138,7 +139,7 @@ Prefijo: `POST /api/v1/integracion/transacciones/{recurso}`
 | Razón social | **No** viaja en el lote; consulta hace join a `clientes.razon_soci` |
 | Escritura | **Esquema canónico** (`cod_cliente`, `t_comp`, `n_comp`, `fecha_emis`, `fecha_vto`, `saldo`). No escribir columnas legacy |
 | Snapshot | Lote = universo vigente de comprobantes pendientes. `fecha_proceso` de carátula alimenta metadata de consulta |
-| Delta | Upsert de claves enviadas; puede dejar deudas viejas (no recomendado) |
+| Delta | Upsert de claves enviadas; baja explícita con `eliminarSiAusente` por clave compuesta |
 
 ### 5. Cheques
 
@@ -151,6 +152,7 @@ Prefijo: `POST /api/v1/integracion/transacciones/{recurso}`
 | Columnas BD | Mapear camelCase → `Banco`, `Importe`, `Origen`, `Estado` (y aliases legacy en lectura de consulta, no en escritura) |
 | Filtro `fecha >= hoy` | **Solo consulta** (§17.5). El import guarda lo que manda el ERP |
 | Snapshot | Universo vigente de cartera/export ERP |
+| Delta baja | `eliminarSiAusente: true` + `(interno, numero)` elimina cheque |
 
 ### 6. Historial de ventas
 

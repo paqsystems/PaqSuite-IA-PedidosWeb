@@ -28,7 +28,7 @@ namespace App\OpenApi;
  *     @OA\Property(property="leyenda4", type="string", maxLength=60, nullable=true),
  *     @OA\Property(property="leyenda5", type="string", maxLength=60, nullable=true),
  *     @OA\Property(property="codLogin", type="string", nullable=true, description="Ignorado por la API"),
- *     @OA\Property(property="eliminarSiAusente", type="boolean", default=false),
+ *     @OA\Property(property="eliminarSiAusente", type="boolean", default=false, description="Baja explícita de la clave codClient. En modo delta: elimina contactos, direcciones y cliente si no hay referencias (pedidos, deuda, cheques, ventas). En snapshot: mismo flag; no se borra por ausencia del lote sin este indicador."),
  *     @OA\Property(
  *         property="direcciones",
  *         type="array",
@@ -158,7 +158,7 @@ namespace App\OpenApi;
  *     @OA\Property(property="nombre", type="string", nullable=true, example="Vendedor Uno"),
  *     @OA\Property(property="supervisor", type="boolean", nullable=true, example=false),
  *     @OA\Property(property="codLogin", type="string", nullable=true, description="Ignorado por la API"),
- *     @OA\Property(property="eliminarSiAusente", type="boolean", default=false)
+ *     @OA\Property(property="eliminarSiAusente", type="boolean", default=false, description="Baja explícita del vendedor codVended. Rechazado si hay clientes referenciados.")
  * )
  *
  * @OA\Schema(
@@ -201,7 +201,16 @@ namespace App\OpenApi;
  *     @OA\Property(property="descripcion", type="string", nullable=true, description="Alias de descripEs"),
  *     @OA\Property(property="nroEscala", type="integer", nullable=true, example=1),
  *     @OA\Property(property="valores", type="array", @OA\Items(ref="#/components/schemas/IntegracionMaestroEscalaValorItem")),
- *     @OA\Property(property="eliminarSiAusente", type="boolean", default=false)
+ *     @OA\Property(property="eliminarSiAusente", type="boolean", default=false, description="Baja explícita de la escala codEscala en delta (replace por ítem en snapshot). No borra por ausencia del lote sin este indicador.")
+ * )
+ *
+ * @OA\Schema(
+ *     schema="IntegracionMaestroMedidaItem",
+ *     type="object",
+ *     required={"idMedida","codMedida","descMedida"},
+ *     @OA\Property(property="idMedida", type="integer", example=1001, description="Identificador técnico ERP; clave natural del lote = codMedida"),
+ *     @OA\Property(property="codMedida", type="string", maxLength=10, example="UN"),
+ *     @OA\Property(property="descMedida", type="string", maxLength=40, example="Unidad")
  * )
  *
  * @OA\Schema(
@@ -219,7 +228,7 @@ namespace App\OpenApi;
  *     @OA\Property(property="equivalenciaVentas", type="number", format="double", nullable=true, example=1),
  *     @OA\Property(property="stockeable", type="boolean", nullable=true, example=true),
  *     @OA\Property(property="especial", type="boolean", nullable=true, example=false),
- *     @OA\Property(property="eliminarSiAusente", type="boolean", default=false)
+ *     @OA\Property(property="eliminarSiAusente", type="boolean", default=false, description="Baja explícita del artículo codigo. Rechazado si hay stock referenciado (integracion.maestro.deleteReferenciado).")
  * )
  *
  * @OA\Schema(
@@ -245,7 +254,8 @@ namespace App\OpenApi;
  *     required={"codArticulo","stock","comprometido"},
  *     @OA\Property(property="codArticulo", type="string", example="ART001"),
  *     @OA\Property(property="stock", type="number", format="double", example=100.5),
- *     @OA\Property(property="comprometido", type="number", format="double", example=10)
+ *     @OA\Property(property="comprometido", type="number", format="double", example=10),
+ *     @OA\Property(property="eliminarSiAusente", type="boolean", default=false, description="Solo modo delta: elimina la fila de stock del codArticulo. Rechazado si comprometido > 0 (integracion.transaccion.deleteBloqueado) o si modo=snapshot (integracion.transaccion.eliminarSoloDelta). Ítem de baja: clave + flag; no exige stock/comprometido.")
  * )
  *
  * @OA\Schema(
@@ -257,7 +267,8 @@ namespace App\OpenApi;
  *     @OA\Property(property="nComp", type="string", example="0001-00001234"),
  *     @OA\Property(property="fechaEmis", type="string", format="date", example="2026-10-20"),
  *     @OA\Property(property="fechaVto", type="string", format="date", example="2026-11-20"),
- *     @OA\Property(property="saldo", type="number", format="double", example=1500.25)
+ *     @OA\Property(property="saldo", type="number", format="double", example=1500.25),
+ *     @OA\Property(property="eliminarSiAusente", type="boolean", default=false, description="Solo delta: elimina el comprobante pendiente identificado por (codCliente,tComp,nComp,fechaVto). Rechazado en snapshot.")
  * )
  *
  * @OA\Schema(
@@ -271,7 +282,8 @@ namespace App\OpenApi;
  *     @OA\Property(property="fecha", type="string", format="date", example="2026-10-20"),
  *     @OA\Property(property="importe", type="number", format="double", example=25000.5),
  *     @OA\Property(property="origen", type="string", example="Cartera"),
- *     @OA\Property(property="estado", type="string", example="En cartera")
+ *     @OA\Property(property="estado", type="string", example="En cartera"),
+ *     @OA\Property(property="eliminarSiAusente", type="boolean", default=false, description="Solo delta: elimina el cheque (interno,numero). Rechazado en snapshot.")
  * )
  *
  * @OA\Schema(
@@ -360,10 +372,23 @@ namespace App\OpenApi;
  * )
  *
  * @OA\Schema(
- *     schema="IntegracionMaestroArticulosLoteRequest",
+ *     schema="IntegracionMaestroMedidasLoteRequest",
  *     allOf={
  *         @OA\Schema(ref="#/components/schemas/IntegracionImportacionLoteRequest"),
- *         @OA\Schema(type="object", @OA\Property(property="items", type="array", @OA\Items(ref="#/components/schemas/IntegracionMaestroArticuloItem")))
+ *         @OA\Schema(type="object", @OA\Property(property="items", type="array", @OA\Items(ref="#/components/schemas/IntegracionMaestroMedidaItem")))
+ *     }
+ * )
+ *
+ * @OA\Schema(
+ *     schema="IntegracionMaestroArticulosLoteRequest",
+ *     description="Maestro artículos: delta (upsert) o snapshot (replace campos enviados por ítem).",
+ *     allOf={
+ *         @OA\Schema(ref="#/components/schemas/IntegracionImportacionLoteRequest"),
+ *         @OA\Schema(
+ *             type="object",
+ *             @OA\Property(property="modo", type="string", enum={"delta","snapshot"}, description="delta | snapshot. Ver ejemplos en POST /maestros/articulos."),
+ *             @OA\Property(property="items", type="array", @OA\Items(ref="#/components/schemas/IntegracionMaestroArticuloItem"))
+ *         )
  *     }
  * )
  *
@@ -377,35 +402,51 @@ namespace App\OpenApi;
  *
  * @OA\Schema(
  *     schema="IntegracionTransaccionStockLoteRequest",
+ *     description="Importación de stock. Ver modo: snapshot (universo atómico) vs delta (upsert parcial).",
  *     allOf={
  *         @OA\Schema(ref="#/components/schemas/IntegracionImportacionLoteRequest"),
- *         @OA\Schema(type="object", @OA\Property(property="items", type="array", @OA\Items(ref="#/components/schemas/IntegracionTransaccionStockItem")))
+ *         @OA\Schema(
+ *             type="object",
+ *             @OA\Property(property="modo", type="string", enum={"delta","snapshot"}, description="Valores: delta | snapshot. **snapshot:** universo atómico; claves no enviadas salen al finalizar; items vacío → 422. **delta:** upsert parcial y baja con eliminarSiAusente; items vacío → no-op. Ver ejemplos en el POST /transacciones/stock."),
+ *             @OA\Property(property="items", type="array", @OA\Items(ref="#/components/schemas/IntegracionTransaccionStockItem"))
+ *         )
  *     }
  * )
  *
  * @OA\Schema(
  *     schema="IntegracionTransaccionDeudaLoteRequest",
+ *     description="Importación de deuda pendiente. Ver modo: snapshot vs delta.",
  *     allOf={
  *         @OA\Schema(ref="#/components/schemas/IntegracionImportacionLoteRequest"),
- *         @OA\Schema(type="object", @OA\Property(property="items", type="array", @OA\Items(ref="#/components/schemas/IntegracionTransaccionDeudaItem")))
+ *         @OA\Schema(
+ *             type="object",
+ *             @OA\Property(property="modo", type="string", enum={"delta","snapshot"}, description="delta | snapshot. Ver ejemplos en POST /transacciones/deuda."),
+ *             @OA\Property(property="items", type="array", @OA\Items(ref="#/components/schemas/IntegracionTransaccionDeudaItem"))
+ *         )
  *     }
  * )
  *
  * @OA\Schema(
  *     schema="IntegracionTransaccionChequesLoteRequest",
+ *     description="Importación de cheques en cartera. Ver modo: snapshot vs delta.",
  *     allOf={
  *         @OA\Schema(ref="#/components/schemas/IntegracionImportacionLoteRequest"),
- *         @OA\Schema(type="object", @OA\Property(property="items", type="array", @OA\Items(ref="#/components/schemas/IntegracionTransaccionChequeItem")))
+ *         @OA\Schema(
+ *             type="object",
+ *             @OA\Property(property="modo", type="string", enum={"delta","snapshot"}, description="delta | snapshot. Ver ejemplos en POST /transacciones/cheques."),
+ *             @OA\Property(property="items", type="array", @OA\Items(ref="#/components/schemas/IntegracionTransaccionChequeItem"))
+ *         )
  *     }
  * )
  *
  * @OA\Schema(
  *     schema="IntegracionTransaccionHistorialVentasLoteRequest",
+ *     description="Historial de ventas detallado: solo modo delta (upsert por idGva53).",
  *     allOf={
  *         @OA\Schema(ref="#/components/schemas/IntegracionImportacionLoteRequest"),
  *         @OA\Schema(
  *             type="object",
- *             @OA\Property(property="modo", type="string", enum={"delta"}, example="delta"),
+ *             @OA\Property(property="modo", type="string", enum={"delta"}, example="delta", description="Único modo permitido. snapshot devuelve 422 (integracion.transaccion.modoNoSoportado). No elimina filas ausentes del lote."),
  *             @OA\Property(property="items", type="array", @OA\Items(ref="#/components/schemas/IntegracionTransaccionHistorialVentaItem"))
  *         )
  *     }
@@ -893,7 +934,7 @@ namespace App\OpenApi;
  *     @OA\Property(property="importacionId", type="string", maxLength=128, example="ERP-IMP-20261024-0001"),
  *     @OA\Property(property="numeroLote", type="integer", minimum=1, example=1),
  *     @OA\Property(property="ultimoEnvio", type="boolean", example=true),
- *     @OA\Property(property="modo", type="string", enum={"delta","snapshot"}, example="snapshot"),
+ *     @OA\Property(property="modo", type="string", enum={"delta","snapshot"}, example="snapshot", description="delta: upsert parcial por ítem; errores de ítem no abortan el resto (salvo reglas del recurso). snapshot: el ciclo representa un universo; cierre puede eliminar claves ausentes según recurso; puede ser atómico (422). Cada endpoint puede restringir o documentar variantes en su schema *LoteRequest."),
  *     @OA\Property(property="fechaProceso", type="string", format="date-time", example="2026-10-24T12:00:00-03:00"),
  *     @OA\Property(property="origen", type="string", nullable=true, maxLength=50, example="postman-fixture-db"),
  *     @OA\Property(property="items", type="array", @OA\Items(type="object", additionalProperties=true))

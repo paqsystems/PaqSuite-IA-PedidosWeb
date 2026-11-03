@@ -37,9 +37,23 @@ final class TransaccionJsonHandler implements IntegracionTransaccionHandlerInter
         IntegracionTransaccionLoteContext $context,
     ): IntegracionTransaccionItemResult {
         $item = IntegracionTransaccionItemNormalizer::normalize($context->recurso, $item);
+        $item = $this->normalizeEliminarSiAusente($item);
         $clave = $this->key($item);
 
-        foreach ((array) ($this->definition['required'] ?? []) as $field) {
+        $deleteExplicit = $this->isExplicitDeleteItem($item);
+        if ($deleteExplicit && $context->modo !== 'delta') {
+            return IntegracionTransaccionItemResult::rejected(
+                $clave,
+                'integracion.transaccion.eliminarSoloDelta',
+            );
+        }
+
+        $requiredFields = (array) ($this->definition['required'] ?? []);
+        if ($deleteExplicit) {
+            $requiredFields = (array) ($this->definition['key'] ?? []);
+        }
+
+        foreach ($requiredFields as $field) {
             if (! array_key_exists($field, $item) || $item[$field] === null || $item[$field] === '') {
                 return IntegracionTransaccionItemResult::rejected(
                     $clave,
@@ -141,5 +155,31 @@ final class TransaccionJsonHandler implements IntegracionTransaccionHandlerInter
         }
 
         return $parts === [] ? null : implode('|', $parts);
+    }
+
+    /**
+     * @param  array<string, mixed>  $item
+     * @return array<string, mixed>
+     */
+    private function normalizeEliminarSiAusente(array $item): array
+    {
+        if (! array_key_exists('eliminarSiAusente', $item)) {
+            return $item;
+        }
+
+        $item['eliminarSiAusente'] = filter_var(
+            $item['eliminarSiAusente'],
+            FILTER_VALIDATE_BOOLEAN,
+        );
+
+        return $item;
+    }
+
+    /**
+     * @param  array<string, mixed>  $item
+     */
+    private function isExplicitDeleteItem(array $item): bool
+    {
+        return ($item['eliminarSiAusente'] ?? false) === true;
     }
 }

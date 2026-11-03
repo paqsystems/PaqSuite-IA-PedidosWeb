@@ -8,7 +8,7 @@ Jira: [PIAPEDWEB-41](https://paqsystems.atlassian.net/browse/PIAPEDWEB-41)
 | **SPEC origen** | [SPEC-101-23](../../05-open-spec/101-PedidosWeb/SPEC-101-23-importacion-transacciones-erp.md) |
 | **Épica** | APIs importación transacciones ERP → PedidosWeb |
 | **Prioridad** | **Must** |
-| **Estado** | **Finalizado** (Parte I SPEC-101-23, 2026-10-29) |
+| **Estado** | **Finalizado** (Parte I CC PQ #18, 02/11/2026) |
 | **B1** | Cerrado (2026-10-22) |
 | **Dependencias** | [HU-101-049](HU-101-049-integracion-transacciones-plataforma.md) · maestros de artículos/clientes disponibles |
 
@@ -77,11 +77,13 @@ La HU implementa los handlers y stored procedures para `stock`, `deuda` y `chequ
 2. **RN-02:** Deuda exige que `codCliente` exista; si no, el ítem se rechaza.
 3. **RN-03:** Cheques exige que `codCliente` exista; si no, el ítem se rechaza.
 4. **RN-04:** Snapshot de stock, deuda y cheques es atómico: un ítem inválido o una clave duplicada impide toda escritura y devuelve 422.
-5. **RN-05:** Delta aplica los ítems válidos, rechaza duplicados posteriores de la misma clave y no borra ausentes.
+5. **RN-05:** Delta aplica los ítems válidos, rechaza duplicados posteriores de la misma clave y no borra ausentes salvo **`eliminarSiAusente: true`** en el ítem (CC PQ #18).
 6. **RN-06:** La fecha de proceso de carátula se persiste en la metadata/campo de proceso definido para cada recurso.
 7. **RN-07:** Toda escritura de negocio se realiza mediante el SP de su recurso, sin SQL ad-hoc desde PHP.
 8. **RN-08:** Los negativos son valores permitidos por el ERP.
 9. **RN-09:** El snapshot vacío de cualquiera de estos recursos se rechaza con 422.
+10. **RN-10:** `eliminarSiAusente: true` en delta elimina la clave natural vía SP; en snapshot el ítem se rechaza (`integracion.transaccion.eliminarSoloDelta`).
+11. **RN-11:** Baja de stock rechazada si `comprometido > 0` (`integracion.transaccion.deleteBloqueado`).
 
 ## Criterios de aceptación
 
@@ -97,6 +99,7 @@ La HU implementa los handlers y stored procedures para `stock`, `deuda` y `chequ
 - [ ] **CA-10:** Cheques delta con claves duplicadas aplica la primera y reporta las siguientes como rechazadas.
 - [ ] **CA-11:** Las operaciones llaman exclusivamente a `pq_sp_integracion_transacciones_stock`, `_deuda` y `_cheques`.
 - [ ] **CA-12:** Después de un snapshot válido, las consultas GET del portal reflejan el lote y mantienen su propia visibilidad.
+- [ ] **CA-13:** Delta stock/deuda/cheques con `eliminarSiAusente` elimina la clave; stock con comprometido bloqueado rechaza baja.
 
 ## Escenarios Gherkin
 

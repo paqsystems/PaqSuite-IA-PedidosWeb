@@ -2549,6 +2549,1474 @@
                 ]
             }
         },
+        "/api/v1/integracion/maestros/provincias": {
+            "post": {
+                "tags": [
+                    "Integración maestros"
+                ],
+                "summary": "Importar provincias",
+                "description": "Catálogo chico: **snapshot** = universo del lote; **delta** = upsert. Elegí el ejemplo en Request body.",
+                "operationId": "integracionMaestrosProvincias",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/IntegracionMaestroProvinciasLoteRequest"
+                            },
+                            "examples": {
+                                "provinciasSnapshot": {
+                                    "summary": "Snapshot — universo del recurso",
+                                    "value": {
+                                        "importacionId": "ERP-MAE-PROV-001",
+                                        "numeroLote": 1,
+                                        "ultimoEnvio": true,
+                                        "modo": "snapshot",
+                                        "fechaProceso": "2026-10-24T12:00:00-03:00",
+                                        "origen": "erp-job",
+                                        "items": [
+                                            {
+                                                "codProvin": "B",
+                                                "descripcion": "Buenos Aires"
+                                            },
+                                            {
+                                                "codProvin": "C",
+                                                "descripcion": "Capital Federal"
+                                            }
+                                        ]
+                                    }
+                                },
+                                "provinciasDelta": {
+                                    "summary": "Delta — novedades (upsert)",
+                                    "value": {
+                                        "importacionId": "ERP-MAE-PROV-002",
+                                        "numeroLote": 1,
+                                        "ultimoEnvio": true,
+                                        "modo": "delta",
+                                        "fechaProceso": "2026-10-24T12:00:00-03:00",
+                                        "origen": "erp-job",
+                                        "items": [
+                                            {
+                                                "codProvin": "B",
+                                                "descripcion": "Buenos Aires (actualizado)"
+                                            }
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "202": {
+                        "description": "Lote recibido (procesamiento asíncrono)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelopeIntegracionImportacionLoteReceipt"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Importación en conflicto"
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "403": {
+                        "description": "Sin permiso"
+                    },
+                    "422": {
+                        "description": "Lote inválido"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/integracion/maestros/condventa": {
+            "post": {
+                "tags": [
+                    "Integración maestros"
+                ],
+                "summary": "Importar condiciones de venta",
+                "description": "**snapshot** o **delta** — ver ejemplos en Request body.",
+                "operationId": "integracionMaestrosCondventa",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/IntegracionMaestroCondventaLoteRequest"
+                            },
+                            "examples": {
+                                "condventaSnapshot": {
+                                    "summary": "Snapshot — universo del recurso",
+                                    "value": {
+                                        "importacionId": "ERP-MAE-CV-001",
+                                        "numeroLote": 1,
+                                        "ultimoEnvio": true,
+                                        "modo": "snapshot",
+                                        "fechaProceso": "2026-10-24T12:00:00-03:00",
+                                        "origen": "erp-job",
+                                        "items": [
+                                            {
+                                                "codigo": 1,
+                                                "descripcion": "Contado",
+                                                "dias": 0
+                                            }
+                                        ]
+                                    }
+                                },
+                                "condventaDelta": {
+                                    "summary": "Delta — upsert",
+                                    "value": {
+                                        "importacionId": "ERP-MAE-CV-002",
+                                        "numeroLote": 1,
+                                        "ultimoEnvio": true,
+                                        "modo": "delta",
+                                        "fechaProceso": "2026-10-24T12:00:00-03:00",
+                                        "origen": "erp-job",
+                                        "items": [
+                                            {
+                                                "codigo": 2,
+                                                "descripcion": "30 días",
+                                                "dias": 30
+                                            }
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "202": {
+                        "description": "Lote recibido (procesamiento asíncrono)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelopeIntegracionImportacionLoteReceipt"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Importación en conflicto"
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "403": {
+                        "description": "Sin permiso"
+                    },
+                    "422": {
+                        "description": "Lote inválido"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/integracion/maestros/transportes": {
+            "post": {
+                "tags": [
+                    "Integración maestros"
+                ],
+                "summary": "Importar transportes",
+                "description": "**snapshot** o **delta** — ver ejemplos en Request body.",
+                "operationId": "integracionMaestrosTransportes",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/IntegracionMaestroTransportesLoteRequest"
+                            },
+                            "examples": {
+                                "transportesSnapshot": {
+                                    "summary": "Snapshot — universo del recurso",
+                                    "value": {
+                                        "importacionId": "ERP-MAE-TR-001",
+                                        "numeroLote": 1,
+                                        "ultimoEnvio": true,
+                                        "modo": "snapshot",
+                                        "fechaProceso": "2026-10-24T12:00:00-03:00",
+                                        "origen": "erp-job",
+                                        "items": [
+                                            {
+                                                "codigo": "TR01",
+                                                "descripcion": "Retiro en planta"
+                                            }
+                                        ]
+                                    }
+                                },
+                                "transportesDelta": {
+                                    "summary": "Delta — upsert",
+                                    "value": {
+                                        "importacionId": "ERP-MAE-TR-002",
+                                        "numeroLote": 1,
+                                        "ultimoEnvio": true,
+                                        "modo": "delta",
+                                        "fechaProceso": "2026-10-24T12:00:00-03:00",
+                                        "origen": "erp-job",
+                                        "items": [
+                                            {
+                                                "codigo": "TR02",
+                                                "descripcion": "Transporte express"
+                                            }
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "202": {
+                        "description": "Lote recibido (procesamiento asíncrono)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelopeIntegracionImportacionLoteReceipt"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Importación en conflicto"
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "403": {
+                        "description": "Sin permiso"
+                    },
+                    "422": {
+                        "description": "Lote inválido"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/integracion/maestros/perfiles": {
+            "post": {
+                "tags": [
+                    "Integración maestros"
+                ],
+                "summary": "Importar perfiles",
+                "description": "**snapshot** o **delta** — ver ejemplos en Request body.",
+                "operationId": "integracionMaestrosPerfiles",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/IntegracionMaestroPerfilesLoteRequest"
+                            },
+                            "examples": {
+                                "perfilesSnapshot": {
+                                    "summary": "Snapshot — universo del recurso",
+                                    "value": {
+                                        "importacionId": "ERP-MAE-PF-001",
+                                        "numeroLote": 1,
+                                        "ultimoEnvio": true,
+                                        "modo": "snapshot",
+                                        "fechaProceso": "2026-10-24T12:00:00-03:00",
+                                        "origen": "erp-job",
+                                        "items": [
+                                            {
+                                                "codPerfil": "P01",
+                                                "descripcion": "Perfil estándar"
+                                            }
+                                        ]
+                                    }
+                                },
+                                "perfilesDelta": {
+                                    "summary": "Delta — upsert",
+                                    "value": {
+                                        "importacionId": "ERP-MAE-PF-002",
+                                        "numeroLote": 1,
+                                        "ultimoEnvio": true,
+                                        "modo": "delta",
+                                        "fechaProceso": "2026-10-24T12:00:00-03:00",
+                                        "origen": "erp-job",
+                                        "items": [
+                                            {
+                                                "codPerfil": "P02",
+                                                "descripcion": "Perfil mayorista"
+                                            }
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "202": {
+                        "description": "Lote recibido (procesamiento asíncrono)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelopeIntegracionImportacionLoteReceipt"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Importación en conflicto"
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "403": {
+                        "description": "Sin permiso"
+                    },
+                    "422": {
+                        "description": "Lote inválido"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/integracion/maestros/vendedores": {
+            "post": {
+                "tags": [
+                    "Integración maestros"
+                ],
+                "summary": "Importar vendedores",
+                "description": "**snapshot** (replace por ítem) o **delta** (upsert + `eliminarSiAusente`). Ver ejemplos.",
+                "operationId": "integracionMaestrosVendedores",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/IntegracionMaestroVendedoresLoteRequest"
+                            },
+                            "examples": {
+                                "vendedoresSnapshot": {
+                                    "summary": "Snapshot — replace por ítem",
+                                    "value": {
+                                        "importacionId": "ERP-MAE-VEN-001",
+                                        "numeroLote": 1,
+                                        "ultimoEnvio": true,
+                                        "modo": "snapshot",
+                                        "fechaProceso": "2026-10-24T12:00:00-03:00",
+                                        "origen": "erp-job",
+                                        "items": [
+                                            {
+                                                "codVended": "VEN01",
+                                                "nombre": "Vendedor Uno"
+                                            }
+                                        ]
+                                    }
+                                },
+                                "vendedoresDelta": {
+                                    "summary": "Delta — upsert",
+                                    "value": {
+                                        "importacionId": "ERP-MAE-VEN-002",
+                                        "numeroLote": 1,
+                                        "ultimoEnvio": true,
+                                        "modo": "delta",
+                                        "fechaProceso": "2026-10-24T12:00:00-03:00",
+                                        "origen": "erp-job",
+                                        "items": [
+                                            {
+                                                "codVended": "VEN01",
+                                                "nombre": "Vendedor Uno (actualizado)"
+                                            }
+                                        ]
+                                    }
+                                },
+                                "vendedoresDeltaBaja": {
+                                    "summary": "Delta — baja explícita (eliminarSiAusente)",
+                                    "value": {
+                                        "importacionId": "ERP-MAE-VEN-003",
+                                        "numeroLote": 1,
+                                        "ultimoEnvio": true,
+                                        "modo": "delta",
+                                        "fechaProceso": "2026-10-24T12:00:00-03:00",
+                                        "origen": "erp-job",
+                                        "items": [
+                                            {
+                                                "codVended": "VEN99",
+                                                "eliminarSiAusente": true
+                                            }
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "202": {
+                        "description": "Lote recibido (procesamiento asíncrono)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelopeIntegracionImportacionLoteReceipt"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Importación en conflicto"
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "403": {
+                        "description": "Sin permiso"
+                    },
+                    "422": {
+                        "description": "Lote inválido"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/integracion/maestros/listaprecios": {
+            "post": {
+                "tags": [
+                    "Integración maestros"
+                ],
+                "summary": "Importar listas de precios",
+                "description": "**snapshot** o **delta**. Precios hijos en `articulos[]` (alias ERP `items[]`).",
+                "operationId": "integracionMaestrosListaprecios",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/IntegracionMaestroListapreciosLoteRequest"
+                            },
+                            "examples": {
+                                "listapreciosSnapshot": {
+                                    "summary": "Snapshot — listas presentes = universo",
+                                    "value": {
+                                        "importacionId": "ERP-MAE-LP-001",
+                                        "numeroLote": 1,
+                                        "ultimoEnvio": true,
+                                        "modo": "snapshot",
+                                        "fechaProceso": "2026-10-24T12:00:00-03:00",
+                                        "origen": "erp-job",
+                                        "items": [
+                                            {
+                                                "codLista": 1,
+                                                "descripcion": "Lista general",
+                                                "articulos": [
+                                                    {
+                                                        "codArticulo": "ART001",
+                                                        "precio": 100.5
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                },
+                                "listapreciosDelta": {
+                                    "summary": "Delta — upsert lista y precios",
+                                    "value": {
+                                        "importacionId": "ERP-MAE-LP-002",
+                                        "numeroLote": 1,
+                                        "ultimoEnvio": true,
+                                        "modo": "delta",
+                                        "fechaProceso": "2026-10-24T12:00:00-03:00",
+                                        "origen": "erp-job",
+                                        "items": [
+                                            {
+                                                "codLista": 1,
+                                                "articulos": [
+                                                    {
+                                                        "codArticulo": "ART001",
+                                                        "precio": 105
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "202": {
+                        "description": "Lote recibido (procesamiento asíncrono)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelopeIntegracionImportacionLoteReceipt"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Importación en conflicto"
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "403": {
+                        "description": "Sin permiso"
+                    },
+                    "422": {
+                        "description": "Lote inválido"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/integracion/maestros/escalas": {
+            "post": {
+                "tags": [
+                    "Integración maestros"
+                ],
+                "summary": "Importar escalas",
+                "description": "**snapshot** o **delta** — ver ejemplos en Request body.",
+                "operationId": "integracionMaestrosEscalas",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/IntegracionMaestroEscalasLoteRequest"
+                            },
+                            "examples": {
+                                "escalasSnapshot": {
+                                    "summary": "Snapshot — universo del recurso",
+                                    "value": {
+                                        "importacionId": "ERP-MAE-ESC-001",
+                                        "numeroLote": 1,
+                                        "ultimoEnvio": true,
+                                        "modo": "snapshot",
+                                        "fechaProceso": "2026-10-24T12:00:00-03:00",
+                                        "origen": "erp-job",
+                                        "items": [
+                                            {
+                                                "codEscala": "01",
+                                                "descripEs": "Unidades",
+                                                "valores": [
+                                                    {
+                                                        "codValor": "U",
+                                                        "descValor": "Unidad"
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                },
+                                "escalasDelta": {
+                                    "summary": "Delta — upsert",
+                                    "value": {
+                                        "importacionId": "ERP-MAE-ESC-002",
+                                        "numeroLote": 1,
+                                        "ultimoEnvio": true,
+                                        "modo": "delta",
+                                        "fechaProceso": "2026-10-24T12:00:00-03:00",
+                                        "origen": "erp-job",
+                                        "items": [
+                                            {
+                                                "codEscala": "01",
+                                                "descripEs": "Unidades (rev)"
+                                            }
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "202": {
+                        "description": "Lote recibido (procesamiento asíncrono)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelopeIntegracionImportacionLoteReceipt"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Importación en conflicto"
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "403": {
+                        "description": "Sin permiso"
+                    },
+                    "422": {
+                        "description": "Lote inválido"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/integracion/maestros/medidas": {
+            "post": {
+                "tags": [
+                    "Integración maestros"
+                ],
+                "summary": "Importar medidas",
+                "description": "Unidades de medida ERP. **snapshot** = universo del lote (finalize elimina ausentes); **delta** = upsert por `codMedida`. Ver ejemplos en Request body.",
+                "operationId": "integracionMaestrosMedidas",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/IntegracionMaestroMedidasLoteRequest"
+                            },
+                            "examples": {
+                                "medidasSnapshot": {
+                                    "summary": "Snapshot — universo del recurso",
+                                    "value": {
+                                        "importacionId": "ERP-MAE-MED-001",
+                                        "numeroLote": 1,
+                                        "ultimoEnvio": true,
+                                        "modo": "snapshot",
+                                        "fechaProceso": "2026-10-24T12:00:00-03:00",
+                                        "origen": "erp-job",
+                                        "items": [
+                                            {
+                                                "idMedida": 1001,
+                                                "codMedida": "UN",
+                                                "descMedida": "Unidad"
+                                            },
+                                            {
+                                                "idMedida": 1002,
+                                                "codMedida": "KG",
+                                                "descMedida": "Kilogramo"
+                                            }
+                                        ]
+                                    }
+                                },
+                                "medidasDelta": {
+                                    "summary": "Delta — upsert por codMedida",
+                                    "value": {
+                                        "importacionId": "ERP-MAE-MED-002",
+                                        "numeroLote": 1,
+                                        "ultimoEnvio": true,
+                                        "modo": "delta",
+                                        "fechaProceso": "2026-10-24T12:00:00-03:00",
+                                        "origen": "erp-job",
+                                        "items": [
+                                            {
+                                                "idMedida": 1001,
+                                                "codMedida": "UN",
+                                                "descMedida": "Unidad (actualizada)"
+                                            }
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "202": {
+                        "description": "Lote recibido (procesamiento asíncrono)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelopeIntegracionImportacionLoteReceipt"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Importación en conflicto"
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "403": {
+                        "description": "Sin permiso"
+                    },
+                    "422": {
+                        "description": "Lote inválido"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/integracion/maestros/articulos": {
+            "post": {
+                "tags": [
+                    "Integración maestros"
+                ],
+                "summary": "Importar artículos",
+                "description": "**snapshot** (replace por ítem) o **delta** (upsert + `eliminarSiAusente`). Ver ejemplos.",
+                "operationId": "integracionMaestrosArticulos",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/IntegracionMaestroArticulosLoteRequest"
+                            },
+                            "examples": {
+                                "articulosSnapshot": {
+                                    "summary": "Snapshot — replace campos enviados por ítem",
+                                    "value": {
+                                        "importacionId": "ERP-MAE-ART-001",
+                                        "numeroLote": 1,
+                                        "ultimoEnvio": true,
+                                        "modo": "snapshot",
+                                        "fechaProceso": "2026-10-24T12:00:00-03:00",
+                                        "origen": "erp-job",
+                                        "items": [
+                                            {
+                                                "codigo": "ART001",
+                                                "descripcion": "Artículo demo",
+                                                "stockeable": true
+                                            }
+                                        ]
+                                    }
+                                },
+                                "articulosDelta": {
+                                    "summary": "Delta — upsert",
+                                    "value": {
+                                        "importacionId": "ERP-MAE-ART-002",
+                                        "numeroLote": 1,
+                                        "ultimoEnvio": true,
+                                        "modo": "delta",
+                                        "fechaProceso": "2026-10-24T12:00:00-03:00",
+                                        "origen": "erp-job",
+                                        "items": [
+                                            {
+                                                "codigo": "ART001",
+                                                "descripcion": "Artículo demo (rev)"
+                                            }
+                                        ]
+                                    }
+                                },
+                                "articulosDeltaBaja": {
+                                    "summary": "Delta — baja explícita (eliminarSiAusente)",
+                                    "value": {
+                                        "importacionId": "ERP-MAE-ART-003",
+                                        "numeroLote": 1,
+                                        "ultimoEnvio": true,
+                                        "modo": "delta",
+                                        "fechaProceso": "2026-10-24T12:00:00-03:00",
+                                        "origen": "erp-job",
+                                        "items": [
+                                            {
+                                                "codigo": "ART099",
+                                                "eliminarSiAusente": true
+                                            }
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "202": {
+                        "description": "Lote recibido (procesamiento asíncrono)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelopeIntegracionImportacionLoteReceipt"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Importación en conflicto"
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "403": {
+                        "description": "Sin permiso"
+                    },
+                    "422": {
+                        "description": "Lote inválido"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/integracion/maestros/descuentocantidad": {
+            "post": {
+                "tags": [
+                    "Integración maestros"
+                ],
+                "summary": "Importar descuentos por cantidad",
+                "description": "**Solo delta** en MVP (`snapshot` → 422). Ejemplo único en Request body.",
+                "operationId": "integracionMaestrosDescuentocantidad",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/IntegracionMaestroDescuentocantidadLoteRequest"
+                            },
+                            "examples": {
+                                "descuentocantidadDelta": {
+                                    "summary": "Delta — único modo soportado",
+                                    "value": {
+                                        "importacionId": "ERP-MAE-DC-001",
+                                        "numeroLote": 1,
+                                        "ultimoEnvio": true,
+                                        "modo": "delta",
+                                        "fechaProceso": "2026-10-24T12:00:00-03:00",
+                                        "origen": "erp-job",
+                                        "items": [
+                                            {
+                                                "codArticu": "ART001",
+                                                "cantidad": 10,
+                                                "porcentaje": 5
+                                            }
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "202": {
+                        "description": "Lote recibido (procesamiento asíncrono)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelopeIntegracionImportacionLoteReceipt"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Importación en conflicto"
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "403": {
+                        "description": "Sin permiso"
+                    },
+                    "422": {
+                        "description": "Lote inválido o modo snapshot"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/integracion/maestros/clientes": {
+            "post": {
+                "tags": [
+                    "Integración maestros"
+                ],
+                "summary": "Importar clientes",
+                "description": "**snapshot** o **delta**; contactos/direcciones anidados; `eliminarSiAusente` en delta. Ver ejemplos.",
+                "operationId": "integracionMaestrosClientes",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/IntegracionMaestroClientesLoteRequest"
+                            },
+                            "examples": {
+                                "clientesSnapshot": {
+                                    "summary": "Snapshot — replace por ítem",
+                                    "value": {
+                                        "importacionId": "ERP-MAE-CLI-001",
+                                        "numeroLote": 1,
+                                        "ultimoEnvio": true,
+                                        "modo": "snapshot",
+                                        "fechaProceso": "2026-10-24T12:00:00-03:00",
+                                        "origen": "erp-job",
+                                        "items": [
+                                            {
+                                                "codClient": "CL-001",
+                                                "nombre": "Cliente demo",
+                                                "codVended": "VEN01"
+                                            }
+                                        ]
+                                    }
+                                },
+                                "clientesDelta": {
+                                    "summary": "Delta — upsert",
+                                    "value": {
+                                        "importacionId": "ERP-MAE-CLI-002",
+                                        "numeroLote": 1,
+                                        "ultimoEnvio": true,
+                                        "modo": "delta",
+                                        "fechaProceso": "2026-10-24T12:00:00-03:00",
+                                        "origen": "erp-job",
+                                        "items": [
+                                            {
+                                                "codClient": "CL-001",
+                                                "nombre": "Cliente demo (rev)"
+                                            }
+                                        ]
+                                    }
+                                },
+                                "clientesDeltaBaja": {
+                                    "summary": "Delta — baja explícita (eliminarSiAusente)",
+                                    "value": {
+                                        "importacionId": "ERP-MAE-CLI-003",
+                                        "numeroLote": 1,
+                                        "ultimoEnvio": true,
+                                        "modo": "delta",
+                                        "fechaProceso": "2026-10-24T12:00:00-03:00",
+                                        "origen": "erp-job",
+                                        "items": [
+                                            {
+                                                "codClient": "CL-099",
+                                                "eliminarSiAusente": true
+                                            }
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "202": {
+                        "description": "Lote recibido (procesamiento asíncrono)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelopeIntegracionImportacionLoteReceipt"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Importación en conflicto"
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "403": {
+                        "description": "Sin permiso"
+                    },
+                    "422": {
+                        "description": "Lote inválido"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/integracion/maestros/parametros": {
+            "post": {
+                "tags": [
+                    "Integración maestros"
+                ],
+                "summary": "Importar parámetros PedidosWeb",
+                "description": "**Solo delta** (`snapshot` → 422). Whitelist de claves — ver schema del ítem.",
+                "operationId": "integracionMaestrosParametros",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/IntegracionMaestroParametrosLoteRequest"
+                            },
+                            "examples": {
+                                "parametrosDelta": {
+                                    "summary": "Delta — único modo soportado",
+                                    "value": {
+                                        "importacionId": "ERP-MAE-PAR-001",
+                                        "numeroLote": 1,
+                                        "ultimoEnvio": true,
+                                        "modo": "delta",
+                                        "fechaProceso": "2026-10-24T12:00:00-03:00",
+                                        "origen": "erp-job",
+                                        "items": [
+                                            {
+                                                "clave": "MinutosWeb",
+                                                "tipoValor": "I",
+                                                "valorInt": 30
+                                            }
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "202": {
+                        "description": "Lote recibido (procesamiento asíncrono)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelopeIntegracionImportacionLoteReceipt"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Importación en conflicto"
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "403": {
+                        "description": "Sin permiso"
+                    },
+                    "422": {
+                        "description": "Lote inválido o modo snapshot"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/integracion/transacciones/stock": {
+            "post": {
+                "tags": [
+                    "Integración transacciones"
+                ],
+                "summary": "Importar stock",
+                "description": "**snapshot:** el lote válido reemplaza atómicamente el universo de stock (422 si falla un ítem). **delta:** upsert parcial; baja puntual con `eliminarSiAusente` en el ítem. Elegí el ejemplo en Request body.",
+                "operationId": "integracionTransaccionesStock",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/IntegracionTransaccionStockLoteRequest"
+                            },
+                            "examples": {
+                                "stockSnapshot": {
+                                    "summary": "Snapshot — universo vigente (habitual ERP)",
+                                    "value": {
+                                        "importacionId": "ERP-IMP-20261024-0001",
+                                        "numeroLote": 1,
+                                        "ultimoEnvio": true,
+                                        "modo": "snapshot",
+                                        "fechaProceso": "2026-10-24T12:00:00-03:00",
+                                        "origen": "erp-job",
+                                        "items": [
+                                            {
+                                                "codArticulo": "ART001",
+                                                "stock": 100.5,
+                                                "comprometido": 10
+                                            },
+                                            {
+                                                "codArticulo": "ART002",
+                                                "stock": 50,
+                                                "comprometido": 0
+                                            }
+                                        ]
+                                    }
+                                },
+                                "stockDelta": {
+                                    "summary": "Delta — novedades (upsert)",
+                                    "value": {
+                                        "importacionId": "ERP-IMP-20261024-0002",
+                                        "numeroLote": 1,
+                                        "ultimoEnvio": true,
+                                        "modo": "delta",
+                                        "fechaProceso": "2026-10-24T12:00:00-03:00",
+                                        "origen": "erp-job",
+                                        "items": [
+                                            {
+                                                "codArticulo": "ART001",
+                                                "stock": 120,
+                                                "comprometido": 5
+                                            }
+                                        ]
+                                    }
+                                },
+                                "stockDeltaBaja": {
+                                    "summary": "Delta — baja explícita (eliminarSiAusente)",
+                                    "value": {
+                                        "importacionId": "ERP-IMP-20261024-0003",
+                                        "numeroLote": 1,
+                                        "ultimoEnvio": true,
+                                        "modo": "delta",
+                                        "fechaProceso": "2026-10-24T12:00:00-03:00",
+                                        "origen": "erp-job",
+                                        "items": [
+                                            {
+                                                "codArticulo": "ART099",
+                                                "eliminarSiAusente": true
+                                            }
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "202": {
+                        "description": "Lote recibido (procesamiento asíncrono)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelopeIntegracionImportacionLoteReceipt"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Importación en conflicto"
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "403": {
+                        "description": "Sin permiso"
+                    },
+                    "422": {
+                        "description": "Lote inválido (snapshot atómico o validación)"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/integracion/transacciones/deuda": {
+            "post": {
+                "tags": [
+                    "Integración transacciones"
+                ],
+                "summary": "Importar deuda",
+                "description": "**snapshot** o **delta** — ver ejemplos en Request body.",
+                "operationId": "integracionTransaccionesDeuda",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/IntegracionTransaccionDeudaLoteRequest"
+                            },
+                            "examples": {
+                                "deudaSnapshot": {
+                                    "summary": "Snapshot — comprobantes pendientes = lote",
+                                    "value": {
+                                        "importacionId": "ERP-IMP-20261024-0101",
+                                        "numeroLote": 1,
+                                        "ultimoEnvio": true,
+                                        "modo": "snapshot",
+                                        "fechaProceso": "2026-10-24T12:00:00-03:00",
+                                        "origen": "erp-job",
+                                        "items": [
+                                            {
+                                                "codCliente": "CL-001",
+                                                "tComp": "FC",
+                                                "nComp": "0001-00001234",
+                                                "fechaEmis": "2026-10-01",
+                                                "fechaVto": "2026-11-01",
+                                                "saldo": 1500.25
+                                            }
+                                        ]
+                                    }
+                                },
+                                "deudaDelta": {
+                                    "summary": "Delta — upsert / baja con eliminarSiAusente",
+                                    "value": {
+                                        "importacionId": "ERP-IMP-20261024-0102",
+                                        "numeroLote": 1,
+                                        "ultimoEnvio": true,
+                                        "modo": "delta",
+                                        "fechaProceso": "2026-10-24T12:00:00-03:00",
+                                        "origen": "erp-job",
+                                        "items": [
+                                            {
+                                                "codCliente": "CL-001",
+                                                "tComp": "FC",
+                                                "nComp": "0001-00001234",
+                                                "fechaEmis": "2026-10-01",
+                                                "fechaVto": "2026-11-01",
+                                                "saldo": 1200,
+                                                "eliminarSiAusente": false
+                                            }
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "202": {
+                        "description": "Lote recibido (procesamiento asíncrono)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelopeIntegracionImportacionLoteReceipt"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Importación en conflicto"
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "403": {
+                        "description": "Sin permiso"
+                    },
+                    "422": {
+                        "description": "Lote inválido"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/integracion/transacciones/cheques": {
+            "post": {
+                "tags": [
+                    "Integración transacciones"
+                ],
+                "summary": "Importar cheques",
+                "description": "**snapshot** o **delta** — ver ejemplos en Request body.",
+                "operationId": "integracionTransaccionesCheques",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/IntegracionTransaccionChequesLoteRequest"
+                            },
+                            "examples": {
+                                "chequesSnapshot": {
+                                    "summary": "Snapshot — cartera vigente = lote",
+                                    "value": {
+                                        "importacionId": "ERP-IMP-20261024-0201",
+                                        "numeroLote": 1,
+                                        "ultimoEnvio": true,
+                                        "modo": "snapshot",
+                                        "fechaProceso": "2026-10-24T12:00:00-03:00",
+                                        "origen": "erp-job",
+                                        "items": [
+                                            {
+                                                "interno": "1001",
+                                                "numero": "456789",
+                                                "codCliente": "CL-001",
+                                                "banco": "Galicia",
+                                                "fecha": "2026-10-20",
+                                                "importe": 25000.5,
+                                                "origen": "Cartera",
+                                                "estado": "En cartera"
+                                            }
+                                        ]
+                                    }
+                                },
+                                "chequesDelta": {
+                                    "summary": "Delta — upsert parcial",
+                                    "value": {
+                                        "importacionId": "ERP-IMP-20261024-0202",
+                                        "numeroLote": 1,
+                                        "ultimoEnvio": true,
+                                        "modo": "delta",
+                                        "fechaProceso": "2026-10-24T12:00:00-03:00",
+                                        "origen": "erp-job",
+                                        "items": [
+                                            {
+                                                "interno": "1001",
+                                                "numero": "456789",
+                                                "codCliente": "CL-001",
+                                                "banco": "Galicia",
+                                                "fecha": "2026-10-20",
+                                                "importe": 25000.5,
+                                                "origen": "Cartera",
+                                                "estado": "En cartera"
+                                            }
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "202": {
+                        "description": "Lote recibido (procesamiento asíncrono)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelopeIntegracionImportacionLoteReceipt"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Importación en conflicto"
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "403": {
+                        "description": "Sin permiso"
+                    },
+                    "422": {
+                        "description": "Lote inválido"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/integracion/transacciones/historial-ventas": {
+            "post": {
+                "tags": [
+                    "Integración transacciones"
+                ],
+                "summary": "Importar historial de ventas",
+                "description": "Solo **delta** (upsert por idGva53). Snapshot → 422.",
+                "operationId": "integracionTransaccionesHistorialVentas",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/IntegracionTransaccionHistorialVentasLoteRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "202": {
+                        "description": "Lote recibido (procesamiento asíncrono)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelopeIntegracionImportacionLoteReceipt"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Importación en conflicto"
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "403": {
+                        "description": "Sin permiso"
+                    },
+                    "422": {
+                        "description": "Lote inválido o modo snapshot"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
         "/api/v1/comprobantes/grabar": {
             "post": {
                 "tags": [
@@ -4386,771 +5854,6 @@
                     }
                 ]
             }
-        },
-        "/api/v1/integracion/maestros/provincias": {
-            "post": {
-                "tags": [
-                    "Integración maestros"
-                ],
-                "summary": "Importar provincias",
-                "operationId": "integracionMaestrosProvincias",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/IntegracionMaestroProvinciasLoteRequest"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "202": {
-                        "description": "Lote recibido (procesamiento asíncrono)",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ApiEnvelopeIntegracionImportacionLoteReceipt"
-                                }
-                            }
-                        }
-                    },
-                    "409": {
-                        "description": "Importación en conflicto"
-                    },
-                    "401": {
-                        "description": "No autenticado"
-                    },
-                    "403": {
-                        "description": "Sin permiso"
-                    },
-                    "422": {
-                        "description": "Lote inválido"
-                    }
-                },
-                "security": [
-                    {
-                        "sanctum": []
-                    },
-                    {
-                        "tenant": []
-                    }
-                ]
-            }
-        },
-        "/api/v1/integracion/maestros/condventa": {
-            "post": {
-                "tags": [
-                    "Integración maestros"
-                ],
-                "summary": "Importar condiciones de venta",
-                "operationId": "integracionMaestrosCondventa",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/IntegracionMaestroCondventaLoteRequest"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "202": {
-                        "description": "Lote recibido (procesamiento asíncrono)",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ApiEnvelopeIntegracionImportacionLoteReceipt"
-                                }
-                            }
-                        }
-                    },
-                    "409": {
-                        "description": "Importación en conflicto"
-                    },
-                    "401": {
-                        "description": "No autenticado"
-                    },
-                    "403": {
-                        "description": "Sin permiso"
-                    },
-                    "422": {
-                        "description": "Lote inválido"
-                    }
-                },
-                "security": [
-                    {
-                        "sanctum": []
-                    },
-                    {
-                        "tenant": []
-                    }
-                ]
-            }
-        },
-        "/api/v1/integracion/maestros/transportes": {
-            "post": {
-                "tags": [
-                    "Integración maestros"
-                ],
-                "summary": "Importar transportes",
-                "operationId": "integracionMaestrosTransportes",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/IntegracionMaestroTransportesLoteRequest"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "202": {
-                        "description": "Lote recibido (procesamiento asíncrono)",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ApiEnvelopeIntegracionImportacionLoteReceipt"
-                                }
-                            }
-                        }
-                    },
-                    "409": {
-                        "description": "Importación en conflicto"
-                    },
-                    "401": {
-                        "description": "No autenticado"
-                    },
-                    "403": {
-                        "description": "Sin permiso"
-                    },
-                    "422": {
-                        "description": "Lote inválido"
-                    }
-                },
-                "security": [
-                    {
-                        "sanctum": []
-                    },
-                    {
-                        "tenant": []
-                    }
-                ]
-            }
-        },
-        "/api/v1/integracion/maestros/perfiles": {
-            "post": {
-                "tags": [
-                    "Integración maestros"
-                ],
-                "summary": "Importar perfiles",
-                "operationId": "integracionMaestrosPerfiles",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/IntegracionMaestroPerfilesLoteRequest"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "202": {
-                        "description": "Lote recibido (procesamiento asíncrono)",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ApiEnvelopeIntegracionImportacionLoteReceipt"
-                                }
-                            }
-                        }
-                    },
-                    "409": {
-                        "description": "Importación en conflicto"
-                    },
-                    "401": {
-                        "description": "No autenticado"
-                    },
-                    "403": {
-                        "description": "Sin permiso"
-                    },
-                    "422": {
-                        "description": "Lote inválido"
-                    }
-                },
-                "security": [
-                    {
-                        "sanctum": []
-                    },
-                    {
-                        "tenant": []
-                    }
-                ]
-            }
-        },
-        "/api/v1/integracion/maestros/vendedores": {
-            "post": {
-                "tags": [
-                    "Integración maestros"
-                ],
-                "summary": "Importar vendedores",
-                "operationId": "integracionMaestrosVendedores",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/IntegracionMaestroVendedoresLoteRequest"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "202": {
-                        "description": "Lote recibido (procesamiento asíncrono)",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ApiEnvelopeIntegracionImportacionLoteReceipt"
-                                }
-                            }
-                        }
-                    },
-                    "409": {
-                        "description": "Importación en conflicto"
-                    },
-                    "401": {
-                        "description": "No autenticado"
-                    },
-                    "403": {
-                        "description": "Sin permiso"
-                    },
-                    "422": {
-                        "description": "Lote inválido"
-                    }
-                },
-                "security": [
-                    {
-                        "sanctum": []
-                    },
-                    {
-                        "tenant": []
-                    }
-                ]
-            }
-        },
-        "/api/v1/integracion/maestros/listaprecios": {
-            "post": {
-                "tags": [
-                    "Integración maestros"
-                ],
-                "summary": "Importar listas de precios",
-                "operationId": "integracionMaestrosListaprecios",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/IntegracionMaestroListapreciosLoteRequest"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "202": {
-                        "description": "Lote recibido (procesamiento asíncrono)",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ApiEnvelopeIntegracionImportacionLoteReceipt"
-                                }
-                            }
-                        }
-                    },
-                    "409": {
-                        "description": "Importación en conflicto"
-                    },
-                    "401": {
-                        "description": "No autenticado"
-                    },
-                    "403": {
-                        "description": "Sin permiso"
-                    },
-                    "422": {
-                        "description": "Lote inválido"
-                    }
-                },
-                "security": [
-                    {
-                        "sanctum": []
-                    },
-                    {
-                        "tenant": []
-                    }
-                ]
-            }
-        },
-        "/api/v1/integracion/maestros/escalas": {
-            "post": {
-                "tags": [
-                    "Integración maestros"
-                ],
-                "summary": "Importar escalas",
-                "operationId": "integracionMaestrosEscalas",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/IntegracionMaestroEscalasLoteRequest"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "202": {
-                        "description": "Lote recibido (procesamiento asíncrono)",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ApiEnvelopeIntegracionImportacionLoteReceipt"
-                                }
-                            }
-                        }
-                    },
-                    "409": {
-                        "description": "Importación en conflicto"
-                    },
-                    "401": {
-                        "description": "No autenticado"
-                    },
-                    "403": {
-                        "description": "Sin permiso"
-                    },
-                    "422": {
-                        "description": "Lote inválido"
-                    }
-                },
-                "security": [
-                    {
-                        "sanctum": []
-                    },
-                    {
-                        "tenant": []
-                    }
-                ]
-            }
-        },
-        "/api/v1/integracion/maestros/articulos": {
-            "post": {
-                "tags": [
-                    "Integración maestros"
-                ],
-                "summary": "Importar artículos",
-                "operationId": "integracionMaestrosArticulos",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/IntegracionMaestroArticulosLoteRequest"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "202": {
-                        "description": "Lote recibido (procesamiento asíncrono)",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ApiEnvelopeIntegracionImportacionLoteReceipt"
-                                }
-                            }
-                        }
-                    },
-                    "409": {
-                        "description": "Importación en conflicto"
-                    },
-                    "401": {
-                        "description": "No autenticado"
-                    },
-                    "403": {
-                        "description": "Sin permiso"
-                    },
-                    "422": {
-                        "description": "Lote inválido"
-                    }
-                },
-                "security": [
-                    {
-                        "sanctum": []
-                    },
-                    {
-                        "tenant": []
-                    }
-                ]
-            }
-        },
-        "/api/v1/integracion/maestros/descuentocantidad": {
-            "post": {
-                "tags": [
-                    "Integración maestros"
-                ],
-                "summary": "Importar descuentos por cantidad",
-                "operationId": "integracionMaestrosDescuentocantidad",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/IntegracionMaestroDescuentocantidadLoteRequest"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "202": {
-                        "description": "Lote recibido (procesamiento asíncrono)",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ApiEnvelopeIntegracionImportacionLoteReceipt"
-                                }
-                            }
-                        }
-                    },
-                    "409": {
-                        "description": "Importación en conflicto"
-                    },
-                    "401": {
-                        "description": "No autenticado"
-                    },
-                    "403": {
-                        "description": "Sin permiso"
-                    },
-                    "422": {
-                        "description": "Lote inválido"
-                    }
-                },
-                "security": [
-                    {
-                        "sanctum": []
-                    },
-                    {
-                        "tenant": []
-                    }
-                ]
-            }
-        },
-        "/api/v1/integracion/maestros/clientes": {
-            "post": {
-                "tags": [
-                    "Integración maestros"
-                ],
-                "summary": "Importar clientes",
-                "operationId": "integracionMaestrosClientes",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/IntegracionMaestroClientesLoteRequest"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "202": {
-                        "description": "Lote recibido (procesamiento asíncrono)",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ApiEnvelopeIntegracionImportacionLoteReceipt"
-                                }
-                            }
-                        }
-                    },
-                    "409": {
-                        "description": "Importación en conflicto"
-                    },
-                    "401": {
-                        "description": "No autenticado"
-                    },
-                    "403": {
-                        "description": "Sin permiso"
-                    },
-                    "422": {
-                        "description": "Lote inválido"
-                    }
-                },
-                "security": [
-                    {
-                        "sanctum": []
-                    },
-                    {
-                        "tenant": []
-                    }
-                ]
-            }
-        },
-        "/api/v1/integracion/maestros/parametros": {
-            "post": {
-                "tags": [
-                    "Integración maestros"
-                ],
-                "summary": "Importar parámetros PedidosWeb",
-                "operationId": "integracionMaestrosParametros",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/IntegracionMaestroParametrosLoteRequest"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "202": {
-                        "description": "Lote recibido (procesamiento asíncrono)",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ApiEnvelopeIntegracionImportacionLoteReceipt"
-                                }
-                            }
-                        }
-                    },
-                    "409": {
-                        "description": "Importación en conflicto"
-                    },
-                    "401": {
-                        "description": "No autenticado"
-                    },
-                    "403": {
-                        "description": "Sin permiso"
-                    },
-                    "422": {
-                        "description": "Lote inválido"
-                    }
-                },
-                "security": [
-                    {
-                        "sanctum": []
-                    },
-                    {
-                        "tenant": []
-                    }
-                ]
-            }
-        },
-        "/api/v1/integracion/transacciones/stock": {
-            "post": {
-                "tags": [
-                    "Integración transacciones"
-                ],
-                "summary": "Importar stock",
-                "operationId": "integracionTransaccionesStock",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/IntegracionTransaccionStockLoteRequest"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "202": {
-                        "description": "Lote recibido (procesamiento asíncrono)",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ApiEnvelopeIntegracionImportacionLoteReceipt"
-                                }
-                            }
-                        }
-                    },
-                    "409": {
-                        "description": "Importación en conflicto"
-                    },
-                    "401": {
-                        "description": "No autenticado"
-                    },
-                    "403": {
-                        "description": "Sin permiso"
-                    },
-                    "422": {
-                        "description": "Lote inválido"
-                    }
-                },
-                "security": [
-                    {
-                        "sanctum": []
-                    },
-                    {
-                        "tenant": []
-                    }
-                ]
-            }
-        },
-        "/api/v1/integracion/transacciones/deuda": {
-            "post": {
-                "tags": [
-                    "Integración transacciones"
-                ],
-                "summary": "Importar deuda",
-                "operationId": "integracionTransaccionesDeuda",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/IntegracionTransaccionDeudaLoteRequest"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "202": {
-                        "description": "Lote recibido (procesamiento asíncrono)",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ApiEnvelopeIntegracionImportacionLoteReceipt"
-                                }
-                            }
-                        }
-                    },
-                    "409": {
-                        "description": "Importación en conflicto"
-                    },
-                    "401": {
-                        "description": "No autenticado"
-                    },
-                    "403": {
-                        "description": "Sin permiso"
-                    },
-                    "422": {
-                        "description": "Lote inválido"
-                    }
-                },
-                "security": [
-                    {
-                        "sanctum": []
-                    },
-                    {
-                        "tenant": []
-                    }
-                ]
-            }
-        },
-        "/api/v1/integracion/transacciones/cheques": {
-            "post": {
-                "tags": [
-                    "Integración transacciones"
-                ],
-                "summary": "Importar cheques",
-                "operationId": "integracionTransaccionesCheques",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/IntegracionTransaccionChequesLoteRequest"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "202": {
-                        "description": "Lote recibido (procesamiento asíncrono)",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ApiEnvelopeIntegracionImportacionLoteReceipt"
-                                }
-                            }
-                        }
-                    },
-                    "409": {
-                        "description": "Importación en conflicto"
-                    },
-                    "401": {
-                        "description": "No autenticado"
-                    },
-                    "403": {
-                        "description": "Sin permiso"
-                    },
-                    "422": {
-                        "description": "Lote inválido"
-                    }
-                },
-                "security": [
-                    {
-                        "sanctum": []
-                    },
-                    {
-                        "tenant": []
-                    }
-                ]
-            }
-        },
-        "/api/v1/integracion/transacciones/historial-ventas": {
-            "post": {
-                "tags": [
-                    "Integración transacciones"
-                ],
-                "summary": "Importar historial de ventas",
-                "operationId": "integracionTransaccionesHistorialVentas",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/IntegracionTransaccionHistorialVentasLoteRequest"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "202": {
-                        "description": "Lote recibido (procesamiento asíncrono)",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ApiEnvelopeIntegracionImportacionLoteReceipt"
-                                }
-                            }
-                        }
-                    },
-                    "409": {
-                        "description": "Importación en conflicto"
-                    },
-                    "401": {
-                        "description": "No autenticado"
-                    },
-                    "403": {
-                        "description": "Sin permiso"
-                    },
-                    "422": {
-                        "description": "Lote inválido"
-                    }
-                },
-                "security": [
-                    {
-                        "sanctum": []
-                    },
-                    {
-                        "tenant": []
-                    }
-                ]
-            }
         }
     },
     "components": {
@@ -6020,6 +6723,7 @@
                         "nullable": true
                     },
                     "eliminarSiAusente": {
+                        "description": "Baja explícita de la clave codClient. En modo delta: elimina contactos, direcciones y cliente si no hay referencias (pedidos, deuda, cheques, ventas). En snapshot: mismo flag; no se borra por ausencia del lote sin este indicador.",
                         "type": "boolean",
                         "default": false
                     },
@@ -6354,6 +7058,7 @@
                         "nullable": true
                     },
                     "eliminarSiAusente": {
+                        "description": "Baja explícita del vendedor codVended. Rechazado si hay clientes referenciados.",
                         "type": "boolean",
                         "default": false
                     }
@@ -6454,8 +7159,34 @@
                         }
                     },
                     "eliminarSiAusente": {
+                        "description": "Baja explícita de la escala codEscala en delta (replace por ítem en snapshot). No borra por ausencia del lote sin este indicador.",
                         "type": "boolean",
                         "default": false
+                    }
+                },
+                "type": "object"
+            },
+            "IntegracionMaestroMedidaItem": {
+                "required": [
+                    "idMedida",
+                    "codMedida",
+                    "descMedida"
+                ],
+                "properties": {
+                    "idMedida": {
+                        "description": "Identificador técnico ERP; clave natural del lote = codMedida",
+                        "type": "integer",
+                        "example": 1001
+                    },
+                    "codMedida": {
+                        "type": "string",
+                        "maxLength": 10,
+                        "example": "UN"
+                    },
+                    "descMedida": {
+                        "type": "string",
+                        "maxLength": 40,
+                        "example": "Unidad"
                     }
                 },
                 "type": "object"
@@ -6525,6 +7256,7 @@
                         "nullable": true
                     },
                     "eliminarSiAusente": {
+                        "description": "Baja explícita del artículo codigo. Rechazado si hay stock referenciado (integracion.maestro.deleteReferenciado).",
                         "type": "boolean",
                         "default": false
                     }
@@ -6593,6 +7325,11 @@
                         "type": "number",
                         "format": "double",
                         "example": 10
+                    },
+                    "eliminarSiAusente": {
+                        "description": "Solo modo delta: elimina la fila de stock del codArticulo. Rechazado si comprometido > 0 (integracion.transaccion.deleteBloqueado) o si modo=snapshot (integracion.transaccion.eliminarSoloDelta). Ítem de baja: clave + flag; no exige stock/comprometido.",
+                        "type": "boolean",
+                        "default": false
                     }
                 },
                 "type": "object"
@@ -6633,6 +7370,11 @@
                         "type": "number",
                         "format": "double",
                         "example": 1500.25
+                    },
+                    "eliminarSiAusente": {
+                        "description": "Solo delta: elimina el comprobante pendiente identificado por (codCliente,tComp,nComp,fechaVto). Rechazado en snapshot.",
+                        "type": "boolean",
+                        "default": false
                     }
                 },
                 "type": "object"
@@ -6682,6 +7424,11 @@
                     "estado": {
                         "type": "string",
                         "example": "En cartera"
+                    },
+                    "eliminarSiAusente": {
+                        "description": "Solo delta: elimina el cheque (interno,numero). Rechazado en snapshot.",
+                        "type": "boolean",
+                        "default": false
                     }
                 },
                 "type": "object"
@@ -6943,13 +7690,40 @@
                     }
                 ]
             },
-            "IntegracionMaestroArticulosLoteRequest": {
+            "IntegracionMaestroMedidasLoteRequest": {
                 "allOf": [
                     {
                         "$ref": "#/components/schemas/IntegracionImportacionLoteRequest"
                     },
                     {
                         "properties": {
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/IntegracionMaestroMedidaItem"
+                                }
+                            }
+                        },
+                        "type": "object"
+                    }
+                ]
+            },
+            "IntegracionMaestroArticulosLoteRequest": {
+                "description": "Maestro artículos: delta (upsert) o snapshot (replace campos enviados por ítem).",
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/IntegracionImportacionLoteRequest"
+                    },
+                    {
+                        "properties": {
+                            "modo": {
+                                "description": "delta | snapshot. Ver ejemplos en POST /maestros/articulos.",
+                                "type": "string",
+                                "enum": [
+                                    "delta",
+                                    "snapshot"
+                                ]
+                            },
                             "items": {
                                 "type": "array",
                                 "items": {
@@ -6980,12 +7754,21 @@
                 ]
             },
             "IntegracionTransaccionStockLoteRequest": {
+                "description": "Importación de stock. Ver modo: snapshot (universo atómico) vs delta (upsert parcial).",
                 "allOf": [
                     {
                         "$ref": "#/components/schemas/IntegracionImportacionLoteRequest"
                     },
                     {
                         "properties": {
+                            "modo": {
+                                "description": "Valores: delta | snapshot. **snapshot:** universo atómico; claves no enviadas salen al finalizar; items vacío → 422. **delta:** upsert parcial y baja con eliminarSiAusente; items vacío → no-op. Ver ejemplos en el POST /transacciones/stock.",
+                                "type": "string",
+                                "enum": [
+                                    "delta",
+                                    "snapshot"
+                                ]
+                            },
                             "items": {
                                 "type": "array",
                                 "items": {
@@ -6998,12 +7781,21 @@
                 ]
             },
             "IntegracionTransaccionDeudaLoteRequest": {
+                "description": "Importación de deuda pendiente. Ver modo: snapshot vs delta.",
                 "allOf": [
                     {
                         "$ref": "#/components/schemas/IntegracionImportacionLoteRequest"
                     },
                     {
                         "properties": {
+                            "modo": {
+                                "description": "delta | snapshot. Ver ejemplos en POST /transacciones/deuda.",
+                                "type": "string",
+                                "enum": [
+                                    "delta",
+                                    "snapshot"
+                                ]
+                            },
                             "items": {
                                 "type": "array",
                                 "items": {
@@ -7016,12 +7808,21 @@
                 ]
             },
             "IntegracionTransaccionChequesLoteRequest": {
+                "description": "Importación de cheques en cartera. Ver modo: snapshot vs delta.",
                 "allOf": [
                     {
                         "$ref": "#/components/schemas/IntegracionImportacionLoteRequest"
                     },
                     {
                         "properties": {
+                            "modo": {
+                                "description": "delta | snapshot. Ver ejemplos en POST /transacciones/cheques.",
+                                "type": "string",
+                                "enum": [
+                                    "delta",
+                                    "snapshot"
+                                ]
+                            },
                             "items": {
                                 "type": "array",
                                 "items": {
@@ -7034,6 +7835,7 @@
                 ]
             },
             "IntegracionTransaccionHistorialVentasLoteRequest": {
+                "description": "Historial de ventas detallado: solo modo delta (upsert por idGva53).",
                 "allOf": [
                     {
                         "$ref": "#/components/schemas/IntegracionImportacionLoteRequest"
@@ -7041,6 +7843,7 @@
                     {
                         "properties": {
                             "modo": {
+                                "description": "Único modo permitido. snapshot devuelve 422 (integracion.transaccion.modoNoSoportado). No elimina filas ausentes del lote.",
                                 "type": "string",
                                 "enum": [
                                     "delta"
@@ -8307,6 +9110,7 @@
                         "example": true
                     },
                     "modo": {
+                        "description": "delta: upsert parcial por ítem; errores de ítem no abortan el resto (salvo reglas del recurso). snapshot: el ciclo representa un universo; cierre puede eliminar claves ausentes según recurso; puede ser atómico (422). Cada endpoint puede restringir o documentar variantes en su schema *LoteRequest.",
                         "type": "string",
                         "enum": [
                             "delta",
