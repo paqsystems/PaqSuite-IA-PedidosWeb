@@ -23,6 +23,24 @@ Forge (EC2)                         AWS RDS (SQL Server)
 
 ---
 
+## Cloudsmith — `paqsuite/laravel-core` (GEN-35)
+
+En **cada sitio Forge** del backend PedidosWeb:
+
+1. **Environment:** `CLOUDSMITH_READ_TOKEN=` (read token del repo `paqsystems/paqsuite-sdk` en Cloudsmith).
+2. **Deploy Script (zero-downtime):** dentro de `cd $FORGE_RELEASE_DIRECTORY/backend`, reemplazar `$FORGE_COMPOSER install …` por:
+
+```bash
+if [ -z "${CLOUDSMITH_READ_TOKEN:-}" ]; then
+    export CLOUDSMITH_READ_TOKEN="$($FORGE_PHP -r 'foreach (array_slice($argv, 1) as $f) { if (!is_file($f)) { continue; } if (preg_match("/^CLOUDSMITH_READ_TOKEN=(.*)$/m", file_get_contents($f), $m)) { echo trim($m[1], "\x22\x27 \r\n"); exit(0); } }' "$FORGE_RELEASE_DIRECTORY/.env" "$FORGE_SITE_PATH/.env" ".env")"
+fi
+bash scripts/forge-composer-install.sh
+```
+
+Referencia canónica: sitio **demopedidosweb.on-forge.com** (rama `develop`). Script: `backend/scripts/forge-composer-install.sh`.
+
+---
+
 ## Opción A — Automático en cada deploy (recomendado)
 
 1. Entrar a [forge.laravel.com](https://forge.laravel.com).

@@ -6,8 +6,8 @@ PedidosWeb consume:
 
 | Capa | Paquete | Pin |
 |---|---|---|
-| Backend | `paqsuite/laravel-core` | `1.3.16-beta.1` |
-| Frontend | `@paqsuite/react-core` | `2.4.29-beta.1` |
+| Backend | `paqsuite/laravel-core` | `1.3.18-beta.24` |
+| Frontend | `@paqsuite/react-core` | `2.4.30-beta.6` |
 
 ## Resolución de paquetes
 
@@ -15,7 +15,18 @@ El modo de release utiliza Cloudsmith:
 
 - Composer: `https://composer.cloudsmith.io/paqsystems/paqsuite-sdk/`;
 - npm scope `@paqsuite`: `https://npm.cloudsmith.io/paqsystems/paqsuite-sdk/`;
-- secreto/variable: `CLOUDSMITH_READ_TOKEN`.
+- secreto/variable: `CLOUDSMITH_READ_TOKEN` (Forge Environment, GitHub Actions, Vercel; local en `backend/.env` y/o variable de usuario Windows).
+
+### Desarrollo local (Windows)
+
+1. Definir `CLOUDSMITH_READ_TOKEN` (entorno de usuario o `backend/.env`; ver `.env.example`).
+2. **npm** (`frontend/`): `npm install` — usa `frontend/.npmrc` con `${CLOUDSMITH_READ_TOKEN}`.
+3. **Composer** (`backend/`): el registry público `composer.cloudsmith.io` exige token; opciones:
+   - Forge/producción: `backend/scripts/forge-composer-install.sh` (reescribe repo a `dl.cloudsmith.io/{token}/…` + `auth.json` temporal).
+   - PC local: mismo patrón (script Forge) o `composer update paqsuite/laravel-core` tras inyectar URL con token; restaurar `composer.json` sin token en la URL antes de commitear.
+4. Verificar: `composer show paqsuite/laravel-core` y `npm list @paqsuite/react-core` coinciden con los pins de la tabla.
+
+**Forge (todos los backends PedidosWeb):** `CLOUDSMITH_READ_TOKEN` en Environment del sitio; Deploy Script con `scripts/forge-composer-install.sh` (ver `docs/Migraciones-en-forge.md`). Automatizar inyección del token: `backend/scripts/dev/forge-push-cloudsmith-environments.ps1` (requiere `FORGE_API_TOKEN` o `-McpJsonPath` al `mcp.json` local).
 
 El modo de desarrollo conjunto utiliza el monorepo local
 `C:\Programacion\PaqSuite-IA-FRAMEWORK`. Está documentado en
