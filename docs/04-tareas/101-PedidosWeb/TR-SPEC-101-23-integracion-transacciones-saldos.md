@@ -8,7 +8,7 @@ Jira: [PIAPEDWEB-44](https://paqsystems.atlassian.net/browse/PIAPEDWEB-44)
 | **SPEC relacionada** | [SPEC-101-23](../../05-open-spec/101-PedidosWeb/SPEC-101-23-importacion-transacciones-erp.md) |
 | **Prioridad** | **Must** |
 | **Dependencias** | TR-23a plataforma · maestros de artículos/clientes disponibles o fixtures equivalentes |
-| **Estado** | **Finalizado** (F/I 2026-10-29) |
+| **Estado** | **Finalizado** (Parte I CC PQ #18, 02/11/2026) |
 | **Última actualización** | 2026-10-29 |
 
 ## 1) Objetivo y alcance
@@ -87,9 +87,11 @@ Snapshot vacío → 422 sin modificar la tabla.
 - Aplicar ítems válidos y continuar ante rechazos.
 - HTTP 200 con `error: 0` y contadores.
 - Merge/upsert: columnas omitidas no pisan valores existentes.
-- Claves ausentes no se eliminan.
+- Claves ausentes no se eliminan salvo **`eliminarSiAusente: true`** en ítem (CC PQ #18).
 - La primera ocurrencia de una clave duplicada puede aplicarse; posteriores se reportan como `rechazados`.
 - `items: []` es no-op 200.
+- Ítem de baja: clave natural + flag; PHP no exige campos de upsert. SP: `DELETE` por clave; stock rechaza si `comprometido > 0`.
+- `eliminarSiAusente` en snapshot → handler rechaza antes de SP (`integracion.transaccion.eliminarSoloDelta`).
 
 ## 5) Mapeos y validaciones
 

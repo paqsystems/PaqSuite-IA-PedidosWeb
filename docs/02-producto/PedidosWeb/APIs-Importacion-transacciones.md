@@ -128,7 +128,7 @@ Contrato de columnas = documentos de consulta + modelo §4. JSON camelCase; el S
 
 | Recurso | `snapshot` | `delta` |
 |---------|------------|---------|
-| `stock`, `deuda`, `cheques` | Reemplazo del conjunto vigente vía SP. `items: []` rechazado. | Upsert (puede dejar saldos viejos; **no** recomendado en prod). |
+| `stock`, `deuda`, `cheques` | Reemplazo del conjunto vigente vía SP. `items: []` rechazado. | Upsert de novedades; baja explícita con **`eliminarSiAusente: true`** por ítem (clave + flag). |
 | `historial-ventas` | **Prohibido** como borrado total. | Upsert por `id_gva53`. |
 
 ---

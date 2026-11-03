@@ -68,9 +68,23 @@ BEGIN
     DECLARE @codigo nvarchar(50) = JSON_VALUE(@item, '$.codArticulo');
     DECLARE @stock decimal(18,4) = TRY_CONVERT(decimal(18,4), JSON_VALUE(@item, '$.stock'));
     DECLARE @comprometido decimal(18,4) = TRY_CONVERT(decimal(18,4), JSON_VALUE(@item, '$.comprometido'));
+    DECLARE @eliminar_si_ausente bit = TRY_CONVERT(bit, JSON_VALUE(@item, '$.eliminarSiAusente'));
 
     IF @batch IS NULL
     BEGIN SELECT 'rejected' AS status, @codigo AS clave, 'integracion.transaccion.itemInvalido' AS error_code; RETURN; END;
+    IF @modo = 'delta' AND @eliminar_si_ausente = 1
+    BEGIN
+        IF @codigo IS NULL
+        BEGIN SELECT 'rejected' AS status, @codigo AS clave, 'integracion.transaccion.itemInvalido' AS error_code; RETURN; END;
+        IF EXISTS (
+            SELECT 1 FROM pq_pedidosweb_stock WITH (NOLOCK)
+            WHERE cod_articulo = @codigo AND comprometido > 0
+        )
+        BEGIN SELECT 'rejected' AS status, @codigo AS clave, 'integracion.transaccion.deleteBloqueado' AS error_code; RETURN; END;
+        DELETE FROM pq_pedidosweb_stock WHERE cod_articulo = @codigo;
+        SELECT 'applied' AS status, @codigo AS clave, NULL AS error_code;
+        RETURN;
+    END;
     IF @codigo IS NULL OR @stock IS NULL OR @comprometido IS NULL
     BEGIN SELECT 'rejected' AS status, @codigo AS clave, 'integracion.transaccion.itemInvalido' AS error_code; RETURN; END;
     IF NOT EXISTS (SELECT 1 FROM pq_pedidosweb_articulos WITH (NOLOCK) WHERE codigo = @codigo)
@@ -137,8 +151,18 @@ BEGIN
     DECLARE @vto datetime = TRY_CONVERT(datetime, JSON_VALUE(@item, '$.fechaVto'));
     DECLARE @emis datetime = TRY_CONVERT(datetime, JSON_VALUE(@item, '$.fechaEmis'));
     DECLARE @saldo decimal(18,2) = TRY_CONVERT(decimal(18,2), JSON_VALUE(@item, '$.saldo'));
+    DECLARE @eliminar_si_ausente bit = TRY_CONVERT(bit, JSON_VALUE(@item, '$.eliminarSiAusente'));
     IF @batch IS NULL
     BEGIN SELECT 'rejected' AS status, @cliente AS clave, 'integracion.transaccion.itemInvalido' AS error_code; RETURN; END;
+    IF @modo = 'delta' AND @eliminar_si_ausente = 1
+    BEGIN
+        IF @cliente IS NULL OR @tipo IS NULL OR @numero IS NULL OR @vto IS NULL
+        BEGIN SELECT 'rejected' AS status, @cliente AS clave, 'integracion.transaccion.itemInvalido' AS error_code; RETURN; END;
+        DELETE FROM pq_pedidosweb_deuda
+         WHERE cod_cliente = @cliente AND t_comp = @tipo AND n_comp = @numero AND fecha_vto = @vto;
+        SELECT 'applied' AS status, CONCAT(@cliente, '|', @tipo, '|', @numero, '|', CONVERT(nvarchar(30), @vto, 126)) AS clave, NULL AS error_code;
+        RETURN;
+    END;
     IF @cliente IS NULL OR @tipo IS NULL OR @numero IS NULL OR @vto IS NULL OR @saldo IS NULL
     BEGIN SELECT 'rejected' AS status, @cliente AS clave, 'integracion.transaccion.itemInvalido' AS error_code; RETURN; END;
     IF NOT EXISTS (SELECT 1 FROM pq_pedidosweb_clientes WITH (NOLOCK) WHERE cod_client = @cliente)
@@ -201,6 +225,15 @@ BEGIN
     DECLARE @importe decimal(18,2) = TRY_CONVERT(decimal(18,2), JSON_VALUE(@item, '$.importe'));
     DECLARE @origen_item nvarchar(50) = JSON_VALUE(@item, '$.origen');
     DECLARE @estado nvarchar(50) = JSON_VALUE(@item, '$.estado');
+    DECLARE @eliminar_si_ausente bit = TRY_CONVERT(bit, JSON_VALUE(@item, '$.eliminarSiAusente'));
+    IF @modo = 'delta' AND @eliminar_si_ausente = 1
+    BEGIN
+        IF @interno IS NULL OR @numero IS NULL
+        BEGIN SELECT 'rejected' AS status, @interno AS clave, 'integracion.transaccion.itemInvalido' AS error_code; RETURN; END;
+        DELETE FROM pq_pedidosweb_cheques WHERE interno = @interno AND numero = @numero;
+        SELECT 'applied' AS status, CONCAT(@interno, '|', @numero) AS clave, NULL AS error_code;
+        RETURN;
+    END;
     IF @interno IS NULL OR @numero IS NULL OR @cliente IS NULL OR @banco IS NULL OR @fecha IS NULL OR @importe IS NULL OR @origen_item IS NULL OR @estado IS NULL
     BEGIN SELECT 'rejected' AS status, @interno AS clave, 'integracion.transaccion.itemInvalido' AS error_code; RETURN; END;
     IF NOT EXISTS (SELECT 1 FROM pq_pedidosweb_clientes WITH (NOLOCK) WHERE cod_client = @cliente)

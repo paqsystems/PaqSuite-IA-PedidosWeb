@@ -10,11 +10,20 @@ final class IntegracionTransaccionItemNormalizer
      */
     public static function normalize(string $recurso, array $item): array
     {
-        return match ($recurso) {
+        $item = match ($recurso) {
             'historial-ventas' => self::normalizeHistorialVentas($item),
             'deuda' => self::normalizeDeudaFechas($item),
             default => $item,
         };
+
+        if (array_key_exists('eliminarSiAusente', $item)) {
+            $item['eliminarSiAusente'] = filter_var(
+                $item['eliminarSiAusente'],
+                FILTER_VALIDATE_BOOLEAN,
+            );
+        }
+
+        return $item;
     }
 
     /**

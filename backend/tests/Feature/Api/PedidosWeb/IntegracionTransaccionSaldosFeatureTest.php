@@ -213,4 +213,96 @@ final class IntegracionTransaccionSaldosFeatureTest extends TestCase
         $resultado = $this->getImportacionResultado((string) $receipt['importacionId'], $headers);
         $this->assertSame(1, $resultado['modificadosErroneos'] ?? null);
     }
+
+    public function testStockEliminarSiAusenteEnSnapshotRechazado(): void
+    {
+        if (! Schema::hasTable('pq_pedidosweb_stock')) {
+            $this->markTestSkipped('Tabla pq_pedidosweb_stock no disponible.');
+        }
+
+        $this->requireIntegrationSchema();
+        $headers = $this->integrationHeaders();
+        $codigo = 'TX-DEL-SNAP-'.substr(uniqid('', true), -6);
+
+        $this->postMaestro('articulos', 'delta', [
+            ['codigo' => $codigo, 'descripcion' => 'Delete snapshot test'],
+        ], $headers);
+
+        $receipt = $this->postTransaccion('stock', 'snapshot', [[
+            'codArticulo' => $codigo,
+            'eliminarSiAusente' => true,
+            'stock' => 1,
+            'comprometido' => 0,
+        ]], $headers);
+
+        $resultado = $this->getImportacionResultado((string) $receipt['importacionId'], $headers);
+        $this->assertSame(
+            'integracion.transaccion.eliminarSoloDelta',
+            $resultado['errores'][0]['codigo'] ?? null,
+        );
+    }
+
+    public function testStockDeltaEliminarSiAusenteEliminaFila(): void
+    {
+        if (! Schema::hasTable('pq_pedidosweb_stock') || ! Schema::hasTable('pq_pedidosweb_articulos')) {
+            $this->markTestSkipped('Tablas stock/artículos no disponibles.');
+        }
+
+        $this->requireIntegrationSchema();
+        $headers = $this->integrationHeaders();
+        $codigo = 'TX-DEL-DLT-'.substr(uniqid('', true), -6);
+
+        $this->postMaestro('articulos', 'delta', [
+            ['codigo' => $codigo, 'descripcion' => 'Delete delta test'],
+        ], $headers);
+
+        $upsertReceipt = $this->postTransaccion('stock', 'delta', [[
+            'codArticulo' => $codigo,
+            'stock' => 5,
+            'comprometido' => 0,
+        ]], $headers);
+        $upsertResultado = $this->getImportacionResultado((string) $upsertReceipt['importacionId'], $headers);
+        $this->assertSame(0, $upsertResultado['modificadosErroneos'] ?? null);
+        $this->assertDatabaseHas('pq_pedidosweb_stock', ['cod_articulo' => $codigo]);
+
+        $deleteReceipt = $this->postTransaccion('stock', 'delta', [[
+            'codArticulo' => $codigo,
+            'eliminarSiAusente' => true,
+        ]], $headers);
+        $deleteResultado = $this->getImportacionResultado((string) $deleteReceipt['importacionId'], $headers);
+        $this->assertSame(0, $deleteResultado['modificadosErroneos'] ?? null);
+        $this->assertDatabaseMissing('pq_pedidosweb_stock', ['cod_articulo' => $codigo]);
+    }
+
+    public function testStockDeltaEliminarConComprometidoRechazado(): void
+    {
+        if (! Schema::hasTable('pq_pedidosweb_stock') || ! Schema::hasTable('pq_pedidosweb_articulos')) {
+            $this->markTestSkipped('Tablas stock/artículos no disponibles.');
+        }
+
+        $this->requireIntegrationSchema();
+        $headers = $this->integrationHeaders();
+        $codigo = 'TX-DEL-BLK-'.substr(uniqid('', true), -6);
+
+        $this->postMaestro('articulos', 'delta', [
+            ['codigo' => $codigo, 'descripcion' => 'Delete blocked test'],
+        ], $headers);
+
+        $this->postTransaccion('stock', 'delta', [[
+            'codArticulo' => $codigo,
+            'stock' => 5,
+            'comprometido' => 2,
+        ]], $headers);
+
+        $deleteReceipt = $this->postTransaccion('stock', 'delta', [[
+            'codArticulo' => $codigo,
+            'eliminarSiAusente' => true,
+        ]], $headers);
+        $deleteResultado = $this->getImportacionResultado((string) $deleteReceipt['importacionId'], $headers);
+        $this->assertSame(1, $deleteResultado['modificadosErroneos'] ?? null);
+        $this->assertSame(
+            'integracion.transaccion.deleteBloqueado',
+            $deleteResultado['errores'][0]['codigo'] ?? null,
+        );
+    }
 }

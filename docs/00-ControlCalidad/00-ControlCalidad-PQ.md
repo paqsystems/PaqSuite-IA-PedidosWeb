@@ -46,6 +46,7 @@ Este archivo **no sustituye** SPEC, HU ni TR: es la **entrada** del circuito de 
 
 | # | Fecha | Estado | Resumen |
 |---|-------|--------|---------|
+| 18 | 30/10/2026 | Finalizado (Parte I 02/11/2026) | Integración **transacciones**: delta + `eliminarSiAusente` por ítem (novedades/bajas); OpenAPI snapshot vs delta |
 | 17 | 20/09/2026 | Finalizado (Parte I 21/09/2026) | Atributo `especial` en artículos — columna detalle pedidos + sufijo listbox carga |
 | 16 | 12/09/2026 | Finalizado (Parte I 12/09/2026) | Suspender logout por inactividad hasta adopción SDK Framework |
 | 15 | 09/09/2026 | Finalizado (Parte I completa 13/09/2026) | Copiar comprobante: incluir `id_de` (dirección entrega) + leyendas 1–5 |
@@ -63,6 +64,73 @@ Este archivo **no sustituye** SPEC, HU ni TR: es la **entrada** del circuito de 
 | 1 | 04/06/2026 | Finalizado (Parte I) | 10 familias HU — CC PQ; updates unificados 09/06/2026 |
 | 2 | 05/06/2026 | Finalizado (Parte I) | GEN-03 layouts/export Excel formateado — CC PQ #2; unificado 09/06/2026 |
 | 3 | 09/06/2026 | Finalizado (Parte I) | Cartel cargando, layouts totales, performance carga, parámetros — unificado 09/06/2026 |
+
+---
+
+## Control de Calidad #18
+
+### Referencia del control
+
+| Campo | Valor |
+|-------|--------|
+| **Fecha** | 30/10/2026 |
+| **Responsable** | Pablo Quarracino (PQ) |
+| **Estado** | Finalizado |
+
+### Hallazgos
+
+Los archivos de **integración ERP de transacciones** (stock, deuda, cheques e historial de ventas) son los de **mayor volumen**. Hoy el modo habitual documentado es **snapshot** (universo completo), lo que obliga a reenviar tablas enteras. Se necesita poder operar en **delta** enviando solo novedades, y declarar **bajas puntuales** con el mismo criterio que en maestros (`eliminarSiAusente` por ítem), sin depender de un snapshot masivo.
+
+**Estado actual (referencia):** SPEC-101-23 ya permite `delta` en stock/deuda/cheques (upsert parcial; snapshot atómico). **No** existe `eliminarSiAusente` en ítems de transacciones. Historial de ventas es **solo delta** y no borra ausentes del lote.
+
+### Errores encontrados - Mejoras solicitadas
+
+#### SPEC-101-23 · APIs importación transacciones — delta operativo y baja explícita
+
+Extender la importación de transacciones para que el origen ERP pueda sincronizar por **novedades**:
+
+a) **Modo `delta` recomendado en producción** para `stock`, `deuda` y `cheques`: upsert de claves enviadas; el resto del lote sigue aplicándose si un ítem falla (200 parcial según política vigente).
+
+b) **`eliminarSiAusente: true` por ítem** (misma propiedad camelCase que maestros), en delta, para baja explícita de la clave natural:
+
+| Recurso | Clave natural | Comportamiento esperado |
+|---------|---------------|-------------------------|
+| `stock` | `codArticulo` | Eliminar fila de stock del artículo si no hay bloqueo de negocio |
+| `deuda` | `(codCliente, tComp, nComp, fechaVto)` | Eliminar comprobante pendiente identificado |
+| `cheques` | `(interno, numero)` | Eliminar cheque de cartera importada |
+| `historial-ventas` | `idGva53` | **Fuera de alcance CC #18:** no se admite baja de histórico (decisión Parte G) |
+
+c) **Snapshot** sigue disponible donde aplique (universo vigente, lote atómico); no reemplazar snapshot por delta en instalaciones que ya lo usan — **convivencia**.
+
+d) Implementación vía **SP** `pq_sp_integracion_transacciones_*_apply` (regla 74); OpenAPI y [APIs-Importacion-transacciones.md](../02-producto/PedidosWeb/APIs-Importacion-transacciones.md) alineados.
+
+*Procesado* → [SPEC-101-23](../05-open-spec/101-PedidosWeb/SPEC-101-23-importacion-transacciones-erp.md) · [HU-101-050](../03-historias-usuario/101-PedidosWeb/HU-101-050-integracion-transacciones-saldos.md) · [TR-SPEC-101-23-integracion-transacciones-saldos.md](../04-tareas/101-PedidosWeb/TR-SPEC-101-23-integracion-transacciones-saldos.md) — Parte G/D/E/F/I **02/11/2026** · **D1-CC18:** `eliminarSiAusente` delta stock/deuda/cheques
+
+#### OpenAPI — modalidades `snapshot` y `delta`
+
+Documentar en Swagger de forma **explícita por recurso** la semántica de `modo` y, en maestros, el flag `eliminarSiAusente` (hoy presente en schema pero casi sin descripción).
+
+| Ámbito | Hallazgo (30/10/2026) | Acción |
+|--------|------------------------|--------|
+| `IntegracionImportacionLoteRequest.modo` | Enum `delta` \| `snapshot` sin texto normativo | Descripción transversal + override por recurso donde cambie la regla |
+| Transacciones stock / deuda / cheques | Heredan enum genérico; no distinguen snapshot atómico vs delta parcial | Descripción en cada `*LoteRequest` |
+| Historial ventas | `modo` restringido a `delta` en schema | OK |
+| Maestros clientes / artículos / vendedores | `eliminarSiAusente` boolean sin descripción | Descripción: baja explícita en delta (y snapshot replace por ítem) |
+| Transacciones ítems | Sin `eliminarSiAusente` | Agregar propiedad documentada al cerrar ítem CC #18 (implementación) |
+
+Parte **D** inicial (solo documentación OpenAPI en anotaciones PHP): mejorar descripciones; regenerar `api-docs.json`. Parte **D** funcional: ítem transacciones + SP.
+
+*Procesado* → [HU-101-049](../03-historias-usuario/101-PedidosWeb/HU-101-049-integracion-transacciones-plataforma.md) · [TR-SPEC-101-23-integracion-transacciones-plataforma.md](../04-tareas/101-PedidosWeb/TR-SPEC-101-23-integracion-transacciones-plataforma.md) — Parte G/D/E/F/I **02/11/2026**
+
+### Verificación ciclo OpenSpec (02/11/2026)
+
+| Parte | Documento | Veredicto |
+|-------|-----------|-----------|
+| G | SPEC/HU/TR-update 101-23 (volcado + Especificado) | Hecho 02/11/2026 |
+| D | SP transacciones + OpenAPI + handler | Hecho 02/11/2026 |
+| E | [E-CC-PQ-18-tests.md](../04-tareas/101-PedidosWeb/E-CC-PQ-18-tests.md) | Hecho 02/11/2026 |
+| F | [F-CC-PQ-18-cierre-formal.md](../04-tareas/101-PedidosWeb/F-CC-PQ-18-cierre-formal.md) | Hecho 02/11/2026 |
+| I | [I-CC-PQ-18-cierre-formal.md](../04-tareas/101-PedidosWeb/I-CC-PQ-18-cierre-formal.md) | Hecho 02/11/2026 |
 
 ---
 

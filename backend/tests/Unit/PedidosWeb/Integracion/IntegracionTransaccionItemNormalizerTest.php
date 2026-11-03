@@ -18,6 +18,16 @@ final class IntegracionTransaccionItemNormalizerTest extends TestCase
         }
     }
 
+    public function testNormalizeCoerceEliminarSiAusenteBoolean(): void
+    {
+        $normalized = IntegracionTransaccionItemNormalizer::normalize('stock', [
+            'codArticulo' => 'A1',
+            'eliminarSiAusente' => 'true',
+        ]);
+
+        $this->assertTrue($normalized['eliminarSiAusente']);
+    }
+
     public static function historialLegacyProvider(): array
     {
         return [
