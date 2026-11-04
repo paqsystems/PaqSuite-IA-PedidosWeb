@@ -19,6 +19,7 @@ import {
   type HistorialVentasRow,
 } from '../api/consultaApi';
 import { getHistorialDetailFields, renderHistorialCard } from '../components/consultaMobileRenderers';
+import { ConsultaEmitReportToolbarItem } from '../../emissions/ConsultaEmitReportToolbarItem';
 import '../consultasShared.css';
 const proceso = 'pw_historialventas';
 const gridId = 'pw_historialventas';
@@ -181,11 +182,15 @@ function HistorialVentasWebView() {
   const toolbarEnd = useMemo(
     () => (
       <>
+        <ConsultaEmitReportToolbarItem
+          emissionProcessCode="pw_historialventas"
+          disabled={isLoading || rows.length === 0}
+        />
         <GridRefreshButton onRefresh={() => setRefreshToken((value) => value + 1)} />
         {layoutToolbar}
       </>
     ),
-    [layoutToolbar],
+    [isLoading, layoutToolbar, rows.length],
   );
 
   useEffect(() => {

@@ -112,8 +112,18 @@ final class PedidosWebGenCapabilitiesServiceProvider extends ServiceProvider
         $this->app->singleton(EmissionDatasetPortRegistry::class, function ($app): EmissionDatasetPortRegistry {
             $registry = new EmissionDatasetPortRegistry();
             $port = $app->make(PedidosWebConsultaEmissionDatasetPort::class);
-            $registry->register('pw_pedidosingresados', $port);
-            $registry->register('pw_deudaclientes', $port);
+            foreach ([
+                'pw_presupuestosingresados',
+                'pw_pedidosingresados',
+                'pw_pedidospendientes',
+                'pw_detallepedidos',
+                'pw_deudaclientes',
+                'pw_consultacheques',
+                'pw_historialventas',
+                'pw_consultastock',
+            ] as $processCode) {
+                $registry->register($processCode, $port);
+            }
 
             return $registry;
         });

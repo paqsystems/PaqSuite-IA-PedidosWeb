@@ -44,6 +44,7 @@ export function DetallePedidosPage() {
       pivotConsultaId={pivotConsultaId}
       testIdPrefix="detallePedidos"
       loadData={loadData}
+      emissionProcessCode="pw_detallepedidos"
       enableDrillDown
       columns={
         <ComprobanteConsultaColumns

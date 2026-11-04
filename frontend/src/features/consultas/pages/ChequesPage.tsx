@@ -40,6 +40,7 @@ export function ChequesPage() {
       pivotConsultaId={pivotConsultaId}
       testIdPrefix="consultaCheques"
       loadData={loadData}
+      emissionProcessCode="pw_consultacheques"
       columns={
         <>
           <Column dataField="interno" caption={t('consultas.column.interno')} />

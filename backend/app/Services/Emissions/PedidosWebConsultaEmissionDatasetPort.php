@@ -4,6 +4,7 @@ namespace App\Services\Emissions;
 
 use App\Models\User;
 use App\Services\PedidosWeb\ConsultaListadoService;
+use App\Services\PedidosWeb\DetallePedidosConsultaService;
 use App\Services\PedidosWeb\DeudaConsultaService;
 use Illuminate\Support\Facades\Auth;
 use PaqSuite\LaravelCore\Emissions\Contracts\EmissionDatasetPort;
@@ -13,11 +14,12 @@ use PaqSuite\LaravelCore\Emissions\EmissionException;
 
 final class PedidosWebConsultaEmissionDatasetPort implements EmissionDatasetPort
 {
-    private const PILOT_PAGE_SIZE = 500;
+    private const PAGE_SIZE = 500;
 
     public function __construct(
         private readonly ConsultaListadoService $consultaListadoService,
         private readonly DeudaConsultaService $deudaConsultaService,
+        private readonly DetallePedidosConsultaService $detallePedidosConsultaService,
     ) {
     }
 
@@ -28,11 +30,20 @@ final class PedidosWebConsultaEmissionDatasetPort implements EmissionDatasetPort
             throw EmissionException::fromCode(4703);
         }
 
-        $filters = ['page' => 1, 'page_size' => self::PILOT_PAGE_SIZE];
+        $filters = ['page' => 1, 'page_size' => self::PAGE_SIZE];
 
         $result = match ($context->processCode) {
+            'pw_presupuestosingresados' => $this->consultaListadoService->presupuestos($user, [
+                ...$filters,
+                'estado' => 99,
+            ]),
             'pw_pedidosingresados' => $this->consultaListadoService->pedidosIngresados($user, $filters),
+            'pw_pedidospendientes' => $this->consultaListadoService->pedidosPendientes($user, $filters),
+            'pw_detallepedidos' => $this->detallePedidosConsultaService->listar($user, $filters),
             'pw_deudaclientes' => $this->deudaConsultaService->listar($user, $filters),
+            'pw_consultacheques' => $this->consultaListadoService->cheques($user, $filters),
+            'pw_historialventas' => $this->consultaListadoService->historialVentas($user, $filters),
+            'pw_consultastock' => $this->consultaListadoService->stock($filters),
             default => throw EmissionException::fromCode(4701),
         };
 

@@ -79,7 +79,7 @@ final class SeedDeployCommand extends Command
                         '--class' => PedidosWebEmissionPilotSeeder::class,
                         '--force' => true,
                     ]);
-                    $this->info('Catálogo emisión piloto (pw_pedidosingresados, pw_deudaclientes) actualizado.');
+                    $this->info('Catálogo emisión GEN-15 (8 informes) actualizado.');
                 }
             }
 
