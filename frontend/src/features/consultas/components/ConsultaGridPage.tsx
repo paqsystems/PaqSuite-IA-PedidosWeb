@@ -6,6 +6,7 @@ import { DataGridDx, type DataGridDxHandle, type DataGridRowAction } from '../..
 import type { ConsultaMeta } from '../api/consultaApi';
 import { GridRefreshButton } from './GridRefreshButton';
 import { formatConsultaFechaProceso } from '../utils/formatConsultaFechaProceso';
+import { ConsultaEmitReportToolbarItem } from '../../emissions/ConsultaEmitReportToolbarItem';
 
 type BaseRow = Record<string, unknown> & {
   id: string;
@@ -20,6 +21,8 @@ type ConsultaGridPageProps<TRecord extends BaseRow> = {
   columns: React.ReactNode;
   rowActions: DataGridRowAction<TRecord>[];
   refreshToken?: number;
+  /** Código catálogo GEN-15 (p. ej. pw_pedidosingresados). */
+  emissionProcessCode?: string;
 };
 
 export function ConsultaGridPage<TRecord extends BaseRow>({
@@ -31,6 +34,7 @@ export function ConsultaGridPage<TRecord extends BaseRow>({
   columns,
   rowActions,
   refreshToken = 0,
+  emissionProcessCode,
 }: ConsultaGridPageProps<TRecord>) {
   const { t, i18n } = useTranslation();
   const gridRef = useRef<DataGridDxHandle>(null);
@@ -59,11 +63,17 @@ export function ConsultaGridPage<TRecord extends BaseRow>({
   const toolbarEnd = useMemo(
     () => (
       <>
+        {emissionProcessCode ? (
+          <ConsultaEmitReportToolbarItem
+            emissionProcessCode={emissionProcessCode}
+            disabled={isLoading || rows.length === 0}
+          />
+        ) : null}
         <GridRefreshButton onRefresh={() => setInternalRefreshToken((value) => value + 1)} />
         {layoutToolbar}
       </>
     ),
-    [layoutToolbar],
+    [emissionProcessCode, isLoading, layoutToolbar, rows.length],
   );
 
   useEffect(() => {

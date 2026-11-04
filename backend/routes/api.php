@@ -243,6 +243,8 @@ Route::prefix('v1')->group(function (): void {
                 Route::post('/permisos/batch', [AdminPermisoController::class, 'batch'])->name('api.v1.admin.permisos.batch');
                 Route::get('/usuarios', [AdminUsuarioLookupController::class, 'index'])->name('api.v1.admin.usuarios.index');
             });
+
+            require base_path('routes/genCapabilities.php');
         });
     });
 });

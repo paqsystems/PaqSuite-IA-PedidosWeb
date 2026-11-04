@@ -46,6 +46,7 @@ Este archivo **no sustituye** SPEC, HU ni TR: es la **entrada** del circuito de 
 
 | # | Fecha | Estado | Resumen |
 |---|-------|--------|---------|
+| 19 | 03/11/2026 | Especificado (Parte G 03/11/2026) | Adopción SDK: **diseñador de reportes** (GEN-15) bajo menú **General**; **emisión** en ocho informes; **tareas programadas** (GEN-13) y **backup** programado |
 | 18 | 30/10/2026 | Finalizado (Parte I 02/11/2026) | Integración **transacciones**: delta + `eliminarSiAusente` por ítem (novedades/bajas); OpenAPI snapshot vs delta |
 | 17 | 20/09/2026 | Finalizado (Parte I 21/09/2026) | Atributo `especial` en artículos — columna detalle pedidos + sufijo listbox carga |
 | 16 | 12/09/2026 | Finalizado (Parte I 12/09/2026) | Suspender logout por inactividad hasta adopción SDK Framework |
@@ -64,6 +65,109 @@ Este archivo **no sustituye** SPEC, HU ni TR: es la **entrada** del circuito de 
 | 1 | 04/06/2026 | Finalizado (Parte I) | 10 familias HU — CC PQ; updates unificados 09/06/2026 |
 | 2 | 05/06/2026 | Finalizado (Parte I) | GEN-03 layouts/export Excel formateado — CC PQ #2; unificado 09/06/2026 |
 | 3 | 09/06/2026 | Finalizado (Parte I) | Cartel cargando, layouts totales, performance carga, parámetros — unificado 09/06/2026 |
+
+---
+
+## Control de Calidad #19
+
+### Referencia del control
+
+| Campo | Valor |
+|-------|--------|
+| **Fecha** | 03/11/2026 |
+| **Responsable** | Pablo Quarracino (PQ) |
+| **Estado** | Especificado |
+
+### Hallazgos
+
+PedidosWeb debe **adoptar capacidades transversales del SDK Framework** que hoy están ausentes o solo documentadas: subsistema de **emisión / diseñador de reportes** (GEN-15), **tareas programadas** (GEN-13) y el proceso registry **`BACKUP_DATABASE`** para backups programados. Además, los informes operativos del portal deben ofrecer **emisión de reportes** (PDF u otra salida acordada por GEN-15) con plantillas diseñadas en el diseñador, no solo export Excel / grilla.
+
+**Estado actual (referencia):** [plan-adopcion-sdk-framework.md](../06-operacion/plan-adopcion-sdk-framework.md) — GEN-13 y GEN-15 **ausentes** en host; [SPEC-001-06-emision](../05-open-spec/001-Generaliddes/SPEC-001-06-emision.md) y [SPEC-001-09-tareas-programadas](../05-open-spec/001-Generaliddes/SPEC-001-09-tareas-programadas.md) en estado **documental**. Consultas MVP exportan vía GEN-03 (Excel); PDF quedó fuera de MVP ([SPEC-101-07](../05-open-spec/101-PedidosWeb/SPEC-101-07-consultas-api.md) AMB-C08). Menú **General** (`grp_general`) hoy incluye parámetros e historial Excel ([`paqsuite_mvp.php`](../../backend/config/paqsuite_mvp.php)); no hay ítem diseñador ni tareas.
+
+**Dependencias:** cableado GEN-15 / GEN-13 ([`44-host-framework-gen-cableado-componentes.mdc`](../../.cursor/rules/base/00-arquitectura/44-host-framework-gen-cableado-componentes.mdc)); sidecar DX / field-schema si aplica (`PAQSUITE_DX_REPORTING_*` en [`backend/config/paqsuite.php`](../../backend/config/paqsuite.php)); oleada adopción SDK según plan operación. **No** reimplementar diseñador DevExpress en el host.
+
+### Errores encontrados - Mejoras solicitadas
+
+#### GEN-15 · Diseñador de reportes (SDK Framework)
+
+Incorporar el **diseñador de reportes** como componente GEN-15 (`EmissionReportDesignerPage` / flujo documentado en Framework — no fork local):
+
+a) Montar UI y APIs del host según contrato GEN-15 (artefactos `.repx` / persistencia del producto; `consultaId` o proceso asociado).
+
+b) **Menú:** nueva opción bajo la raíz **General** (`parentProcedimiento` = `grp_general`), hermana de Consulta de parámetros e Historial importaciones Excel. Codificación `pq_menus.id` según regla jerárquica (bloque del padre General; dejar huecos en `orden`).
+
+c) Permisos: `Permiso_Repo` (o matriz acordada en Parte G) sobre el `procedimiento` del ítem menú; i18n y `data-testid` estables.
+
+d) **Mobile:** diseñador y administración de plantillas **fuera de alcance native** (Capacitor); no exponer ruta en `pedidosWebMobilePolicy`.
+
+*Procesado* → [SPEC-001-06-emision-update](../05-open-spec/updates/001-Generaliddes/SPEC-001-06-emision-update.md) · [HU-GEN-15-diseniador-reportes](../03-historias-usuario/001-Generaliddes/HU-GEN-15-diseniador-reportes.md) · [TR-GEN-15-diseniador-reportes](../04-tareas/001-Generaliddes/TR-GEN-15-diseniador-reportes.md) — Parte G 03/11/2026 · **Menú:** `pw_diseniadorreportes` / `grp_general` / orden **63**
+
+#### GEN-15 · Emisión de reportes en informes PedidosWeb
+
+Habilitar **emitir reporte** (diálogo / acción toolbar acordada GEN-15) en las consultas listadas, reutilizando datos y filtros vigentes de cada pantalla (misma sesión que grilla/pivot; no segunda query ad hoc sin TR):
+
+| # | Informe | HU referencia | `procedimiento` / `consultaId` |
+|---|---------|---------------|--------------------------------|
+| a | Presupuestos Ingresados | [HU-101-016](../03-historias-usuario/101-PedidosWeb/HU-101-016-consulta-presupuestos.md) | `pw_presupuestosingresados` |
+| b | Pedidos Ingresados | [HU-101-015](../03-historias-usuario/101-PedidosWeb/HU-101-015-consulta-pedidos-ingresados.md) | `pw_pedidosingresados` |
+| c | Pedidos Pendientes | [HU-101-017](../03-historias-usuario/101-PedidosWeb/HU-101-017-consulta-pedidos-pendientes.md) | `pw_pedidospendientes` |
+| d | Detalle de Pedidos | [HU-101-028](../03-historias-usuario/101-PedidosWeb/HU-101-028-consulta-detalle-pedidos.md) | `pw_detallepedidos` |
+| e | Deudas | [HU-101-021](../03-historias-usuario/101-PedidosWeb/HU-101-021-consulta-deuda.md) | `pw_deudaclientes` |
+| f | Cheques | [HU-101-022](../03-historias-usuario/101-PedidosWeb/HU-101-022-consulta-cheques.md) | `pw_consultacheques` |
+| g | Historial de Ventas | [HU-101-023](../03-historias-usuario/101-PedidosWeb/HU-101-023-historial-ventas.md) | `pw_historialventas` |
+| h | Stock | [HU-101-018](../03-historias-usuario/101-PedidosWeb/HU-101-018-consulta-stock.md) | `pw_consultastock` |
+
+Requisitos transversales:
+
+- Catálogo de reportes por proceso (`consultaId` / vínculo plantilla ↔ informe); field-schema alineado a columnas API ([SPEC-101-07](../05-open-spec/101-PedidosWeb/SPEC-101-07-consultas-api.md) + [SPEC-101-11](../05-open-spec/101-PedidosWeb/SPEC-101-11-consultas-ui.md)).
+- Convivencia con export Excel GEN-03 y pivot GEN-12 (CC #4): emisión no reemplaza Excel salvo decisión explícita en TR.
+- **Mobile:** emisión desde kardex — definir en Parte G (acción en tarjeta vs solo web).
+
+*Procesado* → [SPEC-101-11-consultas-ui-update](../05-open-spec/updates/101-PedidosWeb/SPEC-101-11-consultas-ui-update.md) · [SPEC-101-07-consultas-api-update](../05-open-spec/updates/101-PedidosWeb/SPEC-101-07-consultas-api-update.md) · [HU-101-055-emision-reportes-informes](../03-historias-usuario/101-PedidosWeb/HU-101-055-emision-reportes-informes.md) · [TR-SPEC-101-11-consultas-ui-update](../04-tareas/updates/101-PedidosWeb/TR-SPEC-101-11-consultas-ui-update.md) · [TR-SPEC-101-07-consultas-api-update](../04-tareas/updates/101-PedidosWeb/TR-SPEC-101-07-consultas-api-update.md) — Parte G 03/11/2026 · **Mobile v1:** emisión solo web
+
+#### GEN-13 · Tareas programadas (SDK Framework)
+
+Incorporar el módulo **Tareas programadas** del SDK (`TaskProcessesPage`, definiciones, ejecuciones; `TaskProcessRegistry` en backend):
+
+a) Rutas, menú y permisos en host; títulos vía i18n (`ProcessPageLayout` — no HTML crudo).
+
+b) Desplegar modelo / SP del Framework según runbook GEN-18 + documentación [`docs/00-contexto/_mono/Tareas-programadas/`](../../docs/00-contexto/_mono/Tareas-programadas/).
+
+c) Registrar procesos de dominio PedidosWeb que deban correr en scheduler (p. ej. jobs de integración documentados aparte); **no** duplicar cron ERP donde el producto ya delega en GEN-13 externo ([SPEC-101-22](../05-open-spec/101-PedidosWeb/SPEC-101-22-importacion-maestros-erp.md)).
+
+*Procesado* → [SPEC-001-09-tareas-programadas-update](../05-open-spec/updates/001-Generaliddes/SPEC-001-09-tareas-programadas-update.md) · [HU-GEN-13-tareas-programadas](../03-historias-usuario/001-Generaliddes/HU-GEN-13-tareas-programadas.md) · [TR-GEN-13-tareas-programadas](../04-tareas/001-Generaliddes/TR-GEN-13-tareas-programadas.md) — Parte G 03/11/2026 · **Menú:** `gen_tareasprogramadas` / orden **64**
+
+#### GEN-13 · Backups programados (`BACKUP_DATABASE`)
+
+Incorporar el proceso **backup de base de datos programable** provisto por Framework:
+
+a) Adoptar proceso único **`BACKUP_DATABASE`** en registry (Windows `INIT`/`NOINIT`; RDS con polling `rds_task_status`; lock RDS global por instalación) — **no** copiar formulario ni handler al host.
+
+b) UI: pantalla genérica de **definiciones** de tareas (GEN-13); reglas MONO/MULTI y S3 según [SPEC-001-13-update — Backups Windows y RDS](../05-open-spec/updates/001-Generalidades/SPEC-001-13-update-backups-windows-rds.md) y `backups-programables-mono-multi.md` en contexto MONO.
+
+c) Operación: documentar en runbook deploy (Forge / GEN-34) credenciales S3, ventanas y smoke post-backup.
+
+*Procesado* → unificado en [SPEC-001-09-tareas-programadas-update](../05-open-spec/updates/001-Generaliddes/SPEC-001-09-tareas-programadas-update.md) · [HU-GEN-13-tareas-programadas](../03-historias-usuario/001-Generaliddes/HU-GEN-13-tareas-programadas.md) · [TR-GEN-13-tareas-programadas](../04-tareas/001-Generaliddes/TR-GEN-13-tareas-programadas.md) — Parte G 03/11/2026
+
+### Decisiones cerradas (Parte G 03/11/2026)
+
+| Tema | Decisión |
+|------|----------|
+| Menú diseñador | `pw_diseniadorreportes`, `/general/diseniador-reportes`, `grp_general`, orden **63** |
+| Menú tareas | `gen_tareasprogramadas`, `/general/tareas-programadas`, orden **64** |
+| Permisos MVP | Diseñador y tareas: perfiles admin; **emitir** reporte: quien tenga `Permiso_Repo` del informe |
+| Mobile | Diseñador, tareas y emisión v1 **excluidos** native; emisión kardex fase 2 |
+| Plan D | [D1-PLAN-CC-PQ-19.md](../04-tareas/101-PedidosWeb/D1-PLAN-CC-PQ-19.md) — 3 fases |
+
+### Verificación ciclo OpenSpec (03/11/2026)
+
+| Parte | Documento | Veredicto |
+|-------|-----------|-----------|
+| G | SPEC/HU/TR CC #19 → `updates/` + HU/TR GEN/101-055 nuevos | Hecho 03/11/2026 |
+| D | [D1-PLAN-CC-PQ-19.md](../04-tareas/101-PedidosWeb/D1-PLAN-CC-PQ-19.md) | Plan listo; implementación **pendiente** |
+| E | — | Pendiente (post-D) |
+| F | — | Pendiente (post-E) |
+| I | — | Pendiente (post-F, updates **Finalizado**) |
 
 ---
 

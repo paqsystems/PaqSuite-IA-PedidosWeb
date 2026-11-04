@@ -25,7 +25,7 @@
     "@capacitor/preferences": "^8.0.1",
     "@capacitor/splash-screen": "^8.0.1",
     "@capacitor/status-bar": "^8.0.2",
-    "@paqsuite/react-core": "2.4.29-beta.1",
+    "@paqsuite/react-core": "2.4.30-beta.6",
     "devextreme": "^25.2.7",
     "devextreme-react": "^25.2.7",
     "exceljs": "^4.4.0",

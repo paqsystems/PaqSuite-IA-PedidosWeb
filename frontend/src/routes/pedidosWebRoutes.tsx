@@ -81,6 +81,16 @@ const ExcelImportProcessPage = lazy(() =>
     default: module.ExcelImportProcessPage,
   })),
 );
+const DiseniadorReportesPage = lazy(() =>
+  import('../features/gen/pages/DiseniadorReportesPage').then((module) => ({
+    default: module.DiseniadorReportesPage,
+  })),
+);
+const TareasProgramadasPage = lazy(() =>
+  import('../features/gen/pages/TareasProgramadasPage').then((module) => ({
+    default: module.TareasProgramadasPage,
+  })),
+);
 const ExcelStagingGridPage = lazy(() =>
   import('../features/excelImport/pages/ExcelStagingGridPage').then((module) => ({
     default: module.ExcelStagingGridPage,
@@ -144,6 +154,14 @@ export const pedidosWebRoutes: PedidosWebRoute[] = [
   {
     path: '/general/parametros',
     element: withSuspense(<ParametrosConsultaPage />, 'page-loading-parametros-consulta'),
+  },
+  {
+    path: '/general/diseniador-reportes',
+    element: withSuspense(<DiseniadorReportesPage />, 'page-loading-diseniador-reportes'),
+  },
+  {
+    path: '/general/tareas-programadas',
+    element: withSuspense(<TareasProgramadasPage />, 'page-loading-tareas-programadas'),
   },
   {
     path: '/excel-import/historial',

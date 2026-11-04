@@ -5,6 +5,7 @@
 
 param(
     [switch]$All,
+    [switch]$SkipDbSync,
     [int]$BackendPort = 8088,
     [int]$FrontendPort = 3010
 )
@@ -26,6 +27,17 @@ function Test-ProcessCommandLineMatch {
 }
 
 Start-LaravelDevQueueWorker -BackendPath $backend -ProjectLabel $projectLabel
+
+if ($All -and -not $SkipDbSync) {
+    $syncScript = Join-Path $PSScriptRoot 'sync-installation-local.ps1'
+    if (Test-Path $syncScript) {
+        Write-Host "[$projectLabel] GEN-34 sync (migrate + installation:update + sql:sync-dev)..."
+        & $syncScript
+        if ($LASTEXITCODE -ne 0) {
+            Write-Warning "[$projectLabel] GEN-34 sync incompleto; stack igual se levanta. Revisá salida arriba o usá -SkipDbSync."
+        }
+    }
+}
 
 if (-not $All) {
     Write-Host ''
