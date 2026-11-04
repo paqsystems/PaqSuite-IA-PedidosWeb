@@ -27,6 +27,7 @@ export function StockPage() {
       pivotConsultaId={pivotConsultaId}
       testIdPrefix="consultaStock"
       loadData={loadData}
+      emissionProcessCode="pw_consultastock"
       columns={
         <>
           <Column dataField="codArticulo" caption={t('consultas.column.codArticulo')} />

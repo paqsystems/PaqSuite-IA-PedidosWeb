@@ -8,7 +8,7 @@ use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Schema;
 
 /**
- * Catálogo GEN-15 piloto CC #19 — pedidos ingresados + deuda clientes.
+ * Catálogo GEN-15 — 8 informes emisibles (CC #19 / TR-SPEC-101-07).
  */
 final class PedidosWebEmissionPilotSeeder extends Seeder
 {
@@ -27,17 +27,51 @@ final class PedidosWebEmissionPilotSeeder extends Seeder
         'recipientEditMode' => 'NONE',
     ];
 
-    /** @var array<string, array{menu: string, name: string, reportCode: string}> */
-    private const PILOT_PROCESSES = [
+    /**
+     * processCode => menu_process_code + nombre visible (diseñador / catálogo).
+     *
+     * @var array<string, array{menu: string, name: string, reportCode: string}>
+     */
+    private const EMISSION_PROCESSES = [
+        'pw_presupuestosingresados' => [
+            'menu' => 'pw_presupuestosingresados',
+            'name' => 'Presupuestos ingresados',
+            'reportCode' => 'pw_presupuestosingresados',
+        ],
         'pw_pedidosingresados' => [
             'menu' => 'pw_pedidosingresados',
             'name' => 'Pedidos ingresados',
             'reportCode' => 'pw_pedidosingresados',
         ],
+        'pw_pedidospendientes' => [
+            'menu' => 'pw_pedidospendientes',
+            'name' => 'Pedidos pendientes',
+            'reportCode' => 'pw_pedidospendientes',
+        ],
+        'pw_detallepedidos' => [
+            'menu' => 'pw_detallepedidos',
+            'name' => 'Detalle de pedidos',
+            'reportCode' => 'pw_detallepedidos',
+        ],
         'pw_deudaclientes' => [
-            'menu' => 'pw_deuda',
-            'name' => 'Deuda clientes',
+            'menu' => 'pw_deudaclientes',
+            'name' => 'Deudas',
             'reportCode' => 'pw_deudaclientes',
+        ],
+        'pw_consultacheques' => [
+            'menu' => 'pw_consultacheques',
+            'name' => 'Cheques',
+            'reportCode' => 'pw_consultacheques',
+        ],
+        'pw_historialventas' => [
+            'menu' => 'pw_historialventas',
+            'name' => 'Historial ventas',
+            'reportCode' => 'pw_historialventas',
+        ],
+        'pw_consultastock' => [
+            'menu' => 'pw_consultastock',
+            'name' => 'Stock',
+            'reportCode' => 'pw_consultastock',
         ],
     ];
 
@@ -49,12 +83,12 @@ final class PedidosWebEmissionPilotSeeder extends Seeder
 
         $policyJson = json_encode(self::OUTPUT_POLICY, JSON_THROW_ON_ERROR);
 
-        foreach (self::PILOT_PROCESSES as $processCode => $meta) {
+        foreach (self::EMISSION_PROCESSES as $processCode => $meta) {
             PqEmissionProcess::query()->updateOrCreate(
                 ['process_code' => $processCode],
                 [
                     'name' => $meta['name'],
-                    'description' => 'Piloto emisión PedidosWeb (CC #19)',
+                    'description' => 'Emisión PedidosWeb (GEN-15)',
                     'menu_process_code' => $meta['menu'],
                     'permite_consolidado' => true,
                     'permite_segmentado' => false,

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1\Gen;
 
 use App\Http\Controllers\Controller;
+use App\Models\Gen\PqEmissionProcess;
 use App\Support\Emissions\PedidosWebEmissionJobPresenter;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -405,6 +406,7 @@ final class PedidosWebEmissionsController extends Controller
     {
         return [
             'processCode' => $process->processCode,
+            'name' => $this->resolveProcessDisplayName($process),
             'menuProcessCode' => $process->menuProcessCode,
             'channels' => $process->channels,
             'allowsConsolidated' => $process->allowsConsolidated,
@@ -417,5 +419,40 @@ final class PedidosWebEmissionsController extends Controller
             'outputPolicy' => $process->outputPolicy->toArray(),
             'reports' => $process->reports,
         ];
+    }
+
+    /**
+     * El DTO GEN-15 no expone `name`; el SDK usa displayExpr="name" (fallback a processCode).
+     *
+     * @param  object  $process
+     */
+    private function resolveProcessDisplayName(object $process): string
+    {
+        $reports = is_array($process->reports ?? null) ? $process->reports : [];
+        foreach ($reports as $report) {
+            if (! is_array($report)) {
+                continue;
+            }
+            if (($report['isPrincipal'] ?? false) && is_string($report['name'] ?? null) && $report['name'] !== '') {
+                return $report['name'];
+            }
+        }
+        foreach ($reports as $report) {
+            if (! is_array($report)) {
+                continue;
+            }
+            if (is_string($report['name'] ?? null) && $report['name'] !== '') {
+                return $report['name'];
+            }
+        }
+
+        $fromDb = PqEmissionProcess::query()
+            ->where('process_code', $process->processCode)
+            ->value('name');
+        if (is_string($fromDb) && $fromDb !== '') {
+            return $fromDb;
+        }
+
+        return (string) $process->processCode;
     }
 }

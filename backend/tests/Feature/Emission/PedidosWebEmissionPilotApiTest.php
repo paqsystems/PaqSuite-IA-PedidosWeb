@@ -29,13 +29,37 @@ final class PedidosWebEmissionPilotApiTest extends TestCase
     /**
      * @dataProvider pilotProcessProvider
      */
+    public function testProcessesCatalogExposesDisplayNames(): void
+    {
+        $headers = $this->authHeadersFor('supervisor.mvp');
+
+        $response = $this->getJson('/api/v1/emissions/processes', $headers)
+            ->assertOk()
+            ->assertJsonPath('error', 0);
+
+        $items = $response->json('resultado.items');
+        $this->assertIsArray($items);
+        $this->assertNotEmpty($items);
+
+        foreach ($items as $item) {
+            $this->assertIsArray($item);
+            $this->assertNotSame('', (string) ($item['processCode'] ?? ''));
+            $this->assertNotSame('', (string) ($item['name'] ?? ''));
+            $this->assertNotSame($item['processCode'], $item['name'], 'El diseñador debe mostrar descripción, no el código.');
+        }
+    }
+
     public function testPilotProcessEmitsPdf(string $processCode): void
     {
         $headers = $this->authHeadersFor('supervisor.mvp');
 
-        $this->getJson('/api/v1/emissions/processes/'.$processCode, $headers)
+        $meta = $this->getJson('/api/v1/emissions/processes/'.$processCode, $headers)
             ->assertOk()
             ->assertJsonPath('error', 0);
+
+        $name = (string) $meta->json('resultado.item.name');
+        $this->assertNotSame('', $name);
+        $this->assertNotSame($processCode, $name);
 
         $create = $this->postJson('/api/v1/emissions/jobs', [
             'processCode' => $processCode,
