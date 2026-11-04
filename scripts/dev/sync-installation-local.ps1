@@ -54,7 +54,7 @@ try {
     $hostManifest = $env:PAQSUITE_HOST_MANIFEST
     if ([string]::IsNullOrWhiteSpace($hostManifest)) {
         $semver = (Get-Content (Join-Path $backend 'composer.json') -Raw | ConvertFrom-Json).require.'paqsuite/laravel-core'
-        if ([string]::IsNullOrWhiteSpace($semver)) { $semver = '1.3.18-beta.24' }
+        if ([string]::IsNullOrWhiteSpace($semver)) { $semver = '1.3.18-beta.28' }
         $hostManifest = (Resolve-Path (Join-Path $backend "database/manifest/pedidosweb-$semver.json") -ErrorAction SilentlyContinue).Path
     }
     if ($hostManifest -and -not [System.IO.Path]::IsPathRooted($hostManifest)) {
