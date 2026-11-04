@@ -23,6 +23,8 @@ return [
         ['menuKey' => 'grupoGeneral', 'procedimiento' => 'grp_general', 'text' => 'General', 'orden' => 60, 'tipoProceso' => 'G'],
         ['menuKey' => 'consultaParametros', 'procedimiento' => 'pw_consultaparametros', 'text' => 'Consulta de parametros', 'orden' => 61, 'routeName' => '/general/parametros', 'parentProcedimiento' => 'grp_general'],
         ['menuKey' => 'historialImportExcel', 'procedimiento' => 'pw_historialimportexcel', 'text' => 'Historial importaciones Excel', 'orden' => 62, 'routeName' => '/excel-import/historial', 'parentProcedimiento' => 'grp_general'],
+        ['menuKey' => 'diseniadorReportes', 'procedimiento' => 'pw_diseniadorreportes', 'text' => 'Diseñador de reportes', 'orden' => 63, 'routeName' => '/general/diseniador-reportes', 'parentProcedimiento' => 'grp_general'],
+        ['menuKey' => 'tareasProgramadas', 'procedimiento' => 'gen_tareasprogramadas', 'text' => 'Tareas programadas', 'orden' => 64, 'routeName' => '/general/tareas-programadas', 'parentProcedimiento' => 'grp_general'],
         ['menuKey' => 'grupoInformes', 'procedimiento' => 'grp_informes', 'text' => 'Informes', 'orden' => 20, 'tipoProceso' => 'G'],
         ['menuKey' => 'deudaClientes', 'procedimiento' => 'pw_deudaclientes', 'text' => 'Deudas', 'orden' => 21, 'routeName' => '/consultas/deuda', 'parentProcedimiento' => 'grp_informes'],
         ['menuKey' => 'chequesCartera', 'procedimiento' => 'pw_consultacheques', 'text' => 'Cheques', 'orden' => 22, 'routeName' => '/consultas/cheques', 'parentProcedimiento' => 'grp_informes'],

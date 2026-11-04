@@ -1,5 +1,18 @@
 <?php
 
+$pedidosWebComposerPath = dirname(__DIR__) . '/composer.json';
+$pedidosWebComposer = is_readable($pedidosWebComposerPath)
+    ? json_decode((string) file_get_contents($pedidosWebComposerPath), true)
+    : null;
+$pedidosWebLaravelCoreSemver = is_array($pedidosWebComposer)
+    ? trim((string) ($pedidosWebComposer['require']['paqsuite/laravel-core'] ?? ''))
+    : '';
+if ($pedidosWebLaravelCoreSemver === '') {
+    $pedidosWebLaravelCoreSemver = '1.3.18-beta.24';
+}
+$pedidosWebDefaultHostManifest = dirname(__DIR__)
+    . '/database/manifest/pedidosweb-' . $pedidosWebLaravelCoreSemver . '.json';
+
 return [
     /*
     |--------------------------------------------------------------------------
@@ -20,14 +33,48 @@ return [
     */
     'db' => env('PAQSUITE_DB', 'unified'),
 
+    'proyecto' => env('PAQSUITE_PROYECTO', 'pedidosweb'),
+
+    /*
+    | GEN-34 — lookup instalación en CLI (installation:update / tasks:run-due)
+    */
+    'instalacion' => [
+        'resolver' => env('PAQSUITE_INSTALACION_RESOLVER', 'config'),
+        'centralConnection' => env('PAQSUITE_CENTRAL_CONNECTION', 'paqsuite_central'),
+        'procedure' => env('PAQSUITE_EMPRESAS_CONEXION_PROCEDURE', 'pq_sp_empresas_conexion_get'),
+        'cacheTtlSeconds' => (int) env('PAQSUITE_INSTALACION_CACHE_TTL', 60),
+        'applyDatabaseMiddleware' => env(
+            'PAQSUITE_APPLY_INSTALACION_DB_MIDDLEWARE',
+            \PaqSuite\LaravelCore\Http\Middleware\ApplyInstalacionDatabaseMiddleware::class,
+        ),
+    ],
+
+    'instalaciones' => [
+        'DESARROLLO|pedidosweb' => [
+            'activo' => true,
+            'connection' => env('DB_CONNECTION', 'sqlsrv'),
+            'singleCompanyId' => (int) env('PAQSUITE_MONO_EMPRESA_ID', 8),
+        ],
+        'QUENTO|pedidosweb' => [
+            'activo' => true,
+            'connection' => env('DB_CONNECTION', 'sqlsrv'),
+            'singleCompanyId' => (int) env('PAQSUITE_MONO_EMPRESA_ID', 8),
+        ],
+        'DEMO|pedidosweb' => [
+            'activo' => true,
+            'connection' => env('DB_CONNECTION', 'sqlsrv'),
+            'singleCompanyId' => (int) env('PAQSUITE_MONO_EMPRESA_ID', 8),
+        ],
+    ],
+
     /*
     |--------------------------------------------------------------------------
     | GEN-13 task routes
     |--------------------------------------------------------------------------
-    | PedidosWeb todavía no adopta el catálogo de tareas programadas.
     */
     'tasks' => [
-        'routesEnabled' => env('PAQSUITE_TASKS_ROUTES_ENABLED', false),
+        'routesEnabled' => filter_var(env('PAQSUITE_TASKS_ROUTES_ENABLED', true), FILTER_VALIDATE_BOOLEAN),
+        'middleware' => ['paq.tenant', 'auth:sanctum'],
     ],
 
     /*
@@ -73,10 +120,19 @@ return [
     /*
     | GEN-15 — emisiones documentales (Field List diseñador vía DIC + field-schema)
     */
+    'installation' => [
+        'hostManifestPath' => env(
+            'PAQSUITE_HOST_MANIFEST',
+            $pedidosWebDefaultHostManifest
+        ),
+        'frameworkPackageRoot' => base_path('vendor/paqsuite/laravel-core'),
+        'allowSqlSyncDev' => filter_var(env('PAQSUITE_ALLOW_SQL_SYNC_DEV', true), FILTER_VALIDATE_BOOLEAN),
+    ],
+
     'emissions' => [
         'designerSchemaMiddleware' => [
-            'paqsuite.instalacion',
-            'paqsuite.instalacion.db',
+            'paq.tenant',
+            'auth:sanctum',
         ],
         'dxReporting' => [
             'mode' => env('PAQSUITE_EMISSION_DX_MODE', 'fake'),
