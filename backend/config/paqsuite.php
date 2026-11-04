@@ -8,7 +8,7 @@ $pedidosWebLaravelCoreSemver = is_array($pedidosWebComposer)
     ? trim((string) ($pedidosWebComposer['require']['paqsuite/laravel-core'] ?? ''))
     : '';
 if ($pedidosWebLaravelCoreSemver === '') {
-    $pedidosWebLaravelCoreSemver = '1.3.18-beta.24';
+    $pedidosWebLaravelCoreSemver = '1.3.18-beta.28';
 }
 $pedidosWebDefaultHostManifest = dirname(__DIR__)
     . '/database/manifest/pedidosweb-' . $pedidosWebLaravelCoreSemver . '.json';

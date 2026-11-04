@@ -10,8 +10,8 @@
 
 | Paquete | Versión | Notas |
 |---------|---------|--------|
-| `paqsuite/laravel-core` | **1.3.18-beta.24** | Alineado a monorepo Framework y `docs/01-arquitectura/integracion-framework-sdk.md` |
-| `@paqsuite/react-core` | **2.4.30-beta.6** | Exporta `TaskProcessesPage`, `EmissionReportDesignerPage`, `EmissionDialog`, APIs GEN-13/15 |
+| `paqsuite/laravel-core` | **1.3.18-beta.28** | Alineado a monorepo Framework y `docs/01-arquitectura/integracion-framework-sdk.md` |
+| `@paqsuite/react-core` | **2.4.30-beta.7** | Exporta `TaskProcessesPage`, `EmissionReportDesignerPage`, `EmissionDialog`, APIs GEN-13/15 |
 
 Desarrollo conjunto opcional: `PAQ_REPO_LAB=1` + `sdk-link.ps1` (no sustituye el pin de release).
 
