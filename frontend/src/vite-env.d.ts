@@ -1,5 +1,10 @@
 /// <reference types="vite/client" />
 
+declare module 'ace-builds/src-noconflict/ace' {
+  const ace: typeof import('ace-builds');
+  export default ace;
+}
+
 declare module '*.module.css' {
   const classes: { readonly [key: string]: string };
   export default classes;
@@ -15,6 +20,9 @@ interface ImportMetaEnv {
   readonly VITE_TENANT_DEFAULT_CLIENT?: string;
   readonly VITE_APP_VERSION?: string;
   readonly VITE_DEVEXTREME_LICENSE?: string;
+  readonly VITE_DEVEXPRESS_LICENSE_KEY?: string;
+  readonly VITE_DX_REPORTING_HOST?: string;
+  readonly VITE_DX_REPORTING_DIRECT?: string;
   readonly VITE_CHAT_ASSISTANT_PROJECT_NAME?: string;
 }
 

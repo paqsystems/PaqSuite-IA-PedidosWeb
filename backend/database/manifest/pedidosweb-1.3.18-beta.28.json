@@ -11,6 +11,110 @@
     ],
     "entries": [
         {
+            "id": "pedidosweb-emission-designer-schema-pw_consultacheques",
+            "kind": "emissionDesignerSchema",
+            "target": "dictionary",
+            "path": "database/emission-designer-schemas/pw_consultacheques.json",
+            "checksum": "f5a68ac7b9d150c0e529750a7319c7d4ffb3caaf19381f81e5e9e39532744f8a",
+            "dependsOn": [
+                "fw-migration-2026_11_03_000041_create_pq_emission_designer_schemas_table",
+                "fw-sp-pq_sp_emission_designer_schema"
+            ],
+            "processCode": "pw_consultacheques",
+            "emissionPortSchemaRef": "database/emission-designer-schemas/pw_consultacheques.port-names.json"
+        },
+        {
+            "id": "pedidosweb-emission-designer-schema-pw_consultastock",
+            "kind": "emissionDesignerSchema",
+            "target": "dictionary",
+            "path": "database/emission-designer-schemas/pw_consultastock.json",
+            "checksum": "7acd590be2515be2a3ae3eca5516d6e70a029fede52a51614b75b44e5bb1030e",
+            "dependsOn": [
+                "fw-migration-2026_11_03_000041_create_pq_emission_designer_schemas_table",
+                "fw-sp-pq_sp_emission_designer_schema"
+            ],
+            "processCode": "pw_consultastock",
+            "emissionPortSchemaRef": "database/emission-designer-schemas/pw_consultastock.port-names.json"
+        },
+        {
+            "id": "pedidosweb-emission-designer-schema-pw_detallepedidos",
+            "kind": "emissionDesignerSchema",
+            "target": "dictionary",
+            "path": "database/emission-designer-schemas/pw_detallepedidos.json",
+            "checksum": "d9be9a334d936009b323c6ac32700e33451072572cd6b2a161d1c934630ed2c6",
+            "dependsOn": [
+                "fw-migration-2026_11_03_000041_create_pq_emission_designer_schemas_table",
+                "fw-sp-pq_sp_emission_designer_schema"
+            ],
+            "processCode": "pw_detallepedidos",
+            "emissionPortSchemaRef": "database/emission-designer-schemas/pw_detallepedidos.port-names.json"
+        },
+        {
+            "id": "pedidosweb-emission-designer-schema-pw_deudaclientes",
+            "kind": "emissionDesignerSchema",
+            "target": "dictionary",
+            "path": "database/emission-designer-schemas/pw_deudaclientes.json",
+            "checksum": "6b8e0734908ca96a19eff039b50195acb53502a19d75b6cd46f30c96d4ca0171",
+            "dependsOn": [
+                "fw-migration-2026_11_03_000041_create_pq_emission_designer_schemas_table",
+                "fw-sp-pq_sp_emission_designer_schema"
+            ],
+            "processCode": "pw_deudaclientes",
+            "emissionPortSchemaRef": "database/emission-designer-schemas/pw_deudaclientes.port-names.json"
+        },
+        {
+            "id": "pedidosweb-emission-designer-schema-pw_historialventas",
+            "kind": "emissionDesignerSchema",
+            "target": "dictionary",
+            "path": "database/emission-designer-schemas/pw_historialventas.json",
+            "checksum": "55dd8b9bb4f84945c2dc301a515c970db5f36ef271bb201f2b3a7b8c05a60d9e",
+            "dependsOn": [
+                "fw-migration-2026_11_03_000041_create_pq_emission_designer_schemas_table",
+                "fw-sp-pq_sp_emission_designer_schema"
+            ],
+            "processCode": "pw_historialventas",
+            "emissionPortSchemaRef": "database/emission-designer-schemas/pw_historialventas.port-names.json"
+        },
+        {
+            "id": "pedidosweb-emission-designer-schema-pw_pedidosingresados",
+            "kind": "emissionDesignerSchema",
+            "target": "dictionary",
+            "path": "database/emission-designer-schemas/pw_pedidosingresados.json",
+            "checksum": "82efa4e1d5955f26f08ca5bab3330122b12e869cbe775582833fdf1829ae5df7",
+            "dependsOn": [
+                "fw-migration-2026_11_03_000041_create_pq_emission_designer_schemas_table",
+                "fw-sp-pq_sp_emission_designer_schema"
+            ],
+            "processCode": "pw_pedidosingresados",
+            "emissionPortSchemaRef": "database/emission-designer-schemas/pw_pedidosingresados.port-names.json"
+        },
+        {
+            "id": "pedidosweb-emission-designer-schema-pw_pedidospendientes",
+            "kind": "emissionDesignerSchema",
+            "target": "dictionary",
+            "path": "database/emission-designer-schemas/pw_pedidospendientes.json",
+            "checksum": "a87672349c323d1e80ee230d2e7cca0a1845d80d02390104a9471f86172bc6c0",
+            "dependsOn": [
+                "fw-migration-2026_11_03_000041_create_pq_emission_designer_schemas_table",
+                "fw-sp-pq_sp_emission_designer_schema"
+            ],
+            "processCode": "pw_pedidospendientes",
+            "emissionPortSchemaRef": "database/emission-designer-schemas/pw_pedidospendientes.port-names.json"
+        },
+        {
+            "id": "pedidosweb-emission-designer-schema-pw_presupuestosingresados",
+            "kind": "emissionDesignerSchema",
+            "target": "dictionary",
+            "path": "database/emission-designer-schemas/pw_presupuestosingresados.json",
+            "checksum": "5f2b28b2cb27c5a7d200c5523b1c2c705898f3a8beb8f893e59e20070167ab03",
+            "dependsOn": [
+                "fw-migration-2026_11_03_000041_create_pq_emission_designer_schemas_table",
+                "fw-sp-pq_sp_emission_designer_schema"
+            ],
+            "processCode": "pw_presupuestosingresados",
+            "emissionPortSchemaRef": "database/emission-designer-schemas/pw_presupuestosingresados.port-names.json"
+        },
+        {
             "id": "pedidosweb-migration-2026_05_28_100500_create_pq_pedidosweb_commercial_tables",
             "kind": "migration",
             "target": "dictionary",
@@ -193,6 +297,16 @@
             "path": "database/migrations/2026_11_04_100014_add_pq_menus_codigo_alias.php",
             "checksum": "4ab0044160ac2e96ccd0a565d0fc2a8827eb53fd14856b3d27c26a25ca560062",
             "dependsOn": []
+        },
+        {
+            "id": "pedidosweb-migration-2026_11_04_100015_widen_pq_installation_run_step_kind",
+            "kind": "migration",
+            "target": "dictionary",
+            "path": "database/migrations/2026_11_04_100015_widen_pq_installation_run_step_kind.php",
+            "checksum": "ce46976b70cc546a021a80d8cc5840f916fa9ad47fa49a8950b756e9a0e091f6",
+            "dependsOn": [
+                "fw-migration-2026_10_27_000037_create_pq_installation_control_tables"
+            ]
         }
     ]
 }

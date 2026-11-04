@@ -1,6 +1,30 @@
 {
   "rewrites": [
     {
+      "source": "/DXXRD",
+      "destination": "https://demopedidosweb.on-forge.com/DXXRD"
+    },
+    {
+      "source": "/DXXRD/:path*",
+      "destination": "https://demopedidosweb.on-forge.com/DXXRD/:path*"
+    },
+    {
+      "source": "/DXXRDV",
+      "destination": "https://demopedidosweb.on-forge.com/DXXRDV"
+    },
+    {
+      "source": "/DXXRDV/:path*",
+      "destination": "https://demopedidosweb.on-forge.com/DXXRDV/:path*"
+    },
+    {
+      "source": "/DXXQB",
+      "destination": "https://demopedidosweb.on-forge.com/DXXQB"
+    },
+    {
+      "source": "/DXXQB/:path*",
+      "destination": "https://demopedidosweb.on-forge.com/DXXQB/:path*"
+    },
+    {
       "source": "/((?!assets/).*)",
       "destination": "/index.html"
     }

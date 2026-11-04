@@ -1,0 +1,234 @@
+{
+    "version": 1,
+    "datasetDisplayName": "Detalle de pedidos",
+    "fields": [
+        {
+            "name": "codPedido",
+            "type": "string"
+        },
+        {
+            "name": "codCliente",
+            "type": "string"
+        },
+        {
+            "name": "razonSocial",
+            "type": "string"
+        },
+        {
+            "name": "nombreFantasia",
+            "type": "string"
+        },
+        {
+            "name": "fecha",
+            "type": "date"
+        },
+        {
+            "name": "nivel",
+            "type": "number"
+        },
+        {
+            "name": "observaciones",
+            "type": "string"
+        },
+        {
+            "name": "incluyeIva",
+            "type": "boolean"
+        },
+        {
+            "name": "moneda",
+            "type": "number"
+        },
+        {
+            "name": "estado",
+            "type": "number"
+        },
+        {
+            "name": "fechaModif",
+            "type": "date"
+        },
+        {
+            "name": "total",
+            "type": "number"
+        },
+        {
+            "name": "totalIva",
+            "type": "number"
+        },
+        {
+            "name": "leyenda1",
+            "type": "string"
+        },
+        {
+            "name": "leyenda2",
+            "type": "string"
+        },
+        {
+            "name": "leyenda3",
+            "type": "string"
+        },
+        {
+            "name": "leyenda4",
+            "type": "string"
+        },
+        {
+            "name": "leyenda5",
+            "type": "string"
+        },
+        {
+            "name": "descuento",
+            "type": "number"
+        },
+        {
+            "name": "bonif1",
+            "type": "number"
+        },
+        {
+            "name": "bonif2",
+            "type": "number"
+        },
+        {
+            "name": "bonif3",
+            "type": "number"
+        },
+        {
+            "name": "codPerfil",
+            "type": "string"
+        },
+        {
+            "name": "perfilDescripcion",
+            "type": "string"
+        },
+        {
+            "name": "codVended",
+            "type": "string"
+        },
+        {
+            "name": "vendedorDescripcion",
+            "type": "string"
+        },
+        {
+            "name": "codCondvta",
+            "type": "number"
+        },
+        {
+            "name": "condicionVentaDescripcion",
+            "type": "string"
+        },
+        {
+            "name": "idDe",
+            "type": "number"
+        },
+        {
+            "name": "direccionEntregaDescripcion",
+            "type": "string"
+        },
+        {
+            "name": "codTranspor",
+            "type": "string"
+        },
+        {
+            "name": "transporteDescripcion",
+            "type": "string"
+        },
+        {
+            "name": "listaPrecios",
+            "type": "number"
+        },
+        {
+            "name": "listaPreciosDescripcion",
+            "type": "string"
+        },
+        {
+            "name": "expreso",
+            "type": "string"
+        },
+        {
+            "name": "expresoDire",
+            "type": "string"
+        },
+        {
+            "name": "fechaEntrega",
+            "type": "date"
+        },
+        {
+            "name": "usuarioCreacion",
+            "type": "string"
+        },
+        {
+            "name": "fechaCreacion",
+            "type": "date"
+        },
+        {
+            "name": "usuarioModificacion",
+            "type": "string"
+        },
+        {
+            "name": "fechahoraInicioProceso",
+            "type": "date"
+        },
+        {
+            "name": "fechahoraUltimaActividad",
+            "type": "date"
+        },
+        {
+            "name": "numeroVisible",
+            "type": "number"
+        },
+        {
+            "name": "guidSufijo",
+            "type": "string"
+        },
+        {
+            "name": "renglon",
+            "type": "number"
+        },
+        {
+            "name": "codArticulo",
+            "type": "string"
+        },
+        {
+            "name": "descripcionArticulo",
+            "type": "string"
+        },
+        {
+            "name": "especial",
+            "type": "string"
+        },
+        {
+            "name": "cantidad",
+            "type": "number"
+        },
+        {
+            "name": "cantidadVenta",
+            "type": "number"
+        },
+        {
+            "name": "porcBonif",
+            "type": "number"
+        },
+        {
+            "name": "precioLista",
+            "type": "number"
+        },
+        {
+            "name": "precioNeto",
+            "type": "number"
+        },
+        {
+            "name": "importeBruto",
+            "type": "number"
+        },
+        {
+            "name": "importeNeto",
+            "type": "number"
+        },
+        {
+            "name": "ivaNeto",
+            "type": "number"
+        },
+        {
+            "name": "importeNetoConIva",
+            "type": "number"
+        }
+    ]
+}
