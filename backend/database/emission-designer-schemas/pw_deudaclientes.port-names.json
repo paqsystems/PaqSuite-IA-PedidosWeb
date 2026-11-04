@@ -1,0 +1,11 @@
+{
+    "fieldNames": [
+        "codCliente",
+        "razonSocial",
+        "tipo",
+        "numero",
+        "fecha",
+        "vencimiento",
+        "saldo"
+    ]
+}

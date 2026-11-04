@@ -1,0 +1,27 @@
+{
+    "fieldNames": [
+        "codCliente",
+        "razonSocial",
+        "nRemito",
+        "tipo",
+        "numero",
+        "fechaEmision",
+        "condVta",
+        "porcDesc",
+        "cotiz",
+        "moneda",
+        "totalComp",
+        "codTransp",
+        "nomTransp",
+        "codArticulo",
+        "descripcion",
+        "codDep",
+        "um",
+        "cantidad",
+        "precio",
+        "totSinImp",
+        "nCompRem",
+        "cantRem",
+        "fechaRem"
+    ]
+}

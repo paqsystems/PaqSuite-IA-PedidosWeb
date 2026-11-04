@@ -49,6 +49,9 @@ $dependsOnByBase = [
     '2026_11_04_100005_rebuild_pq_empresa_unified_gen06.php' => [
         'pedidosweb-migration-2026_11_04_100000_align_pq_empresa_gen06_for_sp',
     ],
+    '2026_11_04_100015_widen_pq_installation_run_step_kind.php' => [
+        'fw-migration-2026_10_27_000037_create_pq_installation_control_tables',
+    ],
 ];
 
 $entries = [];
@@ -64,6 +67,42 @@ foreach ($files as $absolute) {
         'dependsOn' => $dependsOnByBase[$base] ?? [],
     ];
 }
+
+// GEN-15 / CC#13 — Field List schemas (DIC) para el diseñador DX.
+$designerSchemaDir = $backendRoot . '/database/emission-designer-schemas';
+$designerSchemaFiles = is_dir($designerSchemaDir)
+    ? (glob($designerSchemaDir . '/*.json') ?: [])
+    : [];
+sort($designerSchemaFiles);
+
+foreach ($designerSchemaFiles as $absolute) {
+    $basename = basename($absolute);
+    if (str_ends_with($basename, '.port-names.json')) {
+        continue;
+    }
+
+    $processCode = pathinfo($basename, PATHINFO_FILENAME);
+    $relative = 'database/emission-designer-schemas/' . $basename;
+    $portNamesRel = 'database/emission-designer-schemas/' . $processCode . '.port-names.json';
+    $entry = [
+        'id' => 'pedidosweb-emission-designer-schema-' . $processCode,
+        'kind' => 'emissionDesignerSchema',
+        'target' => 'dictionary',
+        'path' => $relative,
+        'checksum' => hash_file('sha256', $absolute),
+        'dependsOn' => [
+            'fw-migration-2026_11_03_000041_create_pq_emission_designer_schemas_table',
+            'fw-sp-pq_sp_emission_designer_schema',
+        ],
+        'processCode' => $processCode,
+    ];
+    if (is_readable($backendRoot . '/' . $portNamesRel)) {
+        $entry['emissionPortSchemaRef'] = $portNamesRel;
+    }
+    $entries[] = $entry;
+}
+
+usort($entries, static fn (array $a, array $b): int => strcmp($a['id'], $b['id']));
 
 $manifest = [
     'manifestId' => 'pedidosweb-' . $semver,
@@ -91,4 +130,8 @@ file_put_contents(
     json_encode($manifest, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n"
 );
 
-echo "Wrote {$outFile} (" . count($entries) . " migrations)\n";
+$designerCount = count(array_filter(
+    $entries,
+    static fn (array $e): bool => ($e['kind'] ?? '') === 'emissionDesignerSchema'
+));
+echo "Wrote {$outFile} (" . count($entries) . " entries, {$designerCount} designer schemas)\n";

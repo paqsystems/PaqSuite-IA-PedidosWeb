@@ -31,4 +31,10 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    /*
+    | Base URL del sidecar ASP.NET DevExpress Reporting (diseñador DXXRD*).
+    | Distinto de PAQSUITE_EMISSION_DX_SERVICE_URL (que incluye /api/v1/dx-reporting para /render).
+    */
+    'dx_reporting_sidecar_url' => env('PAQSUITE_DX_REPORTING_SIDECAR_URL', 'http://127.0.0.1:5055'),
+
 ];

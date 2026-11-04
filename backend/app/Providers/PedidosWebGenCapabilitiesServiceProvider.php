@@ -3,8 +3,8 @@
 namespace App\Providers;
 
 use App\Repositories\Gen\Emissions\ConfigFallbackEmissionRepository;
-use App\Repositories\Gen\Emissions\FakeDxReportingEngine;
 use App\Repositories\Gen\Emissions\FakePdfArtifactFactory;
+use App\Services\Emissions\EmissionDxReportingEngineFactory;
 use App\Repositories\Gen\Emissions\FileEmissionArtifactStorage;
 use App\Repositories\Gen\Emissions\PedidosWebEmissionInlineTaskDispatcher;
 use App\Repositories\Gen\Emissions\PedidosWebNullEmissionAuditPort;
@@ -99,7 +99,10 @@ final class PedidosWebGenCapabilitiesServiceProvider extends ServiceProvider
         $this->app->singleton(EmissionAsyncThreshold::class);
 
         $this->app->singleton(FakePdfArtifactFactory::class);
-        $this->app->singleton(DxReportingEngine::class, FakeDxReportingEngine::class);
+        $this->app->singleton(
+            DxReportingEngine::class,
+            static fn ($app): DxReportingEngine => EmissionDxReportingEngineFactory::make($app),
+        );
         $this->app->singleton(EmissionArtifactStorage::class, FileEmissionArtifactStorage::class);
         $this->app->singleton(EmissionPreviewSessionStore::class, InMemoryEmissionPreviewSessionStore::class);
         $this->app->singleton(EmissionAuditPort::class, PedidosWebNullEmissionAuditPort::class);

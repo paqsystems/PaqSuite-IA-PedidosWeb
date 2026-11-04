@@ -1,0 +1,50 @@
+{
+    "version": 1,
+    "datasetDisplayName": "Stock",
+    "fields": [
+        {
+            "name": "codArticulo",
+            "type": "string"
+        },
+        {
+            "name": "descripcion",
+            "type": "string"
+        },
+        {
+            "name": "stock",
+            "type": "number"
+        },
+        {
+            "name": "comprometido",
+            "type": "number"
+        },
+        {
+            "name": "comprometidoWeb",
+            "type": "number"
+        },
+        {
+            "name": "disponibleNeto",
+            "type": "number"
+        },
+        {
+            "name": "codBase",
+            "type": "string"
+        },
+        {
+            "name": "stockBase",
+            "type": "number"
+        },
+        {
+            "name": "comprometidoBase",
+            "type": "number"
+        },
+        {
+            "name": "comprometidoBaseWeb",
+            "type": "number"
+        },
+        {
+            "name": "disponibleNetoBase",
+            "type": "number"
+        }
+    ]
+}

@@ -4,6 +4,7 @@ import { EmissionReportDesignerPage, isNativeApp } from '@paqsuite/react-core';
 import { useRequiredSessionContext } from '../../auth/AuthProvider';
 import { getStoredToken } from '../../auth/authStorage';
 import { getActiveTenantSync } from '../../../shared/mobile/mobileRuntime';
+import { DxReportDesignerPanel } from '../../emissions/DxReportDesignerPanel';
 
 export function DiseniadorReportesPage() {
   const sessionContext = useRequiredSessionContext();
@@ -30,6 +31,7 @@ export function DiseniadorReportesPage() {
         accessToken={accessToken}
         platform={platform}
         t={t}
+        renderDesigner={(context) => <DxReportDesignerPanel context={context} />}
       />
     </div>
   );

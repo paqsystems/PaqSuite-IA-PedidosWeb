@@ -36,7 +36,8 @@ try {
         '2026_11_04_100011_add_pq_grid_layout_last_used_created_at.php',
         '2026_11_04_100012_pq_grid_layouts_physical_user_id.php',
         '2026_11_04_100013_gen10_pq_parametros_gral_bridge.php',
-        '2026_11_04_100014_add_pq_menus_codigo_alias.php'
+        '2026_11_04_100014_add_pq_menus_codigo_alias.php',
+        '2026_11_04_100015_widen_pq_installation_run_step_kind.php'
     )
     Write-Host '[GEN-34] migraciones alineación GEN-06/15 (pre-update)...'
     foreach ($migrationScript in $alignMigrationScripts) {
@@ -79,7 +80,15 @@ try {
         Write-Warning "paqsuite:sql:sync-dev terminó con código $sqlExit (puede quedar bloqueado en pasos GEN-06 antes de emisiones)."
     }
 
-    if ($updateExit -eq 0 -and $sqlExit -eq 0) {
+    # GEN-15 Field List: upsert schemas aunque installation:update haya quedado 0/0 (run vacío/idempotente).
+    Write-Host '[GEN-34] deploy emission designer schemas (DIC)...'
+    & $php scripts/dev/deploy-emission-designer-schemas.php
+    $schemaExit = $LASTEXITCODE
+    if ($schemaExit -ne 0) {
+        Write-Warning "deploy-emission-designer-schemas terminó con código $schemaExit"
+    }
+
+    if ($updateExit -eq 0 -and $sqlExit -eq 0 -and $schemaExit -eq 0) {
         Write-Host '[GEN-34] Sync completado.'
         exit 0
     }

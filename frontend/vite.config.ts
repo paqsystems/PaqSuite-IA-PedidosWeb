@@ -42,7 +42,25 @@ export default defineConfig(({ mode }) => {
     base: resolveViteBase(),
     resolve: {
       alias: resolveAlias,
-      dedupe: ['react', 'react-dom', 'devextreme', 'devextreme-react'],
+      dedupe: [
+        'react',
+        'react-dom',
+        'devextreme',
+        'devextreme-react',
+        'devexpress-reporting',
+        'devexpress-reporting-react',
+        'knockout',
+        'jquery',
+      ],
+    },
+    optimizeDeps: {
+      include: [
+        'jquery',
+        'knockout',
+        'ace-builds',
+        'devexpress-reporting',
+        'devexpress-reporting-react',
+      ],
     },
     server: {
       port: 3010,
@@ -50,6 +68,19 @@ export default defineConfig(({ mode }) => {
       proxy: {
         '/api': {
           target: 'http://localhost:8088',
+          changeOrigin: true,
+        },
+        // ASP.NET DevExpress Reporting (diseñador GEN-15) — requiere VITE_DX_REPORTING_HOST
+        '/DXXRD': {
+          target: (env.VITE_DX_REPORTING_HOST || 'http://127.0.0.1:5055').replace(/\/+$/, ''),
+          changeOrigin: true,
+        },
+        '/DXXRDV': {
+          target: (env.VITE_DX_REPORTING_HOST || 'http://127.0.0.1:5055').replace(/\/+$/, ''),
+          changeOrigin: true,
+        },
+        '/DXXQB': {
+          target: (env.VITE_DX_REPORTING_HOST || 'http://127.0.0.1:5055').replace(/\/+$/, ''),
           changeOrigin: true,
         },
       },

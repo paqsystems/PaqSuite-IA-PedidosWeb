@@ -1,0 +1,71 @@
+import { Suspense, lazy, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
+import type { ReportDesignerContext } from '@paqsuite/react-core';
+import {
+  buildDxGetDesignerModelAction,
+  readDxReportingConfig,
+  resolveDxDesignerReportUrl,
+} from './dxReportingConfig';
+
+const LazyDxReportDesignerApp = lazy(() => import('./DxReportDesignerApp'));
+
+export type PedidosWebDxReportSavedEvent = {
+  url: string;
+  layoutDefinition?: string;
+  isNew: boolean;
+};
+
+type DxReportDesignerPanelProps = {
+  context: ReportDesignerContext;
+};
+
+/**
+ * Inyecta el diseñador DevExtreme Reporting real (host ASP.NET vía DXXRD).
+ * Requiere `VITE_DX_REPORTING_HOST` y paquetes `devexpress-reporting*`.
+ */
+export function DxReportDesignerPanel({ context }: DxReportDesignerPanelProps) {
+  const { t } = useTranslation();
+  const config = useMemo(() => readDxReportingConfig(), []);
+
+  if (!config.configured) {
+    return (
+      <div data-testid="emissions.designer.hostMissing" role="status" style={{ padding: 12 }}>
+        <p>{t('emissions.designer.hostMissing')}</p>
+        <p style={{ opacity: 0.8, fontSize: 13 }}>{t('emissions.designer.hostMissingHint')}</p>
+        <p style={{ opacity: 0.7, fontSize: 12 }} data-testid="emissions.designer.processCode">
+          {context.processCode}
+        </p>
+      </div>
+    );
+  }
+
+  const reportUrl = resolveDxDesignerReportUrl({
+    reportCode: context.reportCode,
+    reportUrlDefault: config.reportUrl,
+    processCode: context.processCode,
+  });
+  const getDesignerModelAction = buildDxGetDesignerModelAction(
+    context.processCode,
+    config.getDesignerModelAction,
+  );
+
+  return (
+    <div
+      data-testid="emissions.designer.dxHost"
+      style={{ width: '100%', height: 'calc(100vh - 160px)', minHeight: 480 }}
+    >
+      <Suspense
+        fallback={<div data-testid="emissions.designer.loading">{t('emissions.designer.loading')}</div>}
+      >
+        <LazyDxReportDesignerApp
+          key={reportUrl}
+          reportUrl={reportUrl}
+          host={config.host}
+          getDesignerModelAction={getDesignerModelAction}
+          knownReportCodes={context.knownReportCodes ?? []}
+          onDxReportSaved={context.onDxReportSaved}
+        />
+      </Suspense>
+    </div>
+  );
+}

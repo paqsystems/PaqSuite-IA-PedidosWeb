@@ -1,0 +1,42 @@
+{
+    "version": 1,
+    "datasetDisplayName": "Cheques",
+    "fields": [
+        {
+            "name": "interno",
+            "type": "string"
+        },
+        {
+            "name": "numero",
+            "type": "string"
+        },
+        {
+            "name": "codCliente",
+            "type": "string"
+        },
+        {
+            "name": "nombreCliente",
+            "type": "string"
+        },
+        {
+            "name": "banco",
+            "type": "string"
+        },
+        {
+            "name": "fecha",
+            "type": "date"
+        },
+        {
+            "name": "importe",
+            "type": "number"
+        },
+        {
+            "name": "origen",
+            "type": "string"
+        },
+        {
+            "name": "estado",
+            "type": "string"
+        }
+    ]
+}

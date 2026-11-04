@@ -1017,5 +1017,10 @@
     "emission.submit": "Emitir",
     "emission.close": "Cerrar",
     "emission.download": "Descargar",
-    "emission.error.processLoad": "No se pudo cargar el proceso de emisión."
+    "emission.error.processLoad": "No se pudo cargar el proceso de emisión.",
+    "emissions.designer.hostMissing": "Falta el servicio DevExpress Reporting (ASP.NET) para el diseñador visual.",
+    "emissions.designer.hostMissingHint": "Definí VITE_DX_REPORTING_HOST (p. ej. http://127.0.0.1:5055), levantá el sidecar DXXRD y reiniciá Vite. Con PAQSUITE_EMISSION_DX_MODE=fake el diseñador usa motor stub sin sidecar.",
+    "emissions.designer.packagesPending": "Sidecar configurado: falta montar el widget DevExpress Reporting en este host.",
+    "emissions.designer.packagesPendingHint": "Adoptar paquetes devexpress-reporting / analytics-core (patrón Partes) o usar PAQSUITE_EMISSION_DX_MODE=fake para el piloto stub.",
+    "emissions.designer.loading": "Cargando diseñador de reportes…"
 }
