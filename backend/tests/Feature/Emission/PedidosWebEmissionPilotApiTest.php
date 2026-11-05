@@ -76,6 +76,41 @@ final class PedidosWebEmissionPilotApiTest extends TestCase
         $this->assertStringStartsWith('%PDF', $download->getContent());
     }
 
+    public function testFieldSchemaAuthenticatedDoesNotReturn3001(): void
+    {
+        $headers = $this->authHeadersFor('supervisor.mvp');
+
+        $anonymous = $this->getJson(
+            '/api/v1/emissions/design/field-schema?processCode=pw_deudaclientes',
+            $this->tenantHeaders(),
+        );
+        $this->assertContains(
+            $anonymous->status(),
+            [401, 200],
+            'Sin Bearer debe fallar auth o devolver envelope 3001 según middleware.',
+        );
+        if ($anonymous->status() === 200) {
+            $this->assertSame(3001, (int) $anonymous->json('error'));
+        }
+
+        $response = $this->getJson(
+            '/api/v1/emissions/design/field-schema?processCode=pw_deudaclientes',
+            $headers,
+        );
+
+        $this->assertNotSame(
+            3001,
+            (int) $response->json('error'),
+            'Con Bearer válido no debe devolver AUTH_UNAUTHENTICATED (emission.error.3001): '.$response->getContent(),
+        );
+        $this->assertNotSame(401, $response->status(), $response->getContent());
+
+        if ($response->status() === 200 && (int) $response->json('error') === 0) {
+            $response->assertJsonPath('resultado.processCode', 'pw_deudaclientes');
+            $this->assertNotSame('Dataset', (string) $response->json('resultado.datasetDisplayName'));
+        }
+    }
+
     /**
      * @return list<array{0: string}>
      */

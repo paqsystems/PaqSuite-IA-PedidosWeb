@@ -130,9 +130,14 @@ return [
     ],
 
     'emissions' => [
-        // Vacío: el sidecar llama field-schema con X-Paq-Sidecar-Schema-Token
-        // (EmissionDesignerSchemaAuthMiddleware). No exigir Sanctum/tenant aquí.
-        'designerSchemaMiddleware' => [],
+        // Obligatorio anteponer tenant + resolución Sanctum opcional.
+        // Sin ResolveSanctumUserOptionally, GET field-schema deja user()=null aunque
+        // el FE envíe Bearer → emission.error.3001 (AUTH_UNAUTHENTICATED).
+        // No usar auth:sanctum estricto: el sidecar autentica con X-Paq-Sidecar-Schema-Token.
+        'designerSchemaMiddleware' => [
+            'paq.tenant',
+            'paq.emissionDesignerSanctum',
+        ],
         'dxReporting' => [
             'mode' => env('PAQSUITE_EMISSION_DX_MODE', 'fake'),
             'serviceUrl' => env(
