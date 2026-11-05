@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import './dxReportingRuntimeSetup';
 import ReportDesigner, { Callbacks, RequestOptions } from 'devexpress-reporting-react/dx-report-designer';
 import 'devextreme/dist/css/dx.light.css';
@@ -12,11 +12,13 @@ import 'ace-builds/css/theme/dreamweaver.css';
 import 'ace-builds/css/theme/ambiance.css';
 import type { PedidosWebDxReportSavedEvent } from './DxReportDesignerPanel';
 import { parseDxReportSavedArgs } from './parseDxReportSavedArgs';
+import { $, setDxDesignerProcessCode } from './dxReportingRuntimeSetup';
 
 export type DxReportDesignerAppProps = {
   reportUrl: string;
   host: string;
   getDesignerModelAction: string;
+  processCode?: string;
   knownReportCodes?: string[];
   onDxReportSaved?: (event: PedidosWebDxReportSavedEvent) => void | Promise<void>;
 };
@@ -33,11 +35,22 @@ export default function DxReportDesignerApp({
   reportUrl,
   host,
   getDesignerModelAction,
+  processCode = '',
   knownReportCodes = [],
   onDxReportSaved,
 }: DxReportDesignerAppProps) {
   const pendingLayoutRef = useRef<string | undefined>(undefined);
   const useDevMode = import.meta.env.DEV;
+
+  useEffect(() => {
+    setDxDesignerProcessCode(processCode);
+    return () => {
+      setDxDesignerProcessCode('');
+    };
+  }, [processCode]);
+
+  // Referencia para que el tree-shake no elimine el import de jQuery prefilter.
+  void $;
 
   return (
     <ReportDesigner

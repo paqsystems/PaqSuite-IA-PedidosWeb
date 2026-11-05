@@ -23,6 +23,7 @@ type ReportingGlobals = typeof globalThis & {
   ace?: typeof ace;
   jQuery?: typeof $;
   $?: typeof $;
+  __paqDxDesignerProcessCode?: string;
 };
 
 const g = globalThis as ReportingGlobals;
@@ -30,5 +31,35 @@ g.ko = ko;
 g.ace = ace;
 g.jQuery = $;
 g.$ = $;
+
+/** El sidecar lee processCode en form o query; el cliente DX a veces solo manda reportUrl. */
+export function setDxDesignerProcessCode(processCode: string): void {
+  g.__paqDxDesignerProcessCode = processCode.trim();
+}
+
+const ajaxPrefilterInstalled = (g as ReportingGlobals & { __paqDxProcessCodeAjax?: boolean })
+  .__paqDxProcessCodeAjax;
+if (!ajaxPrefilterInstalled) {
+  $.ajaxPrefilter((options) => {
+    const processCode = g.__paqDxDesignerProcessCode?.trim() ?? '';
+    if (processCode === '') {
+      return;
+    }
+    const url = String(options.url ?? '');
+    if (!/DXXRD(?:\/|$|\?)/i.test(url) || !/GetDesignerModel/i.test(url)) {
+      return;
+    }
+    if (typeof options.data === 'string') {
+      if (!/(^|&)processCode=/.test(options.data)) {
+        options.data = `${options.data}${options.data ? '&' : ''}processCode=${encodeURIComponent(processCode)}`;
+      }
+      return;
+    }
+    if (options.data && typeof options.data === 'object' && !('processCode' in (options.data as object))) {
+      (options.data as Record<string, string>).processCode = processCode;
+    }
+  });
+  (g as ReportingGlobals & { __paqDxProcessCodeAjax?: boolean }).__paqDxProcessCodeAjax = true;
+}
 
 export { ace, ko, $ };

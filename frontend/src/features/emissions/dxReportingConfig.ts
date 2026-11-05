@@ -96,5 +96,6 @@ export function resolveDxDesignerReportUrl(input: {
   if (code !== '' && !/^\d+$/.test(code)) {
     return code;
   }
-  return input.reportUrlDefault.trim() || input.processCode;
+  // Preferir processCode: el default de env (pw_consultastock) no debe pisar el proceso confirmado.
+  return input.processCode.trim() || input.reportUrlDefault.trim();
 }
