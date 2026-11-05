@@ -58,10 +58,11 @@ export function DxReportDesignerPanel({ context }: DxReportDesignerPanelProps) {
         fallback={<div data-testid="emissions.designer.loading">{t('emissions.designer.loading')}</div>}
       >
         <LazyDxReportDesignerApp
-          key={reportUrl}
+          key={`${reportUrl}:${context.processCode}`}
           reportUrl={reportUrl}
           host={config.host}
           getDesignerModelAction={getDesignerModelAction}
+          processCode={context.processCode}
           knownReportCodes={context.knownReportCodes ?? []}
           onDxReportSaved={context.onDxReportSaved}
         />

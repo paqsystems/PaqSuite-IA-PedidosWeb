@@ -130,10 +130,9 @@ return [
     ],
 
     'emissions' => [
-        'designerSchemaMiddleware' => [
-            'paq.tenant',
-            'auth:sanctum',
-        ],
+        // Vacío: el sidecar llama field-schema con X-Paq-Sidecar-Schema-Token
+        // (EmissionDesignerSchemaAuthMiddleware). No exigir Sanctum/tenant aquí.
+        'designerSchemaMiddleware' => [],
         'dxReporting' => [
             'mode' => env('PAQSUITE_EMISSION_DX_MODE', 'fake'),
             'serviceUrl' => env(
