@@ -46,6 +46,25 @@ final class PedidosWebEmissionPilotApiTest extends TestCase
             $this->assertNotSame('', (string) ($item['processCode'] ?? ''));
             $this->assertNotSame('', (string) ($item['name'] ?? ''));
             $this->assertNotSame($item['processCode'], $item['name'], 'El diseñador debe mostrar descripción, no el código.');
+            $this->assertNotSame('<Original>', $item['name'], 'El caption del proceso no es el reporte de base.');
+        }
+    }
+
+    public function testStandardReportsAreNamedOriginal(): void
+    {
+        $headers = $this->authHeadersFor('supervisor.mvp');
+        $processCode = 'pw_pedidosingresados';
+
+        $response = $this->getJson('/api/v1/emissions/processes/'.$processCode, $headers)
+            ->assertOk()
+            ->assertJsonPath('error', 0);
+
+        $this->assertNotSame('<Original>', (string) $response->json('resultado.item.name'));
+        $reports = $response->json('resultado.item.reports');
+        $this->assertIsArray($reports);
+        $this->assertNotEmpty($reports);
+        foreach ($reports as $report) {
+            $this->assertSame('<Original>', $report['name'] ?? null);
         }
     }
 
