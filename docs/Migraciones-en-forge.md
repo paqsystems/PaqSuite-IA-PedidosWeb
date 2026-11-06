@@ -59,6 +59,10 @@ composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev
 
 php artisan migrate --force
 
+# GEN-15: SP del SDK (CREATE/ALTER) + catálogo de procesos del diseñador.
+# Necesario porque PedidosWeb aún no corre paqsuite:installation:update en Forge.
+$FORGE_PHP artisan paqsuite:deploy-sdk-sql
+
 # Catálogos idempotentes: menú MVP, Excel PEDIDO_INDIVIDUAL/PEDIDO_MASIVO,
 # parámetros PedidosWeb faltantes (PQ_parametros_gral), atributos visibility
 # y proveedores chat (no toca passwords salvo --with-seguridad).
@@ -146,6 +150,7 @@ Idempotente. Pensado para el Deploy Script (después de `migrate --force`):
 | Parámetros PedidosWeb faltantes | INSERT idempotente desde `PQ_PARAMETROS_GRAL.PedidosWeb.seed.json` (solo claves ausentes; no pisa valores) |
 | Chat providers | Catálogo `pq_asistente_ia_proveedores` si la tabla existe |
 | Atributos visibility | Upsert `PQ_RolAtributo` desde `visibilityProcedimientosByRole` (no borra otros) |
+| GEN-15 (`paqsuite:deploy-sdk-sql`) | SP `pq_sp_emission_*` del SDK + tabla/schemas del diseñador + catálogo de 8 informes |
 | `--with-seguridad` | **Opcional.** Corre `seed-seguridad-mvp` (puede tocar usuarios MVP / passwords) |
 
 **Tablas tocadas por defecto (sin `--with-seguridad`):** ver matriz en runbook § «paqsuite:seed-deploy».  
@@ -160,6 +165,12 @@ Sitio → **Commands** → **Run Command**:
 
 ```bash
 cd backend && php artisan migrate --force
+```
+
+Diseñador de reportes vacío (`No se pudo completar la solicitud` / SP `pq_sp_emission_process_get` ausente):
+
+```bash
+cd backend && php artisan paqsuite:deploy-sdk-sql && php artisan paqsuite:seed-deploy
 ```
 
 ---

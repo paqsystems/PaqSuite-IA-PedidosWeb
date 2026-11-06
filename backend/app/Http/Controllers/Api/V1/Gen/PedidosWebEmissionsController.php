@@ -5,11 +5,14 @@ namespace App\Http\Controllers\Api\V1\Gen;
 use App\Http\Controllers\Controller;
 use App\Models\Gen\PqEmissionProcess;
 use App\Support\Emissions\PedidosWebEmissionJobPresenter;
+use App\Support\Installation\PedidosWebSdkSqlDeployer;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Throwable;
 use PaqSuite\LaravelCore\Emissions\Contracts\EmissionRepository;
 use PaqSuite\LaravelCore\Emissions\Dto\CommunicationIntent;
 use PaqSuite\LaravelCore\Emissions\Dto\EmissionContext;
@@ -48,12 +51,22 @@ final class PedidosWebEmissionsController extends Controller
         }
 
         $items = [];
-        foreach ($this->catalogProcessCodes() as $processCode) {
-            $process = $this->repository->findProcess($processCode);
-            if ($process === null || ! $process->active) {
-                continue;
+        try {
+            foreach ($this->catalogProcessCodes() as $processCode) {
+                $process = $this->repository->findProcess($processCode);
+                if ($process === null || ! $process->active) {
+                    continue;
+                }
+                $items[] = $this->processPayload($process);
             }
-            $items[] = $this->processPayload($process);
+        } catch (Throwable $exception) {
+            if (PedidosWebSdkSqlDeployer::isMissingEmissionSql($exception)) {
+                Log::error('GEN-15 catálogo: SQL SDK no desplegado', ['exception' => $exception]);
+
+                return ApiResponse::errorFromCatalog(PaqSuiteEnvelopeCatalog::EMISSION_DESIGNER_SCHEMA_NOT_FOUND);
+            }
+
+            throw $exception;
         }
 
         return ApiResponse::success(['items' => $items]);
@@ -66,7 +79,17 @@ final class PedidosWebEmissionsController extends Controller
             return $disabled;
         }
 
-        $process = $this->repository->findProcess($processCode);
+        try {
+            $process = $this->repository->findProcess($processCode);
+        } catch (Throwable $exception) {
+            if (PedidosWebSdkSqlDeployer::isMissingEmissionSql($exception)) {
+                Log::error('GEN-15 proceso: SQL SDK no desplegado', ['exception' => $exception]);
+
+                return ApiResponse::errorFromCatalog(PaqSuiteEnvelopeCatalog::EMISSION_DESIGNER_SCHEMA_NOT_FOUND);
+            }
+
+            throw $exception;
+        }
         if ($process === null || ! $process->active) {
             return ApiResponse::errorFromCatalog(PaqSuiteEnvelopeCatalog::EMISSION_PROCESS_NOT_FOUND);
         }
