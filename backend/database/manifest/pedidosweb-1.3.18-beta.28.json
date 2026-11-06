@@ -307,6 +307,18 @@
             "dependsOn": [
                 "fw-migration-2026_10_27_000037_create_pq_installation_control_tables"
             ]
+        },
+        {
+            "id": "pedidosweb-migration-2026_11_06_100016_deploy_gen15_sdk_sql",
+            "kind": "migration",
+            "target": "dictionary",
+            "path": "database/migrations/2026_11_06_100016_deploy_gen15_sdk_sql.php",
+            "checksum": "f8e2417f73e83c4808a5dfd6a55acaa52714b1f105096e0190a8f5970381e9c4",
+            "dependsOn": [
+                "pedidosweb-migration-2026_11_04_100002_create_pq_emission_tables",
+                "fw-sp-pq_sp_emission_core",
+                "fw-sp-pq_sp_emission_designer_schema"
+            ]
         }
     ]
 }

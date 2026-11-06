@@ -1018,6 +1018,7 @@
     "emission.close": "Chiudi",
     "emission.download": "Scarica",
     "emission.error.processLoad": "Impossibile caricare il processo di emissione.",
+    "emission.designer.schemaMissing": "Il catalogo GEN-15 non è stato distribuito (tabelle/SP dell'SDK). Esegui paqsuite:deploy-sdk-sql o l'aggiornamento di installazione, oppure contatta l'amministratore.",
     "emissions.designer.hostMissing": "Serve il servizio DevExpress Reporting (ASP.NET) per il designer visuale.",
     "emissions.designer.hostMissingHint": "Imposta VITE_DX_REPORTING_HOST (es. http://127.0.0.1:5055), avvia il sidecar DXXRD e riavvia Vite. Con PAQSUITE_EMISSION_DX_MODE=fake il designer usa il motore stub senza sidecar.",
     "emissions.designer.packagesPending": "Sidecar configurato: il widget DevExpress Reporting non è ancora montato su questo host.",
