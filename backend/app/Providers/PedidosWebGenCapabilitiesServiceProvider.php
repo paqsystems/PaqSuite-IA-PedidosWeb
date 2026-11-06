@@ -12,8 +12,11 @@ use App\Repositories\Gen\Emissions\PedidosWebNullEmissionMailPort;
 use App\Repositories\Gen\Emissions\PedidosWebNullEmissionNotificationPort;
 use App\Repositories\Gen\Tasks\InMemoryMonoRdsBackupGateway;
 use App\Services\Emissions\PedidosWebConsultaEmissionDatasetPort;
+use App\Support\Installation\PedidosWebInstallationCatalogSync;
+use App\Support\Installation\PedidosWebSdkSqlDeployer;
 use App\Tenancy\PedidosWebMenuProcedimientoChecker;
 use Illuminate\Support\ServiceProvider;
+use PaqSuite\LaravelCore\Installation\Lifecycle\InstallationCatalogSyncContract;
 use PaqSuite\LaravelCore\Emissions\Contracts\DxReportingEngine;
 use PaqSuite\LaravelCore\Emissions\Contracts\EmissionArtifactStorage;
 use PaqSuite\LaravelCore\Emissions\Contracts\EmissionAuditPort;
@@ -60,6 +63,8 @@ final class PedidosWebGenCapabilitiesServiceProvider extends ServiceProvider
             EmpresaAdminRepository::class,
             static fn (): StoredProcedureEmpresaAdminRepository => new StoredProcedureEmpresaAdminRepository(null),
         );
+        $this->app->singleton(PedidosWebSdkSqlDeployer::class);
+        $this->app->singleton(InstallationCatalogSyncContract::class, PedidosWebInstallationCatalogSync::class);
 
         $this->app->singleton(MenuProcedimientoChecker::class, PedidosWebMenuProcedimientoChecker::class);
 

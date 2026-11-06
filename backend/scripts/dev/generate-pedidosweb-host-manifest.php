@@ -23,7 +23,7 @@ $files = array_values(array_filter(
         if (str_contains($base, 'pedidosweb')) {
             return true;
         }
-        if (str_starts_with($base, '2026_11_04_1000')) {
+        if (str_starts_with($base, '2026_11_04_1000') || str_starts_with($base, '2026_11_06_1000')) {
             return true;
         }
         if ($base === '2026_10_24_230000_create_jobs_table.php') {
@@ -51,6 +51,11 @@ $dependsOnByBase = [
     ],
     '2026_11_04_100015_widen_pq_installation_run_step_kind.php' => [
         'fw-migration-2026_10_27_000037_create_pq_installation_control_tables',
+    ],
+    '2026_11_06_100016_deploy_gen15_sdk_sql.php' => [
+        'pedidosweb-migration-2026_11_04_100002_create_pq_emission_tables',
+        'fw-sp-pq_sp_emission_core',
+        'fw-sp-pq_sp_emission_designer_schema',
     ],
 ];
 

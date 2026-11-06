@@ -27,7 +27,7 @@ final class SeedDeployCommand extends Command
                             {--skip-parametros : No insertar claves PedidosWeb faltantes en PQ_parametros_gral}
                             {--skip-emission : No seedear catálogo GEN-15 piloto (pq_emission_*)}';
 
-    protected $description = 'Post-deploy: menú MVP, catálogo Excel, parámetros PedidosWeb faltantes, atributos visibility y catálogo chat (idempotente)';
+    protected $description = 'Post-deploy: menú MVP, Excel, parámetros, visibility, chat y SQL/catálogo GEN-15 (idempotente)';
 
     public function handle(): int
     {
@@ -72,6 +72,7 @@ final class SeedDeployCommand extends Command
             }
 
             if (! $this->option('skip-emission')) {
+                $this->call('paqsuite:deploy-sdk-sql');
                 if (! Schema::hasTable('pq_emission_processes') || ! Schema::hasTable('pq_emission_reports')) {
                     $this->warn('Tablas GEN-15 (pq_emission_*) no presentes; se omite seed piloto emisión.');
                 } else {

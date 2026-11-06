@@ -26,8 +26,8 @@ Adoptar **GEN-15** (diseñador + emisión en 8 informes) y **GEN-13** (tareas + 
 | R1 | Pin sin exports GEN-13/15 | Pin acordado; exports verificados en oleada | OK |
 | R2 | Sidecar DX reporting en dev | `PAQSUITE_EMISSION_DX_MODE=fake` + `.env.example` | OK piloto |
 | R3 | Alcance 8 informes + 2 GEN | 3 fases | En curso |
-| R4 | `installation:update` local falla (`EmpresaAdminRepository`) | Resolver wiring laravel-core / host; no bootstrap destructivo | **Abierto** |
-| R5 | BD sin tablas `pq_emission_*` | `installation:update` + migrate Framework; tests Feature **skip** si faltan tablas | **Abierto** |
+| R4 | `installation:update` no corre en Forge; host no tenía `InstallationCatalogSyncContract` | Bind catalog sync + `paqsuite:deploy-sdk-sql` (CREATE/ALTER, sin DROP) | **Mitigado** |
+| R5 | Productivos sin SP `pq_sp_emission_process_get` → diseñador vacío | Migración `2026_11_06_100016` + seed-deploy despliega SQL GEN-15 del SDK | **Mitigado** |
 | R6 | `npm run build` TS en node_modules react-core (tasks pages) | Bump SDK cuando salga fix; host sin cambio en páneas piloto | Observación |
 
 ## Fase 1 — Infra + menú General
@@ -39,7 +39,7 @@ Adoptar **GEN-15** (diseñador + emisión en 8 informes) y **GEN-13** (tareas + 
 | 3 | `DiseniadorReportesPage` / `TareasProgramadasPage` (SDK) | Hecho |
 | 4 | API emisiones catálogo + diseño (processes, design layout/principal) | Hecho |
 | 5 | `paqsuite:seed-menus-mvp` en deploy (`SeedDeployCommand`) y tests Feature habituales | Hecho (política: no seed manual en chat) |
-| 6 | `installation:update` + SP GEN-13/15 en BD dev | **Pendiente** (R4/R5) |
+| 6 | `installation:update` + SP GEN-13/15 en BD | **Mitigado en host:** `paqsuite:deploy-sdk-sql` / migrate `100016`. GEN-34 completo en Forge sigue pendiente (tenants no listados en `paqsuite.instalaciones`). |
 | 7 | Sync `label_key` menú demo | **Pendiente** (GEN-34) |
 
 **TR:** TR-GEN-13, TR-GEN-15 — wiring host; cierre D/E tras smoke BD.
