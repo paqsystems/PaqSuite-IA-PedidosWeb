@@ -3,7 +3,6 @@
 use App\Support\Installation\PedidosWebSdkSqlDeployer;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\Log;
-use Throwable;
 
 /**
  * Productivos Forge no corren paqsuite:installation:update (GEN-34).
@@ -15,7 +14,7 @@ return new class extends Migration
     {
         try {
             app(PedidosWebSdkSqlDeployer::class)->deployEmission();
-        } catch (Throwable $exception) {
+        } catch (\Throwable $exception) {
             Log::warning('GEN-15 SDK SQL deploy skipped: '.$exception->getMessage());
         }
     }
