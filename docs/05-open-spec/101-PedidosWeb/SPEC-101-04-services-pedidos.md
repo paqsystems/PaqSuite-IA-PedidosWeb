@@ -1,5 +1,8 @@
 # SPEC-101-04 — Services (pedidos y presupuestos)
 
+Jira: PIAPEDWEB-16
+
+
 | Campo | Valor |
 |-------|--------|
 | **SPEC madre** | [PedidosWeb_SPEC_MVP.md](PedidosWeb_SPEC_MVP.md) |

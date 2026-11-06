@@ -1,9 +1,12 @@
 # SPEC-001-09 - Tareas programadas
 
+Jira: PIAPEDWEB-10
+
+
 | Campo | Valor |
 |-------|--------|
 | **HU relacionadas** | Ninguna en MVP portal |
-| **Estado** | Documental |
+| **Estado** | En revisión |
 | **Revisión A1** | Documental (2026-05-28) |
 
 ## Objetivo

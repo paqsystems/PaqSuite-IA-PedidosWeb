@@ -1,5 +1,8 @@
 # SPEC-101-14 — Dashboard operativo
 
+Jira: PIAPEDWEB-26
+
+
 | Campo | Valor |
 |-------|--------|
 | **SPEC madre** | [PedidosWeb_SPEC_MVP.md](PedidosWeb_SPEC_MVP.md) §4.1 |

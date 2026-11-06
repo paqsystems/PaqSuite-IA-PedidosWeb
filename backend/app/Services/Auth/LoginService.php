@@ -18,9 +18,13 @@ final class LoginService
      */
     public function login(string $codigo, string $password): array
     {
-        $user = User::query()->where('codigo', $codigo)->first();
+        $user = User::query()
+            ->where('codigo', $codigo)
+            ->orderBy('id')
+            ->get()
+            ->first(fn (User $candidate): bool => $this->credentialsAreValid($candidate, $password));
 
-        if ($user === null || ! $this->credentialsAreValid($user, $password)) {
+        if ($user === null) {
             throw new AuthFlowException(
                 AuthErrorCodes::invalidCredentials,
                 'auth.invalidCredentials',

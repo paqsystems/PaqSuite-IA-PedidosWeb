@@ -1,0 +1,34 @@
+{
+    "version": 1,
+    "datasetDisplayName": "Deudas",
+    "fields": [
+        {
+            "name": "codCliente",
+            "type": "string"
+        },
+        {
+            "name": "razonSocial",
+            "type": "string"
+        },
+        {
+            "name": "tipo",
+            "type": "string"
+        },
+        {
+            "name": "numero",
+            "type": "string"
+        },
+        {
+            "name": "fecha",
+            "type": "date"
+        },
+        {
+            "name": "vencimiento",
+            "type": "date"
+        },
+        {
+            "name": "saldo",
+            "type": "number"
+        }
+    ]
+}

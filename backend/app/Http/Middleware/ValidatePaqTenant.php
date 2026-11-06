@@ -12,6 +12,11 @@ final class ValidatePaqTenant
 {
     public function handle(Request $request, Closure $next): Response
     {
+        // Sidecar DX Reporting: field-schema usa token, sin X-Paq-Cliente.
+        if ($this->isSidecarDesignerSchemaRequest($request)) {
+            return $next($request);
+        }
+
         $headerName = (string) config('paqsuite_tenant.headerName', 'X-Paq-Cliente');
         $tenant = trim((string) $request->header($headerName));
         $allowedClients = config('paqsuite_tenant.allowedClients', []);
@@ -25,5 +30,21 @@ final class ValidatePaqTenant
         }
 
         return $next($request);
+    }
+
+    private function isSidecarDesignerSchemaRequest(Request $request): bool
+    {
+        if (! $request->is('api/v1/emissions/design/field-schema')) {
+            return false;
+        }
+
+        $configured = trim((string) config('emissions.designer.sidecarToken', ''));
+        if ($configured === '') {
+            return false;
+        }
+
+        $header = trim((string) $request->header('X-Paq-Sidecar-Schema-Token', ''));
+
+        return $header !== '' && hash_equals($configured, $header);
     }
 }

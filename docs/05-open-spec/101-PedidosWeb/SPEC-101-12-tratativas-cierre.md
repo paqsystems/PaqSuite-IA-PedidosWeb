@@ -1,5 +1,8 @@
 # SPEC-101-12 — Tratativas y cierre
 
+Jira: PIAPEDWEB-24
+
+
 | Campo | Valor |
 |-------|--------|
 | **SPEC madre** | [PedidosWeb_SPEC_MVP.md](PedidosWeb_SPEC_MVP.md) |

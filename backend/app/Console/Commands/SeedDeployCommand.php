@@ -7,6 +7,7 @@ use App\Models\PqRolAtributo;
 use App\Services\Seed\PqParametrosGralPedidosWebSeeder;
 use Database\Seeders\ChatAssistant\ChatAssistantProviderCatalogSeeder;
 use Database\Seeders\ExcelImport\PedidosWebExcelImportCatalogSeeder;
+use Database\Seeders\PedidosWebEmissionPilotSeeder;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Schema;
 use Throwable;
@@ -23,7 +24,8 @@ final class SeedDeployCommand extends Command
                             {--skip-menus : No seedear pq_menus MVP}
                             {--skip-chat : No seedear catálogo proveedores chat asistente}
                             {--skip-atributos : No upsert de PQ_RolAtributo desde visibilityProcedimientosByRole}
-                            {--skip-parametros : No insertar claves PedidosWeb faltantes en PQ_parametros_gral}';
+                            {--skip-parametros : No insertar claves PedidosWeb faltantes en PQ_parametros_gral}
+                            {--skip-emission : No seedear catálogo GEN-15 piloto (pq_emission_*)}';
 
     protected $description = 'Post-deploy: menú MVP, catálogo Excel, parámetros PedidosWeb faltantes, atributos visibility y catálogo chat (idempotente)';
 
@@ -67,6 +69,18 @@ final class SeedDeployCommand extends Command
 
             if (! $this->option('skip-atributos')) {
                 $this->syncVisibilityRoleAtributos();
+            }
+
+            if (! $this->option('skip-emission')) {
+                if (! Schema::hasTable('pq_emission_processes') || ! Schema::hasTable('pq_emission_reports')) {
+                    $this->warn('Tablas GEN-15 (pq_emission_*) no presentes; se omite seed piloto emisión.');
+                } else {
+                    $this->call('db:seed', [
+                        '--class' => PedidosWebEmissionPilotSeeder::class,
+                        '--force' => true,
+                    ]);
+                    $this->info('Catálogo emisión GEN-15 (8 informes) actualizado.');
+                }
             }
 
             if ($this->option('with-seguridad')) {

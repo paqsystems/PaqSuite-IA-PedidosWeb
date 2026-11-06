@@ -452,6 +452,8 @@ namespace App\OpenApi;
  *     @OA\Response(response=403, description="Sin permiso repo"),
  *     @OA\Response(response=404, description="Presupuesto inexistente")
  * )
+ *
+ * @OA\Get(path="/api/v1/integracion/importaciones/{importacionId}", operationId="integracionImportacionesResult", summary="Consultar resultado de importación asíncrona", tags={"Integración importaciones"}, security={{"sanctum":{}},{"tenant":{}}}, @OA\Parameter(name="importacionId", in="path", required=true, @OA\Schema(type="string", example="ERP-IMP-20261024-0001")), @OA\Response(response=200, description="Estado de importación", @OA\JsonContent(ref="#/components/schemas/ApiEnvelopeIntegracionImportacion")), @OA\Response(response=404, description="Importación inexistente"))
  */
 final class PedidosWebOpenApiPaths
 {

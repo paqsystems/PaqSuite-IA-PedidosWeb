@@ -1,5 +1,8 @@
 # SPEC-101-17 — Mobile Capacitor PedidosWeb
 
+Jira: PIAPEDWEB-29
+
+
 | Campo | Valor |
 |-------|--------|
 | **SPEC madre** | [PedidosWeb_SPEC_MVP.md](PedidosWeb_SPEC_MVP.md) |

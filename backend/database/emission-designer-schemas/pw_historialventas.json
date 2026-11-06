@@ -1,0 +1,98 @@
+{
+    "version": 1,
+    "datasetDisplayName": "Historial ventas",
+    "fields": [
+        {
+            "name": "codCliente",
+            "type": "string"
+        },
+        {
+            "name": "razonSocial",
+            "type": "string"
+        },
+        {
+            "name": "nRemito",
+            "type": "string"
+        },
+        {
+            "name": "tipo",
+            "type": "string"
+        },
+        {
+            "name": "numero",
+            "type": "string"
+        },
+        {
+            "name": "fechaEmision",
+            "type": "date"
+        },
+        {
+            "name": "condVta",
+            "type": "number"
+        },
+        {
+            "name": "porcDesc",
+            "type": "number"
+        },
+        {
+            "name": "cotiz",
+            "type": "number"
+        },
+        {
+            "name": "moneda",
+            "type": "string"
+        },
+        {
+            "name": "totalComp",
+            "type": "number"
+        },
+        {
+            "name": "codTransp",
+            "type": "string"
+        },
+        {
+            "name": "nomTransp",
+            "type": "string"
+        },
+        {
+            "name": "codArticulo",
+            "type": "string"
+        },
+        {
+            "name": "descripcion",
+            "type": "string"
+        },
+        {
+            "name": "codDep",
+            "type": "string"
+        },
+        {
+            "name": "um",
+            "type": "string"
+        },
+        {
+            "name": "cantidad",
+            "type": "number"
+        },
+        {
+            "name": "precio",
+            "type": "number"
+        },
+        {
+            "name": "totSinImp",
+            "type": "number"
+        },
+        {
+            "name": "nCompRem",
+            "type": "string"
+        },
+        {
+            "name": "cantRem",
+            "type": "number"
+        },
+        {
+            "name": "fechaRem",
+            "type": "date"
+        }
+    ]
+}

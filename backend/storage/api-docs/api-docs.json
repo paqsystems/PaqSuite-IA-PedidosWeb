@@ -2549,6 +2549,1474 @@
                 ]
             }
         },
+        "/api/v1/integracion/maestros/provincias": {
+            "post": {
+                "tags": [
+                    "Integración maestros"
+                ],
+                "summary": "Importar provincias",
+                "description": "Catálogo chico: **snapshot** = universo del lote; **delta** = upsert. Elegí el ejemplo en Request body.",
+                "operationId": "integracionMaestrosProvincias",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/IntegracionMaestroProvinciasLoteRequest"
+                            },
+                            "examples": {
+                                "provinciasSnapshot": {
+                                    "summary": "Snapshot — universo del recurso",
+                                    "value": {
+                                        "importacionId": "ERP-MAE-PROV-001",
+                                        "numeroLote": 1,
+                                        "ultimoEnvio": true,
+                                        "modo": "snapshot",
+                                        "fechaProceso": "2026-10-24T12:00:00-03:00",
+                                        "origen": "erp-job",
+                                        "items": [
+                                            {
+                                                "codProvin": "B",
+                                                "descripcion": "Buenos Aires"
+                                            },
+                                            {
+                                                "codProvin": "C",
+                                                "descripcion": "Capital Federal"
+                                            }
+                                        ]
+                                    }
+                                },
+                                "provinciasDelta": {
+                                    "summary": "Delta — novedades (upsert)",
+                                    "value": {
+                                        "importacionId": "ERP-MAE-PROV-002",
+                                        "numeroLote": 1,
+                                        "ultimoEnvio": true,
+                                        "modo": "delta",
+                                        "fechaProceso": "2026-10-24T12:00:00-03:00",
+                                        "origen": "erp-job",
+                                        "items": [
+                                            {
+                                                "codProvin": "B",
+                                                "descripcion": "Buenos Aires (actualizado)"
+                                            }
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "202": {
+                        "description": "Lote recibido (procesamiento asíncrono)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelopeIntegracionImportacionLoteReceipt"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Importación en conflicto"
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "403": {
+                        "description": "Sin permiso"
+                    },
+                    "422": {
+                        "description": "Lote inválido"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/integracion/maestros/condventa": {
+            "post": {
+                "tags": [
+                    "Integración maestros"
+                ],
+                "summary": "Importar condiciones de venta",
+                "description": "**snapshot** o **delta** — ver ejemplos en Request body.",
+                "operationId": "integracionMaestrosCondventa",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/IntegracionMaestroCondventaLoteRequest"
+                            },
+                            "examples": {
+                                "condventaSnapshot": {
+                                    "summary": "Snapshot — universo del recurso",
+                                    "value": {
+                                        "importacionId": "ERP-MAE-CV-001",
+                                        "numeroLote": 1,
+                                        "ultimoEnvio": true,
+                                        "modo": "snapshot",
+                                        "fechaProceso": "2026-10-24T12:00:00-03:00",
+                                        "origen": "erp-job",
+                                        "items": [
+                                            {
+                                                "codigo": 1,
+                                                "descripcion": "Contado",
+                                                "dias": 0
+                                            }
+                                        ]
+                                    }
+                                },
+                                "condventaDelta": {
+                                    "summary": "Delta — upsert",
+                                    "value": {
+                                        "importacionId": "ERP-MAE-CV-002",
+                                        "numeroLote": 1,
+                                        "ultimoEnvio": true,
+                                        "modo": "delta",
+                                        "fechaProceso": "2026-10-24T12:00:00-03:00",
+                                        "origen": "erp-job",
+                                        "items": [
+                                            {
+                                                "codigo": 2,
+                                                "descripcion": "30 días",
+                                                "dias": 30
+                                            }
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "202": {
+                        "description": "Lote recibido (procesamiento asíncrono)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelopeIntegracionImportacionLoteReceipt"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Importación en conflicto"
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "403": {
+                        "description": "Sin permiso"
+                    },
+                    "422": {
+                        "description": "Lote inválido"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/integracion/maestros/transportes": {
+            "post": {
+                "tags": [
+                    "Integración maestros"
+                ],
+                "summary": "Importar transportes",
+                "description": "**snapshot** o **delta** — ver ejemplos en Request body.",
+                "operationId": "integracionMaestrosTransportes",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/IntegracionMaestroTransportesLoteRequest"
+                            },
+                            "examples": {
+                                "transportesSnapshot": {
+                                    "summary": "Snapshot — universo del recurso",
+                                    "value": {
+                                        "importacionId": "ERP-MAE-TR-001",
+                                        "numeroLote": 1,
+                                        "ultimoEnvio": true,
+                                        "modo": "snapshot",
+                                        "fechaProceso": "2026-10-24T12:00:00-03:00",
+                                        "origen": "erp-job",
+                                        "items": [
+                                            {
+                                                "codigo": "TR01",
+                                                "descripcion": "Retiro en planta"
+                                            }
+                                        ]
+                                    }
+                                },
+                                "transportesDelta": {
+                                    "summary": "Delta — upsert",
+                                    "value": {
+                                        "importacionId": "ERP-MAE-TR-002",
+                                        "numeroLote": 1,
+                                        "ultimoEnvio": true,
+                                        "modo": "delta",
+                                        "fechaProceso": "2026-10-24T12:00:00-03:00",
+                                        "origen": "erp-job",
+                                        "items": [
+                                            {
+                                                "codigo": "TR02",
+                                                "descripcion": "Transporte express"
+                                            }
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "202": {
+                        "description": "Lote recibido (procesamiento asíncrono)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelopeIntegracionImportacionLoteReceipt"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Importación en conflicto"
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "403": {
+                        "description": "Sin permiso"
+                    },
+                    "422": {
+                        "description": "Lote inválido"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/integracion/maestros/perfiles": {
+            "post": {
+                "tags": [
+                    "Integración maestros"
+                ],
+                "summary": "Importar perfiles",
+                "description": "**snapshot** o **delta** — ver ejemplos en Request body.",
+                "operationId": "integracionMaestrosPerfiles",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/IntegracionMaestroPerfilesLoteRequest"
+                            },
+                            "examples": {
+                                "perfilesSnapshot": {
+                                    "summary": "Snapshot — universo del recurso",
+                                    "value": {
+                                        "importacionId": "ERP-MAE-PF-001",
+                                        "numeroLote": 1,
+                                        "ultimoEnvio": true,
+                                        "modo": "snapshot",
+                                        "fechaProceso": "2026-10-24T12:00:00-03:00",
+                                        "origen": "erp-job",
+                                        "items": [
+                                            {
+                                                "codPerfil": "P01",
+                                                "descripcion": "Perfil estándar"
+                                            }
+                                        ]
+                                    }
+                                },
+                                "perfilesDelta": {
+                                    "summary": "Delta — upsert",
+                                    "value": {
+                                        "importacionId": "ERP-MAE-PF-002",
+                                        "numeroLote": 1,
+                                        "ultimoEnvio": true,
+                                        "modo": "delta",
+                                        "fechaProceso": "2026-10-24T12:00:00-03:00",
+                                        "origen": "erp-job",
+                                        "items": [
+                                            {
+                                                "codPerfil": "P02",
+                                                "descripcion": "Perfil mayorista"
+                                            }
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "202": {
+                        "description": "Lote recibido (procesamiento asíncrono)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelopeIntegracionImportacionLoteReceipt"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Importación en conflicto"
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "403": {
+                        "description": "Sin permiso"
+                    },
+                    "422": {
+                        "description": "Lote inválido"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/integracion/maestros/vendedores": {
+            "post": {
+                "tags": [
+                    "Integración maestros"
+                ],
+                "summary": "Importar vendedores",
+                "description": "**snapshot** (replace por ítem) o **delta** (upsert + `eliminarSiAusente`). Ver ejemplos.",
+                "operationId": "integracionMaestrosVendedores",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/IntegracionMaestroVendedoresLoteRequest"
+                            },
+                            "examples": {
+                                "vendedoresSnapshot": {
+                                    "summary": "Snapshot — replace por ítem",
+                                    "value": {
+                                        "importacionId": "ERP-MAE-VEN-001",
+                                        "numeroLote": 1,
+                                        "ultimoEnvio": true,
+                                        "modo": "snapshot",
+                                        "fechaProceso": "2026-10-24T12:00:00-03:00",
+                                        "origen": "erp-job",
+                                        "items": [
+                                            {
+                                                "codVended": "VEN01",
+                                                "nombre": "Vendedor Uno"
+                                            }
+                                        ]
+                                    }
+                                },
+                                "vendedoresDelta": {
+                                    "summary": "Delta — upsert",
+                                    "value": {
+                                        "importacionId": "ERP-MAE-VEN-002",
+                                        "numeroLote": 1,
+                                        "ultimoEnvio": true,
+                                        "modo": "delta",
+                                        "fechaProceso": "2026-10-24T12:00:00-03:00",
+                                        "origen": "erp-job",
+                                        "items": [
+                                            {
+                                                "codVended": "VEN01",
+                                                "nombre": "Vendedor Uno (actualizado)"
+                                            }
+                                        ]
+                                    }
+                                },
+                                "vendedoresDeltaBaja": {
+                                    "summary": "Delta — baja explícita (eliminarSiAusente)",
+                                    "value": {
+                                        "importacionId": "ERP-MAE-VEN-003",
+                                        "numeroLote": 1,
+                                        "ultimoEnvio": true,
+                                        "modo": "delta",
+                                        "fechaProceso": "2026-10-24T12:00:00-03:00",
+                                        "origen": "erp-job",
+                                        "items": [
+                                            {
+                                                "codVended": "VEN99",
+                                                "eliminarSiAusente": true
+                                            }
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "202": {
+                        "description": "Lote recibido (procesamiento asíncrono)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelopeIntegracionImportacionLoteReceipt"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Importación en conflicto"
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "403": {
+                        "description": "Sin permiso"
+                    },
+                    "422": {
+                        "description": "Lote inválido"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/integracion/maestros/listaprecios": {
+            "post": {
+                "tags": [
+                    "Integración maestros"
+                ],
+                "summary": "Importar listas de precios",
+                "description": "**snapshot** o **delta**. Precios hijos en `articulos[]` (alias ERP `items[]`).",
+                "operationId": "integracionMaestrosListaprecios",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/IntegracionMaestroListapreciosLoteRequest"
+                            },
+                            "examples": {
+                                "listapreciosSnapshot": {
+                                    "summary": "Snapshot — listas presentes = universo",
+                                    "value": {
+                                        "importacionId": "ERP-MAE-LP-001",
+                                        "numeroLote": 1,
+                                        "ultimoEnvio": true,
+                                        "modo": "snapshot",
+                                        "fechaProceso": "2026-10-24T12:00:00-03:00",
+                                        "origen": "erp-job",
+                                        "items": [
+                                            {
+                                                "codLista": 1,
+                                                "descripcion": "Lista general",
+                                                "articulos": [
+                                                    {
+                                                        "codArticulo": "ART001",
+                                                        "precio": 100.5
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                },
+                                "listapreciosDelta": {
+                                    "summary": "Delta — upsert lista y precios",
+                                    "value": {
+                                        "importacionId": "ERP-MAE-LP-002",
+                                        "numeroLote": 1,
+                                        "ultimoEnvio": true,
+                                        "modo": "delta",
+                                        "fechaProceso": "2026-10-24T12:00:00-03:00",
+                                        "origen": "erp-job",
+                                        "items": [
+                                            {
+                                                "codLista": 1,
+                                                "articulos": [
+                                                    {
+                                                        "codArticulo": "ART001",
+                                                        "precio": 105
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "202": {
+                        "description": "Lote recibido (procesamiento asíncrono)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelopeIntegracionImportacionLoteReceipt"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Importación en conflicto"
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "403": {
+                        "description": "Sin permiso"
+                    },
+                    "422": {
+                        "description": "Lote inválido"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/integracion/maestros/escalas": {
+            "post": {
+                "tags": [
+                    "Integración maestros"
+                ],
+                "summary": "Importar escalas",
+                "description": "**snapshot** o **delta** — ver ejemplos en Request body.",
+                "operationId": "integracionMaestrosEscalas",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/IntegracionMaestroEscalasLoteRequest"
+                            },
+                            "examples": {
+                                "escalasSnapshot": {
+                                    "summary": "Snapshot — universo del recurso",
+                                    "value": {
+                                        "importacionId": "ERP-MAE-ESC-001",
+                                        "numeroLote": 1,
+                                        "ultimoEnvio": true,
+                                        "modo": "snapshot",
+                                        "fechaProceso": "2026-10-24T12:00:00-03:00",
+                                        "origen": "erp-job",
+                                        "items": [
+                                            {
+                                                "codEscala": "01",
+                                                "descripEs": "Unidades",
+                                                "valores": [
+                                                    {
+                                                        "codValor": "U",
+                                                        "descValor": "Unidad"
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                },
+                                "escalasDelta": {
+                                    "summary": "Delta — upsert",
+                                    "value": {
+                                        "importacionId": "ERP-MAE-ESC-002",
+                                        "numeroLote": 1,
+                                        "ultimoEnvio": true,
+                                        "modo": "delta",
+                                        "fechaProceso": "2026-10-24T12:00:00-03:00",
+                                        "origen": "erp-job",
+                                        "items": [
+                                            {
+                                                "codEscala": "01",
+                                                "descripEs": "Unidades (rev)"
+                                            }
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "202": {
+                        "description": "Lote recibido (procesamiento asíncrono)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelopeIntegracionImportacionLoteReceipt"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Importación en conflicto"
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "403": {
+                        "description": "Sin permiso"
+                    },
+                    "422": {
+                        "description": "Lote inválido"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/integracion/maestros/medidas": {
+            "post": {
+                "tags": [
+                    "Integración maestros"
+                ],
+                "summary": "Importar medidas",
+                "description": "Unidades de medida ERP. **snapshot** = universo del lote (finalize elimina ausentes); **delta** = upsert por `codMedida`. Ver ejemplos en Request body.",
+                "operationId": "integracionMaestrosMedidas",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/IntegracionMaestroMedidasLoteRequest"
+                            },
+                            "examples": {
+                                "medidasSnapshot": {
+                                    "summary": "Snapshot — universo del recurso",
+                                    "value": {
+                                        "importacionId": "ERP-MAE-MED-001",
+                                        "numeroLote": 1,
+                                        "ultimoEnvio": true,
+                                        "modo": "snapshot",
+                                        "fechaProceso": "2026-10-24T12:00:00-03:00",
+                                        "origen": "erp-job",
+                                        "items": [
+                                            {
+                                                "idMedida": 1001,
+                                                "codMedida": "UN",
+                                                "descMedida": "Unidad"
+                                            },
+                                            {
+                                                "idMedida": 1002,
+                                                "codMedida": "KG",
+                                                "descMedida": "Kilogramo"
+                                            }
+                                        ]
+                                    }
+                                },
+                                "medidasDelta": {
+                                    "summary": "Delta — upsert por codMedida",
+                                    "value": {
+                                        "importacionId": "ERP-MAE-MED-002",
+                                        "numeroLote": 1,
+                                        "ultimoEnvio": true,
+                                        "modo": "delta",
+                                        "fechaProceso": "2026-10-24T12:00:00-03:00",
+                                        "origen": "erp-job",
+                                        "items": [
+                                            {
+                                                "idMedida": 1001,
+                                                "codMedida": "UN",
+                                                "descMedida": "Unidad (actualizada)"
+                                            }
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "202": {
+                        "description": "Lote recibido (procesamiento asíncrono)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelopeIntegracionImportacionLoteReceipt"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Importación en conflicto"
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "403": {
+                        "description": "Sin permiso"
+                    },
+                    "422": {
+                        "description": "Lote inválido"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/integracion/maestros/articulos": {
+            "post": {
+                "tags": [
+                    "Integración maestros"
+                ],
+                "summary": "Importar artículos",
+                "description": "**snapshot** (replace por ítem) o **delta** (upsert + `eliminarSiAusente`). Ver ejemplos.",
+                "operationId": "integracionMaestrosArticulos",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/IntegracionMaestroArticulosLoteRequest"
+                            },
+                            "examples": {
+                                "articulosSnapshot": {
+                                    "summary": "Snapshot — replace campos enviados por ítem",
+                                    "value": {
+                                        "importacionId": "ERP-MAE-ART-001",
+                                        "numeroLote": 1,
+                                        "ultimoEnvio": true,
+                                        "modo": "snapshot",
+                                        "fechaProceso": "2026-10-24T12:00:00-03:00",
+                                        "origen": "erp-job",
+                                        "items": [
+                                            {
+                                                "codigo": "ART001",
+                                                "descripcion": "Artículo demo",
+                                                "stockeable": true
+                                            }
+                                        ]
+                                    }
+                                },
+                                "articulosDelta": {
+                                    "summary": "Delta — upsert",
+                                    "value": {
+                                        "importacionId": "ERP-MAE-ART-002",
+                                        "numeroLote": 1,
+                                        "ultimoEnvio": true,
+                                        "modo": "delta",
+                                        "fechaProceso": "2026-10-24T12:00:00-03:00",
+                                        "origen": "erp-job",
+                                        "items": [
+                                            {
+                                                "codigo": "ART001",
+                                                "descripcion": "Artículo demo (rev)"
+                                            }
+                                        ]
+                                    }
+                                },
+                                "articulosDeltaBaja": {
+                                    "summary": "Delta — baja explícita (eliminarSiAusente)",
+                                    "value": {
+                                        "importacionId": "ERP-MAE-ART-003",
+                                        "numeroLote": 1,
+                                        "ultimoEnvio": true,
+                                        "modo": "delta",
+                                        "fechaProceso": "2026-10-24T12:00:00-03:00",
+                                        "origen": "erp-job",
+                                        "items": [
+                                            {
+                                                "codigo": "ART099",
+                                                "eliminarSiAusente": true
+                                            }
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "202": {
+                        "description": "Lote recibido (procesamiento asíncrono)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelopeIntegracionImportacionLoteReceipt"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Importación en conflicto"
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "403": {
+                        "description": "Sin permiso"
+                    },
+                    "422": {
+                        "description": "Lote inválido"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/integracion/maestros/descuentocantidad": {
+            "post": {
+                "tags": [
+                    "Integración maestros"
+                ],
+                "summary": "Importar descuentos por cantidad",
+                "description": "**Solo delta** en MVP (`snapshot` → 422). Ejemplo único en Request body.",
+                "operationId": "integracionMaestrosDescuentocantidad",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/IntegracionMaestroDescuentocantidadLoteRequest"
+                            },
+                            "examples": {
+                                "descuentocantidadDelta": {
+                                    "summary": "Delta — único modo soportado",
+                                    "value": {
+                                        "importacionId": "ERP-MAE-DC-001",
+                                        "numeroLote": 1,
+                                        "ultimoEnvio": true,
+                                        "modo": "delta",
+                                        "fechaProceso": "2026-10-24T12:00:00-03:00",
+                                        "origen": "erp-job",
+                                        "items": [
+                                            {
+                                                "codArticu": "ART001",
+                                                "cantidad": 10,
+                                                "porcentaje": 5
+                                            }
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "202": {
+                        "description": "Lote recibido (procesamiento asíncrono)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelopeIntegracionImportacionLoteReceipt"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Importación en conflicto"
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "403": {
+                        "description": "Sin permiso"
+                    },
+                    "422": {
+                        "description": "Lote inválido o modo snapshot"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/integracion/maestros/clientes": {
+            "post": {
+                "tags": [
+                    "Integración maestros"
+                ],
+                "summary": "Importar clientes",
+                "description": "**snapshot** o **delta**; contactos/direcciones anidados; `eliminarSiAusente` en delta. Ver ejemplos.",
+                "operationId": "integracionMaestrosClientes",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/IntegracionMaestroClientesLoteRequest"
+                            },
+                            "examples": {
+                                "clientesSnapshot": {
+                                    "summary": "Snapshot — replace por ítem",
+                                    "value": {
+                                        "importacionId": "ERP-MAE-CLI-001",
+                                        "numeroLote": 1,
+                                        "ultimoEnvio": true,
+                                        "modo": "snapshot",
+                                        "fechaProceso": "2026-10-24T12:00:00-03:00",
+                                        "origen": "erp-job",
+                                        "items": [
+                                            {
+                                                "codClient": "CL-001",
+                                                "nombre": "Cliente demo",
+                                                "codVended": "VEN01"
+                                            }
+                                        ]
+                                    }
+                                },
+                                "clientesDelta": {
+                                    "summary": "Delta — upsert",
+                                    "value": {
+                                        "importacionId": "ERP-MAE-CLI-002",
+                                        "numeroLote": 1,
+                                        "ultimoEnvio": true,
+                                        "modo": "delta",
+                                        "fechaProceso": "2026-10-24T12:00:00-03:00",
+                                        "origen": "erp-job",
+                                        "items": [
+                                            {
+                                                "codClient": "CL-001",
+                                                "nombre": "Cliente demo (rev)"
+                                            }
+                                        ]
+                                    }
+                                },
+                                "clientesDeltaBaja": {
+                                    "summary": "Delta — baja explícita (eliminarSiAusente)",
+                                    "value": {
+                                        "importacionId": "ERP-MAE-CLI-003",
+                                        "numeroLote": 1,
+                                        "ultimoEnvio": true,
+                                        "modo": "delta",
+                                        "fechaProceso": "2026-10-24T12:00:00-03:00",
+                                        "origen": "erp-job",
+                                        "items": [
+                                            {
+                                                "codClient": "CL-099",
+                                                "eliminarSiAusente": true
+                                            }
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "202": {
+                        "description": "Lote recibido (procesamiento asíncrono)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelopeIntegracionImportacionLoteReceipt"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Importación en conflicto"
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "403": {
+                        "description": "Sin permiso"
+                    },
+                    "422": {
+                        "description": "Lote inválido"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/integracion/maestros/parametros": {
+            "post": {
+                "tags": [
+                    "Integración maestros"
+                ],
+                "summary": "Importar parámetros PedidosWeb",
+                "description": "**Solo delta** (`snapshot` → 422). Whitelist de claves — ver schema del ítem.",
+                "operationId": "integracionMaestrosParametros",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/IntegracionMaestroParametrosLoteRequest"
+                            },
+                            "examples": {
+                                "parametrosDelta": {
+                                    "summary": "Delta — único modo soportado",
+                                    "value": {
+                                        "importacionId": "ERP-MAE-PAR-001",
+                                        "numeroLote": 1,
+                                        "ultimoEnvio": true,
+                                        "modo": "delta",
+                                        "fechaProceso": "2026-10-24T12:00:00-03:00",
+                                        "origen": "erp-job",
+                                        "items": [
+                                            {
+                                                "clave": "MinutosWeb",
+                                                "tipoValor": "I",
+                                                "valorInt": 30
+                                            }
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "202": {
+                        "description": "Lote recibido (procesamiento asíncrono)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelopeIntegracionImportacionLoteReceipt"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Importación en conflicto"
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "403": {
+                        "description": "Sin permiso"
+                    },
+                    "422": {
+                        "description": "Lote inválido o modo snapshot"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/integracion/transacciones/stock": {
+            "post": {
+                "tags": [
+                    "Integración transacciones"
+                ],
+                "summary": "Importar stock",
+                "description": "**snapshot:** el lote válido reemplaza atómicamente el universo de stock (422 si falla un ítem). **delta:** upsert parcial; baja puntual con `eliminarSiAusente` en el ítem. Elegí el ejemplo en Request body.",
+                "operationId": "integracionTransaccionesStock",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/IntegracionTransaccionStockLoteRequest"
+                            },
+                            "examples": {
+                                "stockSnapshot": {
+                                    "summary": "Snapshot — universo vigente (habitual ERP)",
+                                    "value": {
+                                        "importacionId": "ERP-IMP-20261024-0001",
+                                        "numeroLote": 1,
+                                        "ultimoEnvio": true,
+                                        "modo": "snapshot",
+                                        "fechaProceso": "2026-10-24T12:00:00-03:00",
+                                        "origen": "erp-job",
+                                        "items": [
+                                            {
+                                                "codArticulo": "ART001",
+                                                "stock": 100.5,
+                                                "comprometido": 10
+                                            },
+                                            {
+                                                "codArticulo": "ART002",
+                                                "stock": 50,
+                                                "comprometido": 0
+                                            }
+                                        ]
+                                    }
+                                },
+                                "stockDelta": {
+                                    "summary": "Delta — novedades (upsert)",
+                                    "value": {
+                                        "importacionId": "ERP-IMP-20261024-0002",
+                                        "numeroLote": 1,
+                                        "ultimoEnvio": true,
+                                        "modo": "delta",
+                                        "fechaProceso": "2026-10-24T12:00:00-03:00",
+                                        "origen": "erp-job",
+                                        "items": [
+                                            {
+                                                "codArticulo": "ART001",
+                                                "stock": 120,
+                                                "comprometido": 5
+                                            }
+                                        ]
+                                    }
+                                },
+                                "stockDeltaBaja": {
+                                    "summary": "Delta — baja explícita (eliminarSiAusente)",
+                                    "value": {
+                                        "importacionId": "ERP-IMP-20261024-0003",
+                                        "numeroLote": 1,
+                                        "ultimoEnvio": true,
+                                        "modo": "delta",
+                                        "fechaProceso": "2026-10-24T12:00:00-03:00",
+                                        "origen": "erp-job",
+                                        "items": [
+                                            {
+                                                "codArticulo": "ART099",
+                                                "eliminarSiAusente": true
+                                            }
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "202": {
+                        "description": "Lote recibido (procesamiento asíncrono)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelopeIntegracionImportacionLoteReceipt"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Importación en conflicto"
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "403": {
+                        "description": "Sin permiso"
+                    },
+                    "422": {
+                        "description": "Lote inválido (snapshot atómico o validación)"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/integracion/transacciones/deuda": {
+            "post": {
+                "tags": [
+                    "Integración transacciones"
+                ],
+                "summary": "Importar deuda",
+                "description": "**snapshot** o **delta** — ver ejemplos en Request body.",
+                "operationId": "integracionTransaccionesDeuda",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/IntegracionTransaccionDeudaLoteRequest"
+                            },
+                            "examples": {
+                                "deudaSnapshot": {
+                                    "summary": "Snapshot — comprobantes pendientes = lote",
+                                    "value": {
+                                        "importacionId": "ERP-IMP-20261024-0101",
+                                        "numeroLote": 1,
+                                        "ultimoEnvio": true,
+                                        "modo": "snapshot",
+                                        "fechaProceso": "2026-10-24T12:00:00-03:00",
+                                        "origen": "erp-job",
+                                        "items": [
+                                            {
+                                                "codCliente": "CL-001",
+                                                "tComp": "FC",
+                                                "nComp": "0001-00001234",
+                                                "fechaEmis": "2026-10-01",
+                                                "fechaVto": "2026-11-01",
+                                                "saldo": 1500.25
+                                            }
+                                        ]
+                                    }
+                                },
+                                "deudaDelta": {
+                                    "summary": "Delta — upsert / baja con eliminarSiAusente",
+                                    "value": {
+                                        "importacionId": "ERP-IMP-20261024-0102",
+                                        "numeroLote": 1,
+                                        "ultimoEnvio": true,
+                                        "modo": "delta",
+                                        "fechaProceso": "2026-10-24T12:00:00-03:00",
+                                        "origen": "erp-job",
+                                        "items": [
+                                            {
+                                                "codCliente": "CL-001",
+                                                "tComp": "FC",
+                                                "nComp": "0001-00001234",
+                                                "fechaEmis": "2026-10-01",
+                                                "fechaVto": "2026-11-01",
+                                                "saldo": 1200,
+                                                "eliminarSiAusente": false
+                                            }
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "202": {
+                        "description": "Lote recibido (procesamiento asíncrono)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelopeIntegracionImportacionLoteReceipt"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Importación en conflicto"
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "403": {
+                        "description": "Sin permiso"
+                    },
+                    "422": {
+                        "description": "Lote inválido"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/integracion/transacciones/cheques": {
+            "post": {
+                "tags": [
+                    "Integración transacciones"
+                ],
+                "summary": "Importar cheques",
+                "description": "**snapshot** o **delta** — ver ejemplos en Request body.",
+                "operationId": "integracionTransaccionesCheques",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/IntegracionTransaccionChequesLoteRequest"
+                            },
+                            "examples": {
+                                "chequesSnapshot": {
+                                    "summary": "Snapshot — cartera vigente = lote",
+                                    "value": {
+                                        "importacionId": "ERP-IMP-20261024-0201",
+                                        "numeroLote": 1,
+                                        "ultimoEnvio": true,
+                                        "modo": "snapshot",
+                                        "fechaProceso": "2026-10-24T12:00:00-03:00",
+                                        "origen": "erp-job",
+                                        "items": [
+                                            {
+                                                "interno": "1001",
+                                                "numero": "456789",
+                                                "codCliente": "CL-001",
+                                                "banco": "Galicia",
+                                                "fecha": "2026-10-20",
+                                                "importe": 25000.5,
+                                                "origen": "Cartera",
+                                                "estado": "En cartera"
+                                            }
+                                        ]
+                                    }
+                                },
+                                "chequesDelta": {
+                                    "summary": "Delta — upsert parcial",
+                                    "value": {
+                                        "importacionId": "ERP-IMP-20261024-0202",
+                                        "numeroLote": 1,
+                                        "ultimoEnvio": true,
+                                        "modo": "delta",
+                                        "fechaProceso": "2026-10-24T12:00:00-03:00",
+                                        "origen": "erp-job",
+                                        "items": [
+                                            {
+                                                "interno": "1001",
+                                                "numero": "456789",
+                                                "codCliente": "CL-001",
+                                                "banco": "Galicia",
+                                                "fecha": "2026-10-20",
+                                                "importe": 25000.5,
+                                                "origen": "Cartera",
+                                                "estado": "En cartera"
+                                            }
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "202": {
+                        "description": "Lote recibido (procesamiento asíncrono)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelopeIntegracionImportacionLoteReceipt"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Importación en conflicto"
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "403": {
+                        "description": "Sin permiso"
+                    },
+                    "422": {
+                        "description": "Lote inválido"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/integracion/transacciones/historial-ventas": {
+            "post": {
+                "tags": [
+                    "Integración transacciones"
+                ],
+                "summary": "Importar historial de ventas",
+                "description": "Solo **delta** (upsert por idGva53). Snapshot → 422.",
+                "operationId": "integracionTransaccionesHistorialVentas",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/IntegracionTransaccionHistorialVentasLoteRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "202": {
+                        "description": "Lote recibido (procesamiento asíncrono)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelopeIntegracionImportacionLoteReceipt"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Importación en conflicto"
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "403": {
+                        "description": "Sin permiso"
+                    },
+                    "422": {
+                        "description": "Lote inválido o modo snapshot"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
         "/api/v1/comprobantes/grabar": {
             "post": {
                 "tags": [
@@ -4343,6 +5811,49 @@
                     }
                 ]
             }
+        },
+        "/api/v1/integracion/importaciones/{importacionId}": {
+            "get": {
+                "tags": [
+                    "Integración importaciones"
+                ],
+                "summary": "Consultar resultado de importación asíncrona",
+                "operationId": "integracionImportacionesResult",
+                "parameters": [
+                    {
+                        "name": "importacionId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "ERP-IMP-20261024-0001"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Estado de importación",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelopeIntegracionImportacion"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Importación inexistente"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
         }
     },
     "components": {
@@ -5122,10 +6633,1237 @@
                     }
                 ]
             },
+            "IntegracionMaestroClienteItem": {
+                "required": [
+                    "codClient"
+                ],
+                "properties": {
+                    "codClient": {
+                        "description": "Schemas OpenAPI — GET tipados (Parametros, Maestros, Framework, Tratativas, PedidosWeb show, Excel, Chat, Pivots).",
+                        "type": "string",
+                        "example": "CL-001"
+                    },
+                    "nombre": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "fantasia": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "codVended": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "listaPrecios": {
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "codCondvta": {
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "codTranspor": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "bonificacion": {
+                        "type": "number",
+                        "format": "double",
+                        "nullable": true
+                    },
+                    "nivel": {
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "expreso": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "expresoDire": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "eMail": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "razonSoci": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "leyenda1": {
+                        "type": "string",
+                        "maxLength": 60,
+                        "nullable": true
+                    },
+                    "leyenda2": {
+                        "type": "string",
+                        "maxLength": 60,
+                        "nullable": true
+                    },
+                    "leyenda3": {
+                        "type": "string",
+                        "maxLength": 60,
+                        "nullable": true
+                    },
+                    "leyenda4": {
+                        "type": "string",
+                        "maxLength": 60,
+                        "nullable": true
+                    },
+                    "leyenda5": {
+                        "type": "string",
+                        "maxLength": 60,
+                        "nullable": true
+                    },
+                    "codLogin": {
+                        "description": "Ignorado por la API",
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "eliminarSiAusente": {
+                        "description": "Baja explícita de la clave codClient. En modo delta: elimina contactos, direcciones y cliente si no hay referencias (pedidos, deuda, cheques, ventas). En snapshot: mismo flag; no se borra por ausencia del lote sin este indicador.",
+                        "type": "boolean",
+                        "default": false
+                    },
+                    "direcciones": {
+                        "description": "Direcciones de entrega del cliente",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/IntegracionMaestroDireccionItem"
+                        }
+                    },
+                    "contactos": {
+                        "description": "Contactos del cliente",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/IntegracionMaestroContactoItem"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "IntegracionMaestroDireccionItem": {
+                "required": [
+                    "codClient",
+                    "idDe"
+                ],
+                "properties": {
+                    "codClient": {
+                        "type": "string",
+                        "example": "CL-001"
+                    },
+                    "idDe": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "codDe": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "direccion": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "localidad": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "cPostal": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "codProvin": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "habitual": {
+                        "example": true,
+                        "oneOf": [
+                            {
+                                "type": "boolean"
+                            },
+                            {
+                                "type": "string",
+                                "enum": [
+                                    "S",
+                                    "N"
+                                ]
+                            }
+                        ]
+                    }
+                },
+                "type": "object"
+            },
+            "IntegracionMaestroContactoItem": {
+                "required": [
+                    "codClient",
+                    "codContacto",
+                    "nombre"
+                ],
+                "properties": {
+                    "codClient": {
+                        "type": "string",
+                        "example": "CL-001"
+                    },
+                    "codContacto": {
+                        "type": "string",
+                        "example": "C1"
+                    },
+                    "nombre": {
+                        "type": "string"
+                    },
+                    "telefono": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "mail": {
+                        "type": "string",
+                        "format": "email",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "IntegracionMaestroParametroItem": {
+                "description": "El valor debe enviarse en la propiedad correspondiente al tipo canónico: B=valorBool, I=valorInt, N=valorDecimal, S=valorString, T=valorText, D=valorDateTime. Si no se envía tipoValor, se infiere del campo valor presente o del catálogo whitelist.",
+                "required": [
+                    "clave"
+                ],
+                "properties": {
+                    "clave": {
+                        "type": "string",
+                        "example": "MinutosWeb"
+                    },
+                    "tipoValor": {
+                        "type": "string",
+                        "enum": [
+                            "B",
+                            "I",
+                            "N",
+                            "S",
+                            "T",
+                            "D"
+                        ],
+                        "example": "I",
+                        "nullable": true
+                    },
+                    "caption": {
+                        "type": "string",
+                        "example": "Minutos de sesión web",
+                        "nullable": true
+                    },
+                    "tooltip": {
+                        "type": "string",
+                        "example": "Tiempo máximo de inactividad antes de cerrar sesión.",
+                        "nullable": true
+                    },
+                    "valorBool": {
+                        "type": "boolean",
+                        "nullable": true
+                    },
+                    "valorInt": {
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "valorDecimal": {
+                        "type": "number",
+                        "format": "double",
+                        "nullable": true
+                    },
+                    "valorString": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "valorText": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "valorDateTime": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "IntegracionMaestroClientesLoteRequest": {
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/IntegracionImportacionLoteRequest"
+                    },
+                    {
+                        "properties": {
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/IntegracionMaestroClienteItem"
+                                }
+                            }
+                        },
+                        "type": "object"
+                    }
+                ]
+            },
+            "IntegracionMaestroDireccionesLoteRequest": {
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/IntegracionImportacionLoteRequest"
+                    },
+                    {
+                        "properties": {
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/IntegracionMaestroDireccionItem"
+                                }
+                            }
+                        },
+                        "type": "object"
+                    }
+                ]
+            },
+            "IntegracionMaestroContactosLoteRequest": {
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/IntegracionImportacionLoteRequest"
+                    },
+                    {
+                        "properties": {
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/IntegracionMaestroContactoItem"
+                                }
+                            }
+                        },
+                        "type": "object"
+                    }
+                ]
+            },
+            "IntegracionMaestroParametrosLoteRequest": {
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/IntegracionImportacionLoteRequest"
+                    },
+                    {
+                        "properties": {
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/IntegracionMaestroParametroItem"
+                                }
+                            }
+                        },
+                        "type": "object"
+                    }
+                ]
+            },
+            "IntegracionMaestroProvinciaItem": {
+                "required": [
+                    "codProvin"
+                ],
+                "properties": {
+                    "codProvin": {
+                        "type": "string",
+                        "example": "B"
+                    },
+                    "descripcion": {
+                        "type": "string",
+                        "example": "Buenos Aires",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "IntegracionMaestroCondicionVentaItem": {
+                "required": [
+                    "codigo"
+                ],
+                "properties": {
+                    "codigo": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "descripcion": {
+                        "type": "string",
+                        "example": "Contado",
+                        "nullable": true
+                    },
+                    "dias": {
+                        "type": "integer",
+                        "example": 0,
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "IntegracionMaestroTransporteItem": {
+                "required": [
+                    "codigo"
+                ],
+                "properties": {
+                    "codigo": {
+                        "type": "string",
+                        "example": "TR01"
+                    },
+                    "descripcion": {
+                        "type": "string",
+                        "example": "Retiro en planta",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "IntegracionMaestroPerfilItem": {
+                "required": [
+                    "codPerfil"
+                ],
+                "properties": {
+                    "codPerfil": {
+                        "type": "string",
+                        "example": "P01"
+                    },
+                    "descripcion": {
+                        "type": "string",
+                        "example": "Perfil estándar",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "IntegracionMaestroVendedorItem": {
+                "required": [
+                    "codVended"
+                ],
+                "properties": {
+                    "codVended": {
+                        "type": "string",
+                        "example": "VEN01"
+                    },
+                    "nombre": {
+                        "type": "string",
+                        "example": "Vendedor Uno",
+                        "nullable": true
+                    },
+                    "supervisor": {
+                        "type": "boolean",
+                        "example": false,
+                        "nullable": true
+                    },
+                    "codLogin": {
+                        "description": "Ignorado por la API",
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "eliminarSiAusente": {
+                        "description": "Baja explícita del vendedor codVended. Rechazado si hay clientes referenciados.",
+                        "type": "boolean",
+                        "default": false
+                    }
+                },
+                "type": "object"
+            },
+            "IntegracionMaestroListaPrecioItem": {
+                "required": [
+                    "codLista"
+                ],
+                "properties": {
+                    "codLista": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "descripcion": {
+                        "type": "string",
+                        "example": "Lista general",
+                        "nullable": true
+                    },
+                    "moneda": {
+                        "type": "integer",
+                        "example": 1,
+                        "nullable": true
+                    },
+                    "incluyeIva": {
+                        "type": "boolean",
+                        "example": false,
+                        "nullable": true
+                    },
+                    "decimales": {
+                        "type": "integer",
+                        "example": 2,
+                        "nullable": true
+                    },
+                    "articulos": {
+                        "description": "Precios de los artículos pertenecientes a la lista",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/IntegracionMaestroListaPrecioArticuloItem"
+                        }
+                    },
+                    "items": {
+                        "description": "Alias ERP (SPEC 22d): precios hijos con codigo/precio; se normaliza a articulos[]",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/IntegracionMaestroListaPrecioArticuloItem"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "IntegracionMaestroEscalaValorItem": {
+                "required": [
+                    "codValor"
+                ],
+                "properties": {
+                    "codValor": {
+                        "type": "string",
+                        "example": "U"
+                    },
+                    "descValor": {
+                        "type": "string",
+                        "example": "Unidad",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "IntegracionMaestroEscalaItem": {
+                "required": [
+                    "codEscala"
+                ],
+                "properties": {
+                    "codEscala": {
+                        "type": "string",
+                        "example": "01"
+                    },
+                    "descripEs": {
+                        "type": "string",
+                        "example": "Unidades",
+                        "nullable": true
+                    },
+                    "descripcion": {
+                        "description": "Alias de descripEs",
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "nroEscala": {
+                        "type": "integer",
+                        "example": 1,
+                        "nullable": true
+                    },
+                    "valores": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/IntegracionMaestroEscalaValorItem"
+                        }
+                    },
+                    "eliminarSiAusente": {
+                        "description": "Baja explícita de la escala codEscala en delta (replace por ítem en snapshot). No borra por ausencia del lote sin este indicador.",
+                        "type": "boolean",
+                        "default": false
+                    }
+                },
+                "type": "object"
+            },
+            "IntegracionMaestroMedidaItem": {
+                "required": [
+                    "idMedida",
+                    "codMedida",
+                    "descMedida"
+                ],
+                "properties": {
+                    "idMedida": {
+                        "description": "Identificador técnico ERP; clave natural del lote = codMedida",
+                        "type": "integer",
+                        "example": 1001
+                    },
+                    "codMedida": {
+                        "type": "string",
+                        "maxLength": 10,
+                        "example": "UN"
+                    },
+                    "descMedida": {
+                        "type": "string",
+                        "maxLength": 40,
+                        "example": "Unidad"
+                    }
+                },
+                "type": "object"
+            },
+            "IntegracionMaestroArticuloItem": {
+                "required": [
+                    "codigo"
+                ],
+                "properties": {
+                    "codigo": {
+                        "type": "string",
+                        "example": "ART001"
+                    },
+                    "descripcion": {
+                        "type": "string",
+                        "example": "Artículo de prueba",
+                        "nullable": true
+                    },
+                    "bonificacion": {
+                        "type": "number",
+                        "format": "double",
+                        "example": 0,
+                        "nullable": true
+                    },
+                    "usaEsc": {
+                        "type": "boolean",
+                        "example": false,
+                        "nullable": true
+                    },
+                    "base": {
+                        "type": "string",
+                        "example": "",
+                        "nullable": true
+                    },
+                    "valor1": {
+                        "type": "number",
+                        "format": "double",
+                        "example": 0,
+                        "nullable": true
+                    },
+                    "valor2": {
+                        "type": "number",
+                        "format": "double",
+                        "example": 0,
+                        "nullable": true
+                    },
+                    "porcIva": {
+                        "type": "number",
+                        "format": "double",
+                        "example": 21,
+                        "nullable": true
+                    },
+                    "equivalenciaVentas": {
+                        "type": "number",
+                        "format": "double",
+                        "example": 1,
+                        "nullable": true
+                    },
+                    "stockeable": {
+                        "type": "boolean",
+                        "example": true,
+                        "nullable": true
+                    },
+                    "especial": {
+                        "type": "boolean",
+                        "example": false,
+                        "nullable": true
+                    },
+                    "eliminarSiAusente": {
+                        "description": "Baja explícita del artículo codigo. Rechazado si hay stock referenciado (integracion.maestro.deleteReferenciado).",
+                        "type": "boolean",
+                        "default": false
+                    }
+                },
+                "type": "object"
+            },
+            "IntegracionMaestroListaPrecioArticuloItem": {
+                "required": [
+                    "codArticulo"
+                ],
+                "properties": {
+                    "codArticulo": {
+                        "type": "string",
+                        "example": "ART001"
+                    },
+                    "precio": {
+                        "type": "number",
+                        "format": "double",
+                        "example": 123.5,
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "IntegracionMaestroDescuentoCantidadItem": {
+                "required": [
+                    "codArticu",
+                    "cantidad"
+                ],
+                "properties": {
+                    "codArticu": {
+                        "type": "string",
+                        "example": "ART001"
+                    },
+                    "cantidad": {
+                        "type": "number",
+                        "format": "double",
+                        "example": 10
+                    },
+                    "porcentaje": {
+                        "type": "number",
+                        "format": "double",
+                        "example": 5,
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "IntegracionTransaccionStockItem": {
+                "required": [
+                    "codArticulo",
+                    "stock",
+                    "comprometido"
+                ],
+                "properties": {
+                    "codArticulo": {
+                        "type": "string",
+                        "example": "ART001"
+                    },
+                    "stock": {
+                        "type": "number",
+                        "format": "double",
+                        "example": 100.5
+                    },
+                    "comprometido": {
+                        "type": "number",
+                        "format": "double",
+                        "example": 10
+                    },
+                    "eliminarSiAusente": {
+                        "description": "Solo modo delta: elimina la fila de stock del codArticulo. Rechazado si comprometido > 0 (integracion.transaccion.deleteBloqueado) o si modo=snapshot (integracion.transaccion.eliminarSoloDelta). Ítem de baja: clave + flag; no exige stock/comprometido.",
+                        "type": "boolean",
+                        "default": false
+                    }
+                },
+                "type": "object"
+            },
+            "IntegracionTransaccionDeudaItem": {
+                "required": [
+                    "codCliente",
+                    "tComp",
+                    "nComp",
+                    "fechaEmis",
+                    "fechaVto",
+                    "saldo"
+                ],
+                "properties": {
+                    "codCliente": {
+                        "type": "string",
+                        "example": "CL-001"
+                    },
+                    "tComp": {
+                        "type": "string",
+                        "example": "FC"
+                    },
+                    "nComp": {
+                        "type": "string",
+                        "example": "0001-00001234"
+                    },
+                    "fechaEmis": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "2026-10-20"
+                    },
+                    "fechaVto": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "2026-11-20"
+                    },
+                    "saldo": {
+                        "type": "number",
+                        "format": "double",
+                        "example": 1500.25
+                    },
+                    "eliminarSiAusente": {
+                        "description": "Solo delta: elimina el comprobante pendiente identificado por (codCliente,tComp,nComp,fechaVto). Rechazado en snapshot.",
+                        "type": "boolean",
+                        "default": false
+                    }
+                },
+                "type": "object"
+            },
+            "IntegracionTransaccionChequeItem": {
+                "required": [
+                    "interno",
+                    "numero",
+                    "codCliente",
+                    "banco",
+                    "fecha",
+                    "importe",
+                    "origen",
+                    "estado"
+                ],
+                "properties": {
+                    "interno": {
+                        "type": "string",
+                        "example": "1001"
+                    },
+                    "numero": {
+                        "type": "string",
+                        "example": "456789"
+                    },
+                    "codCliente": {
+                        "type": "string",
+                        "example": "CL-001"
+                    },
+                    "banco": {
+                        "type": "string",
+                        "example": "Galicia"
+                    },
+                    "fecha": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "2026-10-20"
+                    },
+                    "importe": {
+                        "type": "number",
+                        "format": "double",
+                        "example": 25000.5
+                    },
+                    "origen": {
+                        "type": "string",
+                        "example": "Cartera"
+                    },
+                    "estado": {
+                        "type": "string",
+                        "example": "En cartera"
+                    },
+                    "eliminarSiAusente": {
+                        "description": "Solo delta: elimina el cheque (interno,numero). Rechazado en snapshot.",
+                        "type": "boolean",
+                        "default": false
+                    }
+                },
+                "type": "object"
+            },
+            "IntegracionTransaccionHistorialVentaItem": {
+                "required": [
+                    "idGva53",
+                    "codCliente",
+                    "tipo",
+                    "numero",
+                    "fechaEmision"
+                ],
+                "properties": {
+                    "idGva53": {
+                        "type": "integer",
+                        "example": 1001
+                    },
+                    "codCliente": {
+                        "type": "string",
+                        "example": "CL-001"
+                    },
+                    "tipo": {
+                        "type": "string",
+                        "example": "FC"
+                    },
+                    "numero": {
+                        "type": "string",
+                        "example": "0001-00001234"
+                    },
+                    "fechaEmision": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "2026-10-20"
+                    },
+                    "codArticu": {
+                        "type": "string",
+                        "example": "ART001",
+                        "nullable": true
+                    },
+                    "nRemito": {
+                        "type": "string",
+                        "example": "R-001",
+                        "nullable": true
+                    },
+                    "condVta": {
+                        "type": "integer",
+                        "example": 1,
+                        "nullable": true
+                    },
+                    "porcDesc": {
+                        "type": "number",
+                        "format": "double",
+                        "example": 0,
+                        "nullable": true
+                    },
+                    "cotiz": {
+                        "type": "number",
+                        "format": "double",
+                        "example": 1,
+                        "nullable": true
+                    },
+                    "moneda": {
+                        "type": "string",
+                        "example": "ARS",
+                        "nullable": true
+                    },
+                    "totalComp": {
+                        "type": "number",
+                        "format": "double",
+                        "example": 10000,
+                        "nullable": true
+                    },
+                    "codTransp": {
+                        "type": "string",
+                        "example": "TR01",
+                        "nullable": true
+                    },
+                    "nomTransp": {
+                        "type": "string",
+                        "example": "Retiro",
+                        "nullable": true
+                    },
+                    "descripcion": {
+                        "type": "string",
+                        "example": "Artículo de prueba",
+                        "nullable": true
+                    },
+                    "codDep": {
+                        "type": "string",
+                        "example": "01",
+                        "nullable": true
+                    },
+                    "um": {
+                        "type": "string",
+                        "example": "UN",
+                        "nullable": true
+                    },
+                    "cantidad": {
+                        "type": "number",
+                        "format": "double",
+                        "example": 10,
+                        "nullable": true
+                    },
+                    "precio": {
+                        "type": "number",
+                        "format": "double",
+                        "example": 123.5,
+                        "nullable": true
+                    },
+                    "totSinImp": {
+                        "type": "number",
+                        "format": "double",
+                        "example": 1235,
+                        "nullable": true
+                    },
+                    "nCompRem": {
+                        "type": "string",
+                        "example": "",
+                        "nullable": true
+                    },
+                    "cantRem": {
+                        "type": "number",
+                        "format": "double",
+                        "example": 0,
+                        "nullable": true
+                    },
+                    "fechaRem": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "2026-10-21",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "IntegracionMaestroProvinciasLoteRequest": {
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/IntegracionImportacionLoteRequest"
+                    },
+                    {
+                        "properties": {
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/IntegracionMaestroProvinciaItem"
+                                }
+                            }
+                        },
+                        "type": "object"
+                    }
+                ]
+            },
+            "IntegracionMaestroCondventaLoteRequest": {
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/IntegracionImportacionLoteRequest"
+                    },
+                    {
+                        "properties": {
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/IntegracionMaestroCondicionVentaItem"
+                                }
+                            }
+                        },
+                        "type": "object"
+                    }
+                ]
+            },
+            "IntegracionMaestroTransportesLoteRequest": {
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/IntegracionImportacionLoteRequest"
+                    },
+                    {
+                        "properties": {
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/IntegracionMaestroTransporteItem"
+                                }
+                            }
+                        },
+                        "type": "object"
+                    }
+                ]
+            },
+            "IntegracionMaestroPerfilesLoteRequest": {
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/IntegracionImportacionLoteRequest"
+                    },
+                    {
+                        "properties": {
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/IntegracionMaestroPerfilItem"
+                                }
+                            }
+                        },
+                        "type": "object"
+                    }
+                ]
+            },
+            "IntegracionMaestroVendedoresLoteRequest": {
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/IntegracionImportacionLoteRequest"
+                    },
+                    {
+                        "properties": {
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/IntegracionMaestroVendedorItem"
+                                }
+                            }
+                        },
+                        "type": "object"
+                    }
+                ]
+            },
+            "IntegracionMaestroListapreciosLoteRequest": {
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/IntegracionImportacionLoteRequest"
+                    },
+                    {
+                        "properties": {
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/IntegracionMaestroListaPrecioItem"
+                                }
+                            }
+                        },
+                        "type": "object"
+                    }
+                ]
+            },
+            "IntegracionMaestroEscalasLoteRequest": {
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/IntegracionImportacionLoteRequest"
+                    },
+                    {
+                        "properties": {
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/IntegracionMaestroEscalaItem"
+                                }
+                            }
+                        },
+                        "type": "object"
+                    }
+                ]
+            },
+            "IntegracionMaestroMedidasLoteRequest": {
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/IntegracionImportacionLoteRequest"
+                    },
+                    {
+                        "properties": {
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/IntegracionMaestroMedidaItem"
+                                }
+                            }
+                        },
+                        "type": "object"
+                    }
+                ]
+            },
+            "IntegracionMaestroArticulosLoteRequest": {
+                "description": "Maestro artículos: delta (upsert) o snapshot (replace campos enviados por ítem).",
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/IntegracionImportacionLoteRequest"
+                    },
+                    {
+                        "properties": {
+                            "modo": {
+                                "description": "delta | snapshot. Ver ejemplos en POST /maestros/articulos.",
+                                "type": "string",
+                                "enum": [
+                                    "delta",
+                                    "snapshot"
+                                ]
+                            },
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/IntegracionMaestroArticuloItem"
+                                }
+                            }
+                        },
+                        "type": "object"
+                    }
+                ]
+            },
+            "IntegracionMaestroDescuentocantidadLoteRequest": {
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/IntegracionImportacionLoteRequest"
+                    },
+                    {
+                        "properties": {
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/IntegracionMaestroDescuentoCantidadItem"
+                                }
+                            }
+                        },
+                        "type": "object"
+                    }
+                ]
+            },
+            "IntegracionTransaccionStockLoteRequest": {
+                "description": "Importación de stock. Ver modo: snapshot (universo atómico) vs delta (upsert parcial).",
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/IntegracionImportacionLoteRequest"
+                    },
+                    {
+                        "properties": {
+                            "modo": {
+                                "description": "Valores: delta | snapshot. **snapshot:** universo atómico; claves no enviadas salen al finalizar; items vacío → 422. **delta:** upsert parcial y baja con eliminarSiAusente; items vacío → no-op. Ver ejemplos en el POST /transacciones/stock.",
+                                "type": "string",
+                                "enum": [
+                                    "delta",
+                                    "snapshot"
+                                ]
+                            },
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/IntegracionTransaccionStockItem"
+                                }
+                            }
+                        },
+                        "type": "object"
+                    }
+                ]
+            },
+            "IntegracionTransaccionDeudaLoteRequest": {
+                "description": "Importación de deuda pendiente. Ver modo: snapshot vs delta.",
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/IntegracionImportacionLoteRequest"
+                    },
+                    {
+                        "properties": {
+                            "modo": {
+                                "description": "delta | snapshot. Ver ejemplos en POST /transacciones/deuda.",
+                                "type": "string",
+                                "enum": [
+                                    "delta",
+                                    "snapshot"
+                                ]
+                            },
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/IntegracionTransaccionDeudaItem"
+                                }
+                            }
+                        },
+                        "type": "object"
+                    }
+                ]
+            },
+            "IntegracionTransaccionChequesLoteRequest": {
+                "description": "Importación de cheques en cartera. Ver modo: snapshot vs delta.",
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/IntegracionImportacionLoteRequest"
+                    },
+                    {
+                        "properties": {
+                            "modo": {
+                                "description": "delta | snapshot. Ver ejemplos en POST /transacciones/cheques.",
+                                "type": "string",
+                                "enum": [
+                                    "delta",
+                                    "snapshot"
+                                ]
+                            },
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/IntegracionTransaccionChequeItem"
+                                }
+                            }
+                        },
+                        "type": "object"
+                    }
+                ]
+            },
+            "IntegracionTransaccionHistorialVentasLoteRequest": {
+                "description": "Historial de ventas detallado: solo modo delta (upsert por idGva53).",
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/IntegracionImportacionLoteRequest"
+                    },
+                    {
+                        "properties": {
+                            "modo": {
+                                "description": "Único modo permitido. snapshot devuelve 422 (integracion.transaccion.modoNoSoportado). No elimina filas ausentes del lote.",
+                                "type": "string",
+                                "enum": [
+                                    "delta"
+                                ],
+                                "example": "delta"
+                            },
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/IntegracionTransaccionHistorialVentaItem"
+                                }
+                            }
+                        },
+                        "type": "object"
+                    }
+                ]
+            },
             "ParametrosCargaResultado": {
                 "properties": {
                     "modificaPrecio": {
-                        "description": "Schemas OpenAPI — GET tipados (Parametros, Maestros, Framework, Tratativas, PedidosWeb show, Excel, Chat, Pivots).",
                         "type": "boolean",
                         "example": true
                     },
@@ -6240,6 +8978,377 @@
                         "properties": {
                             "resultado": {
                                 "$ref": "#/components/schemas/PivotMetadataResultado"
+                            }
+                        },
+                        "type": "object"
+                    }
+                ]
+            },
+            "IntegracionMaestroItemError": {
+                "properties": {
+                    "indice": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "clave": {
+                        "type": "string",
+                        "example": "X",
+                        "nullable": true
+                    },
+                    "codigo": {
+                        "type": "string",
+                        "example": "integracion.maestro.itemInvalido"
+                    }
+                },
+                "type": "object"
+            },
+            "IntegracionMaestroLoteResultado": {
+                "required": [
+                    "recurso",
+                    "modo",
+                    "recibidos",
+                    "procesados",
+                    "agregados",
+                    "modificados",
+                    "eliminados",
+                    "agregadosErroneos",
+                    "modificadosErroneos",
+                    "eliminadosErroneos",
+                    "errores"
+                ],
+                "properties": {
+                    "recurso": {
+                        "type": "string",
+                        "example": "provincias"
+                    },
+                    "modo": {
+                        "type": "string",
+                        "example": "delta"
+                    },
+                    "recibidos": {
+                        "type": "integer",
+                        "example": 3
+                    },
+                    "procesados": {
+                        "type": "integer",
+                        "example": 3
+                    },
+                    "agregados": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "modificados": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "eliminados": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "agregadosErroneos": {
+                        "type": "integer",
+                        "example": 0
+                    },
+                    "modificadosErroneos": {
+                        "type": "integer",
+                        "example": 0
+                    },
+                    "eliminadosErroneos": {
+                        "type": "integer",
+                        "example": 0
+                    },
+                    "omitidos": {
+                        "type": "integer",
+                        "example": 0
+                    },
+                    "errores": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/IntegracionMaestroItemError"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "ApiEnvelopeIntegracionMaestroLote": {
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/ApiEnvelope"
+                    },
+                    {
+                        "properties": {
+                            "resultado": {
+                                "$ref": "#/components/schemas/IntegracionMaestroLoteResultado"
+                            }
+                        },
+                        "type": "object"
+                    }
+                ]
+            },
+            "IntegracionImportacionLoteRequest": {
+                "required": [
+                    "importacionId",
+                    "numeroLote",
+                    "ultimoEnvio",
+                    "modo",
+                    "fechaProceso",
+                    "items"
+                ],
+                "properties": {
+                    "importacionId": {
+                        "type": "string",
+                        "maxLength": 128,
+                        "example": "ERP-IMP-20261024-0001"
+                    },
+                    "numeroLote": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "example": 1
+                    },
+                    "ultimoEnvio": {
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "modo": {
+                        "description": "delta: upsert parcial por ítem; errores de ítem no abortan el resto (salvo reglas del recurso). snapshot: el ciclo representa un universo; cierre puede eliminar claves ausentes según recurso; puede ser atómico (422). Cada endpoint puede restringir o documentar variantes en su schema *LoteRequest.",
+                        "type": "string",
+                        "enum": [
+                            "delta",
+                            "snapshot"
+                        ],
+                        "example": "snapshot"
+                    },
+                    "fechaProceso": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2026-10-24T12:00:00-03:00"
+                    },
+                    "origen": {
+                        "type": "string",
+                        "maxLength": 50,
+                        "example": "postman-fixture-db",
+                        "nullable": true
+                    },
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "IntegracionImportacionLoteReceipt": {
+                "required": [
+                    "importacionId",
+                    "recurso",
+                    "numeroLote",
+                    "estado",
+                    "duplicado"
+                ],
+                "properties": {
+                    "importacionId": {
+                        "type": "string",
+                        "example": "ERP-IMP-20261024-0001"
+                    },
+                    "recurso": {
+                        "type": "string",
+                        "example": "condventa"
+                    },
+                    "numeroLote": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "estado": {
+                        "type": "string",
+                        "enum": [
+                            "received",
+                            "queued"
+                        ],
+                        "example": "received"
+                    },
+                    "duplicado": {
+                        "type": "boolean",
+                        "example": false
+                    }
+                },
+                "type": "object"
+            },
+            "ApiEnvelopeIntegracionImportacionLoteReceipt": {
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/ApiEnvelope"
+                    },
+                    {
+                        "properties": {
+                            "resultado": {
+                                "$ref": "#/components/schemas/IntegracionImportacionLoteReceipt"
+                            }
+                        },
+                        "type": "object"
+                    }
+                ]
+            },
+            "IntegracionImportacionResultado": {
+                "properties": {
+                    "importacionId": {
+                        "type": "string",
+                        "example": "ERP-IMP-20261024-0001"
+                    },
+                    "recurso": {
+                        "type": "string",
+                        "example": "condventa"
+                    },
+                    "estado": {
+                        "type": "string",
+                        "enum": [
+                            "received",
+                            "staging",
+                            "queued",
+                            "processing",
+                            "completed",
+                            "failed"
+                        ]
+                    },
+                    "duracion": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 2.315,
+                        "nullable": true
+                    },
+                    "procesados": {
+                        "type": "integer",
+                        "example": 100,
+                        "nullable": true
+                    },
+                    "agregados": {
+                        "type": "integer",
+                        "example": 20,
+                        "nullable": true
+                    },
+                    "modificados": {
+                        "type": "integer",
+                        "example": 70,
+                        "nullable": true
+                    },
+                    "eliminados": {
+                        "type": "integer",
+                        "example": 10,
+                        "nullable": true
+                    },
+                    "agregadosErroneos": {
+                        "type": "integer",
+                        "example": 0,
+                        "nullable": true
+                    },
+                    "modificadosErroneos": {
+                        "type": "integer",
+                        "example": 0,
+                        "nullable": true
+                    },
+                    "eliminadosErroneos": {
+                        "type": "integer",
+                        "example": 0,
+                        "nullable": true
+                    },
+                    "errores": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "additionalProperties": true
+                        },
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "ApiEnvelopeIntegracionImportacion": {
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/ApiEnvelope"
+                    },
+                    {
+                        "properties": {
+                            "resultado": {
+                                "$ref": "#/components/schemas/IntegracionImportacionResultado"
+                            }
+                        },
+                        "type": "object"
+                    }
+                ]
+            },
+            "IntegracionTransaccionItemError": {
+                "properties": {
+                    "indice": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "clave": {
+                        "type": "string",
+                        "example": "A-001",
+                        "nullable": true
+                    },
+                    "codigo": {
+                        "type": "string",
+                        "example": "integracion.transaccion.itemInvalido"
+                    }
+                },
+                "type": "object"
+            },
+            "IntegracionTransaccionLoteResultado": {
+                "required": [
+                    "recurso",
+                    "modo",
+                    "recibidos",
+                    "aplicados",
+                    "omitidos",
+                    "rechazados",
+                    "errores"
+                ],
+                "properties": {
+                    "recurso": {
+                        "type": "string",
+                        "example": "stock"
+                    },
+                    "modo": {
+                        "type": "string",
+                        "example": "delta"
+                    },
+                    "recibidos": {
+                        "type": "integer",
+                        "example": 3
+                    },
+                    "aplicados": {
+                        "type": "integer",
+                        "example": 2
+                    },
+                    "omitidos": {
+                        "type": "integer",
+                        "example": 0
+                    },
+                    "rechazados": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "errores": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/IntegracionTransaccionItemError"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "ApiEnvelopeIntegracionTransaccionLote": {
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/ApiEnvelope"
+                    },
+                    {
+                        "properties": {
+                            "resultado": {
+                                "$ref": "#/components/schemas/IntegracionTransaccionLoteResultado"
                             }
                         },
                         "type": "object"
@@ -8890,6 +11999,18 @@
         {
             "name": "Informes",
             "description": "Consultas e informes de solo lectura"
+        },
+        {
+            "name": "Integración importaciones",
+            "description": "Recepción asíncrona y consulta de importaciones ERP"
+        },
+        {
+            "name": "Integración maestros",
+            "description": "Importación ERP de catálogos, artículos y precios"
+        },
+        {
+            "name": "Integración transacciones",
+            "description": "Importación ERP de stock, deuda, cheques e historial"
         },
         {
             "name": "Maestros y Tablas",

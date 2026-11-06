@@ -50,6 +50,7 @@ export function PedidosPendientesWebView() {
       loadData={loadData}
       rowActions={rowActions}
       refreshToken={refreshToken}
+      emissionProcessCode="pw_pedidospendientes"
       columns={<ComprobanteConsultaColumns t={t} />}
     />
   );

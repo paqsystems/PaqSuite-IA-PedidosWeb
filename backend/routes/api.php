@@ -24,6 +24,7 @@ use App\Http\Controllers\Api\V1\PedidosWeb\ComprobanteController;
 use App\Http\Controllers\Api\V1\PedidosWeb\ConsultaController;
 use App\Http\Controllers\Api\V1\PedidosWeb\DashboardController;
 use App\Http\Controllers\Api\V1\PedidosWeb\IntegracionLogController;
+use App\Http\Controllers\Api\V1\PedidosWeb\IntegracionMaestroController;
 use App\Http\Controllers\Api\V1\PedidosWeb\MotivoCierreController;
 use App\Http\Controllers\Api\V1\PedidosWeb\ParametrosCargaController;
 use App\Http\Controllers\Api\V1\PedidosWeb\PedidoController;
@@ -214,6 +215,15 @@ Route::prefix('v1')->group(function (): void {
 
             Route::get('/integracion/logs', [IntegracionLogController::class, 'index'])
                 ->name('api.v1.integracion.logs');
+            Route::post('/integracion/maestros/{recurso}', [IntegracionMaestroController::class, 'receive'])
+                ->middleware(['integracion.importacion', 'throttle:integracion-maestros'])
+                ->name('api.v1.integracion.maestros.store');
+            Route::get('/integracion/importaciones/{importacionId}', [IntegracionMaestroController::class, 'show'])
+                ->middleware(['integracion.importacion', 'throttle:integracion-maestros'])
+                ->name('api.v1.integracion.importaciones.show');
+            Route::post('/integracion/transacciones/{recurso}', [IntegracionMaestroController::class, 'receive'])
+                ->middleware(['integracion.importacion', 'throttle:integracion-transacciones'])
+                ->name('api.v1.integracion.transacciones.store');
             Route::get('/dashboard/operativo', [DashboardController::class, 'operativo'])
                 ->name('api.v1.dashboard.operativo');
             Route::get('/dashboard/resumen-mensual', [DashboardController::class, 'resumenMensual'])
@@ -233,6 +243,8 @@ Route::prefix('v1')->group(function (): void {
                 Route::post('/permisos/batch', [AdminPermisoController::class, 'batch'])->name('api.v1.admin.permisos.batch');
                 Route::get('/usuarios', [AdminUsuarioLookupController::class, 'index'])->name('api.v1.admin.usuarios.index');
             });
+
+            require base_path('routes/genCapabilities.php');
         });
     });
 });

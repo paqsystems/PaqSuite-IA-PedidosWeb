@@ -1,5 +1,8 @@
 # SPEC-101-05 — Controllers REST
 
+Jira: PIAPEDWEB-17
+
+
 | Campo | Valor |
 |-------|--------|
 | **SPEC madre** | [PedidosWeb_SPEC_MVP.md](PedidosWeb_SPEC_MVP.md) |

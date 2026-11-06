@@ -39,6 +39,11 @@ describe('pedidosWebMobilePolicy v3', () => {
     expect(isRouteAllowedOnMobileApp('/admin/roles')).toBe(false);
   });
 
+  it('excluye diseñador y tareas programadas en mobile', () => {
+    expect(isPedidosWebRouteAllowedOnMobileV3('/general/diseniador-reportes')).toBe(false);
+    expect(isPedidosWebRouteAllowedOnMobileV3('/general/tareas-programadas')).toBe(false);
+  });
+
   it('permite change-password y preferences', () => {
     expect(isRouteAllowedOnMobileApp('/change-password')).toBe(true);
     expect(isRouteAllowedOnMobileApp('/preferences')).toBe(true);

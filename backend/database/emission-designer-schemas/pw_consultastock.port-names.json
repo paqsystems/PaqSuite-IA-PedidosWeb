@@ -1,0 +1,15 @@
+{
+    "fieldNames": [
+        "codArticulo",
+        "descripcion",
+        "stock",
+        "comprometido",
+        "comprometidoWeb",
+        "disponibleNeto",
+        "codBase",
+        "stockBase",
+        "comprometidoBase",
+        "comprometidoBaseWeb",
+        "disponibleNetoBase"
+    ]
+}

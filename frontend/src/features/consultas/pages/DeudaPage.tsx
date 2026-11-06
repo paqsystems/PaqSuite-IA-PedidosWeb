@@ -61,6 +61,7 @@ export function DeudaPage() {
       testIdPrefix="consultaDeuda"
       loadData={loadData}
       onCellPrepared={handleDeudaCellPrepared}
+      emissionProcessCode="pw_deudaclientes"
       columns={
         <>
           <Column dataField="codCliente" caption={t('consultas.column.cliente')} />

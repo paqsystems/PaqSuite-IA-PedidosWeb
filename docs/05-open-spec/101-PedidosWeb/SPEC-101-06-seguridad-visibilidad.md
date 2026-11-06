@@ -1,5 +1,8 @@
 # SPEC-101-06 — Seguridad y visibilidad comercial
 
+Jira: PIAPEDWEB-18
+
+
 | Campo | Valor |
 |-------|--------|
 | **SPEC madre** | [PedidosWeb_SPEC_MVP.md](PedidosWeb_SPEC_MVP.md) |

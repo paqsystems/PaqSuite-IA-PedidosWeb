@@ -36,6 +36,28 @@
 | 21a | [TR-SPEC-101-21-proceso-excel-pedido-masivo.md](TR-SPEC-101-21-proceso-excel-pedido-masivo.md) | **Should** | 043 |
 | 21b | [TR-SPEC-101-21-pantalla-importacion-masiva.md](TR-SPEC-101-21-pantalla-importacion-masiva.md) | **Should** | 044 |
 | 21c | [TR-SPEC-101-21-consultar-borrador-importacion-masiva.md](TR-SPEC-101-21-consultar-borrador-importacion-masiva.md) | **Should** | 045 |
+| 23a | [TR-SPEC-101-23-integracion-transacciones-plataforma.md](TR-SPEC-101-23-integracion-transacciones-plataforma.md) | **Must** | 049 / [PIAPEDWEB-43](https://paqsystems.atlassian.net/browse/PIAPEDWEB-43) |
+| 23b | [TR-SPEC-101-23-integracion-transacciones-saldos.md](TR-SPEC-101-23-integracion-transacciones-saldos.md) | **Must** | 050 / [PIAPEDWEB-44](https://paqsystems.atlassian.net/browse/PIAPEDWEB-44) |
+| 23c | [TR-SPEC-101-23-integracion-transacciones-historial-ventas.md](TR-SPEC-101-23-integracion-transacciones-historial-ventas.md) | **Must** | 051 / [PIAPEDWEB-45](https://paqsystems.atlassian.net/browse/PIAPEDWEB-45) |
+| 24a | [TR-SPEC-101-24-integracion-medidas-plataforma.md](TR-SPEC-101-24-integracion-medidas-plataforma.md) | **Must** | 052 |
+| 24b | [TR-SPEC-101-24-integracion-medidas-maestro.md](TR-SPEC-101-24-integracion-medidas-maestro.md) | **Must** | 053 |
+| 24c | [TR-SPEC-101-24-integracion-medidas-postman.md](TR-SPEC-101-24-integracion-medidas-postman.md) | **Must** | 054 |
+
+## Slice SPEC-101-22 (Importación maestros ERP)
+
+| Campo | Valor |
+|-------|--------|
+| **SPEC** | [SPEC-101-22](../../05-open-spec/101-PedidosWeb/SPEC-101-22-importacion-maestros-erp.md) |
+| **Parte F1** | **Aprobado con observaciones** (2026-10-29) — [D-VERIFICACION-101-22](D-VERIFICACION-101-22-importacion-maestros-erp.md) |
+| **Parte F** | **Cerrada** (2026-10-29) — [F-101-22-cierre-formal](F-101-22-cierre-formal.md) |
+| **Parte I** | **Finalizado** (2026-10-29) — [I-101-22-cierre-formal](I-101-22-cierre-formal.md) |
+| **Jira** | [PIAPEDWEB-34](https://paqsystems.atlassian.net/browse/PIAPEDWEB-34) |
+
+| TR | HU | Título |
+|----|-----|--------|
+| [22a](TR-SPEC-101-22-integracion-maestros-plataforma.md) | 046 | Plataforma API async |
+| [22b](TR-SPEC-101-22-integracion-maestros-catalogo-articulos.md) | 047 | Catálogo, artículos, precios |
+| [22c](TR-SPEC-101-22-integracion-maestros-clientes-parametros.md) | 048 | Clientes y parámetros |
 
 ## Slice SPEC-101-21 (Importación masiva)
 
@@ -48,6 +70,43 @@
 | **Parte C1** | **Apto** (2026-07-19) — [F-101-21-cierre-c1](F-101-21-cierre-c1-importacion-masiva.md) |
 | **Parte D1** | [D1-PLAN-101-21](D1-PLAN-101-21-importacion-masiva.md) — listo Parte D |
 | **Orden D1** | 21a → 21b → 21c |
+
+## Slice SPEC-101-23 (Importación transacciones ERP)
+
+| Campo | Valor |
+|-------|--------|
+| **SPEC** | [SPEC-101-23](../../05-open-spec/101-PedidosWeb/SPEC-101-23-importacion-transacciones-erp.md) |
+| **Parte C** | **Generada** (2026-10-22) — [F-101-23-cierre-c](F-101-23-cierre-c-importacion-transacciones-erp.md) |
+| **Parte C1** | **Apto con observaciones** (2026-10-22) — [F-101-23-cierre-c1](F-101-23-cierre-c1-importacion-transacciones-erp.md) |
+| **Parte D1** | **Plan generado** (2026-10-22) — [D1-PLAN-101-23](D1-PLAN-101-23-integracion-transacciones-erp.md) |
+| **Parte D** | **Implementada** (2026-10-29) — [F-101-23-cierre-d](F-101-23-cierre-d-importacion-transacciones-erp.md); plataforma async, SP, tests, runbook |
+| **Parte E** | **Aprobado con observaciones** (2026-10-29) — [E-101-23-importacion-transacciones-erp.md](E-101-23-importacion-transacciones-erp.md) |
+| **Parte F1/F/I** | **Cerrado** (2026-10-29) — [D-VERIFICACION-101-23](D-VERIFICACION-101-23-importacion-transacciones-erp.md), [F-101-23](F-101-23-cierre-formal.md), [I-101-23](I-101-23-cierre-formal.md) |
+| **Orden D1** | 23a → 23b → 23c; fecha de historial resuelta |
+
+| TR | HU | Título |
+|----|-----|--------|
+| [TR-23a](TR-SPEC-101-23-integracion-transacciones-plataforma.md) | 049 | Plataforma API |
+| [TR-23b](TR-SPEC-101-23-integracion-transacciones-saldos.md) | 050 | Stock, deuda y cheques |
+| [TR-23c](TR-SPEC-101-23-integracion-transacciones-historial-ventas.md) | 051 | Historial de ventas |
+
+## Slice SPEC-101-24 (Importación medidas ERP)
+
+| Campo | Valor |
+|---|---|
+| **SPEC** | [SPEC-101-24](../../05-open-spec/101-PedidosWeb/SPEC-101-24-importacion-medidas-erp.md) |
+| **Parte C** | **Generada** (2026-10-25) — [F-101-24-cierre-c](F-101-24-cierre-c-importacion-medidas-erp.md) |
+| **Parte C1** | **Apto con observaciones** (2026-10-25) — autoriza D1 |
+| **Parte D1** | **Plan generado** (2026-10-25) — [D1-PLAN-101-24](D1-PLAN-101-24-integracion-medidas-erp.md) |
+| **Parte D** | **Implementada** (2026-10-25) — medidas registradas en GEN-36, SP, tests y Postman local |
+| **Parte F1/F/I** | **Cerrado** (2026-10-29) — [D-VERIFICACION-101-24](D-VERIFICACION-101-24-importacion-medidas-erp.md), [F-101-24](F-101-24-cierre-formal.md), [I-101-24](I-101-24-cierre-formal.md); QA ERP medidas OK |
+| **Orden D1** | 24a → 24b → 24c |
+
+| TR | HU | Título |
+|---|---|---|
+| [TR-24a](TR-SPEC-101-24-integracion-medidas-plataforma.md) | 052 | Plataforma asíncrona |
+| [TR-24b](TR-SPEC-101-24-integracion-medidas-maestro.md) | 053 | Maestro `medidas` y stored procedures |
+| [TR-24c](TR-SPEC-101-24-integracion-medidas-postman.md) | 054 | Collection Postman y pruebas |
 
 ## Slice SPEC-101-18/19/20 (Asistente IA en carga)
 

@@ -1,5 +1,8 @@
 # SPEC-101-19 — Asistente IA en carga: mutaciones del comprobante
 
+Jira: PIAPEDWEB-31
+
+
 | Campo | Valor |
 |-------|--------|
 | **SPEC madre** | [PedidosWeb_SPEC_MVP.md](PedidosWeb_SPEC_MVP.md) |

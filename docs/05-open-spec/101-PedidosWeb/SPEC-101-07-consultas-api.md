@@ -1,5 +1,8 @@
 # SPEC-101-07 — Consultas API
 
+Jira: PIAPEDWEB-19
+
+
 | Campo | Valor |
 |-------|--------|
 | **SPEC madre** | [PedidosWeb_SPEC_MVP.md](PedidosWeb_SPEC_MVP.md) |

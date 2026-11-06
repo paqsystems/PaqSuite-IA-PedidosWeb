@@ -1,9 +1,12 @@
 # SPEC-001-06 - Emisión
 
+Jira: PIAPEDWEB-7
+
+
 | Campo | Valor |
 |-------|--------|
 | **HU relacionadas** | Ninguna en MVP portal (mail operativo en `SPEC-101`) |
-| **Estado** | Documental |
+| **Estado** | En revisión |
 | **Revisión A1** | Documental — sin bloqueo MVP (2026-05-28) |
 
 ## Objetivo

@@ -6,6 +6,7 @@ import { useGridLayouts } from '../../gridLayouts/hooks/useGridLayouts';
 import { ComprobanteConsultaColumns } from '../../consultas/components/ComprobanteConsultaColumns';
 import { GridRefreshButton } from '../../consultas/components/GridRefreshButton';
 import { useComprobanteConsultaActions } from '../../consultas/hooks/useComprobanteConsultaActions';
+import { ConsultaEmitReportToolbarItem } from '../../emissions/ConsultaEmitReportToolbarItem';
 import { DataGridDx, type DataGridDxHandle, type DataGridRowAction } from '../../../shared/ui/grids';
 import {
   fetchPresupuestosActivos,
@@ -107,11 +108,15 @@ export function PresupuestosWebView() {
   const toolbarEnd = useMemo(
     () => (
       <>
+        <ConsultaEmitReportToolbarItem
+          emissionProcessCode="pw_presupuestosingresados"
+          disabled={isLoading || rows.length === 0}
+        />
         <GridRefreshButton onRefresh={reloadGrid} />
         {layoutToolbar}
       </>
     ),
-    [layoutToolbar, reloadGrid],
+    [isLoading, layoutToolbar, reloadGrid, rows.length],
   );
 
   const rowActions: DataGridRowAction<PresupuestoConsultaRow>[] = useMemo(

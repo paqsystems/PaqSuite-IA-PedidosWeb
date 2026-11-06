@@ -71,6 +71,7 @@ export function PedidosIngresadosWebView() {
       rowActions={rowActions}
       refreshToken={refreshToken}
       columns={<ComprobanteConsultaColumns t={t} />}
+      emissionProcessCode="pw_pedidosingresados"
     />
   );
 }

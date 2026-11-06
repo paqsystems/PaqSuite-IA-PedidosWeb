@@ -20,6 +20,7 @@ return [
         'historialImportExcel' => 'pw_historialimportexcel',
         'tratativasPresupuestos' => 'pw_tratativaspresup',
         'logsIntegracion' => 'pw_logsintegracion',
+        'integracionMaestros' => 'pw_integracion_importacion',
     ],
 
     'dashboardStates' => [

@@ -46,6 +46,8 @@ Este archivo **no sustituye** SPEC, HU ni TR: es la **entrada** del circuito de 
 
 | # | Fecha | Estado | Resumen |
 |---|-------|--------|---------|
+| 19 | 03/11/2026 | Especificado (Parte G 03/11/2026) | Adopción SDK: **diseñador de reportes** (GEN-15) bajo menú **General**; **emisión** en ocho informes; **tareas programadas** (GEN-13) y **backup** programado |
+| 18 | 30/10/2026 | Finalizado (Parte I 02/11/2026) | Integración **transacciones**: delta + `eliminarSiAusente` por ítem (novedades/bajas); OpenAPI snapshot vs delta |
 | 17 | 20/09/2026 | Finalizado (Parte I 21/09/2026) | Atributo `especial` en artículos — columna detalle pedidos + sufijo listbox carga |
 | 16 | 12/09/2026 | Finalizado (Parte I 12/09/2026) | Suspender logout por inactividad hasta adopción SDK Framework |
 | 15 | 09/09/2026 | Finalizado (Parte I completa 13/09/2026) | Copiar comprobante: incluir `id_de` (dirección entrega) + leyendas 1–5 |
@@ -66,71 +68,173 @@ Este archivo **no sustituye** SPEC, HU ni TR: es la **entrada** del circuito de 
 
 ---
 
-## Control de Calidad #15
+## Control de Calidad #19
 
 ### Referencia del control
 
 | Campo | Valor |
 |-------|--------|
-| **Fecha** | 09/09/2026 |
+| **Fecha** | 03/11/2026 |
 | **Responsable** | Pablo Quarracino (PQ) |
-| **Estado** | Finalizado |
+| **Estado** | Especificado |
 
 ### Hallazgos
 
-Atributos faltantes al copiar pedidos
+PedidosWeb debe **adoptar capacidades transversales del SDK Framework** que hoy están ausentes o solo documentadas: subsistema de **emisión / diseñador de reportes** (GEN-15), **tareas programadas** (GEN-13) y el proceso registry **`BACKUP_DATABASE`** para backups programados. Además, los informes operativos del portal deben ofrecer **emisión de reportes** (PDF u otra salida acordada por GEN-15) con plantillas diseñadas en el diseñador, no solo export Excel / grilla.
+
+**Estado actual (referencia):** [plan-adopcion-sdk-framework.md](../06-operacion/plan-adopcion-sdk-framework.md) — GEN-13 y GEN-15 **ausentes** en host; [SPEC-001-06-emision](../05-open-spec/001-Generaliddes/SPEC-001-06-emision.md) y [SPEC-001-09-tareas-programadas](../05-open-spec/001-Generaliddes/SPEC-001-09-tareas-programadas.md) en estado **documental**. Consultas MVP exportan vía GEN-03 (Excel); PDF quedó fuera de MVP ([SPEC-101-07](../05-open-spec/101-PedidosWeb/SPEC-101-07-consultas-api.md) AMB-C08). Menú **General** (`grp_general`) hoy incluye parámetros e historial Excel ([`paqsuite_mvp.php`](../../backend/config/paqsuite_mvp.php)); no hay ítem diseñador ni tareas.
+
+**Dependencias:** cableado GEN-15 / GEN-13 ([`44-host-framework-gen-cableado-componentes.mdc`](../../.cursor/rules/base/00-arquitectura/44-host-framework-gen-cableado-componentes.mdc)); sidecar DX / field-schema si aplica (`PAQSUITE_DX_REPORTING_*` en [`backend/config/paqsuite.php`](../../backend/config/paqsuite.php)); oleada adopción SDK según plan operación. **No** reimplementar diseñador DevExpress en el host.
 
 ### Errores encontrados - Mejoras solicitadas
 
-#### Copiado de pedidos - no se copian todos los atributos
+#### GEN-15 · Diseñador de reportes (SDK Framework)
 
-- al copiar un pedido, no se pasan los siguientes atributos : Direccion_entrega, leyendas 1 a 5.
+Incorporar el **diseñador de reportes** como componente GEN-15 (`EmissionReportDesignerPage` / flujo documentado en Framework — no fork local):
 
-*Procesado* → unificado en [SPEC-101-04](../05-open-spec/101-PedidosWeb/SPEC-101-04-services-pedidos.md) · [HU-101-026](../03-historias-usuario/101-PedidosWeb/HU-101-026-copiar-comprobante.md) · [TR-SPEC-101-04](../04-tareas/101-PedidosWeb/TR-SPEC-101-04-services-pedidos.md) — Parte G/D/E/F 09/09/2026 · **Parte I** 13/09/2026 · **D1-29:** copiar `id_de` · **D1-30:** copiar `leyenda_1`…`leyenda_5` con recorte a 60
+a) Montar UI y APIs del host según contrato GEN-15 (artefactos `.repx` / persistencia del producto; `consultaId` o proceso asociado).
 
-### Verificación ciclo OpenSpec (09/09/2026)
+b) **Menú:** nueva opción bajo la raíz **General** (`parentProcedimiento` = `grp_general`), hermana de Consulta de parámetros e Historial importaciones Excel. Codificación `pq_menus.id` según regla jerárquica (bloque del padre General; dejar huecos en `orden`).
+
+c) Permisos: `Permiso_Repo` (o matriz acordada en Parte G) sobre el `procedimiento` del ítem menú; i18n y `data-testid` estables.
+
+d) **Mobile:** diseñador y administración de plantillas **fuera de alcance native** (Capacitor); no exponer ruta en `pedidosWebMobilePolicy`.
+
+*Procesado* → [SPEC-001-06-emision-update](../05-open-spec/updates/001-Generaliddes/SPEC-001-06-emision-update.md) · [HU-GEN-15-diseniador-reportes](../03-historias-usuario/001-Generaliddes/HU-GEN-15-diseniador-reportes.md) · [TR-GEN-15-diseniador-reportes](../04-tareas/001-Generaliddes/TR-GEN-15-diseniador-reportes.md) — Parte G 03/11/2026 · **Menú:** `pw_diseniadorreportes` / `grp_general` / orden **63**
+
+#### GEN-15 · Emisión de reportes en informes PedidosWeb
+
+Habilitar **emitir reporte** (diálogo / acción toolbar acordada GEN-15) en las consultas listadas, reutilizando datos y filtros vigentes de cada pantalla (misma sesión que grilla/pivot; no segunda query ad hoc sin TR):
+
+| # | Informe | HU referencia | `procedimiento` / `consultaId` |
+|---|---------|---------------|--------------------------------|
+| a | Presupuestos Ingresados | [HU-101-016](../03-historias-usuario/101-PedidosWeb/HU-101-016-consulta-presupuestos.md) | `pw_presupuestosingresados` |
+| b | Pedidos Ingresados | [HU-101-015](../03-historias-usuario/101-PedidosWeb/HU-101-015-consulta-pedidos-ingresados.md) | `pw_pedidosingresados` |
+| c | Pedidos Pendientes | [HU-101-017](../03-historias-usuario/101-PedidosWeb/HU-101-017-consulta-pedidos-pendientes.md) | `pw_pedidospendientes` |
+| d | Detalle de Pedidos | [HU-101-028](../03-historias-usuario/101-PedidosWeb/HU-101-028-consulta-detalle-pedidos.md) | `pw_detallepedidos` |
+| e | Deudas | [HU-101-021](../03-historias-usuario/101-PedidosWeb/HU-101-021-consulta-deuda.md) | `pw_deudaclientes` |
+| f | Cheques | [HU-101-022](../03-historias-usuario/101-PedidosWeb/HU-101-022-consulta-cheques.md) | `pw_consultacheques` |
+| g | Historial de Ventas | [HU-101-023](../03-historias-usuario/101-PedidosWeb/HU-101-023-historial-ventas.md) | `pw_historialventas` |
+| h | Stock | [HU-101-018](../03-historias-usuario/101-PedidosWeb/HU-101-018-consulta-stock.md) | `pw_consultastock` |
+
+Requisitos transversales:
+
+- Catálogo de reportes por proceso (`consultaId` / vínculo plantilla ↔ informe); field-schema alineado a columnas API ([SPEC-101-07](../05-open-spec/101-PedidosWeb/SPEC-101-07-consultas-api.md) + [SPEC-101-11](../05-open-spec/101-PedidosWeb/SPEC-101-11-consultas-ui.md)).
+- Convivencia con export Excel GEN-03 y pivot GEN-12 (CC #4): emisión no reemplaza Excel salvo decisión explícita en TR.
+- **Mobile:** emisión desde kardex — definir en Parte G (acción en tarjeta vs solo web).
+
+*Procesado* → [SPEC-101-11-consultas-ui-update](../05-open-spec/updates/101-PedidosWeb/SPEC-101-11-consultas-ui-update.md) · [SPEC-101-07-consultas-api-update](../05-open-spec/updates/101-PedidosWeb/SPEC-101-07-consultas-api-update.md) · [HU-101-055-emision-reportes-informes](../03-historias-usuario/101-PedidosWeb/HU-101-055-emision-reportes-informes.md) · [TR-SPEC-101-11-consultas-ui-update](../04-tareas/updates/101-PedidosWeb/TR-SPEC-101-11-consultas-ui-update.md) · [TR-SPEC-101-07-consultas-api-update](../04-tareas/updates/101-PedidosWeb/TR-SPEC-101-07-consultas-api-update.md) — Parte G 03/11/2026 · **Mobile v1:** emisión solo web
+
+#### GEN-13 · Tareas programadas (SDK Framework)
+
+Incorporar el módulo **Tareas programadas** del SDK (`TaskProcessesPage`, definiciones, ejecuciones; `TaskProcessRegistry` en backend):
+
+a) Rutas, menú y permisos en host; títulos vía i18n (`ProcessPageLayout` — no HTML crudo).
+
+b) Desplegar modelo / SP del Framework según runbook GEN-18 + documentación [`docs/00-contexto/_mono/Tareas-programadas/`](../../docs/00-contexto/_mono/Tareas-programadas/).
+
+c) Registrar procesos de dominio PedidosWeb que deban correr en scheduler (p. ej. jobs de integración documentados aparte); **no** duplicar cron ERP donde el producto ya delega en GEN-13 externo ([SPEC-101-22](../05-open-spec/101-PedidosWeb/SPEC-101-22-importacion-maestros-erp.md)).
+
+*Procesado* → [SPEC-001-09-tareas-programadas-update](../05-open-spec/updates/001-Generaliddes/SPEC-001-09-tareas-programadas-update.md) · [HU-GEN-13-tareas-programadas](../03-historias-usuario/001-Generaliddes/HU-GEN-13-tareas-programadas.md) · [TR-GEN-13-tareas-programadas](../04-tareas/001-Generaliddes/TR-GEN-13-tareas-programadas.md) — Parte G 03/11/2026 · **Menú:** `gen_tareasprogramadas` / orden **64**
+
+#### GEN-13 · Backups programados (`BACKUP_DATABASE`)
+
+Incorporar el proceso **backup de base de datos programable** provisto por Framework:
+
+a) Adoptar proceso único **`BACKUP_DATABASE`** en registry (Windows `INIT`/`NOINIT`; RDS con polling `rds_task_status`; lock RDS global por instalación) — **no** copiar formulario ni handler al host.
+
+b) UI: pantalla genérica de **definiciones** de tareas (GEN-13); reglas MONO/MULTI y S3 según [SPEC-001-13-update — Backups Windows y RDS](../05-open-spec/updates/001-Generalidades/SPEC-001-13-update-backups-windows-rds.md) y `backups-programables-mono-multi.md` en contexto MONO.
+
+c) Operación: documentar en runbook deploy (Forge / GEN-34) credenciales S3, ventanas y smoke post-backup.
+
+*Procesado* → unificado en [SPEC-001-09-tareas-programadas-update](../05-open-spec/updates/001-Generaliddes/SPEC-001-09-tareas-programadas-update.md) · [HU-GEN-13-tareas-programadas](../03-historias-usuario/001-Generaliddes/HU-GEN-13-tareas-programadas.md) · [TR-GEN-13-tareas-programadas](../04-tareas/001-Generaliddes/TR-GEN-13-tareas-programadas.md) — Parte G 03/11/2026
+
+### Decisiones cerradas (Parte G 03/11/2026)
+
+| Tema | Decisión |
+|------|----------|
+| Menú diseñador | `pw_diseniadorreportes`, `/general/diseniador-reportes`, `grp_general`, orden **63** |
+| Menú tareas | `gen_tareasprogramadas`, `/general/tareas-programadas`, orden **64** |
+| Permisos MVP | Diseñador y tareas: perfiles admin; **emitir** reporte: quien tenga `Permiso_Repo` del informe |
+| Mobile | Diseñador, tareas y emisión v1 **excluidos** native; emisión kardex fase 2 |
+| Plan D | [D1-PLAN-CC-PQ-19.md](../04-tareas/101-PedidosWeb/D1-PLAN-CC-PQ-19.md) — 3 fases |
+
+### Verificación ciclo OpenSpec (03/11/2026)
 
 | Parte | Documento | Veredicto |
 |-------|-----------|-----------|
-| G | Updates `-update-01` SPEC/HU/TR 101-04 / 026 | Hecho 09/09/2026 (luego unificados en Parte I) |
-| D | Implementación código | Hecho 09/09/2026 — `ComprobanteCopiaService::mapCabecera` |
-| E | Tests | Hecho 09/09/2026 — [E-CC-PQ-15-tests.md](../04-tareas/101-PedidosWeb/E-CC-PQ-15-tests.md) (obs.: timeout SQL Server en agente) |
-| F | Cierre formal | Hecho 09/09/2026 — [F-CC-PQ-15-cierre-formal.md](../04-tareas/101-PedidosWeb/F-CC-PQ-15-cierre-formal.md) |
-| I | Unificación | Hecho 13/09/2026 — SPEC (12/09) + HU/TR fusionados y eliminados |
+| G | SPEC/HU/TR CC #19 → `updates/` + HU/TR GEN/101-055 nuevos | Hecho 03/11/2026 |
+| D | [D1-PLAN-CC-PQ-19.md](../04-tareas/101-PedidosWeb/D1-PLAN-CC-PQ-19.md) | Plan listo; implementación **pendiente** |
+| E | — | Pendiente (post-D) |
+| F | — | Pendiente (post-E) |
+| I | — | Pendiente (post-F, updates **Finalizado**) |
 
 ---
 
-## Control de Calidad #16
+## Control de Calidad #18
 
 ### Referencia del control
 
 | Campo | Valor |
 |-------|--------|
-| **Fecha** | 12/09/2026 |
+| **Fecha** | 30/10/2026 |
 | **Responsable** | Pablo Quarracino (PQ) |
 | **Estado** | Finalizado |
 
 ### Hallazgos
 
-Cancelar momentáneamente el logout por inactividad
+Los archivos de **integración ERP de transacciones** (stock, deuda, cheques e historial de ventas) son los de **mayor volumen**. Hoy el modo habitual documentado es **snapshot** (universo completo), lo que obliga a reenviar tablas enteras. Se necesita poder operar en **delta** enviando solo novedades, y declarar **bajas puntuales** con el mismo criterio que en maestros (`eliminarSiAusente` por ítem), sin depender de un snapshot masivo.
+
+**Estado actual (referencia):** SPEC-101-23 ya permite `delta` en stock/deuda/cheques (upsert parcial; snapshot atómico). **No** existe `eliminarSiAusente` en ítems de transacciones. Historial de ventas es **solo delta** y no borra ausentes del lote.
 
 ### Errores encontrados - Mejoras solicitadas
 
-#### Cancelación de Logout por inactividad.
+#### SPEC-101-23 · APIs importación transacciones — delta operativo y baja explícita
 
-- Cancelar momentáneamente el logout por inactividad. Se restablecerá cuando se integre este proyecto con el SDK de Framework
+Extender la importación de transacciones para que el origen ERP pueda sincronizar por **novedades**:
 
-*Procesado* → unificado en [SPEC-001-02](../05-open-spec/001-Generaliddes/SPEC-001-02-acceso-y-seguridad.md) · [HU-GEN-02-expiracion-inactividad](../03-historias-usuario/001-Generaliddes/HU-GEN-02-expiracion-inactividad.md) · [TR-GEN-02-expiracion-inactividad](../04-tareas/001-Generaliddes/TR-GEN-02-expiracion-inactividad.md) — Parte G/D/E/F 12/09/2026 · **Parte I** 12/09/2026 · **D1-31:** `inactivityLogoutEnabled=false` hasta SDK Framework
+a) **Modo `delta` recomendado en producción** para `stock`, `deuda` y `cheques`: upsert de claves enviadas; el resto del lote sigue aplicándose si un ítem falla (200 parcial según política vigente).
 
-### Verificación ciclo OpenSpec (12/09/2026)
+b) **`eliminarSiAusente: true` por ítem** (misma propiedad camelCase que maestros), en delta, para baja explícita de la clave natural:
+
+| Recurso | Clave natural | Comportamiento esperado |
+|---------|---------------|-------------------------|
+| `stock` | `codArticulo` | Eliminar fila de stock del artículo si no hay bloqueo de negocio |
+| `deuda` | `(codCliente, tComp, nComp, fechaVto)` | Eliminar comprobante pendiente identificado |
+| `cheques` | `(interno, numero)` | Eliminar cheque de cartera importada |
+| `historial-ventas` | `idGva53` | **Fuera de alcance CC #18:** no se admite baja de histórico (decisión Parte G) |
+
+c) **Snapshot** sigue disponible donde aplique (universo vigente, lote atómico); no reemplazar snapshot por delta en instalaciones que ya lo usan — **convivencia**.
+
+d) Implementación vía **SP** `pq_sp_integracion_transacciones_*_apply` (regla 74); OpenAPI y [APIs-Importacion-transacciones.md](../02-producto/PedidosWeb/APIs-Importacion-transacciones.md) alineados.
+
+*Procesado* → [SPEC-101-23](../05-open-spec/101-PedidosWeb/SPEC-101-23-importacion-transacciones-erp.md) · [HU-101-050](../03-historias-usuario/101-PedidosWeb/HU-101-050-integracion-transacciones-saldos.md) · [TR-SPEC-101-23-integracion-transacciones-saldos.md](../04-tareas/101-PedidosWeb/TR-SPEC-101-23-integracion-transacciones-saldos.md) — Parte G/D/E/F/I **02/11/2026** · **D1-CC18:** `eliminarSiAusente` delta stock/deuda/cheques
+
+#### OpenAPI — modalidades `snapshot` y `delta`
+
+Documentar en Swagger de forma **explícita por recurso** la semántica de `modo` y, en maestros, el flag `eliminarSiAusente` (hoy presente en schema pero casi sin descripción).
+
+| Ámbito | Hallazgo (30/10/2026) | Acción |
+|--------|------------------------|--------|
+| `IntegracionImportacionLoteRequest.modo` | Enum `delta` \| `snapshot` sin texto normativo | Descripción transversal + override por recurso donde cambie la regla |
+| Transacciones stock / deuda / cheques | Heredan enum genérico; no distinguen snapshot atómico vs delta parcial | Descripción en cada `*LoteRequest` |
+| Historial ventas | `modo` restringido a `delta` en schema | OK |
+| Maestros clientes / artículos / vendedores | `eliminarSiAusente` boolean sin descripción | Descripción: baja explícita en delta (y snapshot replace por ítem) |
+| Transacciones ítems | Sin `eliminarSiAusente` | Agregar propiedad documentada al cerrar ítem CC #18 (implementación) |
+
+Parte **D** inicial (solo documentación OpenAPI en anotaciones PHP): mejorar descripciones; regenerar `api-docs.json`. Parte **D** funcional: ítem transacciones + SP.
+
+*Procesado* → [HU-101-049](../03-historias-usuario/101-PedidosWeb/HU-101-049-integracion-transacciones-plataforma.md) · [TR-SPEC-101-23-integracion-transacciones-plataforma.md](../04-tareas/101-PedidosWeb/TR-SPEC-101-23-integracion-transacciones-plataforma.md) — Parte G/D/E/F/I **02/11/2026**
+
+### Verificación ciclo OpenSpec (02/11/2026)
 
 | Parte | Documento | Veredicto |
 |-------|-----------|-----------|
-| G | Updates SPEC/HU/TR GEN-02 inactividad | Hecho 12/09/2026 (luego unificados en Parte I) |
-| D | Implementación código | Hecho 12/09/2026 — `SessionLifecycleManager` + flag |
-| E | Tests | Hecho 12/09/2026 — [E-CC-PQ-16-tests.md](../04-tareas/001-Generaliddes/E-CC-PQ-16-tests.md) |
-| F | Cierre formal | Hecho 12/09/2026 — [F-CC-PQ-16-cierre-formal.md](../04-tareas/001-Generaliddes/F-CC-PQ-16-cierre-formal.md) |
-| I | Unificación | Hecho 12/09/2026 — updates fusionados y eliminados |
+| G | SPEC/HU/TR-update 101-23 (volcado + Especificado) | Hecho 02/11/2026 |
+| D | SP transacciones + OpenAPI + handler | Hecho 02/11/2026 |
+| E | [E-CC-PQ-18-tests.md](../04-tareas/101-PedidosWeb/E-CC-PQ-18-tests.md) | Hecho 02/11/2026 |
+| F | [F-CC-PQ-18-cierre-formal.md](../04-tareas/101-PedidosWeb/F-CC-PQ-18-cierre-formal.md) | Hecho 02/11/2026 |
+| I | [I-CC-PQ-18-cierre-formal.md](../04-tareas/101-PedidosWeb/I-CC-PQ-18-cierre-formal.md) | Hecho 02/11/2026 |
 
 ---
 
@@ -179,6 +283,74 @@ el atributo con el mismo esquema de la consulta: `""` (NO) y `" (*)"` (SÍ).
 | E | Tests | Hecho 21/09/2026 — [E-CC-PQ-17-tests.md](../04-tareas/101-PedidosWeb/E-CC-PQ-17-tests.md) (Vitest 12 + E2E 2; PHPUnit unit 4) |
 | F | Cierre formal | Hecho 21/09/2026 — [F-CC-PQ-17-cierre-formal.md](../04-tareas/101-PedidosWeb/F-CC-PQ-17-cierre-formal.md) |
 | I | Unificación | Hecho 21/09/2026 — [I-CC-PQ-17-cierre-formal.md](../04-tareas/101-PedidosWeb/I-CC-PQ-17-cierre-formal.md) |
+
+---
+
+## Control de Calidad #16
+
+### Referencia del control
+
+| Campo | Valor |
+|-------|--------|
+| **Fecha** | 12/09/2026 |
+| **Responsable** | Pablo Quarracino (PQ) |
+| **Estado** | Finalizado |
+
+### Hallazgos
+
+Cancelar momentáneamente el logout por inactividad
+
+### Errores encontrados - Mejoras solicitadas
+
+#### Cancelación de Logout por inactividad.
+
+- Cancelar momentáneamente el logout por inactividad. Se restablecerá cuando se integre este proyecto con el SDK de Framework
+
+*Procesado* → unificado en [SPEC-001-02](../05-open-spec/001-Generaliddes/SPEC-001-02-acceso-y-seguridad.md) · [HU-GEN-02-expiracion-inactividad](../03-historias-usuario/001-Generaliddes/HU-GEN-02-expiracion-inactividad.md) · [TR-GEN-02-expiracion-inactividad](../04-tareas/001-Generaliddes/TR-GEN-02-expiracion-inactividad.md) — Parte G/D/E/F 12/09/2026 · **Parte I** 12/09/2026 · **D1-31:** `inactivityLogoutEnabled=false` hasta SDK Framework
+
+### Verificación ciclo OpenSpec (12/09/2026)
+
+| Parte | Documento | Veredicto |
+|-------|-----------|-----------|
+| G | Updates SPEC/HU/TR GEN-02 inactividad | Hecho 12/09/2026 (luego unificados en Parte I) |
+| D | Implementación código | Hecho 12/09/2026 — `SessionLifecycleManager` + flag |
+| E | Tests | Hecho 12/09/2026 — [E-CC-PQ-16-tests.md](../04-tareas/001-Generaliddes/E-CC-PQ-16-tests.md) |
+| F | Cierre formal | Hecho 12/09/2026 — [F-CC-PQ-16-cierre-formal.md](../04-tareas/001-Generaliddes/F-CC-PQ-16-cierre-formal.md) |
+| I | Unificación | Hecho 12/09/2026 — updates fusionados y eliminados |
+
+---
+
+## Control de Calidad #15
+
+### Referencia del control
+
+| Campo | Valor |
+|-------|--------|
+| **Fecha** | 09/09/2026 |
+| **Responsable** | Pablo Quarracino (PQ) |
+| **Estado** | Finalizado |
+
+### Hallazgos
+
+Atributos faltantes al copiar pedidos
+
+### Errores encontrados - Mejoras solicitadas
+
+#### Copiado de pedidos - no se copian todos los atributos
+
+- al copiar un pedido, no se pasan los siguientes atributos : Direccion_entrega, leyendas 1 a 5.
+
+*Procesado* → unificado en [SPEC-101-04](../05-open-spec/101-PedidosWeb/SPEC-101-04-services-pedidos.md) · [HU-101-026](../03-historias-usuario/101-PedidosWeb/HU-101-026-copiar-comprobante.md) · [TR-SPEC-101-04](../04-tareas/101-PedidosWeb/TR-SPEC-101-04-services-pedidos.md) — Parte G/D/E/F 09/09/2026 · **Parte I** 13/09/2026 · **D1-29:** copiar `id_de` · **D1-30:** copiar `leyenda_1`…`leyenda_5` con recorte a 60
+
+### Verificación ciclo OpenSpec (09/09/2026)
+
+| Parte | Documento | Veredicto |
+|-------|-----------|-----------|
+| G | Updates `-update-01` SPEC/HU/TR 101-04 / 026 | Hecho 09/09/2026 (luego unificados en Parte I) |
+| D | Implementación código | Hecho 09/09/2026 — `ComprobanteCopiaService::mapCabecera` |
+| E | Tests | Hecho 09/09/2026 — [E-CC-PQ-15-tests.md](../04-tareas/101-PedidosWeb/E-CC-PQ-15-tests.md) (obs.: timeout SQL Server en agente) |
+| F | Cierre formal | Hecho 09/09/2026 — [F-CC-PQ-15-cierre-formal.md](../04-tareas/101-PedidosWeb/F-CC-PQ-15-cierre-formal.md) |
+| I | Unificación | Hecho 13/09/2026 — SPEC (12/09) + HU/TR fusionados y eliminados |
 
 ---
 

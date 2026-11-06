@@ -1,5 +1,8 @@
 # SPEC-101-09 — Frontend base
 
+Jira: PIAPEDWEB-21
+
+
 | Campo | Valor |
 |-------|--------|
 | **SPEC madre** | [PedidosWeb_SPEC_MVP.md](PedidosWeb_SPEC_MVP.md) |

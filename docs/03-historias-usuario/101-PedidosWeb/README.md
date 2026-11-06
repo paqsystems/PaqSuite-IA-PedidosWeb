@@ -9,6 +9,12 @@ Convención: **`HU-101-NNN-tema.md`** derivadas de [PedidosWeb_SPEC_MVP.md](../.
 **B1 (2026-07-13):** SPEC-101-18/19/20 — HU-101-037…042 **B1 cerrado** ([F-101-18-20-cierre-b1](../../04-tareas/101-PedidosWeb/F-101-18-20-cierre-b1-asistente-carga-ia.md)); estado **Especificado**.  
 **B (2026-07-19):** SPEC-101-21 — HU-101-043…045 **generadas**.  
 **B1 (2026-07-19):** SPEC-101-21 — HU-101-043…045 **B1 cerrado** ([F-101-21-cierre-b1](../../04-tareas/101-PedidosWeb/F-101-21-cierre-b1-importacion-masiva.md)); estado **Especificado**.  
+**B (2026-10-21):** SPEC-101-22 — HU-101-046…048 **generadas**.
+**B1 (2026-10-21):** SPEC-101-22 — HU-101-046…048 **B1 cerrado** ([F-101-22-cierre-b1](../../04-tareas/101-PedidosWeb/F-101-22-cierre-b1-importacion-maestros-erp.md)); estado **Especificado**.
+**B (2026-10-22):** SPEC-101-23 — HU-101-049…051 **generadas**; Jira [PIAPEDWEB-40](https://paqsystems.atlassian.net/browse/PIAPEDWEB-40), [PIAPEDWEB-41](https://paqsystems.atlassian.net/browse/PIAPEDWEB-41), [PIAPEDWEB-42](https://paqsystems.atlassian.net/browse/PIAPEDWEB-42).
+**B1 (2026-10-22):** SPEC-101-23 — HU-101-049…051 **B1 cerrado** ([F-101-23-cierre-b1](../../04-tareas/101-PedidosWeb/F-101-23-cierre-b1-importacion-transacciones-erp.md)); listas para Parte C.
+**B (2026-10-25):** SPEC-101-24 — HU-101-052…054 **generadas**.
+**B1 (2026-10-25):** SPEC-101-24 — HU-101-052…054 **B1 cerrado** ([F-101-24-cierre-b1](../../04-tareas/101-PedidosWeb/F-101-24-cierre-b1-importacion-medidas-erp.md)); listas para Parte C.
 **C (2026-06-17):** TR-16a y TR-16b generadas.  
 **C1 (2026-06-17):** Revisión C1 **Apto** — [F-101-16-cierre-c1](../../04-tareas/101-PedidosWeb/F-101-16-cierre-c1.md); listo **D1**.
 
@@ -95,6 +101,42 @@ Convención: **`HU-101-NNN-tema.md`** derivadas de [PedidosWeb_SPEC_MVP.md](../.
 | [TR-21b](../../04-tareas/101-PedidosWeb/TR-SPEC-101-21-pantalla-importacion-masiva.md) | 044 | Pantalla + grabación FE |
 | [TR-21c](../../04-tareas/101-PedidosWeb/TR-SPEC-101-21-consultar-borrador-importacion-masiva.md) | 045 | Consultar readonly |
 
+## SPEC-101-22 — Importación maestros ERP
+
+| HU | Prioridad | Título |
+|----|-----------|--------|
+| [HU-101-046](HU-101-046-integracion-maestros-plataforma.md) | Must | Plataforma API integración maestros — **B1 cerrado** |
+| [HU-101-047](HU-101-047-integracion-maestros-catalogo-articulos.md) | Must | Catálogo, artículos y precios (10 recursos) — **B1 cerrado** |
+| [HU-101-048](HU-101-048-integracion-maestros-clientes-parametros.md) | Must | Clientes, DE, contactos, parámetros — **B1 cerrado** |
+
+**SPEC:** [SPEC-101-22](../../05-open-spec/101-PedidosWeb/SPEC-101-22-importacion-maestros-erp.md) · **A1:** [F-101-22-cierre-a1](../../04-tareas/101-PedidosWeb/F-101-22-cierre-a1-importacion-maestros-erp.md) · **B1:** [F-101-22-cierre-b1](../../04-tareas/101-PedidosWeb/F-101-22-cierre-b1-importacion-maestros-erp.md) · **C:** [F-101-22-cierre-c](../../04-tareas/101-PedidosWeb/F-101-22-cierre-c-importacion-maestros-erp.md) — pendiente **C1**.
+
+| TR | HU | Título |
+|----|-----|--------|
+| [22a](../../04-tareas/101-PedidosWeb/TR-SPEC-101-22-integracion-maestros-plataforma.md) | 046 | Plataforma API |
+| [22b](../../04-tareas/101-PedidosWeb/TR-SPEC-101-22-integracion-maestros-catalogo-articulos.md) | 047 | Catálogo / artículos |
+| [22c](../../04-tareas/101-PedidosWeb/TR-SPEC-101-22-integracion-maestros-clientes-parametros.md) | 048 | Clientes / parámetros |
+
+## SPEC-101-23 — Importación transacciones ERP
+
+| HU | Prioridad | Jira | Título |
+|----|-----------|------|--------|
+| [HU-101-049](HU-101-049-integracion-transacciones-plataforma.md) | Must | [PIAPEDWEB-40](https://paqsystems.atlassian.net/browse/PIAPEDWEB-40) | Plataforma API transacciones |
+| [HU-101-050](HU-101-050-integracion-transacciones-saldos.md) | Must | [PIAPEDWEB-41](https://paqsystems.atlassian.net/browse/PIAPEDWEB-41) | Stock, deuda y cheques |
+| [HU-101-051](HU-101-051-integracion-transacciones-historial-ventas.md) | Must | [PIAPEDWEB-42](https://paqsystems.atlassian.net/browse/PIAPEDWEB-42) | Historial de ventas |
+
+**SPEC:** [SPEC-101-23](../../05-open-spec/101-PedidosWeb/SPEC-101-23-importacion-transacciones-erp.md) · **A1:** [F-101-23-cierre-a1](../../04-tareas/101-PedidosWeb/F-101-23-cierre-a1-importacion-transacciones-erp.md) · **B1:** [F-101-23-cierre-b1](../../04-tareas/101-PedidosWeb/F-101-23-cierre-b1-importacion-transacciones-erp.md) — autoriza **C**.
+
+## SPEC-101-24 — Importación medidas ERP
+
+| HU | Prioridad | Título |
+|----|-----------|--------|
+| [HU-101-052](HU-101-052-integracion-medidas-plataforma.md) | Must | Plataforma de recepción y consulta asíncrona |
+| [HU-101-053](HU-101-053-integracion-medidas-maestro.md) | Must | Sincronización del maestro `medidas` |
+| [HU-101-054](HU-101-054-integracion-medidas-postman.md) | Must | Pruebas Postman y contrato reproducible |
+
+**SPEC:** [SPEC-101-24](../../05-open-spec/101-PedidosWeb/SPEC-101-24-importacion-medidas-erp.md) · **A1:** Apto con observaciones; **B1:** [F-101-24-cierre-b1](../../04-tareas/101-PedidosWeb/F-101-24-cierre-b1-importacion-medidas-erp.md) — listo para Parte C.
+
 ## Dependencias transversales
 
 - **GEN-01 / GEN-03:** shell, grillas, layouts, export Excel.
@@ -117,6 +159,10 @@ Parte **B1 (SPEC-101-18/19/20 asistente carga):** **cerrada** — HU-101-037…0
 Parte **B (SPEC-101-21 importación masiva):** **generada** — HU-101-043…045.
 
 Parte **B1 (SPEC-101-21):** **cerrada** — [F-101-21-cierre-b1](../../04-tareas/101-PedidosWeb/F-101-21-cierre-b1-importacion-masiva.md).
+
+Parte **B (SPEC-101-23):** **generada** — HU-101-049…051; pendiente B1.
+
+Parte **B1 (SPEC-101-23):** **cerrada** — [F-101-23-cierre-b1](../../04-tareas/101-PedidosWeb/F-101-23-cierre-b1-importacion-transacciones-erp.md); autoriza Parte C.
 
 Parte **C (SPEC-101-21):** **generada** — [F-101-21-cierre-c](../../04-tareas/101-PedidosWeb/F-101-21-cierre-c-importacion-masiva.md).
 

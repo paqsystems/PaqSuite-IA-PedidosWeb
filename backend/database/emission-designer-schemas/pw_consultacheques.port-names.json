@@ -1,0 +1,13 @@
+{
+    "fieldNames": [
+        "interno",
+        "numero",
+        "codCliente",
+        "nombreCliente",
+        "banco",
+        "fecha",
+        "importe",
+        "origen",
+        "estado"
+    ]
+}

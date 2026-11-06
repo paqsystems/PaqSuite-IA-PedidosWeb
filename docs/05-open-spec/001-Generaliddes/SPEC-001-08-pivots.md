@@ -1,5 +1,8 @@
 # SPEC-001-08 - Pivots
 
+Jira: PIAPEDWEB-9
+
+
 | Campo | Valor |
 |-------|--------|
 | **HU relacionadas** | [HU-GEN-08-motor-metadata-pivots](../../03-historias-usuario/001-Generaliddes/HU-GEN-08-motor-metadata-pivots.md), [HU-GEN-08-pivotgrid-visualizacion](../../03-historias-usuario/001-Generaliddes/HU-GEN-08-pivotgrid-visualizacion.md), [HU-GEN-08-layouts-pivot](../../03-historias-usuario/001-Generaliddes/HU-GEN-08-layouts-pivot.md), [HU-GEN-08-exportacion-pivot](../../03-historias-usuario/001-Generaliddes/HU-GEN-08-exportacion-pivot.md) |

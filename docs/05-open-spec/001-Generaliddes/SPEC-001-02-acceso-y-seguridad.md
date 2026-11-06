@@ -1,5 +1,8 @@
 # SPEC-001-02 - Acceso y seguridad
 
+Jira: PIAPEDWEB-2
+
+
 | Campo | Valor |
 |-------|--------|
 | **HU relacionadas** | `docs/03-historias-usuario/001-Generaliddes/HU-GEN-02-*.md` (8 HU; índice en README) |

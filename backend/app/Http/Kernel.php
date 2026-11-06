@@ -64,6 +64,8 @@ class Kernel extends HttpKernel
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'paq.tenant' => \App\Http\Middleware\ValidatePaqTenant::class,
+        'paq.emissionDesignerSanctum' => \App\Http\Middleware\ResolveSanctumUserOptionally::class,
         'admin.security.enabled' => \App\Http\Middleware\EnsureAdminSecurityEnabled::class,
+        'integracion.importacion' => \App\Http\Middleware\EnsureIntegracionImportacion::class,
     ];
 }

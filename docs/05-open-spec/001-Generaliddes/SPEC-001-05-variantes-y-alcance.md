@@ -1,5 +1,8 @@
 # SPEC-001-05 - Variantes y alcance
 
+Jira: PIAPEDWEB-6
+
+
 | Campo | Valor |
 |-------|--------|
 | **HU relacionadas** | `HU-GEN-05-*` (a generar; prioridad Fase 0) |

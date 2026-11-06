@@ -8,6 +8,7 @@ import { DataGridDx, type DataGridDxHandle, type DataGridRowAction } from '../..
 import type { ConsultaMeta } from '../api/consultaApi';
 import { GridRefreshButton } from './GridRefreshButton';
 import { formatConsultaFechaProceso } from '../utils/formatConsultaFechaProceso';
+import { ConsultaEmitReportToolbarItem } from '../../emissions/ConsultaEmitReportToolbarItem';
 
 type BaseRow = Record<string, unknown> & {
   id: string;
@@ -26,6 +27,7 @@ type ConsultaInformePivotPageProps<TRecord extends BaseRow> = {
   headerExtra?: React.ReactNode;
   enableDrillDown?: boolean;
   onCellPrepared?: (event: CellPreparedEvent) => void;
+  emissionProcessCode?: string;
 };
 
 export function ConsultaInformePivotPage<TRecord extends BaseRow>({
@@ -41,6 +43,7 @@ export function ConsultaInformePivotPage<TRecord extends BaseRow>({
   headerExtra,
   enableDrillDown = false,
   onCellPrepared,
+  emissionProcessCode,
 }: ConsultaInformePivotPageProps<TRecord>) {
   const { t, i18n } = useTranslation();
   const gridRef = useRef<DataGridDxHandle>(null);
@@ -69,11 +72,17 @@ export function ConsultaInformePivotPage<TRecord extends BaseRow>({
   const toolbarEnd = useMemo(
     () => (
       <>
+        {emissionProcessCode ? (
+          <ConsultaEmitReportToolbarItem
+            emissionProcessCode={emissionProcessCode}
+            disabled={isLoading || rows.length === 0}
+          />
+        ) : null}
         <GridRefreshButton onRefresh={() => setRefreshToken((value) => value + 1)} />
         {layoutToolbar}
       </>
     ),
-    [layoutToolbar],
+    [emissionProcessCode, isLoading, layoutToolbar, rows.length],
   );
 
   useEffect(() => {

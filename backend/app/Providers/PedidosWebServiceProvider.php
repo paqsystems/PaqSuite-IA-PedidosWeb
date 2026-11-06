@@ -14,14 +14,18 @@ use App\Services\PedidosWeb\HistorialVentasConsultaService;
 use App\Services\PedidosWeb\DeudaConsultaService;
 use App\Services\PedidosWeb\StockConsultaService;
 use App\Services\PedidosWeb\DashboardOperativoService;
+use App\Services\PedidosWeb\Integracion\Maestros\IntegracionMaestroRegistry;
+use App\Services\PedidosWeb\Integracion\Transacciones\IntegracionTransaccionRegistry;
 use App\Services\PedidosWeb\LogIntegracionService;
 use App\Services\PedidosWeb\ParametrosCargaService;
 use App\Services\PedidosWeb\PedidoService;
 use App\Services\PedidosWeb\PedidosWebParameterService;
 use App\Services\PedidosWeb\PresupuestoCierreService;
 use App\Services\PedidosWeb\TratativaService;
+use App\Repositories\PedidosWebMenuQueryRepository;
 use App\Services\PedidosWeb\PedidosWebSchemaBootstrap;
 use Illuminate\Support\ServiceProvider;
+use PaqSuite\LaravelCore\Menu\MenuQueryRepository;
 
 final class PedidosWebServiceProvider extends ServiceProvider
 {
@@ -43,8 +47,11 @@ final class PedidosWebServiceProvider extends ServiceProvider
         $this->app->singleton(ConsultaListadoService::class);
         $this->app->singleton(DetallePedidosConsultaService::class);
         $this->app->singleton(LogIntegracionService::class);
+        $this->app->singleton(IntegracionMaestroRegistry::class);
+        $this->app->singleton(IntegracionTransaccionRegistry::class);
         $this->app->singleton(TratativaService::class);
         $this->app->singleton(PedidosWebSchemaBootstrap::class);
         $this->app->singleton(DashboardOperativoService::class);
+        $this->app->singleton(MenuQueryRepository::class, PedidosWebMenuQueryRepository::class);
     }
 }
