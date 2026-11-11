@@ -29,28 +29,28 @@ function TareasProgramadasLayout() {
               className="pwTareasProgramadas__tab"
               data-testid="tareasProgramadas.tab.procesos"
             >
-              {t('tareasProgramadas.procesos.title')}
+              {t('tareasProgramadas.tabs.procesos', { defaultValue: 'Procesos' })}
             </NavLink>
             <NavLink
               to={`${BASE}/definiciones`}
               className="pwTareasProgramadas__tab"
               data-testid="tareasProgramadas.tab.definiciones"
             >
-              {t('tareasProgramadas.definiciones.title')}
+              {t('tareasProgramadas.tabs.definiciones', { defaultValue: 'Definiciones' })}
             </NavLink>
             <NavLink
-              to={`${BASE}/monitoreo`}
+              to={`${BASE}/ejecuciones`}
               className="pwTareasProgramadas__tab"
-              data-testid="tareasProgramadas.tab.monitoreo"
+              data-testid="tareasProgramadas.tab.ejecuciones"
             >
-              {t('tareasProgramadas.monitoreo.title')}
+              {t('tareasProgramadas.tabs.ejecuciones', { defaultValue: 'Ejecuciones' })}
             </NavLink>
             <NavLink
               to={`${BASE}/historial`}
               className="pwTareasProgramadas__tab"
               data-testid="tareasProgramadas.tab.historial"
             >
-              {t('tareasProgramadas.ejecuciones.title')}
+              {t('tareasProgramadas.tabs.historial', { defaultValue: 'Historial' })}
             </NavLink>
           </nav>
         }
@@ -119,11 +119,11 @@ function TareasProgramadasDefinicionFormPage() {
   );
 }
 
-function TareasProgramadasMonitoreoPage() {
+function TareasProgramadasEjecucionesPage() {
   const sdk = useGenTasksSdkProps();
 
   return (
-    <div data-testid="tareasProgramadas.monitoreo">
+    <div data-testid="tareasProgramadas.ejecuciones.monitor">
       <TaskAutomationsMonitorPage t={sdk.t} platform={sdk.platform} accessToken={sdk.accessToken} />
     </div>
   );
@@ -148,7 +148,8 @@ export function TareasProgramadasRouter() {
         <Route path="definiciones" element={<TareasProgramadasDefinicionesPage />} />
         <Route path="definiciones/nueva" element={<TareasProgramadasDefinicionFormPage />} />
         <Route path="definiciones/:id/editar" element={<TareasProgramadasDefinicionFormPage />} />
-        <Route path="monitoreo" element={<TareasProgramadasMonitoreoPage />} />
+        <Route path="ejecuciones" element={<TareasProgramadasEjecucionesPage />} />
+        <Route path="monitoreo" element={<Navigate to={`${BASE}/ejecuciones`} replace />} />
         <Route path="historial" element={<TareasProgramadasHistorialPage />} />
       </Route>
     </Routes>

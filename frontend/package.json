@@ -26,7 +26,7 @@
     "@capacitor/splash-screen": "^8.0.1",
     "@capacitor/status-bar": "^8.0.2",
     "@devexpress/analytics-core": "26.1.4",
-    "@paqsuite/react-core": "2.4.30-beta.7",
+    "@paqsuite/react-core": "2.4.30-beta.13",
     "ace-builds": "^1.44.0",
     "devexpress-reporting": "26.1.4",
     "devexpress-reporting-react": "26.1.4",
