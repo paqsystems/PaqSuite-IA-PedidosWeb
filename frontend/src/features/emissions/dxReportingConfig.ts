@@ -47,7 +47,9 @@ type DxReportingEnv = {
 export function readDxReportingConfig(
   env: DxReportingEnv = import.meta.env as DxReportingEnv,
 ): DxReportingConfig {
-  const serviceUrl = env.VITE_DX_REPORTING_HOST?.trim() || '';
+  // `/` = same-origin + proxy Vite (`/DXXRD`) o rewrites Vercel → Forge → sidecar :5055.
+  // Sin este default, Preview/productivos sin VITE_DX_REPORTING_HOST muestran hostMissing.
+  const serviceUrl = env.VITE_DX_REPORTING_HOST?.trim() || '/';
   const direct = String(env.VITE_DX_REPORTING_DIRECT ?? '').toLowerCase() === 'true';
   const useSameOriginProxy = Boolean(serviceUrl) && !direct;
   const locationOrigin =

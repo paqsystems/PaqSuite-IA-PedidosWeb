@@ -6,7 +6,7 @@
 | **SPEC origen** | [SPEC-001-09-tareas-programadas-update](../../05-open-spec/updates/001-Generaliddes/SPEC-001-09-tareas-programadas-update.md) · base [SPEC-001-09-tareas-programadas](../../05-open-spec/001-Generaliddes/SPEC-001-09-tareas-programadas.md) |
 | **Épica** | 001 — Generalidades / GEN-13 |
 | **Prioridad** | Must |
-| **Estado** | Pendiente |
+| **Estado** | En Control Calidad |
 | **TR relacionada** | [TR-GEN-13-tareas-programadas](../../04-tareas/001-Generaliddes/TR-GEN-13-tareas-programadas.md) |
 | **Origen** | 00-ControlCalidad-PQ #19 — 03/11/2026 |
 
