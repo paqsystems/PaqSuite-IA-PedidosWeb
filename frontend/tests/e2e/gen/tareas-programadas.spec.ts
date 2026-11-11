@@ -18,12 +18,12 @@ test.describe('GEN-13 tareas programadas (CC #20)', () => {
 
     await expect(page.getByTestId('tareasProgramadas.tab.procesos')).toBeVisible();
     await expect(page.getByTestId('tareasProgramadas.tab.definiciones')).toBeVisible();
-    await expect(page.getByTestId('tareasProgramadas.tab.monitoreo')).toBeVisible();
+    await expect(page.getByTestId('tareasProgramadas.tab.ejecuciones')).toBeVisible();
     await expect(page.getByTestId('tareasProgramadas.tab.historial')).toBeVisible();
     await expect(page.getByTestId('tareasProgramadas.definiciones.root')).toBeVisible();
   });
 
-  test('navega entre solapas de procesos, definiciones, monitoreo e historial', async ({ page }) => {
+  test('navega entre solapas de procesos, definiciones, ejecuciones e historial', async ({ page }) => {
     await mockTareasProgramadasApi(page);
     await loginTareasAdmin(page);
     await page.goto('/general/tareas-programadas/definiciones');
@@ -36,8 +36,8 @@ test.describe('GEN-13 tareas programadas (CC #20)', () => {
     await expect(page).toHaveURL(/\/definiciones$/);
     await expect(page.getByTestId('tareasProgramadas.definiciones.root')).toBeVisible();
 
-    await page.getByTestId('tareasProgramadas.tab.monitoreo').click();
-    await expect(page).toHaveURL(/\/monitoreo$/);
+    await page.getByTestId('tareasProgramadas.tab.ejecuciones').click();
+    await expect(page).toHaveURL(/\/ejecuciones$/);
     await expect(page.getByTestId('tareasProgramadas.monitoreo.root')).toBeVisible();
 
     await page.getByTestId('tareasProgramadas.tab.historial').click();
