@@ -1,0 +1,24 @@
+.pwTareasProgramadas__nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.pwTareasProgramadas__tab {
+  color: var(--pq-shell-text-muted, #6b7280);
+  text-decoration: none;
+  font-size: 0.9375rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+}
+
+.pwTareasProgramadas__tab:hover,
+.pwTareasProgramadas__tab.active {
+  color: var(--pq-shell-text, #111827);
+  background: color-mix(in srgb, var(--pq-process-surface, #f3f4f6) 80%, transparent);
+}
+
+.pwTareasProgramadas__tab.active {
+  font-weight: 600;
+}

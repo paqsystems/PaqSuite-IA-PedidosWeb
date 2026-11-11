@@ -22,6 +22,7 @@ Este archivo **no sustituye** SPEC, HU ni TR: es la **entrada** del circuito de 
 | **Bloques** | `## Control de Calidad #N` — numeración incremental |
 | **Ítems** | Preferir `### HU-XXX-slug` cuando la HU sea identificable |
 | **Marcas de gestión** | `*Procesado*` tras volcado G; `*Sugerencia: HU-…*` si aún no hay HU asociable |
+| **Jira** | Lo escribe **Parte G** (`Jira:` / fila en *Referencia del control*). **No** al registrar el hito (agente o a mano). |
 | **Comando de volcado** | `Corrige los errores del dd/MM/yyyy de PQ` (o *Realiza las mejoras…* / *Procesa las solicitudes…*) |
 
 ## Estados del bloque (*Referencia del control*)
@@ -37,8 +38,8 @@ Este archivo **no sustituye** SPEC, HU ni TR: es la **entrada** del circuito de 
 
 ## Flujo tras registrar un control
 
-1. Registrar hallazgos en el bloque `#N` con estado **Pendiente**.
-2. Ejecutar **Parte G** (`Corrige… dd/MM/yyyy de PQ`): §0 SPEC-update si cambia el alcance; HU-update / TR-update.
+1. Registrar hallazgos en el bloque `#N` con estado **Pendiente** (**sin** Jira).
+2. Ejecutar **Parte G** (`Corrige… dd/MM/yyyy de PQ`): **A0 embebido** si falta `Jira:` + §0 SPEC-update si cambia el alcance; HU-update / TR-update.
 3. Implementar (**D**), tests (**E**), verificación (**F**).
 4. Marcar updates **`Finalizado`** (manual) y **Parte I** (unificar).
 
@@ -46,7 +47,8 @@ Este archivo **no sustituye** SPEC, HU ni TR: es la **entrada** del circuito de 
 
 | # | Fecha | Estado | Resumen |
 |---|-------|--------|---------|
-| 19 | 03/11/2026 | Especificado (Parte G 03/11/2026) | Adopción SDK: **diseñador de reportes** (GEN-15) bajo menú **General**; **emisión** en ocho informes; **tareas programadas** (GEN-13) y **backup** programado |
+| 20 | 11/11/2026 | Especificado (Parte G 11/11/2026) | Reemplazar **tareas programadas** host por cableado SDK Framework (**GEN-13**) e incorporar el proceso **Backup** (`BACKUP_DATABASE`) |
+| 19 | 03/11/2026 | Especificado (Parte G 03/11/2026) | Adopción SDK: **diseñador de reportes** (GEN-15) bajo menú **General**; **emisión** en ocho informes; **tareas programadas** (GEN-13) y **backup** programado — residual GEN-13/Backup → **#20** |
 | 18 | 30/10/2026 | Finalizado (Parte I 02/11/2026) | Integración **transacciones**: delta + `eliminarSiAusente` por ítem (novedades/bajas); OpenAPI snapshot vs delta |
 | 17 | 20/09/2026 | Finalizado (Parte I 21/09/2026) | Atributo `especial` en artículos — columna detalle pedidos + sufijo listbox carga |
 | 16 | 12/09/2026 | Finalizado (Parte I 12/09/2026) | Suspender logout por inactividad hasta adopción SDK Framework |
@@ -65,6 +67,88 @@ Este archivo **no sustituye** SPEC, HU ni TR: es la **entrada** del circuito de 
 | 1 | 04/06/2026 | Finalizado (Parte I) | 10 familias HU — CC PQ; updates unificados 09/06/2026 |
 | 2 | 05/06/2026 | Finalizado (Parte I) | GEN-03 layouts/export Excel formateado — CC PQ #2; unificado 09/06/2026 |
 | 3 | 09/06/2026 | Finalizado (Parte I) | Cartel cargando, layouts totales, performance carga, parámetros — unificado 09/06/2026 |
+
+---
+
+## Control de Calidad #20
+
+### Referencia del control
+
+| Campo | Valor |
+|-------|--------|
+| **Fecha** | 11/11/2026 |
+| **Responsable** | Pablo Quarracino (PQ) |
+| **Estado** | Especificado |
+| **Jira** | [PIAPEDWEB-46](https://paqsystems.atlassian.net/browse/PIAPEDWEB-46) |
+
+### Hallazgos
+
+PedidosWeb debe **reemplazar el proceso de Tareas programadas que está cableado hoy en el host** por el **contrato GEN-13 del SDK Framework**, e **incorporar en el mismo hito** el proceso registry **`BACKUP_DATABASE`** (backups programables Windows/RDS). No abrir una pantalla host de backup ni copiar handlers del Framework.
+
+**Antecedente:** [Control de Calidad #19](#control-de-calidad-19) (03/11/2026) abrió GEN-13 + backup **mezclado** con GEN-15 (diseñador/emisión). Quedó un **wrapper host incompleto** y el smoke de backup **pendiente**. Este control **aísla** GEN-13 + Backup; GEN-15 permanece en #19.
+
+**Estado actual (referencia 11/11/2026):**
+
+| Superficie | Qué hay hoy | Gap vs contrato SDK |
+|------------|-------------|---------------------|
+| UI | `TareasProgramadasPage` monta `TaskProcessesPage` **sin** `ProcessPageLayout`; títulos/chrome no cumplen ficha GEN-13 | Reemplazar por cableado canónico (layout + i18n SDK, sin fork) |
+| Menú | `gen_tareasprogramadas` / `/general/tareas-programadas` / `grp_general` orden 64 | Conservar; alinear `labelKey` + i18n 5 locales |
+| Backend | `PedidosWebGenCapabilitiesServiceProvider` registra `BACKUP_DATABASE` y repositorios SP | Completar DualPath SP / `installation:update`; no copiar handler a `App\` |
+| Backup | Gateway **`InMemoryMonoRdsBackupGateway`** (smoke local sin AWS) | Adoptar proceso real SDK (Windows `INIT`/`NOINIT`; RDS `rds_task_status` + lock global); in-memory **solo** lab |
+| Operación | `PAQSUITE_TASKS_ROUTES_ENABLED` + `TASKS_BACKUP_S3_ARN_PREFIX` en `.env.example` | Runbook Forge/S3 + cron `tasks:run-due`; definición `BACKUP_DATABASE` en catálogo + ejecución manual |
+| Mobile | Ruta excluida en `pedidosWebMobilePolicy` | Mantener **fuera de native** |
+
+**Dependencias:** ficha GEN-13 en [`44-host-framework-gen-cableado-componentes.mdc`](../../.cursor/rules/base/00-arquitectura/44-host-framework-gen-cableado-componentes.mdc); [SPEC-001-09](../05-open-spec/001-Generaliddes/SPEC-001-09-tareas-programadas.md) + update CC #19; [SPEC-001-13-update — Backups Windows y RDS](../05-open-spec/updates/001-Generalidades/SPEC-001-13-update-backups-windows-rds.md); pin SDK vigente (`TaskProcessesPage`, `TaskProcessRegistry`, `BackupDatabaseProcess`). **No** reimplementar definiciones/ejecuciones ni formulario de backup en el host.
+
+### Errores encontrados - Mejoras solicitadas
+
+#### GEN-13 · Reemplazar proceso de tareas programadas por cableado SDK Framework
+
+Sustituir la superficie host actual de **Tareas programadas** por el cableado GEN-13 del SDK (regla 19 / ficha 44 — adoptar, no reinventar):
+
+a) **UI:** montar `TaskProcessesPage` (definiciones + ejecuciones) con chrome **`ProcessPageLayout`**; títulos vía i18n (`t` / `resolveMenuCaption`); **prohibido** `<h1>` literal ES o pantalla host duplicada.
+
+b) **Contrato host:** token + headers plataforma (`X-Paq-Cliente`); `tenancyMode` MONO (`single`); namespace i18n alineado al bootstrap (`register*` del SDK si el pin lo exporta — no fork `tasks.*` / `menu.*` GEN en JSON host).
+
+c) **Backend:** rutas GEN-13 del package laravel-core (`PAQSUITE_TASKS_ROUTES_ENABLED`); `TaskProcessRegistry` del SDK; repositorios/SP DualPath; **no** Eloquent ad-hoc ni SQL suelto de negocio (regla 74).
+
+d) **Scheduler:** documentar e instalar disparo operativo (`tasks:run-due` / Laravel scheduler / cron Forge). Sin este disparo el módulo UI no ejecuta definiciones en producción.
+
+e) **Menú / permisos:** conservar `gen_tareasprogramadas` bajo **General**; permiso administrativo MVP (no perfil Cliente); **mobile:** no exponer ruta native.
+
+f) **Retiro del proceso actual:** una vez cableado el SDK, no dejar una segunda UI/API host de tareas. El wrapper `TareasProgramadasPage` solo puede existir como página delgada que delega 100 % al export SDK.
+
+*Procesado* → [SPEC-001-09-tareas-programadas-update-01](../05-open-spec/updates/001-Generaliddes/SPEC-001-09-tareas-programadas-update-01.md) · [HU-GEN-13-tareas-programadas-update](../03-historias-usuario/updates/001-Generaliddes/HU-GEN-13-tareas-programadas-update.md) · [TR-GEN-13-tareas-programadas-update](../04-tareas/updates/001-Generaliddes/TR-GEN-13-tareas-programadas-update.md) — Parte G 11/11/2026 · **Jira:** [PIAPEDWEB-46](https://paqsystems.atlassian.net/browse/PIAPEDWEB-46) / [PIAPEDWEB-47](https://paqsystems.atlassian.net/browse/PIAPEDWEB-47) / [PIAPEDWEB-48](https://paqsystems.atlassian.net/browse/PIAPEDWEB-48)
+
+#### GEN-13 · Incorporar proceso Backup (`BACKUP_DATABASE`)
+
+Incorporar el **único** proceso de backup de base de datos del Framework dentro del módulo de definiciones (mismo hito; no pantalla aparte):
+
+a) Registrar **`BACKUP_DATABASE`** en `TaskProcessRegistry` usando `BackupDatabaseProcess` del laravel-core — **prohibido** copiar formulario o handler al namespace `App\`.
+
+b) **Reglas MONO (PedidosWeb):** tenant fijo, **sin** picker multi-empresa; destino S3 compartido según runbook Forge (`TASKS_BACKUP_S3_ARN_PREFIX` y credenciales).
+
+c) **Motores:** Windows `INIT`/`NOINIT`; RDS sobrescribe siempre, polling `rds_task_status`, **lock RDS global por instalación**. El gateway in-memory actual es **solo lab**; en Forge/RDS debe usarse el gateway real del SDK.
+
+d) **Operación:** runbook deploy (Forge / GEN-34) con variables S3, ventanas y smoke post-backup. Crear al menos una **definición** `BACKUP_DATABASE` y verificar **ejecución manual** + fila en historial de ejecuciones.
+
+e) **Fuera de alcance de este hito:** jobs de dominio PedidosWeb distintos de backup (p. ej. import Excel batch); cron ERP de maestros ([SPEC-101-22](../05-open-spec/101-PedidosWeb/SPEC-101-22-importacion-maestros-erp.md)); backup mobile.
+
+*Procesado* → unificado en [SPEC-001-09-tareas-programadas-update-01](../05-open-spec/updates/001-Generaliddes/SPEC-001-09-tareas-programadas-update-01.md) · [HU-GEN-13-tareas-programadas-update](../03-historias-usuario/updates/001-Generaliddes/HU-GEN-13-tareas-programadas-update.md) · [TR-GEN-13-tareas-programadas-update](../04-tareas/updates/001-Generaliddes/TR-GEN-13-tareas-programadas-update.md) — Parte G 11/11/2026 · **Jira:** [PIAPEDWEB-46](https://paqsystems.atlassian.net/browse/PIAPEDWEB-46)
+
+### Relación con CC #19
+
+| Tema | Dónde sigue |
+|------|-------------|
+| GEN-15 diseñador + emisión 8 informes | Control **#19** (Especificado; implementación en curso) |
+| GEN-13 tareas + `BACKUP_DATABASE` | Este control **#20** (Especificado, Parte G 11/11/2026) — no reabrir #19 para este residual |
+
+### Verificación ciclo OpenSpec (11/11/2026)
+
+| Parte | Documento | Veredicto |
+|-------|-----------|-----------|
+| G | Volcado SPEC/HU/TR-update GEN-13 + Backup | **Especificado** 11/11/2026 — [PIAPEDWEB-46](https://paqsystems.atlassian.net/browse/PIAPEDWEB-46) |
+| D / E / F / I | — | Pendiente (post-G) |
 
 ---
 
@@ -168,6 +252,8 @@ c) Operación: documentar en runbook deploy (Forge / GEN-34) credenciales S3, ve
 | E | — | Pendiente (post-D) |
 | F | — | Pendiente (post-E) |
 | I | — | Pendiente (post-F, updates **Finalizado**) |
+
+**Nota 11/11/2026:** el residual **GEN-13** (tareas programadas + `BACKUP_DATABASE`) se aísla en Control de Calidad **#20**. Este bloque #19 continúa con **GEN-15** (diseñador / emisión).
 
 ---
 

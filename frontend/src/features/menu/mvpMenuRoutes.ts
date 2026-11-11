@@ -16,6 +16,7 @@ export const mvpMenuRoutePaths = [
   '/general/parametros',
   '/general/diseniador-reportes',
   '/general/tareas-programadas',
+  '/general/tareas-programadas/*',
   '/excel-import/historial',
   '/excel-import/procesos/:codigoProceso',
   '/excel-import/lotes/:guidImportacion',

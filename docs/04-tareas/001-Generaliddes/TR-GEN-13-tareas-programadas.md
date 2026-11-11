@@ -4,7 +4,7 @@
 |-------|--------|
 | **HU relacionada** | [HU-GEN-13-tareas-programadas](../../03-historias-usuario/001-Generaliddes/HU-GEN-13-tareas-programadas.md) |
 | **SPEC** | [SPEC-001-09-tareas-programadas-update](../../05-open-spec/updates/001-Generaliddes/SPEC-001-09-tareas-programadas-update.md) |
-| **Estado** | Pendiente |
+| **Estado** | En Control Calidad |
 | **Origen** | 00-ControlCalidad-PQ #19 — 03/11/2026 |
 
 ---
