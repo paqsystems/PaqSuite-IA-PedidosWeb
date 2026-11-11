@@ -36,7 +36,7 @@ return [
     'proyecto' => env('PAQSUITE_PROYECTO', 'pedidosweb'),
 
     /*
-    | GEN-34 — lookup instalación en CLI (installation:update / tasks:run-due)
+    | GEN-34 — lookup instalación en CLI (installation:update / pedidosweb:tasks-run-due)
     */
     'instalacion' => [
         'resolver' => env('PAQSUITE_INSTALACION_RESOLVER', 'config'),
@@ -86,6 +86,11 @@ return [
             'pollSeconds' => (int) env('TASKS_BACKUP_POLL_SECONDS', 5),
             'lockLeaseSeconds' => (int) env('TASKS_BACKUP_LOCK_LEASE_SECONDS', 900),
             'rdsTimeoutMinutes' => (int) env('TASKS_BACKUP_RDS_TIMEOUT_MINUTES', 120),
+            'rdsPollingIntervalSeconds' => (int) env('TASKS_BACKUP_RDS_POLLING_INTERVAL_SECONDS', 30),
+            'deferManualRdsPolling' => filter_var(
+                env('PAQSUITE_TASKS_BACKUP_DEFER_MANUAL_POLLING', false),
+                FILTER_VALIDATE_BOOLEAN,
+            ),
         ],
     ],
 

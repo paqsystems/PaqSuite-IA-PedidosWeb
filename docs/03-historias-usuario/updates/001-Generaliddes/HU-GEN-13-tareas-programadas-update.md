@@ -31,7 +31,7 @@ para **operar definiciones y ejecuciones** sin una pantalla host paralela ni un 
 ## Alcance incluido
 
 - Reemplazo del wrapper actual: `TaskProcessesPage` + `ProcessPageLayout`; i18n; token + `X-Paq-Cliente`; MONO `single`.
-- Backend DualPath SP / `installation:update`; scheduler `tasks:run-due`.
+- Backend DualPath SP / `installation:update`; scheduler host `pedidosweb:tasks-run-due` (poll RDS + due); pin laravel-core **≥ 1.3.18-beta.32** si backup RDS manual en Forge.
 - Menú `gen_tareasprogramadas` conservado; no native.
 - `BACKUP_DATABASE` vía `BackupDatabaseProcess` del laravel-core (Windows/RDS, S3, lock RDS); in-memory **solo lab**.
 - Smoke: una definición + ejecución manual + historial.
@@ -45,5 +45,5 @@ para **operar definiciones y ejecuciones** sin una pantalla host paralela ni un 
 - [ ] **CA-20-01:** Admin abre Tareas programadas desde General y ve definiciones/ejecuciones dentro de `ProcessPageLayout` (título i18n, sin `<h1>` ES).
 - [ ] **CA-20-02:** No queda una segunda UI/API host de tareas; `TareasProgramadasPage` solo delega al SDK.
 - [ ] **CA-20-03:** Crear definición `BACKUP_DATABASE` sin picker de empresas; ejecución manual con estado en historial.
-- [ ] **CA-20-04:** En Forge/RDS no se usa el gateway in-memory; runbook lista S3/`tasks:run-due`.
+- [ ] **CA-20-04:** En Forge/RDS no se usa el gateway in-memory; runbook lista S3, `pedidosweb:tasks-run-due` y `PAQSUITE_TASKS_BACKUP_DEFER_MANUAL_POLLING=true`.
 - [ ] **CA-20-05:** La ruta no aparece en menú/native Capacitor.

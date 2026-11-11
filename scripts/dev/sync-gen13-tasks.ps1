@@ -35,8 +35,8 @@ try {
     & $php artisan tasks:validate-catalog
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
-    Write-Host "[GEN-13] tasks:run-due --dry-run..."
-    & $php artisan tasks:run-due --dry-run
+    Write-Host "[GEN-13] pedidosweb:tasks-run-due --dry-run..."
+    & $php artisan pedidosweb:tasks-run-due --dry-run
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
     Write-Host "[GEN-13] installation:status ($cliente / $proyecto)..."

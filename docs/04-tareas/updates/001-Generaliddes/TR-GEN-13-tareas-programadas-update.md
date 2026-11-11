@@ -25,20 +25,22 @@
 - `TaskProcessRegistry` + `BackupDatabaseProcess` del laravel-core. **Prohibido** copiar handler/formulario a `App\`.
 - DualPath SP / `installation:update` / `paqsuite:deploy-sdk-sql` (CREATE/ALTER, sin DROP).
 - Gateway: `InMemoryMonoRdsBackupGateway` **solo lab**; bind del gateway real SDK en Forge/RDS (Windows `INIT`/`NOINIT`; RDS `rds_task_status` + lock global).
-- Scheduler: `tasks:run-due` en Laravel scheduler / cron Forge.
+- Scheduler: comando host **`pedidosweb:tasks-run-due`** cada minuto (`Kernel` + cron `schedule:run`): primero `RdsDeferredBackupExecutionPoller`, luego due. El package expone `tasks:run-due` para diagnóstico; **no** usarlo en `Kernel` si se omite el poller.
+- Pin **`paqsuite/laravel-core` ≥ 1.3.18-beta.32**; bind `RdsDeferredBackupExecutionPoller` + `RdsBackupExecutionLogSupport` en `PedidosWebGenCapabilitiesServiceProvider`.
+- En Forge/RDS: `PAQSUITE_TASKS_BACKUP_DEFER_MANUAL_POLLING=true` (backup manual sin polling HTTP).
 
 ## 3) Operación / runbook
 
-- Documentar `TASKS_BACKUP_S3_ARN_PREFIX` y credenciales en runbook deploy / GEN-34.
+- SoT: [runbook-gen-13-backup-pedidosweb](../../../06-operacion/runbook-gen-13-backup-pedidosweb.md) — S3, scheduler, defer polling, manifiesto `pedidosweb-1.3.18-beta.32.json`.
 - Seed o alta operativa de al menos una definición `BACKUP_DATABASE`.
-- Smoke: ejecución manual + fila en historial de ejecuciones.
+- Smoke: ejecución manual + fila en historial; con defer, cierre async vía scheduler.
 
 ## 4) AC técnicos
 
 - **AC-T-20-01:** `TareasProgramadasPage` usa `ProcessPageLayout`; tests/UI no dependen del DOM interno DX.
 - **AC-T-20-02:** Listar procesos incluye `BACKUP_DATABASE`; definición MONO persiste sin picker multi-empresa.
 - **AC-T-20-03:** Ejecución manual registra historial; host sin segunda API de tareas.
-- **AC-T-20-04:** Cron `tasks:run-due` y vars S3 documentados; native no expone la ruta.
+- **AC-T-20-04:** Cron `pedidosweb:tasks-run-due`, `PAQSUITE_TASKS_BACKUP_DEFER_MANUAL_POLLING` y vars S3 en runbook; native no expone la ruta.
 - **AC-T-20-05:** En configuración no-lab, el gateway in-memory no es el bind de producción.
 
 ## 5) Orden sugerido (D1)
@@ -46,5 +48,6 @@
 1. Diff pin SDK vs ficha GEN-13 (`ProcessPageLayout`, registry, backup).
 2. Wrapper UI + i18n + policy mobile.
 3. Bind gateway real vs lab; DualPath SP.
-4. Scheduler + runbook S3.
-5. Smoke definición + ejecución manual (dev; sin DROP).
+4. Scheduler (`pedidosweb:tasks-run-due`) + runbook S3 + defer RDS.
+5. Bump laravel-core **beta.32** + manifiesto host.
+6. Smoke definición + ejecución manual (dev; sin DROP).
