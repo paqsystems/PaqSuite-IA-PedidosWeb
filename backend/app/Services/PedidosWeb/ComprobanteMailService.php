@@ -182,13 +182,25 @@ final class ComprobanteMailService
 
     private function resolveNombreEmpresa(): string
     {
-        $tenant = request()->header('X-Paq-Cliente');
+        $headerName = (string) config('paqsuite_tenant.headerName', 'X-Paq-Cliente');
+        $tenant = request()->header($headerName);
+        $defaultClient = trim((string) config('paqsuite_tenant.defaultClient', 'desarrollo'));
 
-        if (is_string($tenant) && trim($tenant) !== '') {
-            return ucfirst(trim($tenant));
+        if (! is_string($tenant) || trim($tenant) === '') {
+            $tenant = $defaultClient;
+        } else {
+            $tenant = trim($tenant);
+            // Sitio MONO en Forge: FE puede mandar desarrollo hasta alinear VITE_TENANT_DEFAULT_CLIENT.
+            if ($tenant === 'desarrollo' && $defaultClient !== '' && $defaultClient !== 'desarrollo') {
+                $tenant = $defaultClient;
+            }
         }
 
-        return 'Empresa';
+        if ($tenant === '') {
+            return 'Empresa';
+        }
+
+        return ucfirst($tenant);
     }
 
     private function formatCodigoDescripcion(mixed $codigo, mixed $descripcion): string
