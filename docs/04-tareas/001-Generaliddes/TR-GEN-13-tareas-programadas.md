@@ -31,7 +31,7 @@
 
 ## 4) Orden sugerido (D1)
 
-1. Verificar GEN-13 en pin `1.3.18-beta.28` / react-core `2.4.30-beta.7`; bump si falta.
+1. Verificar GEN-13 en pin `1.3.18-beta.32` (poller RDS) / react-core `2.4.30-beta.13`; bump si falta. Scheduler host: `pedidosweb:tasks-run-due`.
 2. installation:update + status.
 3. Menú + ruta.
 4. Smoke definición backup en entorno dev (sin producción).

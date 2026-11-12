@@ -2,6 +2,8 @@
 
 Runbook operativo CC #20. Cableado alineado a **Partes** (RDS por defecto; Windows parametrizable).
 
+**Pin SDK:** `paqsuite/laravel-core` **≥ 1.3.18-beta.32** (poller RDS manual `RdsDeferredBackupExecutionPoller`; contrato Framework **SPEC-001-13-update** defer manual RDS polling, 11/11/2026).
+
 ## Variables backend (`.env`)
 
 | Variable | Uso |
@@ -13,8 +15,10 @@ Runbook operativo CC #20. Cableado alineado a **Partes** (RDS por defecto; Windo
 | `PAQSUITE_TASKS_BACKUP_WINDOWS_GATEWAY` | **`sqlserver`** o **`memory`** (lab) |
 | `TASKS_BACKUP_S3_ARN_PREFIX` | ARN bucket/prefijo S3 (obligatorio con backend `rds`) |
 | `TASKS_BACKUP_WINDOWS_DEFAULT_FOLDER` | Ruta carpeta documentada para operadores (solo Windows; el formulario muestra el campo **carpeta** solo con backend `windows`) |
-| `TASKS_BACKUP_POLL_SECONDS` | Polling `rds_task_status` |
+| `TASKS_BACKUP_POLL_SECONDS` | Polling `rds_task_status` (runs automáticos inline) |
 | `TASKS_BACKUP_LOCK_LEASE_SECONDS` | Lock global RDS por instalación |
+| `PAQSUITE_TASKS_BACKUP_DEFER_MANUAL_POLLING` | **`true` en Forge/RDS:** el backup manual no hace polling en el POST HTTP; `RdsDeferredBackupExecutionPoller` cierra en el scheduler (`pedidosweb:tasks-run-due`). SDK ≥ **1.3.18-beta.32** |
+| `TASKS_BACKUP_RDS_TIMEOUT_MINUTES` | Timeout de export RDS antes de marcar fallida la ejecución diferida |
 
 ## Variables frontend (Vite)
 
@@ -25,13 +29,14 @@ Runbook operativo CC #20. Cableado alineado a **Partes** (RDS por defecto; Windo
 ## Scheduler (Forge)
 
 1. Cron del servidor: `* * * * * php /path/to/artisan schedule:run`
-2. `app/Console/Kernel.php` programa `tasks:run-due` cada minuto (`withoutOverlapping(15)`) y `tasks:purge-history` diario.
+2. `app/Console/Kernel.php` programa **`pedidosweb:tasks-run-due`** cada minuto (`withoutOverlapping(15)`): primero `RdsDeferredBackupExecutionPoller`, luego due; `tasks:purge-history` diario.
+3. En preview/prod con backend `rds`: `PAQSUITE_TASKS_BACKUP_DEFER_MANUAL_POLLING=true`.
 
 Smoke CLI (sin ejecutar backup):
 
 ```bash
 php artisan tasks:validate-catalog
-php artisan tasks:run-due --dry-run
+php artisan pedidosweb:tasks-run-due --dry-run
 ```
 
 ## Deploy SQL GEN-13
@@ -72,6 +77,9 @@ php artisan migrate --force
 php artisan db:seed --class=Database\\Seeders\\PqTaskProcessFrameworkSeeder
 ```
 
+También corre en cada deploy Forge vía `paqsuite:seed-deploy` (salvo
+`--skip-tasks`).
+
 `tasks:validate-catalog` debe reportar **1 process** (`BACKUP_DATABASE`).
 
 Si `installation:update` falla por **Checksum mismatch** en `deploy_gen15_sdk_sql`, regenerar el manifiesto host:
@@ -97,7 +105,7 @@ php artisan migrate --force
 php artisan paqsuite:installation:update --cliente=demo --proyecto=pedidosweb --non-interactive
 php artisan paqsuite:sql:sync-dev
 php artisan tasks:validate-catalog
-php artisan tasks:run-due --dry-run
+php artisan pedidosweb:tasks-run-due --dry-run
 php artisan paqsuite:installation:status --cliente=demo --proyecto=pedidosweb
 ```
 
@@ -109,8 +117,8 @@ Ejecutar **en cada sitio** tras deploy del release que incluye GEN-13 (CC #20), 
 2. `php artisan migrate --force` (si el pipeline del host lo incluye).
 3. `php artisan paqsuite:installation:update --cliente={tenant} --proyecto=pedidosweb --non-interactive`
 4. `php artisan tasks:validate-catalog`
-5. Cron/scheduler: `schedule:run` → `tasks:run-due`.
-6. Smoke UI: definición `BACKUP_DATABASE` + ejecución manual + fila en historial.
+5. Cron: `* * * * * php artisan schedule:run` → cada minuto **`pedidosweb:tasks-run-due`** (poll RDS diferido + due). En RDS/Forge: `PAQSUITE_TASKS_BACKUP_DEFER_MANUAL_POLLING=true`.
+6. Smoke UI: definición `BACKUP_DATABASE` + ejecución manual → estado `EN_EJECUCION` si defer activo; cierre en el siguiente tick del scheduler + fila en historial.
 
 **ERP compartidas / Ankas:** mismo comando solo si el release y el manifiesto aplican a esa BD; **nunca** bootstrap destructivo PedidosWeb. Coordinar ventana y `cliente` con operación.
 
@@ -121,7 +129,8 @@ Forge: añadir pasos 3–4 al script post-deploy existente o correr `sync-gen13-
 1. Login admin → **General → Tareas programadas** (landing en **Definiciones**).
 2. Alta definición proceso `BACKUP_DATABASE` (MONO sin picker empresas).
 3. Ejecutar manualmente → fila en **Historial**.
-4. Forge: `PAQSUITE_TASKS_BACKUP_RDS_GATEWAY=rds` (no `memory`).
+4. Forge: `PAQSUITE_TASKS_BACKUP_RDS_GATEWAY=rds` (no `memory`); `PAQSUITE_TASKS_BACKUP_DEFER_MANUAL_POLLING=true`.
+5. Backup manual RDS: la respuesta HTTP no debe bloquearse hasta timeout nginx; verificar cierre en **Historial** tras 1–2 min (scheduler).
 
 ## Lab local
 

@@ -150,6 +150,8 @@ e) **Fuera de alcance de este hito:** jobs de dominio PedidosWeb distintos de ba
 | G | Volcado SPEC/HU/TR-update GEN-13 + Backup | **Especificado** 11/11/2026 — [PIAPEDWEB-46](https://paqsystems.atlassian.net/browse/PIAPEDWEB-46) |
 | D / E / F / I | — | Pendiente (post-G) |
 
+**Notas implementación host (11/11/2026, preview):** scheduler **`pedidosweb:tasks-run-due`**; pin **laravel-core 1.3.18-beta.32** (`RdsDeferredBackupExecutionPoller`); runbook [runbook-gen-13-backup-pedidosweb.md](../06-operacion/runbook-gen-13-backup-pedidosweb.md); Forge RDS → `PAQSUITE_TASKS_BACKUP_DEFER_MANUAL_POLLING=true`.
+
 ---
 
 ## Control de Calidad #19

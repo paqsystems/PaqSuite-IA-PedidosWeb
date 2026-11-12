@@ -168,4 +168,16 @@ Entregable D: módulo operable para admin (definición `BACKUP_DATABASE` + ejecu
 
 ---
 
-*Generado: Parte D1 · 11/11/2026 · sin modificaciones de código.*
+## Estado implementación host (actualizado 11/11/2026)
+
+| Tema | Entregado |
+|------|-----------|
+| UI GEN-13 | Solapas SDK (`TaskScheduledLayout`), rutas `/ejecuciones`, i18n register |
+| Backend | `PedidosWebGenCapabilitiesServiceProvider`, gateway RDS/Windows + lab memory |
+| Scheduler | **`pedidosweb:tasks-run-due`** (poll `RdsDeferredBackupExecutionPoller` + due) |
+| SDK pin | `paqsuite/laravel-core` **1.3.18-beta.32**, `@paqsuite/react-core` **2.4.30-beta.13** |
+| Manifiesto | `pedidosweb-1.3.18-beta.32.json` |
+| Runbook | [runbook-gen-13-backup-pedidosweb.md](../../06-operacion/runbook-gen-13-backup-pedidosweb.md) |
+| Forge RDS | `PAQSUITE_TASKS_BACKUP_DEFER_MANUAL_POLLING=true`, gateway `rds` |
+
+*Generado: Parte D1 · 11/11/2026 · tabla de estado añadida tras implementación D.*

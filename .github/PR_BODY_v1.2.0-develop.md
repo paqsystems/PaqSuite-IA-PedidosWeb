@@ -1,17 +1,15 @@
 ## Summary
-- **GEN-13** tareas programadas (CC PQ #20): rutas UI SDK, backup RDS/Windows (gateways), scheduler `tasks:run-due`, tests E2E + PHPUnit.
-- Migraciones host `pq_task_*` + fix columna `process_parameter_id` (guardado definiciones).
-- Manifiesto GEN-34, runbook `runbook-gen-13-backup-pedidosweb.md`, pins SDK sin cambio de oleada.
+- **GEN-13:** pin `laravel-core` **1.3.18-beta.32**; comando `pedidosweb:tasks-run-due` (poller RDS manual + due); bind `RdsDeferredBackupExecutionPoller`.
+- **Ops:** manifiesto `pedidosweb-1.3.18-beta.32.json`; runbook/SPEC-HU-TR y script `sync-gen13-tasks.ps1` alineados.
+- **Tests:** `BackupRdsExecutionPollerTest` (unit).
 
-## Deploy (Preview / Forge develop)
-- `php artisan migrate --force` (incluye `2026_11_11_100017` y `2026_11_11_100018`).
-- `php artisan db:seed --class=Database\\Seeders\\PqTaskProcessFrameworkSeeder` si falta catálogo `BACKUP_DATABASE`.
-- `php artisan paqsuite:installation:update --cliente={tenant} --proyecto=pedidosweb --non-interactive` si SP GEN-13 desactualizados.
-- Verificar `.env` Forge dev: `PAQSUITE_TASKS_ROUTES_ENABLED`, `PAQSUITE_TASKS_BACKUP_*`, `TASKS_BACKUP_S3_ARN_PREFIX` (RDS real); lab `PAQSUITE_TASKS_BACKUP_RDS_GATEWAY=memory`.
-- Vite preview: `VITE_PAQSUITE_TASKS_BACKUP_BACKEND` alineado al backend.
+## Deploy (Preview Forge)
+- `composer install` (lock con `1.3.18-beta.32`).
+- Post-deploy: `migrate --force`, `paqsuite:installation:update` (manifiesto beta.32), `paqsuite:seed-deploy` (salvo `--skip-tasks`).
+- **Environment:** `PAQSUITE_TASKS_BACKUP_DEFER_MANUAL_POLLING=true` (RDS), `PAQSUITE_TASKS_BACKUP_RDS_GATEWAY=rds`, S3 prefix según runbook.
+- Cron existente `schedule:run` — no cambia; el `Kernel` ya programa `pedidosweb:tasks-run-due`.
 
 ## Test plan
-- [ ] GET /api/v1/health (Forge dev)
-- [ ] Login preview + menú **General → Tareas programadas**
-- [ ] Alta definición **Backup de base de datos** (diaria) + guardar
-- [ ] `php artisan tasks:validate-catalog` → 1 proceso
+- [ ] `php artisan pedidosweb:tasks-run-due --dry-run`
+- [ ] Preview → Tareas programadas → backup manual RDS → `EN_EJECUCION` y cierre en historial tras ~1 min
+- [ ] `php artisan tasks:validate-catalog`

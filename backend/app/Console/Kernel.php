@@ -12,7 +12,7 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        $schedule->command('tasks:run-due')->everyMinute()->withoutOverlapping(15);
+        $schedule->command('pedidosweb:tasks-run-due')->everyMinute()->withoutOverlapping(15);
         $schedule->command('tasks:purge-history')->daily();
     }
 

@@ -6,8 +6,8 @@ PedidosWeb consume:
 
 | Capa | Paquete | Pin |
 |---|---|---|
-| Backend | `paqsuite/laravel-core` | `1.3.18-beta.28` |
-| Frontend | `@paqsuite/react-core` | `2.4.30-beta.7` |
+| Backend | `paqsuite/laravel-core` | `1.3.18-beta.32` |
+| Frontend | `@paqsuite/react-core` | `2.4.30-beta.13` |
 
 ## Resolución de paquetes
 

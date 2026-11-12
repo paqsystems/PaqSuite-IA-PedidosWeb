@@ -47,6 +47,8 @@ use PaqSuite\LaravelCore\Tasks\Backup\ConfigBackupInstallationProfileResolver;
 use PaqSuite\LaravelCore\Tasks\Backup\EmpresaAdminBackupCompanyTargetResolver;
 use PaqSuite\LaravelCore\Tasks\Backup\MonoRdsBackupGateway;
 use PaqSuite\LaravelCore\Tasks\Backup\MonoRdsBackupService;
+use PaqSuite\LaravelCore\Tasks\Backup\RdsBackupExecutionLogSupport;
+use PaqSuite\LaravelCore\Tasks\Backup\RdsDeferredBackupExecutionPoller;
 use PaqSuite\LaravelCore\Tasks\Backup\MultiDiskBackupGateway;
 use PaqSuite\LaravelCore\Tasks\Backup\MultiDiskBackupService;
 use PaqSuite\LaravelCore\Tasks\Backup\RdsBackupLock;
@@ -135,6 +137,19 @@ final class PedidosWebGenCapabilitiesServiceProvider extends ServiceProvider
         ));
 
         $this->app->singleton(RdsBackupLock::class, RdsBackupCacheLock::class);
+
+        $this->app->singleton(RdsBackupExecutionLogSupport::class, static fn ($app) => new RdsBackupExecutionLogSupport(
+            $app->make(TaskExecutionRepository::class),
+            $app->make(MonoRdsBackupGateway::class),
+        ));
+
+        $this->app->singleton(RdsDeferredBackupExecutionPoller::class, static fn ($app) => new RdsDeferredBackupExecutionPoller(
+            $app->make(TaskExecutionRepository::class),
+            $app->make(MonoRdsBackupGateway::class),
+            $app->make(RdsBackupExecutionLogSupport::class),
+            $app->make(RdsBackupLock::class),
+            $app->make(BackupInstallationProfileResolver::class),
+        ));
 
         $this->app->singleton(MonoRdsBackupService::class, static fn ($app) => new MonoRdsBackupService(
             $app->make(MonoRdsBackupGateway::class),

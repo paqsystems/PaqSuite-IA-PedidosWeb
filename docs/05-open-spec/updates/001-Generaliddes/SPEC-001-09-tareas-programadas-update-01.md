@@ -19,10 +19,10 @@ El update #19 pidió adoptar GEN-13 + `BACKUP_DATABASE`. En host quedó un **wra
 1. **UI canónica GEN-13** — montar `TaskProcessesPage` (definiciones + ejecuciones) con chrome **`ProcessPageLayout`**; títulos vía i18n (`t` / `resolveMenuCaption`); **prohibido** `<h1>` literal ES o segunda pantalla host.
 2. **Contrato host** — token + headers plataforma (`X-Paq-Cliente`); `tenancyMode` MONO (`single`); namespace i18n alineado al bootstrap (`register*` del SDK si el pin lo exporta). **No** fork de catálogos `tasks.*` / `menu.*` GEN en JSON host.
 3. **Backend DualPath** — rutas laravel-core (`PAQSUITE_TASKS_ROUTES_ENABLED`); `TaskProcessRegistry` del SDK; repositorios/SP DualPath; **no** Eloquent ad-hoc ni SQL de negocio (regla 74). Completar `installation:update` / deploy SP GEN-13.
-4. **Scheduler** — disparo operativo documentado e instalado (`tasks:run-due` / Laravel scheduler / cron Forge). Sin este disparo la UI no ejecuta definiciones en producción.
+4. **Scheduler** — cron `schedule:run` + comando host **`pedidosweb:tasks-run-due`** cada minuto (poll RDS diferido si aplica, luego due). Sin este disparo la UI no ejecuta definiciones en producción ni cierra backups RDS manuales diferidos.
 5. **Menú / permisos** — conservar `gen_tareasprogramadas` / `/general/tareas-programadas` / `grp_general` orden 64; permiso administrativo MVP (no perfil Cliente); **mobile:** ruta **fuera** de native (`pedidosWebMobilePolicy`).
 6. **Retiro del proceso actual** — el wrapper `TareasProgramadasPage` solo puede existir como página delgada que delega 100 % al export SDK (más `ProcessPageLayout`).
-7. **Proceso `BACKUP_DATABASE`** — registrar con `BackupDatabaseProcess` del laravel-core; **prohibido** copiar formulario o handler a `App\`. MONO: tenant fijo, **sin** picker multi-empresa; destino S3 (`TASKS_BACKUP_S3_ARN_PREFIX`). Windows `INIT`/`NOINIT`; RDS sobrescribe, polling `rds_task_status`, **lock RDS global por instalación**. Gateway in-memory **solo lab**; Forge/RDS usa gateway real del SDK.
+7. **Proceso `BACKUP_DATABASE`** — registrar con `BackupDatabaseProcess` del laravel-core; **prohibido** copiar formulario o handler a `App\`. MONO: tenant fijo, **sin** picker multi-empresa; destino S3 (`TASKS_BACKUP_S3_ARN_PREFIX`). Windows `INIT`/`NOINIT`; RDS sobrescribe, polling `rds_task_status`, **lock RDS global por instalación**. Manual HTTP en RDS: **`deferManualRdsPolling`** + `RdsDeferredBackupExecutionPoller` (SDK **≥ 1.3.18-beta.32**). Gateway in-memory **solo lab**; Forge/RDS usa gateway real del SDK.
 8. **Operación** — runbook Forge/GEN-34 (variables S3, ventanas, smoke). Al menos una **definición** `BACKUP_DATABASE` y **ejecución manual** con fila en historial.
 
 ### Fuera de scope (CC #20)
@@ -43,7 +43,7 @@ El update #19 pidió adoptar GEN-13 + `BACKUP_DATABASE`. En host quedó un **wra
 - [ ] **CA-SPEC-09-20-01:** Tareas programadas se abre con `ProcessPageLayout`; no hay `<h1>` ES ni UI host duplicada.
 - [ ] **CA-SPEC-09-20-02:** Definición `BACKUP_DATABASE` se crea (MONO, sin picker) y la ejecución manual deja fila en historial.
 - [ ] **CA-SPEC-09-20-03:** Host **no** copia handler/formulario de backup; in-memory solo en lab.
-- [ ] **CA-SPEC-09-20-04:** Cron/`tasks:run-due` y variables S3 documentadas en runbook; ruta **excluida** en native.
+- [ ] **CA-SPEC-09-20-04:** Cron/`pedidosweb:tasks-run-due`, defer RDS y variables S3 documentadas en runbook; ruta **excluida** en native.
 
 ### HU / TR derivadas
 
