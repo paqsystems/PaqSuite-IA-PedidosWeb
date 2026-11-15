@@ -4,7 +4,7 @@
 |-------|--------|
 | **Origen** | 00-ControlCalidad-PQ #20 |
 | **Parte G** | 11/11/2026 |
-| **TR** | [TR-GEN-13-tareas-programadas-update](../updates/001-Generaliddes/TR-GEN-13-tareas-programadas-update.md) |
+| **TR** | [TR-GEN-13-tareas-programadas](../001-Generaliddes/TR-GEN-13-tareas-programadas.md) (update CC #20 incorporado I 15/11) |
 | **Estado plan** | **Listo para parte D** (sin código en D1) |
 | **Jira** | Epic [PIAPEDWEB-46](https://paqsystems.atlassian.net/browse/PIAPEDWEB-46) · Task [PIAPEDWEB-48](https://paqsystems.atlassian.net/browse/PIAPEDWEB-48) |
 
@@ -20,9 +20,9 @@ Entregable D: módulo operable para admin (definición `BACKUP_DATABASE` + ejecu
 
 ## Fuentes leídas
 
-- **SPEC:** [SPEC-001-09-tareas-programadas-update-01](../../05-open-spec/updates/001-Generaliddes/SPEC-001-09-tareas-programadas-update-01.md)
-- **HU:** [HU-GEN-13-tareas-programadas-update](../../03-historias-usuario/updates/001-Generaliddes/HU-GEN-13-tareas-programadas-update.md)
-- **TR:** [TR-GEN-13-tareas-programadas-update](../updates/001-Generaliddes/TR-GEN-13-tareas-programadas-update.md)
+- **SPEC:** [SPEC-001-09-tareas-programadas](../../05-open-spec/001-Generaliddes/SPEC-001-09-tareas-programadas.md) (update-01 unificado I 15/11)
+- **HU:** [HU-GEN-13-tareas-programadas](../../03-historias-usuario/001-Generaliddes/HU-GEN-13-tareas-programadas.md)
+- **TR:** [TR-GEN-13-tareas-programadas](../001-Generaliddes/TR-GEN-13-tareas-programadas.md)
 - **TR base / D1 previo:** [TR-GEN-13-tareas-programadas](../001-Generaliddes/TR-GEN-13-tareas-programadas.md) · [D1-PLAN-CC-PQ-19.md](./D1-PLAN-CC-PQ-19.md)
 - **Reglas:** GEN-13 ficha **44** · SP **74** · mobile **80** · sin DROP en BD compartida
 - **Código host (estado actual):**

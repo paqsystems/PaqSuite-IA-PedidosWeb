@@ -206,6 +206,71 @@ async function mockAsistenteTurnRemoveChoice(page: Page) {
   });
 }
 
+async function mockAsistenteMultiTurn(page: Page) {
+  let call = 0;
+  await page.route('**/api/v1/pedidos/carga/asistente/turn', async (route) => {
+    call += 1;
+    const body = route.request().postDataJSON() as { message?: string; pendingChoice?: unknown };
+    if (call === 1) {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          error: 0,
+          respuesta: 'ok',
+          resultado: {
+            replyText: 'Elegí el renglón (1 o 2).',
+            actions: [],
+            pendingChoice: {
+              kind: 'renglonExistente',
+              operation: 'remove',
+              options: [
+                { n: 1, label: 'Renglón 1', code: 'A', renglon: 1 },
+                { n: 2, label: 'Renglón 2', code: 'B', renglon: 2 },
+              ],
+            },
+            configurationRequired: false,
+          },
+        }),
+      });
+      return;
+    }
+    if (call === 2) {
+      expect(body.pendingChoice).toBeDefined();
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          error: 0,
+          respuesta: 'ok',
+          resultado: {
+            replyText: 'Renglón 1 eliminado.',
+            actions: [],
+            pendingChoice: null,
+            configurationRequired: false,
+          },
+        }),
+      });
+      return;
+    }
+    expect(body.pendingChoice).toBeUndefined();
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        error: 0,
+        respuesta: 'ok',
+        resultado: {
+          replyText: 'Listo, procesé la instrucción nueva.',
+          actions: [],
+          pendingChoice: null,
+          configurationRequired: false,
+        },
+      }),
+    });
+  });
+}
+
 async function login(page: Page) {
   await page.goto('/login');
   await page.locator('input[name="codigo"]').fill('supervisor.mvp');
@@ -234,5 +299,26 @@ test.describe('Pedidos carga — Asistente IA', () => {
     await expect(page.getByText(/Hay varios renglones/i)).toBeVisible({ timeout: 10_000 });
     await expect(page.getByText(/AB 3000/)).toBeVisible();
     await expect(page.getByText(/AB 0501/)).toBeVisible();
+  });
+
+  test('tras needsChoice, respuesta numérica y luego texto libre sin reenviar pendingChoice', async ({ page }) => {
+    await mockCargaBaseApi(page);
+    await mockAsistenteMultiTurn(page);
+    await login(page);
+
+    await page.goto('/pedidos/carga?modo=nuevo');
+    await page.getByTestId('cargaAsistenteIaToggle').click();
+    const input = page.getByTestId('cargaAsistenteIaInput');
+    await input.click();
+    await input.pressSequentially('eliminar arroz', { delay: 10 });
+    await page.getByTestId('cargaAsistenteIaSend').click();
+    await expect(page.getByText(/Elegí el renglón/i)).toBeVisible({ timeout: 10_000 });
+
+    await input.click();
+    await input.fill('1');
+    await page.getByTestId('cargaAsistenteIaSend').click();
+    await input.fill('agregar 3 bultos de cemento');
+    await page.getByTestId('cargaAsistenteIaSend').click();
+    await expect(page.getByText(/procesé la instrucción nueva/i)).toBeVisible({ timeout: 10_000 });
   });
 });

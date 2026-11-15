@@ -44,6 +44,32 @@ const backupParameters = {
     },
     {
       id: 2,
+      parameterCode: 'includeWeekdayInName',
+      parameterName: 'Incluir día de la semana en el nombre',
+      dataType: 'BOOL',
+      uiControlType: 'CHECKBOX',
+      isRequired: false,
+      isUserEditable: true,
+      isMultivalue: false,
+      displayOrder: 21,
+      defaultValue: false,
+      metadataJson: { appliesToModes: ['manual', 'automatic'], valueSource: 'definition' },
+    },
+    {
+      id: 3,
+      parameterCode: 'includeMonthInName',
+      parameterName: 'Incluir mes en el nombre',
+      dataType: 'BOOL',
+      uiControlType: 'CHECKBOX',
+      isRequired: false,
+      isUserEditable: true,
+      isMultivalue: false,
+      displayOrder: 22,
+      defaultValue: false,
+      metadataJson: { appliesToModes: ['manual', 'automatic'], valueSource: 'definition' },
+    },
+    {
+      id: 4,
       parameterCode: 'backupPolicy',
       parameterName: 'Política de backup',
       dataType: 'ENUM',
@@ -64,21 +90,34 @@ type MockState = {
   executions: Array<Record<string, unknown>>;
   nextDefinitionId: number;
   nextExecutionId: number;
+  /** Historial conservado tras DELETE físico de definición (CC #22). */
+  definitionsDeleted: Array<Record<string, unknown>>;
+  lastRunPayload: Record<string, unknown> | null;
 };
+
+const defaultMockState = (): MockState => ({
+  definitions: [],
+  executions: [],
+  nextDefinitionId: 1,
+  nextExecutionId: 1,
+  definitionsDeleted: [],
+  lastRunPayload: null,
+});
+
+function parseDefinitionId(url: string): number | null {
+  const match = url.match(/\/task-definitions\/(\d+)(?:\/|$|\?)/);
+  return match ? Number(match[1]) : null;
+}
+
+function findDefinition(state: MockState, id: number): Record<string, unknown> | undefined {
+  return state.definitions.find((d) => d.id === id);
+}
 
 function envelope<T>(resultado: T) {
   return { error: 0, respuesta: 'ok', resultado };
 }
 
-export async function mockTareasProgramadasApi(
-  page: Page,
-  state: MockState = {
-    definitions: [],
-    executions: [],
-    nextDefinitionId: 1,
-    nextExecutionId: 1,
-  },
-) {
+export async function mockTareasProgramadasApi(page: Page, state: MockState = defaultMockState()) {
   await page.route('**/api/v1/**', async (route) => {
     await route.fulfill({
       status: 200,
@@ -160,22 +199,47 @@ export async function mockTareasProgramadasApi(
   await page.route('**/api/v1/task-definitions**', async (route: Route) => {
     const url = route.request().url();
     const method = route.request().method();
+    const id = parseDefinitionId(url);
 
-    if (method === 'GET' && !url.match(/\/task-definitions\/\d+(\?|$)/)) {
+    if (method === 'GET' && id !== null && !url.includes('/run')) {
+      const item = findDefinition(state, id);
+      await route.fulfill({
+        status: id && item ? 200 : 404,
+        contentType: 'application/json',
+        body: JSON.stringify(
+          item
+            ? envelope({
+                ...item,
+                parameters: item.parameters ?? [],
+              })
+            : { error: 4404, respuesta: 'No encontrada', resultado: null },
+        ),
+      });
+      return;
+    }
+
+    if (method === 'GET' && id === null) {
+      const items = state.definitions.map((d) => ({
+        ...d,
+        hasExecutionHistory: Boolean(
+          (d.hasExecutionHistory as boolean) ||
+            state.executions.some((e) => e.definitionId === d.id),
+        ),
+      }));
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
-        body: JSON.stringify(envelope({ items: state.definitions })),
+        body: JSON.stringify(envelope({ items, total: items.length })),
       });
       return;
     }
 
     if (method === 'POST' && url.endsWith('/task-definitions')) {
       const body = route.request().postDataJSON() as Record<string, unknown>;
-      const id = state.nextDefinitionId++;
+      const newId = state.nextDefinitionId++;
       const now = new Date().toISOString();
       const item = {
-        id,
+        id: newId,
         processId: body.processId,
         taskTitle: body.taskTitle,
         taskDescription: body.taskDescription ?? '',
@@ -188,6 +252,7 @@ export async function mockTareasProgramadasApi(
         nextRunAt: now,
         lastRunAt: null,
         lastStatusCode: null,
+        hasExecutionHistory: false,
         companyIds: body.companyIds ?? [1],
         parameters: body.parameters ?? [],
         notifyEnabled: body.notifyEnabled ?? false,
@@ -200,6 +265,92 @@ export async function mockTareasProgramadasApi(
         status: 200,
         contentType: 'application/json',
         body: JSON.stringify(envelope(item)),
+      });
+      return;
+    }
+
+    if (method === 'PATCH' && id !== null) {
+      const body = route.request().postDataJSON() as Record<string, unknown>;
+      const idx = state.definitions.findIndex((d) => d.id === id);
+      if (idx < 0) {
+        await route.fulfill({ status: 404, contentType: 'application/json', body: '{}' });
+        return;
+      }
+      state.definitions[idx] = { ...state.definitions[idx], ...body, id };
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify(envelope(state.definitions[idx])),
+      });
+      return;
+    }
+
+    if (method === 'DELETE' && id !== null) {
+      const idx = state.definitions.findIndex((d) => d.id === id);
+      if (idx < 0) {
+        await route.fulfill({
+          status: 404,
+          contentType: 'application/json',
+          body: JSON.stringify({ error: 4404, respuesta: 'No encontrada', resultado: null }),
+        });
+        return;
+      }
+      const removed = state.definitions.splice(idx, 1)[0];
+      state.definitionsDeleted.push(removed);
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify(envelope({ id, deleted: true })),
+      });
+      return;
+    }
+
+    if (method === 'POST' && id !== null && url.includes('/run')) {
+      const def = findDefinition(state, id);
+      if (!def) {
+        await route.fulfill({ status: 404, contentType: 'application/json', body: '{}' });
+        return;
+      }
+      if (def.isActive === false) {
+        await route.fulfill({
+          status: 422,
+          contentType: 'application/json',
+          body: JSON.stringify({
+            error: 4420,
+            respuesta: 'definition inactive',
+            resultado: null,
+          }),
+        });
+        return;
+      }
+      state.lastRunPayload = route.request().postDataJSON() as Record<string, unknown>;
+      const executionId = state.nextExecutionId++;
+      state.executions.push({
+        id: executionId,
+        definitionId: id,
+        companyId: 1,
+        statusCode: 'EN_EJECUCION',
+        mode: 'MANUAL',
+        isSimulation: false,
+        message: 'async mock',
+        startedAt: new Date().toISOString(),
+        finishedAt: null,
+      });
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify(
+          envelope({
+            statusCode: 'EN_EJECUCION',
+            executions: [
+              {
+                id: executionId,
+                definitionId: id,
+                statusCode: 'EN_EJECUCION',
+              },
+            ],
+          }),
+        ),
       });
       return;
     }
@@ -266,4 +417,13 @@ export async function pickDxSelectOption(page: Page, testId: string, optionText:
   await root.click();
   const overlay = page.locator('.dx-dropdowneditor-overlay').last();
   await overlay.locator('.dx-list-item').filter({ hasText: optionText }).click();
+}
+
+export async function clickDxCheckbox(page: Page, testId: string) {
+  const root = page.getByTestId(testId);
+  await root.locator('.dx-checkbox').click();
+}
+
+export function createEmptyTareasMockState(): MockState {
+  return defaultMockState();
 }

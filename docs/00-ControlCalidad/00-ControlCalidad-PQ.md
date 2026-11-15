@@ -47,8 +47,10 @@ Este archivo **no sustituye** SPEC, HU ni TR: es la **entrada** del circuito de 
 
 | # | Fecha | Estado | Resumen |
 |---|-------|--------|---------|
-| 20 | 11/11/2026 | Especificado (Parte G 11/11/2026) | Reemplazar **tareas programadas** host por cableado SDK Framework (**GEN-13**) e incorporar el proceso **Backup** (`BACKUP_DATABASE`) |
-| 19 | 03/11/2026 | Especificado (Parte G 03/11/2026) | Adopción SDK: **diseñador de reportes** (GEN-15) bajo menú **General**; **emisión** en ocho informes; **tareas programadas** (GEN-13) y **backup** programado — residual GEN-13/Backup → **#20** |
+| 22 | 14/11/2026 | **Finalizado** (Parte I 15/11/2026) | Adopción host GEN-13 / Backup SDK (`laravel-core` **1.3.18-beta.38**, `react-core` **2.4.30-beta.19**) — FW CC **#17–#20** · [F1](../04-tareas/101-PedidosWeb/F1-CC-PQ-22-verificacion-agente.md) · [I](../04-tareas/101-PedidosWeb/I-CC-PQ-GEN-13-cierre-formal.md) · [PIAPEDWEB-50](https://paqsystems.atlassian.net/browse/PIAPEDWEB-50) |
+| 21 | 14/11/2026 | **Finalizado** (Parte I 15/11/2026; SoT Framework) | GEN-13 Backup: evidencia Partes (falso FALLIDA + checkboxes) · volcado SDK [Framework SPEC-update CC#19](https://github.com/paqsystems/PaqSuite-IA-FRAMEWORK/blob/develop/docs/05-open-spec/updates/001-Generalidades/SPEC-001-13-update-cc-pq-19-2026-11-14-backup-estado-y-checkboxes.md) · host pin+smoke vía **#22** · [PIAPEDWEB-49](https://paqsystems.atlassian.net/browse/PIAPEDWEB-49) · ejecución [PIAFRAME-145](https://paqsystems.atlassian.net/browse/PIAFRAME-145) |
+| 20 | 11/11/2026 | **Finalizado** (Parte I 15/11/2026) | Reemplazar **tareas programadas** host por cableado SDK Framework (**GEN-13**) e incorporar el proceso **Backup** (`BACKUP_DATABASE`) · [I](../04-tareas/101-PedidosWeb/I-CC-PQ-GEN-13-cierre-formal.md) |
+| 19 | 03/11/2026 | Especificado (Parte G 03/11/2026) — GEN-13 **cerrado** I 15/11; residual **GEN-15** | Adopción SDK: **diseñador de reportes** (GEN-15) bajo menú **General**; **emisión** en ocho informes; **tareas programadas** (GEN-13) y **backup** programado — GEN-13/Backup → **#20/#22 Finalizado** |
 | 18 | 30/10/2026 | Finalizado (Parte I 02/11/2026) | Integración **transacciones**: delta + `eliminarSiAusente` por ítem (novedades/bajas); OpenAPI snapshot vs delta |
 | 17 | 20/09/2026 | Finalizado (Parte I 21/09/2026) | Atributo `especial` en artículos — columna detalle pedidos + sufijo listbox carga |
 | 16 | 12/09/2026 | Finalizado (Parte I 12/09/2026) | Suspender logout por inactividad hasta adopción SDK Framework |
@@ -70,6 +72,183 @@ Este archivo **no sustituye** SPEC, HU ni TR: es la **entrada** del circuito de 
 
 ---
 
+## Control de Calidad #22
+
+### Referencia del control
+
+| Campo | Valor |
+|-------|--------|
+| **Fecha** | 14/11/2026 |
+| **Responsable** | Pablo Quarracino (PQ) |
+| **Estado** | Finalizado |
+| **D1** | 14/11/2026 — [D1-PLAN-CC-PQ-22.md](../04-tareas/101-PedidosWeb/D1-PLAN-CC-PQ-22.md) |
+| **D** | 14/11/2026 — bump Cloudsmith **1.3.18-beta.38** / **2.4.30-beta.19**; docs pin/runbook; CLI + Vitest/PHPUnit OK |
+| **E** | 15/11/2026 — [E-CC-PQ-22-tests.md](../04-tareas/101-PedidosWeb/E-CC-PQ-22-tests.md) |
+| **F1 / F** | 15/11/2026 — [F1-CC-PQ-22](../04-tareas/101-PedidosWeb/F1-CC-PQ-22-verificacion-agente.md) **Aprobado con observaciones** · [F-CC-PQ-22](../04-tareas/101-PedidosWeb/F-CC-PQ-22-cierre-formal.md) |
+| **I** | 15/11/2026 — [I-CC-PQ-GEN-13](../04-tareas/101-PedidosWeb/I-CC-PQ-GEN-13-cierre-formal.md); SPEC/HU/TR unificados en originales |
+| **Entorno / pin actual (host)** | PedidosWeb: `paqsuite/laravel-core` **1.3.18-beta.38** · `@paqsuite/react-core` **2.4.30-beta.19** |
+| **Pin objetivo (SDK Framework `VERSION`)** | `laravel-core` **≥ 1.3.18-beta.38** · `react-core` **≥ 2.4.30-beta.19** (o el último publicado en Cloudsmith de la misma oleada GEN-13) |
+| **Antecedente** | [CC #20](#control-de-calidad-20) (cableado GEN-13 + `BACKUP_DATABASE`); [CC #21](#control-de-calidad-21) (evidencia → Framework CC #19). Este hito **adopta en el host** las mejoras ya (o en curso) en el SDK; **no** reimplementa pantallas/handlers. |
+| **Competencia** | **PedidosWeb (host)** — bump pin Cloudsmith + ritual adopción GEN-13 + smoke. Corrección de motor/UI sigue en **Framework** (CC FW #17–#20). |
+| **Jira** | Epic [PIAPEDWEB-50](https://paqsystems.atlassian.net/browse/PIAPEDWEB-50) · HU [PIAPEDWEB-51](https://paqsystems.atlassian.net/browse/PIAPEDWEB-51) · TR [PIAPEDWEB-52](https://paqsystems.atlassian.net/browse/PIAPEDWEB-52) |
+| **Volcado G** | 14/11/2026 — unificado I 15/11 en [SPEC-001-09](../05-open-spec/001-Generaliddes/SPEC-001-09-tareas-programadas.md) · [HU-GEN-13](../03-historias-usuario/001-Generaliddes/HU-GEN-13-tareas-programadas.md) · [TR-GEN-13](../04-tareas/001-Generaliddes/TR-GEN-13-tareas-programadas.md) |
+| **Comando G** | `Corrige los errores del CC #22 adopción GEN-13 Backup SDK Framework de PQ` |
+
+### Hallazgos
+
+PedidosWeb ya monta GEN-13 / `BACKUP_DATABASE` (CC #20), pero el pin del host **queda atrás** del SDK Framework más reciente. Hay que **adoptar todas las mejoras de Tareas programadas y Backups** publicadas (o listas para publish) en Framework, vía pin + cableado fino del host, **sin fork**.
+
+**Gap de pin (14/11/2026):**
+
+| Paquete | PedidosWeb hoy | Framework `VERSION` |
+|---------|----------------|---------------------|
+| `paqsuite/laravel-core` | 1.3.18-beta.34 | **1.3.18-beta.38** |
+| `@paqsuite/react-core` | 2.4.30-beta.16 | **2.4.30-beta.19** |
+
+### Errores encontrados - Mejoras solicitadas
+
+#### GEN-13 · Bump SDK y ritual de adopción (host)
+
+a) Subir pins Cloudsmith a la oleada GEN-13 vigente (`laravel-core` ≥ **1.3.18-beta.38**, `react-core` ≥ **2.4.30-beta.19**), regenerar locks con `CLOUDSMITH_READ_TOKEN`, actualizar [integracion-framework-sdk.md](../01-arquitectura/integracion-framework-sdk.md) y [runbook-gen-13-backup-pedidosweb.md](../06-operacion/runbook-gen-13-backup-pedidosweb.md).
+
+b) Diff obligatorio contra ficha GEN-13 / template `create-app` (regla **43** / **44**): `TaskScheduledLayout` (Procesos → Definiciones → Ejecuciones → Historial), `registerTareasProgramadasI18nResources`, `ProcessPageLayout`, sin duplicar catálogos `tareasProgramadas.*` / `menu.*` GEN en JSON host.
+
+c) Backend: rutas package + `TaskProcessRegistry` / `BackupDatabaseProcess`; scheduler host `pedidosweb:tasks-run-due` + `RdsDeferredBackupExecutionPoller` cuando `PAQSUITE_TASKS_BACKUP_DEFER_MANUAL_POLLING=true` (Forge/RDS). **Prohibido** copiar handler/formulario a `App\`.
+
+d) GEN-34 / `installation:update`: aplicar SP/seed de tareas del pin nuevo si el manifiesto lo exige.
+
+*Procesado* → unificado I 15/11 [SPEC-001-09](../05-open-spec/001-Generaliddes/SPEC-001-09-tareas-programadas.md) · [HU-GEN-13](../03-historias-usuario/001-Generaliddes/HU-GEN-13-tareas-programadas.md) · [TR-GEN-13](../04-tareas/001-Generaliddes/TR-GEN-13-tareas-programadas.md) — Parte G 14/11/2026 · **Jira:** [PIAPEDWEB-50](https://paqsystems.atlassian.net/browse/PIAPEDWEB-50) / [PIAPEDWEB-51](https://paqsystems.atlassian.net/browse/PIAPEDWEB-51) / [PIAPEDWEB-52](https://paqsystems.atlassian.net/browse/PIAPEDWEB-52)
+
+#### GEN-13 · Incorporar mejoras Framework CC #17–#20 (sin reimplementar)
+
+Adoptar en runtime PedidosWeb el comportamiento del SDK correspondiente a:
+
+| Framework CC | Mejora | SoT Framework |
+|--------------|--------|---------------|
+| **#17** | Nombre backup: día `-sNN` y mes `-mNN` (`includeWeekdayInName` / `includeMonthInName`) | [SPEC-update CC#17](https://github.com/paqsystems/PaqSuite-IA-FRAMEWORK/blob/develop/docs/05-open-spec/updates/001-Generalidades/SPEC-001-13-update-cc-pq-17-2026-11-11-backup-nombre-dia-mes.md) · [PIAFRAME-130](https://paqsystems.atlassian.net/browse/PIAFRAME-130) |
+| **#18** | Eliminación **física** de definiciones + Popup de confirmación con énfasis si hay historial | [SPEC-update CC#18](https://github.com/paqsystems/PaqSuite-IA-FRAMEWORK/blob/develop/docs/05-open-spec/updates/001-Generalidades/SPEC-001-13-update-cc-pq-18-2026-11-14-eliminacion-fisica-definiciones.md) · [PIAFRAME-142](https://paqsystems.atlassian.net/browse/PIAFRAME-142) |
+| **#19** | Estado final backup **EXITOSA** (no falso FALLIDA) + rehidratación de checkboxes de nombre | [SPEC-update CC#19](https://github.com/paqsystems/PaqSuite-IA-FRAMEWORK/blob/develop/docs/05-open-spec/updates/001-Generalidades/SPEC-001-13-update-cc-pq-19-2026-11-14-backup-estado-y-checkboxes.md) · [PIAFRAME-145](https://paqsystems.atlassian.net/browse/PIAFRAME-145) · evidencia host [CC #21](#control-de-calidad-21) |
+| **#20** | Bloquear **ejecución/simulación manual** si la definición (y proceso, si aplica) está **inactiva** | [SPEC-update CC#20](https://github.com/paqsystems/PaqSuite-IA-FRAMEWORK/blob/develop/docs/05-open-spec/updates/001-Generalidades/SPEC-001-13-update-cc-pq-20-2026-11-14-ejecucion-manual-inactiva.md) · [PIAFRAME-150](https://paqsystems.atlassian.net/browse/PIAFRAME-150) |
+
+Complementos ya exigidos por el contrato GEN-13 y que el pin debe cubrir: defer polling RDS manual ([update 11/11](https://github.com/paqsystems/PaqSuite-IA-FRAMEWORK/blob/develop/docs/05-open-spec/updates/001-Generalidades/SPEC-001-13-update-defer-manual-rds-polling-2026-11-11.md)); runtime/scheduler/timezone/mail hooks (FW CC #10/#11) si el host aún no los tiene cableados al nivel del pin objetivo.
+
+*Procesado* → unificado I 15/11 [SPEC-001-09](../05-open-spec/001-Generaliddes/SPEC-001-09-tareas-programadas.md) · [HU-GEN-13](../03-historias-usuario/001-Generaliddes/HU-GEN-13-tareas-programadas.md) · [TR-GEN-13](../04-tareas/001-Generaliddes/TR-GEN-13-tareas-programadas.md) — Parte G 14/11/2026
+
+#### GEN-13 · Smoke PedidosWeb post-pin (criterio de cierre)
+
+Tras bump y deploy/preview:
+
+1. Abrir **Tareas programadas** (menú General): solapas SDK, i18n, sin fork host.
+2. Definición `BACKUP_DATABASE`: tildar fecha/día/mes → guardar → reeditar → **tildes visibles**.
+3. Ejecución manual con defer RDS: UI **en ejecución** → cierre **EXITOSA** si el backup OK (no FALLIDA falsa).
+4. Definición **inactiva**: no permite run/simulación manual (API + UI).
+5. Eliminar definición: baja física + confirmación; si hay historial, mensaje destacado.
+6. Mobile: ruta sigue **excluida** (`pedidosWebMobilePolicy`).
+
+*Procesado* → checklist unificado I 15/11 [TR-GEN-13](../04-tareas/001-Generaliddes/TR-GEN-13-tareas-programadas.md) §5 · [HU-GEN-13](../03-historias-usuario/001-Generaliddes/HU-GEN-13-tareas-programadas.md) CA-07…10 — Parte G 14/11/2026
+
+### Relación con controles previos
+
+| Tema | Dónde |
+|------|--------|
+| Primera adopción GEN-13 + Backup en PedidosWeb | Control **#20** |
+| Evidencia falso FALLIDA / checkboxes (derivada a Framework) | Control **#21** → Framework CC **#19** |
+| Mejoras SDK a consumir en host | Este control **#22** |
+| Motor/UI GEN-13 (SDK) | Framework CC **#17–#20** |
+
+### Fuera de alcance
+
+- Reimplementar `Task*Page`, formulario backup o `BackupDatabaseProcess` en el host.
+- GEN-15 (diseñador/emisión) — sigue en CC **#19**.
+- GEN-03 Smart Capture (Framework CC #20 ítem Partes) — no aplica a este hito PedidosWeb.
+- Publish Cloudsmith del Framework: si el pin objetivo aún no está en registry, el host espera publish; no bajar el pin ni usar `path`/`file:` al monorepo en git.
+
+### Derivación SDD (Parte G 14/11/2026)
+
+| Paso | Entregable | Estado |
+|------|------------|--------|
+| **G** | SPEC/HU/TR-update-02 (CC #22) | *Hecho* — [PIAPEDWEB-50](https://paqsystems.atlassian.net/browse/PIAPEDWEB-50) |
+| **D** | Bump Cloudsmith + diff cableado | *Hecho* 14/11/2026 |
+| **E / F1 / F** | [E-CC-PQ-22](../04-tareas/101-PedidosWeb/E-CC-PQ-22-tests.md) · [F1](../04-tareas/101-PedidosWeb/F1-CC-PQ-22-verificacion-agente.md) · [F](../04-tareas/101-PedidosWeb/F-CC-PQ-22-cierre-formal.md) | *Hecho* 15/11/2026 — **Aprobado con observaciones** |
+| **I** | Unificación [SPEC-001-09](../05-open-spec/001-Generaliddes/SPEC-001-09-tareas-programadas.md) + HU/TR originales | *Hecho* 15/11/2026 — [I-CC-PQ-GEN-13](../04-tareas/101-PedidosWeb/I-CC-PQ-GEN-13-cierre-formal.md) |
+
+**Criterio de cierre del control:** pins ≥ objetivo; smoke de la tabla #17–#20 OK en PedidosWeb; runbook/doc de pins al día; sin forks GEN-13. **Cumplido** 15/11/2026 (F1 con observaciones no bloqueantes).
+
+---
+
+## Control de Calidad #21
+
+### Referencia del control
+
+| Campo | Valor |
+|-------|--------|
+| **Fecha** | 14/11/2026 |
+| **Responsable** | Pablo Quarracino (PQ) |
+| **Estado** | **Finalizado** (Parte I 15/11/2026 — host; SoT defectos = Framework CC #19 / PIAFRAME-145) |
+| **Entorno probado** | [paq.partesatencion.paqsystems.com](https://paq.partesatencion.paqsystems.com) — Tareas programadas / `BACKUP_DATABASE` (GEN-13 SDK) |
+| **Antecedente** | [Control de Calidad #20](#control-de-calidad-20) (adopción GEN-13 + Backup en PedidosWeb); parámetros de nombre en Framework CC PQ #17 (`includeDateTimeInName` / `includeWeekdayInName` / `includeMonthInName`) |
+| **Jira** | Epic evidencia [PIAPEDWEB-49](https://paqsystems.atlassian.net/browse/PIAPEDWEB-49) · ejecución Framework [PIAFRAME-145](https://paqsystems.atlassian.net/browse/PIAFRAME-145) |
+| **Volcado G** | Competencia **SDK** — [Framework CC #19](https://github.com/paqsystems/PaqSuite-IA-FRAMEWORK/blob/develop/docs/00-ControlCalidad/00-ControlCalidad-PQ.md) · [SPEC-update](https://github.com/paqsystems/PaqSuite-IA-FRAMEWORK/blob/develop/docs/05-open-spec/updates/001-Generalidades/SPEC-001-13-update-cc-pq-19-2026-11-14-backup-estado-y-checkboxes.md) · HU/TR en Framework. PedidosWeb: pin + smoke tras publish (sin fork). |
+
+### Hallazgos
+
+QA manual sobre **backup programable** (GEN-13 / proceso `BACKUP_DATABASE`) en el host **Partes Atención** en producción. El backup **sí se genera** y el estado intermedio «en ejecución» es correcto; fallan el **cierre de estado en UI/historial** y la **rehidratación de checkboxes** al reeditar la definición. Defectos transversales del SDK (no pantallas fork de PedidosWeb): al volcar (Parte G) conviene abrir/actualizar el circuito en **Framework** y propagar al pin de hosts (Partes / PedidosWeb).
+
+### Errores encontrados - Mejoras solicitadas
+
+#### GEN-13 · Ejecución manual de backup: éxito real, UI/historial en «falló»
+
+En `paq.partesatencion.paqsystems.com`, tras **ejecución manual** de una definición `BACKUP_DATABASE`:
+
+1. La UI mostró correctamente que la tarea estaba **en ejecución**.
+2. El **backup se completó** (artefacto generado / proceso OK en servidor).
+3. Al finalizar, la UI/historial quedó mostrando que la ejecución **falló**.
+
+**Esperado:** si el backup terminó correctamente, el estado final debe ser **éxito** (`completed` / equivalente GEN-13), alineado con el resultado real del proceso y sin contradecir el artefacto generado.
+
+**Investigar (Parte G / D):** polling `rds_task_status` / transición de estados del job; mapeo envelope → UI de ejecuciones; posible falso negativo tras `completed` (timeout, parseo, lock, defer manual RDS); logs de la ejecución en el entorno Partes.
+
+*Sugerencia: HU-GEN-13-tareas-programadas / update Backup — estado final de ejecución*
+
+#### GEN-13 · Tildes de nombre de backup se graban pero no aparecen al editar
+
+En la definición de tarea `BACKUP_DATABASE`, al activar uno o más de los tres checkboxes que agregan sufijos al nombre del objeto de backup:
+
+| Parámetro | Rol |
+|-----------|-----|
+| `includeDateTimeInName` | Fecha-hora en el nombre |
+| `includeWeekdayInName` | Día de la semana (`-sNN`) |
+| `includeMonthInName` | Mes (`-mNN`) |
+
+1. Los valores **sí quedan persistidos** en la tabla / parámetros de la definición.
+2. Al **volver a abrir/editar** la misma definición, los tres tildes **no aparecen tildados** (UI desincronizada del valor guardado).
+
+**Esperado:** al editar, cada checkbox debe reflejar el valor booleano ya grabado (rehidratación del formulario de parámetros GEN-13).
+
+**Investigar (Parte G / D):** carga GET de definición → binding de parámetros BOOL/CHECKBOX en el formulario SDK; normalización `true`/`1`/`"true"`; claves `parameterCode` vs seed; regresión respecto a Framework CC PQ #17 (nombre día/mes).
+
+*Sugerencia: HU-GEN-13-backup-nombre-dia-mes-update / binding checkboxes definición*
+
+### Relación con controles previos
+
+| Tema | Dónde |
+|------|--------|
+| Adopción GEN-13 + `BACKUP_DATABASE` en PedidosWeb | Control **#20** |
+| Parámetros de sufijo en nombre de backup | Framework Control de Calidad PQ **#17** |
+| Defectos de runtime/UI observados en Partes | Este control **#21** |
+
+### Derivación SDD (Parte G 2026-11-14)
+
+| Paso | Entregable | Estado |
+|------|------------|--------|
+| **G** | Volcado en **Framework** CC #19 (SPEC + 2 HU + 2 TR) | *Hecho* — 14/11/2026 |
+| **D–F host** | Pin Cloudsmith + smoke PedidosWeb vía CC **#22** | *Hecho* 15/11/2026 — [F1-CC-PQ-22](../04-tareas/101-PedidosWeb/F1-CC-PQ-22-verificacion-agente.md) |
+| **I** | Cierre host (sin updates locales que unificar) | *Hecho* 15/11/2026 — [I-CC-PQ-GEN-13](../04-tareas/101-PedidosWeb/I-CC-PQ-GEN-13-cierre-formal.md) |
+
+**SoT de corrección:** [Framework SPEC-001-13-update-cc-pq-19](https://github.com/paqsystems/PaqSuite-IA-FRAMEWORK/blob/develop/docs/05-open-spec/updates/001-Generalidades/SPEC-001-13-update-cc-pq-19-2026-11-14-backup-estado-y-checkboxes.md).
+
+---
+
 ## Control de Calidad #20
 
 ### Referencia del control
@@ -78,8 +257,9 @@ Este archivo **no sustituye** SPEC, HU ni TR: es la **entrada** del circuito de 
 |-------|--------|
 | **Fecha** | 11/11/2026 |
 | **Responsable** | Pablo Quarracino (PQ) |
-| **Estado** | Especificado |
+| **Estado** | Finalizado |
 | **Jira** | [PIAPEDWEB-46](https://paqsystems.atlassian.net/browse/PIAPEDWEB-46) |
+| **F1 / F / I** | 15/11/2026 — [F1-CC-PQ-22](../04-tareas/101-PedidosWeb/F1-CC-PQ-22-verificacion-agente.md) · [F-CC-PQ-22](../04-tareas/101-PedidosWeb/F-CC-PQ-22-cierre-formal.md) · [I-CC-PQ-GEN-13](../04-tareas/101-PedidosWeb/I-CC-PQ-GEN-13-cierre-formal.md) |
 
 ### Hallazgos
 
@@ -118,7 +298,7 @@ e) **Menú / permisos:** conservar `gen_tareasprogramadas` bajo **General**; per
 
 f) **Retiro del proceso actual:** una vez cableado el SDK, no dejar una segunda UI/API host de tareas. El wrapper `TareasProgramadasPage` solo puede existir como página delgada que delega 100 % al export SDK.
 
-*Procesado* → [SPEC-001-09-tareas-programadas-update-01](../05-open-spec/updates/001-Generaliddes/SPEC-001-09-tareas-programadas-update-01.md) · [HU-GEN-13-tareas-programadas-update](../03-historias-usuario/updates/001-Generaliddes/HU-GEN-13-tareas-programadas-update.md) · [TR-GEN-13-tareas-programadas-update](../04-tareas/updates/001-Generaliddes/TR-GEN-13-tareas-programadas-update.md) — Parte G 11/11/2026 · **Jira:** [PIAPEDWEB-46](https://paqsystems.atlassian.net/browse/PIAPEDWEB-46) / [PIAPEDWEB-47](https://paqsystems.atlassian.net/browse/PIAPEDWEB-47) / [PIAPEDWEB-48](https://paqsystems.atlassian.net/browse/PIAPEDWEB-48)
+*Procesado* → unificado I 15/11 [SPEC-001-09](../05-open-spec/001-Generaliddes/SPEC-001-09-tareas-programadas.md) · [HU-GEN-13](../03-historias-usuario/001-Generaliddes/HU-GEN-13-tareas-programadas.md) · [TR-GEN-13](../04-tareas/001-Generaliddes/TR-GEN-13-tareas-programadas.md) — Parte G 11/11/2026 · **Jira:** [PIAPEDWEB-46](https://paqsystems.atlassian.net/browse/PIAPEDWEB-46) / [PIAPEDWEB-47](https://paqsystems.atlassian.net/browse/PIAPEDWEB-47) / [PIAPEDWEB-48](https://paqsystems.atlassian.net/browse/PIAPEDWEB-48)
 
 #### GEN-13 · Incorporar proceso Backup (`BACKUP_DATABASE`)
 
@@ -134,21 +314,21 @@ d) **Operación:** runbook deploy (Forge / GEN-34) con variables S3, ventanas y 
 
 e) **Fuera de alcance de este hito:** jobs de dominio PedidosWeb distintos de backup (p. ej. import Excel batch); cron ERP de maestros ([SPEC-101-22](../05-open-spec/101-PedidosWeb/SPEC-101-22-importacion-maestros-erp.md)); backup mobile.
 
-*Procesado* → unificado en [SPEC-001-09-tareas-programadas-update-01](../05-open-spec/updates/001-Generaliddes/SPEC-001-09-tareas-programadas-update-01.md) · [HU-GEN-13-tareas-programadas-update](../03-historias-usuario/updates/001-Generaliddes/HU-GEN-13-tareas-programadas-update.md) · [TR-GEN-13-tareas-programadas-update](../04-tareas/updates/001-Generaliddes/TR-GEN-13-tareas-programadas-update.md) — Parte G 11/11/2026 · **Jira:** [PIAPEDWEB-46](https://paqsystems.atlassian.net/browse/PIAPEDWEB-46)
+*Procesado* → unificado I 15/11 [SPEC-001-09](../05-open-spec/001-Generaliddes/SPEC-001-09-tareas-programadas.md) · [HU-GEN-13](../03-historias-usuario/001-Generaliddes/HU-GEN-13-tareas-programadas.md) · [TR-GEN-13](../04-tareas/001-Generaliddes/TR-GEN-13-tareas-programadas.md) — Parte G 11/11/2026 · **Jira:** [PIAPEDWEB-46](https://paqsystems.atlassian.net/browse/PIAPEDWEB-46)
 
 ### Relación con CC #19
 
 | Tema | Dónde sigue |
 |------|-------------|
 | GEN-15 diseñador + emisión 8 informes | Control **#19** (Especificado; implementación en curso) |
-| GEN-13 tareas + `BACKUP_DATABASE` | Este control **#20** (Especificado, Parte G 11/11/2026) — no reabrir #19 para este residual |
+| GEN-13 tareas + `BACKUP_DATABASE` | Este control **#20** — **Finalizado** I 15/11/2026 (cierre conjunto #21/#22) |
 
 ### Verificación ciclo OpenSpec (11/11/2026)
 
 | Parte | Documento | Veredicto |
 |-------|-----------|-----------|
 | G | Volcado SPEC/HU/TR-update GEN-13 + Backup | **Especificado** 11/11/2026 — [PIAPEDWEB-46](https://paqsystems.atlassian.net/browse/PIAPEDWEB-46) |
-| D / E / F / I | — | Pendiente (post-G) |
+| D / E / F / I | [F1](../04-tareas/101-PedidosWeb/F1-CC-PQ-22-verificacion-agente.md) · [F](../04-tareas/101-PedidosWeb/F-CC-PQ-22-cierre-formal.md) · [I](../04-tareas/101-PedidosWeb/I-CC-PQ-GEN-13-cierre-formal.md) | **Finalizado** 15/11/2026 |
 
 **Notas implementación host (11/11/2026, preview):** scheduler **`pedidosweb:tasks-run-due`**; pin **laravel-core 1.3.18-beta.32** (`RdsDeferredBackupExecutionPoller`); runbook [runbook-gen-13-backup-pedidosweb.md](../06-operacion/runbook-gen-13-backup-pedidosweb.md); Forge RDS → `PAQSUITE_TASKS_BACKUP_DEFER_MANUAL_POLLING=true`.
 
@@ -162,7 +342,7 @@ e) **Fuera de alcance de este hito:** jobs de dominio PedidosWeb distintos de ba
 |-------|--------|
 | **Fecha** | 03/11/2026 |
 | **Responsable** | Pablo Quarracino (PQ) |
-| **Estado** | Especificado |
+| **Estado** | Especificado — GEN-13 cerrado I 15/11; residual **GEN-15** |
 
 ### Hallazgos
 
@@ -221,7 +401,7 @@ b) Desplegar modelo / SP del Framework según runbook GEN-18 + documentación [`
 
 c) Registrar procesos de dominio PedidosWeb que deban correr en scheduler (p. ej. jobs de integración documentados aparte); **no** duplicar cron ERP donde el producto ya delega en GEN-13 externo ([SPEC-101-22](../05-open-spec/101-PedidosWeb/SPEC-101-22-importacion-maestros-erp.md)).
 
-*Procesado* → [SPEC-001-09-tareas-programadas-update](../05-open-spec/updates/001-Generaliddes/SPEC-001-09-tareas-programadas-update.md) · [HU-GEN-13-tareas-programadas](../03-historias-usuario/001-Generaliddes/HU-GEN-13-tareas-programadas.md) · [TR-GEN-13-tareas-programadas](../04-tareas/001-Generaliddes/TR-GEN-13-tareas-programadas.md) — Parte G 03/11/2026 · **Menú:** `gen_tareasprogramadas` / orden **64**
+*Procesado* → [SPEC-001-09](../05-open-spec/001-Generaliddes/SPEC-001-09-tareas-programadas.md) · [HU-GEN-13](../03-historias-usuario/001-Generaliddes/HU-GEN-13-tareas-programadas.md) · [TR-GEN-13](../04-tareas/001-Generaliddes/TR-GEN-13-tareas-programadas.md) — Parte G 03/11/2026 · unificado I 15/11 · **Menú:** `gen_tareasprogramadas` / orden **64**
 
 #### GEN-13 · Backups programados (`BACKUP_DATABASE`)
 
@@ -233,7 +413,7 @@ b) UI: pantalla genérica de **definiciones** de tareas (GEN-13); reglas MONO/MU
 
 c) Operación: documentar en runbook deploy (Forge / GEN-34) credenciales S3, ventanas y smoke post-backup.
 
-*Procesado* → unificado en [SPEC-001-09-tareas-programadas-update](../05-open-spec/updates/001-Generaliddes/SPEC-001-09-tareas-programadas-update.md) · [HU-GEN-13-tareas-programadas](../03-historias-usuario/001-Generaliddes/HU-GEN-13-tareas-programadas.md) · [TR-GEN-13-tareas-programadas](../04-tareas/001-Generaliddes/TR-GEN-13-tareas-programadas.md) — Parte G 03/11/2026
+*Procesado* → unificado I 15/11 [SPEC-001-09](../05-open-spec/001-Generaliddes/SPEC-001-09-tareas-programadas.md) · [HU-GEN-13](../03-historias-usuario/001-Generaliddes/HU-GEN-13-tareas-programadas.md) · [TR-GEN-13](../04-tareas/001-Generaliddes/TR-GEN-13-tareas-programadas.md) — Parte G 03/11/2026
 
 ### Decisiones cerradas (Parte G 03/11/2026)
 
@@ -253,9 +433,12 @@ c) Operación: documentar en runbook deploy (Forge / GEN-34) credenciales S3, ve
 | D | [D1-PLAN-CC-PQ-19.md](../04-tareas/101-PedidosWeb/D1-PLAN-CC-PQ-19.md) | Plan listo; implementación **pendiente** |
 | E | — | Pendiente (post-D) |
 | F | — | Pendiente (post-E) |
-| I | — | Pendiente (post-F, updates **Finalizado**) |
+| I GEN-13 | [I-CC-PQ-GEN-13](../04-tareas/101-PedidosWeb/I-CC-PQ-GEN-13-cierre-formal.md) | **Hecho** 15/11/2026 — SPEC/HU/TR GEN-13 **Finalizado** |
+| I GEN-15 | — | Pendiente (diseñador / emisión) |
 
 **Nota 11/11/2026:** el residual **GEN-13** (tareas programadas + `BACKUP_DATABASE`) se aísla en Control de Calidad **#20**. Este bloque #19 continúa con **GEN-15** (diseñador / emisión).
+
+**Nota 15/11/2026:** GEN-13 / backups **cerrados** (F1/F/I de #20/#21/#22). El bloque **#19 permanece Especificado** por residual GEN-15. No unificar SPEC-001-06 / HU-GEN-15 / HU-101-055.
 
 ---
 

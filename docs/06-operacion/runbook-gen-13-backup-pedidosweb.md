@@ -1,8 +1,8 @@
 # GEN-13 — Tareas programadas y backup BD (PedidosWeb)
 
-Runbook operativo CC #20. Cableado alineado a **Partes** (RDS por defecto; Windows parametrizable).
+Runbook operativo CC #20 + adopción CC #22 (oleada GEN-13 / Backup). Cableado alineado a **Partes** (RDS por defecto; Windows parametrizable).
 
-**Pin SDK:** `paqsuite/laravel-core` **≥ 1.3.18-beta.32** (poller RDS manual `RdsDeferredBackupExecutionPoller`; contrato Framework **SPEC-001-13-update** defer manual RDS polling, 11/11/2026).
+**Pin SDK:** `paqsuite/laravel-core` **≥ 1.3.18-beta.38** · `@paqsuite/react-core` **≥ 2.4.30-beta.19** (poller RDS `RdsDeferredBackupExecutionPoller`; FW CC **#17–#20**: nombre `-sNN`/`-mNN`, baja física definiciones, EXITOSA + rehidratación checkboxes, bloqueo run si inactiva; defer manual RDS 11/11/2026).
 
 ## Variables backend (`.env`)
 
@@ -17,7 +17,7 @@ Runbook operativo CC #20. Cableado alineado a **Partes** (RDS por defecto; Windo
 | `TASKS_BACKUP_WINDOWS_DEFAULT_FOLDER` | Ruta carpeta documentada para operadores (solo Windows; el formulario muestra el campo **carpeta** solo con backend `windows`) |
 | `TASKS_BACKUP_POLL_SECONDS` | Polling `rds_task_status` (runs automáticos inline) |
 | `TASKS_BACKUP_LOCK_LEASE_SECONDS` | Lock global RDS por instalación |
-| `PAQSUITE_TASKS_BACKUP_DEFER_MANUAL_POLLING` | **`true` en Forge/RDS:** el backup manual no hace polling en el POST HTTP; `RdsDeferredBackupExecutionPoller` cierra en el scheduler (`pedidosweb:tasks-run-due`). SDK ≥ **1.3.18-beta.32** |
+| `PAQSUITE_TASKS_BACKUP_DEFER_MANUAL_POLLING` | **`true` en Forge/RDS:** el backup manual no hace polling en el POST HTTP; `RdsDeferredBackupExecutionPoller` cierra en el scheduler (`pedidosweb:tasks-run-due`). SDK ≥ **1.3.18-beta.38** (mínimo histórico poller: beta.32) |
 | `TASKS_BACKUP_RDS_TIMEOUT_MINUTES` | Timeout de export RDS antes de marcar fallida la ejecución diferida |
 
 ## Variables frontend (Vite)
@@ -131,6 +131,17 @@ Forge: añadir pasos 3–4 al script post-deploy existente o correr `sync-gen13-
 3. Ejecutar manualmente → fila en **Historial**.
 4. Forge: `PAQSUITE_TASKS_BACKUP_RDS_GATEWAY=rds` (no `memory`); `PAQSUITE_TASKS_BACKUP_DEFER_MANUAL_POLLING=true`.
 5. Backup manual RDS: la respuesta HTTP no debe bloquearse hasta timeout nginx; verificar cierre en **Historial** tras 1–2 min (scheduler).
+
+### Checklist CC #22 (post-pin ≥ beta.38 / beta.19)
+
+| # | Verificación | FW |
+|---|--------------|-----|
+| 1 | Chrome GEN-13: solapas Procesos / Definiciones / Ejecuciones / Historial + i18n | — |
+| 2 | Checkboxes fecha/día/mes → guardar → reeditar → tildes visibles; nombre `-sNN`/`-mNN` | #17 / #19 |
+| 3 | Manual + defer → cierre **EXITOSA** si backup OK (no FALLIDA falsa) | #19 |
+| 4 | Definición inactiva → sin run/simulación (UI + API) | #20 |
+| 5 | Eliminar → baja física + confirmación (énfasis si hay historial) | #18 |
+| 6 | Native: ruta `/general/tareas-programadas` excluida | — |
 
 ## Lab local
 

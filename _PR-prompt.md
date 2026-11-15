@@ -2,54 +2,59 @@
 
 **Base:** `develop`  
 **Compare:** `v1.2.0`  
-**Modo SDK:** deploy (Cloudsmith: `laravel-core` 1.3.18-beta.28 / `react-core` 2.4.30-beta.7)
+**Modo SDK:** deploy (Cloudsmith: `laravel-core` **1.3.18-beta.38** / `react-core` **2.4.30-beta.19**)
 
 ## Resumen
 
-El diseñador GEN-15 en Preview/productivos devolvía «No se pudo completar la solicitud» y el combo de procesos quedaba vacío: `GET /api/v1/emissions/processes` ejecutaba `pq_sp_emission_process_get` y el SP no existía porque Forge no corre `paqsuite:installation:update`.
-
-Este PR despliega el SQL GEN-15 del SDK en el host (CREATE/ALTER, sin DROP), siembra el catálogo de 8 informes y cablea el hook GEN-34 de catálogo.
+Cierra GEN-13 / `BACKUP_DATABASE` en PedidosWeb (CC #20/#21/#22): bump SDK Cloudsmith, tests CC #22, unificación OpenSpec F1/F/I. Incluye un ajuste del asistente de carga (confirmación de cambio de cliente).
 
 ## SPEC / HU / TR relacionadas
 
-- SPEC: SPEC-001-06-emision-update
-- HU: HU-GEN-15-diseniador-reportes
-- TR: TR-GEN-15-diseniador-reportes
-- Plan: D1-PLAN-CC-PQ-19 (R4/R5 mitigados en host)
+- SPEC: SPEC-001-09-tareas-programadas (Finalizado)
+- HU: HU-GEN-13-tareas-programadas (Finalizado)
+- TR: TR-GEN-13-tareas-programadas (Finalizado)
+- F1: F1-CC-PQ-22-verificacion-agente.md (Aprobado con observaciones)
+- I: I-CC-PQ-GEN-13-cierre-formal.md
+- Jira: PIAPEDWEB-10 / 46–52 / 49
 
 ## Cambios realizados
 
 ### Backend
-- `paqsuite:deploy-sdk-sql` + `PedidosWebSdkSqlDeployer` (SP `pq_sp_emission_*`, tabla/schemas diseñador, seed catálogo)
-- `paqsuite:seed-deploy` invoca el comando GEN-15
-- Migración `2026_11_06_100016_deploy_gen15_sdk_sql`
-- Bind `InstallationCatalogSyncContract` (host, no Null del SDK)
-- Envelope 4713 si el SQL GEN-15 sigue ausente (en lugar de 500/transport)
+- Pin `paqsuite/laravel-core` 1.3.18-beta.38
+- PHPUnit GEN-13 CC #22 (nombre backup, destroy, execution, mail)
 
 ### Frontend
-- i18n `emission.designer.schemaMissing` en 5 locales
+- Pin `@paqsuite/react-core` 2.4.30-beta.19
+- E2E tareas programadas CC #22 + mocks
+- Asistente: `isPendingChoiceReply` para confirmación sí/no de cambio de cliente
 
 ### Base de datos
-- CREATE/ALTER PROCEDURE GEN-15 (idempotente)
-- CREATE TABLE IF `pq_emission_designer_schemas`
-- Seed `pq_emission_processes` / `pq_emission_reports` (8 informes)
+- Sin migraciones host nuevas. GEN-34 / `installation:update` si el pin trae SP de tareas.
 
 ### Tests
-- Unit: splitter GO + detección SP ausente (OK)
-- Feature: `SeedDeployCommandTest` (OK)
+- PHPUnit Gen13Cc22* (sesión previa 8/8)
+- Vitest `pedidosWebMobilePolicy` (7/7)
+- E2E `tareas-programadas-cc22.spec.ts`
 
-## Observaciones deploy
+### Documentación
+- SPEC/HU/TR GEN-13 unificados; updates eliminados
+- CC PQ #20/#21/#22 Finalizado; #19 residual GEN-15
+- Runbook GEN-13 + pins
 
-| Ítem | Requerido en Preview |
-|------|----------------------|
-| migrate | Sí — `2026_11_06_100016_deploy_gen15_sdk_sql` |
-| seed / SQL | Sí — `paqsuite:deploy-sdk-sql` (también vía `seed-deploy`) |
-| .env nuevo | No |
-| Solo código | No |
+## Observaciones deploy (regla 17)
 
-Demo Forge (`demopedidosweb`, rama `develop`) ya tiene `migrate --force` + `paqsuite:seed-deploy`.
+| Ítem | Preview |
+|------|---------|
+| migrate host | No (sin DDL nuevo) |
+| GEN-34 | Sí — `paqsuite:installation:update` / `seed-deploy` si el script Forge no lo corre |
+| .env nuevo | No (GEN-13 ya en Environment) |
+| Solo código | Pins + FE/BE tests + docs |
+
+Forge Preview: `demopedidosweb` (rama `develop`).
 
 ### Smoke post-deploy
 
 - [ ] GET `/api/v1/health`
-- [ ] Login Preview + Diseñador de reportes: combo con 8 procesos, sin «No se pudo completar la solicitud»
+- [ ] Login Preview → General → Tareas programadas (solapas SDK)
+- [ ] Definición BACKUP_DATABASE: tildes de nombre persisten al reeditar
+- [ ] Native: ruta sigue excluida
