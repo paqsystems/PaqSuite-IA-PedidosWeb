@@ -161,7 +161,7 @@ test.describe('GEN-13 tareas programadas (CC PQ #22)', () => {
     expect(state.executions.some((e) => e.statusCode === 'EN_EJECUCION')).toBeTruthy();
   });
 
-  test('definición inactiva: run deshabilitado (CC #20 / SDK — gap vs pedido manual inactivo)', async ({ page }) => {
+  test('definición inactiva: run manual habilitado (CC #20 — scheduler omitido, manual permitido)', async ({ page }) => {
     const state = createEmptyTareasMockState();
     state.definitions.push({
       id: 11,
@@ -184,6 +184,13 @@ test.describe('GEN-13 tareas programadas (CC PQ #22)', () => {
       .locator('.dx-data-row')
       .first()
       .getByTestId('tareasProgramadas.definiciones.run');
-    await expect(runBtn).toBeDisabled();
+    await expect(runBtn).toBeEnabled();
+
+    const runResponse = page.waitForResponse(
+      (r) => r.url().includes('/task-definitions/11/run') && r.request().method() === 'POST',
+    );
+    await runBtn.click();
+    const response = await runResponse;
+    expect(response.ok()).toBeTruthy();
   });
 });

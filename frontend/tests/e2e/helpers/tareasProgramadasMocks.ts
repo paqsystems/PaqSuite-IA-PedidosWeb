@@ -311,18 +311,6 @@ export async function mockTareasProgramadasApi(page: Page, state: MockState = de
         await route.fulfill({ status: 404, contentType: 'application/json', body: '{}' });
         return;
       }
-      if (def.isActive === false) {
-        await route.fulfill({
-          status: 422,
-          contentType: 'application/json',
-          body: JSON.stringify({
-            error: 4420,
-            respuesta: 'definition inactive',
-            resultado: null,
-          }),
-        });
-        return;
-      }
       state.lastRunPayload = route.request().postDataJSON() as Record<string, unknown>;
       const executionId = state.nextExecutionId++;
       state.executions.push({
