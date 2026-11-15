@@ -51,6 +51,8 @@ test.describe('GEN-13 tareas programadas (CC #20)', () => {
       executions: [] as Array<Record<string, unknown>>,
       nextDefinitionId: 1,
       nextExecutionId: 1,
+      definitionsDeleted: [] as Array<Record<string, unknown>>,
+      lastRunPayload: null as Record<string, unknown> | null,
     };
     await mockTareasProgramadasApi(page, state);
     await loginTareasAdmin(page);
@@ -115,6 +117,8 @@ test.describe('GEN-13 tareas programadas (CC #20)', () => {
       ],
       nextDefinitionId: 8,
       nextExecutionId: 101,
+      definitionsDeleted: [],
+      lastRunPayload: null,
     };
     await mockTareasProgramadasApi(page, state);
     await loginTareasAdmin(page);

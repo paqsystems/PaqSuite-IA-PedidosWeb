@@ -27,6 +27,7 @@ import {
   fileToBase64Image,
   isAllowedCargaAsistenteImageFile,
 } from '../utils/fileToBase64Image';
+import { isPendingChoiceReply } from '../utils/isPendingChoiceReply';
 import { CargaAsistenteConsultaTable } from './CargaAsistenteConsultaTable';
 import './CargaAsistenteIaPanel.css';
 
@@ -85,18 +86,6 @@ function createMessageId(): string {
 
 function createAttachmentId(): string {
   return `carga-adjunto-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-}
-
-function isPendingChoiceReply(message: string, pendingChoice: CargaAsistentePendingChoice): boolean {
-  if (/^\s*([1-9]|10)\s*$/u.test(message)) {
-    return true;
-  }
-
-  if (pendingChoice?.kind !== 'changeClienteConfirm') {
-    return false;
-  }
-
-  return /^\s*(?:s[ií]|no|confirmo|aceptado|cancelar)\s*$/iu.test(message);
 }
 
 function aliasAsistenteErrorKey(key: string): string {
