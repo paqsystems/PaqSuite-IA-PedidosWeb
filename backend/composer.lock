@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "8a0dcfe11b260719ec1e4c54d7f6b41a",
+    "content-hash": "c19124a729062cb65db1de648639e9ee",
     "packages": [
         {
             "name": "brick/math",
@@ -2818,11 +2818,11 @@
         },
         {
             "name": "paqsuite/laravel-core",
-            "version": "1.3.18-beta.38",
+            "version": "1.3.18-beta.39",
             "dist": {
                 "type": "zip",
-                "url": "https://composer.cloudsmith.io/paqsystems/paqsuite-sdk/paqsuite/laravel-core/1.3.18-beta.38.zip",
-                "shasum": "00c5b0a039c644be7f3a5ba251dd46ba1cee0728"
+                "url": "https://composer.cloudsmith.io/paqsystems/paqsuite-sdk/paqsuite/laravel-core/1.3.18-beta.39.zip",
+                "shasum": "e4965dd840150cba5fc3b92b4d6f5b75ac0270a7"
             },
             "require": {
                 "illuminate/console": "^10.0",
@@ -2871,7 +2871,7 @@
             "support": {
                 "source": "https://github.com/paqsystems/laravel-core"
             },
-            "time": "2026-11-14T22:07:13+00:00"
+            "time": "2026-11-15T13:31:08+00:00"
         },
         {
             "name": "phpoffice/phpspreadsheet",
