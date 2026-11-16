@@ -151,6 +151,7 @@ Idempotente. Pensado para el Deploy Script (después de `migrate --force`):
 | Chat providers | Catálogo `pq_asistente_ia_proveedores` si la tabla existe |
 | Atributos visibility | Upsert `PQ_RolAtributo` desde `visibilityProcedimientosByRole` (no borra otros) |
 | GEN-15 (`paqsuite:deploy-sdk-sql`) | SP `pq_sp_emission_*` del SDK + tabla/schemas del diseñador + catálogo de 8 informes |
+| GEN-13 (`PqTaskProcessFrameworkSeeder`) | Catálogo `BACKUP_DATABASE` + parámetros (`pq_task_process_parameter`); salvo `--skip-tasks`. Scheduler host: **`pedidosweb:tasks-run-due`** (requiere `laravel-core` ≥ **1.3.18-beta.32**). En RDS: `PAQSUITE_TASKS_BACKUP_DEFER_MANUAL_POLLING=true` — ver [runbook-gen-13-backup-pedidosweb.md](06-operacion/runbook-gen-13-backup-pedidosweb.md). |
 | `--with-seguridad` | **Opcional.** Corre `seed-seguridad-mvp` (puede tocar usuarios MVP / passwords) |
 
 **Tablas tocadas por defecto (sin `--with-seguridad`):** ver matriz en runbook § «paqsuite:seed-deploy».  

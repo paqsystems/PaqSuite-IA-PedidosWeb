@@ -8,6 +8,7 @@ use App\Services\Seed\PqParametrosGralPedidosWebSeeder;
 use Database\Seeders\ChatAssistant\ChatAssistantProviderCatalogSeeder;
 use Database\Seeders\ExcelImport\PedidosWebExcelImportCatalogSeeder;
 use Database\Seeders\PedidosWebEmissionPilotSeeder;
+use Database\Seeders\PqTaskProcessFrameworkSeeder;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Schema;
 use Throwable;
@@ -25,9 +26,10 @@ final class SeedDeployCommand extends Command
                             {--skip-chat : No seedear catálogo proveedores chat asistente}
                             {--skip-atributos : No upsert de PQ_RolAtributo desde visibilityProcedimientosByRole}
                             {--skip-parametros : No insertar claves PedidosWeb faltantes en PQ_parametros_gral}
-                            {--skip-emission : No seedear catálogo GEN-15 piloto (pq_emission_*)}';
+                            {--skip-emission : No seedear catálogo GEN-15 piloto (pq_emission_*)}
+                            {--skip-tasks : No actualizar catálogo GEN-13 BACKUP_DATABASE (pq_task_process_*)}';
 
-    protected $description = 'Post-deploy: menú MVP, Excel, parámetros, visibility, chat y SQL/catálogo GEN-15 (idempotente)';
+    protected $description = 'Post-deploy: menú MVP, Excel, parámetros, visibility, chat, GEN-15 y catálogo GEN-13 backup (idempotente)';
 
     public function handle(): int
     {
@@ -89,6 +91,18 @@ final class SeedDeployCommand extends Command
                 $exit = $this->call('paqsuite:seed-seguridad-mvp');
                 if ($exit !== self::SUCCESS) {
                     return $exit;
+                }
+            }
+
+            if (! $this->option('skip-tasks')) {
+                if (! Schema::hasTable('pq_task_process') || ! Schema::hasTable('pq_task_process_parameter')) {
+                    $this->warn('Tablas GEN-13 (pq_task_process*) no presentes; se omite catálogo BACKUP_DATABASE.');
+                } else {
+                    $this->call('db:seed', [
+                        '--class' => PqTaskProcessFrameworkSeeder::class,
+                        '--force' => true,
+                    ]);
+                    $this->info('Catálogo GEN-13 BACKUP_DATABASE (parámetros proceso) actualizado.');
                 }
             }
 

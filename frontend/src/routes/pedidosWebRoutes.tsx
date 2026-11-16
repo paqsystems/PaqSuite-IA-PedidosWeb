@@ -160,7 +160,7 @@ export const pedidosWebRoutes: PedidosWebRoute[] = [
     element: withSuspense(<DiseniadorReportesPage />, 'page-loading-diseniador-reportes'),
   },
   {
-    path: '/general/tareas-programadas',
+    path: '/general/tareas-programadas/*',
     element: withSuspense(<TareasProgramadasPage />, 'page-loading-tareas-programadas'),
   },
   {

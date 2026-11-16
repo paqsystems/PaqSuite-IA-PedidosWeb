@@ -23,7 +23,8 @@ $files = array_values(array_filter(
         if (str_contains($base, 'pedidosweb')) {
             return true;
         }
-        if (str_starts_with($base, '2026_11_04_1000') || str_starts_with($base, '2026_11_06_1000')) {
+        if (str_starts_with($base, '2026_11_04_1000') || str_starts_with($base, '2026_11_06_1000')
+            || str_starts_with($base, '2026_11_11_1000')) {
             return true;
         }
         if ($base === '2026_10_24_230000_create_jobs_table.php') {
@@ -57,6 +58,8 @@ $dependsOnByBase = [
         'fw-sp-pq_sp_emission_core',
         'fw-sp-pq_sp_emission_designer_schema',
     ],
+    '2026_11_11_100017_create_pq_task_tables.php' => [],
+    '2026_11_11_100018_add_process_parameter_id_to_pq_task_definition_parameter.php' => [],
 ];
 
 $entries = [];

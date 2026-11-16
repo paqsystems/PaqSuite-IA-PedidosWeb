@@ -28,7 +28,8 @@ final class PedidosWebEmissionPilotSeeder extends Seeder
     ];
 
     /**
-     * processCode => menu_process_code + nombre visible (diseñador / catálogo).
+     * processCode => menu_process_code + nombre visible del proceso.
+     * El reporte estándar de cada proceso se llama `<Original>` (no el caption del proceso).
      *
      * @var array<string, array{menu: string, name: string, reportCode: string}>
      */
@@ -110,7 +111,7 @@ final class PedidosWebEmissionPilotSeeder extends Seeder
                     'report_code' => $meta['reportCode'],
                 ],
                 [
-                    'name' => $meta['name'],
+                    'name' => '<Original>',
                     'is_standard' => true,
                     'is_principal' => true,
                     'visible_mobile' => false,

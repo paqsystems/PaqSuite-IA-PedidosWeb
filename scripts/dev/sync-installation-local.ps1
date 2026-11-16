@@ -74,7 +74,11 @@ try {
     }
 
     Write-Host "[GEN-34] sql:sync-dev (SP Framework, solo local)..."
-    & $php artisan paqsuite:sql:sync-dev
+    if ($hostManifest -and (Test-Path $hostManifest)) {
+        & $php artisan paqsuite:sql:sync-dev "--host-manifest=$hostManifest"
+    } else {
+        & $php artisan paqsuite:sql:sync-dev
+    }
     $sqlExit = $LASTEXITCODE
     if ($sqlExit -ne 0) {
         Write-Warning "paqsuite:sql:sync-dev terminó con código $sqlExit (puede quedar bloqueado en pasos GEN-06 antes de emisiones)."

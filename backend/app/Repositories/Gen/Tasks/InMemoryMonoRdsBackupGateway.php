@@ -9,10 +9,14 @@ use PaqSuite\LaravelCore\Tasks\Backup\MonoRdsBackupGateway;
  */
 final class InMemoryMonoRdsBackupGateway implements MonoRdsBackupGateway
 {
-    public function startExport(string $databaseName, string $s3Arn, string $filePrefix): array
-    {
+    public function startExport(
+        string $databaseName,
+        string $s3Arn,
+        string $filePrefix,
+        bool $overwrite = true,
+    ): array {
         return [
-            'taskId' => 'rds-'.md5($databaseName.'|'.$s3Arn.'|'.$filePrefix),
+            'taskId' => 'rds-'.md5($databaseName.'|'.$s3Arn.'|'.$filePrefix.'|'.($overwrite ? '1' : '0')),
         ];
     }
 

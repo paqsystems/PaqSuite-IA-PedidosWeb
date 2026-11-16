@@ -1,5 +1,6 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
+import { registerTareasProgramadasI18nResources } from '@paqsuite/react-core';
 import es from '../../locales/es.json';
 import en from '../../locales/en.json';
 import pt from '../../locales/pt.json';
@@ -29,6 +30,8 @@ void i18n.use(initReactI18next).init({
     escapeValue: false,
   },
 });
+
+registerTareasProgramadasI18nResources(i18n, 'translation');
 
 syncDevExtremeLocale(initialLocale);
 

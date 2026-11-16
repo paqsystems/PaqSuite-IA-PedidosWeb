@@ -36,7 +36,7 @@ return [
     'proyecto' => env('PAQSUITE_PROYECTO', 'pedidosweb'),
 
     /*
-    | GEN-34 — lookup instalación en CLI (installation:update / tasks:run-due)
+    | GEN-34 — lookup instalación en CLI (installation:update / pedidosweb:tasks-run-due)
     */
     'instalacion' => [
         'resolver' => env('PAQSUITE_INSTALACION_RESOLVER', 'config'),
@@ -75,6 +75,23 @@ return [
     'tasks' => [
         'routesEnabled' => filter_var(env('PAQSUITE_TASKS_ROUTES_ENABLED', true), FILTER_VALIDATE_BOOLEAN),
         'middleware' => ['paq.tenant', 'auth:sanctum'],
+        'scheduleTimezone' => env('PAQSUITE_TASKS_SCHEDULE_TIMEZONE', 'America/Argentina/Buenos_Aires'),
+        'backup' => [
+            'backend' => strtolower(trim((string) env('PAQSUITE_TASKS_BACKUP_BACKEND', 'rds'))),
+            'rdsGateway' => strtolower(trim((string) env('PAQSUITE_TASKS_BACKUP_RDS_GATEWAY', 'rds'))),
+            'windowsGateway' => strtolower(trim((string) env('PAQSUITE_TASKS_BACKUP_WINDOWS_GATEWAY', 'sqlserver'))),
+            's3ArnPrefix' => env('TASKS_BACKUP_S3_ARN_PREFIX', 'arn:aws:s3:::paqsuite-pedidosweb-backup/'),
+            'windowsDefaultFolder' => env('TASKS_BACKUP_WINDOWS_DEFAULT_FOLDER', ''),
+            'windowsService' => env('TASKS_BACKUP_WINDOWS_SERVICE', ''),
+            'pollSeconds' => (int) env('TASKS_BACKUP_POLL_SECONDS', 5),
+            'lockLeaseSeconds' => (int) env('TASKS_BACKUP_LOCK_LEASE_SECONDS', 900),
+            'rdsTimeoutMinutes' => (int) env('TASKS_BACKUP_RDS_TIMEOUT_MINUTES', 120),
+            'rdsPollingIntervalSeconds' => (int) env('TASKS_BACKUP_RDS_POLLING_INTERVAL_SECONDS', 30),
+            'deferManualRdsPolling' => filter_var(
+                env('PAQSUITE_TASKS_BACKUP_DEFER_MANUAL_POLLING', false),
+                FILTER_VALIDATE_BOOLEAN,
+            ),
+        ],
     ],
 
     /*

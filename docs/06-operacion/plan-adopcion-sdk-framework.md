@@ -522,7 +522,7 @@ Orden interno sugerido. Cada ítem = TR propia de 101-22 (o SPEC 101-23+ si se s
 4. **GEN-14 Excel** — `ExcelImportToolbar` + handler host de pedidos (no rehacer parser). Staging hacia contrato `pq_excel_batches` o adapter; **excluido mobile**. Update SPEC-001-07 / 101-16 / 101-21.
 5. **GEN-09** — `DashboardContainer` + widgets que envuelven `DashboardOperativoService` (KPIs siguen siendo del producto). Update SPEC-101-14.
 6. **GEN-10** — consulta read-only; **sin PATCH**. Update SPEC-001-04.
-7. **GEN-13 Tareas** — **épica nueva** (no había producto). Páginas `/tareas-programadas/*` + `TaskProcessRegistry` (handlers host: p. ej. `EXCEL_IMPORT_BATCH` si GEN-14). Cron `tasks:run-due`.
+7. **GEN-13 Tareas** — **épica nueva** (no había producto). Páginas `/tareas-programadas/*` + `TaskProcessRegistry` (handlers host: p. ej. `EXCEL_IMPORT_BATCH` si GEN-14). Cron `pedidosweb:tasks-run-due` (poll RDS + due); pin laravel-core **≥ 1.3.18-beta.32**; runbook `runbook-gen-13-backup-pedidosweb.md`.
 8. **GEN-17** — **épica nueva.** `AuditEventsPage` + `NotificationsBell`. Mail dirigido → GEN-30 (no SMTP paralelo).
 9. **GEN-03 Smart Capture** — **épica nueva.** `SmartCapturePanel` bajo un form host (carga pedido es el caso de referencia del Framework). Prereq GEN-16. No reemplazar en silencio el asistente de carga.
 10. **GEN-18 ops** — runbook install/update: SP + seed menú GEN + fila `EMPRESAS_CONEXION`. No sustituir bootstrap PedidosWeb de tablas ERP.

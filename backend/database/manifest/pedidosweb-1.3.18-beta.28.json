@@ -313,12 +313,20 @@
             "kind": "migration",
             "target": "dictionary",
             "path": "database/migrations/2026_11_06_100016_deploy_gen15_sdk_sql.php",
-            "checksum": "f8e2417f73e83c4808a5dfd6a55acaa52714b1f105096e0190a8f5970381e9c4",
+            "checksum": "8efda9e46cf0189e28523b2b8146205a467190f1c8e4f2b380a2e6509cbfa68f",
             "dependsOn": [
                 "pedidosweb-migration-2026_11_04_100002_create_pq_emission_tables",
                 "fw-sp-pq_sp_emission_core",
                 "fw-sp-pq_sp_emission_designer_schema"
             ]
+        },
+        {
+            "id": "pedidosweb-migration-2026_11_11_100017_create_pq_task_tables",
+            "kind": "migration",
+            "target": "dictionary",
+            "path": "database/migrations/2026_11_11_100017_create_pq_task_tables.php",
+            "checksum": "6a41475b79a76693b7b63c6b0c04e1343ff81e71e73e5b1d6884c65fb7a8d0d7",
+            "dependsOn": []
         }
     ]
 }

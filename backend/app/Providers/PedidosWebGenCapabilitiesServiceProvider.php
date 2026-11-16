@@ -11,12 +11,22 @@ use App\Repositories\Gen\Emissions\PedidosWebNullEmissionAuditPort;
 use App\Repositories\Gen\Emissions\PedidosWebNullEmissionMailPort;
 use App\Repositories\Gen\Emissions\PedidosWebNullEmissionNotificationPort;
 use App\Repositories\Gen\Tasks\InMemoryMonoRdsBackupGateway;
+use App\Repositories\Gen\Tasks\InMemoryWindowsMultiDiskBackupGateway;
+use App\Repositories\Gen\Tasks\PedidosWebMonoBackupCompanyTargetResolver;
+use App\Repositories\Gen\Tasks\RdsBackupCacheLock;
+use App\Repositories\Gen\Tasks\RdsSqlServerBackupGateway;
+use App\Repositories\Gen\Tasks\WindowsSqlServerMultiDiskBackupGateway;
 use App\Services\Emissions\PedidosWebConsultaEmissionDatasetPort;
 use App\Support\Installation\PedidosWebInstallationCatalogSync;
 use App\Support\Installation\PedidosWebSdkSqlDeployer;
 use App\Tenancy\PedidosWebMenuProcedimientoChecker;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\ServiceProvider;
 use PaqSuite\LaravelCore\Installation\Lifecycle\InstallationCatalogSyncContract;
+use PaqSuite\LaravelCore\Mail\DefaultMailEngine;
+use PaqSuite\LaravelCore\Mail\MailEngine;
+use PaqSuite\LaravelCore\Mail\MailMessage;
+use PaqSuite\LaravelCore\Mail\MailSendResult;
 use PaqSuite\LaravelCore\Emissions\Contracts\DxReportingEngine;
 use PaqSuite\LaravelCore\Emissions\Contracts\EmissionArtifactStorage;
 use PaqSuite\LaravelCore\Emissions\Contracts\EmissionAuditPort;
@@ -36,7 +46,17 @@ use PaqSuite\LaravelCore\Emissions\NoOpEmissionArtifactReadyHook;
 use PaqSuite\LaravelCore\Emissions\Contracts\EmissionArtifactReadyHook;
 use PaqSuite\LaravelCore\Emissions\StoredProcedureEmissionRepository;
 use PaqSuite\LaravelCore\Emissions\Tasks\EmissionBatchTaskHandler;
+use PaqSuite\LaravelCore\Tasks\Backup\BackupCompanyTargetResolver;
+use PaqSuite\LaravelCore\Tasks\Backup\BackupInstallationProfileResolver;
+use PaqSuite\LaravelCore\Tasks\Backup\ConfigBackupInstallationProfileResolver;
+use PaqSuite\LaravelCore\Tasks\Backup\EmpresaAdminBackupCompanyTargetResolver;
+use PaqSuite\LaravelCore\Tasks\Backup\MonoRdsBackupGateway;
 use PaqSuite\LaravelCore\Tasks\Backup\MonoRdsBackupService;
+use PaqSuite\LaravelCore\Tasks\Backup\RdsBackupExecutionLogSupport;
+use PaqSuite\LaravelCore\Tasks\Backup\RdsDeferredBackupExecutionPoller;
+use PaqSuite\LaravelCore\Tasks\Backup\MultiDiskBackupGateway;
+use PaqSuite\LaravelCore\Tasks\Backup\MultiDiskBackupService;
+use PaqSuite\LaravelCore\Tasks\Backup\RdsBackupLock;
 use PaqSuite\LaravelCore\Tasks\Catalog\TaskCatalogValidator;
 use PaqSuite\LaravelCore\Tasks\Processes\BackupDatabaseProcess;
 use PaqSuite\LaravelCore\Tasks\Repositories\TaskDefinitionRepository;
@@ -47,6 +67,7 @@ use PaqSuite\LaravelCore\Tasks\StoredProcedureTaskExecutionRepository;
 use PaqSuite\LaravelCore\Tasks\StoredProcedureTaskProcessRepository;
 use PaqSuite\LaravelCore\Tasks\TaskExecutionService;
 use PaqSuite\LaravelCore\Tasks\TaskExecutionServiceFactory;
+use PaqSuite\LaravelCore\Tasks\TaskMailNotifier;
 use PaqSuite\LaravelCore\Tasks\TaskProcessRegistry;
 use PaqSuite\LaravelCore\Security\EmpresaAdminRepository;
 use PaqSuite\LaravelCore\Security\StoredProcedureEmpresaAdminRepository;
@@ -81,17 +102,126 @@ final class PedidosWebGenCapabilitiesServiceProvider extends ServiceProvider
         $this->app->singleton(TaskCatalogValidator::class);
 
         $this->app->singleton(InMemoryMonoRdsBackupGateway::class);
-        $this->app->singleton(BackupDatabaseProcess::class, function ($app): BackupDatabaseProcess {
-            return new BackupDatabaseProcess(
-                monoService: new MonoRdsBackupService($app->make(InMemoryMonoRdsBackupGateway::class)),
-                tenancyMode: (string) config('paqsuite.tenancy', 'single'),
-                defaultS3ArnPrefix: env(
-                    'TASKS_BACKUP_S3_ARN_PREFIX',
-                    'arn:aws:s3:::paqsuite-pedidosweb-backup/',
-                ),
-            );
+        $this->app->singleton(InMemoryWindowsMultiDiskBackupGateway::class);
+
+        $this->app->singleton(MonoRdsBackupGateway::class, function ($app): MonoRdsBackupGateway {
+            $mode = strtolower(trim((string) config('paqsuite.tasks.backup.rdsGateway', 'rds')));
+
+            return match ($mode) {
+                'memory' => $app->make(InMemoryMonoRdsBackupGateway::class),
+                default => $app->make(RdsSqlServerBackupGateway::class),
+            };
         });
 
+        $this->app->singleton(MultiDiskBackupGateway::class, function ($app): MultiDiskBackupGateway {
+            $mode = strtolower(trim((string) config('paqsuite.tasks.backup.windowsGateway', 'sqlserver')));
+
+            return match ($mode) {
+                'memory' => $app->make(InMemoryWindowsMultiDiskBackupGateway::class),
+                default => $app->make(WindowsSqlServerMultiDiskBackupGateway::class),
+            };
+        });
+
+        $this->app->singleton(BackupInstallationProfileResolver::class, function () {
+            return new ConfigBackupInstallationProfileResolver(static function (): string {
+                $header = (string) config('paqsuite.headers.cliente', 'X-Paq-Cliente');
+                try {
+                    $fromRequest = trim((string) request()->headers->get($header, ''));
+                } catch (\Throwable) {
+                    $fromRequest = '';
+                }
+                if ($fromRequest !== '') {
+                    return $fromRequest;
+                }
+
+                return trim((string) env('PAQSUITE_CLIENTE', ''));
+            });
+        });
+
+        $this->app->singleton(BackupCompanyTargetResolver::class, static fn ($app) => new PedidosWebMonoBackupCompanyTargetResolver(
+            new EmpresaAdminBackupCompanyTargetResolver($app->make(EmpresaAdminRepository::class)),
+        ));
+
+        $this->app->singleton(RdsBackupLock::class, RdsBackupCacheLock::class);
+
+        $this->app->singleton(RdsBackupExecutionLogSupport::class, static fn ($app) => new RdsBackupExecutionLogSupport(
+            $app->make(TaskExecutionRepository::class),
+            $app->make(MonoRdsBackupGateway::class),
+        ));
+
+        $this->app->singleton(RdsDeferredBackupExecutionPoller::class, static fn ($app) => new RdsDeferredBackupExecutionPoller(
+            $app->make(TaskExecutionRepository::class),
+            $app->make(MonoRdsBackupGateway::class),
+            $app->make(RdsBackupExecutionLogSupport::class),
+            $app->make(RdsBackupLock::class),
+            $app->make(BackupInstallationProfileResolver::class),
+        ));
+
+        $this->app->singleton(MonoRdsBackupService::class, static fn ($app) => new MonoRdsBackupService(
+            $app->make(MonoRdsBackupGateway::class),
+            max(1, (int) config('paqsuite.tasks.backup.pollSeconds', 5)),
+            $app->make(RdsBackupLock::class),
+        ));
+
+        $this->app->singleton(MultiDiskBackupService::class, static fn ($app) => new MultiDiskBackupService(
+            $app->make(MultiDiskBackupGateway::class),
+        ));
+
+        $this->app->singleton(BackupDatabaseProcess::class, static fn ($app) => new BackupDatabaseProcess(
+            monoService: $app->make(MonoRdsBackupService::class),
+            windowsService: $app->make(MultiDiskBackupService::class),
+            tenancyMode: (string) config('paqsuite.tenancy', 'single'),
+            defaultS3ArnPrefix: (string) config('paqsuite.tasks.backup.s3ArnPrefix', ''),
+            profileResolver: $app->make(BackupInstallationProfileResolver::class),
+            targetResolver: $app->make(BackupCompanyTargetResolver::class),
+        ));
+
+        if (! $this->app->bound(MailEngine::class)) {
+            $this->app->singleton(MailEngine::class, static function (): MailEngine {
+                $mailer = (string) config('mail.default', '');
+                $configured = $mailer !== '' && $mailer !== 'array';
+
+                return new DefaultMailEngine(
+                    transport: static function (MailMessage $message) use ($configured): MailSendResult {
+                        if (! $configured) {
+                            return MailSendResult::failure(
+                                \PaqSuite\LaravelCore\Mail\MailErrorCodes::CONFIG_MISSING,
+                                \PaqSuite\LaravelCore\Mail\MailErrorCodes::RESPUESTA_CONFIG_MISSING,
+                            );
+                        }
+                        try {
+                            $title = (string) ($message->viewData['taskTitle'] ?? '');
+                            $status = (string) ($message->viewData['statusCode'] ?? '');
+                            $executionId = (string) ($message->viewData['executionId'] ?? '');
+                            $body = trim($title.' ['.$status.'] #'.$executionId);
+
+                            Mail::html(
+                                '<p>'.e($body !== '' ? $body : $message->subject).'</p>',
+                                static function ($mail) use ($message): void {
+                                    $mail->to($message->to)->subject($message->subject);
+                                },
+                            );
+
+                            return MailSendResult::success('laravel-mail');
+                        } catch (\Throwable) {
+                            return MailSendResult::failure(
+                                \PaqSuite\LaravelCore\Mail\MailErrorCodes::SEND_FAILED,
+                                \PaqSuite\LaravelCore\Mail\MailErrorCodes::RESPUESTA_SEND_FAILED,
+                            );
+                        }
+                    },
+                    mailerConfigured: $configured,
+                );
+            });
+        }
+        if (! $this->app->bound(TaskMailNotifier::class)) {
+            $this->app->singleton(TaskMailNotifier::class, static function ($app): TaskMailNotifier {
+                return new TaskMailNotifier(
+                    $app->make(MailEngine::class),
+                    $app->make(TaskDefinitionRepository::class),
+                );
+            });
+        }
         $this->app->singleton(
             TaskExecutionService::class,
             static fn ($app): TaskExecutionService => TaskExecutionServiceFactory::create($app),
