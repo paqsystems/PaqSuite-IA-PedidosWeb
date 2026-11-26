@@ -4,95 +4,141 @@
     "fields": [
         {
             "name": "codCliente",
-            "type": "string"
+            "type": "string",
+            "label": "Cód. cliente",
+            "captionKey": "consultas.column.codCliente"
         },
         {
             "name": "razonSocial",
-            "type": "string"
+            "type": "string",
+            "label": "Razón social",
+            "captionKey": "consultas.column.razonSocial"
         },
         {
             "name": "nRemito",
-            "type": "string"
+            "type": "string",
+            "label": "Nº remito",
+            "captionKey": "consultas.column.nRemito"
         },
         {
             "name": "tipo",
-            "type": "string"
+            "type": "string",
+            "label": "Tipo",
+            "captionKey": "consultas.column.tipo"
         },
         {
             "name": "numero",
-            "type": "string"
+            "type": "string",
+            "label": "Número",
+            "captionKey": "consultas.column.numero"
         },
         {
             "name": "fechaEmision",
-            "type": "date"
+            "type": "date",
+            "label": "Fecha emisión",
+            "captionKey": "consultas.column.fechaEmision"
         },
         {
             "name": "condVta",
-            "type": "number"
+            "type": "number",
+            "label": "Cond. venta",
+            "captionKey": "consultas.column.condVta"
         },
         {
             "name": "porcDesc",
-            "type": "number"
+            "type": "number",
+            "label": "% desc.",
+            "captionKey": "consultas.column.porcDesc"
         },
         {
             "name": "cotiz",
-            "type": "number"
+            "type": "number",
+            "label": "Cotización",
+            "captionKey": "consultas.column.cotiz"
         },
         {
             "name": "moneda",
-            "type": "string"
+            "type": "string",
+            "label": "Moneda",
+            "captionKey": "consultas.column.moneda"
         },
         {
             "name": "totalComp",
-            "type": "number"
+            "type": "number",
+            "label": "Total comprob.",
+            "captionKey": "consultas.column.totalComp"
         },
         {
             "name": "codTransp",
-            "type": "string"
+            "type": "string",
+            "label": "Cód. transporte",
+            "captionKey": "consultas.column.codTransp"
         },
         {
             "name": "nomTransp",
-            "type": "string"
+            "type": "string",
+            "label": "Transporte",
+            "captionKey": "consultas.column.nomTransp"
         },
         {
             "name": "codArticulo",
-            "type": "string"
+            "type": "string",
+            "label": "Cód. artículo",
+            "captionKey": "consultas.detalle.column.codArticulo"
         },
         {
             "name": "descripcion",
-            "type": "string"
+            "type": "string",
+            "label": "Descripción",
+            "captionKey": "consultas.column.descripcion"
         },
         {
             "name": "codDep",
-            "type": "string"
+            "type": "string",
+            "label": "Depósito",
+            "captionKey": "consultas.column.codDep"
         },
         {
             "name": "um",
-            "type": "string"
+            "type": "string",
+            "label": "U.M.",
+            "captionKey": "consultas.column.um"
         },
         {
             "name": "cantidad",
-            "type": "number"
+            "type": "number",
+            "label": "Cantidad",
+            "captionKey": "consultas.column.cantidad"
         },
         {
             "name": "precio",
-            "type": "number"
+            "type": "number",
+            "label": "Precio",
+            "captionKey": "consultas.column.precio"
         },
         {
             "name": "totSinImp",
-            "type": "number"
+            "type": "number",
+            "label": "Total s/ imp.",
+            "captionKey": "consultas.column.totSinImp"
         },
         {
             "name": "nCompRem",
-            "type": "string"
+            "type": "string",
+            "label": "Nº comp. remito",
+            "captionKey": "consultas.column.nCompRem"
         },
         {
             "name": "cantRem",
-            "type": "number"
+            "type": "number",
+            "label": "Cant. remito",
+            "captionKey": "consultas.column.cantRem"
         },
         {
             "name": "fechaRem",
-            "type": "date"
+            "type": "date",
+            "label": "Fecha remito",
+            "captionKey": "consultas.column.fechaRem"
         }
     ]
 }

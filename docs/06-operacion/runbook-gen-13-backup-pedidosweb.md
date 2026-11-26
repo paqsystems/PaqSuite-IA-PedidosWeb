@@ -124,6 +124,16 @@ Ejecutar **en cada sitio** tras deploy del release que incluye GEN-13 (CC #20), 
 
 Forge: añadir pasos 3–4 al script post-deploy existente o correr `sync-gen13-tasks.ps1` adaptado en el servidor Linux (`bash` equivalente de los `artisan` anteriores).
 
+### Historial FALLIDA: `Backup installation client is not configured`
+
+Causa típica en Forge (CC PQ #25): el cron **`pedidosweb:tasks-run-due`** no tiene header `X-Paq-Cliente`; el resolver debe leer `PAQSUITE_CLIENTE` vía **`config('paqsuite.clienteCodigo')`** (no `env()` en runtime tras `config:cache`).
+
+1. Verificar **Environment** del sitio: `PAQSUITE_CLIENTE={tenant}` alineado al runbook (ej. `demo`, `quento`).
+2. Tras deploy con este fix host: `php artisan config:cache` (regenera config con `clienteCodigo`).
+3. Smoke: próxima corrida automática o `php artisan pedidosweb:tasks-run-due` — el mensaje anterior **no** debe repetirse.
+
+Cableado completo tipo Partes (`SchedulerClienteResolver`, multi-tenant) queda para la épica [CC #24](../00-ControlCalidad/00-ControlCalidad-PQ.md#control-de-calidad-24).
+
 ## Smoke manual
 
 1. Login admin → **General → Tareas programadas** (landing en **Definiciones**).

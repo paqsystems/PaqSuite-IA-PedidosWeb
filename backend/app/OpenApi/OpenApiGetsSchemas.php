@@ -1012,6 +1012,91 @@ namespace App\OpenApi;
  *         @OA\Schema(type="object", @OA\Property(property="resultado", ref="#/components/schemas/IntegracionTransaccionLoteResultado"))
  *     }
  * )
+ *
+ * @OA\Schema(
+ *     schema="IntegracionExportComprobanteCierre",
+ *     type="object",
+ *     @OA\Property(property="tipoCierre", type="string", example="negativo"),
+ *     @OA\Property(property="idMotivo", type="integer"),
+ *     @OA\Property(property="motivoDescripcion", type="string"),
+ *     @OA\Property(property="fechaCierre", type="string", format="date-time"),
+ *     @OA\Property(property="codPedidoGenerado", type="string", nullable=true),
+ *     @OA\Property(property="observacion", type="string")
+ * )
+ *
+ * @OA\Schema(
+ *     schema="IntegracionExportComprobanteRenglon",
+ *     type="object",
+ *     required={"renglon","codArticulo","cantidad","cantidadVenta"},
+ *     @OA\Property(property="renglon", type="integer", example=1),
+ *     @OA\Property(property="codArticulo", type="string", example="A001"),
+ *     @OA\Property(property="descripcionArticulo", type="string"),
+ *     @OA\Property(property="especial", type="string", example=""),
+ *     @OA\Property(property="cantidad", type="number", format="float"),
+ *     @OA\Property(property="cantidadVenta", type="number", format="float"),
+ *     @OA\Property(property="porcBonif", type="number", format="float"),
+ *     @OA\Property(property="precioLista", type="number", format="float"),
+ *     @OA\Property(property="precioNeto", type="number", format="float"),
+ *     @OA\Property(property="importeBruto", type="number", format="float"),
+ *     @OA\Property(property="importeNeto", type="number", format="float"),
+ *     @OA\Property(property="ivaNeto", type="number", format="float"),
+ *     @OA\Property(property="importeNetoConIva", type="number", format="float")
+ * )
+ *
+ * @OA\Schema(
+ *     schema="IntegracionExportComprobanteCabecera",
+ *     type="object",
+ *     required={"codPedido","codCliente","estado","fecha","total","codUsuarioWeb"},
+ *     @OA\Property(property="codPedido", type="string"),
+ *     @OA\Property(property="codCliente", type="string"),
+ *     @OA\Property(property="razonSocial", type="string"),
+ *     @OA\Property(property="nombreFantasia", type="string"),
+ *     @OA\Property(property="fecha", type="string", format="date-time"),
+ *     @OA\Property(property="estado", type="integer", example=0),
+ *     @OA\Property(property="moneda", type="integer", example=1),
+ *     @OA\Property(property="incluyeIva", type="boolean"),
+ *     @OA\Property(property="total", type="number", format="float"),
+ *     @OA\Property(property="totalIva", type="number", format="float"),
+ *     @OA\Property(property="talPedidoTango", type="integer"),
+ *     @OA\Property(property="nroPedidoTango", type="string"),
+ *     @OA\Property(property="codUsuarioWeb", type="string"),
+ *     @OA\Property(property="origenComprobante", type="string", nullable=true),
+ *     @OA\Property(property="codPedidoOrigen", type="string", nullable=true),
+ *     @OA\Property(property="codPresupuestoOrigen", type="string", nullable=true)
+ * )
+ *
+ * @OA\Schema(
+ *     schema="IntegracionExportComprobanteItem",
+ *     type="object",
+ *     required={"cabecera","renglones","cierre"},
+ *     @OA\Property(property="cabecera", ref="#/components/schemas/IntegracionExportComprobanteCabecera"),
+ *     @OA\Property(property="renglones", type="array", @OA\Items(ref="#/components/schemas/IntegracionExportComprobanteRenglon")),
+ *     @OA\Property(property="cierre", ref="#/components/schemas/IntegracionExportComprobanteCierre", nullable=true)
+ * )
+ *
+ * @OA\Schema(
+ *     schema="IntegracionExportComprobantesResultado",
+ *     type="object",
+ *     required={"items","page","pageSize","total","totalPages","metadata"},
+ *     @OA\Property(property="items", type="array", @OA\Items(ref="#/components/schemas/IntegracionExportComprobanteItem")),
+ *     @OA\Property(property="page", type="integer", example=1),
+ *     @OA\Property(property="pageSize", type="integer", example=20),
+ *     @OA\Property(property="total", type="integer", example=0),
+ *     @OA\Property(property="totalPages", type="integer", example=0),
+ *     @OA\Property(
+ *         property="metadata",
+ *         type="object",
+ *         @OA\Property(property="fechaProceso", type="string", example="2026-11-26T17:30")
+ *     )
+ * )
+ *
+ * @OA\Schema(
+ *     schema="ApiEnvelopeIntegracionExportComprobantes",
+ *     allOf={
+ *         @OA\Schema(ref="#/components/schemas/ApiEnvelope"),
+ *         @OA\Schema(type="object", @OA\Property(property="resultado", ref="#/components/schemas/IntegracionExportComprobantesResultado"))
+ *     }
+ * )
  */
 final class OpenApiGetsSchemas
 {

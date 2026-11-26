@@ -2549,6 +2549,120 @@
                 ]
             }
         },
+        "/api/v1/integracion/comprobantes": {
+            "get": {
+                "tags": [
+                    "Integración exportación"
+                ],
+                "summary": "Exportar comprobantes ERP (lectura paginada)",
+                "description": "Listado síncrono de cabeceras con renglones y cierre. Requiere `estadoRangos` (repetible o CSV).",
+                "operationId": "integracionExportComprobantes",
+                "parameters": [
+                    {
+                        "name": "estadoRangos",
+                        "in": "query",
+                        "description": "Par desde:hasta (repetible o CSV)",
+                        "required": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string",
+                                "pattern": "^-?\\\\d+:-?\\\\d+$",
+                                "example": "0:0"
+                            }
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "default": 1,
+                            "minimum": 1
+                        }
+                    },
+                    {
+                        "name": "pageSize",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "default": 20,
+                            "maximum": 1000,
+                            "minimum": 1
+                        }
+                    },
+                    {
+                        "name": "page_size",
+                        "in": "query",
+                        "description": "Alias de pageSize",
+                        "schema": {
+                            "type": "integer",
+                            "maximum": 1000,
+                            "minimum": 1
+                        }
+                    },
+                    {
+                        "name": "codCliente",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "codPedido",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "fechaDesde",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "name": "fechaHasta",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Página exportada",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiEnvelopeIntegracionExportComprobantes"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "403": {
+                        "description": "Sin permiso integración"
+                    },
+                    "422": {
+                        "description": "Query inválida"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    },
+                    {
+                        "tenant": []
+                    }
+                ]
+            }
+        },
         "/api/v1/integracion/maestros/provincias": {
             "post": {
                 "tags": [
@@ -9355,6 +9469,249 @@
                     }
                 ]
             },
+            "IntegracionExportComprobanteCierre": {
+                "properties": {
+                    "tipoCierre": {
+                        "type": "string",
+                        "example": "negativo"
+                    },
+                    "idMotivo": {
+                        "type": "integer"
+                    },
+                    "motivoDescripcion": {
+                        "type": "string"
+                    },
+                    "fechaCierre": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "codPedidoGenerado": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "observacion": {
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "IntegracionExportComprobanteRenglon": {
+                "required": [
+                    "renglon",
+                    "codArticulo",
+                    "cantidad",
+                    "cantidadVenta"
+                ],
+                "properties": {
+                    "renglon": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "codArticulo": {
+                        "type": "string",
+                        "example": "A001"
+                    },
+                    "descripcionArticulo": {
+                        "type": "string"
+                    },
+                    "especial": {
+                        "type": "string",
+                        "example": ""
+                    },
+                    "cantidad": {
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "cantidadVenta": {
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "porcBonif": {
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "precioLista": {
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "precioNeto": {
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "importeBruto": {
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "importeNeto": {
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "ivaNeto": {
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "importeNetoConIva": {
+                        "type": "number",
+                        "format": "float"
+                    }
+                },
+                "type": "object"
+            },
+            "IntegracionExportComprobanteCabecera": {
+                "required": [
+                    "codPedido",
+                    "codCliente",
+                    "estado",
+                    "fecha",
+                    "total",
+                    "codUsuarioWeb"
+                ],
+                "properties": {
+                    "codPedido": {
+                        "type": "string"
+                    },
+                    "codCliente": {
+                        "type": "string"
+                    },
+                    "razonSocial": {
+                        "type": "string"
+                    },
+                    "nombreFantasia": {
+                        "type": "string"
+                    },
+                    "fecha": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "estado": {
+                        "type": "integer",
+                        "example": 0
+                    },
+                    "moneda": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "incluyeIva": {
+                        "type": "boolean"
+                    },
+                    "total": {
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "totalIva": {
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "talPedidoTango": {
+                        "type": "integer"
+                    },
+                    "nroPedidoTango": {
+                        "type": "string"
+                    },
+                    "codUsuarioWeb": {
+                        "type": "string"
+                    },
+                    "origenComprobante": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "codPedidoOrigen": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "codPresupuestoOrigen": {
+                        "type": "string",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "IntegracionExportComprobanteItem": {
+                "required": [
+                    "cabecera",
+                    "renglones",
+                    "cierre"
+                ],
+                "properties": {
+                    "cabecera": {
+                        "$ref": "#/components/schemas/IntegracionExportComprobanteCabecera"
+                    },
+                    "renglones": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/IntegracionExportComprobanteRenglon"
+                        }
+                    },
+                    "cierre": {
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/IntegracionExportComprobanteCierre"
+                            }
+                        ],
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "IntegracionExportComprobantesResultado": {
+                "required": [
+                    "items",
+                    "page",
+                    "pageSize",
+                    "total",
+                    "totalPages",
+                    "metadata"
+                ],
+                "properties": {
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/IntegracionExportComprobanteItem"
+                        }
+                    },
+                    "page": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "pageSize": {
+                        "type": "integer",
+                        "example": 20
+                    },
+                    "total": {
+                        "type": "integer",
+                        "example": 0
+                    },
+                    "totalPages": {
+                        "type": "integer",
+                        "example": 0
+                    },
+                    "metadata": {
+                        "properties": {
+                            "fechaProceso": {
+                                "type": "string",
+                                "example": "2026-11-26T17:30"
+                            }
+                        },
+                        "type": "object"
+                    }
+                },
+                "type": "object"
+            },
+            "ApiEnvelopeIntegracionExportComprobantes": {
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/ApiEnvelope"
+                    },
+                    {
+                        "properties": {
+                            "resultado": {
+                                "$ref": "#/components/schemas/IntegracionExportComprobantesResultado"
+                            }
+                        },
+                        "type": "object"
+                    }
+                ]
+            },
             "ConsultaMetadata": {
                 "properties": {
                     "fecha_proceso": {
@@ -11999,6 +12356,10 @@
         {
             "name": "Informes",
             "description": "Consultas e informes de solo lectura"
+        },
+        {
+            "name": "Integración exportación",
+            "description": "Exportación ERP de comprobantes web (cabecera + renglones)"
         },
         {
             "name": "Integración importaciones",

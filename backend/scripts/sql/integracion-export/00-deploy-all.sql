@@ -1,0 +1,2 @@
+:r pq_sp_integracion_export_comprobantes_list.sql
+GO

@@ -4,39 +4,57 @@
     "fields": [
         {
             "name": "interno",
-            "type": "string"
+            "type": "string",
+            "label": "Nro. interno",
+            "captionKey": "consultas.column.interno"
         },
         {
             "name": "numero",
-            "type": "string"
+            "type": "string",
+            "label": "Número",
+            "captionKey": "consultas.column.numero"
         },
         {
             "name": "codCliente",
-            "type": "string"
+            "type": "string",
+            "label": "Cód. cliente",
+            "captionKey": "consultas.column.codCliente"
         },
         {
             "name": "nombreCliente",
-            "type": "string"
+            "type": "string",
+            "label": "Nombre",
+            "captionKey": "consultas.column.nombre"
         },
         {
             "name": "banco",
-            "type": "string"
+            "type": "string",
+            "label": "Banco",
+            "captionKey": "consultas.column.banco"
         },
         {
             "name": "fecha",
-            "type": "date"
+            "type": "date",
+            "label": "Fecha",
+            "captionKey": "consultas.column.fecha"
         },
         {
             "name": "importe",
-            "type": "number"
+            "type": "number",
+            "label": "Importe",
+            "captionKey": "consultas.column.importe"
         },
         {
             "name": "origen",
-            "type": "string"
+            "type": "string",
+            "label": "Origen",
+            "captionKey": "consultas.column.origen"
         },
         {
             "name": "estado",
-            "type": "string"
+            "type": "string",
+            "label": "Estado",
+            "captionKey": "consultas.column.estado"
         }
     ]
 }

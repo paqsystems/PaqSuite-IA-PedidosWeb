@@ -4,231 +4,345 @@
     "fields": [
         {
             "name": "codPedido",
-            "type": "string"
+            "type": "string",
+            "label": "Cód. pedido",
+            "captionKey": "consultas.column.codPedido"
         },
         {
             "name": "codCliente",
-            "type": "string"
+            "type": "string",
+            "label": "Cód. cliente",
+            "captionKey": "consultas.column.codCliente"
         },
         {
             "name": "razonSocial",
-            "type": "string"
+            "type": "string",
+            "label": "Razón social",
+            "captionKey": "consultas.column.razonSocial"
         },
         {
             "name": "nombreFantasia",
-            "type": "string"
+            "type": "string",
+            "label": "Nombre comercial",
+            "captionKey": "consultas.column.nombreFantasia"
         },
         {
             "name": "fecha",
-            "type": "date"
+            "type": "date",
+            "label": "Fecha",
+            "captionKey": "consultas.column.fecha"
         },
         {
             "name": "nivel",
-            "type": "number"
+            "type": "number",
+            "label": "Nivel",
+            "captionKey": "consultas.column.nivel"
         },
         {
             "name": "observaciones",
-            "type": "string"
+            "type": "string",
+            "label": "Observaciones",
+            "captionKey": "consultas.column.observaciones"
         },
         {
             "name": "incluyeIva",
-            "type": "boolean"
+            "type": "boolean",
+            "label": "Incluye IVA",
+            "captionKey": "consultas.column.incluyeIva"
         },
         {
             "name": "moneda",
-            "type": "number"
+            "type": "number",
+            "label": "Moneda",
+            "captionKey": "consultas.column.moneda"
         },
         {
             "name": "estado",
-            "type": "number"
+            "type": "number",
+            "label": "Estado",
+            "captionKey": "consultas.column.estado"
         },
         {
             "name": "fechaModif",
-            "type": "date"
+            "type": "date",
+            "label": "Fecha modificación",
+            "captionKey": "consultas.column.fechaModif"
         },
         {
             "name": "total",
-            "type": "number"
+            "type": "number",
+            "label": "Total",
+            "captionKey": "consultas.column.total"
         },
         {
             "name": "totalIva",
-            "type": "number"
+            "type": "number",
+            "label": "Total IVA",
+            "captionKey": "consultas.column.totalIva"
         },
         {
             "name": "leyenda1",
-            "type": "string"
+            "type": "string",
+            "label": "Leyenda 1",
+            "captionKey": "consultas.column.leyenda1"
         },
         {
             "name": "leyenda2",
-            "type": "string"
+            "type": "string",
+            "label": "Leyenda 2",
+            "captionKey": "consultas.column.leyenda2"
         },
         {
             "name": "leyenda3",
-            "type": "string"
+            "type": "string",
+            "label": "Leyenda 3",
+            "captionKey": "consultas.column.leyenda3"
         },
         {
             "name": "leyenda4",
-            "type": "string"
+            "type": "string",
+            "label": "Leyenda 4",
+            "captionKey": "consultas.column.leyenda4"
         },
         {
             "name": "leyenda5",
-            "type": "string"
+            "type": "string",
+            "label": "Leyenda 5",
+            "captionKey": "consultas.column.leyenda5"
         },
         {
             "name": "descuento",
-            "type": "number"
+            "type": "number",
+            "label": "Descuento",
+            "captionKey": "consultas.column.descuento"
         },
         {
             "name": "bonif1",
-            "type": "number"
+            "type": "number",
+            "label": "Bonificación 1",
+            "captionKey": "consultas.column.bonif1"
         },
         {
             "name": "bonif2",
-            "type": "number"
+            "type": "number",
+            "label": "Bonificación 2",
+            "captionKey": "consultas.column.bonif2"
         },
         {
             "name": "bonif3",
-            "type": "number"
+            "type": "number",
+            "label": "Bonificación 3",
+            "captionKey": "consultas.column.bonif3"
         },
         {
             "name": "codPerfil",
-            "type": "string"
+            "type": "string",
+            "label": "Cód. perfil",
+            "captionKey": "consultas.column.codPerfil"
         },
         {
             "name": "perfilDescripcion",
-            "type": "string"
+            "type": "string",
+            "label": "Perfil",
+            "captionKey": "consultas.column.perfilDescripcion"
         },
         {
             "name": "codVended",
-            "type": "string"
+            "type": "string",
+            "label": "Cód. vendedor",
+            "captionKey": "consultas.column.codVended"
         },
         {
             "name": "vendedorDescripcion",
-            "type": "string"
+            "type": "string",
+            "label": "Vendedor",
+            "captionKey": "consultas.column.vendedorDescripcion"
         },
         {
             "name": "codCondvta",
-            "type": "number"
+            "type": "number",
+            "label": "Cód. cond. venta",
+            "captionKey": "consultas.column.codCondvta"
         },
         {
             "name": "condicionVentaDescripcion",
-            "type": "string"
+            "type": "string",
+            "label": "Condición de venta",
+            "captionKey": "consultas.column.condicionVentaDescripcion"
         },
         {
             "name": "idDe",
-            "type": "number"
+            "type": "number",
+            "label": "Id dirección entrega",
+            "captionKey": "consultas.column.idDe"
         },
         {
             "name": "direccionEntregaDescripcion",
-            "type": "string"
+            "type": "string",
+            "label": "Dirección de entrega",
+            "captionKey": "consultas.column.direccionEntregaDescripcion"
         },
         {
             "name": "codTranspor",
-            "type": "string"
+            "type": "string",
+            "label": "Cód. transporte",
+            "captionKey": "consultas.column.codTransp"
         },
         {
             "name": "transporteDescripcion",
-            "type": "string"
+            "type": "string",
+            "label": "Transporte",
+            "captionKey": "consultas.column.transporteDescripcion"
         },
         {
             "name": "listaPrecios",
-            "type": "number"
+            "type": "number",
+            "label": "Lista precios",
+            "captionKey": "consultas.column.listaPrecios"
         },
         {
             "name": "listaPreciosDescripcion",
-            "type": "string"
+            "type": "string",
+            "label": "Descripción lista",
+            "captionKey": "consultas.column.listaPreciosDescripcion"
         },
         {
             "name": "expreso",
-            "type": "string"
+            "type": "string",
+            "label": "Expreso",
+            "captionKey": "consultas.column.expreso"
         },
         {
             "name": "expresoDire",
-            "type": "string"
+            "type": "string",
+            "label": "Dirección expreso",
+            "captionKey": "consultas.column.expresoDire"
         },
         {
             "name": "fechaEntrega",
-            "type": "date"
+            "type": "date",
+            "label": "Fecha entrega",
+            "captionKey": "consultas.column.fechaEntrega"
         },
         {
             "name": "usuarioCreacion",
-            "type": "string"
+            "type": "string",
+            "label": "Usuario creación",
+            "captionKey": "consultas.column.usuarioCreacion"
         },
         {
             "name": "fechaCreacion",
-            "type": "date"
+            "type": "date",
+            "label": "Fecha creación",
+            "captionKey": "consultas.column.fechaCreacion"
         },
         {
             "name": "usuarioModificacion",
-            "type": "string"
+            "type": "string",
+            "label": "Usuario modificación",
+            "captionKey": "consultas.column.usuarioModificacion"
         },
         {
             "name": "fechahoraInicioProceso",
-            "type": "date"
+            "type": "date",
+            "label": "Inicio proceso",
+            "captionKey": "consultas.column.fechahoraInicioProceso"
         },
         {
             "name": "fechahoraUltimaActividad",
-            "type": "date"
+            "type": "date",
+            "label": "Última actividad",
+            "captionKey": "consultas.column.fechahoraUltimaActividad"
         },
         {
             "name": "numeroVisible",
-            "type": "number"
+            "type": "number",
+            "label": "Número visible",
+            "captionKey": "consultas.column.numeroVisible"
         },
         {
             "name": "guidSufijo",
-            "type": "string"
+            "type": "string",
+            "label": "GUID sufijo",
+            "captionKey": "consultas.column.guidSufijo"
         },
         {
             "name": "renglon",
-            "type": "number"
+            "type": "number",
+            "label": "Renglón",
+            "captionKey": "consultas.detalle.column.renglon"
         },
         {
             "name": "codArticulo",
-            "type": "string"
+            "type": "string",
+            "label": "Cód. artículo",
+            "captionKey": "consultas.detalle.column.codArticulo"
         },
         {
             "name": "descripcionArticulo",
-            "type": "string"
+            "type": "string",
+            "label": "Descripción artículo",
+            "captionKey": "consultas.detalle.column.descripcionArticulo"
         },
         {
             "name": "especial",
-            "type": "string"
+            "type": "string",
+            "label": "Especial",
+            "captionKey": "consultas.detalle.column.especial"
         },
         {
             "name": "cantidad",
-            "type": "number"
+            "type": "number",
+            "label": "Cantidad",
+            "captionKey": "consultas.column.cantidad"
         },
         {
             "name": "cantidadVenta",
-            "type": "number"
+            "type": "number",
+            "label": "Cantidad venta",
+            "captionKey": "consultas.detalle.column.cantidadVenta"
         },
         {
             "name": "porcBonif",
-            "type": "number"
+            "type": "number",
+            "label": "Descuento",
+            "captionKey": "consultas.detalle.column.descuento"
         },
         {
             "name": "precioLista",
-            "type": "number"
+            "type": "number",
+            "label": "Precio lista",
+            "captionKey": "consultas.detalle.column.precioLista"
         },
         {
             "name": "precioNeto",
-            "type": "number"
+            "type": "number",
+            "label": "Precio neto",
+            "captionKey": "consultas.detalle.column.precioNeto"
         },
         {
             "name": "importeBruto",
-            "type": "number"
+            "type": "number",
+            "label": "Importe bruto",
+            "captionKey": "consultas.detalle.column.importeBruto"
         },
         {
             "name": "importeNeto",
-            "type": "number"
+            "type": "number",
+            "label": "Importe neto",
+            "captionKey": "consultas.detalle.column.importeNeto"
         },
         {
             "name": "ivaNeto",
-            "type": "number"
+            "type": "number",
+            "label": "IVA neto",
+            "captionKey": "consultas.detalle.column.ivaNeto"
         },
         {
             "name": "importeNetoConIva",
-            "type": "number"
+            "type": "number",
+            "label": "Importe neto c/ IVA",
+            "captionKey": "consultas.detalle.column.importeNetoConIva"
         }
     ]
 }

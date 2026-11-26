@@ -134,7 +134,7 @@ final class PedidosWebGenCapabilitiesServiceProvider extends ServiceProvider
                     return $fromRequest;
                 }
 
-                return trim((string) env('PAQSUITE_CLIENTE', ''));
+                return trim((string) config('paqsuite.clienteCodigo', ''));
             });
         });
 

@@ -1,0 +1,816 @@
+{
+    "info": {
+        "_postman_id": "a4b1c2d3-e5f6-4789-a012-3456789abcde",
+        "name": "PedidosWeb - Export comprobantes ERP",
+        "description": "SPEC-101-25 · GET /api/v1/integracion/comprobantes\n\n1. Ejecutar **Auth / login - usuario integración**.\n2. Ejecutar requests de **Export (éxito)**.\n3. Validar **Export (errores esperados)**.\n\nUsuario seed: integracion.erp.mvp con ability pw_integracion_importacion.",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "Auth",
+            "item": [
+                {
+                    "name": "login - usuario integración",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "X-Paq-Cliente",
+                                "value": "{{tenant}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"codigo\": \"{{loginCodigo}}\",\n    \"password\": \"{{loginPassword}}\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{backendUrl}}/api/v1/auth/login",
+                            "host": [
+                                "{{backendUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "auth",
+                                "login"
+                            ]
+                        },
+                        "description": "Guarda resultado.token en integrationToken."
+                    },
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "const body = pm.response.json();",
+                                    "pm.test(\"login OK\", function () {",
+                                    "    pm.response.to.have.status(200);",
+                                    "    pm.expect(body.error).to.eql(0);",
+                                    "});",
+                                    "const token = body?.resultado?.token;",
+                                    "if (token) {",
+                                    "    pm.environment.set(\"integrationToken\", token);",
+                                    "}"
+                                ]
+                            }
+                        }
+                    ],
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Export (éxito)",
+            "description": "Contrato cabecera + renglones + cierre; paginación y filtros.",
+            "item": [
+                {
+                    "name": "export - pedidos ingresados (estado 0:0)",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "X-Paq-Cliente",
+                                "value": "{{tenant}}"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{integrationToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{backendUrl}}/api/v1/integracion/comprobantes?estadoRangos=0:0&page=1&pageSize={{exportPageSize}}",
+                            "host": [
+                                "{{backendUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "integracion",
+                                "comprobantes"
+                            ],
+                            "query": [
+                                {
+                                    "key": "estadoRangos",
+                                    "value": "0:0"
+                                },
+                                {
+                                    "key": "page",
+                                    "value": "1"
+                                },
+                                {
+                                    "key": "pageSize",
+                                    "value": "{{exportPageSize}}"
+                                }
+                            ]
+                        },
+                        "description": "Página mínima de pedidos en estado 0 (ingresados). Ajustar estadoRangos según catálogo producto."
+                    },
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                                    "const body = pm.response.json();",
+                                    "pm.test(\"envelope GEN-20 exito\", function () {",
+                                    "    pm.expect(body.error).to.eql(0);",
+                                    "    pm.expect(body.respuesta).to.eql(\"integracion.export.ok\");",
+                                    "});",
+                                    "pm.test(\"resultado paginado\", function () {",
+                                    "    const r = body.resultado;",
+                                    "    pm.expect(r).to.include.keys(\"items\", \"page\", \"pageSize\", \"total\", \"totalPages\", \"metadata\");",
+                                    "    pm.expect(r.items).to.be.an(\"array\");",
+                                    "    pm.expect(r.metadata).to.have.property(\"fechaProceso\");",
+                                    "});",
+                                    "pm.test(\"item export shape\", function () {",
+                                    "    if (body.resultado.items.length === 0) { return; }",
+                                    "    const item = body.resultado.items[0];",
+                                    "    pm.expect(item).to.include.keys(\"cabecera\", \"renglones\", \"cierre\");",
+                                    "    pm.expect(item.cabecera).to.have.property(\"codPedido\");",
+                                    "    pm.expect(item.cabecera).to.have.property(\"codUsuarioWeb\");",
+                                    "    pm.expect(item.cabecera).to.not.have.property(\"puedeEditar\");",
+                                    "    pm.expect(item.renglones).to.be.an(\"array\");",
+                                    "});"
+                                ]
+                            }
+                        }
+                    ],
+                    "response": []
+                },
+                {
+                    "name": "export - union OR (-1:-1 y 99:99)",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "X-Paq-Cliente",
+                                "value": "{{tenant}}"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{integrationToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{backendUrl}}/api/v1/integracion/comprobantes?estadoRangos=-1:-1&estadoRangos=99:99&pageSize={{exportPageSize}}",
+                            "host": [
+                                "{{backendUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "integracion",
+                                "comprobantes"
+                            ],
+                            "query": [
+                                {
+                                    "key": "estadoRangos",
+                                    "value": "-1:-1"
+                                },
+                                {
+                                    "key": "estadoRangos",
+                                    "value": "99:99"
+                                },
+                                {
+                                    "key": "pageSize",
+                                    "value": "{{exportPageSize}}"
+                                }
+                            ]
+                        },
+                        "description": "Múltiples query estadoRangos = unión OR de intervalos (SPEC §4)."
+                    },
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                                    "const body = pm.response.json();",
+                                    "pm.test(\"envelope GEN-20 exito\", function () {",
+                                    "    pm.expect(body.error).to.eql(0);",
+                                    "    pm.expect(body.respuesta).to.eql(\"integracion.export.ok\");",
+                                    "});",
+                                    "pm.test(\"resultado paginado\", function () {",
+                                    "    const r = body.resultado;",
+                                    "    pm.expect(r).to.include.keys(\"items\", \"page\", \"pageSize\", \"total\", \"totalPages\", \"metadata\");",
+                                    "    pm.expect(r.items).to.be.an(\"array\");",
+                                    "    pm.expect(r.metadata).to.have.property(\"fechaProceso\");",
+                                    "});",
+                                    "pm.test(\"item export shape\", function () {",
+                                    "    if (body.resultado.items.length === 0) { return; }",
+                                    "    const item = body.resultado.items[0];",
+                                    "    pm.expect(item).to.include.keys(\"cabecera\", \"renglones\", \"cierre\");",
+                                    "    pm.expect(item.cabecera).to.have.property(\"codPedido\");",
+                                    "    pm.expect(item.cabecera).to.have.property(\"codUsuarioWeb\");",
+                                    "    pm.expect(item.cabecera).to.not.have.property(\"puedeEditar\");",
+                                    "    pm.expect(item.renglones).to.be.an(\"array\");",
+                                    "});",
+                                    "pm.test(\"estados dentro de rangos pedidos\", function () {",
+                                    "    const estados = body.resultado.items.map((i) => i.cabecera.estado);",
+                                    "    estados.forEach((e) => pm.expect([-1, 99]).to.include(e));",
+                                    "});"
+                                ]
+                            }
+                        }
+                    ],
+                    "response": []
+                },
+                {
+                    "name": "export - filtro codCliente",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "X-Paq-Cliente",
+                                "value": "{{tenant}}"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{integrationToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{backendUrl}}/api/v1/integracion/comprobantes?estadoRangos=-1:99&codCliente={{exportCodCliente}}&pageSize={{exportPageSize}}",
+                            "host": [
+                                "{{backendUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "integracion",
+                                "comprobantes"
+                            ],
+                            "query": [
+                                {
+                                    "key": "estadoRangos",
+                                    "value": "-1:99"
+                                },
+                                {
+                                    "key": "codCliente",
+                                    "value": "{{exportCodCliente}}"
+                                },
+                                {
+                                    "key": "pageSize",
+                                    "value": "{{exportPageSize}}"
+                                }
+                            ]
+                        },
+                        "description": "Filtra por cliente exacto. Definir exportCodCliente en el environment."
+                    },
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                                    "const body = pm.response.json();",
+                                    "pm.test(\"envelope GEN-20 exito\", function () {",
+                                    "    pm.expect(body.error).to.eql(0);",
+                                    "    pm.expect(body.respuesta).to.eql(\"integracion.export.ok\");",
+                                    "});",
+                                    "pm.test(\"resultado paginado\", function () {",
+                                    "    const r = body.resultado;",
+                                    "    pm.expect(r).to.include.keys(\"items\", \"page\", \"pageSize\", \"total\", \"totalPages\", \"metadata\");",
+                                    "    pm.expect(r.items).to.be.an(\"array\");",
+                                    "    pm.expect(r.metadata).to.have.property(\"fechaProceso\");",
+                                    "});",
+                                    "pm.test(\"item export shape\", function () {",
+                                    "    if (body.resultado.items.length === 0) { return; }",
+                                    "    const item = body.resultado.items[0];",
+                                    "    pm.expect(item).to.include.keys(\"cabecera\", \"renglones\", \"cierre\");",
+                                    "    pm.expect(item.cabecera).to.have.property(\"codPedido\");",
+                                    "    pm.expect(item.cabecera).to.have.property(\"codUsuarioWeb\");",
+                                    "    pm.expect(item.cabecera).to.not.have.property(\"puedeEditar\");",
+                                    "    pm.expect(item.renglones).to.be.an(\"array\");",
+                                    "});",
+                                    "pm.test(\"codCliente filtrado\", function () {",
+                                    "    const esperado = pm.environment.get(\"exportCodCliente\");",
+                                    "    body.resultado.items.forEach((i) => pm.expect(i.cabecera.codCliente).to.eql(esperado));",
+                                    "});"
+                                ]
+                            }
+                        }
+                    ],
+                    "response": []
+                },
+                {
+                    "name": "export - filtro codPedido",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "X-Paq-Cliente",
+                                "value": "{{tenant}}"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{integrationToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{backendUrl}}/api/v1/integracion/comprobantes?estadoRangos=-1:99&codPedido={{exportCodPedido}}",
+                            "host": [
+                                "{{backendUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "integracion",
+                                "comprobantes"
+                            ],
+                            "query": [
+                                {
+                                    "key": "estadoRangos",
+                                    "value": "-1:99"
+                                },
+                                {
+                                    "key": "codPedido",
+                                    "value": "{{exportCodPedido}}"
+                                }
+                            ]
+                        },
+                        "description": "Un comprobante puntual. Completar exportCodPedido en el environment con un codPedido real."
+                    },
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                                    "const body = pm.response.json();",
+                                    "pm.test(\"envelope GEN-20 exito\", function () {",
+                                    "    pm.expect(body.error).to.eql(0);",
+                                    "    pm.expect(body.respuesta).to.eql(\"integracion.export.ok\");",
+                                    "});",
+                                    "pm.test(\"resultado paginado\", function () {",
+                                    "    const r = body.resultado;",
+                                    "    pm.expect(r).to.include.keys(\"items\", \"page\", \"pageSize\", \"total\", \"totalPages\", \"metadata\");",
+                                    "    pm.expect(r.items).to.be.an(\"array\");",
+                                    "    pm.expect(r.metadata).to.have.property(\"fechaProceso\");",
+                                    "});",
+                                    "pm.test(\"item export shape\", function () {",
+                                    "    if (body.resultado.items.length === 0) { return; }",
+                                    "    const item = body.resultado.items[0];",
+                                    "    pm.expect(item).to.include.keys(\"cabecera\", \"renglones\", \"cierre\");",
+                                    "    pm.expect(item.cabecera).to.have.property(\"codPedido\");",
+                                    "    pm.expect(item.cabecera).to.have.property(\"codUsuarioWeb\");",
+                                    "    pm.expect(item.cabecera).to.not.have.property(\"puedeEditar\");",
+                                    "    pm.expect(item.renglones).to.be.an(\"array\");",
+                                    "});",
+                                    "pm.test(\"codPedido exacto\", function () {",
+                                    "    const esperado = pm.environment.get(\"exportCodPedido\");",
+                                    "  if (!esperado) { pm.test.skip(\"exportCodPedido vacío\"); return; }",
+                                    "    pm.expect(body.resultado.items.length).to.be.at.most(1);",
+                                    "    if (body.resultado.items.length === 1) {",
+                                    "        pm.expect(body.resultado.items[0].cabecera.codPedido).to.eql(esperado);",
+                                    "    }",
+                                    "});"
+                                ]
+                            }
+                        }
+                    ],
+                    "response": []
+                },
+                {
+                    "name": "export - presupuestos cerrados (98:98)",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "X-Paq-Cliente",
+                                "value": "{{tenant}}"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{integrationToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{backendUrl}}/api/v1/integracion/comprobantes?estadoRangos=98:98&pageSize={{exportPageSize}}",
+                            "host": [
+                                "{{backendUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "integracion",
+                                "comprobantes"
+                            ],
+                            "query": [
+                                {
+                                    "key": "estadoRangos",
+                                    "value": "98:98"
+                                },
+                                {
+                                    "key": "pageSize",
+                                    "value": "{{exportPageSize}}"
+                                }
+                            ]
+                        },
+                        "description": "Estado 98: cierre presente o null si no hay fila en presupuestos_cierres."
+                    },
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                                    "const body = pm.response.json();",
+                                    "pm.test(\"envelope GEN-20 exito\", function () {",
+                                    "    pm.expect(body.error).to.eql(0);",
+                                    "    pm.expect(body.respuesta).to.eql(\"integracion.export.ok\");",
+                                    "});",
+                                    "pm.test(\"resultado paginado\", function () {",
+                                    "    const r = body.resultado;",
+                                    "    pm.expect(r).to.include.keys(\"items\", \"page\", \"pageSize\", \"total\", \"totalPages\", \"metadata\");",
+                                    "    pm.expect(r.items).to.be.an(\"array\");",
+                                    "    pm.expect(r.metadata).to.have.property(\"fechaProceso\");",
+                                    "});",
+                                    "pm.test(\"item export shape\", function () {",
+                                    "    if (body.resultado.items.length === 0) { return; }",
+                                    "    const item = body.resultado.items[0];",
+                                    "    pm.expect(item).to.include.keys(\"cabecera\", \"renglones\", \"cierre\");",
+                                    "    pm.expect(item.cabecera).to.have.property(\"codPedido\");",
+                                    "    pm.expect(item.cabecera).to.have.property(\"codUsuarioWeb\");",
+                                    "    pm.expect(item.cabecera).to.not.have.property(\"puedeEditar\");",
+                                    "    pm.expect(item.renglones).to.be.an(\"array\");",
+                                    "});",
+                                    "pm.test(\"estado 98 en items\", function () {",
+                                    "    body.resultado.items.forEach((i) => {",
+                                    "        pm.expect(i.cabecera.estado).to.eql(98);",
+                                    "        pm.expect(i).to.have.property(\"cierre\");",
+                                    "    });",
+                                    "});"
+                                ]
+                            }
+                        }
+                    ],
+                    "response": []
+                },
+                {
+                    "name": "export - rango fechas",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "X-Paq-Cliente",
+                                "value": "{{tenant}}"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{integrationToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{backendUrl}}/api/v1/integracion/comprobantes?estadoRangos=0:99&fechaDesde={{exportFechaDesde}}&fechaHasta={{exportFechaHasta}}&pageSize={{exportPageSize}}",
+                            "host": [
+                                "{{backendUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "integracion",
+                                "comprobantes"
+                            ],
+                            "query": [
+                                {
+                                    "key": "estadoRangos",
+                                    "value": "0:99"
+                                },
+                                {
+                                    "key": "fechaDesde",
+                                    "value": "{{exportFechaDesde}}"
+                                },
+                                {
+                                    "key": "fechaHasta",
+                                    "value": "{{exportFechaHasta}}"
+                                },
+                                {
+                                    "key": "pageSize",
+                                    "value": "{{exportPageSize}}"
+                                }
+                            ]
+                        },
+                        "description": "fechaDesde/fechaHasta inclusivos sobre fecha de cabecera (ISO 8601)."
+                    },
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                                    "const body = pm.response.json();",
+                                    "pm.test(\"envelope GEN-20 exito\", function () {",
+                                    "    pm.expect(body.error).to.eql(0);",
+                                    "    pm.expect(body.respuesta).to.eql(\"integracion.export.ok\");",
+                                    "});",
+                                    "pm.test(\"resultado paginado\", function () {",
+                                    "    const r = body.resultado;",
+                                    "    pm.expect(r).to.include.keys(\"items\", \"page\", \"pageSize\", \"total\", \"totalPages\", \"metadata\");",
+                                    "    pm.expect(r.items).to.be.an(\"array\");",
+                                    "    pm.expect(r.metadata).to.have.property(\"fechaProceso\");",
+                                    "});",
+                                    "pm.test(\"item export shape\", function () {",
+                                    "    if (body.resultado.items.length === 0) { return; }",
+                                    "    const item = body.resultado.items[0];",
+                                    "    pm.expect(item).to.include.keys(\"cabecera\", \"renglones\", \"cierre\");",
+                                    "    pm.expect(item.cabecera).to.have.property(\"codPedido\");",
+                                    "    pm.expect(item.cabecera).to.have.property(\"codUsuarioWeb\");",
+                                    "    pm.expect(item.cabecera).to.not.have.property(\"puedeEditar\");",
+                                    "    pm.expect(item.renglones).to.be.an(\"array\");",
+                                    "});"
+                                ]
+                            }
+                        }
+                    ],
+                    "response": []
+                },
+                {
+                    "name": "export - alias page_size",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "X-Paq-Cliente",
+                                "value": "{{tenant}}"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{integrationToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{backendUrl}}/api/v1/integracion/comprobantes?estadoRangos=0:0&page_size=25",
+                            "host": [
+                                "{{backendUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "integracion",
+                                "comprobantes"
+                            ],
+                            "query": [
+                                {
+                                    "key": "estadoRangos",
+                                    "value": "0:0"
+                                },
+                                {
+                                    "key": "page_size",
+                                    "value": "25"
+                                }
+                            ]
+                        },
+                        "description": "Compatibilidad query page_size → pageSize."
+                    },
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                                    "const body = pm.response.json();",
+                                    "pm.test(\"envelope GEN-20 exito\", function () {",
+                                    "    pm.expect(body.error).to.eql(0);",
+                                    "    pm.expect(body.respuesta).to.eql(\"integracion.export.ok\");",
+                                    "});",
+                                    "pm.test(\"resultado paginado\", function () {",
+                                    "    const r = body.resultado;",
+                                    "    pm.expect(r).to.include.keys(\"items\", \"page\", \"pageSize\", \"total\", \"totalPages\", \"metadata\");",
+                                    "    pm.expect(r.items).to.be.an(\"array\");",
+                                    "    pm.expect(r.metadata).to.have.property(\"fechaProceso\");",
+                                    "});",
+                                    "pm.test(\"item export shape\", function () {",
+                                    "    if (body.resultado.items.length === 0) { return; }",
+                                    "    const item = body.resultado.items[0];",
+                                    "    pm.expect(item).to.include.keys(\"cabecera\", \"renglones\", \"cierre\");",
+                                    "    pm.expect(item.cabecera).to.have.property(\"codPedido\");",
+                                    "    pm.expect(item.cabecera).to.have.property(\"codUsuarioWeb\");",
+                                    "    pm.expect(item.cabecera).to.not.have.property(\"puedeEditar\");",
+                                    "    pm.expect(item.renglones).to.be.an(\"array\");",
+                                    "});",
+                                    "pm.test(\"pageSize desde page_size\", function () {",
+                                    "    pm.expect(body.resultado.pageSize).to.eql(25);",
+                                    "});"
+                                ]
+                            }
+                        }
+                    ],
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Export (errores esperados)",
+            "item": [
+                {
+                    "name": "export - sin token (401)",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "X-Paq-Cliente",
+                                "value": "{{tenant}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{backendUrl}}/api/v1/integracion/comprobantes?estadoRangos=0:0",
+                            "host": [
+                                "{{backendUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "integracion",
+                                "comprobantes"
+                            ],
+                            "query": [
+                                {
+                                    "key": "estadoRangos",
+                                    "value": "0:0"
+                                }
+                            ]
+                        },
+                        "description": "Debe responder sin Bearer."
+                    },
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test(\"HTTP 401\", function () { pm.response.to.have.status(401); });",
+                                    "const body = pm.response.json();",
+                                    "pm.test(\"envelope no autenticado\", function () {",
+                                    "    pm.expect(body.error).to.eql(2002);",
+                                    "    pm.expect(body.respuesta).to.eql(\"auth.unauthenticated\");",
+                                    "});"
+                                ]
+                            }
+                        }
+                    ],
+                    "response": []
+                },
+                {
+                    "name": "export - sin estadoRangos (422)",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "X-Paq-Cliente",
+                                "value": "{{tenant}}"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{integrationToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{backendUrl}}/api/v1/integracion/comprobantes",
+                            "host": [
+                                "{{backendUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "integracion",
+                                "comprobantes"
+                            ],
+                            "query": []
+                        },
+                        "description": "estadoRangos obligatorio."
+                    },
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test(\"HTTP 422\", function () { pm.response.to.have.status(422); });",
+                                    "const body = pm.response.json();",
+                                    "pm.test(\"clave envelope\", function () {",
+                                    "    pm.expect(body.error).to.eql(1002);",
+                                    "    pm.expect(body.respuesta).to.eql(\"integracion.export.estadoRangosRequerido\");",
+                                    "});"
+                                ]
+                            }
+                        }
+                    ],
+                    "response": []
+                },
+                {
+                    "name": "export - rango invalido (422)",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "X-Paq-Cliente",
+                                "value": "{{tenant}}"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{integrationToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{backendUrl}}/api/v1/integracion/comprobantes?estadoRangos=1:0",
+                            "host": [
+                                "{{backendUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "integracion",
+                                "comprobantes"
+                            ],
+                            "query": [
+                                {
+                                    "key": "estadoRangos",
+                                    "value": "1:0"
+                                }
+                            ]
+                        },
+                        "description": "desde > hasta."
+                    },
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test(\"HTTP 422\", function () { pm.response.to.have.status(422); });",
+                                    "const body = pm.response.json();",
+                                    "pm.test(\"clave envelope\", function () {",
+                                    "    pm.expect(body.respuesta).to.eql(\"integracion.export.rangoInvalido\");",
+                                    "});"
+                                ]
+                            }
+                        }
+                    ],
+                    "response": []
+                }
+            ]
+        }
+    ]
+}

@@ -41,6 +41,22 @@
 | 22 | [SPEC-101-22-importacion-maestros-erp.md](SPEC-101-22-importacion-maestros-erp.md) | **Must** — APIs ERP → maestros — **C1 apto** (2026-10-21); autoriza D1 |
 | 23 | [SPEC-101-23-importacion-transacciones-erp.md](SPEC-101-23-importacion-transacciones-erp.md) | **Must** — APIs ERP → transacciones — **C1 apto con observaciones**; autoriza D1 |
 | 24 | [SPEC-101-24-importacion-medidas-erp.md](SPEC-101-24-importacion-medidas-erp.md) | **Must** — recurso `medidas` + consulta asíncrona; pendiente A1 |
+| 25 | [SPEC-101-25-exportacion-comprobantes-erp.md](SPEC-101-25-exportacion-comprobantes-erp.md) | **Must** — **D1 listo** · Parte **D** |
+
+## Épica Exportación comprobantes ERP (101-25)
+
+| Campo | Valor |
+|-------|--------|
+| **Producto** | [APIs-Exportacion-comprobantes-erp.md](../../02-producto/PedidosWeb/APIs-Exportacion-comprobantes-erp.md) |
+| **A / A1** | **Cerradas** — SPEC-101-25 + [F-101-25 A1](../../04-tareas/101-PedidosWeb/F-101-25-cierre-a1-exportacion-comprobantes-erp.md) (2026-11-26) |
+| **B** | [HU-101-057](../../03-historias-usuario/101-PedidosWeb/HU-101-057-integracion-export-comprobantes-plataforma.md) · [PIAPEDWEB-56](https://paqsystems.atlassian.net/browse/PIAPEDWEB-56) · [HU-101-058](../../03-historias-usuario/101-PedidosWeb/HU-101-058-integracion-export-comprobantes-datos.md) · [PIAPEDWEB-57](https://paqsystems.atlassian.net/browse/PIAPEDWEB-57) |
+| **Jira** | [PIAPEDWEB-54](https://paqsystems.atlassian.net/browse/PIAPEDWEB-54) (épica) |
+| **Hermano** | [SPEC-101-22](SPEC-101-22-importacion-maestros-erp.md) · [SPEC-101-23](SPEC-101-23-importacion-transacciones-erp.md) (mismo auth integración) |
+| **B1** | [F-101-25-cierre-b1](../../04-tareas/101-PedidosWeb/F-101-25-cierre-b1-exportacion-comprobantes-erp.md) (2026-11-26) |
+| **C** | [F-101-25-cierre-c](../../04-tareas/101-PedidosWeb/F-101-25-cierre-c-exportacion-comprobantes-erp.md) — TR [25a](../../04-tareas/101-PedidosWeb/TR-SPEC-101-25-integracion-export-plataforma.md) / [25b](../../04-tareas/101-PedidosWeb/TR-SPEC-101-25-integracion-export-datos.md) |
+| **C1** | [F-101-25-cierre-c1](../../04-tareas/101-PedidosWeb/F-101-25-cierre-c1-exportacion-comprobantes-erp.md) |
+| **D1** | [D1-PLAN-101-25](../../04-tareas/101-PedidosWeb/D1-PLAN-101-25-exportacion-comprobantes-erp.md) |
+| **Estado** | **Implementando** (Parte D) |
 
 ## Épica Importación maestros ERP (101-22)
 

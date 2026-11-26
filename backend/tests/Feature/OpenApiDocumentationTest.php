@@ -247,6 +247,7 @@ final class OpenApiDocumentationTest extends TestCase
             '/api/v1/grid-layouts/active' => 'ApiEnvelopeGridLayoutActive',
             '/api/v1/pivot-configs' => 'ApiEnvelopePivotConfigsList',
             '/api/v1/pivot-configs/active' => 'ApiEnvelopePivotConfigActive',
+            '/api/v1/integracion/comprobantes' => 'ApiEnvelopeIntegracionExportComprobantes',
             '/api/v1/dashboard/resumen-mensual' => 'ApiEnvelopeDashboardResumenMensual',
             '/api/v1/excel-import/lotes/{guidImportacion}/filas' => 'ApiEnvelopeExcelStagingFilas',
             '/api/v1/excel-import/lotes/{guidImportacion}/filas/validas' => 'ApiEnvelopeExcelStagingFilasValidas',

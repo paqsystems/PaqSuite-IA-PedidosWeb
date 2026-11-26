@@ -160,6 +160,8 @@ El portal genera pedidos/presupuestos en:
 
 La descarga al ERP será realizada por un proceso del lado ERP definido en PaqSuite 2025IA ERP.
 
+**Contrato HTTP (PedidosWeb):** [APIs-Exportacion-comprobantes-erp.md](./APIs-Exportacion-comprobantes-erp.md) · [SPEC-101-25](../../05-open-spec/101-PedidosWeb/SPEC-101-25-exportacion-comprobantes-erp.md) — `GET /api/v1/integracion/comprobantes` con filtro por rangos de `estado` y payload cabecera+renglones (camelCase). El ERP puede consumir este endpoint en lugar de (o además de) lectura SQL directa.
+
 ## 7. Seguridad y usuarios
 
 ### 7.1 Tipos de usuario funcionales

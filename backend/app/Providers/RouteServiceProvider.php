@@ -59,5 +59,11 @@ class RouteServiceProvider extends ServiceProvider
 
             return Limit::perMinute(60)->by($request->user()?->id.'|'.$tenant);
         });
+
+        RateLimiter::for('integracion-export', function (Request $request) {
+            $tenant = trim((string) $request->header((string) config('paqsuite_tenant.headerName', 'X-Paq-Cliente')));
+
+            return Limit::perMinute(60)->by($request->user()?->id.'|'.$tenant);
+        });
     }
 }

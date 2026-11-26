@@ -2,6 +2,8 @@
 
 namespace App\Console\Commands;
 
+use App\Models\PqPedidoswebLogin;
+use App\Models\PqPedidoswebVendedor;
 use App\Models\PqPermiso;
 use App\Models\PqRol;
 use App\Models\PqRolAtributo;
@@ -66,12 +68,51 @@ final class ProvisionIntegracionUserCommand extends Command
             ['id_rol' => $rol->id, 'id_empresa' => $monoEmpresaId],
         );
 
+        $loginCod = $this->linkTechnicalLoginStub($user);
+
         $token = $user->createToken('integracion-maestros')->plainTextToken;
 
         $this->info("Usuario: {$codigo}");
+        if ($loginCod !== null) {
+            $this->line("Vínculo login web (Postman): cod_login {$loginCod}");
+        } else {
+            $this->warn('Sin vínculo comercial: POST /auth/login responderá auth.noCommercialProfile; usar el token impreso.');
+        }
         $this->line("Token (mostrar una sola vez): {$token}");
         $this->line('Header: X-Paq-Cliente = tenant configurado en paqsuite_tenant.allowedClients');
 
         return self::SUCCESS;
+    }
+
+  /**
+   * Usuarios técnicos no tienen perfil comercial; el login web exige uno.
+   * Enlaza a un vendedor MVP existente solo para completar POST /auth/login (p. ej. Postman).
+   */
+    private function linkTechnicalLoginStub(User $user): ?string
+    {
+        $codLogin = 'INTEGRERP01';
+
+        PqPedidoswebVendedor::query()->updateOrCreate(
+            ['cod_vended' => $codLogin],
+            [
+                'nombre' => 'Integración ERP técnico',
+                'cod_login' => $codLogin,
+                'supervisor' => false,
+            ],
+        );
+
+        PqPedidoswebLogin::query()->updateOrCreate(
+            ['cod_usuario_web' => $codLogin],
+            [
+                'usuario' => $user->codigo,
+                'password_bcrypt' => $user->password_hash,
+                'primer_login' => false,
+                'tipo_cuenta' => 'V',
+                'cod_asociado' => $codLogin,
+                'e_mail' => $user->email,
+            ],
+        );
+
+        return $codLogin;
     }
 }

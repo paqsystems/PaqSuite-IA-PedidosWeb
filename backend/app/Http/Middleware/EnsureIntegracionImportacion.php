@@ -33,13 +33,17 @@ final class EnsureIntegracionImportacion
         try {
             $this->visibilityPermissionGuard->ensureAltaPermission($user, $procedimiento);
         } catch (AuthFlowException) {
-            $esTransaccion = str_contains($request->path(), '/integracion/transacciones/');
+            $path = $request->path();
+            $claveRespuesta = 'integracion.maestro.forbidden';
+            if (str_contains($path, '/integracion/transacciones/')) {
+                $claveRespuesta = 'integracion.transaccion.forbidden';
+            } elseif (str_contains($path, '/integracion/comprobantes')) {
+                $claveRespuesta = 'integracion.export.forbidden';
+            }
 
             return ApiResponse::error(
                 AuthErrorCodes::noPermission,
-                $esTransaccion
-                    ? 'integracion.transaccion.forbidden'
-                    : 'integracion.maestro.forbidden',
+                $claveRespuesta,
                 403,
             );
         }
