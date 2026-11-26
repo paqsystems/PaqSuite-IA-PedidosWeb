@@ -4,7 +4,7 @@ Jira: PIAPEDWEB-54
 
 | Campo | Valor |
 |-------|--------|
-| **Estado** | **Propuesta — SPEC-101-25** (pendiente Parte A1) |
+| **Estado** | **SPEC-101-25** — **D1 listo**; Parte **D** (25a → 25b) |
 | **Ámbito** | Backend HTTP servidor-a-servidor; **sin** pantalla de operador |
 | **OpenSpec** | [SPEC-101-25-exportacion-comprobantes-erp.md](../../05-open-spec/101-PedidosWeb/SPEC-101-25-exportacion-comprobantes-erp.md) |
 | **Contrato común integración** | Auth, tenant y envelope como [APIs-Importacion-datos-maestros.md](./APIs-Importacion-datos-maestros.md) **§4.1** (mismo token `pw_integracion_importacion`; **no** visibilidad de vendedor) |
@@ -75,7 +75,7 @@ pq_pedidosweb_pedidoscabecera + pq_pedidosweb_pedidosdetalle
 |-----------|-------------|--------|
 | `estadoRangos` | **Sí** | Repetible o lista CSV. Cada valor `desde:hasta` (enteros). **Inclusivo** en ambos extremos. Ej.: `estadoRangos=0:0&estadoRangos=1:2&estadoRangos=98:99` o `estadoRangos=0:0,1:2,98:99` |
 | `page` | No | Entero ≥ 1, default `1` |
-| `pageSize` | No | Entero 1…1000, default `20` (nombre query **camelCase** `pageSize`; alias `page_size` aceptado si TR unifica con consultas) |
+| `pageSize` | No | Entero 1…1000, default `20` (nombre query **camelCase** `pageSize`; **MUST** aceptar alias `page_size` por paridad consultas — SPEC-101-25) |
 | `codCliente` | No | Filtro exacto |
 | `codPedido` | No | Filtro exacto (una cabecera) |
 | `fechaDesde` / `fechaHasta` | No | Sobre fecha de cabecera; rango inclusivo |
@@ -164,16 +164,27 @@ Lectura por **stored procedure** (regla 74), p. ej. familia `pq_sp_integracion_e
 ## 8. Orden sugerido en SDD
 
 1. **A / A1** — [SPEC-101-25](../../05-open-spec/101-PedidosWeb/SPEC-101-25-exportacion-comprobantes-erp.md)
-2. **B / B1** — HU plataforma + HU contrato datos
-3. **C / C1** — TR plataforma (ruta, auth, OpenAPI) + TR SP/mapper
-4. **D / E / F1** — implementación y pruebas
+2. **B / B1** — [HU-101-057](../../03-historias-usuario/101-PedidosWeb/HU-101-057-integracion-export-comprobantes-plataforma.md) plataforma · [HU-101-058](../../03-historias-usuario/101-PedidosWeb/HU-101-058-integracion-export-comprobantes-datos.md) contrato datos
+3. **C / C1** — TR [25a](../../04-tareas/101-PedidosWeb/TR-SPEC-101-25-integracion-export-plataforma.md) / [25b](../../04-tareas/101-PedidosWeb/TR-SPEC-101-25-integracion-export-datos.md) · [C1](../../04-tareas/101-PedidosWeb/F-101-25-cierre-c1-exportacion-comprobantes-erp.md)
+4. **D1 / D** — [D1-PLAN-101-25](../../04-tareas/101-PedidosWeb/D1-PLAN-101-25-exportacion-comprobantes-erp.md) → implementación
+5. **E / F1** — pruebas y cierre
 
 ---
 
-## 9. Trazabilidad
+## 9. Postman (aprobación manual)
+
+Collection y environment versionados:
+
+- [docs/06-operacion/postman/PedidosWeb-Integracion-Export-Comprobantes.postman_collection.json](../../06-operacion/postman/PedidosWeb-Integracion-Export-Comprobantes.postman_collection.json)
+- [docs/06-operacion/postman/PedidosWeb-Integracion-Export-Comprobantes.postman_environment.json](../../06-operacion/postman/PedidosWeb-Integracion-Export-Comprobantes.postman_environment.json)
+- Runbook: [README-export-comprobantes.md](../../06-operacion/postman/README-export-comprobantes.md)
+
+Regenerar: `php backend/scripts/generar-postman-integracion-export.php`.
+
+## 10. Trazabilidad
 
 | Artefacto | Ruta prevista |
 |-----------|----------------|
 | SPEC | `docs/05-open-spec/101-PedidosWeb/SPEC-101-25-exportacion-comprobantes-erp.md` |
-| HU | `HU-101-055` (plataforma), `HU-101-056` (contrato datos) — nombres orientativos en SPEC |
-| TR | `TR-SPEC-101-25-integracion-export-plataforma`, `TR-SPEC-101-25-integracion-export-datos` |
+| HU | [HU-101-057](../../03-historias-usuario/101-PedidosWeb/HU-101-057-integracion-export-comprobantes-plataforma.md) (plataforma), [HU-101-058](../../03-historias-usuario/101-PedidosWeb/HU-101-058-integracion-export-comprobantes-datos.md) (datos) |
+| TR | [25a](../../04-tareas/101-PedidosWeb/TR-SPEC-101-25-integracion-export-plataforma.md), [25b](../../04-tareas/101-PedidosWeb/TR-SPEC-101-25-integracion-export-datos.md) |

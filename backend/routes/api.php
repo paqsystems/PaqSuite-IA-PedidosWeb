@@ -23,6 +23,7 @@ use App\Http\Controllers\Api\V1\PedidosWeb\ClienteCabeceraController;
 use App\Http\Controllers\Api\V1\PedidosWeb\ComprobanteController;
 use App\Http\Controllers\Api\V1\PedidosWeb\ConsultaController;
 use App\Http\Controllers\Api\V1\PedidosWeb\DashboardController;
+use App\Http\Controllers\Api\V1\PedidosWeb\IntegracionExportComprobantesController;
 use App\Http\Controllers\Api\V1\PedidosWeb\IntegracionLogController;
 use App\Http\Controllers\Api\V1\PedidosWeb\IntegracionMaestroController;
 use App\Http\Controllers\Api\V1\PedidosWeb\MotivoCierreController;
@@ -224,6 +225,9 @@ Route::prefix('v1')->group(function (): void {
             Route::post('/integracion/transacciones/{recurso}', [IntegracionMaestroController::class, 'receive'])
                 ->middleware(['integracion.importacion', 'throttle:integracion-transacciones'])
                 ->name('api.v1.integracion.transacciones.store');
+            Route::get('/integracion/comprobantes', [IntegracionExportComprobantesController::class, 'index'])
+                ->middleware(['integracion.importacion', 'throttle:integracion-export'])
+                ->name('api.v1.integracion.comprobantes.index');
             Route::get('/dashboard/operativo', [DashboardController::class, 'operativo'])
                 ->name('api.v1.dashboard.operativo');
             Route::get('/dashboard/resumen-mensual', [DashboardController::class, 'resumenMensual'])

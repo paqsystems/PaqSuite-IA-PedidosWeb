@@ -18,6 +18,15 @@ return [
             'procesado' => 'Lote de maestros procesado.',
         ],
     ],
+    'export' => [
+        'ok' => 'Exportación de comprobantes realizada.',
+        'forbidden' => 'Sin permiso para exportar comprobantes ERP.',
+        'estadoRangosRequerido' => 'El parámetro estadoRangos es obligatorio.',
+        'rangoInvalido' => 'Rango de estados inválido.',
+        'rangoFechasInvalido' => 'Rango de fechas inválido.',
+        'paginacionInvalida' => 'Paginación inválida.',
+        'errorFatal' => 'Error al exportar comprobantes.',
+    ],
     'transaccion' => [
         'forbidden' => 'Sin permiso para importar transacciones ERP.',
         'jsonInvalido' => 'Cuerpo JSON del lote inválido.',
