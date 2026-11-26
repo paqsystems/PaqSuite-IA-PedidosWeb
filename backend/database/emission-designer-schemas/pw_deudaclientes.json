@@ -4,31 +4,45 @@
     "fields": [
         {
             "name": "codCliente",
-            "type": "string"
+            "type": "string",
+            "label": "Cód. cliente",
+            "captionKey": "consultas.column.codCliente"
         },
         {
             "name": "razonSocial",
-            "type": "string"
+            "type": "string",
+            "label": "Razón social",
+            "captionKey": "consultas.column.razonSocial"
         },
         {
             "name": "tipo",
-            "type": "string"
+            "type": "string",
+            "label": "Tipo",
+            "captionKey": "consultas.column.tipo"
         },
         {
             "name": "numero",
-            "type": "string"
+            "type": "string",
+            "label": "Número",
+            "captionKey": "consultas.column.numero"
         },
         {
             "name": "fecha",
-            "type": "date"
+            "type": "date",
+            "label": "Fecha",
+            "captionKey": "consultas.column.fecha"
         },
         {
             "name": "vencimiento",
-            "type": "date"
+            "type": "date",
+            "label": "Vencimiento",
+            "captionKey": "consultas.column.vencimiento"
         },
         {
             "name": "saldo",
-            "type": "number"
+            "type": "number",
+            "label": "Saldo",
+            "captionKey": "consultas.column.saldo"
         }
     ]
 }

@@ -74,7 +74,7 @@ UI / APIs de consulta y carga (sin cambio de contrato para el usuario)
 | UI de ABM de maestros en PedidosWeb | El operador sigue usando el ERP |
 | Importación Excel de **pedidos** | SPEC-101-16 / 101-21 y GEN-14 |
 | Lectura SQL directa al ERP desde Laravel | El origen llama a PedidosWeb |
-| Descarga **portal → ERP** de pedidos/presupuestos | §6.2 de la definición conceptual |
+| Descarga **portal → ERP** de pedidos/presupuestos | [APIs-Exportacion-comprobantes-erp.md](./APIs-Exportacion-comprobantes-erp.md) → **SPEC-101-25** (este documento solo cubre ERP → portal) |
 | Alta/edición de usuarios, roles y menú | GEN-06 |
 | Mobile / Capacitor | APIs servidor a servidor |
 | Motor de cron **dentro** de PedidosWeb | GEN-13 en el orquestador ERP |

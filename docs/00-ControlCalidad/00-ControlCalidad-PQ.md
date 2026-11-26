@@ -47,6 +47,10 @@ Este archivo **no sustituye** SPEC, HU ni TR: es la **entrada** del circuito de 
 
 | # | Fecha | Estado | Resumen |
 |---|-------|--------|---------|
+| 26 | 20/11/2026 | **Pendiente** | GEN-13 backup **Fallida**: falta SP `dbo.pq_sp_admin_empresa_get` al resolver empresa/BD (`@id = 1`) — desplegar `pq_sp_admin_empresas_core` vía GEN-34 / ops Forge · [CC #26](#control-de-calidad-26) |
+| 25 | 19/11/2026 | **Pendiente** (fix host 19/11 — smoke prod/DEMO) | GEN-13 backup: *«Backup installation client is not configured»* en prod (config cache + `env()`); **corrección** `clienteCodigo`/`config()` como Partes · [CC #25](#control-de-calidad-25) |
+| 24 | 19/11/2026 | **Pendiente** (épica backlog — A0 Jira 19/11/2026) | Deploy/ops: **PedidosWeb → modelo Partes/Tango** (mono backend Forge, **GEN-34** en deploy, tenants en diccionario/`instalaciones`) · [CC #24](#control-de-calidad-24) · [PIAPEDWEB-53](https://paqsystems.atlassian.net/browse/PIAPEDWEB-53) |
+| 23 | 15/11/2026 | **Pendiente** | GEN-13 — scheduler/agenda/stale recovery + pin oleada + defer RDS en Forge · [CC #23](#control-de-calidad-23) |
 | 22 | 14/11/2026 | **Finalizado** (Parte I 15/11/2026) | Adopción host GEN-13 / Backup SDK (`laravel-core` **1.3.18-beta.38**, `react-core` **2.4.30-beta.19**) — FW CC **#17–#20** · [F1](../04-tareas/101-PedidosWeb/F1-CC-PQ-22-verificacion-agente.md) · [I](../04-tareas/101-PedidosWeb/I-CC-PQ-GEN-13-cierre-formal.md) · [PIAPEDWEB-50](https://paqsystems.atlassian.net/browse/PIAPEDWEB-50) |
 | 21 | 14/11/2026 | **Finalizado** (Parte I 15/11/2026; SoT Framework) | GEN-13 Backup: evidencia Partes (falso FALLIDA + checkboxes) · volcado SDK [Framework SPEC-update CC#19](https://github.com/paqsystems/PaqSuite-IA-FRAMEWORK/blob/develop/docs/05-open-spec/updates/001-Generalidades/SPEC-001-13-update-cc-pq-19-2026-11-14-backup-estado-y-checkboxes.md) · host pin+smoke vía **#22** · [PIAPEDWEB-49](https://paqsystems.atlassian.net/browse/PIAPEDWEB-49) · ejecución [PIAFRAME-145](https://paqsystems.atlassian.net/browse/PIAFRAME-145) |
 | 20 | 11/11/2026 | **Finalizado** (Parte I 15/11/2026) | Reemplazar **tareas programadas** host por cableado SDK Framework (**GEN-13**) e incorporar el proceso **Backup** (`BACKUP_DATABASE`) · [I](../04-tareas/101-PedidosWeb/I-CC-PQ-GEN-13-cierre-formal.md) |
@@ -69,6 +73,282 @@ Este archivo **no sustituye** SPEC, HU ni TR: es la **entrada** del circuito de 
 | 1 | 04/06/2026 | Finalizado (Parte I) | 10 familias HU — CC PQ; updates unificados 09/06/2026 |
 | 2 | 05/06/2026 | Finalizado (Parte I) | GEN-03 layouts/export Excel formateado — CC PQ #2; unificado 09/06/2026 |
 | 3 | 09/06/2026 | Finalizado (Parte I) | Cartel cargando, layouts totales, performance carga, parámetros — unificado 09/06/2026 |
+
+---
+
+## Control de Calidad #24
+
+### Referencia del control
+
+| Campo | Valor |
+|-------|--------|
+| **Fecha** | 19/11/2026 |
+| **Responsable** | Pablo Quarracino (PQ) |
+| **Estado** | **Pendiente** — hito de **épica backlog**; **no** ejecutar Parte G hasta pedido explícito |
+| **Tipo** | Mejora estructural / operación — cableado host + deploy (no incidencia puntual de UI) |
+| **Origen** | Análisis post-mortem productivo (nov 2026): PedidosWeb **no** está al 100 % cableado al SDK ni replica el modelo deploy de **Partes-Atención** / **TANGO** (un proyecto Forge físico, tenant → BD, actualización de BDs vía ritual **GEN-34**). Síntoma visible: gaps GEN (p. ej. combo **BACKUP_DATABASE** vacío hasta remediación manual por sitio). |
+| **Referencias host (SoT comparación)** | Partes / TANGO: deploy único + `paqsuite:installation:update` + manifiesto pin + `paqsuite:seed-deploy`; ver Framework [`SPEC-001-34`](https://github.com/paqsystems/PaqSuite-IA-FRAMEWORK/blob/develop/docs/02-producto/34-instalacion-actualizacion-proyecto.md) y adopción GEN-34 en esos repos. |
+| **Referencias PedidosWeb (hoy)** | [Migraciones-en-forge.md](../Migraciones-en-forge.md) · [runbook-gen-13-backup-pedidosweb.md](../06-operacion/runbook-gen-13-backup-pedidosweb.md) · [plan-adopcion-sdk-framework.md](../06-operacion/plan-adopcion-sdk-framework.md) · `backend/config/paqsuite.php` (`instalaciones`) |
+| **Antecedente** | [CC #22](#control-de-calidad-22) / [CC #23](#control-de-calidad-23) (GEN-13 pin/ops); remediación manual Forge multi-sitio (Quento, Ankas, Lacapol, ExpoColor) nov 2026 |
+| **Jira** | Epic [PIAPEDWEB-53](https://paqsystems.atlassian.net/browse/PIAPEDWEB-53) — A0 19/11/2026 |
+
+### Cómo retomar (comando sugerido)
+
+Cuando quieras abrir el circuito SDD sobre esta épica:
+
+```text
+Registrá en el backlog de Jira el CC #24 de PQ y arrancá Parte A0/A: épica PedidosWeb modelo deploy Partes/Tango (mono backend, GEN-34 en deploy, tenants diccionario).
+```
+
+Variante directa a volcado:
+
+```text
+Corrige los errores del CC #24 deploy Partes/Tango PedidosWeb de PQ
+```
+
+*(Ajustá la redacción; lo importante es citar **CC #24** y el objetivo **mono backend + GEN-34 + tenants**.)*
+
+### Objetivo de la épica (borrador)
+
+Alinear **PedidosWeb** al patrón operativo de hosts **bien cableados** (Partes / TANGO):
+
+1. **Deploy:** un backend Forge (o equivalente) por **release**, no N sitios desincronizados con scripts mínimos (`migrate` solo, sin `installation:update` / `seed-deploy`).
+2. **Tenancy:** resolver **cliente/proyecto → BD** vía diccionario (`EMPRESAS_CONEXION` / `instalaciones` / `X-Paq-Cliente`), no un despliegue Git distinto por tenant salvo excepción documentada.
+3. **GEN-34:** post-deploy obligatorio: `migrate` + `paqsuite:installation:update` (+ manifiesto del pin) + `paqsuite:seed-deploy` donde aplique; smoke (`tasks:validate-catalog`, health, un proceso GEN tocado).
+4. **SDK:** cerrar gaps de adopción GEN (reglas **19**, **44**, ritual bump **43**) — mismo código base que Partes, dominio PedidosWeb en menú/SP/procesos.
+
+### Alcance preliminar (no exhaustivo)
+
+| Área | Entregable esperado |
+|------|---------------------|
+| Forge / CI | Script deploy unificado documentado y aplicado; checklist por tenant vía GEN-34, no SSH por sitio |
+| Config | `config/paqsuite.php` + diccionario: todos los clientes productivos registrados con `--cliente` / `--proyecto` |
+| Ops | Runbook PedidosWeb = secuencia Partes (referencia `docs/06-operacion/` de esos hosts) |
+| Producto | Evaluar consolidación de sitios Forge actuales vs mono-backend (decisión humana en SPEC) |
+
+### Fuera de alcance (hasta nueva decisión)
+
+- Bootstrap destructivo `paqsuite:bootstrap-pedidosweb-dev` en bases ERP compartidas.
+- Migrar frontends Vercel / dominios sin TR de infra.
+- Cambios de código en esta sesión (solo registro CC).
+
+### Criterios de aceptación preliminares
+
+- [ ] **CA-24-01** Un único runbook de deploy describe la secuencia completa (migrate + installation:update + seed-deploy + smoke).
+- [ ] **CA-24-02** Cada tenant productivo aparece en instalaciones/diccionario y pasa `paqsuite:installation:status` sin remediación manual de SP/seed.
+- [ ] **CA-24-03** Post-deploy automatizado (o un comando operador) deja GEN-13 catálogo OK sin tinker por sitio.
+- [ ] **CA-24-04** SPEC/HU/TR de la épica referencian GEN-19 + GEN-34 + GEN-35; sin fork de ritual Partes.
+
+### Derivación SDD
+
+**Pendiente** — **A0** hecho 19/11/2026 ([PIAPEDWEB-53](https://paqsystems.atlassian.net/browse/PIAPEDWEB-53)). Siguiente: Parte **A** (SPEC épica host deploy / GEN-34 PedidosWeb) → HU/TR → implementación por fases (infra primero, luego convergencia código si aplica).
+
+---
+
+## Control de Calidad #25
+
+### Referencia del control
+
+| Campo | Valor |
+|-------|--------|
+| **Fecha** | 19/11/2026 |
+| **Responsable** | Pablo Quarracino (PQ) |
+| **Estado** | **Pendiente** |
+| **Tipo** | Incidencia operativa — **GEN-13** / proceso **Backup** (`BACKUP_DATABASE`) |
+| **Origen** | Prueba manual en **Tareas programadas → Historial** (ejecución automática programada) |
+| **Alcance observado** | **Todas** las instalaciones **productivas** de PedidosWeb revisadas en la sesión — fallo homogéneo al correr el backup |
+| **Pendiente de verificación** | Instalación **DEMO** — confirmar si reproduce el mismo mensaje o si difiere la configuración |
+| **Antecedente** | [CC #22](#control-de-calidad-22) / [CC #23](#control-de-calidad-23) (adopción GEN-13 + ops); [CC #24](#control-de-calidad-24) (gaps deploy multi-sitio) |
+| **SoT** | Framework **GEN-13** — [`adopcion-gen-13-tareas-programadas-host.md`](https://github.com/paqsystems/PaqSuite-IA-FRAMEWORK/blob/develop/docs/06-operacion/adopcion-gen-13-tareas-programadas-host.md) · host [`runbook-gen-13-backup-pedidosweb.md`](../06-operacion/runbook-gen-13-backup-pedidosweb.md) |
+| **Comando G (futuro)** | `Corrige los errores del 19/11/2026 de PQ` (ítem backup installation client) |
+
+### Evidencia (síntoma)
+
+| Campo | Valor |
+|-------|--------|
+| **Pantalla** | General → **Tareas programadas** → pestaña **Historial** |
+| **Definición** | `1` (backup programado) |
+| **Estado** | **Fallida** |
+| **Motivo / mensaje** | `Backup installation client is not configured` |
+| **Modo** | Automático |
+| **Ejemplo de inicio** | 19/11/2026, 19:30 |
+
+> El semáforo en historial aparece en **rojo**. El proceso no llega a generar backup de base; el rechazo es inmediato por configuración de instalación/cliente del motor de backup (SDK GEN-13).
+
+### Causa raíz (diagnóstico 19/11/2026)
+
+1. El SDK (`ConfigBackupInstallationProfileResolver`) exige un **código cliente** no vacío antes de `BACKUP_DATABASE`. En ejecución **Automática** el cron `pedidosweb:tasks-run-due` **no** envía `X-Paq-Cliente`; el fallback debe salir de configuración del host.
+2. PedidosWeb usaba `env('PAQSUITE_CLIENTE')` en `PedidosWebGenCapabilitiesServiceProvider`. Con **`php artisan config:cache`** en Forge ([`Migraciones-en-forge.md`](../Migraciones-en-forge.md)), `env()` en runtime devuelve **vacío** aunque la variable exista en Environment → mensaje homogéneo en **todas** las productivas.
+3. **Partes** ya resuelve con `config('paqsuite.clienteCodigo')` (valor embebido en config cache). PedidosWeb no tenía `clienteCodigo` en `config/paqsuite.php`.
+
+No es defecto del motor Framework en este punto; es **gap de cableado host** respecto del patrón Partes. La convergencia completa (scheduler multi-tenant, deploy GEN-34 tipo Partes/Tango) sigue en [CC #24](#control-de-calidad-24).
+
+### Corrección aplicada (host — 19/11/2026)
+
+| Archivo | Cambio |
+|---------|--------|
+| `backend/config/paqsuite.php` | `clienteCodigo` ← `env('PAQSUITE_CLIENTE')` |
+| `backend/app/Providers/PedidosWebGenCapabilitiesServiceProvider.php` | Fallback backup: `config('paqsuite.clienteCodigo')` en lugar de `env()` |
+| [`runbook-gen-13-backup-pedidosweb.md`](../06-operacion/runbook-gen-13-backup-pedidosweb.md) | Troubleshooting del mensaje + `config:cache` |
+
+**Pendiente deploy:** release con el fix → `config:cache` en cada sitio; verificar `PAQSUITE_CLIENTE` en Environment por tenant.
+
+### Acciones residuales (ops / smoke)
+
+a) **Cada** productiva + **DEMO** (Forge): confirmar `PAQSUITE_CLIENTE`; tras deploy, smoke backup automático o `pedidosweb:tasks-run-due` — **sin** *«Backup installation client is not configured»*.
+
+b) Si el backup avanza y falla por otro motivo (S3 ARN, RDS, permisos), tratarlo como incidente distinto (runbook GEN-13).
+
+c) **DEMO:** mismo smoke en host preview/prod DEMO (no solo dev local sin `config:cache`).
+
+### Criterios de aceptación preliminares
+
+- [ ] **CA-25-01** Ninguna instalación productiva falla el backup con *«Backup installation client is not configured»* tras deploy del fix + `config:cache`.
+- [ ] **CA-25-02** Instalación **DEMO** verificada en el mismo tipo de host que prod.
+- [x] **CA-25-03** Runbook actualizado (troubleshooting + `clienteCodigo`).
+
+### Derivación SDD
+
+**Fix puntual host** — sin Parte G obligatoria para este ítem. Cierre del control: smoke prod/DEMO OK. Convergencia total host↔SDK: **CC #24**. **Sin** Jira en el registro del hito; opcional comentario al desplegar.
+
+---
+
+## Control de Calidad #26
+
+### Referencia del control
+
+| Campo | Valor |
+|-------|--------|
+| **Fecha** | 20/11/2026 |
+| **Responsable** | Pablo Quarracino (PQ) |
+| **Estado** | **Pendiente** |
+| **Tipo** | Incidencia operativa — **GEN-13** backup + **GEN-06** (admin empresas / SP) |
+| **Origen** | Tareas programadas → **Historial** — ejecución **manual** backup (definición `1`) tras recovery servidor **paq-2021** / sitios PedidosWeb |
+| **Antecedente** | [CC #25](#control-de-calidad-25) (cliente instalación backup); [CC #24](#control-de-calidad-24) (GEN-34 / deploy Forge incompleto) |
+| **SoT** | Framework SP `pq_sp_admin_empresas_core.sql` → `dbo.pq_sp_admin_empresa_get` · [`runbook-gen-13-backup-pedidosweb.md`](../06-operacion/runbook-gen-13-backup-pedidosweb.md) · [`Migraciones-en-forge.md`](../Migraciones-en-forge.md) |
+| **Comando G (futuro)** | `Corrige los errores del 20/11/2026 de PQ` (ítem backup `pq_sp_admin_empresa_get`) |
+
+### Evidencia (síntoma)
+
+| Campo | Valor |
+|-------|--------|
+| **Estado** | **Fallida** |
+| **Modo** | Manual |
+| **Definición** | `1` |
+| **Motivo / mensaje** | `[Microsoft][ODBC Driver 18 for SQL Server][SQL Server]Could not find stored procedure 'dbo.pq_sp_admin_empresa_get'. (Connection: sqlsrv, SQL: EXEC dbo.pq_sp_admin_empresa_get @id = 1)` |
+
+### Causa raíz (diagnóstico)
+
+1. El proceso **`BACKUP_DATABASE`** (SDK) resuelve la **base a respaldar** vía `EmpresaAdminBackupCompanyTargetResolver` → `StoredProcedureEmpresaAdminRepository` → **`EXEC dbo.pq_sp_admin_empresa_get @id = ?`** (familia GEN-06 admin empresas).
+2. En la BD operativa del tenant el SP **no está desplegado** (u opera contra un nombre distinto). PedidosWeb hoy depende del manifiesto **GEN-34** (`paqsuite:installation:update`) para CREATE/ALTER de SP del SDK; el deploy Forge documentado corre `migrate` + `paqsuite:deploy-sdk-sql` + `seed-deploy`, **sin** `installation:update` completo ([CC #24](#control-de-calidad-24)).
+3. El wrapper host `PedidosWebMonoBackupCompanyTargetResolver` solo hace fallback a `DB_DATABASE` ante **`InvalidArgumentException`**, no ante error SQL de SP ausente — el fallo se expone tal cual en historial.
+
+No es un defecto del motor de backup en sí: es **gap de instalación SQL** (SP Framework) + **resiliencia host** opcional hasta convergencia deploy.
+
+### Acciones solicitadas
+
+#### Ops / GEN-34 — desplegar SP admin empresas
+
+a) En cada sitio afectado (Ankas, DEMO, etc.), conectividad estable a RDS:
+
+```bash
+cd backend
+php artisan paqsuite:installation:update --cliente={tenant} --proyecto=pedidosweb --non-interactive
+```
+
+b) Verificar en SQL Server:
+
+```sql
+SELECT OBJECT_ID(N'dbo.pq_sp_admin_empresa_get', N'P');
+```
+
+c) Si `installation:update` no puede correr en Forge aún: aplicar script Framework `pq_sp_admin_empresas_core.sql` del pin de `paqsuite/laravel-core` (CREATE OR ALTER idempotente, **sin** DROP de datos).
+
+d) Incorporar `installation:update` (o step equivalente del manifiesto) al **Deploy Script** Forge cuando el servidor **paq-2021** esté operativo — alineado a épica [CC #24](#control-de-calidad-24).
+
+#### Host (opcional, si el SP tarda en propagarse)
+
+e) Evaluar ampliar `PedidosWebMonoBackupCompanyTargetResolver::resolve()` para usar fallback MONO unified (`DB_DATABASE`) también cuando el inner falle por **SP inexistente** (captura controlada), sin sustituir el despliegue del SP.
+
+### Criterios de aceptación preliminares
+
+- [ ] **CA-26-01** `pq_sp_admin_empresa_get` existe en la BD operativa de cada tenant productivo usado en backup.
+- [ ] **CA-26-02** Ejecución manual (y automática) de definición backup → **no** FALLIDA por SP ausente; avance a RDS/S3 o error operativo siguiente si aplica.
+- [ ] **CA-26-03** Runbook Forge / CC #24 documentan el paso que faltaba para SP GEN-06 en backup.
+
+### Derivación SDD
+
+**Pendiente** — hito registrado sin Jira. Parte G opcional si se codifica fallback host; si solo ops/GEN-34, cierre por smoke + CA. Relación épica deploy: **CC #24**.
+
+---
+
+## Control de Calidad #23
+
+### Referencia del control
+
+| Campo | Valor |
+|-------|--------|
+| **Fecha** | 15/11/2026 |
+| **Responsable** | Pablo Quarracino (PQ) |
+| **Estado** | **Pendiente** |
+| **Origen** | Auditoría agente (15/11/2026) — cableado GEN-13 / backups vs SDK; comparación con host Partes (referencia RDS) |
+| **Antecedente** | [CC #22](#control-de-calidad-22) cerró adopción pin + smoke CC FW #17–#20; este control cubre **gaps residuales de backend/ops** detectados en auditoría |
+| **SoT** | Framework [`adopcion-gen-13-tareas-programadas-host.md`](https://github.com/paqsystems/PaqSuite-IA-FRAMEWORK/blob/develop/docs/06-operacion/adopcion-gen-13-tareas-programadas-host.md) · [`runbook-gen-13-backup-pedidosweb.md`](../06-operacion/runbook-gen-13-backup-pedidosweb.md) |
+| **Pin en repo (auditoría 15/11)** | `laravel-core` **1.3.18-beta.39** · `@paqsuite/react-core` **2.4.30-beta.21** (verificar alinear doc CC #22 si ya bump posterior) |
+| **Comando G (futuro)** | `Corrige los errores del CC #23 GEN-13 scheduler/agenda PedidosWeb de PQ` |
+
+### Contexto
+
+PedidosWeb monta GEN-13 con **buen patrón FE** (`ProcessPageLayout`, `registerTareasProgramadasI18nResources`, `pedidosweb:tasks-run-due` + poller). Faltan capas que **Partes** ya tiene para sqlsrv/RDS en producción y riesgos de **agenda** / **ejecuciones huérfanas** si aparecen síntomas CC PQ #10.
+
+### Mejoras solicitadas / seguimiento
+
+#### GEN-13 · Capa `SchedulingTaskDefinitionRepository` (agenda `nextRunAt`)
+
+a) Evaluar wrapper host (patrón Partes) sobre `StoredProcedureTaskDefinitionRepository` que complete **`nextRunAt`** al crear/editar definición y delegue **`claimNextRunAt`** al bump del SDK.
+
+b) Documentar en TR si el SP + UI ya cubren agenda sin wrapper; si no, implementar wrapper + test unitario análogo a `SchedulingTaskDefinitionRepositoryTest` (Partes).
+
+c) Comando opcional de backfill `next_run_at` NULL (solo si hay definiciones legacy en Forge).
+
+#### GEN-13 · Recuperación `EN_EJECUCION` huérfanas (overlap / backup zombie)
+
+a) Portar o reutilizar patrón **`StaleTaskExecutionRecovery`** (Partes): invocar **antes** de `runDue` en `PedidosWebTasksRunDueCommand`, después del poller RDS.
+
+b) Cablear `TaskExecutionStaleRecovery` del SDK al adaptador host si aplica (mail hooks vía `TaskExecutionServiceFactory` — ya conforme).
+
+c) Runbook: cuándo usar recover normal vs `--full` (backup RDS >2 h).
+
+#### GEN-13 · Operación Forge / defer polling RDS
+
+a) Verificar en **cada** Environment Forge/Preview/Prod: `PAQSUITE_TASKS_BACKUP_DEFER_MANUAL_POLLING=true` cuando `PAQSUITE_TASKS_BACKUP_BACKEND=rds` (default en `config/paqsuite.php` es `false` — riesgo de falso FALLIDA / timeout nginx).
+
+b) Checklist deploy: `schedule:run` cada minuto → `pedidosweb:tasks-run-due` (no solo `tasks:run-due` genérico).
+
+c) Smoke post-deploy: backup manual → `EN_EJECUCION` → cierre **EXITOSA** tras 1–3 ticks de cron.
+
+#### GEN-13 · Pin y documentación
+
+a) Si locks del repo superan lo declarado en CC #22 (**beta.39** / **beta.21**), actualizar F1, runbook e [integracion-framework-sdk.md](../01-arquitectura/integracion-framework-sdk.md).
+
+b) Alinear `RdsDeferredBackupExecutionPoller` con flags explícitos desde `config('paqsuite.tasks.backup.*')` (opcional; el SDK resuelve por config — documentar convención).
+
+### Fuera de alcance
+
+- Reimplementar `Task*Page`, `BackupDatabaseProcess` o poller en `App\`.
+- Scheduler multi-instalación (Partes PAQ+DEMO): PedidosWeb MONO — no requerido salvo cambio de tenancy.
+- GEN-15 (CC #19).
+
+### Criterios de aceptación preliminares
+
+- [ ] **CA-23-01** Definiciones nuevas muestran `nextRunAt` coherente sin backfill manual en smoke.
+- [ ] **CA-23-02** Comando `pedidosweb:tasks-run-due` recupera overlaps antes de due (o documentación TR de exención con evidencia).
+- [ ] **CA-23-03** Forge RDS con defer polling **true** verificado en runbook + smoke backup manual.
+- [ ] **CA-23-04** Pins y doc CC #22 / runbook coherentes con `composer.json` / `package.json`.
+
+### Derivación SDD
+
+Pendiente **Parte G** → TR-update / HU-update GEN-13 en `docs/04-tareas/001-Generaliddes/` o `updates/001-Generaliddes/`.
 
 ---
 

@@ -36,6 +36,11 @@ return [
     'proyecto' => env('PAQSUITE_PROYECTO', 'pedidosweb'),
 
     /*
+    | Código instalación MONO (GEN-13 backup / CLI). Usar config(), no env(), en runtime (config:cache Forge).
+    */
+    'clienteCodigo' => env('PAQSUITE_CLIENTE', ''),
+
+    /*
     | GEN-34 — lookup instalación en CLI (installation:update / pedidosweb:tasks-run-due)
     */
     'instalacion' => [

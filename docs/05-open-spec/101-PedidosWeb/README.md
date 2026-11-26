@@ -41,6 +41,16 @@
 | 22 | [SPEC-101-22-importacion-maestros-erp.md](SPEC-101-22-importacion-maestros-erp.md) | **Must** — APIs ERP → maestros — **C1 apto** (2026-10-21); autoriza D1 |
 | 23 | [SPEC-101-23-importacion-transacciones-erp.md](SPEC-101-23-importacion-transacciones-erp.md) | **Must** — APIs ERP → transacciones — **C1 apto con observaciones**; autoriza D1 |
 | 24 | [SPEC-101-24-importacion-medidas-erp.md](SPEC-101-24-importacion-medidas-erp.md) | **Must** — recurso `medidas` + consulta asíncrona; pendiente A1 |
+| 25 | [SPEC-101-25-exportacion-comprobantes-erp.md](SPEC-101-25-exportacion-comprobantes-erp.md) | **Must** — `GET /integracion/comprobantes` (portal → ERP, cabecera+renglones) — **Parte A** 2026-11-18 |
+
+## Épica Exportación comprobantes ERP (101-25)
+
+| Campo | Valor |
+|-------|--------|
+| **Producto** | [APIs-Exportacion-comprobantes-erp.md](../../02-producto/PedidosWeb/APIs-Exportacion-comprobantes-erp.md) |
+| **A** | **Borrador** — SPEC-101-25 (2026-11-18) |
+| **Hermano** | [SPEC-101-22](SPEC-101-22-importacion-maestros-erp.md) · [SPEC-101-23](SPEC-101-23-importacion-transacciones-erp.md) (mismo auth integración) |
+| **Estado** | Pendiente **A1** → Parte B (HU-101-055 / 056 orientativas) |
 
 ## Épica Importación maestros ERP (101-22)
 

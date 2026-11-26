@@ -10,7 +10,11 @@ declare(strict_types=1);
  */
 
 $backendRoot = dirname(__DIR__, 2);
+$repoRoot = dirname($backendRoot);
 $outDir = $backendRoot.'/database/emission-designer-schemas';
+
+require $outDir.'/emission-field-semantics.php';
+$esCatalog = emissionDesignerEsLocaleCatalog($repoRoot.'/frontend');
 
 if (! is_dir($outDir) && ! mkdir($outDir, 0775, true) && ! is_dir($outDir)) {
     fwrite(STDERR, "Cannot create {$outDir}\n");
@@ -198,10 +202,14 @@ $schemas = [
 ];
 
 foreach ($schemas as $processCode => $meta) {
+    $enrichedFields = array_map(
+        static fn (array $f): array => enrichEmissionDesignerField($f, $esCatalog),
+        $meta['fields'],
+    );
     $payload = [
         'version' => 1,
         'datasetDisplayName' => $meta['datasetDisplayName'],
-        'fields' => $meta['fields'],
+        'fields' => $enrichedFields,
     ];
     $jsonPath = $outDir.'/'.$processCode.'.json';
     file_put_contents(

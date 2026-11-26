@@ -4,47 +4,69 @@
     "fields": [
         {
             "name": "codArticulo",
-            "type": "string"
+            "type": "string",
+            "label": "Cód. artículo",
+            "captionKey": "consultas.detalle.column.codArticulo"
         },
         {
             "name": "descripcion",
-            "type": "string"
+            "type": "string",
+            "label": "Descripción",
+            "captionKey": "consultas.column.descripcion"
         },
         {
             "name": "stock",
-            "type": "number"
+            "type": "number",
+            "label": "Stock",
+            "captionKey": "consultas.column.stock"
         },
         {
             "name": "comprometido",
-            "type": "number"
+            "type": "number",
+            "label": "Comprometido",
+            "captionKey": "consultas.column.comprometido"
         },
         {
             "name": "comprometidoWeb",
-            "type": "number"
+            "type": "number",
+            "label": "Comprometido web",
+            "captionKey": "consultas.column.comprometidoWeb"
         },
         {
             "name": "disponibleNeto",
-            "type": "number"
+            "type": "number",
+            "label": "Disponible neto",
+            "captionKey": "consultas.column.disponibleNeto"
         },
         {
             "name": "codBase",
-            "type": "string"
+            "type": "string",
+            "label": "Código base",
+            "captionKey": "consultas.column.codBase"
         },
         {
             "name": "stockBase",
-            "type": "number"
+            "type": "number",
+            "label": "Stock base",
+            "captionKey": "consultas.column.stockBase"
         },
         {
             "name": "comprometidoBase",
-            "type": "number"
+            "type": "number",
+            "label": "Comprometido base",
+            "captionKey": "consultas.column.comprometidoBase"
         },
         {
             "name": "comprometidoBaseWeb",
-            "type": "number"
+            "type": "number",
+            "label": "Comprometido base web",
+            "captionKey": "consultas.column.comprometidoBaseWeb"
         },
         {
             "name": "disponibleNetoBase",
-            "type": "number"
+            "type": "number",
+            "label": "Disponible neto base",
+            "captionKey": "consultas.column.disponibleNetoBase"
         }
     ]
 }
